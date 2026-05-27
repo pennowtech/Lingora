@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build Outputs
+dist/
+build/
+out/
+coverage/
+src-tauri/target/
+src-tauri/gen/
+.expo/
+.expo-shared/
+
+# Expo web build output
+web-build/
+
+# Native build folders
+android/build/
+android/app/build/
+ios/build/
+
+# React Native packager logs
+.metro-health-check*
+
+# Rust
+Cargo.lock
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# IDE / Editors
+.vscode/
+.idea/
+.zed/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary Files
+tmp/
+temp/
+.cache/
+
+# Testing
+jest-cache/
+playwright-report/
+test-results/
+
+# Browser Extension
+extension/dist/
+extension/build/
+
+# Misc
+*.pem
+*.key
+*.crt

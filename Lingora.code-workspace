@@ -1,0 +1,22 @@
+{
+  "folders": [
+    { "name": "Root", "path": "." },
+    { "name": "Mobile", "path": "apps/mobile" },
+    { "name": "Mobile", "path": "apps/desktop" },
+    { "name": "Types", "path": "packages/types" },
+    { "name": "Core", "path": "packages/core" },
+    { "name": "Database", "path": "packages/database" },
+    { "name": "AI", "path": "packages/ai" },
+    { "name": "SRS", "path": "packages/srs" },
+    { "name": "UI", "path": "packages/ui" },
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "js/ts.tsdk.path": "node_modules/typescript/lib",
+    "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+    "eslint.workingDirectories": [{ "pattern": "./apps/*/" }, { "pattern": "./packages/*/" }],
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+  },
+}

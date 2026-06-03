@@ -4,8 +4,6 @@
 
 **An AI-native language learning app for serious vocabulary acquisition**
 
-German → English • Spaced repetition • Context-aware AI • Immersion capture
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)](https://www.typescriptlang.org/)
 [![React Native](https://img.shields.io/badge/React_Native-Expo-0ea5e9)](https://expo.dev/)

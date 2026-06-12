@@ -8,6 +8,15 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@lingora/types": "workspace:*"
+    "@lingora/types": "workspace:*",
+    "better-sqlite3": "^12.10.0",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "drizzle-kit": "^0.31.10"
+  },
+  "peerDependencies": {
+    "expo-sqlite": ">=13.0.0"
   }
 }

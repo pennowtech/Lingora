@@ -14,6 +14,11 @@ export interface DatabaseAdapter {
   // Run a SQL statement that does not return any rows (e.g. CREATE TABLE, INSERT, UPDATE, DELETE)
   execute: (sql: string, params?: unknown[]) => Promise<void>
 
+  // Run a script that may contain MULTIPLE SQL statements separated by semicolons.
+  // No parameter binding — used by the migration runner for DDL (CREATE TABLE, triggers, etc.),
+  // which cannot go through a prepared statement because drivers prepare one statement at a time.
+  executeScript: (sql: string) => Promise<void>
+
   // Run a SQL statement that returns rows (e.g. SELECT)
   //The generic type T is the type of the rows returned by the query. The caller is
   // responsible for ensuring that the query returns rows of the expected type.

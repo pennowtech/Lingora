@@ -44,8 +44,10 @@ export const cards = sqliteTable(
       .notNull()
       .references(() => lemmas.id, { onDelete: 'cascade' }), // Foreign key to the lemma, e.g. "ausgehen"
     deckId: text('deck_id').notNull(), // The ID of the deck this card belongs to
-    type: text('type').notNull().default('basic'), // The type of the card, e.g. "cloze", "synonym", "example", etc.
-    primaryMeaningId: text('primary_meaning_id').notNull(), // The ID of the primary meaning cluster that this card is associated with
+    type: text('type').notNull().default('basic'), // The type of the card, e.g. "basic", "reverse", "cloze", etc.
+    // The ID of the primary meaning of this card. Nullable because meanings reference the card
+    // (card must be inserted first), so this is set right after the meanings are created.
+    primaryMeaningId: text('primary_meaning_id'),
     createdAt: integer('created_at').notNull(), // Timestamp of when the card was created
     updatedAt: integer('updated_at').notNull(), // Timestamp of when the card was last updated
     suspendedAt: integer('suspended_at'), // Timestamp of when the card was suspended, or null if not suspended
@@ -163,10 +165,14 @@ export const synonyms = sqliteTable(
       .notNull()
       .references(() => meaningClusters.id, { onDelete: 'cascade' }), // Foreign key to the meaning cluster, e.g. "social", "financial", etc.
     synonym: text('synonym').notNull(), // The synonym word, e.g. "rennen" for the 'to run' meaning of "laufen"
+    nuance: text('nuance'), // Optional nuance note, e.g. "more intense than laufen"
     cefrLevel: text('cefr_level').notNull(), // The CEFR level of the synonym, e.g. "A1", "B2", etc.
     formalityLevel: text('formality_level'), // The formality level of the synonym, e.g. "informal", "formal", "neutral", "colloquial" etc.
   },
-  (table) => [index('synonyms_card_idx').on(table.cardId)],
+  (table) => [
+    index('synonyms_card_idx').on(table.cardId),
+    index('synonyms_cluster_idx').on(table.meaningClusterId),
+  ],
 )
 
 /**
@@ -214,7 +220,33 @@ export const clozeCards = sqliteTable(
     sentence: text('sentence').notNull(), // The sentence with the cloze, e.g. "Wir gehen heute Abend ___." (We are going out tonight.)
     answer: text('cloze').notNull(), // The word or phrase that is hidden in the sentence, e.g. "ausgehen"
     translation: text('translation').notNull(), // An optional translation of the sentence, e.g. "We are going out tonight."
+    difficulty: text('difficulty'), // What the cloze tests, e.g. "easy", "contextual", "grammar"
     cefrLevel: text('cefr_level').notNull(), // The CEFR level of the cloze card, e.g. "A1", "B2", etc.
   },
   (table) => [index('cloze_cards_card_idx').on(table.cardId)],
+)
+
+/**
+ * AUDIO
+ *
+ * Pronunciation metadata for a card. The audio file itself lives on the device
+ * file system (or is downloaded on demand); this table only stores the path and
+ * metadata about the recording.
+ *
+ * accent supports regional pronunciation variants planned post-v1:
+ * "standard" (Hochdeutsch), "austrian", "swiss".
+ */
+export const audio = sqliteTable(
+  'audio',
+  {
+    id: text('id').primaryKey(),
+    cardId: text('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }), // Foreign key to the card this pronunciation belongs to
+    filePath: text('file_path').notNull(), // Device-local path to the audio file
+    accent: text('accent'), // Regional accent of the recording, e.g. "standard", "austrian", "swiss"
+    durationMs: integer('duration_ms'), // Duration of the recording in milliseconds
+    createdAt: integer('created_at').notNull(), // Timestamp of when the audio row was created
+  },
+  (table) => [index('audio_card_idx').on(table.cardId)],
 )

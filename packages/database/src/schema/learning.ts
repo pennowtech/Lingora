@@ -1,4 +1,4 @@
-import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { cards } from './vocabulary'
 
 /**
@@ -60,6 +60,9 @@ export const deckCards = sqliteTable(
   (table) => [
     index('deck_cards_deck_idx').on(table.deckId),
     index('deck_cards_card_idx').on(table.cardId),
+    // A card can only be in a deck once. This is what makes "INSERT OR IGNORE" in
+    // addCardToDeck a safe no-op instead of silently creating duplicate rows.
+    uniqueIndex('deck_cards_unique_idx').on(table.deckId, table.cardId),
   ],
 )
 
@@ -78,10 +81,14 @@ export const deckCards = sqliteTable(
  * deck they're in. Tags can also be used for other purposes, such as marking cards that need review, or categorizing
  * cards by topic, etc.
  */
-export const tags = sqliteTable('tags', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(), // The name of the tag, e.g. "common"
-})
+export const tags = sqliteTable(
+  'tags',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(), // The name of the tag, e.g. "common"
+  },
+  (table) => [uniqueIndex('tags_name_unique_idx').on(table.name)], // Tag names are unique — "common" is one tag, shared by all cards that use it
+)
 
 /**
  * Card tags join table for many-to-many relationship between cards and tags. Each row represents a tag applied to a card.
@@ -100,8 +107,32 @@ export const cardTags = sqliteTable(
   (table) => [
     index('card_tags_card_idx').on(table.cardId),
     index('card_tags_tag_idx').on(table.tagId),
+    // The same tag can only be applied to a card once.
+    uniqueIndex('card_tags_unique_idx').on(table.cardId, table.tagId),
   ],
 )
+
+/**
+ * TEMPLATES
+ *
+ * LiquidJS card templates (Phase 5 renders them; the schema ships in Phase 2 so the
+ * card model is complete from the start). Front and back are HTML with LiquidJS
+ * placeholders like {{ word }} and {{ meaning }}; styles holds the CSS shared by both sides.
+ *
+ * isDefault: exactly one template should be the default — it's used for every card
+ * that has no explicit template assigned. The repository enforces this by clearing
+ * the flag on all other rows when a new default is set.
+ */
+export const templates = sqliteTable('templates', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(), // The display name of the template, e.g. "Default", "Minimal cloze"
+  frontTemplate: text('front_template').notNull(), // LiquidJS/HTML for the card front, e.g. "{{ word }}"
+  backTemplate: text('back_template').notNull(), // LiquidJS/HTML for the card back, e.g. "{{ meaning }}<hr>{{ example }}"
+  styles: text('styles'), // CSS applied to both sides, or null for unstyled
+  isDefault: integer('is_default', { mode: 'boolean' }).notNull().default(false), // Whether this is the fallback template for cards without one
+  createdAt: integer('created_at').notNull(), // Timestamp of when the template was created
+  updatedAt: integer('updated_at').notNull(), // Timestamp of when the template was last updated
+})
 
 /**
  * REVIEW EVENTS

@@ -21,7 +21,7 @@ export const lemmas = sqliteTable(
     form: text('form').notNull().unique(), // The lemma form of the word, e.g. "ausgehen"
     language: text('language').notNull(), // The language of the lemma, e.g. "de"
     gender: text('gender'), // The gender of the lemma, e.g. "masculine" | null for non-gendered nouns
-    plural: text('plural'), // The plural form of the lemma, e.g. "Häuser" for "Haus"
+    plural: text('plural'), // The plural form for nouns, e.g. "Häuser" | null for non-nouns
     partOfSpeech: text('part_of_speech').notNull(), // The part of speech, e.g. "noun", "verb", "adjective"
     createdAt: integer('created_at').notNull(), // Timestamp of when the lemma was created
     updatedAt: integer('updated_at').notNull(), // Timestamp of when the lemma was last updated

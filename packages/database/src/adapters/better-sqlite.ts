@@ -1,6 +1,5 @@
 import Database from 'better-sqlite3'
 import type { DatabaseAdapter } from '../adapter'
-import { FTS5_SETUP_SQL } from '../fts'
 
 /**
  * Desktop Database Adapter
@@ -32,14 +31,19 @@ export class BetterSQLiteAdapter implements DatabaseAdapter {
     // significantly improves concurrent performance.
     this.db.pragma('journal_mode = WAL')
 
-    // Create FTS5 virtual tables for full text search.
-    // Safe to run multiple times, as it uses "IF NOT EXISTS".
-    // Hence prvents errors if the tables already exist.
-    this.db.exec(FTS5_SETUP_SQL)
+    // Note: schema creation (tables, indexes, FTS5) is NOT done here.
+    // Call migrate(adapter) from the migrations module after constructing
+    // the adapter — the migration runner owns the schema.
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
     await Promise.resolve(this.db.prepare(sql).run(...(params ?? [])))
+  }
+
+  // db.exec runs a multi-statement script without parameter binding —
+  // exactly what the migration runner needs for DDL.
+  async executeScript(sql: string): Promise<void> {
+    await Promise.resolve(this.db.exec(sql))
   }
 
   async query<T = unknown>(sql: string, params?: unknown[]): Promise<T[]> {

@@ -275,10 +275,109 @@ export interface GenerationMetadata {
   cardId: string
   provider: AIProviderName
   model: string // 'gpt-4.1-mini'
-  promptVersion: string // 'v3'
+  promptVersion: string // prompt_versions.id
   generatedAt: number
-  tokensUsed?: number
-  latencyMs?: number
+  tokensUsed: number
+  latencyMs: number
+}
+
+// ─── AI generation contracts (Phase 3) ────────────────────────────────────────
+
+/**
+ * A versioned prompt template. Prompts are application logic: changing one
+ * changes the shape and quality of generated data, so every generated row
+ * records which prompt version produced it (see GenerationMetadata).
+ */
+export interface PromptVersion {
+  id: string
+  name: string // 'word_package'
+  version: number // 1, 2, 3…
+  template: string
+  createdAt: number
+  deprecated: boolean
+}
+
+/**
+ * Generated content before persistence. These mirror the row types above but
+ * carry no ids — persistWordGeneration mints ids and foreign keys when it
+ * writes the whole package in one transaction.
+ *
+ * Absent values are `null`, never omitted: the shapes must match the AI
+ * response schema exactly, and strict structured output forbids optionals.
+ */
+export interface GeneratedMeaning {
+  translation: string
+  explanation: string
+  cefrLevel: CefrLevel
+}
+
+export interface GeneratedExample {
+  sentence: string
+  translation: string
+  context: ExampleContext
+  cefrLevel: CefrLevel
+}
+
+export interface GeneratedSynonym {
+  word: string
+  cefrLevel: CefrLevel
+  formality: FormalityLevel
+  nuance: string | null
+}
+
+export interface GeneratedPhrase {
+  expression: string
+  meaning: string
+  exampleSentence: string
+  exampleTranslation: string
+  cefrLevel: CefrLevel
+}
+
+export interface GeneratedCloze {
+  sentence: string // must contain the '[...]' gap
+  answer: string
+  translation: string
+  difficulty: ClozeDifficulty
+  cefrLevel: CefrLevel
+}
+
+/** Meanings, examples and synonyms are always scoped to their cluster. */
+export interface GeneratedCluster {
+  label: string
+  description: string
+  cefrLevel: CefrLevel
+  meanings: GeneratedMeaning[]
+  examples: GeneratedExample[]
+  synonyms: GeneratedSynonym[]
+}
+
+/**
+ * One complete validated generation for a new word — the contract between
+ * @lingora/ai (which produces it) and @lingora/database (which persists it).
+ * The first meaning of the first cluster becomes the card's primary meaning.
+ */
+export interface WordGenerationPayload {
+  lemma: {
+    form: string
+    language: LanguageCode
+    partOfSpeech: PartOfSpeech
+    gender: GrammaticalGender | null
+    plural: string | null
+  }
+  inflections: string[]
+  clusters: GeneratedCluster[] // at least one
+  phrases: GeneratedPhrase[]
+  clozes: GeneratedCloze[]
+}
+
+/** Provenance and cost of one generation call, recorded as GenerationMetadata. */
+export interface GenerationUsage {
+  provider: AIProviderName
+  model: string
+  promptVersionId: string
+  generatedAt: number
+  tokensUsed: number
+  latencyMs: number
 }
 
 // ─── Evaluation ───────────────────────────────────────────────────────────────

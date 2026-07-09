@@ -61,7 +61,7 @@ export async function getGenerationMetadataForCard(
 
 /** What persistWordGeneration hands back so the caller can navigate to the new card. */
 export interface PersistedWordGeneration {
-  lemmaId: string
+  lemma: Lemma
   cardId: string
   generationMetadataId: string
 }
@@ -248,6 +248,6 @@ export async function persistWordGeneration(
       card.id,
     ])
 
-    return { lemmaId: lemma.id, cardId: card.id, generationMetadataId }
+    return { lemma, cardId: card.id, generationMetadataId }
   })
 }

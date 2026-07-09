@@ -48,18 +48,24 @@ export const generatedPhraseSchema = z.object({
   cefrLevel: cefrLevelSchema,
 })
 
+/**
+ * The refine-free shape, used when deriving the provider's JSON schema —
+ * refinements have no JSON-schema equivalent. Validation uses the refined
+ * generatedClozeSchema below.
+ */
+export const generatedClozeBaseSchema = z.object({
+  sentence: z.string().min(1),
+  answer: z.string().min(1),
+  translation: z.string().min(1),
+  difficulty: clozeDifficultySchema,
+  cefrLevel: cefrLevelSchema,
+})
+
 /** The sentence must contain the '[...]' gap the answer fills. */
-export const generatedClozeSchema = z
-  .object({
-    sentence: z.string().min(1),
-    answer: z.string().min(1),
-    translation: z.string().min(1),
-    difficulty: clozeDifficultySchema,
-    cefrLevel: cefrLevelSchema,
-  })
-  .refine((cloze) => cloze.sentence.includes('[...]'), {
-    message: "cloze sentence must contain the '[...]' gap",
-  })
+export const generatedClozeSchema = generatedClozeBaseSchema.refine(
+  (cloze) => cloze.sentence.includes('[...]'),
+  { message: "cloze sentence must contain the '[...]' gap" },
+)
 
 export const generatedClusterSchema = z.object({
   label: z.string().min(1),
@@ -70,7 +76,7 @@ export const generatedClusterSchema = z.object({
   synonyms: z.array(generatedSynonymSchema),
 })
 
-export const wordGenerationSchema = z.object({
+const wordGenerationBaseShape = {
   lemma: z.object({
     form: z.string().min(1),
     language: languageCodeSchema,
@@ -81,7 +87,17 @@ export const wordGenerationSchema = z.object({
   inflections: z.array(z.string().min(1)),
   clusters: z.array(generatedClusterSchema).min(1).max(6),
   phrases: z.array(generatedPhraseSchema),
+}
+
+export const wordGenerationSchema = z.object({
+  ...wordGenerationBaseShape,
   clozes: z.array(generatedClozeSchema).min(1),
+})
+
+/** Same shape without refinements — the source for the provider's JSON schema. */
+export const wordGenerationJsonTargetSchema = z.object({
+  ...wordGenerationBaseShape,
+  clozes: z.array(generatedClozeBaseSchema).min(1),
 })
 
 // Compile-time pin: the zod-inferred shape must stay assignable to the

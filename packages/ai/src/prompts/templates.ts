@@ -79,6 +79,74 @@ Return strict JSON only, matching the provided schema exactly. No markdown, no c
 
 Return the complete corrected JSON object again. Fix every listed problem, keep everything that was already valid, and match the schema exactly. Strict JSON only — no markdown, no commentary.`,
   },
+  /** Cluster skeletons only — the per-section regeneration entry point. */
+  clusterOutlines: {
+    name: 'cluster_outlines',
+    version: 1,
+    template: `List the distinct semantic contexts of the German word "{{word}}" for a learner at CEFR level {{cefrLevel}}.
+
+One cluster per genuinely distinct, established usage — never invent contexts. Each cluster: a short lowercase label ('social', 'electricity'), a one-line description, and the CEFR level where this usage becomes relevant.
+
+Return strict JSON only: {"clusters": [{"label": "...", "description": "...", "cefrLevel": "..."}]}`,
+  },
+  /** Meanings for one existing cluster. */
+  meanings: {
+    name: 'meanings',
+    version: 1,
+    template: `For the German word "{{word}}", give 1–3 meanings that belong strictly to this semantic context:
+
+Context: {{clusterLabel}} — {{clusterDescription}}
+
+Learner level: {{cefrLevel}}. Each meaning: a concise English translation, a one-line English explanation, and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
+
+Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "cefrLevel": "..."}]}`,
+  },
+  /** Examples for one existing cluster — the regenerate-examples button. */
+  examples: {
+    name: 'examples',
+    version: 1,
+    template: `Write 2–4 natural, contemporary German example sentences for the word "{{word}}", strictly within this semantic context:
+
+Context: {{clusterLabel}} — {{clusterDescription}}
+
+Learner level: {{cefrLevel}} — write at or slightly below it (A1/A2: present tense, common words, short main clauses; B1/B2: past tenses, subordinate clauses; C1/C2: subjunctive, complex structure). Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
+
+Each example: the German sentence, its English translation, a context tag (casual, formal, business, travel, dating, social_media, daily_life or slang) and its own CEFR level.
+
+Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...", "context": "...", "cefrLevel": "..."}]}`,
+  },
+  /** Synonyms for one existing cluster. */
+  synonyms: {
+    name: 'synonyms',
+    version: 1,
+    template: `List 1–4 German synonyms for "{{word}}" that work strictly within this semantic context:
+
+Context: {{clusterLabel}} — {{clusterDescription}}
+
+Learner level: {{cefrLevel}}. Each synonym: the word, its CEFR level, a formality tag (formal, neutral, colloquial or slang), and nuance — a short note on how it differs from "{{word}}", or null if it's a near-exact match. Only established synonyms; an empty list is better than a forced one.
+
+Return strict JSON only: {"synonyms": [{"word": "...", "cefrLevel": "...", "formality": "...", "nuance": "... or null"}]}`,
+  },
+  /** Phrases and idioms built on the word. */
+  phrases: {
+    name: 'phrases',
+    version: 1,
+    template: `List 1–4 established German idioms, collocations or fixed patterns built on the word "{{word}}" ("davon ausgehen" for "ausgehen"), useful for a learner at CEFR level {{cefrLevel}}.
+
+Each phrase: the expression, its English meaning, one natural example sentence, the sentence's translation, and its own CEFR level. Only real, established phrases.
+
+Return strict JSON only: {"phrases": [{"expression": "...", "meaning": "...", "exampleSentence": "...", "exampleTranslation": "...", "cefrLevel": "..."}]}`,
+  },
+  /** Cloze sentences for the word. */
+  cloze: {
+    name: 'cloze',
+    version: 1,
+    template: `Write 1–3 German cloze sentences for the word "{{word}}" at learner level {{cefrLevel}}.
+
+Replace exactly the target word (or its separated prefix) with the literal gap marker [...]. The "answer" field holds what fills the gap. difficulty: easy = obvious from context, contextual = needs the context understood, grammar = tests an inflected form.
+
+Return strict JSON only: {"clozes": [{"sentence": "...", "answer": "...", "translation": "...", "difficulty": "...", "cefrLevel": "..."}]}`,
+  },
   /**
    * Plain translation, used when the OpenAI provider fills the
    * DictionaryProvider slot (DeepL/Google take over in a later phase).

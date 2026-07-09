@@ -50,6 +50,15 @@ export default function DeckDetailScreen(): JSX.Element {
           onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
           style={styles.reviewButton}
         />
+        <Button
+          label="Practice cloze"
+          icon="create-outline"
+          variant="secondary"
+          onPress={() =>
+            router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'cloze' } })
+          }
+          style={styles.clozeButton}
+        />
 
         <SectionHeader title="Cards" action="Sort" onAction={noop} />
         {/* TODO(phase4): real card list with suspend/move/delete swipe actions */}
@@ -83,6 +92,7 @@ const styles = StyleSheet.create({
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
   statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
   reviewButton: { marginTop: spacing.lg },
+  clozeButton: { marginTop: spacing.sm },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'center',

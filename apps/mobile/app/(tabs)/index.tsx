@@ -66,6 +66,19 @@ export default function HomeScreen(): JSX.Element {
             <Ionicons name="download" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>Mining queue</Text>
           </Card>
+          <Card
+            style={styles.actionCard}
+            onPress={() =>
+              router.push({ pathname: '/review/[deckId]', params: { deckId: 'deck-1', mode: 'cloze' } })
+            }
+          >
+            <Ionicons name="create-outline" size={22} color={colors.primary} />
+            <Text style={styles.actionLabel}>Practice cloze</Text>
+          </Card>
+          <Card style={styles.actionCard} onPress={() => router.push('/stats')}>
+            <Ionicons name="stats-chart" size={22} color={colors.primary} />
+            <Text style={styles.actionLabel}>Statistics</Text>
+          </Card>
         </View>
 
         {/* Recently added */}
@@ -123,8 +136,14 @@ const styles = StyleSheet.create({
   statCard: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center' },
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
   statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
-  actionsRow: { flexDirection: 'row', gap: spacing.sm },
-  actionCard: { flex: 1, alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg },
+  actionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  actionCard: {
+    flexBasis: '48%',
+    flexGrow: 1,
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+  },
   actionLabel: { fontSize: type.caption, fontWeight: '600', color: colors.text },
   wordRow: {
     flexDirection: 'row',

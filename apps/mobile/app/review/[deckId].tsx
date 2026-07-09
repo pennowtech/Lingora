@@ -17,19 +17,22 @@ const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
 
 /**
  * Review session: front → tap to flip → rate (Again/Hard/Good/Easy).
+ * `mode=cloze` (from deck detail or Home) limits the session to cloze cards.
  *
- * TODO(phase5): replace the dummy queue with getCardsDueForReview(deckId),
- * render fronts/backs through LiquidJS templates, compute intervals with
- * @lingora/srs (FSRS), persist with recordReview(), and swap the tap-to-flip
- * for the swipe-gesture interface (react-native-reanimated).
+ * TODO(phase5): replace the dummy queue with getCardsDueForReview(deckId)
+ * (cloze mode filters on card type / cloze_cards), render fronts/backs
+ * through LiquidJS templates, compute intervals with @lingora/srs (FSRS),
+ * persist with recordReview(), and swap the tap-to-flip for the
+ * swipe-gesture interface (react-native-reanimated).
  */
 export default function ReviewSessionScreen(): JSX.Element {
-  const params = useLocalSearchParams<{ deckId: string }>()
+  const params = useLocalSearchParams<{ deckId: string; mode?: string }>()
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
 
-  const queue = dummyReviewQueue // TODO(phase5): getCardsDueForReview(db, params.deckId)
-  void params
+  const clozeOnly = params.mode === 'cloze'
+  // TODO(phase5): getCardsDueForReview(db, params.deckId) — filtered by type in cloze mode
+  const queue = clozeOnly ? dummyReviewQueue.filter((c) => c.kind === 'cloze') : dummyReviewQueue
   const card = queue[index]
   const done = index >= queue.length
 
@@ -41,12 +44,17 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Header: close, progress, counter */}
+      {/* Header: close, progress, mode, counter */}
       <View style={styles.header}>
         <IconButton icon="close" onPress={() => router.back()} />
         <View style={styles.progressWrap}>
-          <ProgressBar progress={done ? 1 : index / queue.length} />
+          <ProgressBar progress={done ? 1 : index / Math.max(queue.length, 1)} />
         </View>
+        {clozeOnly ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>cloze</Text>
+          </View>
+        ) : null}
         <Text style={styles.counter}>
           {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
         </Text>
@@ -125,6 +133,13 @@ const styles = StyleSheet.create({
   },
   progressWrap: { flex: 1 },
   counter: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary, minWidth: 36, textAlign: 'right' },
+  modePill: {
+    backgroundColor: colors.warningSoft,
+    paddingVertical: 3,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.full,
+  },
+  modePillLabel: { fontSize: type.micro, fontWeight: '700', color: colors.warning },
   card: {
     flex: 1,
     margin: spacing.lg,

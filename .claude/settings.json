@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($sdk = Join-Path $env:LOCALAPPDATA 'Android\\\\Sdk'; $adb = Join-Path $sdk 'platform-tools\\\\adb.exe'; if \\(\\(& $adb devices\\) -match '^emulator-\\\\d+\\\\s+device'\\) { Write-Host 'Emulator already running.' } else { Start-Process \\(Join-Path $sdk 'emulator\\\\emulator.exe'\\) -ArgumentList '-avd','Pixel_10'; & $adb wait-for-device; while \\(\\(& $adb shell getprop sys.boot_completed\\).Trim\\(\\) -ne '1'\\) { Start-Sleep -Seconds 2 }; Write-Host 'Emulator booted.' })",
+      "PowerShell($env:ANDROID_HOME = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; $env:PATH = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\\\\platform-tools;$env:PATH\"; pnpm --filter @lingora/mobile exec expo start --android --localhost)",
+      "Bash(pnpm --filter @lingora/mobile run typecheck)",
+      "Bash(./node_modules/.bin/eslint \"apps/mobile/app\" \"apps/mobile/components\" \"apps/mobile/lib\" --ext .ts,.tsx)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\OGSSINGH\\OneDrive - Carl Zeiss AG\\Per\\Totorials_and_AppsDocs\\LingoraDocs"
+    ]
+  }
+}

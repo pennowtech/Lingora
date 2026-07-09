@@ -265,6 +265,16 @@ export const dummyReviewQueue: DummyReviewCard[] = [
     backExample: 'Das Haus ist groß.',
     backExampleTranslation: 'The house is big.',
   },
+  {
+    id: 'rc-4',
+    kind: 'cloze',
+    front: 'Mir geht langsam die Geduld ___.',
+    frontHint: 'I am slowly running out of patience.',
+    back: 'aus',
+    backExample: 'Mir geht langsam die Geduld aus.',
+    backExampleTranslation: 'I am slowly running out of patience.',
+    clozeAnswer: 'aus',
+  },
 ]
 
 /** Dummy FSRS intervals shown under the rating buttons. TODO(phase5): compute via @lingora/srs. */

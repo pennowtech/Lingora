@@ -35,6 +35,7 @@ pnpm --filter @lingora/mobile exec expo start --android --localhost
 ### Environment gotchas (this machine)
 
 - **Corporate VPN**: Expo Go cannot reach the LAN IP — always use `--localhost` (adb reverse) for the emulator.
+- **App loads, then kicks back to the Expo Go home screen**: the emulator's low-memory killer is killing the foreground app (check `adb shell logcat -d | grep lowmemorykiller`) — not a bundle/Metro problem. AVD RAM was raised 2048→4096 (`~/.android/avd/*/config.ini`, `hw.ramSize`); if it recurs, cold-boot the emulator ("VM: Cold boot Android emulator" task) to clear swap pressure.
 - **Repo lives inside OneDrive**: dehydrated ("online-only") files in `node_modules` crash Metro with `EINVAL readlink`. If that happens, pin the repo "Always keep on this device".
 - **better-sqlite3 native build is blocked** in `pnpm-workspace.yaml` (`allowBuilds: false`) — the desktop adapter cannot run until `pnpm approve-builds`. Use `node:sqlite` for local data-layer testing instead.
 - pnpm strict `node_modules`: transitive deps are not importable — add them (e.g. `@expo/vector-icons`) as direct dependencies of the app.

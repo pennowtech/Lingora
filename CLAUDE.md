@@ -8,7 +8,7 @@ Lingora — a mobile-first, offline-first, AI-native German→English vocabulary
 
 The development plan lives outside the repo: `..\Totorials_and_AppsDocs\LingoraDocs\1_development_roadmap.md` (also linked as `LingoraDocs.lnk`), with per-phase design docs (`3_phase2_database_design.md`, `4_phase4_ui_design.md`, `5_phase4_ux_screens.md`).
 
-**Phase status (keep this current):** Phase 1 ✅ · Phase 2 (database/search/morphology) ✅ · Phase 3 (AI) ⬜ not started · Phase 4/5 UI shells ✅ built with dummy data only — no DB wiring, no AI. `grep -rn "TODO(phase" apps/mobile` lists every pending wiring point.
+**Phase status (keep this current):** Phase 1 ✅ · Phase 2 (database/search/morphology) ✅ · Phase 3 (AI) 🟨 core engine built in `packages/ai` (OpenAI provider, validation/repair, prompt versioning, cache, persistence pipeline) — not wired into the app; DeepL/Google/Wiktionary adapters pending · Phase 4/5 UI shells ✅ built with dummy data only — no DB wiring, no AI. `grep -rn "TODO(phase" apps/mobile` lists every pending wiring point.
 
 > `.github/copilot-instructions.md` exists but is partially aspirational and stale (it uses the old `@langapp/` scope, claims Phase 3 is done, and describes drizzle-kit migrations / a `queries/` folder that were never built). Where it conflicts with this file or the code, trust this file and the code.
 
@@ -21,9 +21,11 @@ pnpm format                                    # Prettier write
 pnpm --filter @lingora/mobile run typecheck    # tsc --noEmit for the app
 ./node_modules/.bin/tsc -p packages/database/tsconfig.json --noEmit   # typecheck a package
 ./node_modules/.bin/tsc -p packages/types/tsconfig.json --noEmit
+./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit
+pnpm --filter @lingora/ai run test             # Vitest (node:sqlite in-memory, mocked fetch)
 ```
 
-There is no root tsconfig; the root `pnpm typecheck` script (`tsc --build`) does not work — typecheck per package/app as above. No test runner is configured yet; the Phase 2 data layer was verified with a scratch smoke test run via `tsx` against `node:sqlite` (see `3_phase2_database_design.md` §11).
+There is no root tsconfig; the root `pnpm typecheck` script (`tsc --build`) does not work — typecheck per package/app as above. Vitest is the test runner, currently scoped to `packages/ai` (tests co-located as `src/**/*.test.ts`; `src/providers/openai.live.test.ts` is an opt-in live smoke that only runs when `OPENAI_API_KEY` is set). The Phase 2 data layer predates it and was verified with a scratch smoke test via `tsx` (see `3_phase2_database_design.md` §11).
 
 Run the mobile app on the Android emulator (see also `.vscode/tasks.json`, which automates all of this for the Task Sidebar extension):
 
@@ -48,6 +50,8 @@ apps/mobile        Expo app. Screens in app/ (expo-router file routing), shared 
                    components/ui.tsx, design tokens in lib/theme.ts, dummy data in lib/dummy.ts
 packages/types     Shared TypeScript interfaces — zero dependencies, the contract everything returns
 packages/database  Adapter interface, migrations, FTS5, repositories, platform adapters, seed
+packages/ai        Phase 3 engine: provider slots, OpenAI impl, zod validation + JSON repair,
+                   prompt versioning, two-level cache, lookupOrGenerate pipeline
 ```
 
 Package scope is `@lingora/*`. Apps import packages; apps never import other apps; packages never import apps.
@@ -58,7 +62,15 @@ Package scope is `@lingora/*`. Apps import packages; apps never import other app
 - **Migrations own the schema** — adapters only set pragmas. `migrate(db)` at startup applies pending versions from `src/migrations/`, each in a transaction with its `schema_migrations` bookkeeping row; `rollback(db)` reverses. **Never edit a shipped migration — append a new one** and update the matching Drizzle definition in `src/schema/` (those are documentation/types; the executable DDL is the migration SQL).
 - **All SQL lives in `src/repositories/`** (raw SQL through the adapter — not the Drizzle query builder). Every SELECT aliases snake_case columns to the camelCase names of `@lingora/types` (`part_of_speech AS partOfSpeech`); SQLite 0/1 booleans are converted via small `toX(row)` mappers. New repository functions are exported from `src/index.ts`.
 - **FTS5** (`fts.ts` + migration 0002): five external-content virtual tables (lemmas, meanings, examples, phrases, synonyms) kept in sync by triggers — application code never writes to `fts_*`. User input must go through `buildFTSQuery()` (phrase-prefix quoting) before `MATCH`.
-- **Morphology flow** (the app's hottest query): user input → `findLemmaBySurfaceForm` (inflections → lemma, `COLLATE NOCASE` — German nouns are stored capitalized, never lowercase user input) → if null, the word is new → Phase 3 AI generation → `createLemma` + `createInflections`.
+- **Morphology flow** (the app's hottest query): user input → `findLemmaBySurfaceForm` (inflections → lemma, `COLLATE NOCASE` — German nouns are stored capitalized, never lowercase user input) → if null, the word is new → `@lingora/ai`'s `lookupOrGenerate` → `persistWordGeneration`.
+
+### AI package (`packages/ai`) — how the pieces fit
+
+- **Two provider slots** (`src/providers/types.ts`): `DictionaryProvider` (translate/detectLanguage — DeepL/Google slot in later) and `AIProvider` (word package + per-section generation — LLMs only). `OpenAIProvider` implements both: plain `fetch` against Chat Completions with strict `json_schema` structured outputs (schema derived from zod via `z.toJSONSchema` and sanitized in `providers/json-schema.ts`), configurable `baseUrl`/`model`/`fetchFn`.
+- **Every response goes through one pipeline** (`generation/structured.ts`): repair (`repair/repair.ts` — fence-strip + `jsonrepair`) → zod validation (`schemas/`) → one retry with the flattened issues appended to the conversation → salvaged partial (a returned value, never persisted) or typed error. Errors carry `code: 'provider' | 'parse' | 'validation'`.
+- **Prompts are versioned application logic** (`prompts/templates.ts`): bump = edit text AND increment version; `ensurePromptVersions` mirrors them into `prompt_versions` on pipeline startup and deprecates older rows. The prompt version id is part of every cache key and lands in `generation_metadata`.
+- **CEFR level is a required parameter on every generation call** (`GenerationContext`), and cluster-scoped calls take a `ClusterRef` so contexts never bleed.
+- **Entry point**: `createAIPipeline({ db, ai, dictionary? })` → `pipeline.lookupOrGenerate(word, { cefrLevel, deckId })` returns `{ kind: 'existing' | 'generated' | 'partial' }`. Persistence is `persistWordGeneration` in `packages/database` — one transaction for lemma/inflections/card/state/deck/metadata/clusters/meanings/examples/synonyms/phrases/clozes.
 
 ### Data invariants (enforced by transactions in the repositories — keep them)
 

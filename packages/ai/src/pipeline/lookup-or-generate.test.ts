@@ -24,11 +24,11 @@ function mockProvider(results: (WordPackageResult | Error)[]): AIProvider & {
     name: 'openai' as const,
     model: 'gpt-test',
     packageCalls: 0,
-    async generateWordPackage(): Promise<WordPackageResult> {
+    generateWordPackage(): Promise<WordPackageResult> {
       provider.packageCalls += 1
       const result = results[Math.min(call++, results.length - 1)]!
-      if (result instanceof Error) throw result
-      return result
+      if (result instanceof Error) return Promise.reject(result)
+      return Promise.resolve(result)
     },
     generateClusters: vi.fn(),
     generateMeaning: vi.fn(),
@@ -132,35 +132,28 @@ describe('lookupOrGenerate', () => {
     const ai = {
       ...mockProvider([]),
       packageCalls: 0,
-      async generateWordPackage(
+      generateWordPackage(
         _word: string,
         _ctx: unknown,
         hint?: { baselineTranslation: string },
       ): Promise<WordPackageResult> {
         hints.push(hint?.baselineTranslation)
-        return complete()
+        return Promise.resolve(complete())
       },
     } as unknown as AIProvider
 
     const workingDictionary: DictionaryProvider = {
       name: 'test-dict',
-      translate: async (): Promise<AIResult<string>> => ({
-        data: 'to go out',
-        usage: { tokensUsed: 5, latencyMs: 50 },
-      }),
-      detectLanguage: async (): Promise<AIResult<LanguageCode>> => ({
-        data: 'de',
-        usage: { tokensUsed: 5, latencyMs: 50 },
-      }),
+      translate: (): Promise<AIResult<string>> =>
+        Promise.resolve({ data: 'to go out', usage: { tokensUsed: 5, latencyMs: 50 } }),
+      detectLanguage: (): Promise<AIResult<LanguageCode>> =>
+        Promise.resolve({ data: 'de', usage: { tokensUsed: 5, latencyMs: 50 } }),
     }
     const failingDictionary: DictionaryProvider = {
       name: 'test-dict',
-      translate: async () => {
-        throw new AIProviderError('dictionary down', 'test-dict', true)
-      },
-      detectLanguage: async () => {
-        throw new AIProviderError('dictionary down', 'test-dict', true)
-      },
+      translate: () => Promise.reject(new AIProviderError('dictionary down', 'test-dict', true)),
+      detectLanguage: () =>
+        Promise.reject(new AIProviderError('dictionary down', 'test-dict', true)),
     }
 
     const withDict = await createAIPipeline({ db, ai, dictionary: workingDictionary })

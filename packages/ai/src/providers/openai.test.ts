@@ -9,16 +9,16 @@ function fetchReturning(
 ): typeof fetch & { calls: { url: string; body: Record<string, unknown> }[] } {
   let call = 0
   const calls: { url: string; body: Record<string, unknown> }[] = []
-  const fn = vi.fn(async (url: unknown, init?: RequestInit) => {
+  const fn = vi.fn((url: unknown, init?: RequestInit) => {
     calls.push({ url: String(url), body: JSON.parse(String(init?.body)) as Record<string, unknown> })
     const result = results[Math.min(call++, results.length - 1)]!
-    if (result instanceof Error) throw result
+    if (result instanceof Error) return Promise.reject(result)
     const status = result.status ?? 200
     const payload =
       result.raw !== undefined
         ? result.raw
         : { choices: [{ message: { content: result.content ?? '' } }], usage: { total_tokens: 42 } }
-    return new Response(JSON.stringify(payload), { status })
+    return Promise.resolve(new Response(JSON.stringify(payload), { status }))
   }) as unknown as typeof fetch & { calls: typeof calls }
   ;(fn as { calls: typeof calls }).calls = calls
   return fn

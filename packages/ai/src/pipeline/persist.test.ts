@@ -1,5 +1,5 @@
 import type { GenerationUsage } from '@lingora/types'
-import { migrate, persistWordGeneration, type DatabaseAdapter } from '@lingora/database'
+import { migrate, persistWordGeneration } from '@lingora/database'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ensurePromptVersions } from '../prompts/seed'
 import { validPayload } from '../testing/fixtures'

@@ -30,7 +30,9 @@ export interface Lemma {
   language: LanguageCode // 'de'
   partOfSpeech: PartOfSpeech
   gender?: GrammaticalGender // only for nouns
+  plural?: string // only for nouns: 'Häuser'
   createdAt: number // unix timestamp
+  updatedAt: number // unix timestamp
 }
 
 export interface Inflection {
@@ -73,7 +75,7 @@ export interface Card {
   lemmaId: string
   deckId: string
   type: CardType
-  primaryMeaningId: string
+  primaryMeaningId?: string // set once the user picks a primary meaning; unset right after creation because meanings reference the card
   createdAt: number
   updatedAt: number
   suspendedAt?: number // if set, card is suspended from review
@@ -153,6 +155,7 @@ export interface Cloze {
   answer: string // 'aus'
   translation: string // "I'm going out tonight."
   difficulty: ClozeDifficulty
+  cefrLevel: CefrLevel
 }
 
 // ─── Decks ────────────────────────────────────────────────────────────────────
@@ -163,6 +166,47 @@ export interface Deck {
   parentId?: string // if set, this deck is nested inside another
   createdAt: number
   updatedAt: number
+}
+
+// ─── Tags ─────────────────────────────────────────────────────────────────────
+
+export interface Tag {
+  id: string
+  name: string // 'common', 'exam-b1', 'separable-verb'
+}
+
+// ─── Card templates ───────────────────────────────────────────────────────────
+
+/**
+ * A LiquidJS card template. Front and back are HTML with
+ * {{ placeholders }}; styles is the CSS shared by both sides.
+ */
+export interface Template {
+  id: string
+  name: string // 'Default', 'Minimal cloze'
+  frontTemplate: string // '{{ word }}'
+  backTemplate: string // '{{ meaning }}<hr>{{ example }}'
+  styles?: string // CSS applied to both sides
+  isDefault: boolean // the template used when a card has none assigned
+  createdAt: number
+  updatedAt: number
+}
+
+// ─── Audio ────────────────────────────────────────────────────────────────────
+
+export type AudioAccent = 'standard' | 'austrian' | 'swiss'
+
+/**
+ * Pronunciation metadata for a card. The audio file itself lives on
+ * the device file system; this row only stores the path and metadata.
+ */
+export interface AudioAsset {
+  id: string
+  cardId: string
+  filePath: string // device-local path to the audio file
+  accent?: AudioAccent
+  durationMs?: number
+  createdAt: number
 }
 
 // ─── Spaced repetition ────────────────────────────────────────────────────────
@@ -208,12 +252,15 @@ export type CaptureSource =
   | 'article'
   | 'pdf'
 
+export type MiningStatus = 'pending' | 'processing' | 'done' | 'error'
+
 export interface SentenceMineEntry {
   id: string
   rawText: string // exactly what was captured
   sourceType: CaptureSource
   sourceUrl?: string
   sourceTitle?: string // 'Dark S01E03', 'Der Spiegel - Article Title'
+  status: MiningStatus
   capturedAt: number
   processed: boolean
   cardId?: string // set once processed

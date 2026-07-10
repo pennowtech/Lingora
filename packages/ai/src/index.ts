@@ -12,6 +12,10 @@ export type {
 
 // Concrete providers
 export { OpenAIProvider, type OpenAIProviderConfig } from './providers/openai'
+export {
+  GoogleTranslateProvider,
+  type GoogleTranslateProviderConfig,
+} from './providers/google-translate'
 
 // Pipeline
 export { createAIPipeline, type AIPipeline, type AIPipelineOptions } from './pipeline/create'

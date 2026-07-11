@@ -116,6 +116,7 @@ export interface Example {
   cefrLevel: CefrLevel
   isSelected: boolean // the one shown on the flashcard
   generationMetadataId?: string
+  grammarTags?: string[] // grammar structures the sentence exercises: ['Konjunktiv II', 'passive voice']
 }
 
 // ─── Synonyms ─────────────────────────────────────────────────────────────────
@@ -164,6 +165,7 @@ export interface Deck {
   id: string
   name: string
   parentId?: string // if set, this deck is nested inside another
+  emoji?: string // display emoji shown in deck lists
   createdAt: number
   updatedAt: number
 }
@@ -316,6 +318,7 @@ export interface GeneratedExample {
   translation: string
   context: ExampleContext
   cefrLevel: CefrLevel
+  grammarTags: string[] // grammar structures the sentence exercises; [] when untargeted
 }
 
 export interface GeneratedSynonym {

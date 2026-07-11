@@ -197,6 +197,7 @@ export async function persistWordGeneration(
           cefrLevel: example.cefrLevel,
           isSelected: clusterIndex === 0 && exampleIndex === 0,
           generationMetadataId,
+          grammarTags: example.grammarTags,
         })
       }
 

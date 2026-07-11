@@ -2,7 +2,7 @@ import type { Deck } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /** The columns of a deck row, aliased to the camelCase names of the Deck type. */
-const DECK_COLUMNS = `id, name, parent_id AS parentId, created_at AS createdAt, updated_at AS updatedAt`
+const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, created_at AS createdAt, updated_at AS updatedAt`
 
 /**
  * Get all decks in the database.
@@ -45,9 +45,9 @@ export async function getChildDecks(db: DatabaseAdapter, parentId: string): Prom
  */
 export async function createDeck(db: DatabaseAdapter, deck: Deck): Promise<void> {
   await db.execute(
-    `INSERT INTO decks (id, name, parent_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)`,
-    [deck.id, deck.name, deck.parentId ?? null, deck.createdAt, deck.updatedAt],
+    `INSERT INTO decks (id, name, parent_id, emoji, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [deck.id, deck.name, deck.parentId ?? null, deck.emoji ?? null, deck.createdAt, deck.updatedAt],
   )
 }
 

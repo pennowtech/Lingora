@@ -26,6 +26,7 @@ export const decks = sqliteTable('decks', {
   id: text('id').primaryKey(),
   name: text('name').notNull(), // The name of the deck, e.g. "German Verbs"
   parentId: text('parent_id'), // Foreign key to the parent deck for nesting, null for top-level decks
+  emoji: text('emoji'), // Display emoji for deck lists (migration 0004), null → default icon
   createdAt: integer('created_at').notNull(), // Timestamp of when the deck was created
   updatedAt: integer('updated_at').notNull(), // Timestamp of when the deck was last updated
 })

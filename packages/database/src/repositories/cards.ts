@@ -1,4 +1,4 @@
-import type { Card, CardState } from '@lingora/types'
+import type { Card, CardState, CefrLevel } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /**
@@ -157,6 +157,67 @@ export async function unsuspendCard(db: DatabaseAdapter, cardId: string): Promis
  */
 export async function deleteCard(db: DatabaseAdapter, cardId: string): Promise<void> {
   await db.execute(`DELETE FROM cards WHERE id = ?`, [cardId])
+}
+
+/** One row of a card list (home "Recently added", deck detail) — card + display fields. */
+export interface CardListItem {
+  cardId: string
+  lemmaId: string
+  form: string
+  translation: string | null
+  cefrLevel: CefrLevel | null
+  createdAt: number
+}
+
+const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
+    m.translation, m.cefr_level AS cefrLevel`
+
+/**
+ * The most recently created cards with their lemma form and primary meaning.
+ * Home screen "Recently added" list.
+ */
+export async function getRecentlyAddedWords(
+  db: DatabaseAdapter,
+  limit = 10,
+): Promise<CardListItem[]> {
+  return db.query<CardListItem>(
+    `${CARD_LIST_SELECT}, c.created_at AS createdAt
+     FROM cards c
+     JOIN lemmas l ON l.id = c.lemma_id
+     LEFT JOIN meanings m ON m.id = c.primary_meaning_id
+     ORDER BY c.created_at DESC
+     LIMIT ?`,
+    [limit],
+  )
+}
+
+/**
+ * The cards of one deck, newest membership first. Deck detail card list.
+ */
+export async function getCardsForDeck(
+  db: DatabaseAdapter,
+  deckId: string,
+  limit = 100,
+): Promise<CardListItem[]> {
+  return db.query<CardListItem>(
+    `${CARD_LIST_SELECT}, dc.added_at AS createdAt
+     FROM deck_cards dc
+     JOIN cards c ON c.id = dc.card_id
+     JOIN lemmas l ON l.id = c.lemma_id
+     LEFT JOIN meanings m ON m.id = c.primary_meaning_id
+     WHERE dc.deck_id = ?
+     ORDER BY dc.added_at DESC
+     LIMIT ?`,
+    [deckId, limit],
+  )
+}
+
+/**
+ * Total number of cards. Home screen stat strip.
+ */
+export async function getTotalCardCount(db: DatabaseAdapter): Promise<number> {
+  const result = await db.querySingle<{ count: number }>(`SELECT COUNT(*) AS count FROM cards`)
+  return result?.count ?? 0
 }
 
 /**

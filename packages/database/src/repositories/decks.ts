@@ -94,6 +94,42 @@ export async function deleteDeck(db: DatabaseAdapter, deckId: string): Promise<v
   await db.execute(`DELETE FROM decks WHERE id = ?`, [deckId])
 }
 
+/** Card and due counts of one deck — the badges on the deck list. */
+export interface DeckCounts {
+  deckId: string
+  cardCount: number
+  dueCount: number
+}
+
+/**
+ * Card and due counts for every deck in one query (single GROUP BY instead of
+ * two queries per deck). Decks with no cards are absent from the result.
+ */
+export async function getDeckCounts(db: DatabaseAdapter): Promise<DeckCounts[]> {
+  return db.query<DeckCounts>(
+    `SELECT dc.deck_id AS deckId,
+            COUNT(*) AS cardCount,
+            SUM(CASE WHEN (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL
+                     THEN 1 ELSE 0 END) AS dueCount
+     FROM deck_cards dc
+     JOIN cards c ON c.id = dc.card_id
+     JOIN card_states cs ON cs.card_id = c.id
+     GROUP BY dc.deck_id`,
+    [Date.now()],
+  )
+}
+
+/**
+ * Number of cards in one deck.
+ */
+export async function getCardCountForDeck(db: DatabaseAdapter, deckId: string): Promise<number> {
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM deck_cards WHERE deck_id = ?`,
+    [deckId],
+  )
+  return result?.count ?? 0
+}
+
 /**
  * Add a card to a deck.
  * @param db The database adapter to use for the query.

@@ -1,4 +1,4 @@
-import type { Lemma } from '@lingora/types'
+import type { CefrLevel, Inflection, Lemma } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 import { buildFTSQuery } from '../fts'
 
@@ -103,6 +103,69 @@ export async function searchLemmas(db: DatabaseAdapter, input: string): Promise<
      ORDER BY MIN(rank)
      LIMIT 20`,
     [query, query],
+  )
+}
+
+/** One search row as the search screen renders it: lemma + preview fields. */
+export interface LemmaSearchPreview {
+  lemma: Lemma
+  /** Primary meaning translation of the lemma's first card, if any. */
+  translation: string | null
+  cefrLevel: CefrLevel | null
+  /** Whether any card of this lemma is already in a deck. */
+  inDeck: boolean
+}
+
+/**
+ * FTS5 search enriched with what the result list shows per row.
+ *
+ * Runs one preview lookup per hit — searchLemmas caps at 20 rows and this is
+ * on-device SQLite, so the loop is cheaper than the join complexity it avoids.
+ */
+export async function searchLemmasWithPreview(
+  db: DatabaseAdapter,
+  input: string,
+): Promise<LemmaSearchPreview[]> {
+  const lemmas = await searchLemmas(db, input)
+  const previews: LemmaSearchPreview[] = []
+
+  for (const lemma of lemmas) {
+    const meaning = await db.querySingle<{ translation: string; cefrLevel: CefrLevel }>(
+      `SELECT m.translation, m.cefr_level AS cefrLevel
+       FROM meanings m
+       JOIN cards c ON c.id = m.card_id
+       WHERE c.lemma_id = ? AND m.is_primary = 1
+       LIMIT 1`,
+      [lemma.id],
+    )
+    const membership = await db.querySingle<{ n: number }>(
+      `SELECT COUNT(*) AS n
+       FROM deck_cards dc
+       JOIN cards c ON c.id = dc.card_id
+       WHERE c.lemma_id = ?`,
+      [lemma.id],
+    )
+    previews.push({
+      lemma,
+      translation: meaning?.translation ?? null,
+      cefrLevel: meaning?.cefrLevel ?? null,
+      inDeck: (membership?.n ?? 0) > 0,
+    })
+  }
+
+  return previews
+}
+
+/**
+ * All stored surface forms of a lemma, for the word-detail inflection chips.
+ */
+export async function getInflectionsForLemma(
+  db: DatabaseAdapter,
+  lemmaId: string,
+): Promise<Inflection[]> {
+  return db.query<Inflection>(
+    `SELECT id, form AS surface, lemma_id AS lemmaId FROM inflections WHERE lemma_id = ? ORDER BY form ASC`,
+    [lemmaId],
   )
 }
 

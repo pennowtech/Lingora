@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel } from '@lingora/types'
 import type { JSX, ReactNode } from 'react'
 import {
+  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -191,6 +192,36 @@ export function ProgressBar(props: { progress: number }): JSX.Element {
   )
 }
 
+// ─── Loading / error states ───────────────────────────────────────────────────
+
+/** Centered loading indicator for query-backed screens. */
+export function Spinner(props: { message?: string }): JSX.Element {
+  return (
+    <View style={styles.spinner}>
+      <ActivityIndicator size="large" color={colors.primary} />
+      {props.message ? <Text style={styles.spinnerMessage}>{props.message}</Text> : null}
+    </View>
+  )
+}
+
+/** Query/mutation failure with an optional retry. */
+export function ErrorState(props: { message: string; onRetry?: () => void }): JSX.Element {
+  return (
+    <View style={styles.empty}>
+      <View style={[styles.emptyIcon, { backgroundColor: colors.dangerSoft }]}>
+        <Ionicons name="alert-circle-outline" size={32} color={colors.danger} />
+      </View>
+      <Text style={styles.emptyTitle}>Something went wrong</Text>
+      <Text style={styles.emptyMessage}>{props.message}</Text>
+      {props.onRetry ? (
+        <View style={styles.errorRetry}>
+          <Button label="Try again" onPress={props.onRetry} variant="secondary" small />
+        </View>
+      ) : null}
+    </View>
+  )
+}
+
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
@@ -300,5 +331,19 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: radius.full,
     backgroundColor: colors.primary,
+  },
+  spinner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xxl * 2,
+    gap: spacing.md,
+  },
+  spinnerMessage: {
+    fontSize: type.body,
+    color: colors.textSecondary,
+  },
+  errorRetry: {
+    marginTop: spacing.lg,
   },
 })

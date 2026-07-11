@@ -22,6 +22,7 @@ import {
   wordGenerationSchema,
 } from '../schemas/generation'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
+import { startRequestTimeout } from './http'
 import { toOpenAIJsonSchema } from './json-schema'
 import type {
   AIProvider,
@@ -272,6 +273,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     jsonSchema: Record<string, unknown>,
   ): Promise<RawCompletion> {
     const startedAt = Date.now()
+    const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
 
     try {
@@ -289,15 +291,18 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
             json_schema: { name: schemaName, strict: true, schema: jsonSchema },
           },
         }),
-        signal: AbortSignal.timeout(this.timeoutMs),
+        signal: timeout.signal,
       })
     } catch (error) {
-      const timedOut = error instanceof DOMException && error.name === 'TimeoutError'
       throw new AIProviderError(
-        timedOut ? `OpenAI request timed out after ${this.timeoutMs}ms` : `OpenAI request failed: ${String(error)}`,
+        timeout.didTimeout()
+          ? `OpenAI request timed out after ${this.timeoutMs}ms`
+          : `OpenAI request failed: ${String(error)}`,
         this.name,
         true, // network errors and timeouts are worth retrying
       )
+    } finally {
+      timeout.clear()
     }
 
     if (!response.ok) {

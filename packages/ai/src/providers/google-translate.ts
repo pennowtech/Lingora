@@ -1,5 +1,6 @@
 import type { LanguageCode } from '@lingora/types'
 import { AIProviderError } from '../errors'
+import { startRequestTimeout } from './http'
 import type { AIResult, DictionaryProvider } from './types'
 
 /**
@@ -90,19 +91,21 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     })
     const url = `${this.baseUrl}/translate_a/single?${params.toString()}`
     const startedAt = Date.now()
+    const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
 
     try {
-      response = await this.fetchFn(url, { signal: AbortSignal.timeout(this.timeoutMs) })
+      response = await this.fetchFn(url, { signal: timeout.signal })
     } catch (error) {
-      const timedOut = error instanceof DOMException && error.name === 'TimeoutError'
       throw new AIProviderError(
-        timedOut
+        timeout.didTimeout()
           ? `Google Translate request timed out after ${this.timeoutMs}ms`
           : `Google Translate request failed: ${String(error)}`,
         this.name,
         true,
       )
+    } finally {
+      timeout.clear()
     }
 
     if (!response.ok) {

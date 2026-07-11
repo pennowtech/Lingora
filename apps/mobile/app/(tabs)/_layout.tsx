@@ -1,9 +1,19 @@
 import { Ionicons } from '@expo/vector-icons'
+import { getPendingMineEntries } from '@lingora/database'
+import { useQuery } from '@tanstack/react-query'
 import { Tabs } from 'expo-router'
 import type { JSX } from 'react'
+import { useServices } from '../../lib/services'
 import { colors } from '../../lib/theme'
 
 export default function TabsLayout(): JSX.Element {
+  const { db } = useServices()
+  const mineQuery = useQuery({
+    queryKey: ['mine-queue'],
+    queryFn: () => getPendingMineEntries(db),
+  })
+  const pendingCount = mineQuery.data?.length ?? 0
+
   return (
     <Tabs
       screenOptions={{
@@ -42,7 +52,7 @@ export default function TabsLayout(): JSX.Element {
         name="mine"
         options={{
           title: 'Mine',
-          tabBarBadge: 3, // TODO(phase4): real pending count from the mining repository
+          ...(pendingCount > 0 && { tabBarBadge: pendingCount }),
           tabBarIcon: ({ color, size }) => <Ionicons name="download" size={size} color={color} />,
         }}
       />

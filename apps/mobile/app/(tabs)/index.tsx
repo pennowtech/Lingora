@@ -1,18 +1,71 @@
 import { Ionicons } from '@expo/vector-icons'
+import {
+  getDueCardsCount,
+  getRecentlyAddedWords,
+  getRetentionRate,
+  getReviewedDayIndexes,
+  getTodayReviewCount,
+  getTotalCardCount,
+  type DatabaseAdapter,
+} from '@lingora/database'
+import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import type { JSX } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, SectionHeader } from '../../components/ui'
-import { dummyRecentWords, dummyStats } from '../../lib/dummy'
+import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
+
+/** Consecutive reviewed days counting back from today (or yesterday, so an unfinished today doesn't break it). */
+function streakFromDayIndexes(days: number[]): number {
+  if (days.length === 0) return 0
+  const today = Math.floor(Date.now() / 86_400_000)
+  let expected = days[0] === today || days[0] === today - 1 ? days[0]! : -1
+  if (expected === -1) return 0
+  let streak = 0
+  for (const day of days) {
+    if (day !== expected) break
+    streak += 1
+    expected -= 1
+  }
+  return streak
+}
+
+interface HomeStats {
+  dueNow: number
+  reviewedToday: number
+  retention30d: number
+  totalCards: number
+  streakDays: number
+}
+
+async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
+  const [dueNow, reviewedToday, retention30d, totalCards, days] = await Promise.all([
+    getDueCardsCount(db),
+    getTodayReviewCount(db),
+    getRetentionRate(db, 30),
+    getTotalCardCount(db),
+    getReviewedDayIndexes(db),
+  ])
+  return { dueNow, reviewedToday, retention30d, totalCards, streakDays: streakFromDayIndexes(days) }
+}
 
 /**
  * Home dashboard: today's review load, streak, and recent activity.
- * TODO(phase4): replace dummyStats/dummyRecentWords with repository queries
- * (getDueCardsCount, getTodayReviewCount, getRetentionRate) via React Query.
  */
 export default function HomeScreen(): JSX.Element {
+  const { db } = useServices()
+
+  const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
+  const recentQuery = useQuery({
+    queryKey: ['recent-words'],
+    queryFn: () => getRecentlyAddedWords(db, 3),
+  })
+
+  const stats = statsQuery.data
+  const recent = recentQuery.data ?? []
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -23,18 +76,20 @@ export default function HomeScreen(): JSX.Element {
           </View>
           <View style={styles.streakPill}>
             <Ionicons name="flame" size={16} color={colors.warning} />
-            <Text style={styles.streakLabel}>{dummyStats.streakDays} days</Text>
+            <Text style={styles.streakLabel}>{stats?.streakDays ?? 0} days</Text>
           </View>
         </View>
 
         {/* Due-today hero card */}
         <Card style={styles.heroCard}>
-          <Text style={styles.heroCount}>{dummyStats.dueNow}</Text>
+          <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
           <Text style={styles.heroLabel}>cards due for review</Text>
           <Button
             label="Start review"
             icon="play"
-            onPress={() => router.push('/review/deck-1')}
+            onPress={() =>
+              router.push({ pathname: '/review/[deckId]', params: { deckId: DEFAULT_DECK_ID } })
+            }
             style={styles.heroButton}
           />
         </Card>
@@ -42,15 +97,17 @@ export default function HomeScreen(): JSX.Element {
         {/* Stats strip */}
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{dummyStats.reviewedToday}</Text>
+            <Text style={styles.statValue}>{stats?.reviewedToday ?? '–'}</Text>
             <Text style={styles.statLabel}>reviewed today</Text>
           </Card>
           <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{Math.round(dummyStats.retention30d * 100)}%</Text>
+            <Text style={styles.statValue}>
+              {stats ? `${Math.round(stats.retention30d * 100)}%` : '–'}
+            </Text>
             <Text style={styles.statLabel}>retention</Text>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
-            <Text style={styles.statValue}>{dummyStats.totalCards}</Text>
+            <Text style={styles.statValue}>{stats?.totalCards ?? '–'}</Text>
             <Text style={styles.statLabel}>total cards →</Text>
           </Card>
         </View>
@@ -69,7 +126,10 @@ export default function HomeScreen(): JSX.Element {
           <Card
             style={styles.actionCard}
             onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: 'deck-1', mode: 'cloze' } })
+              router.push({
+                pathname: '/review/[deckId]',
+                params: { deckId: DEFAULT_DECK_ID, mode: 'cloze' },
+              })
             }
           >
             <Ionicons name="create-outline" size={22} color={colors.primary} />
@@ -83,17 +143,17 @@ export default function HomeScreen(): JSX.Element {
 
         {/* Recently added */}
         <SectionHeader title="Recently added" action="See all" onAction={() => router.push('/decks')} />
-        {dummyRecentWords.map((word) => (
+        {recent.map((word) => (
           <Card
-            key={word.form}
+            key={word.cardId}
             style={styles.wordRow}
             onPress={() => router.push({ pathname: '/word/[form]', params: { form: word.form } })}
           >
             <View style={styles.wordRowText}>
               <Text style={styles.wordForm}>{word.form}</Text>
-              <Text style={styles.wordMeaning}>{word.meaning}</Text>
+              {word.translation ? <Text style={styles.wordMeaning}>{word.translation}</Text> : null}
             </View>
-            <CefrBadge level={word.cefr} />
+            {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}
           </Card>
         ))}
       </ScrollView>

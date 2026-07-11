@@ -28,6 +28,7 @@ export function validPayload(): WordGenerationPayload {
             translation: 'We are going out tonight.',
             context: 'casual',
             cefrLevel: 'A2',
+            grammarTags: null,
           },
         ],
         synonyms: [{ word: 'weggehen', cefrLevel: 'B1', formality: 'colloquial', nuance: null }],

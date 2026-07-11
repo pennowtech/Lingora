@@ -1,5 +1,6 @@
 import type {
   Card,
+  GeneratedExample,
   GenerationMetadata,
   GenerationUsage,
   Lemma,
@@ -57,6 +58,55 @@ export async function getGenerationMetadataForCard(
      WHERE card_id = ? ORDER BY generated_at DESC`,
     [cardId],
   )
+}
+
+/**
+ * Persist a batch of regenerated examples for an existing card+cluster —
+ * the "Generate examples" / regenerate flow on the word screen.
+ *
+ * One transaction: the generation_metadata row plus every example, all linked
+ * to it, none selected (the user's current selected example stays). Existing
+ * examples are never touched — the user curates via the evaluation bar.
+ */
+export async function persistRegeneratedExamples(
+  db: DatabaseAdapter,
+  args: {
+    cardId: string
+    clusterId: string
+    examples: GeneratedExample[]
+    usage: GenerationUsage
+  },
+): Promise<{ generationMetadataId: string }> {
+  return db.transaction(async (tx) => {
+    const generationMetadataId = crypto.randomUUID()
+    await createGenerationMetadata(tx, {
+      id: generationMetadataId,
+      cardId: args.cardId,
+      provider: args.usage.provider,
+      model: args.usage.model,
+      promptVersion: args.usage.promptVersionId,
+      generatedAt: args.usage.generatedAt,
+      tokensUsed: args.usage.tokensUsed,
+      latencyMs: args.usage.latencyMs,
+    })
+
+    for (const example of args.examples) {
+      await createExample(tx, {
+        id: crypto.randomUUID(),
+        cardId: args.cardId,
+        clusterId: args.clusterId,
+        sentence: example.sentence,
+        translation: example.translation,
+        context: example.context,
+        cefrLevel: example.cefrLevel,
+        isSelected: false,
+        generationMetadataId,
+        ...(example.grammarTags !== null && { grammarTags: example.grammarTags }),
+      })
+    }
+
+    return { generationMetadataId }
+  })
 }
 
 /** What persistWordGeneration hands back so the caller can navigate to the new card. */
@@ -197,7 +247,7 @@ export async function persistWordGeneration(
           cefrLevel: example.cefrLevel,
           isSelected: clusterIndex === 0 && exampleIndex === 0,
           generationMetadataId,
-          grammarTags: example.grammarTags,
+          ...(example.grammarTags !== null && { grammarTags: example.grammarTags }),
         })
       }
 

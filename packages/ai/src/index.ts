@@ -4,6 +4,7 @@ export type {
   AIResult,
   ClusterRef,
   DictionaryProvider,
+  ExampleGenerationOptions,
   GeneratedClusterOutline,
   GenerationContext,
   ProviderUsage,

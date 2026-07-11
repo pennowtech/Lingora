@@ -49,6 +49,12 @@ export interface ClusterRef {
   description: string
 }
 
+/** Optional targeting for example generation (the grammar controls panel). */
+export interface ExampleGenerationOptions {
+  /** Grammar structures the examples must exercise, e.g. ['Konjunktiv II', 'passive voice']. */
+  grammar?: string[]
+}
+
 /** A cluster skeleton without content — what generateClusters returns. */
 export interface GeneratedClusterOutline {
   label: string
@@ -93,7 +99,7 @@ export interface AIProvider {
   // Per-section calls, used by the Phase 4 regenerate buttons.
   generateClusters(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedClusterOutline[]>>
   generateMeaning(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<GeneratedMeaning[]>>
-  generateExamples(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<GeneratedExample[]>>
+  generateExamples(word: string, cluster: ClusterRef, ctx: GenerationContext, opts?: ExampleGenerationOptions): Promise<AIResult<GeneratedExample[]>>
   generateSynonyms(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<GeneratedSynonym[]>>
   generatePhrases(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedPhrase[]>>
   generateCloze(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedCloze[]>>

@@ -29,7 +29,8 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
-    version: 1,
+    version: 2, // v2: examples carry grammarTags
+
     template: `You are a German lexicographer building vocabulary data for a German→English learning app.
 
 Generate a complete, accurate word package for the German word: "{{word}}"
@@ -57,6 +58,7 @@ CEFR CALIBRATION — the learner's level is {{cefrLevel}}
 EXAMPLES
 - Natural, contemporary German a native speaker would actually say — never textbook-stilted.
 - Each example gets a context tag: casual, formal, business, travel, dating, social_media, daily_life or slang.
+- Tag each example with the notable grammar structures it uses (grammarTags, e.g. ["Perfekt", "relative clause", "Konjunktiv II"]); use null when nothing stands out.
 
 PHRASES
 - 1–4 established idioms, collocations or fixed patterns built on this word ("davon ausgehen"), each with meaning, one example sentence and its translation.
@@ -101,19 +103,19 @@ Learner level: {{cefrLevel}}. Each meaning: a concise English translation, a one
 
 Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "cefrLevel": "..."}]}`,
   },
-  /** Examples for one existing cluster — the regenerate-examples button. */
+  /** Examples for one existing cluster — the regenerate/grammar-panel button. */
   examples: {
     name: 'examples',
-    version: 1,
+    version: 2, // v2: grammar targeting + grammarTags on every example
     template: `Write 2–4 natural, contemporary German example sentences for the word "{{word}}", strictly within this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
 Learner level: {{cefrLevel}} — write at or slightly below it (A1/A2: present tense, common words, short main clauses; B1/B2: past tenses, subordinate clauses; C1/C2: subjunctive, complex structure). Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
+{{grammarInstructions}}
+Each example: the German sentence, its English translation, a context tag (casual, formal, business, travel, dating, social_media, daily_life or slang), its own CEFR level, and grammarTags — the notable grammar structures the sentence uses (null when nothing stands out).
 
-Each example: the German sentence, its English translation, a context tag (casual, formal, business, travel, dating, social_media, daily_life or slang) and its own CEFR level.
-
-Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...", "context": "...", "cefrLevel": "..."}]}`,
+Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...", "context": "...", "cefrLevel": "...", "grammarTags": ["..."] }]}`,
   },
   /** Synonyms for one existing cluster. */
   synonyms: {

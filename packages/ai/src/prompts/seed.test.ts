@@ -43,25 +43,26 @@ describe('ensurePromptVersions', () => {
   })
 
   it('a version bump seeds a new row and deprecates the old one', async () => {
-    // Simulate the previous release: version 1 already in the database…
-    const v1 = await ensurePromptVersions(db)
-    const v1Id = v1.get('wordPackage')!.id
+    // Simulate the previous release: the current code version in the database…
+    const current = await ensurePromptVersions(db)
+    const currentId = current.get('wordPackage')!.id
+    const nextVersion = PROMPTS.wordPackage.version + 1
 
-    // …then the app ships with word_package bumped to version 2.
+    // …then the app ships with word_package bumped one version further.
     await db.execute(
       `INSERT INTO prompt_versions (id, name, version, template, created_at, deprecated)
-       VALUES (?, 'word_package', 2, 'improved template', ?, 0)`,
-      [crypto.randomUUID(), Date.now()],
+       VALUES (?, 'word_package', ?, 'improved template', ?, 0)`,
+      [crypto.randomUUID(), nextVersion, Date.now()],
     )
     const { deprecatePromptVersionsBelow } = await import('@lingora/database')
-    await deprecatePromptVersionsBelow(db, 'word_package', 2)
+    await deprecatePromptVersionsBelow(db, 'word_package', nextVersion)
 
     const active = await getActivePromptVersion(db, 'word_package')
-    expect(active?.version).toBe(2)
+    expect(active?.version).toBe(nextVersion)
 
     const old = await db.querySingle<{ deprecated: number }>(
       `SELECT deprecated FROM prompt_versions WHERE id = ?`,
-      [v1Id],
+      [currentId],
     )
     expect(old?.deprecated).toBe(1)
   })

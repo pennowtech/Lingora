@@ -28,6 +28,7 @@ import type {
   AIResult,
   ClusterRef,
   DictionaryProvider,
+  ExampleGenerationOptions,
   GeneratedClusterOutline,
   GenerationContext,
   WordPackageResult,
@@ -153,12 +154,18 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     word: string,
     cluster: ClusterRef,
     ctx: GenerationContext,
+    opts?: ExampleGenerationOptions,
   ): Promise<AIResult<GeneratedExample[]>> {
+    const grammar = opts?.grammar ?? []
     const prompt = renderPrompt(PROMPTS.examples.template, {
       word,
       cefrLevel: ctx.cefrLevel,
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
+      grammarInstructions:
+        grammar.length > 0
+          ? `\nGRAMMAR TARGETING: every example must exercise at least one of these structures, and together the examples must cover all of them: ${grammar.join(', ')}. List the structures each sentence actually uses in its grammarTags.\n`
+          : '',
     })
     const result = await this.generateStrict(prompt, 'examples', examplesResponseSchema)
     return { data: result.data.examples, usage: result.usage }

@@ -318,7 +318,7 @@ export interface GeneratedExample {
   translation: string
   context: ExampleContext
   cefrLevel: CefrLevel
-  grammarTags: string[] // grammar structures the sentence exercises; [] when untargeted
+  grammarTags: string[] | null // grammar structures the sentence exercises; null when untargeted
 }
 
 export interface GeneratedSynonym {

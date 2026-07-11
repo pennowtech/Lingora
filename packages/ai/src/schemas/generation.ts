@@ -31,6 +31,7 @@ export const generatedExampleSchema = z.object({
   translation: z.string().min(1),
   context: exampleContextSchema,
   cefrLevel: cefrLevelSchema,
+  grammarTags: z.array(z.string()).nullable(),
 })
 
 export const generatedSynonymSchema = z.object({

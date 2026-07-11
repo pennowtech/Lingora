@@ -1,4 +1,4 @@
-import { migrate } from '@lingora/database'
+import { ALL_MIGRATIONS, migrate } from '@lingora/database'
 import { afterEach, describe, expect, it } from 'vitest'
 import { NodeSqliteAdapter } from './node-sqlite-adapter'
 
@@ -12,7 +12,7 @@ describe('NodeSqliteAdapter', () => {
   it('applies every migration to a fresh in-memory database', async () => {
     db = new NodeSqliteAdapter()
     const applied = await migrate(db)
-    expect(applied).toEqual([1, 2, 3])
+    expect(applied).toEqual(ALL_MIGRATIONS.map((m) => m.version))
 
     const tables = await db.query<{ name: string }>(
       `SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name`,

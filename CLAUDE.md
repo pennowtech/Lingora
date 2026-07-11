@@ -8,7 +8,7 @@ Lingora — a mobile-first, offline-first, AI-native German→English vocabulary
 
 The development plan lives outside the repo: `..\Totorials_and_AppsDocs\LingoraDocs\1_development_roadmap.md` (also linked as `LingoraDocs.lnk`), with per-phase design docs (`3_phase2_database_design.md`, `4_phase4_ui_design.md`, `5_phase4_ux_screens.md`).
 
-**Phase status (keep this current):** Phase 1 ✅ · Phase 2 (database/search/morphology) ✅ · Phase 3 (AI) 🟨 core engine built in `packages/ai` (OpenAI provider, Google Translate free-tier dictionary adapter, validation/repair, prompt versioning, cache, persistence pipeline) — not wired into the app; DeepL/Wiktionary adapters and secure key storage pending · Phase 4/5 UI shells ✅ built with dummy data only — no DB wiring, no AI. `grep -rn "TODO(phase" apps/mobile` lists every pending wiring point. Phase 3 design doc: `..\Totorials_and_AppsDocs\LingoraDocs\3_phase3_ai_engine_design.md`.
+**Phase status (keep this current):** Phase 1 ✅ · Phase 2 (database/search/morphology) ✅ · Phase 3 (AI) ✅ core engine in `packages/ai` (OpenAI provider, Google Translate free-tier dictionary adapter, validation/repair, prompt versioning, cache, persistence pipeline); DeepL/Wiktionary adapters pending · Phase 4 (DB+AI wiring) 🟨 search, word detail, home, decks, deck detail, mining and settings (SecureStore keys, provider tiers) run on the real database + pipeline; import/export deferred · Phase 5 screens (review session, stats, templates) still dummy — FSRS not built. `grep -rn "TODO(phase" apps/mobile` lists every pending wiring point. Design docs: `..\Totorials_and_AppsDocs\LingoraDocs\3_phase3_ai_engine_design.md`, `4_phase4_ui_design.md`.
 
 > `.github/copilot-instructions.md` exists but is partially aspirational and stale (it uses the old `@langapp/` scope, claims Phase 3 is done, and describes drizzle-kit migrations / a `queries/` folder that were never built). Where it conflicts with this file or the code, trust this file and the code.
 
@@ -83,8 +83,10 @@ Package scope is `@lingora/*`. Apps import packages; apps never import other app
 ### Mobile app (`apps/mobile`)
 
 - Expo Router: tabs in `app/(tabs)/` (Home, Search, Decks, Mine, Settings); stack routes `word/[form]`, `deck/[id]`, `review/[deckId]` (supports `mode=cloze`), `stats`, `settings/*`.
+- **Bootstrap** (`lib/services.tsx`): `ServicesProvider` in `app/_layout.tsx` opens `lingora.db` via `ExpoSQLiteAdapter.create` → `migrate` → `seedDatabase` (idempotent dev seed), reads keys from Expo SecureStore (`STORE_KEYS`), and builds `createAIPipeline` when an OpenAI key exists. `useServices()` exposes `{ db, ai, pipeline, tier, defaultCefr, reloadServices }`; tier is `'translation'` (keyless — Google dictionary works, generation locked) or `'full'`. Settings persists to SecureStore and calls `reloadServices()`.
+- **Data fetching**: React Query everywhere; screens call `@lingora/database` repositories directly with `db` from `useServices()`. Mutations invalidate by query key (`['word', form]`, `['deck-counts']`, `['mine-queue']`, …). Loading/error via `Spinner`/`ErrorState` in `components/ui.tsx`.
 - **No inline hex colors** — all tokens from `lib/theme.ts` (brand purple `#534AB7`, CEFR green→amber→purple ramp, rating colors Again/Hard/Good/Easy = red/orange/green/blue).
-- All dummy content comes from `lib/dummy.ts` only; it mirrors the Phase 2 seed data (*ausgehen*, two clusters). Wiring work = replace its consumers with repository calls, then delete the module and follow compile errors.
+- `lib/dummy.ts` now holds only the Phase 5 stand-ins (review queue, FSRS intervals, stats aggregates); everything else is wired to the database. Import/export (`settings/import-export.tsx`) is a deferred stub.
 - `apps/mobile/CLAUDE.md` → `AGENTS.md` warns: Expo SDK 56 changed a lot — check https://docs.expo.dev/versions/v56.0.0/ rather than assuming; take dependency versions from `expo install --check`, not memory.
 
 ## Conventions

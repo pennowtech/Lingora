@@ -21,7 +21,7 @@ import { colors, radius, spacing, type } from '../../lib/theme'
 function streakFromDayIndexes(days: number[]): number {
   if (days.length === 0) return 0
   const today = Math.floor(Date.now() / 86_400_000)
-  let expected = days[0] === today || days[0] === today - 1 ? days[0]! : -1
+  let expected = days[0] === today || days[0] === today - 1 ? days[0] : -1
   if (expected === -1) return 0
   let streak = 0
   for (const day of days) {

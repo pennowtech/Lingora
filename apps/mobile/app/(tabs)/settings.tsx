@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel } from '@lingora/types'
 import { router } from 'expo-router'
-import { useState, type JSX } from 'react'
+import * as SecureStore from 'expo-secure-store'
+import { useEffect, useRef, useState, type JSX } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Card, Chip, SectionHeader } from '../../components/ui'
+import { STORE_KEYS, useServices } from '../../lib/services'
 import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
@@ -13,18 +15,65 @@ type TranslationProvider = 'deepl' | 'google' | 'openai'
  * Settings: provider configuration (translation + generation slots),
  * default CEFR level, data tools, and app info.
  *
- * TODO(phase3): persist keys in Expo SecureStore / Tauri Store — never in
- * plain storage; wire the provider slots to @lingora/ai; the limited-mode
- * banner derives from which keys are actually configured.
+ * Keys and preferences live in Expo SecureStore — never in plain storage.
+ * Saving a key rebuilds the AI pipeline (reloadServices), so the tier and
+ * every generate button react immediately.
  */
 export default function SettingsScreen(): JSX.Element {
-  const [translationProvider, setTranslationProvider] = useState<TranslationProvider>('deepl')
+  const { tier, reloadServices } = useServices()
+  const [translationProvider, setTranslationProvider] = useState<TranslationProvider>('google')
   const [openAiKey, setOpenAiKey] = useState('')
   const [deeplKey, setDeeplKey] = useState('')
-  const [cefr, setCefr] = useState<CefrLevel>('B1')
+  const [cefr, setCefrState] = useState<CefrLevel>('B1')
+  const [loaded, setLoaded] = useState(false)
+  const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // TODO(phase3): computed from configured keys (none | translation | full)
-  const limitedMode = openAiKey === ''
+  useEffect(() => {
+    const load = async (): Promise<void> => {
+      const [storedProvider, storedOpenAi, storedDeepl, storedCefr] = await Promise.all([
+        SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+        SecureStore.getItemAsync(STORE_KEYS.openaiKey),
+        SecureStore.getItemAsync(STORE_KEYS.deeplKey),
+        SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+      ])
+      if (storedProvider === 'deepl' || storedProvider === 'google' || storedProvider === 'openai') {
+        setTranslationProvider(storedProvider)
+      }
+      setOpenAiKey(storedOpenAi ?? '')
+      setDeeplKey(storedDeepl ?? '')
+      if ((CEFR_LEVELS as string[]).includes(storedCefr ?? '')) {
+        setCefrState(storedCefr as CefrLevel)
+      }
+      setLoaded(true)
+    }
+    void load()
+  }, [])
+
+  /** Persist + rebuild the pipeline, debounced so typing a key isn't N rebuilds. */
+  const persist = (storeKey: string, value: string): void => {
+    void SecureStore.setItemAsync(storeKey, value)
+    if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    reloadTimer.current = setTimeout(() => void reloadServices(), 600)
+  }
+
+  const changeOpenAiKey = (value: string): void => {
+    setOpenAiKey(value)
+    persist(STORE_KEYS.openaiKey, value.trim())
+  }
+  const changeDeeplKey = (value: string): void => {
+    setDeeplKey(value)
+    persist(STORE_KEYS.deeplKey, value.trim())
+  }
+  const changeProvider = (value: TranslationProvider): void => {
+    setTranslationProvider(value)
+    persist(STORE_KEYS.translationProvider, value)
+  }
+  const setCefr = (level: CefrLevel): void => {
+    setCefrState(level)
+    persist(STORE_KEYS.defaultCefr, level)
+  }
+
+  const limitedMode = loaded && tier !== 'full'
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
@@ -46,30 +95,30 @@ export default function SettingsScreen(): JSX.Element {
       <SectionHeader title="Translation" />
       <Card style={styles.providerCard}>
         <ProviderOption
-          label="DeepL"
-          detail="Best German↔English quality — recommended"
-          selected={translationProvider === 'deepl'}
-          onPress={() => setTranslationProvider('deepl')}
+          label="Google Translate"
+          detail="Free tier, no key needed — active"
+          selected={translationProvider === 'google'}
+          onPress={() => changeProvider('google')}
         />
         <ProviderOption
-          label="Google Translate"
-          detail="Free tier — used as fallback"
-          selected={translationProvider === 'google'}
-          onPress={() => setTranslationProvider('google')}
+          label="DeepL"
+          detail="Best German↔English quality — adapter coming soon"
+          selected={translationProvider === 'deepl'}
+          onPress={() => changeProvider('deepl')}
         />
         <ProviderOption
           label="OpenAI"
           detail="Uses your generation key for translation too"
           selected={translationProvider === 'openai'}
-          onPress={() => setTranslationProvider('openai')}
+          onPress={() => changeProvider('openai')}
         />
         {translationProvider === 'deepl' ? (
           <TextInput
             style={styles.keyInput}
-            placeholder="DeepL API key"
+            placeholder="DeepL API key (stored for when the adapter lands)"
             placeholderTextColor={colors.textMuted}
             value={deeplKey}
-            onChangeText={setDeeplKey}
+            onChangeText={changeDeeplKey}
             secureTextEntry
             autoCapitalize="none"
           />
@@ -86,7 +135,7 @@ export default function SettingsScreen(): JSX.Element {
           placeholder="OpenAI API key (sk-…)"
           placeholderTextColor={colors.textMuted}
           value={openAiKey}
-          onChangeText={setOpenAiKey}
+          onChangeText={changeOpenAiKey}
           secureTextEntry
           autoCapitalize="none"
         />

@@ -58,7 +58,7 @@ export default function DeckDetailScreen(): JSX.Element {
     mutationFn: async () => {
       const name = renameValue.trim()
       if (name === '') throw new Error('Give the deck a name.')
-      await renameDeck(db, id!, name)
+      await renameDeck(db, id, name)
     },
     onSuccess: async () => {
       setRenameOpen(false)
@@ -68,7 +68,7 @@ export default function DeckDetailScreen(): JSX.Element {
   })
 
   const remove = useMutation({
-    mutationFn: () => deleteDeck(db, id!),
+    mutationFn: () => deleteDeck(db, id),
     onSuccess: async () => {
       await queryClient.invalidateQueries()
       router.back()

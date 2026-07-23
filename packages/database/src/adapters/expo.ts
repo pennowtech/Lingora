@@ -1,4 +1,5 @@
 import type { DatabaseAdapter } from '../adapter'
+import { splitSqlStatements } from './sql-split'
 
 /**
  * The subset of expo-sqlite's SQLiteDatabase that this adapter needs.
@@ -32,8 +33,27 @@ export interface ExpoSQLiteDatabase {
 export class ExpoSQLiteAdapter implements DatabaseAdapter {
   private readonly db: ExpoSQLiteDatabase
 
+  // Serializes every call through this adapter instance. React Query fires
+  // many screens' queries concurrently once the app is ready (Promise.all in
+  // loadHomeStats, the tab-bar mine-queue badge, etc.) — without this queue,
+  // overlapping runAsync/getAllAsync/execAsync calls on the same underlying
+  // SQLite connection corrupt native memory (observed as a Scudo "invalid
+  // chunk state" SIGABRT deep inside expo-sqlite's C library on Android).
+  // A transaction occupies one queue slot for its whole duration, so calls
+  // made through the nested adapter it receives never race anything else.
+  private queue: Promise<unknown> = Promise.resolve()
+
   constructor(db: ExpoSQLiteDatabase) {
     this.db = db
+  }
+
+  private enqueue<T>(run: () => Promise<T>): Promise<T> {
+    const result = this.queue.then(run, run)
+    this.queue = result.then(
+      () => undefined,
+      () => undefined,
+    )
+    return result
   }
 
   /**
@@ -50,21 +70,27 @@ export class ExpoSQLiteAdapter implements DatabaseAdapter {
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
-    await this.db.runAsync(sql, params ?? [])
+    await this.enqueue(() => this.db.runAsync(sql, params ?? []))
   }
 
-  // execAsync runs a multi-statement script without parameter binding —
-  // exactly what the migration runner needs for DDL.
+  // Split and run one statement at a time via runAsync rather than handing
+  // the whole script to execAsync — see sql-split.ts for why.
   async executeScript(sql: string): Promise<void> {
-    await this.db.execAsync(sql)
+    const statements = splitSqlStatements(sql)
+    await this.enqueue(async () => {
+      for (const statement of statements) {
+        await this.db.runAsync(statement, [])
+      }
+    })
   }
 
   async query<T = unknown>(sql: string, params?: unknown[]): Promise<T[]> {
-    return this.db.getAllAsync<T>(sql, params ?? [])
+    return this.enqueue(() => this.db.getAllAsync<T>(sql, params ?? []))
   }
 
   async querySingle<T = unknown>(sql: string, params?: unknown[]): Promise<T | undefined> {
-    return (await this.db.getFirstAsync<T>(sql, params ?? [])) ?? undefined
+    const result = await this.enqueue(() => this.db.getFirstAsync<T>(sql, params ?? []))
+    return result ?? undefined
   }
 
   /**
@@ -75,6 +101,8 @@ export class ExpoSQLiteAdapter implements DatabaseAdapter {
    * rolled back together if the callback throws.
    */
   async transaction<T>(fn: (adapter: DatabaseAdapter) => Promise<T>): Promise<T> {
-    return this.db.withExclusiveTransactionAsync(async (txn) => fn(new ExpoSQLiteAdapter(txn)))
+    return this.enqueue(() =>
+      this.db.withExclusiveTransactionAsync(async (txn) => fn(new ExpoSQLiteAdapter(txn))),
+    )
   }
 }

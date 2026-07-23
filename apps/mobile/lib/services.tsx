@@ -65,17 +65,34 @@ interface BootState {
   error: string | null
 }
 
+// Module-level singleton: expo-sqlite auto-closes a database's existing
+// native connection when openDatabaseAsync is called again for the same
+// name. If React re-invokes this effect (observed even without explicit
+// StrictMode), a second open call while migrate()/seedDatabase() are still
+// running on the first connection closes it out from under them — a native
+// SIGABRT deep in expo-sqlite's C library, not a JS-catchable error. Caching
+// the in-flight/resolved promise guarantees openDatabaseAsync runs exactly
+// once for the lifetime of the JS module, however many times the effect fires.
+let dbPromise: Promise<DatabaseAdapter> | null = null
+
 async function openDatabase(): Promise<DatabaseAdapter> {
-  const raw = await openDatabaseAsync('lingora.db')
-  // The adapter's structural type uses unknown[] params so the shared package
-  // compiles without Expo; the real SQLiteDatabase narrows them, which strict
-  // variance rejects — runtime-compatible, so bridge the nominal gap here.
-  const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
-  await migrate(db)
-  // Development seed — idempotent (fixed ids, INSERT OR IGNORE), guarantees
-  // deck-default exists and every screen has content on first launch.
-  await seedDatabase(db)
-  return db
+  if (dbPromise) return dbPromise
+
+  dbPromise = (async () => {
+    const raw = await openDatabaseAsync('lingora.db')
+    // The adapter's structural type uses unknown[] params so the shared
+    // package compiles without Expo; the real SQLiteDatabase narrows them,
+    // which strict variance rejects — runtime-compatible, so bridge the
+    // nominal gap here.
+    const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
+    await migrate(db)
+    // Development seed — idempotent (fixed ids, INSERT OR IGNORE), guarantees
+    // deck-default exists and every screen has content on first launch.
+    await seedDatabase(db)
+    return db
+  })()
+
+  return dbPromise
 }
 
 const VALID_CEFR: readonly CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']

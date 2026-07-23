@@ -1,0 +1,38 @@
+diff --git a/build/SQLiteDevToolsClient.js b/build/SQLiteDevToolsClient.js
+index 17bee2bd17e250d1901bb86a23a7af570ec6326b..35e754bcf0ac15f2d20066544ff68d648f6fc8e9 100644
+--- a/build/SQLiteDevToolsClient.js
++++ b/build/SQLiteDevToolsClient.js	
+@@ -19,23 +19,16 @@ export async function unregisterDatabaseForDevToolsAsync(database) {
+     registeredDatabases.delete(database.databasePath);
+ }
+ async function maybeInitClientAsync() {
+-    if (!__DEV__ || client != null) {
+-        return;
+-    }
+-    await lock.acquireAsync();
+-    try {
+-        const { getDevToolsPluginClientAsync } = require('expo/devtools');
+-        client = await getDevToolsPluginClientAsync(DEVTOOLS_PLUGIN_NAME, {
+-            websocketBinaryType: 'arraybuffer',
+-        });
+-        setupDevToolsListeners();
+-    }
+-    catch (error) {
+-        console.warn('Failed to initialize devtools client', error);
+-    }
+-    finally {
+-        lock.release();
+-    }
++    // Lingora patch: the DevTools client registers a WeakRef to the live
++    // native database and later issues its own executeQuery/listTables/etc.
++    // calls against it outside of ExpoSQLiteAdapter's serialization queue.
++    // On this Android build, concurrent native calls on one SQLite connection
++    // corrupt memory (`Scudo: invalid chunk state`, SIGABRT deep in
++    // libexpo-sqlite.so, reproduced consistently on both 16KB- and 4KB-page
++    // emulator images). Disabling the DevTools bridge avoids the second
++    // caller entirely. Regenerate via `pnpm patch expo-sqlite@56.0.5` if this
++    // stops reproducing on a future expo-sqlite release.
++    return;
+ }
+ /**
+  * Close the devtools client.

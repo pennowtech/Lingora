@@ -1,6 +1,8 @@
 packages:
   - "apps/*"
   - "packages/*"
+virtualStoreDir: .pnpm
+virtualStoreDirMaxLength: 30
 allowBuilds:
   better-sqlite3: false
   esbuild: false

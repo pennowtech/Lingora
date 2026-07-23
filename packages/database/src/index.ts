@@ -28,7 +28,10 @@ export * from './repositories/synonyms'
 export * from './repositories/tags'
 export * from './repositories/templates'
 
-export { BetterSQLiteAdapter } from './adapters/better-sqlite'
+// BetterSQLiteAdapter is deliberately NOT exported here: it pulls in Node's
+// 'fs'/'path', which breaks Metro bundling for the mobile app. Desktop/Node
+// consumers import it from '@lingora/database/desktop'.
 export { ExpoSQLiteAdapter, type ExpoSQLiteDatabase } from './adapters/expo'
+export { splitSqlStatements } from './adapters/sql-split'
 
 export { seedDatabase } from './seed_dummy_data'

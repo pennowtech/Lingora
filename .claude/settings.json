@@ -42,7 +42,12 @@
       "PowerShell(pnpm --filter @lingora/mobile run typecheck; \"mobile: $LASTEXITCODE\")",
       "PowerShell(pnpm lint 2>&1)",
       "PowerShell(pnpm lint 2>&1 | Select-Object -Last 5; \"lint: $LASTEXITCODE\"; pnpm --filter @lingora/ai run test 2>&1 | Select-Object -Last 5; ./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit; \"tsc: $LASTEXITCODE\")",
-      "PowerShell(git add packages/ai CLAUDE.md)"
+      "PowerShell(git add packages/ai CLAUDE.md)",
+      "PowerShell(./node_modules/.bin/tsc -p packages/types/tsconfig.json --noEmit; \"types: $LASTEXITCODE\"; ./node_modules/.bin/tsc -p packages/database/tsconfig.json --noEmit; \"database: $LASTEXITCODE\")",
+      "PowerShell(git add packages/types packages/database)",
+      "PowerShell(git commit -m \"feat: add example grammar tags and deck emoji to types, schema and repositories\")",
+      "PowerShell($env:ANDROID_HOME = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; $env:CI = \"1\"; $env:REACT_NATIVE_PACKAGER_HOSTNAME = '10.0.2.2'; pnpm --filter @lingora/mobile exec expo start --android --go --host lan --clear)",
+      "Bash(pnpm patch-commit *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\OGSSINGH\\OneDrive - Carl Zeiss AG\\Per\\Totorials_and_AppsDocs\\LingoraDocs"

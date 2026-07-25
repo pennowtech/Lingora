@@ -28,6 +28,37 @@ const UNSUPPORTED_KEYWORDS = [
   'default',
 ] as const
 
+/**
+ * Gemini's `responseSchema` accepts an OpenAPI 3.0 subset — no `$schema`,
+ * and an unrecognized `additionalProperties` key 400s the request (unlike
+ * OpenAI, Gemini has no use for it since it doesn't offer non-strict mode).
+ * Otherwise the shape (type/properties/required/items/enum) matches.
+ */
+export function toGeminiJsonSchema(schema: z.ZodType): Record<string, unknown> {
+  const jsonSchema = toOpenAIJsonSchema(schema)
+  stripAdditionalProperties(jsonSchema)
+  return jsonSchema
+}
+
+function stripAdditionalProperties(node: unknown): void {
+  if (Array.isArray(node)) {
+    for (const item of node) stripAdditionalProperties(item)
+    return
+  }
+  if (typeof node !== 'object' || node === null) return
+  const record = node as Record<string, unknown>
+  delete record['additionalProperties']
+  for (const value of Object.values(record)) stripAdditionalProperties(value)
+}
+
+/**
+ * Anthropic tool `input_schema` accepts standard JSON Schema (draft-2020-12
+ * subset) — the same strict shape OpenAI wants works unchanged.
+ */
+export function toAnthropicJsonSchema(schema: z.ZodType): Record<string, unknown> {
+  return toOpenAIJsonSchema(schema)
+}
+
 function sanitize(node: unknown): void {
   if (Array.isArray(node)) {
     for (const item of node) sanitize(item)

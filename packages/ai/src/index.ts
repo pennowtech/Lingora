@@ -13,6 +13,9 @@ export type {
 
 // Concrete providers
 export { OpenAIProvider, type OpenAIProviderConfig } from './providers/openai'
+export { MistralProvider, type MistralProviderConfig } from './providers/mistral'
+export { GeminiProvider, type GeminiProviderConfig } from './providers/gemini'
+export { AnthropicProvider, type AnthropicProviderConfig } from './providers/anthropic'
 export {
   GoogleTranslateProvider,
   type GoogleTranslateProviderConfig,

@@ -122,6 +122,22 @@ export async function getTodayReviewCount(db: DatabaseAdapter): Promise<number> 
 }
 
 /**
+ * Distinct UTC day indexes (unix ms / 86400000) that have at least one
+ * review, newest first. The home screen computes the streak from this:
+ * consecutive day indexes counting back from today.
+ */
+export async function getReviewedDayIndexes(db: DatabaseAdapter, limit = 366): Promise<number[]> {
+  const rows = await db.query<{ day: number }>(
+    `SELECT DISTINCT CAST(review_date / 86400000 AS INTEGER) AS day
+     FROM review_events
+     ORDER BY day DESC
+     LIMIT ?`,
+    [limit],
+  )
+  return rows.map((row) => row.day)
+}
+
+/**
  * Get the retention rate over the last N days.
  * Retention = (hard + good + easy) / total reviews.
  *

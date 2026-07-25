@@ -1,6 +1,8 @@
 import type { DatabaseAdapter } from '../adapter'
 import { initialSchema } from './0001_initial_schema'
 import { fts5Search } from './0002_fts5_search'
+import { aiCache } from './0003_ai_cache'
+import { deckEmoji } from './0004_deck_emoji'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -9,7 +11,12 @@ export type { Migration } from './types'
  * Every migration, in order. New migrations are appended here with the next
  * consecutive version number.
  */
-export const ALL_MIGRATIONS: readonly Migration[] = [initialSchema, fts5Search]
+export const ALL_MIGRATIONS: readonly Migration[] = [
+  initialSchema,
+  fts5Search,
+  aiCache,
+  deckEmoji,
+]
 
 /**
  * The bookkeeping table. One row per applied migration, so we always know

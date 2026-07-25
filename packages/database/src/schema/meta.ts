@@ -96,6 +96,35 @@ export const evaluations = sqliteTable(
 )
 
 /**
+ * AI response cache (documentation model of migration 0003)
+ *
+ * One row per validated AI generation, keyed by a deterministic cache key
+ * derived from (language, normalized word, CEFR level, provider, model,
+ * prompt version id). A repeated lookup for the same word at the same level
+ * with the same prompt returns the cached payload instantly — zero API cost.
+ *
+ * The prompt version id is part of the key, so bumping a prompt naturally
+ * invalidates every older entry; ON DELETE CASCADE cleans rows up when a
+ * deprecated prompt version is removed.
+ */
+export const aiCache = sqliteTable(
+  'ai_cache',
+  {
+    cacheKey: text('cache_key').primaryKey(),
+    promptVersionId: text('prompt_version_id')
+      .notNull()
+      .references(() => promptVersions.id, { onDelete: 'cascade' }),
+    provider: text('provider').notNull(), // provider that produced the payload (e.g. openai)
+    model: text('model').notNull(), // model that produced the payload (e.g. gpt-4.1-mini)
+    payload: text('payload').notNull(), // the validated WordGenerationPayload as JSON
+    tokensUsed: integer('tokens_used').notNull(),
+    latencyMs: integer('latency_ms').notNull(),
+    createdAt: integer('created_at').notNull(),
+  },
+  (table) => [index('ai_cache_prompt_version_idx').on(table.promptVersionId)],
+)
+
+/**
  * Sync Queue
  *
  * Local changes waiting to be pushed to the server. This allows us to track changes made to the local

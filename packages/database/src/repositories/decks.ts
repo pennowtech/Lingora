@@ -2,7 +2,7 @@ import type { Deck } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /** The columns of a deck row, aliased to the camelCase names of the Deck type. */
-const DECK_COLUMNS = `id, name, parent_id AS parentId, created_at AS createdAt, updated_at AS updatedAt`
+const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, created_at AS createdAt, updated_at AS updatedAt`
 
 /**
  * Get all decks in the database.
@@ -45,9 +45,9 @@ export async function getChildDecks(db: DatabaseAdapter, parentId: string): Prom
  */
 export async function createDeck(db: DatabaseAdapter, deck: Deck): Promise<void> {
   await db.execute(
-    `INSERT INTO decks (id, name, parent_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)`,
-    [deck.id, deck.name, deck.parentId ?? null, deck.createdAt, deck.updatedAt],
+    `INSERT INTO decks (id, name, parent_id, emoji, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [deck.id, deck.name, deck.parentId ?? null, deck.emoji ?? null, deck.createdAt, deck.updatedAt],
   )
 }
 
@@ -92,6 +92,42 @@ export async function moveDeck(
  */
 export async function deleteDeck(db: DatabaseAdapter, deckId: string): Promise<void> {
   await db.execute(`DELETE FROM decks WHERE id = ?`, [deckId])
+}
+
+/** Card and due counts of one deck — the badges on the deck list. */
+export interface DeckCounts {
+  deckId: string
+  cardCount: number
+  dueCount: number
+}
+
+/**
+ * Card and due counts for every deck in one query (single GROUP BY instead of
+ * two queries per deck). Decks with no cards are absent from the result.
+ */
+export async function getDeckCounts(db: DatabaseAdapter): Promise<DeckCounts[]> {
+  return db.query<DeckCounts>(
+    `SELECT dc.deck_id AS deckId,
+            COUNT(*) AS cardCount,
+            SUM(CASE WHEN (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL
+                     THEN 1 ELSE 0 END) AS dueCount
+     FROM deck_cards dc
+     JOIN cards c ON c.id = dc.card_id
+     JOIN card_states cs ON cs.card_id = c.id
+     GROUP BY dc.deck_id`,
+    [Date.now()],
+  )
+}
+
+/**
+ * Number of cards in one deck.
+ */
+export async function getCardCountForDeck(db: DatabaseAdapter, deckId: string): Promise<number> {
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM deck_cards WHERE deck_id = ?`,
+    [deckId],
+  )
+  return result?.count ?? 0
 }
 
 /**

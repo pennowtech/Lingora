@@ -6,18 +6,33 @@ import type { DatabaseAdapter } from '../adapter'
  * 'social' cluster of 'ausgehen' is never shown under the 'run out' cluster.
  */
 
-/** Raw example row as it comes back from SQLite (booleans are 0/1). */
-interface ExampleRow extends Omit<Example, 'isSelected'> {
+/** Raw example row as it comes back from SQLite (booleans are 0/1, JSON is text). */
+interface ExampleRow extends Omit<Example, 'isSelected' | 'grammarTags'> {
   isSelected: number
+  grammarTags: string | null
 }
 
-// context_tags carries the Example.context category; grammar_tags stays a
-// DB-only JSON column until the grammar filter UI lands in Phase 4.
-const EXAMPLE_COLUMNS = `id, card_id AS cardId, meaning_cluster_id AS clusterId, sentence, translation, context_tags AS context, cefr_level AS cefrLevel, is_selected AS isSelected, generation_meta_data_id AS generationMetadataId`
+// context_tags carries the Example.context category; grammar_tags is a JSON
+// string array of the grammar structures the sentence exercises.
+const EXAMPLE_COLUMNS = `id, card_id AS cardId, meaning_cluster_id AS clusterId, sentence, translation, context_tags AS context, cefr_level AS cefrLevel, is_selected AS isSelected, generation_meta_data_id AS generationMetadataId, grammar_tags AS grammarTags`
 
-/** SQLite stores booleans as 0/1 — convert so callers get a real boolean. */
+/** SQLite stores booleans as 0/1 and tag arrays as JSON text — convert both. */
 function toExample(row: ExampleRow): Example {
-  return { ...row, isSelected: row.isSelected !== 0 }
+  const { grammarTags, ...rest } = row
+  return {
+    ...rest,
+    isSelected: row.isSelected !== 0,
+    ...(grammarTags !== null && { grammarTags: parseGrammarTags(grammarTags) }),
+  }
+}
+
+function parseGrammarTags(json: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(json)
+    return Array.isArray(parsed) ? parsed.filter((tag): tag is string => typeof tag === 'string') : []
+  } catch {
+    return []
+  }
 }
 
 /**
@@ -45,8 +60,8 @@ export async function getExamplesForCard(
  */
 export async function createExample(db: DatabaseAdapter, example: Example): Promise<void> {
   await db.execute(
-    `INSERT INTO examples (id, card_id, meaning_cluster_id, sentence, translation, context_tags, cefr_level, is_selected, generation_meta_data_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO examples (id, card_id, meaning_cluster_id, sentence, translation, context_tags, cefr_level, is_selected, generation_meta_data_id, grammar_tags)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       example.id,
       example.cardId,
@@ -57,6 +72,9 @@ export async function createExample(db: DatabaseAdapter, example: Example): Prom
       example.cefrLevel,
       example.isSelected ? 1 : 0,
       example.generationMetadataId ?? null,
+      example.grammarTags && example.grammarTags.length > 0
+        ? JSON.stringify(example.grammarTags)
+        : null,
     ],
   )
 }

@@ -22,6 +22,7 @@
   - [Tech stack](#tech-stack)
   - [Repository structure](#repository-structure)
   - [Development Roadmap](#development-roadmap)
+  - [Phase 3 status — AI engine (core implemented)](#phase-3-status--ai-engine-core-implemented)
   - [Getting started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Clone and install](#clone-and-install)
@@ -189,6 +190,33 @@ Right now, there are two docs with different plans and overlapping requirements.
 
 ---
 
+## Phase 3 status — AI engine (core implemented)
+
+Branch `feature/9-phase3-ai-engine`. Full details: the Phase 3 status block in the development roadmap and the design doc `3_phase3_ai_engine_design.md` (LingoraDocs folder).
+
+**Implemented** — `packages/ai`, the complete generation engine, plus its database layer:
+
+- Split provider slots: `DictionaryProvider` (translate/detect) and `AIProvider` (generation)
+- `OpenAIProvider` (both slots; fetch + strict structured outputs) and `GoogleTranslateProvider` (dictionary slot, **keyless free tier**)
+- Response pipeline on every call: JSON repair → Zod validation → one retry → partial salvage (never persisted)
+- Prompt versioning (`prompt_versions` seeded from code), generation metadata, two-level cache (memory LRU + `ai_cache` table, migration 0003)
+- `createAIPipeline(...).lookupOrGenerate(word, { cefrLevel, deckId })` → `existing | generated | partial`, ending in a single-transaction `persistWordGeneration` across all 12 tables
+
+**Pending**: DeepL/Wiktionary adapters, secure key storage (SecureStore/Tauri Store), wiring into the mobile screens (`grep -rn "TODO(phase3" apps/mobile`).
+
+**Run / test this phase** (no API key needed; tests use in-memory `node:sqlite` and mocked fetch):
+
+```powershell
+pnpm install
+pnpm --filter @lingora/ai run test                                  # 64 tests
+./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit       # typecheck
+# optional live smoke against the real OpenAI API:
+$env:OPENAI_API_KEY = 'sk-...'
+pnpm --filter @lingora/ai exec vitest run src/providers/openai.live.test.ts
+```
+
+---
+
 ## Getting started
 
 ### Prerequisites
@@ -265,9 +293,17 @@ pnpm drizzle-kit migrate   # applies to local SQLite
 
 ### Working with the AI layer
 
-The `@Lingora/ai` package exports an `AIProvider` interface. The active provider is configured in settings and injected at runtime — no code change required to switch between providers.
+The `@lingora/ai` package exports two provider interfaces: `DictionaryProvider` (translation/detection — DeepL, Google Translate, OpenAI) and `AIProvider` (generation — LLMs only). Providers are plain classes injected at construction time:
 
-To add a new provider, implement the `AIProvider` interface in `packages/ai/src/providers/` and register it in `packages/ai/src/registry.ts`. The rest of the app picks it up automatically.
+```typescript
+const pipeline = await createAIPipeline({
+  db,
+  ai: new OpenAIProvider({ apiKey }),
+  dictionary: new GoogleTranslateProvider(), // keyless free tier
+})
+```
+
+To add a new provider, implement the matching interface in `packages/ai/src/providers/` (follow `google-translate.ts` as the template: injectable `fetchFn`, errors mapped to `AIProviderError`, usage capture) and pass it into `createAIPipeline` — there is no registry to update.
 
 ---
 
@@ -478,10 +514,10 @@ The most notable parts are:
 Divided into 8 phases:
 
 - [x] Phase 1 — Monorepo setup, TypeScript, Expo, Tauri
-- [ ] Phase 2 — SQLite schema, FTS5, German morphology engine
-- [ ] Phase 3 — AI abstraction, prompt versioning, context clustering
-- [ ] Phase 4 — Mobile UI, sentence mining, import/export, evaluation tools
-- [ ] Phase 5 — Flashcard system, FSRS, LiquidJS templates
+- [x] Phase 2 — SQLite schema, FTS5, German morphology engine
+- [ ] Phase 3 — AI abstraction, prompt versioning, context clustering _(core engine done — see [Phase 3 status](#phase-3-status--ai-engine-core-implemented))_
+- [ ] Phase 4 — Mobile UI, sentence mining, import/export, evaluation tools _(UI shells built with dummy data)_
+- [ ] Phase 5 — Flashcard system, FSRS, LiquidJS templates _(UI shells built with dummy data)_
 - [ ] Phase 6 — Desktop app, clipboard capture, hotkey popup
 - [ ] Phase 7 — Browser extension, cloud sync, Hono backend
 - [ ] Phase 8 — Distribution (desktop installers, Play Store, App Store)

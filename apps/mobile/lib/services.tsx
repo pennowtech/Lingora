@@ -1,12 +1,16 @@
 import type { CefrLevel } from '@lingora/types'
 import {
+  AnthropicProvider,
   createAIPipeline,
+  GeminiProvider,
   GoogleTranslateProvider,
+  MistralProvider,
   OpenAIProvider,
   type AIPipeline,
   type AIProvider,
   type DictionaryProvider,
 } from '@lingora/ai'
+import { withUsageTracking } from './providerUsage'
 import {
   ExpoSQLiteAdapter,
   migrate,
@@ -31,17 +35,46 @@ import {
  * App services: the SQLite database, the AI pipeline built from the user's
  * stored keys, and the resulting feature tier.
  *
- * - 'translation': no OpenAI key — dictionary translation works (Google free
- *   tier is keyless), card generation is locked.
- * - 'full': OpenAI key configured — generation available.
+ * - 'translation': no generation provider key — dictionary translation still
+ *   works (Google free tier is keyless), card generation is locked.
+ * - 'full': at least one generation provider (OpenAI, Mistral, Gemini,
+ *   Claude) is configured and enabled.
  */
 export type FeatureTier = 'translation' | 'full'
+
+/** The provider slots that can fill AIProvider (word-package generation). */
+export const GENERATION_PROVIDERS = ['openai', 'mistral', 'gemini', 'anthropic'] as const
+export type GenerationProviderName = (typeof GENERATION_PROVIDERS)[number]
+
+/** Everything the dictionary (translation) slot can be filled by. */
+export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'mistral', 'gemini', 'anthropic'] as const
+export type TranslationProviderName = (typeof TRANSLATION_PROVIDERS)[number]
+
+export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
+  openai: 'gpt-4.1-mini',
+  mistral: 'mistral-small-latest',
+  gemini: 'gemini-2.5-flash',
+  anthropic: 'claude-haiku-4-5-20251001',
+}
 
 /** SecureStore keys — the only place API keys and preferences are persisted. */
 export const STORE_KEYS = {
   openaiKey: 'lingora.openai_key',
+  openaiModel: 'lingora.openai_model',
+  openaiEnabled: 'lingora.openai_enabled',
+  mistralKey: 'lingora.mistral_key',
+  mistralModel: 'lingora.mistral_model',
+  mistralEnabled: 'lingora.mistral_enabled',
+  geminiKey: 'lingora.gemini_key',
+  geminiModel: 'lingora.gemini_model',
+  geminiEnabled: 'lingora.gemini_enabled',
+  claudeKey: 'lingora.claude_key',
+  claudeModel: 'lingora.claude_model',
+  claudeEnabled: 'lingora.claude_enabled',
   deeplKey: 'lingora.deepl_key',
+  deeplEnabled: 'lingora.deepl_enabled',
   translationProvider: 'lingora.translation_provider',
+  generationProvider: 'lingora.generation_provider',
   defaultCefr: 'lingora.default_cefr',
 } as const
 
@@ -102,25 +135,114 @@ async function openDatabase(): Promise<DatabaseAdapter> {
 
 const VALID_CEFR: readonly CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
+interface ProviderConfig {
+  key: string
+  enabled: boolean
+  model: string
+}
+
+async function readProviderConfig(
+  keyStoreKey: string,
+  enabledStoreKey: string,
+  modelStoreKey: string,
+  defaultModel: string,
+): Promise<ProviderConfig> {
+  const [key, enabledRaw, model] = await Promise.all([
+    SecureStore.getItemAsync(keyStoreKey),
+    SecureStore.getItemAsync(enabledStoreKey),
+    SecureStore.getItemAsync(modelStoreKey),
+  ])
+  // No stored flag yet (pre-existing keys from before per-provider enable
+  // toggles existed) defaults to enabled — a saved key should keep working.
+  return { key: key ?? '', enabled: enabledRaw !== 'false', model: model ?? defaultModel }
+}
+
+/** OpenAI, Mistral, Gemini, and Claude all implement both provider slots. */
+function instantiateGenerationProvider(
+  name: GenerationProviderName,
+  key: string,
+  model: string,
+): AIProvider & DictionaryProvider {
+  switch (name) {
+    case 'openai':
+      return new OpenAIProvider({ apiKey: key, model })
+    case 'mistral':
+      return new MistralProvider({ apiKey: key, model })
+    case 'gemini':
+      return new GeminiProvider({ apiKey: key, model })
+    case 'anthropic':
+      return new AnthropicProvider({ apiKey: key, model })
+  }
+}
+
 async function buildAIServices(
   db: DatabaseAdapter,
 ): Promise<Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr'>> {
-  const openaiKey = (await SecureStore.getItemAsync(STORE_KEYS.openaiKey)) ?? ''
-  const storedCefr = (await SecureStore.getItemAsync(STORE_KEYS.defaultCefr)) ?? 'B1'
-  const defaultCefr: CefrLevel = (VALID_CEFR as readonly string[]).includes(storedCefr)
+  const [openai, mistral, gemini, claude, storedTranslationProvider, storedGenerationProvider, storedCefr] =
+    await Promise.all([
+      readProviderConfig(STORE_KEYS.openaiKey, STORE_KEYS.openaiEnabled, STORE_KEYS.openaiModel, DEFAULT_MODELS.openai),
+      readProviderConfig(
+        STORE_KEYS.mistralKey,
+        STORE_KEYS.mistralEnabled,
+        STORE_KEYS.mistralModel,
+        DEFAULT_MODELS.mistral,
+      ),
+      readProviderConfig(STORE_KEYS.geminiKey, STORE_KEYS.geminiEnabled, STORE_KEYS.geminiModel, DEFAULT_MODELS.gemini),
+      readProviderConfig(
+        STORE_KEYS.claudeKey,
+        STORE_KEYS.claudeEnabled,
+        STORE_KEYS.claudeModel,
+        DEFAULT_MODELS.anthropic,
+      ),
+      SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+      SecureStore.getItemAsync(STORE_KEYS.generationProvider),
+      SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+    ])
+
+  const defaultCefr: CefrLevel = (VALID_CEFR as readonly string[]).includes(storedCefr ?? '')
     ? (storedCefr as CefrLevel)
     : 'B1'
 
-  // The dictionary slot is always filled: Google's free tier needs no key.
-  // TODO(phase4.1): instantiate DeepLProvider here when the adapter exists
-  // and the user selected it in settings.
-  const dictionary: DictionaryProvider = new GoogleTranslateProvider()
+  const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude }
+  const configured = GENERATION_PROVIDERS.filter(
+    (name) => configs[name].enabled && configs[name].key.trim() !== '',
+  )
+  const preferred = (GENERATION_PROVIDERS as readonly string[]).includes(storedGenerationProvider ?? '')
+    ? (storedGenerationProvider as GenerationProviderName)
+    : undefined
+  const generationProviderName =
+    preferred && configured.includes(preferred) ? preferred : configured[0]
 
-  if (openaiKey === '') {
+  // The dictionary slot: Google's free tier needs no key and is the default;
+  // any configured generation provider can also serve translation.
+  // TODO(phase4.1): instantiate DeepLProvider here when the adapter exists.
+  let dictionary: DictionaryProvider = new GoogleTranslateProvider()
+  const translationProviderName = (TRANSLATION_PROVIDERS as readonly string[]).includes(
+    storedTranslationProvider ?? '',
+  )
+    ? (storedTranslationProvider as TranslationProviderName)
+    : 'google'
+  if (
+    translationProviderName !== 'google' &&
+    translationProviderName !== 'deepl' &&
+    configured.includes(translationProviderName)
+  ) {
+    const cfg = configs[translationProviderName]
+    dictionary = withUsageTracking(
+      instantiateGenerationProvider(translationProviderName, cfg.key, cfg.model),
+      translationProviderName,
+    )
+  }
+
+  if (!generationProviderName) {
     return { ai: null, pipeline: null, tier: 'translation', defaultCefr }
   }
 
-  const ai = new OpenAIProvider({ apiKey: openaiKey })
+  const chosen = configs[generationProviderName]
+  const ai = withUsageTracking(
+    instantiateGenerationProvider(generationProviderName, chosen.key, chosen.model),
+    generationProviderName,
+  )
   const pipeline = await createAIPipeline({ db, ai, dictionary })
   return { ai, pipeline, tier: 'full', defaultCefr }
 }

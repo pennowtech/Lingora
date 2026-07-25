@@ -270,7 +270,7 @@ export interface SentenceMineEntry {
 
 // ─── AI and generation ────────────────────────────────────────────────────────
 //TODO: this is very OpenAI-centric right now. As we add more providers, we may want to split this into provider-agnostic metadata + provider-specific metadata.
-export type AIProviderName = 'openai' | 'anthropic' | 'gemini' | 'local'
+export type AIProviderName = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'local'
 
 export interface GenerationMetadata {
   id: string

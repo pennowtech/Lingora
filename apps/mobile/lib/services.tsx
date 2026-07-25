@@ -79,7 +79,12 @@ async function openDatabase(): Promise<DatabaseAdapter> {
   if (dbPromise) return dbPromise
 
   dbPromise = (async () => {
-    const raw = await openDatabaseAsync('lingora.db')
+    // expo-sqlite's automatic statement cleanup double-finalizes statements
+    // owned by FTS5 while closing the connection, which aborts Android in
+    // libexpo-sqlite. FTS5 manages those statements itself.
+    const raw = await openDatabaseAsync('lingora.db', {
+      finalizeUnusedStatementsBeforeClosing: false,
+    })
     // The adapter's structural type uses unknown[] params so the shared
     // package compiles without Expo; the real SQLiteDatabase narrows them,
     // which strict variance rejects — runtime-compatible, so bridge the

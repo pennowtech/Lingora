@@ -11,9 +11,9 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import type { JSX } from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Button, Card, CefrBadge, SectionHeader } from '../../components/ui'
+import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -80,6 +80,22 @@ export default function HomeScreen(): JSX.Element {
           </View>
         </View>
 
+        {statsQuery.isError || recentQuery.isError ? (
+          <View style={styles.errorBanner}>
+            <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+            <Text style={styles.errorBannerText}>Some data on this screen couldn't load.</Text>
+            <Pressable
+              onPress={() => {
+                if (statsQuery.isError) void statsQuery.refetch()
+                if (recentQuery.isError) void recentQuery.refetch()
+              }}
+              hitSlop={8}
+            >
+              <Text style={styles.errorBannerRetry}>Retry</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
         {/* Due-today hero card */}
         <Card style={styles.heroCard}>
           <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
@@ -143,19 +159,27 @@ export default function HomeScreen(): JSX.Element {
 
         {/* Recently added */}
         <SectionHeader title="Recently added" action="See all" onAction={() => router.push('/decks')} />
-        {recent.map((word) => (
-          <Card
-            key={word.cardId}
-            style={styles.wordRow}
-            onPress={() => router.push({ pathname: '/word/[form]', params: { form: word.form } })}
-          >
-            <View style={styles.wordRowText}>
-              <Text style={styles.wordForm}>{word.form}</Text>
-              {word.translation ? <Text style={styles.wordMeaning}>{word.translation}</Text> : null}
-            </View>
-            {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}
-          </Card>
-        ))}
+        {recent.length === 0 && recentQuery.isSuccess ? (
+          <EmptyState
+            icon="sparkles-outline"
+            title="No words yet"
+            message="Look up a word to add your first card."
+          />
+        ) : (
+          recent.map((word) => (
+            <Card
+              key={word.cardId}
+              style={styles.wordRow}
+              onPress={() => router.push({ pathname: '/word/[form]', params: { form: word.form } })}
+            >
+              <View style={styles.wordRowText}>
+                <Text style={styles.wordForm}>{word.form}</Text>
+                {word.translation ? <Text style={styles.wordMeaning}>{word.translation}</Text> : null}
+              </View>
+              {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}
+            </Card>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   )
@@ -183,6 +207,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   streakLabel: { fontSize: type.caption, fontWeight: '700', color: colors.warning },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  errorBannerText: { flex: 1, fontSize: type.caption, color: colors.danger },
+  errorBannerRetry: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
   heroCard: {
     alignItems: 'center',
     paddingVertical: spacing.xl,

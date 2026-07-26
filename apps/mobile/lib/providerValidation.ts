@@ -1,4 +1,4 @@
-import { AIProviderError, AnthropicProvider, GeminiProvider, MistralProvider, OpenAIProvider } from '@lingora/ai'
+import { AIProviderError, AnthropicProvider, DeepLProvider, GeminiProvider, MistralProvider, OpenAIProvider } from '@lingora/ai'
 import { logger } from '@lingora/observability'
 
 const log = logger.child({ feature: 'settings', component: 'providerValidation' })
@@ -14,6 +14,7 @@ const PROVIDER_HOSTS = {
   mistral: 'https://api.mistral.ai/v1/models',
   gemini: 'https://generativelanguage.googleapis.com',
   anthropic: 'https://api.anthropic.com',
+  deepl: 'https://api-free.deepl.com',
 } as const
 
 /**
@@ -111,5 +112,15 @@ export async function validateClaudeKey(apiKey: string, model: string): Promise<
     const provider = new AnthropicProvider({ apiKey, model, timeoutMs: 15000 })
     await provider.translate('Guten Tag', 'de', 'en')
     return `${model} is ready for card generation and translation.`
+  })
+}
+
+export async function validateDeepLKey(apiKey: string): Promise<ValidationResult> {
+  // DeepL splits free/pro keys across two hosts (DeepLProvider picks the right one from the
+  // key's ':fx' suffix) — reachability only needs one of them to prove the network is up.
+  return runValidation('DeepL', PROVIDER_HOSTS.deepl, async () => {
+    const provider = new DeepLProvider({ apiKey, timeoutMs: 15000 })
+    await provider.translate('Guten Tag', 'de', 'en')
+    return 'Ready for translation.'
   })
 }

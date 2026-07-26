@@ -108,9 +108,15 @@ export function IconButton(props: {
   onPress: () => void
   color?: string
   size?: number
+  disabled?: boolean
 }): JSX.Element {
   return (
-    <Pressable onPress={props.onPress} hitSlop={8} style={({ pressed }) => pressed && { opacity: 0.6 }}>
+    <Pressable
+      onPress={props.onPress}
+      disabled={props.disabled}
+      hitSlop={8}
+      style={({ pressed }) => [props.disabled && { opacity: 0.4 }, pressed && { opacity: 0.6 }]}
+    >
       <Ionicons name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />
     </Pressable>
   )

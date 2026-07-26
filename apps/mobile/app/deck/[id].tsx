@@ -73,6 +73,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.back()
     },
+    onError: (error: unknown) => Alert.alert('Could not delete deck', String(error)),
   })
 
   const confirmDelete = (): void => {
@@ -189,7 +190,13 @@ export default function DeckDetailScreen(): JSX.Element {
               setRenameOpen(true)
             }}
           />
-          <Button label="Delete deck" icon="trash" variant="danger" onPress={confirmDelete} />
+          <Button
+            label={remove.isPending ? 'Deleting…' : 'Delete deck'}
+            icon="trash"
+            variant="danger"
+            onPress={confirmDelete}
+            disabled={remove.isPending}
+          />
         </View>
       </Modal>
 

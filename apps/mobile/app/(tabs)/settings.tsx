@@ -23,6 +23,9 @@ import {
 } from '../../lib/providerValidation'
 import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
 import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
+import { logger } from '@lingora/observability'
+
+const log = logger.child({ feature: 'settings', screen: 'SettingsScreen' })
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const ZERO_USAGE: UsageSnapshot = { requests: 0, tokensUsed: 0 }
@@ -204,14 +207,26 @@ export default function SettingsScreen(): JSX.Element {
   const changeEnabled = (name: GenerationProviderName, value: boolean): void => {
     updateProvider(name, { enabled: value })
     persist(PROVIDER_STORE_KEYS[name].enabled, value ? 'true' : 'false')
+    log.info('settings.provider_enabled_changed', {
+      message: `${value ? 'Enabled' : 'Disabled'} a generation provider`,
+      metadata: { provider: name, settingKey: 'enabled' },
+    })
   }
   const changeGenerationProvider = (name: GenerationProviderName): void => {
     setGenerationProviderState(name)
     persist(STORE_KEYS.generationProvider, name)
+    log.info('settings.generation_provider_changed', {
+      message: 'Active generation provider changed',
+      metadata: { provider: name },
+    })
   }
   const changeTranslationProvider = (value: TranslationProviderName): void => {
     setTranslationProviderState(value)
     persist(STORE_KEYS.translationProvider, value)
+    log.info('settings.translation_provider_changed', {
+      message: 'Translation provider changed',
+      metadata: { provider: value },
+    })
   }
   const changeDeeplKey = (value: string): void => {
     setDeeplKey(value)
@@ -243,6 +258,10 @@ export default function SettingsScreen(): JSX.Element {
     updateProvider(name, { apiKey: '' })
     persist(PROVIDER_STORE_KEYS[name].key, '')
     void clearUsage(name).then(() => setUsage((prev) => ({ ...prev, [name]: ZERO_USAGE })))
+    log.info('settings.provider_key_cleared', {
+      message: 'Provider API key cleared',
+      metadata: { provider: name },
+    })
   }
 
   const deleteAllKeys = (): void => {
@@ -264,6 +283,10 @@ export default function SettingsScreen(): JSX.Element {
             setDeeplKey('')
             void SecureStore.setItemAsync(STORE_KEYS.deeplKey, '')
             void reloadServices()
+            log.info('settings.all_provider_keys_deleted', {
+              message: 'User deleted every provider API key from this device',
+              metadata: { itemCount: GENERATION_PROVIDERS.length },
+            })
           },
         },
       ],

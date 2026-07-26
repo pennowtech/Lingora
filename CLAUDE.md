@@ -22,10 +22,12 @@ pnpm --filter @lingora/mobile run typecheck    # tsc --noEmit for the app
 ./node_modules/.bin/tsc -p packages/database/tsconfig.json --noEmit   # typecheck a package
 ./node_modules/.bin/tsc -p packages/types/tsconfig.json --noEmit
 ./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit
+./node_modules/.bin/tsc -p packages/observability/tsconfig.json --noEmit
 pnpm --filter @lingora/ai run test             # Vitest (node:sqlite in-memory, mocked fetch)
+pnpm --filter @lingora/observability run test  # Vitest (schema/privacy/policy/transport contracts)
 ```
 
-There is no root tsconfig; the root `pnpm typecheck` script (`tsc --build`) does not work — typecheck per package/app as above. Vitest is the test runner, currently scoped to `packages/ai` (tests co-located as `src/**/*.test.ts`; `src/providers/openai.live.test.ts` is an opt-in live smoke that only runs when `OPENAI_API_KEY` is set). The Phase 2 data layer predates it and was verified with a scratch smoke test via `tsx` (see `3_phase2_database_design.md` §11).
+There is no root tsconfig; the root `pnpm typecheck` script (`tsc --build`) does not work — typecheck per package/app as above. Vitest is the test runner, currently scoped to `packages/ai` and `packages/observability` (tests co-located as `src/**/*.test.ts`; `src/providers/openai.live.test.ts` is an opt-in live smoke that only runs when `OPENAI_API_KEY` is set). The Phase 2 data layer predates it and was verified with a scratch smoke test via `tsx` (see `3_phase2_database_design.md` §11).
 
 Run the mobile app on the Android emulator (see also `.vscode/tasks.json`, which automates all of this for the Task Sidebar extension):
 
@@ -50,8 +52,9 @@ apps/mobile        Expo app. Screens in app/ (expo-router file routing), shared 
                    components/ui.tsx, design tokens in lib/theme.ts, dummy data in lib/dummy.ts
 packages/types     Shared TypeScript interfaces — zero dependencies, the contract everything returns
 packages/database  Adapter interface, migrations, FTS5, repositories, platform adapters, seed
-packages/ai        Phase 3 engine: provider slots, OpenAI impl, zod validation + JSON repair,
-                   prompt versioning, two-level cache, lookupOrGenerate pipeline
+packages/ai        Phase 3 engine: provider slots, OpenAI/Mistral/Gemini/Claude impls, zod
+                   validation + JSON repair, prompt versioning, two-level cache, lookupOrGenerate
+packages/observability  Structured logging facade — see "Observability & logging" below
 ```
 
 Package scope is `@lingora/*`. Apps import packages; apps never import other apps; packages never import apps.
@@ -88,6 +91,42 @@ Package scope is `@lingora/*`. Apps import packages; apps never import other app
 - **No inline hex colors** — all tokens from `lib/theme.ts` (brand purple `#534AB7`, CEFR green→amber→purple ramp, rating colors Again/Hard/Good/Easy = red/orange/green/blue).
 - `lib/dummy.ts` now holds only the Phase 5 stand-ins (review queue, FSRS intervals, stats aggregates); everything else is wired to the database. Import/export (`settings/import-export.tsx`) is a deferred stub.
 - `apps/mobile/CLAUDE.md` → `AGENTS.md` warns: Expo SDK 56 changed a lot — check https://docs.expo.dev/versions/v56.0.0/ rather than assuming; take dependency versions from `expo install --check`, not memory.
+
+### Observability & logging (`packages/observability`)
+
+Every feature — new and existing — traces its flow and failures through `@lingora/observability`, not
+raw `console.log`. It's a privacy-safe structured logging facade (ported from a sister project,
+adapted to Lingora's domain): app/package code only ever imports `logger` and `configureObservability`
+from `@lingora/observability`, never a transport directly.
+
+- **Two entry points, deliberately split.** The main entry (`@lingora/observability`) has zero Expo/RN
+  dependency, so `packages/ai` and `packages/database` (and their Vitest suites, which run under plain
+  Node) can log too. The on-device rotating JSON-lines file transport is a separate subpath
+  (`@lingora/observability/expo`) — only `apps/mobile` imports it, wired in once at the top of
+  `lib/services.tsx` via `configureObservability({ ..., additionalSinks: [createExpoJsonLinesSink()] })`.
+- **`logger.child({ feature, screen, component, operation, operationId })` once per module**, near the
+  top of a screen/provider/pipeline file, then call `.debug` / `.info` / `.warn` / `.error` / `.fatal`
+  on the child. `feature` must be one of `LingoraFeature` (`app`, `database`, `ai`, `dictionary`,
+  `search`, `vocabulary`, `deck`, `mining`, `srs`, `settings`, `sync`, `import`, `export`, `network`,
+  `diagnostics`); event names are `feature.snake_case_verb` (e.g. `ai.generation_completed`,
+  `database.migration_applied`) and **must** be prefixed with the logger's own `feature` — a call to
+  the wrong feature's namespace is silently dropped by `isValidEventName`, not an error.
+- **`message` is compulsory on every call** — `SafeLogPayload.message` is required, not optional. A log
+  line has to be understandable on its own in a log viewer or a shipped diagnostics file.
+- **Metadata is allowlisted** (`ALLOWED_METADATA_KEYS` in `src/policy.ts`) and free text goes through
+  `sanitizeText` (strips emails/bearer tokens/secret assignments/URLs-with-query/file paths) — but the
+  allowlist is the real guarantee. **Never** log word text, translations, AI prompts/responses, API
+  keys, tokens, or emails; use `recordId` for a card/deck/generation id, `tokenCountBucket` /
+  `inputLengthBucket` for coarse buckets (via `packages/ai/src/providers/http.ts#bucketTokenCount`), and
+  omit `result` entirely on a plain "this happened" info log rather than writing `result: 'success'`
+  everywhere.
+- **Existing call sites to follow as the pattern**: every `AIProvider`/`DictionaryProvider`'s low-level
+  HTTP method (`chat`/`generateContent`/`callTool`/`request`) logs `ai.provider_request_started` →
+  `_completed` (with `tokenCountBucket`, `durationMs`) or `_failed` (with `statusCode`, via the caught
+  `AIProviderError`); `pipeline/lookup-or-generate.ts` traces the whole lookup → cache → dictionary-hint
+  → generate → persist flow; `lib/services.tsx` traces database bootstrap and AI pipeline construction;
+  `app/(tabs)/settings.tsx` + `lib/providerValidation.ts` trace key validation and provider changes.
+  New AI/database/screen code should add equivalent tracing, not skip it.
 
 ## Conventions
 

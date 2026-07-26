@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@lingora/database": "workspace:*",
+    "@lingora/observability": "workspace:*",
     "@lingora/types": "workspace:*",
     "jsonrepair": "^3.13.1",
     "zod": "^4.3.5"

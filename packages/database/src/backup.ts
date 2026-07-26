@@ -107,7 +107,7 @@ const TABLE_COLUMNS = {
     'processed',
     'card_id',
   ],
-  evaluations: ['id', 'target_type', 'target_id', 'rating', 'created_at'],
+  evaluations: ['id', 'target_type', 'target_id', 'rating', 'reason', 'note', 'created_at'],
 } as const
 
 export type BackupTableName = keyof typeof TABLE_COLUMNS

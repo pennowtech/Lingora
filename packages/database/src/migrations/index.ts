@@ -3,6 +3,7 @@ import { initialSchema } from './0001_initial_schema'
 import { fts5Search } from './0002_fts5_search'
 import { aiCache } from './0003_ai_cache'
 import { deckEmoji } from './0004_deck_emoji'
+import { evaluationReports } from './0005_evaluation_reports'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -16,6 +17,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   fts5Search,
   aiCache,
   deckEmoji,
+  evaluationReports,
 ]
 
 /**

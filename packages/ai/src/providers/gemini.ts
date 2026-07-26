@@ -7,6 +7,7 @@ import type {
   LanguageCode,
 } from '@lingora/types'
 import { z } from 'zod'
+import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
 import { generateValidated, type RawCompletion } from '../generation/structured'
 import { PROMPTS, renderPrompt } from '../prompts/templates'
@@ -22,7 +23,7 @@ import {
   wordGenerationSchema,
 } from '../schemas/generation'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
-import { startRequestTimeout } from './http'
+import { bucketTokenCount, startRequestTimeout } from './http'
 import { toGeminiJsonSchema } from './json-schema'
 import type {
   AIProvider,
@@ -76,6 +77,8 @@ const clozesResponseSchema = z.object({ clozes: z.array(generatedClozeSchema) })
 const clozesJsonTargetSchema = z.object({ clozes: z.array(generatedClozeBaseSchema) })
 const translateResponseSchema = z.object({ translation: z.string().min(1) })
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
+
+const log = logger.child({ feature: 'ai', component: 'GeminiProvider' })
 
 /**
  * Google Gemini implementation of both provider slots.
@@ -249,6 +252,38 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
     jsonSchema: Record<string, unknown>,
   ): Promise<RawCompletion> {
     const startedAt = Date.now()
+    const meta = { provider: this.name, modelAlias: this.model }
+    log.debug('ai.provider_request_started', { message: 'Gemini generateContent request started', metadata: meta })
+
+    try {
+      const completion = await this.performGenerateContent(contents, jsonSchema, startedAt)
+      log.info('ai.provider_request_completed', {
+        message: 'Gemini generateContent request succeeded',
+        result: 'success',
+        durationMs: completion.latencyMs,
+        metadata: { ...meta, tokenCountBucket: bucketTokenCount(completion.tokensUsed) },
+      })
+      return completion
+    } catch (error) {
+      const providerError = error instanceof AIProviderError ? error : undefined
+      log.error('ai.provider_request_failed', error, {
+        message: 'Gemini generateContent request failed',
+        durationMs: Date.now() - startedAt,
+        ...(providerError?.status !== undefined ? { errorCode: String(providerError.status) } : {}),
+        metadata: {
+          ...meta,
+          ...(providerError?.status !== undefined ? { statusCode: providerError.status } : {}),
+        },
+      })
+      throw error
+    }
+  }
+
+  private async performGenerateContent(
+    contents: GeminiContent[],
+    jsonSchema: Record<string, unknown>,
+    startedAt: number,
+  ): Promise<RawCompletion> {
     const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
 

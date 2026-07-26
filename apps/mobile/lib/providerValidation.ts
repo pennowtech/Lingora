@@ -1,4 +1,7 @@
 import { AIProviderError, AnthropicProvider, GeminiProvider, MistralProvider, OpenAIProvider } from '@lingora/ai'
+import { logger } from '@lingora/observability'
+
+const log = logger.child({ feature: 'settings', component: 'providerValidation' })
 
 export interface ValidationResult {
   ok: boolean
@@ -40,15 +43,40 @@ async function runValidation(
   hostUrl: string,
   probe: () => Promise<string>,
 ): Promise<ValidationResult> {
+  const startedAt = Date.now()
+  log.info('settings.provider_validation_started', {
+    message: 'Provider key validation started',
+    metadata: { provider: providerName },
+  })
   if (!(await canReachProviderHost(hostUrl))) {
+    log.warn('settings.provider_validation_failed', {
+      message: 'Provider host unreachable — device appears offline',
+      durationMs: Date.now() - startedAt,
+      metadata: { provider: providerName, networkType: 'unavailable' },
+    })
     return { ok: false, networkUnavailable: true, message: offlineMessage(providerName) }
   }
   try {
     const detail = await probe()
+    log.info('settings.provider_validation_completed', {
+      message: 'Provider key validated successfully',
+      result: 'success',
+      durationMs: Date.now() - startedAt,
+      metadata: { provider: providerName },
+    })
     return { ok: true, message: `Connected — ${detail}` }
   } catch (error) {
-    if (error instanceof AIProviderError) {
-      return { ok: false, message: error.message }
+    const providerError = error instanceof AIProviderError ? error : undefined
+    log.warn('settings.provider_validation_failed', {
+      message: 'Provider key validation failed',
+      durationMs: Date.now() - startedAt,
+      metadata: {
+        provider: providerName,
+        ...(providerError?.status !== undefined ? { statusCode: providerError.status } : {}),
+      },
+    })
+    if (providerError) {
+      return { ok: false, message: providerError.message }
     }
     return { ok: false, message: `${providerName} validation failed: ${String(error)}` }
   }

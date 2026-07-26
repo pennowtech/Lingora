@@ -1,7 +1,10 @@
 import type { LanguageCode } from '@lingora/types'
+import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
 import { startRequestTimeout } from './http'
 import type { AIResult, DictionaryProvider } from './types'
+
+const log = logger.child({ feature: 'dictionary', component: 'GoogleTranslateProvider' })
 
 /**
  * Google Translate adapter for the DictionaryProvider slot — the free-tier
@@ -82,6 +85,40 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     source: string,
     target: string,
   ): Promise<{ payload: unknown; latencyMs: number }> {
+    const startedAt = Date.now()
+    const meta = { provider: this.name, sourceLanguage: source, targetLanguage: target }
+    log.debug('dictionary.request_started', { message: 'Google Translate request started', metadata: meta })
+
+    try {
+      const result = await this.performRequest(text, source, target, startedAt)
+      log.info('dictionary.request_completed', {
+        message: 'Google Translate request succeeded',
+        result: 'success',
+        durationMs: result.latencyMs,
+        metadata: meta,
+      })
+      return result
+    } catch (error) {
+      const providerError = error instanceof AIProviderError ? error : undefined
+      log.error('dictionary.request_failed', error, {
+        message: 'Google Translate request failed',
+        durationMs: Date.now() - startedAt,
+        ...(providerError?.status !== undefined ? { errorCode: String(providerError.status) } : {}),
+        metadata: {
+          ...meta,
+          ...(providerError?.status !== undefined ? { statusCode: providerError.status } : {}),
+        },
+      })
+      throw error
+    }
+  }
+
+  private async performRequest(
+    text: string,
+    source: string,
+    target: string,
+    startedAt: number,
+  ): Promise<{ payload: unknown; latencyMs: number }> {
     const params = new URLSearchParams({
       client: 'gtx',
       sl: source,
@@ -90,7 +127,6 @@ export class GoogleTranslateProvider implements DictionaryProvider {
       q: text,
     })
     const url = `${this.baseUrl}/translate_a/single?${params.toString()}`
-    const startedAt = Date.now()
     const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
 

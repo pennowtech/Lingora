@@ -10,6 +10,8 @@ import {
   type AIProvider,
   type DictionaryProvider,
 } from '@lingora/ai'
+import { configureObservability, logger } from '@lingora/observability'
+import { createExpoJsonLinesSink } from '@lingora/observability/expo'
 import { withUsageTracking } from './providerUsage'
 import {
   ExpoSQLiteAdapter,
@@ -20,6 +22,8 @@ import {
 } from '@lingora/database'
 import { openDatabaseAsync } from 'expo-sqlite'
 import * as SecureStore from 'expo-secure-store'
+import Constants from 'expo-constants'
+import { Platform } from 'react-native'
 import {
   createContext,
   useCallback,
@@ -30,6 +34,30 @@ import {
   type JSX,
   type ReactNode,
 } from 'react'
+
+/**
+ * Wires the structured-logging facade before anything else boots: console sink always on, plus a
+ * rotating on-device JSON-lines file (`@lingora/observability/expo`) so a bug report can be traced
+ * from a shipped diagnostics file, not just a live Metro session. Called once at module load —
+ * `logger.child(...)` below and in every screen/package resolves against whatever this configured,
+ * even though those children are frequently constructed before this line runs (see logger.ts).
+ */
+configureObservability({
+  context: {
+    feature: 'app',
+    appVersion: Constants.expoConfig?.version ?? 'unknown',
+    buildNumber: String(
+      Constants.expoConfig?.android?.versionCode ?? Constants.expoConfig?.ios?.buildNumber ?? 'unknown',
+    ),
+    platform: Platform.OS === 'ios' ? 'ios' : 'android',
+    environment: __DEV__ ? 'development' : 'production',
+  },
+  additionalSinks: [createExpoJsonLinesSink()],
+})
+
+const bootLog = logger.child({ feature: 'app', component: 'services', operation: 'bootstrap' })
+const dbLog = logger.child({ feature: 'database', component: 'services' })
+const aiLog = logger.child({ feature: 'ai', component: 'services' })
 
 /**
  * App services: the SQLite database, the AI pipeline built from the user's
@@ -112,22 +140,38 @@ async function openDatabase(): Promise<DatabaseAdapter> {
   if (dbPromise) return dbPromise
 
   dbPromise = (async () => {
-    // expo-sqlite's automatic statement cleanup double-finalizes statements
-    // owned by FTS5 while closing the connection, which aborts Android in
-    // libexpo-sqlite. FTS5 manages those statements itself.
-    const raw = await openDatabaseAsync('lingora.db', {
-      finalizeUnusedStatementsBeforeClosing: false,
-    })
-    // The adapter's structural type uses unknown[] params so the shared
-    // package compiles without Expo; the real SQLiteDatabase narrows them,
-    // which strict variance rejects — runtime-compatible, so bridge the
-    // nominal gap here.
-    const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
-    await migrate(db)
-    // Development seed — idempotent (fixed ids, INSERT OR IGNORE), guarantees
-    // deck-default exists and every screen has content on first launch.
-    await seedDatabase(db)
-    return db
+    const startedAt = Date.now()
+    dbLog.info('database.open_started', { message: 'Opening lingora.db' })
+    try {
+      // expo-sqlite's automatic statement cleanup double-finalizes statements
+      // owned by FTS5 while closing the connection, which aborts Android in
+      // libexpo-sqlite. FTS5 manages those statements itself.
+      const raw = await openDatabaseAsync('lingora.db', {
+        finalizeUnusedStatementsBeforeClosing: false,
+      })
+      // The adapter's structural type uses unknown[] params so the shared
+      // package compiles without Expo; the real SQLiteDatabase narrows them,
+      // which strict variance rejects — runtime-compatible, so bridge the
+      // nominal gap here.
+      const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
+      await migrate(db)
+      dbLog.info('database.migrations_applied', { message: 'Pending schema migrations applied', result: 'success' })
+      // Development seed — idempotent (fixed ids, INSERT OR IGNORE), guarantees
+      // deck-default exists and every screen has content on first launch.
+      await seedDatabase(db)
+      dbLog.info('database.open_completed', {
+        message: 'Database ready',
+        result: 'success',
+        durationMs: Date.now() - startedAt,
+      })
+      return db
+    } catch (error) {
+      dbLog.fatal('database.open_failed', error, {
+        message: 'Database bootstrap failed',
+        durationMs: Date.now() - startedAt,
+      })
+      throw error
+    }
   })()
 
   return dbPromise
@@ -235,6 +279,10 @@ async function buildAIServices(
   }
 
   if (!generationProviderName) {
+    aiLog.info('ai.pipeline_locked', {
+      metadata: { itemCount: configured.length },
+      message: 'No generation provider configured — tier is translation-only',
+    })
     return { ai: null, pipeline: null, tier: 'translation', defaultCefr }
   }
 
@@ -244,6 +292,11 @@ async function buildAIServices(
     generationProviderName,
   )
   const pipeline = await createAIPipeline({ db, ai, dictionary })
+  aiLog.info('ai.pipeline_built', {
+    message: 'AI generation pipeline built from stored provider keys',
+    result: 'success',
+    metadata: { provider: generationProviderName, modelAlias: chosen.model, itemCount: configured.length },
+  })
   return { ai, pipeline, tier: 'full', defaultCefr }
 }
 
@@ -273,6 +326,11 @@ export function ServicesProvider({
         const db = await openDatabase()
         const aiServices = await buildAIServices(db)
         if (cancelled) return
+        bootLog.info('app.bootstrap_completed', {
+          message: 'App services (database + AI pipeline) are ready',
+          result: 'success',
+          metadata: { itemCount: attempt },
+        })
         setBoot({
           status: 'ready',
           error: null,
@@ -281,6 +339,10 @@ export function ServicesProvider({
             ...aiServices,
             reloadServices: async () => {
               const rebuilt = await buildAIServices(db)
+              bootLog.info('app.services_reloaded', {
+                message: 'AI services rebuilt after a settings change',
+                result: 'success',
+              })
               setBoot((prev) =>
                 prev.services
                   ? { ...prev, services: { ...prev.services, ...rebuilt } }
@@ -291,6 +353,7 @@ export function ServicesProvider({
         })
       } catch (error) {
         if (cancelled) return
+        bootLog.fatal('app.bootstrap_failed', error, { message: 'App bootstrap failed' })
         setBoot({ status: 'error', services: null, error: String(error) })
       }
     }

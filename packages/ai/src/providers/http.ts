@@ -27,3 +27,12 @@ export function startRequestTimeout(timeoutMs: number): RequestTimeout {
     clear: () => clearTimeout(timer),
   }
 }
+
+/** Coarse bucket for a log line — cardinality-friendly for aggregation, never the exact count of a
+ * specific request (which would make a log line fingerprintable back to one user's word lookup). */
+export function bucketTokenCount(tokens: number): string {
+  if (tokens < 500) return '<500'
+  if (tokens < 1500) return '500-1500'
+  if (tokens < 3000) return '1500-3000'
+  return '3000+'
+}

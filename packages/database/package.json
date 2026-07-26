@@ -8,14 +8,22 @@
     ".": "./src/index.ts",
     "./desktop": "./src/desktop.ts"
   },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
+    "@lingora/observability": "workspace:*",
     "@lingora/types": "workspace:*",
     "better-sqlite3": "^12.10.0",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "drizzle-kit": "^0.31.10"
+    "@types/node": "^25.0.0",
+    "drizzle-kit": "^0.31.10",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "expo-sqlite": ">=57.0.1 <58"

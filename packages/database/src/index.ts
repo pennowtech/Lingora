@@ -3,6 +3,18 @@ export { buildFTSQuery, FTS_TABLES, FTS5_SETUP_SQL, FTS5_TEARDOWN_SQL } from './
 export * from './schema'
 
 export {
+  BACKUP_FORMAT_VERSION,
+  BackupValidationError,
+  createBackup,
+  parseBackup,
+  restoreBackup,
+  type BackupPayload,
+  type BackupSettings,
+  type BackupTableName,
+  type RestoreResult,
+} from './backup'
+
+export {
   ALL_MIGRATIONS,
   getCurrentSchemaVersion,
   migrate,

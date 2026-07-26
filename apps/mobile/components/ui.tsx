@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native'
@@ -25,19 +26,25 @@ export function Card(props: {
   children: ReactNode
   style?: StyleProp<ViewStyle>
   onPress?: () => void
+  onLayout?: (event: LayoutChangeEvent) => void
 }): JSX.Element {
-  const { children, style, onPress } = props
+  const { children, style, onPress, onLayout } = props
   if (onPress) {
     return (
       <Pressable
         onPress={onPress}
+        onLayout={onLayout}
         style={({ pressed }) => [styles.card, pressed && styles.cardPressed, style]}
       >
         {children}
       </Pressable>
     )
   }
-  return <View style={[styles.card, style]}>{children}</View>
+  return (
+    <View style={[styles.card, style]} onLayout={onLayout}>
+      {children}
+    </View>
+  )
 }
 
 // ─── Section header ───────────────────────────────────────────────────────────

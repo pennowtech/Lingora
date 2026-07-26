@@ -255,8 +255,8 @@ export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
       [
         'template-default',
         'Default',
-        '<div class="front">{{ word }}</div>',
-        '<div class="back">{{ meaning }}<hr>{{ example }}</div>',
+        '{{ word }}',
+        '{{ meaning }}<hr>{{ example }}',
         '.front, .back { font-size: 1.4rem; text-align: center; }',
         1,
         now,

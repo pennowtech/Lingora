@@ -5,10 +5,14 @@
 
 ## Snapshot
 
-- **Assessment date:** 2026-07-26
+- **Assessment date:** 2026-07-26 (original) · **updated:** 2026-07-26 (final
+  acceptance pass, after work packages 1–6)
 - **Assessed branch:** `main`
-- **Assessed commit:** `15027f0`
-- **Overall status:** **Partially complete (approximately 65–75%)**
+- **Assessed commit:** `15027f0` (original) · `f90cf75` (final acceptance pass)
+- **Overall status:** **Complete** — all six work packages below are shipped,
+  merged, and verified on the AVD. Remaining gaps are explicitly scoped-out
+  decisions (share-sheet capture, Anki review-history/media import, per-item
+  synonym regeneration), not missing work.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on the
   Pixel 6 Pro Android Virtual Device with Node 26.
 - **Working tree at assessment:** Clean and synchronized with `origin/main`.
@@ -35,10 +39,16 @@ Phase 4 has a functional vocabulary lookup and generation experience:
 - partial AI-output evaluation;
 - loading, empty, and error states across most query-backed screens.
 
-Phase 4 must **not** be marked complete yet. The largest missing deliverable is
-the complete import/export system. Sentence capture entry points and the
-evaluation workflow are also incomplete. Several controls render correctly but
-do not yet implement all behavior promised by the roadmap.
+**Update (final acceptance pass):** All six work packages below have since
+shipped — JSON backup/restore, CSV import, Anki `.apkg` import, manual/
+clipboard sentence capture, the full evaluation/editing workflow (undo/
+replace ratings, reports, primary-meaning and flashcard-example selection,
+synonym evaluation), and the provider-truthfulness/UI-state audit. Phase 4
+is now marked complete. The few remaining gaps (share-sheet capture, Anki
+review-history/media import, per-item synonym regeneration, immediate
+CEFR-change regeneration, automatic B1+ grammar expansion) are each an
+explicit, documented scope decision rather than unfinished work — see the
+deliverable matrix and each work package's acceptance-criteria notes below.
 
 ## Status definitions
 
@@ -59,13 +69,13 @@ do not yet implement all behavior promised by the roadmap.
 | Instant word search            | Complete                        | `apps/mobile/app/(tabs)/search.tsx` uses debounced FTS5 search and supports German, English, and inflected-form lookup.                                                          |
 | AI word lookup/generation      | Complete                        | Unknown words flow through `@lingora/ai`, are validated, persisted transactionally, and opened in word detail.                                                                   |
 | Semantic context clusters      | Complete                        | Word detail renders cluster tabs backed by `meaning_clusters`.                                                                                                                   |
-| Meaning display and selection  | Partial                         | Primary and secondary meanings render, but the user cannot change which meaning is primary.                                                                                      |
+| Meaning display and selection  | Complete                        | Primary and secondary meanings render; a "Make primary: …" chip on non-headline meanings calls `updatePrimaryMeaning` (Work package 5).                                          |
 | CEFR-filtered examples         | Mostly complete                 | CEFR selection and persisted CEFR-tagged examples exist. Selecting a level does not immediately regenerate as described by the roadmap.                                          |
 | Example context tabs           | Complete                        | Example filtering supports all, casual, formal, business, travel, daily life, and slang.                                                                                         |
 | Advanced grammar controls      | Mostly complete                 | Tense/mood, structure, conjunction, and focus-word combinations are sent to targeted generation. Automatic B1+ expansion and queued grammar generation across words are missing. |
 | Grammar tags on output         | Complete                        | Generated examples store and display grammar tags.                                                                                                                               |
 | Phrases/collocations panel     | Complete                        | Persisted phrases, meanings, examples, translations, and CEFR badges render.                                                                                                     |
-| Synonyms panel                 | Partial                         | Persisted synonyms render with nuance, formality, and CEFR. Evaluation and regeneration controls are missing.                                                                    |
+| Synonyms panel                 | Mostly complete                 | Persisted synonyms render with nuance, formality, and CEFR, plus up/down/report evaluation controls (Work package 5). No regeneration action exists for synonyms specifically (only the cluster-scoped example regenerate does).  |
 | Cloze preview                  | Complete for Phase 4            | Persisted cloze content renders. FSRS review behavior belongs to Phase 5.                                                                                                        |
 | Add-to-deck flow               | Complete                        | A real deck picker calls the database repository and invalidates affected queries.                                                                                               |
 | Sentence-mining review queue   | Mostly complete                 | Users can select, discard, and batch-process existing captures into cards.                                                                                                       |
@@ -84,7 +94,7 @@ do not yet implement all behavior promised by the roadmap.
 | Error states                   | Complete                        | Audited every `useMutation` for a missing `onError`: added user-visible `Alert` feedback to Mine's discard, word-detail's evaluation vote, and deck deletion (previously silent failures). Word-detail's deck-picker query now handles `isError` (previously only loading).                          |
 | Empty states                   | Complete                        | Added the missing empty state for Home's "Recently added" list; Search, Decks, Mining already had one.                                                                            |
 | Translation provider settings  | Complete                        | DeepL is now a real adapter (`packages/ai/src/providers/deepl.ts`, `DictionaryProvider`) with the same Settings UX as the generation providers (enable toggle, key validation, device-observed usage) — verified with a live DeepL API call on the AVD. OpenAI (and Mistral/Gemini/Claude) translation selection already used the configured provider's key correctly.                                       |
-| Generation provider settings   | Complete for current provider   | OpenAI key storage and feature-tier rebuilding work. Additional providers are explicitly marked as future work.                                                                  |
+| Generation provider settings   | Complete                        | OpenAI, Mistral, Gemini, and Anthropic/Claude key storage, validation, and feature-tier rebuilding all work (`apps/mobile/lib/services.tsx#GENERATION_PROVIDERS`); the pipeline uses the configured provider that wins preference, falling back through the list.                                       |
 | Limited-mode explanation       | Complete                        | The Settings screen clearly explains disabled generation behavior without an OpenAI key.                                                                                         |
 | Global Zustand state           | Missing/not currently necessary | The roadmap names Zustand, but the app currently uses local React state plus React Query. Add Zustand only if shared client-state requirements justify it.                       |
 
@@ -405,8 +415,8 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [x] Correctly scoped regeneration workflow
 - [x] Functional or disabled unavailable translation providers
 - [x] Route-by-route loading/error/empty/success-state audit
-- [ ] Automated tests for new import/export and evaluation behavior
-- [ ] Successful Android AVD acceptance pass after completion work
+- [x] Automated tests for new import/export and evaluation behavior
+- [x] Successful Android AVD acceptance pass after completion work
 
 ## Instructions for future AI agents
 

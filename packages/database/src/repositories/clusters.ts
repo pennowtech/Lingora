@@ -139,6 +139,24 @@ export async function updatePrimaryMeaning(
 }
 
 /**
+ * Overwrite a meaning's own translation/explanation text — the manual "edit
+ * the card" path (distinct from `updatePrimaryMeaning`, which only changes
+ * which existing meaning is primary).
+ */
+export async function updateMeaningText(
+  db: DatabaseAdapter,
+  meaningId: string,
+  translation: string,
+  explanation: string,
+): Promise<void> {
+  await db.execute(`UPDATE meanings SET translation = ?, explanation = ? WHERE id = ?`, [
+    translation,
+    explanation,
+    meaningId,
+  ])
+}
+
+/**
  * Delete a meaning.
  */
 export async function deleteMeaning(db: DatabaseAdapter, meaningId: string): Promise<void> {

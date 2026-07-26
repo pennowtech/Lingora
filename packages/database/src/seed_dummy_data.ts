@@ -255,9 +255,9 @@ export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
       [
         'template-default',
         'Default',
-        '{{ word }}',
-        '{{ meaning }}<hr>{{ example }}',
-        '.front, .back { font-size: 1.4rem; text-align: center; }',
+        '<div class="dc-front">\n  <div class="dc-word">{{ word }}</div>\n  {% if gender %}<div class="dc-tag">{{ gender }}</div>{% endif %}\n</div>',
+        '<div class="dc-back">\n  <div class="dc-word-small">{{ word }}</div>\n  <div class="dc-meaning">{{ meaning }}</div>\n  {% if example %}\n  <div class="dc-example">\n    <div class="dc-example-de">{{ example_highlighted }}</div>\n    {% if translation %}<div class="dc-example-en">{{ translation }}</div>{% endif %}\n  </div>\n  {% endif %}\n  {% if synonyms.size > 0 %}\n  <div class="dc-synonyms">\n    {% for s in synonyms %}<span class="dc-syn-pill">{{ s.word }}</span>{% endfor %}\n  </div>\n  {% endif %}\n</div>',
+        ':root{--accent:#534AB7;}\n.dc-front { display: flex; flex-direction: column; align-items: center; gap: 12px; }\n.dc-word { font-size: 2.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }\n.dc-tag { font-size: 0.85rem; font-weight: 600; color: #6B7280; background: #F1F0FB; padding: 4px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }\n\n.dc-back { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }\n.dc-word-small { font-size: 1rem; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; }\n.dc-meaning { font-size: 1.8rem; font-weight: 800; color: #1C1B22; text-align: center; }\n.dc-synonyms { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }\n.dc-syn-pill { font-size: 0.78rem; font-weight: 500; color: #7C7A8C; background: #F1F0FB; padding: 3px 11px; border-radius: 999px; }\n.dc-example { background: #F7F6FC; border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 18px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; }\n.dc-example-de { font-size: 1.05rem; font-style: italic; color: #1C1B22; }\n.dc-example-en { font-size: 0.9rem; color: #6B7280; margin-top: 6px; }\n.dc-example-de mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; font-style: normal; }',
         1,
         now,
         now,

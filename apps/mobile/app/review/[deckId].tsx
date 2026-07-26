@@ -11,6 +11,8 @@ import {
   getPhrasesForCard,
   getSynonymsForCard,
   recordReview,
+  updateExampleText,
+  updateMeaningText,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { createInitialCardState, schedule } from '@lingora/srs'
@@ -18,12 +20,12 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { CardRenderer } from '../../components/CardRenderer'
-import { EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
+import { Button, EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
 import { buildCardContext, renderCardHtml, type CardTemplateContext } from '../../lib/templates'
 import { useServices } from '../../lib/services'
 import { colors, radius, ratingColors, spacing, type } from '../../lib/theme'
@@ -177,8 +179,10 @@ interface ReviewCard {
   cardState: CardState
   form: string
   meta: string
+  meaningId: string | null
   meaning: string | null
   explanation: string | null
+  exampleId: string | null
   example: string | null
   exampleTranslation: string | null
   clozeSentence: string | null
@@ -221,16 +225,24 @@ async function loadReviewQueue(
     const cloze = clozes[0]
     if (clozeOnly && !cloze) continue
 
+    // Same selection buildCardContext uses (primary meaning / selected
+    // example, falling back to the first row) — keeps the id an edit
+    // targets in sync with what's actually rendered on the card.
+    const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0]
+    const selectedExample = examples.find((e) => e.isSelected) ?? examples[0]
+
     const meta = [lemma.partOfSpeech, lemma.gender].filter(Boolean).join(' · ')
     views.push({
       card,
       cardState: cardState ?? createInitialCardState(card.id),
       form: lemma.form,
       meta,
-      meaning: meanings[0]?.translation ?? null,
-      explanation: meanings[0]?.explanation ?? null,
-      example: examples[0]?.sentence ?? null,
-      exampleTranslation: examples[0]?.translation ?? null,
+      meaningId: primaryMeaning?.id ?? null,
+      meaning: primaryMeaning?.translation ?? null,
+      explanation: primaryMeaning?.explanation ?? null,
+      exampleId: selectedExample?.id ?? null,
+      example: selectedExample?.sentence ?? null,
+      exampleTranslation: selectedExample?.translation ?? null,
       clozeSentence: cloze?.sentence ?? null,
       clozeAnswer: cloze?.answer ?? null,
       templateContext: buildCardContext({ lemma, meanings, examples, synonyms, phrases, cloze }),
@@ -274,6 +286,18 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [flipped, setFlipped] = useState(false)
   const [durationsMs, setDurationsMs] = useState<number[]>([])
   const cardStartedAt = useRef(Date.now())
+
+  // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
+  // from the template editor (which only edits layout/style, never content)
+  // and from word/[form].tsx's evaluation flow (which picks among
+  // AI-generated candidates rather than freeform text). Basic inline HTML
+  // (<b>/<i>/<span style="color:...">) works since these fields render
+  // through the same unescaped-by-default LiquidJS pipeline as any other
+  // example text.
+  const [editOpen, setEditOpen] = useState(false)
+  const [editMeaning, setEditMeaning] = useState('')
+  const [editExample, setEditExample] = useState('')
+  const [editTranslation, setEditTranslation] = useState('')
 
   const queueQuery = useQuery({
     queryKey: ['review-queue', params.deckId, clozeOnly],
@@ -328,6 +352,32 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => {
       log.error('srs.rating_failed', error, { message: 'Recording a review rating failed' })
       Alert.alert('Could not save your rating', String(error))
+    },
+  })
+
+  const openEdit = (): void => {
+    if (!view) return
+    setEditMeaning(view.meaning ?? '')
+    setEditExample(view.example ?? '')
+    setEditTranslation(view.exampleTranslation ?? '')
+    setEditOpen(true)
+  }
+
+  const saveEdit = useMutation({
+    mutationFn: async () => {
+      if (!view) throw new Error('No card to edit.')
+      await Promise.all([
+        view.meaningId ? updateMeaningText(db, view.meaningId, editMeaning, view.explanation ?? '') : Promise.resolve(),
+        view.exampleId ? updateExampleText(db, view.exampleId, editExample, editTranslation) : Promise.resolve(),
+      ])
+    },
+    onSuccess: async () => {
+      setEditOpen(false)
+      await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+    },
+    onError: (error: unknown) => {
+      log.error('srs.card_edit_failed', error, { message: 'Saving a manual card edit failed' })
+      Alert.alert('Could not save your changes', String(error))
     },
   })
 
@@ -401,6 +451,7 @@ export default function ReviewSessionScreen(): JSX.Element {
         <Text style={styles.counter}>
           {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
         </Text>
+        {flipped && view && !clozeOnly ? <IconButton icon="create-outline" onPress={openEdit} /> : null}
       </View>
       {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
@@ -494,6 +545,58 @@ export default function ReviewSessionScreen(): JSX.Element {
           {rate.isError ? <Text style={styles.errorLabel}>{String(rate.error)}</Text> : null}
         </>
       )}
+
+      {/* Edit this card — Anki-style: fix the actual meaning/example text on the card itself. */}
+      <Modal visible={editOpen} animationType="slide" transparent onRequestClose={() => setEditOpen(false)}>
+        <View style={styles.editBackdrop}>
+          <View style={styles.editSheet}>
+            <View style={styles.editHeader}>
+              <Text style={styles.editTitle}>Edit this card</Text>
+              <IconButton icon="close" onPress={() => setEditOpen(false)} />
+            </View>
+            <Text style={styles.editLabel}>Meaning</Text>
+            <TextInput
+              style={styles.editInput}
+              value={editMeaning}
+              onChangeText={setEditMeaning}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Text style={styles.editLabel}>Example sentence</Text>
+            <TextInput
+              style={styles.editInput}
+              value={editExample}
+              onChangeText={setEditExample}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Text style={styles.editLabel}>Example translation</Text>
+            <TextInput
+              style={styles.editInput}
+              value={editTranslation}
+              onChangeText={setEditTranslation}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Text style={styles.editHint}>
+              Basic inline HTML works too — {'<b>bold</b>'}, {'<i>italic</i>'}, {'<span style="color:#D64545">red</span>'}.
+            </Text>
+            {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
+            <View style={styles.editActions}>
+              <Button label="Cancel" variant="ghost" onPress={() => setEditOpen(false)} />
+              <Button
+                label={saveEdit.isPending ? 'Saving…' : 'Save changes'}
+                icon="save"
+                onPress={() => saveEdit.mutate()}
+                disabled={saveEdit.isPending}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -580,6 +683,28 @@ const styles = StyleSheet.create({
   ratingLabel: { fontSize: type.body, fontWeight: '700' },
   ratingInterval: { fontSize: type.micro, marginTop: 2, opacity: 0.8 },
   errorLabel: { fontSize: type.caption, color: colors.danger, textAlign: 'center', paddingBottom: spacing.md },
+  editBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
+  editSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.xl,
+    gap: spacing.sm,
+  },
+  editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+  editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+  editInput: {
+    fontSize: type.body,
+    color: colors.text,
+    minHeight: 44,
+    textAlignVertical: 'top',
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+  },
+  editHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
+  editActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.lg },
   doneWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl },
   doneButton: {
     backgroundColor: colors.primary,

@@ -115,6 +115,14 @@ export interface Services {
   ai: AIProvider | null
   /** The lookup pipeline. Null without an OpenAI key (generation locked). */
   pipeline: AIPipeline | null
+  /**
+   * The active translation-only provider (Google Translate by default, or
+   * DeepL/a generation provider if picked in Settings → Translation) —
+   * exposed directly so screens can show a plain dictionary lookup without
+   * going through the full `pipeline` (word-package generation, which needs
+   * a generation-tier key and writes to the database).
+   */
+  dictionary: DictionaryProvider
   tier: FeatureTier
   defaultCefr: CefrLevel
   /** Re-read keys/preferences and rebuild the pipeline — call after settings change. */
@@ -222,7 +230,7 @@ function instantiateGenerationProvider(
 
 async function buildAIServices(
   db: DatabaseAdapter,
-): Promise<Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr'>> {
+): Promise<Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr' | 'dictionary'>> {
   const [
     openai,
     mistral,
@@ -297,7 +305,7 @@ async function buildAIServices(
       metadata: { itemCount: configured.length },
       message: 'No generation provider configured — tier is translation-only',
     })
-    return { ai: null, pipeline: null, tier: 'translation', defaultCefr }
+    return { ai: null, pipeline: null, tier: 'translation', defaultCefr, dictionary }
   }
 
   const chosen = configs[generationProviderName]
@@ -311,7 +319,7 @@ async function buildAIServices(
     result: 'success',
     metadata: { provider: generationProviderName, modelAlias: chosen.model, itemCount: configured.length },
   })
-  return { ai, pipeline, tier: 'full', defaultCefr }
+  return { ai, pipeline, tier: 'full', defaultCefr, dictionary }
 }
 
 const ServicesContext = createContext<Services | null>(null)

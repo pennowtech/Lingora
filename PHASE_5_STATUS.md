@@ -368,6 +368,68 @@ Acceptance criteria:
   documented reason. — met; drag-to-reorder is the one explicitly deferred
   concept (edit the Code tab directly to reorder in the interim).
 
+### Post-WP4 polish: default card design, quick translate, per-card editing
+
+A round of fixes/small features that landed after WP4's PR merged, driven by
+AVD testing and user feedback, before starting WP5:
+
+- **Corporate-proxy TLS trust for the dev client.** AI provider key
+  validation (Mistral, confirmed; applies to all four LLM providers plus
+  Google Translate/DeepL) was failing with `net::ERR_CERT_AUTHORITY_INVALID`
+  on this machine's Zscaler-intercepted network — the AVD didn't trust the
+  Zscaler root CA the way the host machine does. Fixed with a debug-only
+  Expo config plugin, `apps/mobile/plugins/withDebugUserCaTrust.js`
+  (registered in `app.json`), which writes an `android/app/src/debug`
+  network security config trusting user-installed CAs in addition to the
+  system store — release builds are untouched. The Zscaler root CA itself
+  still has to be installed once per AVD via Settings → Security & privacy →
+  Encryption & credentials → Install a certificate (documented precedent:
+  the sister Shelfie project's `Expo-Android-Run-Troubleshooting.md` §11).
+- **Duocards-style default card template.** The seeded "Default" template
+  (`packages/database/src/seed_dummy_data.ts`) and the template editor's
+  "Reset to default"/"+ New" starting point (`DEFAULT_FRONT_TEMPLATE`/
+  `DEFAULT_BACK_TEMPLATE`/`DEFAULT_STYLES` in `apps/mobile/lib/templates.ts`)
+  replaced the old bare-text layout with a real design: a large centered
+  word + part-of-speech pill on the front; on the back, the word, meaning,
+  a bordered/centered example+translation card, and a synonym pill row
+  (positioned after the example, not before — iterated on user feedback).
+  `<body class="front"|"back">` is stamped on automatically by
+  `renderCardHtml` so a single shared stylesheet can still target one side
+  (`.front`/`.back` selectors) without any hand-authored wrapper element.
+- **Reset to default (layout & style).** `settings/templates.tsx`'s Style
+  tab gained a "Reset to default" action (with a confirm dialog) that
+  restores `frontTemplate`/`backTemplate`/`styles` to the shipped default —
+  still requires tapping "Save changes" afterward like any other edit; it
+  only touches editor state, not the database, until saved.
+- **Word highlighting in the example sentence.** `lib/templates.ts#highlightWord`
+  wraps occurrences of the card's word in `<mark class="dc-hl">`, including
+  a heuristic separable-verb split (common prefixes list + a crude
+  infinitive-ending strip) so e.g. "ausgehen" highlights both "aus" and
+  "gehen" inside "Wir gehen heute Abend aus." `buildCardContext` exposes
+  this as a new `example_highlighted` context field/template variable —
+  `example` itself stays plain text for templates that don't want markup.
+- **Quick translate in Search.** `useServices()` now exposes `dictionary`
+  (previously only reachable through the full `pipeline`) so
+  `app/(tabs)/search.tsx` can show a plain Google Translate/DeepL/etc.
+  translation for an unrecognized word immediately — independent of `tier`,
+  so it works in Limited mode with no generation key, and appears alongside
+  "Generate with AI" when one is configured. Previously the translation
+  provider picked in Settings had no visible effect anywhere in the UI.
+- **Edit this card, from the review session.** An Anki-style fix-it-in-place
+  affordance: a pencil icon appears in the review header once a card is
+  flipped, opening a modal to edit that card's real meaning/example/
+  translation text (not template layout, and not the AI-candidate-picking
+  evaluation flow in `word/[form].tsx` — genuinely freeform text, including
+  basic inline HTML like `<b>`/`<i>`/`<span style="color:...">` since these
+  fields render through the same unescaped-by-default LiquidJS pipeline as
+  any other card content). New repository functions
+  `updateMeaningText`/`updateExampleText` (`packages/database/src/repositories/
+  clusters.ts`/`examples.ts`) round out the existing create/delete/
+  select-primary CRUD with a genuine "overwrite this row's text" path.
+  `loadReviewQueue` was also fixed to track the *primary* meaning/*selected*
+  example's id (previously always index `[0]`, which could silently diverge
+  from what `buildCardContext` actually renders).
+
 ### Work package 5: Learning statistics
 
 - Wire `stats.tsx`'s retention card to `getRetentionRate(db, 30)`.

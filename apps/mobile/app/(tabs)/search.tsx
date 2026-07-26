@@ -23,7 +23,7 @@ function useDebounced(value: string, delayMs: number): string {
  * translations. Unknown words hand off to the Phase 3 generation pipeline.
  */
 export default function SearchScreen(): JSX.Element {
-  const { db, pipeline, tier, defaultCefr } = useServices()
+  const { db, dictionary, pipeline, tier, defaultCefr } = useServices()
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const term = useDebounced(query.trim(), 250)
@@ -32,6 +32,23 @@ export default function SearchScreen(): JSX.Element {
     queryKey: ['search', term],
     queryFn: () => searchLemmasWithPreview(db, term),
     enabled: term !== '',
+  })
+
+  // A plain dictionary lookup (Google Translate/DeepL/whichever is active in
+  // Settings → Translation) for an unrecognized word — independent of
+  // `pipeline`/`tier`, so it works even in Limited mode with no generation
+  // key, and shows alongside "Generate with AI" when one is configured.
+  const quickTranslate = useQuery({
+    queryKey: ['quick-translate', term, dictionary.name],
+    queryFn: async () => {
+      const detected = await dictionary.detectLanguage(term)
+      const source = detected.data
+      const target = source === 'de' ? 'en' : 'de'
+      const translated = await dictionary.translate(term, source, target)
+      return { source, target, text: translated.data }
+    },
+    enabled: term !== '' && (search.data?.length ?? 0) === 0,
+    staleTime: 5 * 60 * 1000,
   })
 
   const generate = useMutation({
@@ -91,6 +108,19 @@ export default function SearchScreen(): JSX.Element {
             title={`"${term}" is new`}
             message="This word isn't in your library yet. Generate meanings, examples, and synonyms with AI."
           />
+          {quickTranslate.isPending ? (
+            <Card style={styles.translateCard}>
+              <ActivityIndicator size="small" color={colors.textSecondary} />
+              <Text style={styles.translateLabel}>Translating…</Text>
+            </Card>
+          ) : quickTranslate.data ? (
+            <Card style={styles.translateCard}>
+              <Text style={styles.translateDirection}>
+                {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()} · {dictionary.name}
+              </Text>
+              <Text style={styles.translateText}>{quickTranslate.data.text}</Text>
+            </Card>
+          ) : null}
           {generate.isPending ? (
             <Card style={styles.generateCard}>
               <ActivityIndicator size="small" color={colors.primary} />
@@ -185,12 +215,26 @@ const styles = StyleSheet.create({
   pos: { fontSize: type.micro, color: colors.textMuted },
   meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  translateCard: {
+    marginTop: -spacing.xl,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  translateDirection: {
+    fontSize: type.micro,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  translateLabel: { fontSize: type.body, color: colors.textSecondary },
+  translateText: { fontSize: type.heading, fontWeight: '700', color: colors.text },
   generateCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    marginTop: -spacing.xl,
+    marginTop: spacing.md,
     backgroundColor: colors.primarySoft,
     borderColor: colors.primarySoft,
   },
@@ -200,7 +244,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    marginTop: -spacing.xl,
+    marginTop: spacing.md,
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
   },

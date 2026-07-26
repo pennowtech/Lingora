@@ -100,6 +100,25 @@ export async function updateSelectedExample(
 }
 
 /**
+ * Overwrite an example's own sentence/translation text — the manual "edit
+ * the card" path (distinct from `updateSelectedExample`, which only changes
+ * which existing example is shown). Used when the user hand-edits a card's
+ * example during review rather than picking a different generated one.
+ */
+export async function updateExampleText(
+  db: DatabaseAdapter,
+  exampleId: string,
+  sentence: string,
+  translation: string,
+): Promise<void> {
+  await db.execute(`UPDATE examples SET sentence = ?, translation = ? WHERE id = ?`, [
+    sentence,
+    translation,
+    exampleId,
+  ])
+}
+
+/**
  * Delete an example. Used by the evaluation flow when the user
  * rejects a generated sentence.
  */

@@ -15,6 +15,17 @@ function lemmaColumns(prefix = ''): string {
 }
 
 /**
+ * Get a lemma by its ID. Used when the caller already has a foreign key
+ * (e.g. `Card.lemmaId` in the review session) rather than a surface form.
+ */
+export async function getLemmaById(db: DatabaseAdapter, lemmaId: string): Promise<Lemma | null> {
+  return (
+    (await db.querySingle<Lemma>(`SELECT ${lemmaColumns()} FROM lemmas WHERE id = ?`, [lemmaId])) ??
+    null
+  )
+}
+
+/**
  * Find a lemma by looking up its surface form in inflections.
  *
  * This is the entry point for every word lookup. The flow is:

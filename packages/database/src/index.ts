@@ -15,6 +15,22 @@ export {
 } from './backup'
 
 export {
+  buildCsvImportPreview,
+  CEFR_LEVELS,
+  importCsvRows,
+  isCefrLevel,
+  isPartOfSpeech,
+  parseCsv,
+  PARTS_OF_SPEECH,
+  type CsvColumnMapping,
+  type CsvField,
+  type CsvImportOptions,
+  type CsvImportResult,
+  type CsvParseResult,
+  type CsvRowPreview,
+} from './csv-import'
+
+export {
   ALL_MIGRATIONS,
   getCurrentSchemaVersion,
   migrate,

@@ -72,7 +72,7 @@ do not yet implement all behavior promised by the roadmap.
 | Manual sentence capture        | Missing                         | No mobile UI currently calls `createMineEntry`.                                                                                                                                  |
 | Clipboard capture              | Missing                         | Repository support exists, but no mobile capture entry point is wired.                                                                                                           |
 | Share-sheet capture            | Missing                         | Source types exist in the model, but no share extension/intent workflow is wired.                                                                                                |
-| CSV import with column mapping | Shell only                      | The mapping UI is a static preview and file-selection button is a no-op.                                                                                                         |
+| CSV import with column mapping | Complete                        | `packages/database/src/csv-import.ts` parses quoted/delimited CSV (comma/semicolon/tab auto-detected, BOM/CRLF-safe), builds a per-row validation preview (duplicate lemma detection, required-field errors), and imports transactionally with imported/skipped/failed counts. `apps/mobile/app/settings/csv-import.tsx` is the interactive pick → map → preview → confirm wizard, wired from Import & Export's "Choose CSV file" button. 11 Vitest parser/preview/import tests.                        |
 | JSON backup/export             | Complete                        | `packages/database/src/backup.ts#createBackup` reads every user-owned table into a versioned, Zod-validated payload (never API keys); `apps/mobile/lib/backup.ts#exportBackupToFile` writes it via expo-file-system and opens the native share sheet. Verified round-trip on the Pixel 6 Pro AVD.                        |
 | JSON restore/import            | Complete                        | `restoreBackup` validates and replaces all backed-up tables transactionally (full-replace conflict policy); `pickAndParseBackupFile`/`applyBackupRestore` wire the native file picker and confirmation dialog. 10 Vitest round-trip/validation/rollback tests in `packages/database/src/backup.test.ts`.              |
 | Anki `.apkg` import            | Shell only                      | The button is a no-op; no parser or mapping pipeline exists.                                                                                                                     |
@@ -152,30 +152,26 @@ The queue consumer is functional. Capture producers are not wired.
 
 ## Known incomplete or misleading behavior
 
-### Anki and CSV import are still nonfunctional; JSON backup/restore is now real
+### Anki import is still nonfunctional; JSON backup/restore and CSV import are now real
 
-`apps/mobile/app/settings/import-export.tsx`'s Anki `.apkg` and CSV buttons are
-explicitly disabled and labeled "Coming soon" — no parser exists for either yet
-(Work packages 2 and 3). The JSON backup export and restore buttons are wired
-to `apps/mobile/lib/backup.ts`, which calls the real `createBackup`/
-`restoreBackup` functions in `packages/database/src/backup.ts`; this path is
-no longer a no-op and has been verified end-to-end on the AVD (export → share
-→ pick file → validate → confirm → restore → Settings/data reflect the
-restored backup).
+`apps/mobile/app/settings/import-export.tsx`'s Anki `.apkg` button is
+explicitly disabled and labeled "Coming soon" — no parser exists yet (Work
+package 3). The JSON backup export/restore buttons are wired to
+`apps/mobile/lib/backup.ts`, which calls the real `createBackup`/
+`restoreBackup` functions in `packages/database/src/backup.ts`; verified
+end-to-end on the AVD (export → share → pick file → validate → confirm →
+restore → Settings/data reflect the restored backup). The CSV button opens
+`apps/mobile/app/settings/csv-import.tsx`, a pick → map → preview → confirm
+wizard over `packages/database/src/csv-import.ts`'s real parser/preview/
+import; verified end-to-end on the AVD with a sample file.
 
-### Provider selection does not always change the runtime provider
+### Provider selection now always matches the runtime provider
 
-Settings permits `deepl`, `google`, and `openai` as translation selections.
-`apps/mobile/lib/services.tsx` currently always creates
-`GoogleTranslateProvider` for the dictionary slot. DeepL is explicitly marked
-with a `TODO(phase4.1)`.
-
-Until the adapters are wired, either:
-
-1. implement the selected providers; or
-2. disable unavailable choices and label them as coming soon.
-
-Persisting a selection that has no runtime effect should not remain.
+Settings permits `deepl`, `google`, `openai`, `mistral`, `gemini`, and
+`anthropic` as translation selections. `apps/mobile/lib/services.tsx`
+constructs the matching real adapter for whichever is selected — DeepL
+(`packages/ai/src/providers/deepl.ts`) included, verified with a live API
+call on the AVD (Work package 6).
 
 ### Sentence mining has no capture entry point
 
@@ -224,21 +220,21 @@ Acceptance criteria:
   writes.
 - API keys never appear in an exported file.
 
-### Work package 2: CSV import with column mapping
+### Work package 2: CSV import with column mapping — ✅ Complete
 
-- Add an Expo document picker.
-- Parse quoted fields, delimiters, BOMs, and common encodings safely.
-- Display detected columns.
-- Let users map word, meaning, example, deck, tags, and optional fields.
-- Preview validation results before import.
-- Import transactionally with duplicate handling.
-- Show imported, skipped, and failed row counts.
+- Add an Expo document picker. → `File.pickFileAsync` (`apps/mobile/app/settings/csv-import.tsx`), same pattern as JSON backup restore.
+- Parse quoted fields, delimiters, BOMs, and common encodings safely. → `packages/database/src/csv-import.ts#parseCsv`: RFC4180-ish tokenizer, auto-detects comma/semicolon/tab from the header line, strips a UTF-8 BOM, normalizes CRLF/CR.
+- Display detected columns. → headers render as tappable chips per target field.
+- Let users map word, meaning, example, deck, tags, and optional fields. → `CsvColumnMapping` (word/meaning required; example, partOfSpeech, cefrLevel, tags optional) plus a deck chip picker and default part-of-speech/CEFR pickers for unmapped rows.
+- Preview validation results before import. → `buildCsvImportPreview` flags empty required fields as errors and existing lemmas as duplicates before anything is written; the preview screen shows per-row status and counts.
+- Import transactionally with duplicate handling. → `importCsvRows` runs in one `db.transaction`; duplicate rows are skipped, error rows are never attempted, and an unexpected per-row failure is caught and counted rather than aborting the rest.
+- Show imported, skipped, and failed row counts. → `CsvImportResult` rendered on the done screen.
 
 Acceptance criteria:
 
-- Users can import a representative Quizlet/spreadsheet CSV.
-- Mapping is interactive rather than hard-coded.
-- A malformed row does not silently corrupt the import.
+- Users can import a representative Quizlet/spreadsheet CSV. — verified on the AVD with a sample file (word/meaning/example/pos/cefr/tags columns).
+- Mapping is interactive rather than hard-coded. — every field is chosen via chips against the file's actual headers.
+- A malformed row does not silently corrupt the import. — validated upfront (error status, not attempted) plus a per-row try/catch safety net during the transactional insert; counted as failed, never silent.
 
 ### Work package 3: Anki `.apkg` import
 
@@ -384,7 +380,7 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [ ] Share-sheet capture, or an explicitly approved deferral
 - [x] JSON backup export
 - [x] JSON restore
-- [ ] CSV import with interactive column mapping
+- [x] CSV import with interactive column mapping
 - [ ] Anki `.apkg` import
 - [ ] Example evaluation with visible/reversible state
 - [ ] Synonym evaluation

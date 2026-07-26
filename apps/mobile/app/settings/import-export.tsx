@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { BackupValidationError } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useQueryClient } from '@tanstack/react-query'
+import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Button, Card, SectionHeader } from '../../components/ui'
@@ -15,11 +16,11 @@ const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
  * Import & export. Anki import is the adoption-critical feature per the
  * roadmap — power users ask "can I import my Anki decks?" first.
  *
- * JSON backup export/restore is implemented (Work package 1). CSV column
- * mapping and Anki .apkg import are still placeholders.
+ * JSON backup export/restore (Work package 1) and CSV import with column
+ * mapping (Work package 2) are implemented. Anki .apkg import is still a
+ * placeholder.
  *
- * TODO(phase4): implement .apkg parsing and CSV column mapping with a real
- * file picker.
+ * TODO(phase4): implement .apkg parsing.
  */
 export default function ImportExportScreen(): JSX.Element {
   const { db, reloadServices } = useServices()
@@ -121,8 +122,13 @@ export default function ImportExportScreen(): JSX.Element {
             <Text style={styles.optionDetail}>From Quizlet, Memrise, or spreadsheets.</Text>
           </View>
         </View>
-        <Text style={styles.comingSoon}>Coming soon</Text>
-        <Button label="Choose CSV file" variant="secondary" icon="folder-open" onPress={noop} disabled small />
+        <Button
+          label="Choose CSV file"
+          variant="secondary"
+          icon="folder-open"
+          onPress={() => router.push('/settings/csv-import')}
+          small
+        />
       </Card>
 
       <Card style={styles.optionCard}>

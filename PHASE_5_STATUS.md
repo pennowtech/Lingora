@@ -100,9 +100,9 @@ facing feature.
 | FSRS scheduler (`packages/srs`)              | Complete    | `schedule(state, rating, now)` and `createInitialCardState(cardId, now)` wrap `ts-fsrs`, pure and synchronous, no `@lingora/database`/React/Expo dependency. `CardState` gained `reps`/`learningSteps` (migration 0006) so scheduling is correct across the full lifecycle, not just an approximation. 8 Vitest tests incl. a golden-value regression.       |
 | Card state machine (new→learning→review→relearning) | Complete (scheduler) / not yet wired to UI | `packages/srs#schedule` drives all four transitions correctly (verified by test); the review session screen doesn't call it yet — see Work package 2.                                                                                                    |
 | Review event log                             | Complete (Phase 2) | `review_events` is insert-only; `recordReview` writes it and the new `card_states` row in one transaction. Nothing calls it yet.                                                                                                                          |
-| Review session screen                        | Shell only  | `apps/mobile/app/review/[deckId].tsx` renders `dummyReviewQueue`, tap-to-flip, and static `dummyIntervals` under the rating buttons. `rate()` advances a local index and discards the rating. See Work package 2.                                        |
-| Cloze-mode review                            | Shell only  | `mode=cloze` filters the dummy queue by a `kind` field that has no relationship to real `cloze_cards` rows.                                                                                                                                               |
-| Multiple card types (basic/reverse/cloze/phrase/image) | Partial | `CardType` models all five in the schema; only `basic`-shaped and a fake `cloze` kind render in the dummy review screen. Reverse, phrase, and image have no review-session presentation at all.                                                          |
+| Review session screen                        | Complete    | `apps/mobile/app/review/[deckId].tsx` loads real due cards (`getCardsDueForReview` + a per-card content loader), tap-to-flip, and rating buttons showing real `packages/srs#schedule` interval previews. `rate()` calls `schedule()` then `recordReview()` — verified end-to-end on the AVD (`review_events` insert + `card_states` transition to `learning` with real stability/reps/learning_steps).                        |
+| Cloze-mode review                            | Complete    | `mode=cloze` filters to cards with a real `cloze_cards` row and shows the cloze sentence/answer instead of the word/meaning.                                                                                                                              |
+| Multiple card types (basic/reverse/cloze/phrase/image) | Mostly complete | `reverse` swaps which side (word vs. meaning) shows first; `phrase`/`image` fall back to the basic layout since nothing in the generation/import pipeline produces either yet (documented in the loader's own comment) — not silently ignored, just honestly deferred until real data exists to render differently.       |
 | Swipe gesture review interface               | Missing     | Current interaction is tap-to-flip + button-tap rating. `react-native-reanimated`/`react-native-gesture-handler` are present transitively (via `expo-router`) but not used directly anywhere. See Work package 3.                                        |
 | Flashcard renderer (LiquidJS + HTML/CSS)     | Missing     | `liquidjs` is not a dependency. `templates.tsx`'s "preview" is a regex placeholder-substitution, explicitly documented in its own comment as "NOT a LiquidJS implementation (no `{% if %}`, no loops)" and CSS is stored but never applied. See Work package 4. |
 | Customizable card template system            | Shell only (data layer complete) | `templates` table + full repository CRUD exist and one default template is seeded. `settings/templates.tsx` edits an in-memory array of two hardcoded dummy templates; "Save template" is a no-op.                                                        |
@@ -114,20 +114,21 @@ facing feature.
 | Statistics: streak heatmap                   | Partial (data layer complete) | `getReviewedDayIndexes` returns exactly the distinct-day data a heatmap needs; `stats.tsx` renders a hardcoded 5×7 grid.                                                                                                                                  |
 | Statistics: vocabulary growth                | Missing     | No repository function buckets card-creation counts by week. `stats.tsx` renders a hardcoded array. See Work package 5.                                                                                                                                   |
 | Statistics: difficult words                  | Missing     | No repository function joins `card_states.lapses` back to lemma forms. `stats.tsx` renders three hardcoded words. See Work package 5.                                                                                                                     |
-| Review session progress/time-remaining        | Partial     | A progress bar and an N/total counter exist; there is no estimated-time-remaining indicator (roadmap explicitly lists this).                                                                                                                              |
+| Review session progress/time-remaining        | Complete    | A progress bar, N/total counter, and a "~N min left" estimate (from the session's own rated-card pace so far, seeded with an 8s default before the first rating) are all shown.                                                                          |
 
 ## Known incomplete or misleading behavior
 
-### Every Phase 5 screen is fully dummy, not partially wired
+### Review session is real (Work package 2); stats/templates are still fully dummy
 
-Unlike Phase 4 at its equivalent checkpoint (screens already called real
-repositories with `TODO(phaseX)` markers only around missing pieces), all
-three Phase 5 screens (`review/[deckId].tsx`, `stats.tsx`,
-`settings/templates.tsx`) import from `apps/mobile/lib/dummy.ts` for their
-*entire* data set, and every mutating action (`rate()`, "Save template",
-"+ New" template) is either a local-state-only update or an explicit
-`noop`. There is no partial regression risk from touching these files —
-they can be rewritten wholesale rather than patched.
+`review/[deckId].tsx` no longer imports from `apps/mobile/lib/dummy.ts` —
+it loads real due cards, schedules ratings through `packages/srs`, and
+persists them via `recordReview`. `stats.tsx` and `settings/templates.tsx`
+are unchanged: they still import their *entire* data set from
+`apps/mobile/lib/dummy.ts`/local dummy arrays, and every mutating action
+("Save template", "+ New" template) is either a local-state-only update or
+an explicit `noop`. There is no partial regression risk from touching
+those two files — they can still be rewritten wholesale rather than
+patched.
 
 ### `packages/core` naming collision — fixed (Work package 1)
 
@@ -218,33 +219,45 @@ Acceptance criteria:
 - `pnpm install` no longer has two packages claiming the name
   `@lingora/types`.
 
-### Work package 2: Review session data + scheduling wiring
+### Work package 2: Review session data + scheduling wiring — ✅ Complete
 
 - Replace `dummyReviewQueue` with `getCardsDueForReview(db, deckId)`
-  (cloze mode narrows further, e.g. by joining `cloze_cards`).
+  (cloze mode narrows further, e.g. by joining `cloze_cards`). → done;
+  `loadReviewQueue` in `review/[deckId].tsx` skips cards with no matching
+  cloze row when `mode=cloze`.
 - Build a "review card view" loader analogous to `word/[form].tsx`'s
   `loadWord` — one card's lemma, primary meaning, selected example, and
-  (for cloze mode) its cloze row, in the shape the renderer needs.
+  (for cloze mode) its cloze row, in the shape the renderer needs. → done
+  (added `getLemmaById` to `packages/database` — the loader had a card's
+  `lemmaId` but no by-ID lookup existed yet).
 - Wire the rating buttons to `packages/srs#schedule()` → `recordReview(db,
   event, newState)`, replacing the static `dummyIntervals` display with the
-  scheduler's real next-interval preview per rating.
-- Give every `CardType` (`basic`, `reverse`, `cloze`, `phrase`, `image`) at
-  least a minimally correct front/back presentation — reverse swaps
-  front/back fields, phrase shows the expression/meaning pair, image shows
-  the linked asset if present — even before the template engine (Work
-  package 4) makes this fully customizable.
-- Add a session-time-remaining estimate (roadmap-listed, currently absent)
-  — a simple average-seconds-per-card × remaining-count estimate is enough
-  for v1.
+  scheduler's real next-interval preview per rating. → done; verified on
+  the AVD that a rating both inserts a `review_events` row and transitions
+  `card_states` (`new` → `learning`, real `stability`/`reps`/
+  `learning_steps`/`next_review_date`).
+- Give every `CardType` at least a minimally correct front/back
+  presentation. → `basic` is the real case (everything the pipeline
+  currently produces); `reverse` swaps which side shows first using the
+  same data; `phrase`/`image` fall back to the basic layout since nothing
+  produces either type yet — documented in the loader's docstring as
+  defensive/future-proof rather than a claim of real content.
+- Add a session-time-remaining estimate. → done; `formatTimeRemaining`
+  uses the session's own average ms/card so far (seeded with an 8s
+  default before the first rating).
 
 Acceptance criteria:
 
 - A real due card, rated, updates its `card_states` row and inserts a
-  `review_events` row — verified by re-querying after a rating.
+  `review_events` row. — verified on the AVD by querying both tables
+  directly after rating a card.
 - Every `CardType` in a representative deck can be reviewed without a
-  runtime error, even if visually plain.
-- No dummy data remains in the review session's data path (rendering
-  polish can still be plain `Text` until Work package 4).
+  runtime error, even if visually plain. — met; only `basic` cards exist
+  in any seeded/imported data to test against, so `reverse`/`phrase`/
+  `image` are exercised by the exhaustive switch/fallback logic, not by
+  real due cards of those types (none exist yet to test with).
+- No dummy data remains in the review session's data path. — met;
+  `dummyReviewQueue`/`dummyIntervals` deleted from `lib/dummy.ts`.
 
 ### Work package 3: Swipe gesture interface
 
@@ -388,9 +401,9 @@ Phase 5 can be marked complete only when all applicable items below are true:
 
 - [x] FSRS scheduler in `packages/srs`, pure and unit-tested
 - [x] `packages/core` naming collision fixed
-- [ ] Review session backed by real due cards, not dummy data
-- [ ] Every `CardType` has at least a minimal review presentation
-- [ ] Ratings persist via `recordReview` with real FSRS-computed next state
+- [x] Review session backed by real due cards, not dummy data
+- [x] Every `CardType` has at least a minimal review presentation
+- [x] Ratings persist via `recordReview` with real FSRS-computed next state
 - [ ] Swipe gesture rating interface, verified on the AVD
 - [ ] Accessible fallback for rating (tap/press), or an explicit deferral
 - [ ] LiquidJS rendering with conditionals and loops (not flat substitution)

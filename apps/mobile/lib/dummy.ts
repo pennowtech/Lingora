@@ -1,78 +1,14 @@
-import type { ReviewRating } from '@lingora/types'
-
 /**
  * DUMMY DATA — remaining Phase 5 stand-ins only.
  *
  * Phase 4 wired search, word detail, home, decks, deck detail, mining and
  * settings to @lingora/database + @lingora/ai; their dummy exports are gone.
+ * Phase 5 Work package 2 wired the review session to real due cards, FSRS
+ * scheduling, and recordReview — its dummy exports are gone too.
  *
- * TODO(phase5): delete this module. The review session replaces
- * dummyReviewQueue with getCardsDueForReview + LiquidJS template rendering,
- * dummyIntervals with @lingora/srs (FSRS), and stats.tsx replaces dummyStats
- * with review_events/card_states aggregations.
+ * TODO(phase5): delete this module. stats.tsx replaces dummyStats with
+ * review_events/card_states aggregations (Work package 5).
  */
-
-// ─── Review session ───────────────────────────────────────────────────────────
-
-export interface DummyReviewCard {
-  id: string
-  kind: 'basic' | 'cloze'
-  front: string
-  frontHint: string
-  back: string
-  backExample: string
-  backExampleTranslation: string
-  clozeAnswer?: string
-}
-
-export const dummyReviewQueue: DummyReviewCard[] = [
-  {
-    id: 'rc-1',
-    kind: 'basic',
-    front: 'ausgehen',
-    frontHint: 'verb · separable',
-    back: 'to go out',
-    backExample: 'Wir gehen heute Abend aus.',
-    backExampleTranslation: 'We are going out tonight.',
-  },
-  {
-    id: 'rc-2',
-    kind: 'cloze',
-    front: 'Uns ist das Brot ___.',
-    frontHint: 'We ran out of bread.',
-    back: 'ausgegangen',
-    backExample: 'Uns ist das Brot ausgegangen.',
-    backExampleTranslation: 'We ran out of bread.',
-    clozeAnswer: 'ausgegangen',
-  },
-  {
-    id: 'rc-3',
-    kind: 'basic',
-    front: 'das Haus',
-    frontHint: 'noun · neuter · pl. Häuser',
-    back: 'the house',
-    backExample: 'Das Haus ist groß.',
-    backExampleTranslation: 'The house is big.',
-  },
-  {
-    id: 'rc-4',
-    kind: 'cloze',
-    front: 'Mir geht langsam die Geduld ___.',
-    frontHint: 'I am slowly running out of patience.',
-    back: 'aus',
-    backExample: 'Mir geht langsam die Geduld aus.',
-    backExampleTranslation: 'I am slowly running out of patience.',
-    clozeAnswer: 'aus',
-  },
-]
-
-/** Dummy FSRS intervals shown under the rating buttons. TODO(phase5): compute via @lingora/srs. */
-export const dummyIntervals: Record<ReviewRating, string> = {
-  again: '1 min',
-  hard: '8 min',
-  good: '2 d',
-  easy: '5 d',
-}
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 

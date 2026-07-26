@@ -9,8 +9,8 @@
 - **Assessment date:** 2026-07-26 (original) · **updated:** 2026-07-26 (Work
   packages 1–4 shipped)
 - **Assessed branch:** `main`
-- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → Work
-  packages 1–4 merged (see PR history)
+- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `30c2207`
+  (Work package 4 merged, PR #32)
 - **Overall status:** **In progress (approximately 65–70%)** — Work packages
   1–4 (FSRS scheduler, review session data/scheduling, swipe gestures,
   LiquidJS template engine + editor) are shipped and AVD-verified; only

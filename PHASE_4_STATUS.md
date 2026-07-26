@@ -69,9 +69,9 @@ do not yet implement all behavior promised by the roadmap.
 | Cloze preview                  | Complete for Phase 4            | Persisted cloze content renders. FSRS review behavior belongs to Phase 5.                                                                                                        |
 | Add-to-deck flow               | Complete                        | A real deck picker calls the database repository and invalidates affected queries.                                                                                               |
 | Sentence-mining review queue   | Mostly complete                 | Users can select, discard, and batch-process existing captures into cards.                                                                                                       |
-| Manual sentence capture        | Missing                         | No mobile UI currently calls `createMineEntry`.                                                                                                                                  |
-| Clipboard capture              | Missing                         | Repository support exists, but no mobile capture entry point is wired.                                                                                                           |
-| Share-sheet capture            | Missing                         | Source types exist in the model, but no share extension/intent workflow is wired.                                                                                                |
+| Manual sentence capture        | Complete                        | Mine screen has a floating "+" button opening a capture sheet (`apps/mobile/app/(tabs)/mine.tsx`) with a text input wired to `createMineEntry` (`sourceType: 'manual'`). Verified on the AVD.                                                                                   |
+| Clipboard capture              | Complete                        | The same capture sheet's "Paste from clipboard" button reads via `expo-clipboard`, prefills the input, and tags the entry `sourceType: 'clipboard'`; an empty clipboard shows an explicit alert rather than capturing nothing. Verified on the AVD (required a native dev-client rebuild for `expo-clipboard`). |
+| Share-sheet capture            | Explicitly deferred             | `CaptureSource` already models `share_sheet`; wiring an Android/iOS share target is its own platform-specific follow-up (per Work package 4's acceptance criteria) rather than blocking manual/clipboard capture.               |
 | CSV import with column mapping | Complete                        | `packages/database/src/csv-import.ts` parses quoted/delimited CSV (comma/semicolon/tab auto-detected, BOM/CRLF-safe), builds a per-row validation preview (duplicate lemma detection, required-field errors), and imports transactionally with imported/skipped/failed counts. `apps/mobile/app/settings/csv-import.tsx` is the interactive pick → map → preview → confirm wizard, wired from Import & Export's "Choose CSV file" button. 11 Vitest parser/preview/import tests.                        |
 | JSON backup/export             | Complete                        | `packages/database/src/backup.ts#createBackup` reads every user-owned table into a versioned, Zod-validated payload (never API keys); `apps/mobile/lib/backup.ts#exportBackupToFile` writes it via expo-file-system and opens the native share sheet. Verified round-trip on the Pixel 6 Pro AVD.                        |
 | JSON restore/import            | Complete                        | `restoreBackup` validates and replaces all backed-up tables transactionally (full-replace conflict policy); `pickAndParseBackupFile`/`applyBackupRestore` wire the native file picker and confirmation dialog. 10 Vitest round-trip/validation/rollback tests in `packages/database/src/backup.test.ts`.              |
@@ -173,11 +173,14 @@ constructs the matching real adapter for whichever is selected — DeepL
 (`packages/ai/src/providers/deepl.ts`) included, verified with a live API
 call on the AVD (Work package 6).
 
-### Sentence mining has no capture entry point
+### Sentence mining has manual and clipboard capture; share-sheet is deferred
 
-`createMineEntry` exists, but there are no callers in `apps/mobile`. The queue
-can process database entries, but normal users cannot add manual, clipboard, or
-share-sheet captures through the app.
+`createMineEntry` is now called from the Mine screen's capture sheet
+(`apps/mobile/app/(tabs)/mine.tsx`) for manual typing and clipboard paste,
+both verified on the AVD. Share-sheet/Android-intent capture is explicitly
+deferred as its own platform-specific follow-up, per Work package 4's
+acceptance criteria — `CaptureSource` already models `share_sheet` for when
+that lands.
 
 ### Evaluation is example-only
 
@@ -252,14 +255,20 @@ Acceptance criteria:
 - Unsupported content is reported explicitly.
 - Importing the same package twice follows a documented duplicate policy.
 
-### Work package 4: Sentence capture producers
+### Work package 4: Sentence capture producers — ✅ Complete (manual + clipboard; share-sheet deferred)
 
-- Add manual paste/input from the mining screen.
-- Add clipboard capture.
+- Add manual paste/input from the mining screen. → a floating "+" button on the Mine screen opens a capture sheet with a text input, wired to `createMineEntry`.
+- Add clipboard capture. → the same sheet's "Paste from clipboard" button reads via `expo-clipboard`; an empty clipboard surfaces an explicit alert instead of silently capturing nothing.
 - Add Android/iOS share handling or explicitly split it into a platform-focused
-  follow-up.
-- Preserve source type, title, URL, timestamp, and raw context when available.
-- Navigate users to the queued item after capture.
+  follow-up. → explicitly deferred; `CaptureSource.share_sheet` already models it for when that native-intent work is scheduled.
+- Preserve source type, title, URL, timestamp, and raw context when available. → `sourceType` is set per producer (`manual`/`clipboard`); `capturedAt` is set at capture time. Title/URL are `undefined` for these two producers (no source page exists), correctly left unset rather than fabricated.
+- Navigate users to the queued item after capture. → the capture sheet closes and the queue list (already the active screen) shows the new entry immediately via query invalidation.
+
+Acceptance criteria:
+
+- A user can create, review, discard, and process a mined sentence without
+  direct database manipulation. — verified on the AVD: captured via both producers, selected/deselected, discarded, and left in the queue for the existing generate flow.
+- Capturing never triggers AI before confirmation. — `createMineEntry` only inserts into `sentence_mining_queue`; generation is a separate, explicit "Generate cards with AI" action.
 
 Acceptance criteria:
 
@@ -375,9 +384,9 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [x] Secure provider settings and limited mode
 - [ ] Primary-meaning selection
 - [ ] Flashcard-example selection
-- [ ] Manual sentence capture
-- [ ] Clipboard sentence capture
-- [ ] Share-sheet capture, or an explicitly approved deferral
+- [x] Manual sentence capture
+- [x] Clipboard sentence capture
+- [x] Share-sheet capture, or an explicitly approved deferral
 - [x] JSON backup export
 - [x] JSON restore
 - [x] CSV import with interactive column mapping

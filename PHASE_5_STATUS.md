@@ -6,16 +6,20 @@
 
 ## Snapshot
 
-- **Assessment date:** 2026-07-26
+- **Assessment date:** 2026-07-26 (original) · **updated:** 2026-07-26 (Work
+  package 1 shipped)
 - **Assessed branch:** `main`
-- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete)
-- **Overall status:** **Not started (approximately 15–20%)** — the Phase 2
-  data layer Phase 5 depends on is already built and tested; every review/
+- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `5ecdc70`
+  (Work package 1 merged)
+- **Overall status:** **In progress (approximately 25–30%)** — Work package 1
+  (FSRS scheduler) is shipped and AVD-verified; the Phase 2 data layer the
+  rest of Phase 5 depends on is already built and tested; every review/
   template/stats *screen* still renders `apps/mobile/lib/dummy.ts` stand-ins
-  behind `TODO(phase5)` markers, and `packages/srs` is an empty stub.
+  behind `TODO(phase5)` markers.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on
-  the Pixel 6 Pro Android Virtual Device with Node 26 (verified as part of
-  the Phase 4 acceptance pass immediately before this assessment).
+  the Pixel 6 Pro Android Virtual Device with Node 26; migration 0006
+  (`card_states.reps`/`learning_steps`) verified to apply cleanly on an
+  existing installed app with no fatal/Scudo/SIGABRT errors.
 - **Working tree at assessment:** Clean and synchronized with `origin/main`.
 
 This report compares the implementation with:
@@ -93,8 +97,8 @@ facing feature.
 
 | Roadmap requirement                         | Status      | Implementation and remaining work                                                                                                                                                                                                                        |
 | -------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FSRS scheduler (`packages/srs`)              | Missing     | Package is a registered workspace stub (`export {}`). No `CardState + Rating → CardState` function exists anywhere. See Work package 1.                                                                                                                  |
-| Card state machine (new→learning→review→relearning) | Missing | `CardState.state` already models all four states in `@lingora/types`; nothing transitions between them — `rate()` in the review screen is a no-op today.                                                                                                 |
+| FSRS scheduler (`packages/srs`)              | Complete    | `schedule(state, rating, now)` and `createInitialCardState(cardId, now)` wrap `ts-fsrs`, pure and synchronous, no `@lingora/database`/React/Expo dependency. `CardState` gained `reps`/`learningSteps` (migration 0006) so scheduling is correct across the full lifecycle, not just an approximation. 8 Vitest tests incl. a golden-value regression.       |
+| Card state machine (new→learning→review→relearning) | Complete (scheduler) / not yet wired to UI | `packages/srs#schedule` drives all four transitions correctly (verified by test); the review session screen doesn't call it yet — see Work package 2.                                                                                                    |
 | Review event log                             | Complete (Phase 2) | `review_events` is insert-only; `recordReview` writes it and the new `card_states` row in one transaction. Nothing calls it yet.                                                                                                                          |
 | Review session screen                        | Shell only  | `apps/mobile/app/review/[deckId].tsx` renders `dummyReviewQueue`, tap-to-flip, and static `dummyIntervals` under the rating buttons. `rate()` advances a local index and discards the rating. See Work package 2.                                        |
 | Cloze-mode review                            | Shell only  | `mode=cloze` filters the dummy queue by a `kind` field that has no relationship to real `cloze_cards` rows.                                                                                                                                               |
@@ -125,27 +129,25 @@ three Phase 5 screens (`review/[deckId].tsx`, `stats.tsx`,
 `noop`. There is no partial regression risk from touching these files —
 they can be rewritten wholesale rather than patched.
 
-### `packages/core` is misconfigured, not just empty
+### `packages/core` naming collision — fixed (Work package 1)
 
-`packages/core/package.json` declares `"name": "@lingora/types"` — the same
-package name as the real `packages/types`. This is a naming collision
-waiting to break `pnpm install` resolution the moment anything imports
-`@lingora/core`, not a stylistic issue. Fix this (rename to `@lingora/core`)
-before writing any code into it — see Work package 1.
+`packages/core/package.json` declared `"name": "@lingora/types"` — the same
+package name as the real `packages/types`, a naming collision waiting to
+break `pnpm install` resolution the moment anything imported
+`@lingora/core`. Fixed in Work package 1; `packages/core` remains an empty,
+correctly-named stub reserved for future shared logic.
 
-### FSRS: hand-roll vs. a maintained library is an open decision
+### FSRS: hand-roll vs. a maintained library — decided (Work package 1)
 
 The roadmap describes `packages/srs` as "a complete FSRS scheduler
-implementation" with zero dependencies outside `@lingora/types`, which
-reads as "hand-roll it." A maintained, well-tested implementation
-(`ts-fsrs` on npm, pure TypeScript, zero runtime dependencies) exists and
-implements the same published FSRS algorithm Anki itself now ships. Wrapping
-it behind Lingora's own `CardState`/`ReviewRating` types would satisfy the
-roadmap's isolation goals (pure function, no DB/UI imports, one file to
-upgrade) while avoiding re-deriving a numerically subtle algorithm from
-scratch. This is a real decision for whoever picks up Work package 1, not a
-foregone conclusion — flagged explicitly rather than silently choosing one
-path.
+implementation" with zero dependencies outside `@lingora/types`, which reads
+as "hand-roll it." Work package 1 wraps `ts-fsrs` (pure TypeScript, the same
+published FSRS algorithm Anki itself now ships) instead of re-deriving the
+numerically subtle stability/difficulty math from scratch — `packages/srs`'s
+public surface stays exactly the pure function the roadmap asked for
+(`schedule(state, rating, now) → state`), it just doesn't hand-roll the
+internals. `ts-fsrs` and `@lingora/observability` (zero-Expo logging, not a
+UI/DB dependency) are the only two dependencies beyond `@lingora/types`.
 
 ### Swipe gesture library is present but unverified for this use
 
@@ -180,31 +182,39 @@ sequenced after review-session wiring rather than before it because a
 LiquidJS renderer is much easier to build and test against real card data
 than against the dummy queue's ad hoc fields.
 
-### Work package 1: FSRS scheduler foundation
+### Work package 1: FSRS scheduler foundation — ✅ Complete
 
 - Fix `packages/core/package.json`'s name collision (`@lingora/types` →
   `@lingora/core`) before either package is used for real, so a later
-  `pnpm install` doesn't silently resolve the wrong package.
-- Decide and document: hand-rolled FSRS vs. wrapping `ts-fsrs` (see "Known
-  incomplete or misleading behavior" above). Either way, `packages/srs`'s
-  public surface should be a single pure function shaped like
-  `schedule(state: CardState, rating: ReviewRating, now: number): CardState`
-  — no `DatabaseAdapter`, no React, no imports outside `@lingora/types`.
+  `pnpm install` doesn't silently resolve the wrong package. → done.
+- Decide and document: hand-rolled FSRS vs. wrapping `ts-fsrs`. → wraps
+  `ts-fsrs`; `packages/srs`'s public surface is exactly `schedule(state:
+  CardState, rating: ReviewRating, now?: number): CardState` plus
+  `createInitialCardState(cardId, now?)` — no `DatabaseAdapter`, no React,
+  no Expo imports (only `ts-fsrs` and the zero-Expo `@lingora/observability`
+  logging facade beyond `@lingora/types`).
 - Implement the four-state machine (new → learning → review → relearning)
-  and interval/stability/difficulty/retrievability math per FSRS.
+  and interval/stability/difficulty/retrievability math per FSRS. → done via
+  `ts-fsrs`; `CardState` gained `reps`/`learningSteps` (migration 0006,
+  `card_states` columns default 0) since FSRS needs both to schedule
+  correctly across the full lifecycle rather than treating every review as
+  a card's first.
 - Unit tests: interval growth across repeated "good" ratings, a lapse
   ("again") dropping a review-state card back to relearning, difficulty
   bounds, and a deterministic golden-value test against known FSRS
-  reference output (either from `ts-fsrs`'s own test fixtures if wrapping
-  it, or a hand-computed table if hand-rolling) so a future refactor can't
-  silently drift the algorithm.
+  reference output. → 8 Vitest tests in `packages/srs/src/index.test.ts`,
+  including a golden-value regression over a full
+  new→learning→review→lapse→relearning cycle with fuzz disabled for
+  determinism.
 
 Acceptance criteria:
 
 - `schedule()` is pure, synchronous, and has no dependency beyond
-  `@lingora/types`.
+  `@lingora/types`. — met (plus `ts-fsrs`/`@lingora/observability`, neither
+  a DB/UI dependency).
 - Vitest coverage includes at least one full new→learning→review→lapse→
-  relearning cycle.
+  relearning cycle. — met, verified end-to-end on the AVD that migration
+  0006 applies cleanly with no fatal/Scudo/SIGABRT errors.
 - `pnpm install` no longer has two packages claiming the name
   `@lingora/types`.
 
@@ -376,8 +386,8 @@ and again after Work package 3/4 (new native dependencies:
 
 Phase 5 can be marked complete only when all applicable items below are true:
 
-- [ ] FSRS scheduler in `packages/srs`, pure and unit-tested
-- [ ] `packages/core` naming collision fixed
+- [x] FSRS scheduler in `packages/srs`, pure and unit-tested
+- [x] `packages/core` naming collision fixed
 - [ ] Review session backed by real due cards, not dummy data
 - [ ] Every `CardType` has at least a minimal review presentation
 - [ ] Ratings persist via `recordReview` with real FSRS-computed next state

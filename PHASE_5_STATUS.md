@@ -7,14 +7,15 @@
 ## Snapshot
 
 - **Assessment date:** 2026-07-26 (original) · **updated:** 2026-07-26 (Work
-  package 1 shipped)
+  packages 1–4 shipped)
 - **Assessed branch:** `main`
-- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `5ecdc70`
-  (Work package 1 merged)
-- **Overall status:** **In progress (approximately 25–30%)** — Work package 1
-  (FSRS scheduler) is shipped and AVD-verified; the Phase 2 data layer the
-  rest of Phase 5 depends on is already built and tested; every review/
-  template/stats *screen* still renders `apps/mobile/lib/dummy.ts` stand-ins
+- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → Work
+  packages 1–4 merged (see PR history)
+- **Overall status:** **In progress (approximately 65–70%)** — Work packages
+  1–4 (FSRS scheduler, review session data/scheduling, swipe gestures,
+  LiquidJS template engine + editor) are shipped and AVD-verified; only
+  statistics wiring (Work package 5) and deck move/merge + final acceptance
+  (Work package 6) remain, both still on `apps/mobile/lib/dummy.ts` stand-ins
   behind `TODO(phase5)` markers.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on
   the Pixel 6 Pro Android Virtual Device with Node 26; migration 0006
@@ -104,9 +105,9 @@ facing feature.
 | Cloze-mode review                            | Complete    | `mode=cloze` filters to cards with a real `cloze_cards` row and shows the cloze sentence/answer instead of the word/meaning.                                                                                                                              |
 | Multiple card types (basic/reverse/cloze/phrase/image) | Mostly complete | `reverse` swaps which side (word vs. meaning) shows first; `phrase`/`image` fall back to the basic layout since nothing in the generation/import pipeline produces either yet (documented in the loader's own comment) — not silently ignored, just honestly deferred until real data exists to render differently.       |
 | Swipe gesture review interface               | Complete    | The flipped card is a draggable `SwipeableCard` (right/left/up/down = Good/Again/Easy/Hard, with a fading direction-label overlay); releasing past a threshold commits that rating through the same `schedule()`/`recordReview()` path the tap buttons use. The four rating buttons remain the always-available accessible fallback. Required adding `react-native-gesture-handler`, `react-native-reanimated` 4.x, and its new `react-native-worklets` peer as direct dependencies plus a `babel.config.js` (didn't exist before) and `GestureHandlerRootView` at the app root.        |
-| Flashcard renderer (LiquidJS + HTML/CSS)     | Missing     | `liquidjs` is not a dependency. `templates.tsx`'s "preview" is a regex placeholder-substitution, explicitly documented in its own comment as "NOT a LiquidJS implementation (no `{% if %}`, no loops)" and CSS is stored but never applied. See Work package 4. |
-| Customizable card template system            | Shell only (data layer complete) | `templates` table + full repository CRUD exist and one default template is seeded. `settings/templates.tsx` edits an in-memory array of two hardcoded dummy templates; "Save template" is a no-op.                                                        |
-| Template editor (field visibility, order, style) | Missing | No field-toggle/reorder UI exists — the current screen is three raw-text `TextInput`s (front/back/CSS) with a plain-text preview. See the `FlashCardTemplate*.png` sketches referenced above and Work package 4.                                          |
+| Flashcard renderer (LiquidJS + HTML/CSS)     | Complete    | `liquidjs`'s `parseAndRenderSync` + `react-native-webview` render real `{{ placeholders }}`, `{% if %}` conditionals, and `{% for %}` loops to HTML/CSS in `lib/templates.ts#renderCardHtml`, used by both the review session and the editor's live preview. `<body class="front"|"back">` is stamped on automatically so a shared stylesheet can still target one side (`.front { ... }`) without any hand-authored wrapper element. |
+| Customizable card template system            | Complete    | `templates` table + full repository CRUD wired for real (`getAllTemplates`/`createTemplate`/`updateTemplate`/`deleteTemplate`); the seeded default template no longer auto-wraps fields in `<div>`.                                                        |
+| Template editor (field visibility, order, style) | Mostly complete | Fields/Style/Preview/Code tabs match the referenced sketches: a consolidated field list with Front/Back toggles (icon + label + description, no reorder — documented v1 simplification), an accent-color picker, a live Preview tab (separate Front/Back sub-tabs, zero-scroll, `onLayout`-measured real card dimensions), and a Code tab with a full variables reference + conditional-Liquid example. Drag-to-reorder is not implemented (roadmap sketch shows it; deferred, not silently dropped — edit the Code tab directly to reorder). |
 | Deck management: create/rename/delete/nest   | Complete (Phase 4) | `apps/mobile/app/(tabs)/decks.tsx` and `app/deck/[id].tsx` already call `createDeck`/`renameDeck`/`deleteDeck`; nesting renders via `parentId`.                                                                                                            |
 | Deck management: move                        | Partial     | `moveDeck` repository function exists and is untested by any screen; no UI calls it. See Work package 6.                                                                                                                                                  |
 | Deck management: merge                       | Missing     | No repository function or UI exists to merge two decks' cards. Not mentioned as a data-layer primitive anywhere in Phase 2 either — likely needs a new repository function. See Work package 6 for a scope decision.                                     |
@@ -118,16 +119,16 @@ facing feature.
 
 ## Known incomplete or misleading behavior
 
-### Review session is real (Work package 2); stats/templates are still fully dummy
+### Review session and templates are real (Work packages 2 & 4); stats is still fully dummy
 
 `review/[deckId].tsx` no longer imports from `apps/mobile/lib/dummy.ts` —
 it loads real due cards, schedules ratings through `packages/srs`, and
-persists them via `recordReview`. `stats.tsx` and `settings/templates.tsx`
-are unchanged: they still import their *entire* data set from
-`apps/mobile/lib/dummy.ts`/local dummy arrays, and every mutating action
-("Save template", "+ New" template) is either a local-state-only update or
-an explicit `noop`. There is no partial regression risk from touching
-those two files — they can still be rewritten wholesale rather than
+persists them via `recordReview`, rendering front/back through the real
+LiquidJS + WebView pipeline. `settings/templates.tsx` is likewise real:
+full CRUD against the `templates` table, live preview through the same
+renderer. `stats.tsx` is the only screen still on `apps/mobile/lib/dummy.ts`
+stand-ins — see Work package 5. There is no partial regression risk from
+touching that file — it can still be rewritten wholesale rather than
 patched.
 
 ### `packages/core` naming collision — fixed (Work package 1)
@@ -297,19 +298,26 @@ Acceptance criteria:
   real rating persisting, moving a card from due to not-due with 100%
   retention).
 
-### Work package 4: LiquidJS template engine + template editor
+### Work package 4: LiquidJS template engine + template editor — ✅ Complete
 
 - Add `liquidjs` (pure JS, no native dependency) and a WebView renderer
   (`react-native-webview` — a native module, will need an `expo run:android`
-  rebuild the first time it's added, per the `expo-clipboard` precedent).
+  rebuild the first time it's added, per the `expo-clipboard` precedent). →
+  done; a fresh native rebuild was required, confirmed rather than assumed
+  (see the `react-native-worklets` version-mismatch note from Work package 3
+  — re-verified stable after this rebuild too).
 - Build the render function: `Template.frontTemplate`/`backTemplate` (Liquid
   syntax) + `Template.styles` (CSS) + a card-data context object → HTML
   string, loaded into a WebView so CSS actually applies (replacing
-  `templates.tsx`'s documented "plain-text approximation").
+  `templates.tsx`'s documented "plain-text approximation"). → done,
+  `apps/mobile/lib/templates.ts#renderCardHtml`/`buildCardContext`; renders
+  a full HTML document via `engine.parseAndRenderSync` with a fallback error
+  message instead of throwing on malformed Liquid.
 - Support the syntax the roadmap and prompt code samples call out:
   `{{ placeholders }}`, `{% if %}` conditionals (e.g. gender only on noun
   cards), and `{% for %}` loops (e.g. first two synonyms) — not just flat
-  substitution.
+  substitution. → done, LiquidJS handles all three natively; verified with
+  `CONDITIONAL_EXAMPLE`'s worked `{% if %}`/`{% for ... limit %}` snippet.
 - Rebuild the template editor screen against the two design references
   (`LingoraDocs/images/FlashCardTemplate.png`, `FlashCardTemplate_2.png`):
   Fields/Style/Preview/Code tabs; a front/back field list with per-field
@@ -322,25 +330,43 @@ Acceptance criteria:
   snippet in the Code tab; an accent-color picker
   (`FlashCardTemplate_2.png`); and a live preview that renders through the
   *same* WebView renderer the real review session uses, not a separate
-  approximation, so what the user sees while editing is what they get.
+  approximation, so what the user sees while editing is what they get. →
+  done, except drag-to-reorder (deferred — see below). Per iterative UX
+  feedback: field toggles show a friendly label/description/icon per field
+  rather than raw variable names; no field is auto-wrapped in `<div>` (only
+  array-typed fields get the structurally-required `{% for %}` loop; the
+  outer `<body class="front|back">` is stamped on automatically so a shared
+  stylesheet can still target one side via `.front`/`.back` without any
+  hand-authored wrapper); the Preview tab has separate Front/Back sub-tabs,
+  fills the screen with zero scrolling, and shows the card's real
+  `onLayout`-measured width/height; the help panel is a multi-section
+  accordion (one entry per editor tab plus a dedicated HTML/CSS-without-
+  extra-markup guide) that opens pre-expanded to whichever tab was active
+  when "?" was pressed.
 - Wire `getAllTemplates`/`createTemplate`/`updateTemplate`/
   `getDefaultTemplate` for real persistence, including the
-  default-template-swap transaction the repository already provides.
+  default-template-swap transaction the repository already provides. → done.
 - Use the review session (Work package 2) as the render target once this
-  lands — swap its plain-`Text` card rendering for the WebView renderer.
+  lands — swap its plain-`Text` card rendering for the WebView renderer. →
+  done; `review/[deckId].tsx` renders front/back through `CardRenderer`
+  (cloze mode intentionally kept as plain `Text` — a fixed built-in layout,
+  not yet part of the customizable template system, documented in-code as a
+  v1 scope boundary).
 
 Acceptance criteria:
 
 - A template with a conditional block (e.g. gender shown only for nouns)
-  renders correctly for both a noun and non-noun card.
+  renders correctly for both a noun and non-noun card. — met.
 - CSS in `Template.styles` visibly applies in both the editor's live
-  preview and the actual review session — not just stored.
+  preview and the actual review session — not just stored. — met, verified
+  on the AVD with the accent-color picker and `.front`/`.back` selectors.
 - The field-toggle/reorder editor UX matches the referenced sketches'
   shape (tabs, field list with toggles, variables reference, live
   preview) — exact pixels don't need to match, but no editor concept in
   the sketches (Fields/Style/Preview/Code tabs, variable reference,
   conditional example) should be silently dropped from scope without a
-  documented reason.
+  documented reason. — met; drag-to-reorder is the one explicitly deferred
+  concept (edit the Code tab directly to reorder in the interim).
 
 ### Work package 5: Learning statistics
 
@@ -421,11 +447,11 @@ Phase 5 can be marked complete only when all applicable items below are true:
 - [x] Ratings persist via `recordReview` with real FSRS-computed next state
 - [x] Swipe gesture rating interface, verified on the AVD
 - [x] Accessible fallback for rating (tap/press), or an explicit deferral
-- [ ] LiquidJS rendering with conditionals and loops (not flat substitution)
-- [ ] Template CSS visibly applies in both editor preview and review session
-- [ ] Template editor matches the referenced sketches' shape (tabs, field
-      toggles/reorder, variables reference, live preview)
-- [ ] Template CRUD persists for real (`createTemplate`/`updateTemplate`)
+- [x] LiquidJS rendering with conditionals and loops (not flat substitution)
+- [x] Template CSS visibly applies in both editor preview and review session
+- [x] Template editor matches the referenced sketches' shape (tabs, field
+      toggles, variables reference, live preview — reorder deferred, see WP4)
+- [x] Template CRUD persists for real (`createTemplate`/`updateTemplate`)
 - [ ] Statistics screen backed entirely by real queries
 - [ ] Loading/error/empty states on the statistics screen
 - [ ] Deck move wired to the UI

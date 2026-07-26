@@ -1,12 +1,15 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { Card as CardRow, CardState, ReviewRating } from '@lingora/types'
+import type { Card as CardRow, CardState, ReviewRating, Template } from '@lingora/types'
 import {
   getCardsDueForReview,
   getCardState,
   getClozesForCard,
+  getDefaultTemplate,
   getExamplesForCard,
   getLemmaById,
   getMeaningsForCard,
+  getPhrasesForCard,
+  getSynonymsForCard,
   recordReview,
   type DatabaseAdapter,
 } from '@lingora/database'
@@ -19,7 +22,9 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { CardRenderer } from '../../components/CardRenderer'
 import { EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
+import { buildCardContext, renderCardHtml, type CardTemplateContext } from '../../lib/templates'
 import { useServices } from '../../lib/services'
 import { colors, radius, ratingColors, spacing, type } from '../../lib/theme'
 
@@ -178,6 +183,8 @@ interface ReviewCard {
   exampleTranslation: string | null
   clozeSentence: string | null
   clozeAnswer: string | null
+  /** The full render context for the LiquidJS template renderer — see lib/templates.ts. */
+  templateContext: CardTemplateContext
 }
 
 /**
@@ -203,10 +210,12 @@ async function loadReviewQueue(
     const lemma = await getLemmaById(db, card.lemmaId)
     if (!lemma) continue
 
-    const [meanings, examples, clozes, cardState] = await Promise.all([
+    const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
       getMeaningsForCard(db, card.id),
       getExamplesForCard(db, card.id),
       getClozesForCard(db, card.id),
+      getSynonymsForCard(db, card.id),
+      getPhrasesForCard(db, card.id),
       getCardState(db, card.id),
     ])
     const cloze = clozes[0]
@@ -224,6 +233,7 @@ async function loadReviewQueue(
       exampleTranslation: examples[0]?.translation ?? null,
       clozeSentence: cloze?.sentence ?? null,
       clozeAnswer: cloze?.answer ?? null,
+      templateContext: buildCardContext({ lemma, meanings, examples, synonyms, phrases, cloze }),
     })
   }
 
@@ -270,6 +280,21 @@ export default function ReviewSessionScreen(): JSX.Element {
     queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly),
     enabled: (params.deckId ?? '') !== '',
   })
+
+  // The card's own LiquidJS template (basic/reverse cards only — cloze mode
+  // keeps its fixed built-in layout, see the loop below). Falls back to a
+  // plain {{ word }} / {{ meaning }} shape if no default template exists
+  // yet (e.g. a database seeded before migration 0001's template row).
+  const templateQuery = useQuery({
+    queryKey: ['default-template'],
+    queryFn: () => getDefaultTemplate(db),
+    enabled: !clozeOnly,
+  })
+  const template: Pick<Template, 'frontTemplate' | 'backTemplate' | 'styles'> = templateQuery.data ?? {
+    frontTemplate: '<div class="front">{{ word }}</div>',
+    backTemplate: '<div class="back">{{ meaning }}<hr>{{ example }}</div>',
+    styles: '',
+  }
 
   const queue = queueQuery.data ?? []
   const view = queue[index]
@@ -326,9 +351,11 @@ export default function ReviewSessionScreen(): JSX.Element {
     )
   }
 
-  // 'reverse' cards show the meaning first and rate recall of the word — the
-  // only place card.type changes presentation, since nothing yet produces
-  // 'phrase'/'image' cards for a dedicated layout to matter for.
+  // 'reverse' cards show the meaning first and rate recall of the word —
+  // swapped at the template-context level (word <-> meaning) so the same
+  // stored template naturally renders meaning-first, rather than needing a
+  // second template. Nothing yet produces 'phrase'/'image' cards for a
+  // dedicated layout to matter for either.
   const isReverse = view?.card.type === 'reverse'
 
   const showFront = (): string => {
@@ -346,6 +373,17 @@ export default function ReviewSessionScreen(): JSX.Element {
       exampleTranslation: view?.exampleTranslation ?? null,
     }
   }
+
+  const renderedContext = view
+    ? isReverse
+      ? { ...view.templateContext, word: view.templateContext.meaning, meaning: view.templateContext.word }
+      : view.templateContext
+    : null
+  const templateStyles = template.styles ?? ''
+  const frontHtml = renderedContext ? renderCardHtml(template.frontTemplate, templateStyles, renderedContext, 'front') : ''
+  const backHtml = renderedContext
+    ? renderCardHtml(`${template.frontTemplate}<hr/>${template.backTemplate}`, templateStyles, renderedContext, 'back')
+    : ''
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -391,37 +429,42 @@ export default function ReviewSessionScreen(): JSX.Element {
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
               {clozeOnly ? (
-                <View style={styles.clozeTag}>
-                  <Ionicons name="create-outline" size={12} color={colors.warning} />
-                  <Text style={styles.clozeTagLabel}>cloze</Text>
-                </View>
-              ) : null}
-
-              <Text style={styles.front}>{showFront()}</Text>
-              {!clozeOnly && view.meta ? <Text style={styles.frontHint}>{view.meta}</Text> : null}
-
-              <View style={styles.backSection}>
-                <View style={styles.divider} />
-                <Text style={styles.back}>{showBack().headline}</Text>
-                {showBack().example ? <Text style={styles.backExample}>{showBack().example}</Text> : null}
-                {showBack().exampleTranslation ? (
-                  <Text style={styles.backExampleTranslation}>{showBack().exampleTranslation}</Text>
-                ) : null}
-              </View>
+                <>
+                  <View style={styles.clozeTag}>
+                    <Ionicons name="create-outline" size={12} color={colors.warning} />
+                    <Text style={styles.clozeTagLabel}>cloze</Text>
+                  </View>
+                  <Text style={styles.front}>{showFront()}</Text>
+                  <View style={styles.backSection}>
+                    <View style={styles.divider} />
+                    <Text style={styles.back}>{showBack().headline}</Text>
+                    {showBack().example ? <Text style={styles.backExample}>{showBack().example}</Text> : null}
+                    {showBack().exampleTranslation ? (
+                      <Text style={styles.backExampleTranslation}>{showBack().exampleTranslation}</Text>
+                    ) : null}
+                  </View>
+                </>
+              ) : (
+                <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
+              )}
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
               {clozeOnly ? (
-                <View style={styles.clozeTag}>
-                  <Ionicons name="create-outline" size={12} color={colors.warning} />
-                  <Text style={styles.clozeTagLabel}>cloze</Text>
+                <>
+                  <View style={styles.clozeTag}>
+                    <Ionicons name="create-outline" size={12} color={colors.warning} />
+                    <Text style={styles.clozeTagLabel}>cloze</Text>
+                  </View>
+                  <Text style={styles.front}>{showFront()}</Text>
+                  <Text style={styles.tapHint}>tap to reveal</Text>
+                </>
+              ) : (
+                <View style={styles.templateFrontWrap}>
+                  <CardRenderer html={frontHtml} />
+                  <Text style={styles.tapHint}>tap to reveal</Text>
                 </View>
-              ) : null}
-
-              <Text style={styles.front}>{showFront()}</Text>
-              {!clozeOnly && view.meta ? <Text style={styles.frontHint}>{view.meta}</Text> : null}
-
-              <Text style={styles.tapHint}>tap to reveal</Text>
+              )}
             </Pressable>
           )}
 
@@ -500,6 +543,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: spacing.md,
   },
+  templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
   swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
   swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
   swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },

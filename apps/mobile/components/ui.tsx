@@ -156,16 +156,34 @@ export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
 // ─── Feedback / evaluation controls ───────────────────────────────────────────
 
 /**
- * Thumbs up / down / regenerate, shown on every generated item.
- * TODO(phase4): wire to the evaluations repository and the AI regenerate flow.
+ * Thumbs up / down / report / regenerate, shown on every generated item.
+ * `activeRating` highlights whichever thumb reflects the item's current
+ * evaluation, so feedback state is visible rather than write-only.
  */
-export function EvalBar(props: { onUp?: () => void; onDown?: () => void; onRegen?: () => void }): JSX.Element {
+export function EvalBar(props: {
+  activeRating?: 'up' | 'down' | undefined
+  onUp?: () => void
+  onDown?: () => void
+  onReport?: () => void
+  onRegen?: () => void
+}): JSX.Element {
   const noop = (): void => undefined
   return (
     <View style={styles.evalBar}>
-      <IconButton icon="thumbs-up-outline" size={17} onPress={props.onUp ?? noop} />
-      <IconButton icon="thumbs-down-outline" size={17} onPress={props.onDown ?? noop} />
-      <IconButton icon="refresh-outline" size={17} onPress={props.onRegen ?? noop} />
+      <IconButton
+        icon={props.activeRating === 'up' ? 'thumbs-up' : 'thumbs-up-outline'}
+        size={17}
+        onPress={props.onUp ?? noop}
+        {...(props.activeRating === 'up' && { color: colors.success })}
+      />
+      <IconButton
+        icon={props.activeRating === 'down' ? 'thumbs-down' : 'thumbs-down-outline'}
+        size={17}
+        onPress={props.onDown ?? noop}
+        {...(props.activeRating === 'down' && { color: colors.danger })}
+      />
+      {props.onReport ? <IconButton icon="flag-outline" size={17} onPress={props.onReport} /> : null}
+      {props.onRegen ? <IconButton icon="refresh-outline" size={17} onPress={props.onRegen} /> : null}
     </View>
   )
 }

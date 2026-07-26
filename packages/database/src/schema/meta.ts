@@ -90,6 +90,8 @@ export const evaluations = sqliteTable(
     targetType: text('target_type').notNull(), // The type of content being evaluated (e.g. example, synonym, definition, etc.)
     targetId: text('target_id').notNull(), // The ID of the content being evaluated (e.g. the ID of the example, synonym, definition, etc.)
     rating: text('rating').notNull(), // The rating given by the user (e.g. thumbs up/downetc.)
+    reason: text('reason'), // report category, set only when the user files a report (migration 0005)
+    note: text('note'), // optional free-text report detail (migration 0005)
     createdAt: integer('created_at').notNull(), // timestamp of when the evaluation was created
   },
   (table) => [index('evaluations_target_id_idx').on(table.targetId)],

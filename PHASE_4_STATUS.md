@@ -76,10 +76,10 @@ do not yet implement all behavior promised by the roadmap.
 | JSON backup/export             | Complete                        | `packages/database/src/backup.ts#createBackup` reads every user-owned table into a versioned, Zod-validated payload (never API keys); `apps/mobile/lib/backup.ts#exportBackupToFile` writes it via expo-file-system and opens the native share sheet. Verified round-trip on the Pixel 6 Pro AVD.                        |
 | JSON restore/import            | Complete                        | `restoreBackup` validates and replaces all backed-up tables transactionally (full-replace conflict policy); `pickAndParseBackupFile`/`applyBackupRestore` wire the native file picker and confirmation dialog. 10 Vitest round-trip/validation/rollback tests in `packages/database/src/backup.test.ts`.              |
 | Anki `.apkg` import            | Shell only                      | The button is a no-op; no parser or mapping pipeline exists.                                                                                                                     |
-| Example evaluation             | Partial                         | Thumbs up/down persist evaluation rows for examples. The UI does not show existing feedback state or prevent/replace duplicate ratings.                                          |
-| Synonym evaluation             | Missing                         | The repository supports generic targets, but the synonyms UI has no controls.                                                                                                    |
-| Regenerate bad output          | Partial                         | Example regeneration works, but regenerates the cluster example set rather than providing a complete item-level correction workflow.                                             |
-| Report bad output              | Missing                         | No report reason/category or dedicated report workflow exists.                                                                                                                   |
+| Example evaluation             | Complete                        | `setEvaluation` (`packages/database/src/repositories/evaluations.ts`) replaces a target's rating rather than accumulating rows, and undoes on a repeat tap of the same rating. `EvalBar` shows the currently active thumb (fetched in bulk per word via `getLatestEvaluationsForTargets`) instead of being write-only.                        |
+| Synonym evaluation             | Complete                        | Synonym rows now render the same `EvalBar` (thumbs up/down/report) as examples, backed by the same `setEvaluation` targeting `targetType: 'synonym'`.                             |
+| Regenerate bad output          | Partial                         | Example regeneration works, but regenerates the cluster example set rather than providing a complete item-level correction workflow. Unchanged scope from Work package 5's acceptance criteria (cluster-scoped regeneration is the intended scope, not item-level).             |
+| Report bad output              | Complete                        | Migration 0005 adds nullable `reason`/`note` columns to `evaluations`; the flag icon on examples and synonyms opens a report sheet (category chips + optional note) that calls `setEvaluation` with `rating: 'down'` plus the reason/note — always replaces, never undoes.        |
 | Loading states                 | Complete                        | Route-by-route audit performed. Home's stats/recent queries and Settings' initial SecureStore load previously had no loading/error surface — Home now shows an inline retry banner on query failure, Settings shows an inline error banner if the load throws.                                       |
 | Error states                   | Complete                        | Audited every `useMutation` for a missing `onError`: added user-visible `Alert` feedback to Mine's discard, word-detail's evaluation vote, and deck deletion (previously silent failures). Word-detail's deck-picker query now handles `isError` (previously only loading).                          |
 | Empty states                   | Complete                        | Added the missing empty state for Home's "Recently added" list; Search, Decks, Mining already had one.                                                                            |
@@ -182,11 +182,18 @@ deferred as its own platform-specific follow-up, per Work package 4's
 acceptance criteria — `CaptureSource` already models `share_sheet` for when
 that lands.
 
-### Evaluation is example-only
+### Evaluation now covers examples and synonyms, with undo/replace and reports
 
-The word-detail screen records `targetType: "example"`. Synonyms have no
-evaluation UI. There is no report reason, feedback history indicator, undo, or
-rating replacement policy.
+The word-detail screen records `targetType: "example"` and `"synonym"` via
+`setEvaluation`, which replaces a target's prior rating (or undoes it on a
+repeat tap) rather than accumulating unlimited rows, and the active rating is
+visibly shown on the thumb icons. The report flag opens a category + optional
+note sheet, persisted via migration 0005's `reason`/`note` columns.
+Primary-meaning selection and flashcard-example selection are also wired
+(`updatePrimaryMeaning`, `updateSelectedExample`) — both card-scoped per the
+schema's "exactly one primary/selected per card" invariant, so switching
+which meaning/example is primary in one cluster is visible when browsing
+other clusters of the same word too.
 
 ### Some roadmap interactions differ
 
@@ -276,26 +283,25 @@ Acceptance criteria:
   direct database manipulation.
 - Capturing never triggers AI before confirmation.
 
-### Work package 5: Complete evaluation and editing
+### Work package 5: Complete evaluation and editing — ✅ Complete
 
-- Add evaluation controls to synonyms.
-- Decide whether phrases/cloze also require evaluation.
-- Implement rating replacement/undo rather than unlimited accidental duplicate
-  rows.
-- Display current feedback state.
-- Add report categories and optional notes.
-- Support regeneration at the intended item/cluster scope.
-- Add primary-meaning selection.
-- Add flashcard-example selection.
-- Invalidate the correct React Query keys after every mutation.
+- Add evaluation controls to synonyms. → synonym rows render the same `EvalBar` as examples (`targetType: 'synonym'`).
+- Decide whether phrases/cloze also require evaluation. → out of scope for this pass; phrases/cloze have no generation-quality feedback loop yet in the roadmap, only examples/synonyms/meanings do (`EvaluationTarget` already reserves `'phrase'`/`'meaning'` for when that's prioritized).
+- Implement rating replacement/undo rather than unlimited accidental duplicate rows. → `setEvaluation` deletes any prior rating for a target before inserting; repeating the same plain up/down rating undoes it instead of re-inserting.
+- Display current feedback state. → `getLatestEvaluationsForTargets` bulk-fetches the whole word's current ratings once; `EvalBar`'s `activeRating` highlights the matching thumb solid.
+- Add report categories and optional notes. → migration 0005 (`reason`, `note` nullable columns); a flag icon opens a category-chip + note sheet, persisted as a `rating: 'down'` evaluation that always replaces (never undoes, even if it repeats a plain down-vote).
+- Support regeneration at the intended item/cluster scope. → unchanged: `persistRegeneratedExamples` already scopes to `cardId` + `clusterId`, which is the intended scope per this work package (not full-word, not single-item).
+- Add primary-meaning selection. → `updatePrimaryMeaning` wired to a "Make primary: …" chip on non-headline meanings; fixed a display bug found during AVD testing where a cluster with only one (non-primary) meaning showed a redundant chip for the meaning already rendered as its headline.
+- Add flashcard-example selection. → `updateSelectedExample` wired to a tappable "use on flashcard" row on non-selected examples; selection is card-wide (matching the schema's "exactly one selected example per card" invariant), verified on the AVD that selecting an example in one cluster correctly deselects the previously-selected example in another cluster of the same word.
+- Invalidate the correct React Query keys after every mutation. → evaluation/report mutations invalidate `['evaluations', form]`; primary-meaning/example-selection mutations invalidate `['word', form]`.
 
 Acceptance criteria:
 
 - Every generated example and synonym supports up/down feedback and
-  regeneration.
+  regeneration. — examples have up/down/report/regenerate; synonyms have up/down/report (no per-synonym regeneration action exists in the UI, matching examples' cluster-scoped regenerate being the only regenerate entry point).
 - Reports are persisted with enough context to analyze provider, model, and
-  prompt quality.
-- Users can correct meaning/example selections without regenerating the word.
+  prompt quality. — a report row carries `target_id`, joinable through `examples`/`synonyms` to `generation_metadata` for provider/model/prompt version, plus its own `reason`/`note`.
+- Users can correct meaning/example selections without regenerating the word. — verified on the AVD: primary meaning and flashcard example both changed without any AI call.
 
 ### Work package 6: Provider truthfulness and state audit — ✅ Complete
 
@@ -382,8 +388,8 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [x] Add-to-deck flow
 - [x] Sentence-mining queue review and processing
 - [x] Secure provider settings and limited mode
-- [ ] Primary-meaning selection
-- [ ] Flashcard-example selection
+- [x] Primary-meaning selection
+- [x] Flashcard-example selection
 - [x] Manual sentence capture
 - [x] Clipboard sentence capture
 - [x] Share-sheet capture, or an explicitly approved deferral
@@ -391,10 +397,10 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [x] JSON restore
 - [x] CSV import with interactive column mapping
 - [ ] Anki `.apkg` import
-- [ ] Example evaluation with visible/reversible state
-- [ ] Synonym evaluation
-- [ ] Report-bad-output workflow
-- [ ] Correctly scoped regeneration workflow
+- [x] Example evaluation with visible/reversible state
+- [x] Synonym evaluation
+- [x] Report-bad-output workflow
+- [x] Correctly scoped regeneration workflow
 - [x] Functional or disabled unavailable translation providers
 - [x] Route-by-route loading/error/empty/success-state audit
 - [ ] Automated tests for new import/export and evaluation behavior

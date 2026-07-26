@@ -3,6 +3,8 @@ import type {
   Card as CardRow,
   CefrLevel,
   Cloze,
+  EvaluationReportReason,
+  EvaluationTarget,
   Example,
   Inflection,
   Lemma,
@@ -13,7 +15,6 @@ import type {
 } from '@lingora/types'
 import {
   addCardToDeck,
-  createEvaluation,
   findLemmaBySurfaceForm,
   getAllDecks,
   getActivePromptVersion,
@@ -22,17 +23,21 @@ import {
   getClustersForLemma,
   getExamplesForCard,
   getInflectionsForLemma,
+  getLatestEvaluationsForTargets,
   getLemmaByForm,
   getMeaningsForCluster,
   getPhrasesForCard,
   getSynonymsForCard,
   persistRegeneratedExamples,
+  setEvaluation,
+  updatePrimaryMeaning,
+  updateSelectedExample,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   Button,
   Card,
@@ -46,6 +51,14 @@ import {
 } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
+
+const REPORT_REASONS: Array<{ value: EvaluationReportReason; label: string }> = [
+  { value: 'inaccurate_translation', label: 'Inaccurate translation' },
+  { value: 'unnatural_phrasing', label: 'Unnatural phrasing' },
+  { value: 'wrong_cefr_level', label: 'Wrong CEFR level' },
+  { value: 'grammar_error', label: 'Grammar error' },
+  { value: 'other', label: 'Other' },
+]
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const CONTEXT_TABS = [
@@ -127,6 +140,9 @@ export default function WordDetailScreen(): JSX.Element {
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [addedToDeck, setAddedToDeck] = useState<string | null>(null)
+  const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
+  const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
+  const [reportNote, setReportNote] = useState('')
 
   const wordQuery = useQuery({
     queryKey: ['word', form],
@@ -143,6 +159,18 @@ export default function WordDetailScreen(): JSX.Element {
   const word = wordQuery.data
   const activeClusterId = clusterId ?? word?.clusters[0]?.cluster.id ?? null
   const active = word?.clusters.find((c) => c.cluster.id === activeClusterId)
+
+  const evaluationTargetIds = (word?.clusters ?? []).flatMap((c) => [
+    ...c.examples.map((ex) => ex.id),
+    ...c.synonyms.map((syn) => syn.id),
+  ])
+  const evaluationsQuery = useQuery({
+    queryKey: ['evaluations', form],
+    queryFn: () => getLatestEvaluationsForTargets(db, evaluationTargetIds),
+    enabled: !!word,
+  })
+  const ratingFor = (targetId: string): 'up' | 'down' | undefined =>
+    evaluationsQuery.data?.get(targetId)?.rating
 
   const generateExamples = useMutation({
     mutationFn: async () => {
@@ -174,15 +202,46 @@ export default function WordDetailScreen(): JSX.Element {
   })
 
   const evaluate = useMutation({
-    mutationFn: (args: { targetId: string; rating: 'up' | 'down' }) =>
-      createEvaluation(db, {
-        id: crypto.randomUUID(),
-        targetType: 'example',
-        targetId: args.targetId,
-        rating: args.rating,
-        createdAt: Date.now(),
-      }),
+    mutationFn: (args: { targetType: EvaluationTarget; targetId: string; rating: 'up' | 'down' }) =>
+      setEvaluation(db, args),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evaluations', form] }),
     onError: (error: unknown) => Alert.alert('Could not save your feedback', String(error)),
+  })
+
+  const report = useMutation({
+    mutationFn: (args: { targetType: EvaluationTarget; targetId: string; reason: EvaluationReportReason; note: string }) =>
+      setEvaluation(db, {
+        targetType: args.targetType,
+        targetId: args.targetId,
+        rating: 'down',
+        reason: args.reason,
+        ...(args.note.trim() !== '' && { note: args.note.trim() }),
+      }),
+    onSuccess: async () => {
+      setReportTarget(null)
+      setReportReason(null)
+      setReportNote('')
+      await queryClient.invalidateQueries({ queryKey: ['evaluations', form] })
+    },
+    onError: (error: unknown) => Alert.alert('Could not save your report', String(error)),
+  })
+
+  const setPrimaryMeaning = useMutation({
+    mutationFn: (meaningId: string) => {
+      if (!word?.card) throw new Error('This word has no card yet.')
+      return updatePrimaryMeaning(db, word.card.id, meaningId)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
+    onError: (error: unknown) => Alert.alert('Could not change the primary meaning', String(error)),
+  })
+
+  const selectExample = useMutation({
+    mutationFn: (exampleId: string) => {
+      if (!word?.card) throw new Error('This word has no card yet.')
+      return updateSelectedExample(db, word.card.id, exampleId)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
+    onError: (error: unknown) => Alert.alert('Could not update the flashcard example', String(error)),
   })
 
   const addToDeck = useMutation({
@@ -287,19 +346,32 @@ export default function WordDetailScreen(): JSX.Element {
             {/* ── Meanings ── */}
             {active.meanings.length > 0 ? (
               <Card style={styles.meaningCard}>
-                <Text style={styles.primaryMeaning}>
-                  {(active.meanings.find((m) => m.isPrimary) ?? active.meanings[0])!.translation}
-                </Text>
-                <Text style={styles.explanation}>
-                  {(active.meanings.find((m) => m.isPrimary) ?? active.meanings[0])!.explanation}
-                </Text>
-                <View style={styles.secondaryRow}>
-                  {active.meanings
-                    .filter((m) => !m.isPrimary)
-                    .map((m) => (
-                      <Chip key={m.id} label={m.translation} />
-                    ))}
-                </View>
+                {(() => {
+                  // The headline is this cluster's own primary meaning if it has one, else
+                  // its first meaning (a cluster with no card-wide primary still needs a
+                  // heading). Only OTHER meanings in this cluster get a "make primary" chip —
+                  // offering one for the meaning already shown as the headline is a no-op
+                  // that reads as a confusing duplicate.
+                  const headline = active.meanings.find((m) => m.isPrimary) ?? active.meanings[0]!
+                  const others = active.meanings.filter((m) => m.id !== headline.id)
+                  return (
+                    <>
+                      <Text style={styles.primaryMeaning}>{headline.translation}</Text>
+                      <Text style={styles.explanation}>{headline.explanation}</Text>
+                      {others.length > 0 ? (
+                        <View style={styles.secondaryRow}>
+                          {others.map((m) => (
+                            <Chip
+                              key={m.id}
+                              label={m.isPrimary ? m.translation : `Make primary: ${m.translation}`}
+                              {...(!m.isPrimary && { onPress: () => setPrimaryMeaning.mutate(m.id) })}
+                            />
+                          ))}
+                        </View>
+                      ) : null}
+                    </>
+                  )
+                })()}
               </Card>
             ) : null}
 
@@ -340,7 +412,16 @@ export default function WordDetailScreen(): JSX.Element {
                       <Ionicons name="star" size={11} color={colors.primary} />
                       <Text style={styles.selectedBannerLabel}>shown on flashcard</Text>
                     </View>
-                  ) : null}
+                  ) : (
+                    <Pressable
+                      style={styles.selectedBanner}
+                      onPress={() => selectExample.mutate(ex.id)}
+                      disabled={selectExample.isPending}
+                    >
+                      <Ionicons name="star-outline" size={11} color={colors.textMuted} />
+                      <Text style={styles.useOnFlashcardLabel}>use on flashcard</Text>
+                    </Pressable>
+                  )}
                   <Text style={styles.exampleSentence}>{ex.sentence}</Text>
                   <Text style={styles.exampleTranslation}>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>
@@ -351,8 +432,10 @@ export default function WordDetailScreen(): JSX.Element {
                       ))}
                     </View>
                     <EvalBar
-                      onUp={() => evaluate.mutate({ targetId: ex.id, rating: 'up' })}
-                      onDown={() => evaluate.mutate({ targetId: ex.id, rating: 'down' })}
+                      activeRating={ratingFor(ex.id)}
+                      onUp={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })}
+                      onDown={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'down' })}
+                      onReport={() => setReportTarget({ targetType: 'example', targetId: ex.id })}
                       {...(tier === 'full' && { onRegen: () => generateExamples.mutate() })}
                     />
                   </View>
@@ -421,6 +504,12 @@ export default function WordDetailScreen(): JSX.Element {
                         </Text>
                       </View>
                       <CefrBadge level={syn.cefrLevel} />
+                      <EvalBar
+                        activeRating={ratingFor(syn.id)}
+                        onUp={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'up' })}
+                        onDown={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'down' })}
+                        onReport={() => setReportTarget({ targetType: 'synonym', targetId: syn.id })}
+                      />
                     </View>
                   ))}
                 </Card>
@@ -509,6 +598,51 @@ export default function WordDetailScreen(): JSX.Element {
           ) : null}
         </View>
       </Modal>
+
+      {/* ── Report modal ── */}
+      <Modal
+        visible={reportTarget !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setReportTarget(null)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setReportTarget(null)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Text style={styles.modalTitle}>What's wrong with this?</Text>
+          <View style={styles.chipRow}>
+            {REPORT_REASONS.map((r) => (
+              <Chip
+                key={r.value}
+                label={r.label}
+                selected={reportReason === r.value}
+                onPress={() => setReportReason(r.value)}
+              />
+            ))}
+          </View>
+          <TextInput
+            style={styles.reportNoteInput}
+            placeholder="Optional details…"
+            placeholderTextColor={colors.textMuted}
+            multiline
+            value={reportNote}
+            onChangeText={setReportNote}
+          />
+          {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
+          <View style={styles.reportActions}>
+            <Button label="Cancel" variant="ghost" onPress={() => setReportTarget(null)} />
+            <Button
+              label={report.isPending ? 'Sending…' : 'Send report'}
+              disabled={reportReason === null || report.isPending}
+              onPress={() =>
+                reportTarget &&
+                reportReason &&
+                report.mutate({ ...reportTarget, reason: reportReason, note: reportNote })
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </>
   )
 }
@@ -541,6 +675,18 @@ const styles = StyleSheet.create({
   exampleCard: { marginBottom: spacing.sm },
   selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: spacing.sm },
   selectedBannerLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+  useOnFlashcardLabel: { fontSize: type.micro, fontWeight: '600', color: colors.textMuted },
+  reportNoteInput: {
+    minHeight: 72,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontSize: type.body,
+    color: colors.text,
+    textAlignVertical: 'top',
+  },
+  reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
   exampleSentence: { fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
   exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
   exampleFooter: {
@@ -564,7 +710,13 @@ const styles = StyleSheet.create({
   grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
   limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
   generateError: { fontSize: type.caption, color: colors.danger },
-  synRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm },
+  synRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
   synText: { flex: 1, marginRight: spacing.md },
   synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },

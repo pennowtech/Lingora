@@ -388,10 +388,20 @@ export interface GenerationUsage {
 export type EvaluationTarget = 'example' | 'synonym' | 'phrase' | 'meaning'
 export type EvaluationRating = 'up' | 'down'
 
+/** Category chosen when a user files a "report bad output" evaluation. */
+export type EvaluationReportReason =
+  | 'inaccurate_translation'
+  | 'unnatural_phrasing'
+  | 'wrong_cefr_level'
+  | 'grammar_error'
+  | 'other'
+
 export interface Evaluation {
   id: string
   targetType: EvaluationTarget
   targetId: string
   rating: EvaluationRating
+  reason?: EvaluationReportReason // set only when this rating came from the report workflow
+  note?: string // optional free-text detail from the report workflow
   createdAt: number
 }

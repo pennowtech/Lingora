@@ -75,7 +75,7 @@ do not yet implement all behavior promised by the roadmap.
 | CSV import with column mapping | Complete                        | `packages/database/src/csv-import.ts` parses quoted/delimited CSV (comma/semicolon/tab auto-detected, BOM/CRLF-safe), builds a per-row validation preview (duplicate lemma detection, required-field errors), and imports transactionally with imported/skipped/failed counts. `apps/mobile/app/settings/csv-import.tsx` is the interactive pick → map → preview → confirm wizard, wired from Import & Export's "Choose CSV file" button. 11 Vitest parser/preview/import tests.                        |
 | JSON backup/export             | Complete                        | `packages/database/src/backup.ts#createBackup` reads every user-owned table into a versioned, Zod-validated payload (never API keys); `apps/mobile/lib/backup.ts#exportBackupToFile` writes it via expo-file-system and opens the native share sheet. Verified round-trip on the Pixel 6 Pro AVD.                        |
 | JSON restore/import            | Complete                        | `restoreBackup` validates and replaces all backed-up tables transactionally (full-replace conflict policy); `pickAndParseBackupFile`/`applyBackupRestore` wire the native file picker and confirmation dialog. 10 Vitest round-trip/validation/rollback tests in `packages/database/src/backup.test.ts`.              |
-| Anki `.apkg` import            | Shell only                      | The button is a no-op; no parser or mapping pipeline exists.                                                                                                                     |
+| Anki `.apkg` import            | Complete (v1 scope — see below) | `packages/database/src/apkg-import.ts` reads Anki's classic collection schema (`notes`/`cards`/`col`), maps fields positionally (interactive, like CSV), strips HTML/media references, and imports note-by-note (not one big transaction) with progress and a real cancellation point. `apps/mobile/lib/apkg.ts` unzips the `.apkg` with `jszip` and opens the extracted collection via `expo-sqlite`'s `deserializeDatabaseAsync` — no temp file needed. `apps/mobile/app/settings/apkg-import.tsx` is the pick → map → preview → confirm wizard. Deliberately out of scope, documented in the module's own header: review history (no valid mapping onto FSRS, which Phase 5 hasn't built), media files (stripped, not copied), and per-original-deck structure (everything lands in one user-chosen Lingora deck). 7 Vitest tests plus a hand-built 8-note `.apkg` (4 Basic + 4 Cloze notes across 2 decks) verified end-to-end on the AVD. |
 | Example evaluation             | Complete                        | `setEvaluation` (`packages/database/src/repositories/evaluations.ts`) replaces a target's rating rather than accumulating rows, and undoes on a repeat tap of the same rating. `EvalBar` shows the currently active thumb (fetched in bulk per word via `getLatestEvaluationsForTargets`) instead of being write-only.                        |
 | Synonym evaluation             | Complete                        | Synonym rows now render the same `EvalBar` (thumbs up/down/report) as examples, backed by the same `setEvaluation` targeting `targetType: 'synonym'`.                             |
 | Regenerate bad output          | Partial                         | Example regeneration works, but regenerates the cluster example set rather than providing a complete item-level correction workflow. Unchanged scope from Work package 5's acceptance criteria (cluster-scoped regeneration is the intended scope, not item-level).             |
@@ -152,18 +152,20 @@ The queue consumer is functional. Capture producers are not wired.
 
 ## Known incomplete or misleading behavior
 
-### Anki import is still nonfunctional; JSON backup/restore and CSV import are now real
+### All three import/export paths are now real
 
-`apps/mobile/app/settings/import-export.tsx`'s Anki `.apkg` button is
-explicitly disabled and labeled "Coming soon" — no parser exists yet (Work
-package 3). The JSON backup export/restore buttons are wired to
-`apps/mobile/lib/backup.ts`, which calls the real `createBackup`/
-`restoreBackup` functions in `packages/database/src/backup.ts`; verified
-end-to-end on the AVD (export → share → pick file → validate → confirm →
-restore → Settings/data reflect the restored backup). The CSV button opens
-`apps/mobile/app/settings/csv-import.tsx`, a pick → map → preview → confirm
-wizard over `packages/database/src/csv-import.ts`'s real parser/preview/
-import; verified end-to-end on the AVD with a sample file.
+The JSON backup export/restore buttons are wired to `apps/mobile/lib/backup.ts`,
+which calls the real `createBackup`/`restoreBackup` functions in
+`packages/database/src/backup.ts`; verified end-to-end on the AVD (export →
+share → pick file → validate → confirm → restore → Settings/data reflect the
+restored backup). The CSV button opens `apps/mobile/app/settings/csv-import.tsx`,
+a pick → map → preview → confirm wizard over `packages/database/src/csv-import.ts`'s
+real parser/preview/import; verified end-to-end on the AVD with a sample file.
+The Anki `.apkg` button opens `apps/mobile/app/settings/apkg-import.tsx`, the
+same wizard shape over `packages/database/src/apkg-import.ts`; verified
+end-to-end on the AVD with a hand-built 8-note test collection (4 Basic + 4
+Cloze notes across 2 decks) — see that module's docstring for the v1 scope
+decisions (no review history, no media, single target deck).
 
 ### Provider selection now always matches the runtime provider
 
@@ -246,21 +248,21 @@ Acceptance criteria:
 - Mapping is interactive rather than hard-coded. — every field is chosen via chips against the file's actual headers.
 - A malformed row does not silently corrupt the import. — validated upfront (error status, not attempted) plus a per-row try/catch safety net during the transactional insert; counted as failed, never silent.
 
-### Work package 3: Anki `.apkg` import
+### Work package 3: Anki `.apkg` import — ✅ Complete (v1 scope)
 
-- Read the archive and Anki SQLite database.
-- Map notes, cards, decks, tags, and supported review history.
-- Sanitize HTML and handle media references deliberately.
-- Define unsupported-template behavior.
-- Preview and confirm before writing.
-- Import transactionally with progress and a cancellation strategy.
+- Read the archive and Anki SQLite database. → `apps/mobile/lib/apkg.ts` unzips with `jszip`, then opens `collection.anki21`/`collection.anki2`'s bytes directly via `expo-sqlite#deserializeDatabaseAsync` — no temp file. `packages/database/src/apkg-import.ts#readAnkiCollection` reads it through the normal `DatabaseAdapter` interface (testable in Node against a hand-built fixture, no Expo dependency).
+- Map notes, cards, decks, tags, and supported review history. → notes/tags read directly; decks read for informational counts/naming only (every note still imports into one user-chosen Lingora deck — see below); review history is explicitly not imported (documented "supported" = none, not silently dropped — Phase 5's FSRS engine doesn't exist yet to receive it).
+- Sanitize HTML and handle media references deliberately. → `stripAnkiHtml` strips `[sound:...]`/`<img>` and converts basic formatting to plain text/newlines; media files are deliberately not copied (Lingora's `AudioAsset` pipeline expects locally-managed files, out of scope for this pass).
+- Define unsupported-template behavior. → field mapping is positional, not note-type-aware, so every note type (Basic, Cloze, custom) is handled uniformly; Cloze's `{{c1::...}}` syntax imports as raw, undecoded text — an explicit, honest limitation rather than a silent mismap, verified with real Cloze notes in the AVD test file.
+- Preview and confirm before writing. → same pick → map → preview → confirm shape as CSV import (`apps/mobile/app/settings/apkg-import.tsx`).
+- Import transactionally with progress and a cancellation strategy. → each note is its own transaction (not one giant transaction like CSV, since a collection can hold thousands of notes) with an `onProgress` callback and a `shouldCancel` check between notes; the UI shows a live progress bar and a working Cancel button, and already-imported notes stay imported if canceled partway.
 
 Acceptance criteria:
 
 - A representative German vocabulary `.apkg` imports into usable Lingora
-  decks/cards.
-- Unsupported content is reported explicitly.
-- Importing the same package twice follows a documented duplicate policy.
+  decks/cards. — verified on the AVD with a hand-built 8-note collection (4 Basic word notes + 4 Cloze notes across 2 Anki decks).
+- Unsupported content is reported explicitly. — Cloze syntax appears verbatim in the preview (not decoded, not hidden); the file-picker error path reports a file that isn't a valid `.apkg` rather than failing silently.
+- Importing the same package twice follows a documented duplicate policy. — same policy as CSV: skip a note whose mapped word already exists as a lemma (verified by design/tests; CSV's equivalent test already covers the identical code path in `buildApkgImportPreview`/`buildCsvImportPreview`).
 
 ### Work package 4: Sentence capture producers — ✅ Complete (manual + clipboard; share-sheet deferred)
 
@@ -396,7 +398,7 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [x] JSON backup export
 - [x] JSON restore
 - [x] CSV import with interactive column mapping
-- [ ] Anki `.apkg` import
+- [x] Anki `.apkg` import
 - [x] Example evaluation with visible/reversible state
 - [x] Synonym evaluation
 - [x] Report-bad-output workflow

@@ -16,6 +16,7 @@ import {
 } from '../../lib/services'
 import {
   validateClaudeKey,
+  validateDeepLKey,
   validateGeminiKey,
   validateMistralKey,
   validateOpenAIKey,
@@ -114,8 +115,14 @@ export default function SettingsScreen(): JSX.Element {
   const [translationProvider, setTranslationProviderState] = useState<TranslationProviderName>('google')
   const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
   const [deeplKey, setDeeplKey] = useState('')
+  const [deeplEnabled, setDeeplEnabledState] = useState(true)
+  const [deeplExpanded, setDeeplExpanded] = useState(false)
+  const [deeplShowKey, setDeeplShowKey] = useState(false)
+  const [deeplValidating, setDeeplValidating] = useState(false)
+  const [deeplUsage, setDeeplUsage] = useState<UsageSnapshot>(ZERO_USAGE)
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [loaded, setLoaded] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [expandedProvider, setExpandedProvider] = useState<GenerationProviderName | null>(null)
   const [showKey, setShowKey] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
   const [validating, setValidating] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
@@ -137,50 +144,61 @@ export default function SettingsScreen(): JSX.Element {
 
   useEffect(() => {
     const load = async (): Promise<void> => {
-      const entries = await Promise.all(
-        GENERATION_PROVIDERS.map(async (name) => {
-          const keys = PROVIDER_STORE_KEYS[name]
-          const [apiKey, model, enabledRaw, providerUsage] = await Promise.all([
-            SecureStore.getItemAsync(keys.key),
-            SecureStore.getItemAsync(keys.model),
-            SecureStore.getItemAsync(keys.enabled),
-            getUsage(name),
+      try {
+        const entries = await Promise.all(
+          GENERATION_PROVIDERS.map(async (name) => {
+            const keys = PROVIDER_STORE_KEYS[name]
+            const [apiKey, model, enabledRaw, providerUsage] = await Promise.all([
+              SecureStore.getItemAsync(keys.key),
+              SecureStore.getItemAsync(keys.model),
+              SecureStore.getItemAsync(keys.enabled),
+              getUsage(name),
+            ])
+            return [
+              name,
+              { apiKey: apiKey ?? '', model: model ?? DEFAULT_MODELS[name], enabled: enabledRaw !== 'false' },
+              providerUsage,
+            ] as const
+          }),
+        )
+        const [storedTranslation, storedGeneration, storedDeepl, storedDeeplEnabled, storedDeeplUsage, storedCefr] =
+          await Promise.all([
+            SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+            SecureStore.getItemAsync(STORE_KEYS.generationProvider),
+            SecureStore.getItemAsync(STORE_KEYS.deeplKey),
+            SecureStore.getItemAsync(STORE_KEYS.deeplEnabled),
+            getUsage('deepl'),
+            SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
           ])
-          return [
-            name,
-            { apiKey: apiKey ?? '', model: model ?? DEFAULT_MODELS[name], enabled: enabledRaw !== 'false' },
-            providerUsage,
-          ] as const
-        }),
-      )
-      const [storedTranslation, storedGeneration, storedDeepl, storedCefr] = await Promise.all([
-        SecureStore.getItemAsync(STORE_KEYS.translationProvider),
-        SecureStore.getItemAsync(STORE_KEYS.generationProvider),
-        SecureStore.getItemAsync(STORE_KEYS.deeplKey),
-        SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
-      ])
 
-      setProviders((prev) => {
-        const next = { ...prev }
-        for (const [name, state] of entries) next[name] = state
-        return next
-      })
-      setUsage((prev) => {
-        const next = { ...prev }
-        for (const [name, , providerUsage] of entries) next[name] = providerUsage
-        return next
-      })
-      if ((TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')) {
-        setTranslationProviderState(storedTranslation as TranslationProviderName)
+        setProviders((prev) => {
+          const next = { ...prev }
+          for (const [name, state] of entries) next[name] = state
+          return next
+        })
+        setUsage((prev) => {
+          const next = { ...prev }
+          for (const [name, , providerUsage] of entries) next[name] = providerUsage
+          return next
+        })
+        if ((TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')) {
+          setTranslationProviderState(storedTranslation as TranslationProviderName)
+        }
+        if ((GENERATION_PROVIDERS as readonly string[]).includes(storedGeneration ?? '')) {
+          setGenerationProviderState(storedGeneration as GenerationProviderName)
+        }
+        setDeeplKey(storedDeepl ?? '')
+        setDeeplEnabledState(storedDeeplEnabled !== 'false')
+        setDeeplUsage(storedDeeplUsage)
+        if ((CEFR_LEVELS as string[]).includes(storedCefr ?? '')) {
+          setCefrState(storedCefr as CefrLevel)
+        }
+      } catch (error) {
+        log.error('settings.load_failed', error, { message: 'Failed to load stored settings' })
+        setLoadError(String(error))
+      } finally {
+        setLoaded(true)
       }
-      if ((GENERATION_PROVIDERS as readonly string[]).includes(storedGeneration ?? '')) {
-        setGenerationProviderState(storedGeneration as GenerationProviderName)
-      }
-      setDeeplKey(storedDeepl ?? '')
-      if ((CEFR_LEVELS as string[]).includes(storedCefr ?? '')) {
-        setCefrState(storedCefr as CefrLevel)
-      }
-      setLoaded(true)
     }
     void load()
   }, [])
@@ -232,6 +250,38 @@ export default function SettingsScreen(): JSX.Element {
     setDeeplKey(value)
     persist(STORE_KEYS.deeplKey, value.trim())
   }
+  const changeDeeplEnabled = (value: boolean): void => {
+    setDeeplEnabledState(value)
+    persist(STORE_KEYS.deeplEnabled, value ? 'true' : 'false')
+    log.info('settings.provider_enabled_changed', {
+      message: `${value ? 'Enabled' : 'Disabled'} DeepL`,
+      metadata: { provider: 'deepl', settingKey: 'enabled' },
+    })
+  }
+  const validateDeepl = (): void => {
+    if (!deeplKey.trim()) return
+    setDeeplValidating(true)
+    void validateDeepLKey(deeplKey)
+      .then((result) => {
+        Alert.alert(
+          result.ok ? 'Connected' : result.networkUnavailable ? 'No internet connection' : 'DeepL validation failed',
+          result.message,
+        )
+      })
+      .finally(() => {
+        setDeeplValidating(false)
+        void getUsage('deepl').then(setDeeplUsage)
+      })
+  }
+  const clearDeeplKey = (): void => {
+    setDeeplKey('')
+    persist(STORE_KEYS.deeplKey, '')
+    void clearUsage('deepl').then(() => setDeeplUsage(ZERO_USAGE))
+    log.info('settings.provider_key_cleared', {
+      message: 'Provider API key cleared',
+      metadata: { provider: 'deepl' },
+    })
+  }
   const setCefr = (level: CefrLevel): void => {
     setCefrState(level)
     persist(STORE_KEYS.defaultCefr, level)
@@ -281,7 +331,9 @@ export default function SettingsScreen(): JSX.Element {
             }
             setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })
             setDeeplKey('')
+            setDeeplUsage(ZERO_USAGE)
             void SecureStore.setItemAsync(STORE_KEYS.deeplKey, '')
+            void clearUsage('deepl')
             void reloadServices()
             log.info('settings.all_provider_keys_deleted', {
               message: 'User deleted every provider API key from this device',
@@ -313,6 +365,16 @@ export default function SettingsScreen(): JSX.Element {
               Without a generation key, card creation with AI is disabled. Translation and manual cards still
               work. Add a key to one of the providers below for the full experience.
             </Text>
+          </View>
+        </View>
+      ) : null}
+
+      {loadError ? (
+        <View style={[styles.banner, { backgroundColor: colors.dangerSoft }]}>
+          <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+          <View style={styles.bannerText}>
+            <Text style={[styles.bannerTitle, { color: colors.danger }]}>Couldn't load saved settings</Text>
+            <Text style={styles.bannerMessage}>{loadError}</Text>
           </View>
         </View>
       ) : null}
@@ -371,11 +433,21 @@ export default function SettingsScreen(): JSX.Element {
           selected={translationProvider === 'google'}
           onPress={() => changeTranslationProvider('google')}
         />
-        <ProviderOption
-          label="DeepL"
-          detail="Best German↔English quality — adapter coming soon"
+        <DeepLRow
           selected={translationProvider === 'deepl'}
-          onPress={() => changeTranslationProvider('deepl')}
+          onSelect={() => changeTranslationProvider('deepl')}
+          expanded={deeplExpanded}
+          onToggleExpanded={() => setDeeplExpanded((v) => !v)}
+          apiKey={deeplKey}
+          enabled={deeplEnabled}
+          showKey={deeplShowKey}
+          validating={deeplValidating}
+          usage={deeplUsage}
+          onToggleEnabled={changeDeeplEnabled}
+          onToggleShowKey={() => setDeeplShowKey((v) => !v)}
+          onChangeApiKey={changeDeeplKey}
+          onValidate={validateDeepl}
+          onClearKey={clearDeeplKey}
         />
         {GENERATION_PROVIDERS.map((name) => {
           const available = configuredProviders.includes(name)
@@ -390,17 +462,6 @@ export default function SettingsScreen(): JSX.Element {
             />
           )
         })}
-        {translationProvider === 'deepl' ? (
-          <TextInput
-            style={styles.keyInput}
-            placeholder="DeepL API key (stored for when the adapter lands)"
-            placeholderTextColor={colors.textMuted}
-            value={deeplKey}
-            onChangeText={changeDeeplKey}
-            secureTextEntry
-            autoCapitalize="none"
-          />
-        ) : null}
       </Card>
 
       {/* ── Learning ── */}
@@ -555,6 +616,118 @@ function ProviderCard(props: {
   )
 }
 
+const DEEPL_USAGE_URL = 'https://www.deepl.com/en/your-account/usage'
+
+/**
+ * DeepL fills only the translation slot (no generation), so it gets its own
+ * row instead of reusing ProviderCard: a radio button selects it as the
+ * active translation provider, a separate chevron expands the key/usage
+ * panel — the two are independent, unlike the generation providers where
+ * expanding and being "active" are the same click.
+ */
+function DeepLRow(props: {
+  selected: boolean
+  onSelect: () => void
+  expanded: boolean
+  onToggleExpanded: () => void
+  apiKey: string
+  enabled: boolean
+  showKey: boolean
+  validating: boolean
+  usage: UsageSnapshot
+  onToggleEnabled: (value: boolean) => void
+  onToggleShowKey: () => void
+  onChangeApiKey: (value: string) => void
+  onValidate: () => void
+  onClearKey: () => void
+}): JSX.Element {
+  const hasKey = props.apiKey.trim() !== ''
+
+  return (
+    <View style={styles.providerBlock}>
+      <View style={styles.providerHeader}>
+        <Pressable style={[styles.option, styles.flexFill]} onPress={props.onSelect}>
+          <Ionicons
+            name={props.selected ? 'radio-button-on' : 'radio-button-off'}
+            size={20}
+            color={props.selected ? colors.primary : colors.textMuted}
+          />
+          <View style={styles.optionText}>
+            <Text style={styles.optionLabel}>DeepL</Text>
+            <Text style={styles.optionDetail}>Best German↔English quality — bring your own key</Text>
+          </View>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={props.expanded ? 'Hide DeepL settings' : 'Show DeepL settings'}
+          onPress={props.onToggleExpanded}
+          hitSlop={8}
+        >
+          <Ionicons name={props.expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+        </Pressable>
+      </View>
+
+      {props.expanded ? (
+        <View style={styles.providerBody}>
+          <View style={styles.keyInputWrap}>
+            <TextInput
+              style={styles.keyInputWithIcon}
+              placeholder="Paste your DeepL API key…"
+              placeholderTextColor={colors.textMuted}
+              value={props.apiKey}
+              onChangeText={props.onChangeApiKey}
+              secureTextEntry={!props.showKey}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={props.showKey ? 'Hide DeepL API key' : 'Show DeepL API key'}
+              onPress={props.onToggleShowKey}
+              style={styles.keyInputEye}
+            >
+              <Ionicons name={props.showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+
+          <Row>
+            <Text style={[styles.optionLabel, { flex: 1 }]}>Enabled</Text>
+            <Switch value={props.enabled && hasKey} onValueChange={props.onToggleEnabled} disabled={!hasKey} />
+          </Row>
+
+          <View style={styles.providerActionsRow}>
+            <Pressable
+              style={[styles.secondaryButton, (props.validating || !hasKey) && styles.secondaryButtonDisabled]}
+              onPress={props.onValidate}
+              disabled={props.validating || !hasKey}
+            >
+              {props.validating ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Text style={styles.secondaryButtonLabel}>Validate key</Text>
+              )}
+            </Pressable>
+            <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
+              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>Clear</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.usageBox}>
+            <Text style={styles.usageLabel}>Device-observed usage</Text>
+            <Text style={styles.usageDetail}>
+              {props.usage.requests.toLocaleString()} request{props.usage.requests === 1 ? '' : 's'} ·{' '}
+              {props.usage.tokensUsed.toLocaleString()} tokens
+            </Text>
+            <Pressable onPress={() => void Linking.openURL(DEEPL_USAGE_URL)}>
+              <Text style={styles.usageLink}>Open DeepL usage ↗</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+    </View>
+  )
+}
+
 function Row(props: { children: ReactNode }): JSX.Element {
   return <View style={styles.row}>{props.children}</View>
 }
@@ -623,6 +796,7 @@ const styles = StyleSheet.create({
   providerBody: { marginTop: spacing.md, gap: spacing.sm },
   providerActionsRow: { flexDirection: 'row', gap: spacing.sm },
   option: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xs },
+  flexFill: { flex: 1 },
   optionDisabled: { opacity: 0.45 },
   optionText: { flex: 1 },
   optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },

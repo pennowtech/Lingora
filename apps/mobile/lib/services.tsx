@@ -2,6 +2,7 @@ import type { CefrLevel } from '@lingora/types'
 import {
   AnthropicProvider,
   createAIPipeline,
+  DeepLProvider,
   GeminiProvider,
   GoogleTranslateProvider,
   MistralProvider,
@@ -222,26 +223,37 @@ function instantiateGenerationProvider(
 async function buildAIServices(
   db: DatabaseAdapter,
 ): Promise<Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr'>> {
-  const [openai, mistral, gemini, claude, storedTranslationProvider, storedGenerationProvider, storedCefr] =
-    await Promise.all([
-      readProviderConfig(STORE_KEYS.openaiKey, STORE_KEYS.openaiEnabled, STORE_KEYS.openaiModel, DEFAULT_MODELS.openai),
-      readProviderConfig(
-        STORE_KEYS.mistralKey,
-        STORE_KEYS.mistralEnabled,
-        STORE_KEYS.mistralModel,
-        DEFAULT_MODELS.mistral,
-      ),
-      readProviderConfig(STORE_KEYS.geminiKey, STORE_KEYS.geminiEnabled, STORE_KEYS.geminiModel, DEFAULT_MODELS.gemini),
-      readProviderConfig(
-        STORE_KEYS.claudeKey,
-        STORE_KEYS.claudeEnabled,
-        STORE_KEYS.claudeModel,
-        DEFAULT_MODELS.anthropic,
-      ),
-      SecureStore.getItemAsync(STORE_KEYS.translationProvider),
-      SecureStore.getItemAsync(STORE_KEYS.generationProvider),
-      SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
-    ])
+  const [
+    openai,
+    mistral,
+    gemini,
+    claude,
+    deeplKey,
+    deeplEnabledRaw,
+    storedTranslationProvider,
+    storedGenerationProvider,
+    storedCefr,
+  ] = await Promise.all([
+    readProviderConfig(STORE_KEYS.openaiKey, STORE_KEYS.openaiEnabled, STORE_KEYS.openaiModel, DEFAULT_MODELS.openai),
+    readProviderConfig(
+      STORE_KEYS.mistralKey,
+      STORE_KEYS.mistralEnabled,
+      STORE_KEYS.mistralModel,
+      DEFAULT_MODELS.mistral,
+    ),
+    readProviderConfig(STORE_KEYS.geminiKey, STORE_KEYS.geminiEnabled, STORE_KEYS.geminiModel, DEFAULT_MODELS.gemini),
+    readProviderConfig(
+      STORE_KEYS.claudeKey,
+      STORE_KEYS.claudeEnabled,
+      STORE_KEYS.claudeModel,
+      DEFAULT_MODELS.anthropic,
+    ),
+    SecureStore.getItemAsync(STORE_KEYS.deeplKey),
+    SecureStore.getItemAsync(STORE_KEYS.deeplEnabled),
+    SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+    SecureStore.getItemAsync(STORE_KEYS.generationProvider),
+    SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+  ])
 
   const defaultCefr: CefrLevel = (VALID_CEFR as readonly string[]).includes(storedCefr ?? '')
     ? (storedCefr as CefrLevel)
@@ -258,15 +270,17 @@ async function buildAIServices(
     preferred && configured.includes(preferred) ? preferred : configured[0]
 
   // The dictionary slot: Google's free tier needs no key and is the default;
-  // any configured generation provider can also serve translation.
-  // TODO(phase4.1): instantiate DeepLProvider here when the adapter exists.
+  // DeepL and any configured generation provider can also serve translation.
   let dictionary: DictionaryProvider = new GoogleTranslateProvider()
   const translationProviderName = (TRANSLATION_PROVIDERS as readonly string[]).includes(
     storedTranslationProvider ?? '',
   )
     ? (storedTranslationProvider as TranslationProviderName)
     : 'google'
-  if (
+  const deeplEnabled = deeplEnabledRaw !== 'false' && (deeplKey ?? '').trim() !== ''
+  if (translationProviderName === 'deepl' && deeplEnabled) {
+    dictionary = withUsageTracking(new DeepLProvider({ apiKey: (deeplKey ?? '').trim() }), 'deepl')
+  } else if (
     translationProviderName !== 'google' &&
     translationProviderName !== 'deepl' &&
     configured.includes(translationProviderName)

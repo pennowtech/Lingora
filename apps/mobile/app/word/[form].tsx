@@ -32,7 +32,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import {
   Button,
   Card,
@@ -182,6 +182,7 @@ export default function WordDetailScreen(): JSX.Element {
         rating: args.rating,
         createdAt: Date.now(),
       }),
+    onError: (error: unknown) => Alert.alert('Could not save your feedback', String(error)),
   })
 
   const addToDeck = useMutation({
@@ -485,9 +486,16 @@ export default function WordDetailScreen(): JSX.Element {
           <Text style={styles.modalTitle}>Add "{word.lemma.form}" to…</Text>
           {decksQuery.isPending ? (
             <Spinner />
+          ) : decksQuery.isError ? (
+            <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
           ) : (
             (decksQuery.data ?? []).map((deck) => (
-              <Pressable key={deck.id} style={styles.deckRow} onPress={() => addToDeck.mutate(deck.id)}>
+              <Pressable
+                key={deck.id}
+                style={[styles.deckRow, addToDeck.isPending && styles.deckRowDisabled]}
+                onPress={() => addToDeck.mutate(deck.id)}
+                disabled={addToDeck.isPending}
+              >
                 <Text style={styles.deckEmoji}>{deck.emoji ?? '📚'}</Text>
                 <Text style={styles.deckName}>{deck.name}</Text>
                 {addedToDeck === deck.id ? (
@@ -607,6 +615,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
   deckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+  deckRowDisabled: { opacity: 0.5 },
   deckEmoji: { fontSize: 20 },
   deckName: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
 })

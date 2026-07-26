@@ -20,6 +20,7 @@ export {
   GoogleTranslateProvider,
   type GoogleTranslateProviderConfig,
 } from './providers/google-translate'
+export { DeepLProvider, type DeepLProviderConfig } from './providers/deepl'
 
 // Pipeline
 export { createAIPipeline, type AIPipeline, type AIPipelineOptions } from './pipeline/create'

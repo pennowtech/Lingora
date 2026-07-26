@@ -80,10 +80,10 @@ do not yet implement all behavior promised by the roadmap.
 | Synonym evaluation             | Missing                         | The repository supports generic targets, but the synonyms UI has no controls.                                                                                                    |
 | Regenerate bad output          | Partial                         | Example regeneration works, but regenerates the cluster example set rather than providing a complete item-level correction workflow.                                             |
 | Report bad output              | Missing                         | No report reason/category or dedicated report workflow exists.                                                                                                                   |
-| Loading states                 | Mostly complete                 | Most React Query screens show spinners; a final audit is still required for every mutation.                                                                                      |
-| Error states                   | Mostly complete                 | Query errors commonly support retry, but mutation feedback is not comprehensive.                                                                                                 |
-| Empty states                   | Mostly complete                 | Search, decks, mining, and other major lists have empty states; perform a final route-by-route audit.                                                                            |
-| Translation provider settings  | Partial                         | Google Translate is functional. DeepL and OpenAI translation choices can be selected, but the runtime still constructs the Google adapter.                                       |
+| Loading states                 | Complete                        | Route-by-route audit performed. Home's stats/recent queries and Settings' initial SecureStore load previously had no loading/error surface — Home now shows an inline retry banner on query failure, Settings shows an inline error banner if the load throws.                                       |
+| Error states                   | Complete                        | Audited every `useMutation` for a missing `onError`: added user-visible `Alert` feedback to Mine's discard, word-detail's evaluation vote, and deck deletion (previously silent failures). Word-detail's deck-picker query now handles `isError` (previously only loading).                          |
+| Empty states                   | Complete                        | Added the missing empty state for Home's "Recently added" list; Search, Decks, Mining already had one.                                                                            |
+| Translation provider settings  | Complete                        | DeepL is now a real adapter (`packages/ai/src/providers/deepl.ts`, `DictionaryProvider`) with the same Settings UX as the generation providers (enable toggle, key validation, device-observed usage) — verified with a live DeepL API call on the AVD. OpenAI (and Mistral/Gemini/Claude) translation selection already used the configured provider's key correctly.                                       |
 | Generation provider settings   | Complete for current provider   | OpenAI key storage and feature-tier rebuilding work. Additional providers are explicitly marked as future work.                                                                  |
 | Limited-mode explanation       | Complete                        | The Settings screen clearly explains disabled generation behavior without an OpenAI key.                                                                                         |
 | Global Zustand state           | Missing/not currently necessary | The roadmap names Zustand, but the app currently uses local React state plus React Query. Add Zustand only if shared client-state requirements justify it.                       |
@@ -292,7 +292,7 @@ Acceptance criteria:
   prompt quality.
 - Users can correct meaning/example selections without regenerating the word.
 
-### Work package 6: Provider truthfulness and state audit
+### Work package 6: Provider truthfulness and state audit — ✅ Complete
 
 - Implement DeepL and OpenAI translation adapters or disable those options.
 - Add key validation/testing feedback.
@@ -390,8 +390,8 @@ Phase 4 can be marked complete only when all applicable items below are true:
 - [ ] Synonym evaluation
 - [ ] Report-bad-output workflow
 - [ ] Correctly scoped regeneration workflow
-- [ ] Functional or disabled unavailable translation providers
-- [ ] Route-by-route loading/error/empty/success-state audit
+- [x] Functional or disabled unavailable translation providers
+- [x] Route-by-route loading/error/empty/success-state audit
 - [ ] Automated tests for new import/export and evaluation behavior
 - [ ] Successful Android AVD acceptance pass after completion work
 

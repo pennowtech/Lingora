@@ -9,7 +9,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
@@ -48,6 +48,7 @@ export default function MiningQueueScreen(): JSX.Element {
   const discard = useMutation({
     mutationFn: (entryId: string) => deleteMineEntry(db, entryId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
+    onError: (error: unknown) => Alert.alert('Could not discard capture', String(error)),
   })
 
   const generate = useMutation({
@@ -158,6 +159,7 @@ export default function MiningQueueScreen(): JSX.Element {
                   size={17}
                   color={colors.danger}
                   onPress={() => discard.mutate(entry.id)}
+                  disabled={discard.isPending}
                 />
               </View>
             </Card>

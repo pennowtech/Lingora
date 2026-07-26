@@ -16,18 +16,15 @@ const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
  * Import & export. Anki import is the adoption-critical feature per the
  * roadmap — power users ask "can I import my Anki decks?" first.
  *
- * JSON backup export/restore (Work package 1) and CSV import with column
- * mapping (Work package 2) are implemented. Anki .apkg import is still a
- * placeholder.
- *
- * TODO(phase4): implement .apkg parsing.
+ * JSON backup export/restore (Work package 1), CSV import with column
+ * mapping (Work package 2), and Anki .apkg import (Work package 3) are all
+ * implemented.
  */
 export default function ImportExportScreen(): JSX.Element {
   const { db, reloadServices } = useServices()
   const queryClient = useQueryClient()
   const [exporting, setExporting] = useState(false)
   const [restoring, setRestoring] = useState(false)
-  const noop = (): void => undefined
 
   const handleExport = (): void => {
     setExporting(true)
@@ -104,12 +101,17 @@ export default function ImportExportScreen(): JSX.Element {
           <View style={styles.optionText}>
             <Text style={styles.optionTitle}>Anki deck (.apkg)</Text>
             <Text style={styles.optionDetail}>
-              Bring your existing decks with review history where possible.
+              Bring your existing decks. Review history isn't imported — cards start fresh.
             </Text>
           </View>
         </View>
-        <Text style={styles.comingSoon}>Coming soon</Text>
-        <Button label="Choose .apkg file" variant="secondary" icon="folder-open" onPress={noop} disabled small />
+        <Button
+          label="Choose .apkg file"
+          variant="secondary"
+          icon="folder-open"
+          onPress={() => router.push('/settings/apkg-import')}
+          small
+        />
       </Card>
 
       <Card style={styles.optionCard}>
@@ -197,5 +199,4 @@ const styles = StyleSheet.create({
   optionText: { flex: 1 },
   optionTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
   optionDetail: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1, lineHeight: 18 },
-  comingSoon: { fontSize: type.micro, color: colors.textMuted, fontStyle: 'italic' },
 })

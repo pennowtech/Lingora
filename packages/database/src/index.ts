@@ -31,6 +31,20 @@ export {
 } from './csv-import'
 
 export {
+  buildApkgImportPreview,
+  importApkgNotes,
+  readAnkiCollection,
+  stripAnkiHtml,
+  type AnkiDeckInfo,
+  type AnkiNote,
+  type ApkgField,
+  type ApkgFieldMapping,
+  type ApkgImportOptions,
+  type ApkgImportResult,
+  type ApkgRowPreview,
+} from './apkg-import'
+
+export {
   ALL_MIGRATIONS,
   getCurrentSchemaVersion,
   migrate,

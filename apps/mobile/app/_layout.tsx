@@ -38,6 +38,7 @@ export default function RootLayout(): JSX.Element {
           <Stack.Screen name="stats" options={{ title: 'Statistics' }} />
           <Stack.Screen name="settings/import-export" options={{ title: 'Import & Export' }} />
           <Stack.Screen name="settings/csv-import" options={{ title: 'Import CSV' }} />
+          <Stack.Screen name="settings/apkg-import" options={{ title: 'Import Anki deck' }} />
           <Stack.Screen name="settings/templates" options={{ title: 'Card Templates' }} />
         </Stack>
       </QueryClientProvider>

@@ -90,8 +90,8 @@ export async function createCardWithState(
     )
     await tx.execute(
       `INSERT INTO card_states
-      (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date, reps, learning_steps)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         initialState.cardId,
         initialState.state,
@@ -101,6 +101,8 @@ export async function createCardWithState(
         initialState.lapses,
         initialState.lastReviewAt ?? null,
         initialState.nextReviewAt,
+        initialState.reps,
+        initialState.learningSteps,
       ],
     )
     await tx.execute(

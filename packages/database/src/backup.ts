@@ -94,6 +94,8 @@ const TABLE_COLUMNS = {
     'lapses',
     'last_reviewed_at',
     'next_review_date',
+    'reps',
+    'learning_steps',
   ],
   review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms'],
   sentence_mining_queue: [

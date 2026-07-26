@@ -240,6 +240,8 @@ export interface CardState {
   lapses: number // how many times the card went from learned → forgotten
   state: 'new' | 'learning' | 'review' | 'relearning'
   lastReviewAt?: number
+  reps: number // total number of reviews (FSRS needs this to schedule correctly)
+  learningSteps: number // progress through the (re)learning step sequence — reset on lapse
 }
 
 // ─── Sentence mining ──────────────────────────────────────────────────────────

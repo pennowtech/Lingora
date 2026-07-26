@@ -40,7 +40,9 @@ export async function recordReview(
          next_review_date = ?,
          lapses           = ?,
          state            = ?,
-         last_reviewed_at = ?
+         last_reviewed_at = ?,
+         reps             = ?,
+         learning_steps   = ?
        WHERE card_id = ?`,
       [
         newState.stability,
@@ -50,6 +52,8 @@ export async function recordReview(
         newState.lapses,
         newState.state,
         newState.lastReviewAt ?? null,
+        newState.reps,
+        newState.learningSteps,
         newState.cardId,
       ],
     )
@@ -65,22 +69,25 @@ export async function recordReview(
  * @returns The card state if found, otherwise null.
  */
 export async function getCardState(db: DatabaseAdapter, cardId: string): Promise<CardState | null> {
-  return (
-    (await db.querySingle<CardState>(
-      `SELECT
-         card_id AS cardId,
-         state,
-         stability,
-         difficulty,
-         retrievability,
-         lapses,
-         last_reviewed_at AS lastReviewAt,
-         next_review_date AS nextReviewAt
-       FROM card_states
-       WHERE card_id = ?`,
-      [cardId],
-    )) ?? null
+  const row = await db.querySingle<Omit<CardState, 'lastReviewAt'> & { lastReviewAt: number | null }>(
+    `SELECT
+       card_id AS cardId,
+       state,
+       stability,
+       difficulty,
+       retrievability,
+       lapses,
+       last_reviewed_at AS lastReviewAt,
+       next_review_date AS nextReviewAt,
+       reps,
+       learning_steps AS learningSteps
+     FROM card_states
+     WHERE card_id = ?`,
+    [cardId],
   )
+  if (!row) return null
+  const { lastReviewAt, ...rest } = row
+  return { ...rest, ...(lastReviewAt !== null && { lastReviewAt }) }
 }
 
 /**

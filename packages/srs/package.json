@@ -7,7 +7,16 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
-    "@lingora/types": "workspace:*"
+    "@lingora/observability": "workspace:*",
+    "@lingora/types": "workspace:*",
+    "ts-fsrs": "^5.4.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.7"
   }
 }

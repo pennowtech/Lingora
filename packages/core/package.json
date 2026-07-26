@@ -1,5 +1,5 @@
 {
-  "name": "@lingora/types",
+  "name": "@lingora/core",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

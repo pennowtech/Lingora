@@ -215,6 +215,8 @@ export const cardStates = sqliteTable(
     lapses: integer('lapses').notNull().default(0), // Number of times the user has struggled with the card in reviews, which can be used to adjust the scheduling
     lastReviewedAt: integer('last_reviewed_at'), // Timestamp of when the card was last reviewed, which can be used to track how recently the user has interacted with the card
     nextReviewDate: integer('next_review_date').notNull(), // Timestamp of when the card is next due for review
+    reps: integer('reps').notNull().default(0), // total review count — ts-fsrs needs this to schedule correctly (migration 0006)
+    learningSteps: integer('learning_steps').notNull().default(0), // progress through the (re)learning step sequence, reset on lapse (migration 0006)
   },
   (table) => [
     index('card_states_state_idx').on(table.state),

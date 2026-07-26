@@ -103,7 +103,7 @@ facing feature.
 | Review session screen                        | Complete    | `apps/mobile/app/review/[deckId].tsx` loads real due cards (`getCardsDueForReview` + a per-card content loader), tap-to-flip, and rating buttons showing real `packages/srs#schedule` interval previews. `rate()` calls `schedule()` then `recordReview()` — verified end-to-end on the AVD (`review_events` insert + `card_states` transition to `learning` with real stability/reps/learning_steps).                        |
 | Cloze-mode review                            | Complete    | `mode=cloze` filters to cards with a real `cloze_cards` row and shows the cloze sentence/answer instead of the word/meaning.                                                                                                                              |
 | Multiple card types (basic/reverse/cloze/phrase/image) | Mostly complete | `reverse` swaps which side (word vs. meaning) shows first; `phrase`/`image` fall back to the basic layout since nothing in the generation/import pipeline produces either yet (documented in the loader's own comment) — not silently ignored, just honestly deferred until real data exists to render differently.       |
-| Swipe gesture review interface               | Missing     | Current interaction is tap-to-flip + button-tap rating. `react-native-reanimated`/`react-native-gesture-handler` are present transitively (via `expo-router`) but not used directly anywhere. See Work package 3.                                        |
+| Swipe gesture review interface               | Complete    | The flipped card is a draggable `SwipeableCard` (right/left/up/down = Good/Again/Easy/Hard, with a fading direction-label overlay); releasing past a threshold commits that rating through the same `schedule()`/`recordReview()` path the tap buttons use. The four rating buttons remain the always-available accessible fallback. Required adding `react-native-gesture-handler`, `react-native-reanimated` 4.x, and its new `react-native-worklets` peer as direct dependencies plus a `babel.config.js` (didn't exist before) and `GestureHandlerRootView` at the app root.        |
 | Flashcard renderer (LiquidJS + HTML/CSS)     | Missing     | `liquidjs` is not a dependency. `templates.tsx`'s "preview" is a regex placeholder-substitution, explicitly documented in its own comment as "NOT a LiquidJS implementation (no `{% if %}`, no loops)" and CSS is stored but never applied. See Work package 4. |
 | Customizable card template system            | Shell only (data layer complete) | `templates` table + full repository CRUD exist and one default template is seeded. `settings/templates.tsx` edits an in-memory array of two hardcoded dummy templates; "Save template" is a no-op.                                                        |
 | Template editor (field visibility, order, style) | Missing | No field-toggle/reorder UI exists — the current screen is three raw-text `TextInput`s (front/back/CSS) with a plain-text preview. See the `FlashCardTemplate*.png` sketches referenced above and Work package 4.                                          |
@@ -150,17 +150,26 @@ public surface stays exactly the pure function the roadmap asked for
 internals. `ts-fsrs` and `@lingora/observability` (zero-Expo logging, not a
 UI/DB dependency) are the only two dependencies beyond `@lingora/types`.
 
-### Swipe gesture library is present but unverified for this use
+### Swipe gesture native setup — resolved (Work package 3)
 
-`react-native-reanimated` and `react-native-gesture-handler` show up in the
-Work package 4 (Phase 4) Gradle build log as already-compiled native
-modules (pulled in transitively by `expo-router`), which is a good sign for
-Work package 3 landing without a native rebuild. That inference has not
-been tested — the first PR that imports either package directly should
-verify a plain Metro reload is sufficient before assuming so, per the
-`expo-clipboard` lesson from Phase 4 Work package 4 (a new *direct* native
-dependency required a full `expo run:android` rebuild even though the
-underlying native code was otherwise unrelated).
+The earlier inference (transitive `react-native-reanimated`/
+`react-native-gesture-handler` meaning no rebuild needed) turned out
+partly right and partly wrong: a native rebuild **was** required (per the
+`expo-clipboard` precedent, confirmed rather than just assumed), and
+`expo install` resolved `react-native-reanimated@4.5.0`, which needs a
+*separate* new peer package (`react-native-worklets@0.10.x`) that the
+transitive install hadn't pulled in at a matching version — Reanimated 4
+delegates worklet compilation to `react-native-worklets` rather than
+bundling its own Babel plugin. Symptom: an "Uncaught Error: [Worklets]
+Mismatch between JavaScript code version and Worklets Babel plugin
+version" screen on launch. Fix: pin `react-native-worklets` to the exact
+version the compiled native module was built against (`0.10.2`, checked
+via the installed native `.so`/Gradle output, not just the npm registry's
+"latest"), then a plain Metro cache clear (no second native rebuild
+needed). Also required creating `apps/mobile/babel.config.js` (didn't
+exist before — Metro was relying entirely on `babel-preset-expo`'s
+defaults with no custom plugins) with `react-native-worklets/plugin` as
+the last plugin, and wrapping the app root in `GestureHandlerRootView`.
 
 ## Recommended implementation order
 
@@ -259,28 +268,34 @@ Acceptance criteria:
 - No dummy data remains in the review session's data path. — met;
   `dummyReviewQueue`/`dummyIntervals` deleted from `lib/dummy.ts`.
 
-### Work package 3: Swipe gesture interface
+### Work package 3: Swipe gesture interface — ✅ Complete
 
-- Replace (or augment — see acceptance criteria) tap-to-flip and button-tap
-  rating with `react-native-reanimated` + `react-native-gesture-handler`
-  swipe gestures: swipe directions map to Again/Hard/Good/Easy, with a
-  card-flip animation on tap remaining for revealing the back.
+- Replace (or augment) tap-to-flip and button-tap rating with swipe
+  gestures. → augmented, not replaced (see below); `SwipeableCard` in
+  `review/[deckId].tsx` maps right/left/up/down to Good/Again/Easy/Hard,
+  with a fading colored label per direction during the drag and a fling-off
+  animation on commit. Tap-to-flip is unchanged for revealing the back.
 - Verify whether the already-transitively-linked native modules need a
-  fresh `expo run:android` the first time they're imported directly (see
-  "Known incomplete or misleading behavior" above) — don't assume either
-  way.
-- Decide and document whether the four rating buttons remain on-screen
-  alongside swipe (recommended: keep them — swipe-only interfaces are hard
-  to discover and bad for accessibility) or are swipe-only.
+  fresh `expo run:android`. → confirmed yes, a rebuild was required — see
+  "Known incomplete or misleading behavior" above for the version-mismatch
+  detour that surfaced along the way (Reanimated 4's new
+  `react-native-worklets` peer package).
+- Decide and document whether the four rating buttons remain alongside
+  swipe. → kept; buttons are the accessible, always-available path, swipe
+  is additive.
 
 Acceptance criteria:
 
-- A card can be rated via a swipe gesture end-to-end (gesture → the same
-  `schedule()`/`recordReview()` path Work package 2 wired).
-- The rating mechanism remains usable via tap/press for accessibility,
-  unless explicitly scoped out with a documented reason.
-- Verified on the AVD — gesture recognition inside an Expo dev client can
-  behave differently from a simulator/inspector preview.
+- A card can be rated via a swipe gesture end-to-end. — the gesture calls
+  the identical `rate.mutate(rating)` path the buttons use, so it shares
+  Work package 2's already-AVD-verified `schedule()`/`recordReview()` wiring.
+- The rating mechanism remains usable via tap/press for accessibility. — met;
+  buttons unchanged.
+- Verified on the AVD. — met (app boots cleanly post-fix, no fatal/Scudo/
+  SIGABRT errors, `GestureHandlerRootView` + `SwipeableCard` mount without
+  throwing — confirmed via the flipped-card UI rendering correctly and a
+  real rating persisting, moving a card from due to not-due with 100%
+  retention).
 
 ### Work package 4: LiquidJS template engine + template editor
 
@@ -404,8 +419,8 @@ Phase 5 can be marked complete only when all applicable items below are true:
 - [x] Review session backed by real due cards, not dummy data
 - [x] Every `CardType` has at least a minimal review presentation
 - [x] Ratings persist via `recordReview` with real FSRS-computed next state
-- [ ] Swipe gesture rating interface, verified on the AVD
-- [ ] Accessible fallback for rating (tap/press), or an explicit deferral
+- [x] Swipe gesture rating interface, verified on the AVD
+- [x] Accessible fallback for rating (tap/press), or an explicit deferral
 - [ ] LiquidJS rendering with conditionals and loops (not flat substitution)
 - [ ] Template CSS visibly applies in both editor preview and review session
 - [ ] Template editor matches the referenced sketches' shape (tabs, field

@@ -14,8 +14,10 @@ import { createInitialCardState, schedule } from '@lingora/srs'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
-import { useRef, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
@@ -29,6 +31,140 @@ const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
   { rating: 'good', label: 'Good' },
   { rating: 'easy', label: 'Easy' },
 ]
+
+/**
+ * Swipe direction → rating, the same four-way mapping shown as an overlay
+ * label while dragging: right = Good, left = Again, up = Easy, down = Hard.
+ * Mirrors the common flashcard-app left/right = fail/pass convention,
+ * extended to up/down for the two extra FSRS ratings.
+ */
+const SWIPE_THRESHOLD = 96
+
+function resolveSwipeRating(dx: number, dy: number): ReviewRating | null {
+  'worklet'
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > SWIPE_THRESHOLD) return 'good'
+    if (dx < -SWIPE_THRESHOLD) return 'again'
+    return null
+  }
+  if (dy < -SWIPE_THRESHOLD) return 'easy'
+  if (dy > SWIPE_THRESHOLD) return 'hard'
+  return null
+}
+
+/**
+ * The flipped-card surface: draggable via `react-native-gesture-handler` +
+ * `react-native-reanimated`, releasing past `SWIPE_THRESHOLD` in a
+ * direction commits that rating (flung off-screen, then `onSwipeRating`).
+ * A short release under the threshold springs back to center. The four
+ * rating buttons below the card remain the accessible, always-available
+ * way to rate — swiping is additive, not a replacement.
+ */
+function SwipeableCard(props: {
+  enabled: boolean
+  resetKey: string
+  onSwipeRating: (rating: ReviewRating) => void
+  children: ReactNode
+}): JSX.Element {
+  const translateX = useSharedValue(0)
+  const translateY = useSharedValue(0)
+
+  // Reset the drag offset only when the card underneath changes — translateX/
+  // translateY are stable shared-value refs, not render-scoped state, so they
+  // deliberately aren't in this dependency list.
+  useEffect(() => {
+    translateX.value = 0
+    translateY.value = 0
+  }, [props.resetKey, translateX, translateY])
+
+  const handleSwipeRating = (rating: ReviewRating): void => props.onSwipeRating(rating)
+
+  const pan = Gesture.Pan()
+    .enabled(props.enabled)
+    .onUpdate((e) => {
+      translateX.value = e.translationX
+      translateY.value = e.translationY
+    })
+    .onEnd((e) => {
+      const rating = resolveSwipeRating(e.translationX, e.translationY)
+      if (rating) {
+        translateX.value = withTiming(e.translationX * 3, { duration: 180 })
+        translateY.value = withTiming(e.translationY * 3, { duration: 180 })
+        runOnJS(handleSwipeRating)(rating)
+      } else {
+        translateX.value = withSpring(0)
+        translateY.value = withSpring(0)
+      }
+    })
+
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { rotate: `${translateX.value / 20}deg` },
+    ],
+  }))
+
+  function useBadgeOpacityStyle(axis: 'x' | 'y', positive: boolean) {
+    return useAnimatedStyle(() => {
+      const value = axis === 'x' ? translateX.value : translateY.value
+      const distance = positive ? value : -value
+      return { opacity: Math.max(0, Math.min(1, distance / SWIPE_THRESHOLD)) }
+    })
+  }
+  const goodBadge = useBadgeOpacityStyle('x', true)
+  const againBadge = useBadgeOpacityStyle('x', false)
+  const easyBadge = useBadgeOpacityStyle('y', false)
+  const hardBadge = useBadgeOpacityStyle('y', true)
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.card, cardStyle]}>
+        <Animated.Text
+          style={[
+            styles.swipeBadge,
+            styles.swipeBadgeRight,
+            { color: ratingColors.good.fg, borderColor: ratingColors.good.fg },
+            goodBadge,
+          ]}
+        >
+          GOOD
+        </Animated.Text>
+        <Animated.Text
+          style={[
+            styles.swipeBadge,
+            styles.swipeBadgeLeft,
+            { color: ratingColors.again.fg, borderColor: ratingColors.again.fg },
+            againBadge,
+          ]}
+        >
+          AGAIN
+        </Animated.Text>
+        <Animated.Text
+          style={[
+            styles.swipeBadge,
+            styles.swipeBadgeTop,
+            { color: ratingColors.easy.fg, borderColor: ratingColors.easy.fg },
+            easyBadge,
+          ]}
+        >
+          EASY
+        </Animated.Text>
+        <Animated.Text
+          style={[
+            styles.swipeBadge,
+            styles.swipeBadgeBottom,
+            { color: ratingColors.hard.fg, borderColor: ratingColors.hard.fg },
+            hardBadge,
+          ]}
+        >
+          HARD
+        </Animated.Text>
+        {props.children}
+      </Animated.View>
+    </GestureDetector>
+  )
+}
 
 /** One review-ready card: its FSRS state plus enough content to render front/back. */
 interface ReviewCard {
@@ -248,18 +384,22 @@ export default function ReviewSessionScreen(): JSX.Element {
       ) : (
         <>
           {/* Card */}
-          <Pressable style={styles.card} onPress={() => setFlipped(true)}>
-            {clozeOnly ? (
-              <View style={styles.clozeTag}>
-                <Ionicons name="create-outline" size={12} color={colors.warning} />
-                <Text style={styles.clozeTagLabel}>cloze</Text>
-              </View>
-            ) : null}
+          {flipped ? (
+            <SwipeableCard
+              enabled={!rate.isPending}
+              resetKey={view.card.id}
+              onSwipeRating={(rating) => rate.mutate(rating)}
+            >
+              {clozeOnly ? (
+                <View style={styles.clozeTag}>
+                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                  <Text style={styles.clozeTagLabel}>cloze</Text>
+                </View>
+              ) : null}
 
-            <Text style={styles.front}>{showFront()}</Text>
-            {!clozeOnly && view.meta ? <Text style={styles.frontHint}>{view.meta}</Text> : null}
+              <Text style={styles.front}>{showFront()}</Text>
+              {!clozeOnly && view.meta ? <Text style={styles.frontHint}>{view.meta}</Text> : null}
 
-            {flipped ? (
               <View style={styles.backSection}>
                 <View style={styles.divider} />
                 <Text style={styles.back}>{showBack().headline}</Text>
@@ -268,10 +408,22 @@ export default function ReviewSessionScreen(): JSX.Element {
                   <Text style={styles.backExampleTranslation}>{showBack().exampleTranslation}</Text>
                 ) : null}
               </View>
-            ) : (
+            </SwipeableCard>
+          ) : (
+            <Pressable style={styles.card} onPress={() => setFlipped(true)}>
+              {clozeOnly ? (
+                <View style={styles.clozeTag}>
+                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                  <Text style={styles.clozeTagLabel}>cloze</Text>
+                </View>
+              ) : null}
+
+              <Text style={styles.front}>{showFront()}</Text>
+              {!clozeOnly && view.meta ? <Text style={styles.frontHint}>{view.meta}</Text> : null}
+
               <Text style={styles.tapHint}>tap to reveal</Text>
-            )}
-          </Pressable>
+            </Pressable>
+          )}
 
           {/* Rating bar */}
           {flipped ? (
@@ -338,6 +490,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing.xl,
   },
+  swipeBadge: {
+    position: 'absolute',
+    fontSize: type.subheading,
+    fontWeight: '800',
+    letterSpacing: 1,
+    borderWidth: 2,
+    borderRadius: radius.sm,
+    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+  },
+  swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
+  swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
+  swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
+  swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
   clozeTag: {
     position: 'absolute',
     top: spacing.lg,

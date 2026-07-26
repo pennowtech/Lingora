@@ -7,7 +7,16 @@ import { useEffect, useState, type JSX } from 'react'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { CardRenderer } from '../../components/CardRenderer'
 import { Button, Card, Chip, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
-import { CONDITIONAL_EXAMPLE, renderCardHtml, TEMPLATE_VARIABLES, type CardTemplateContext } from '../../lib/templates'
+import {
+  CONDITIONAL_EXAMPLE,
+  DEFAULT_BACK_TEMPLATE,
+  DEFAULT_FRONT_TEMPLATE,
+  DEFAULT_STYLES,
+  highlightWord,
+  renderCardHtml,
+  TEMPLATE_VARIABLES,
+  type CardTemplateContext,
+} from '../../lib/templates'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -20,6 +29,7 @@ const SAMPLE_CONTEXT: CardTemplateContext = {
   meaning: 'to go out',
   other_meanings: ['to run out (supplies)'],
   example: 'Wir gehen heute Abend aus.',
+  example_highlighted: highlightWord('Wir gehen heute Abend aus.', 'ausgehen'),
   translation: 'We are going out tonight.',
   synonyms: [{ word: 'weggehen', nuance: 'more casual', formality: 'neutral' }],
   phrases: [{ expression: 'davon ausgehen', meaning: 'to assume / take it that' }],
@@ -282,9 +292,24 @@ export default function TemplatesScreen(): JSX.Element {
   const startNewTemplate = (): void => {
     setActiveId(null)
     setName('New template')
-    setFrontTemplate('{{ word }}')
-    setBackTemplate('{{ meaning }}\n<hr/>\n{{ example }}')
-    setStyles_('')
+    setFrontTemplate(DEFAULT_FRONT_TEMPLATE)
+    setBackTemplate(DEFAULT_BACK_TEMPLATE)
+    setStyles_(DEFAULT_STYLES)
+  }
+
+  const resetToDefault = (): void => {
+    Alert.alert('Reset to default layout & style?', 'This replaces the front, back, and CSS in the editor — tap "Save changes" to keep it. Unsaved edits are lost.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset',
+        style: 'destructive',
+        onPress: () => {
+          setFrontTemplate(DEFAULT_FRONT_TEMPLATE)
+          setBackTemplate(DEFAULT_BACK_TEMPLATE)
+          setStyles_(DEFAULT_STYLES)
+        },
+      },
+    ])
   }
 
   const accentColor = readAccentColor(styles_)
@@ -405,6 +430,7 @@ export default function TemplatesScreen(): JSX.Element {
 
         {tab === 'style' ? (
           <>
+            <SectionHeader title="Layout & style" action="Reset to default" onAction={resetToDefault} />
             <SectionHeader title="Accent color" />
             <Card>
               <View style={styles.chipRow}>

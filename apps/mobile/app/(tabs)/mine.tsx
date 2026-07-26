@@ -1,19 +1,24 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CaptureSource } from '@lingora/types'
 import {
+  createMineEntry,
   deleteMineEntry,
   getPendingMineEntries,
   updateMineEntryProcessed,
   updateMineEntryStatus,
 } from '@lingora/database'
+import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import * as Clipboard from 'expo-clipboard'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
+
+const log = logger.child({ feature: 'mining', screen: 'MiningQueueScreen' })
 
 const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
   netflix: 'tv',
@@ -35,6 +40,9 @@ export default function MiningQueueScreen(): JSX.Element {
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<string[] | null>(null)
   const [progress, setProgress] = useState<string | null>(null)
+  const [captureOpen, setCaptureOpen] = useState(false)
+  const [captureText, setCaptureText] = useState('')
+  const [captureSource, setCaptureSource] = useState<CaptureSource>('manual')
 
   const queueQuery = useQuery({
     queryKey: ['mine-queue'],
@@ -50,6 +58,55 @@ export default function MiningQueueScreen(): JSX.Element {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
     onError: (error: unknown) => Alert.alert('Could not discard capture', String(error)),
   })
+
+  const capture = useMutation({
+    mutationFn: (args: { text: string; source: CaptureSource }) => {
+      log.info('mining.capture_submitted', {
+        message: 'User submitted a manual capture',
+        metadata: { itemCount: args.text.length },
+      })
+      return createMineEntry(db, {
+        id: crypto.randomUUID(),
+        rawText: args.text,
+        sourceType: args.source,
+        status: 'pending',
+        capturedAt: Date.now(),
+        processed: false,
+      })
+    },
+    onSuccess: async () => {
+      setCaptureOpen(false)
+      setCaptureText('')
+      setCaptureSource('manual')
+      await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
+    },
+    onError: (error: unknown) => {
+      log.error('mining.capture_failed', error, { message: 'Manual capture failed to save' })
+      Alert.alert('Could not save capture', String(error))
+    },
+  })
+
+  const handlePasteFromClipboard = (): void => {
+    Clipboard.getStringAsync()
+      .then((text) => {
+        if (!text.trim()) {
+          Alert.alert('Clipboard is empty', 'Copy some text first, then paste it here.')
+          return
+        }
+        setCaptureText(text.trim())
+        setCaptureSource('clipboard')
+      })
+      .catch((error: unknown) => {
+        log.error('mining.clipboard_read_failed', error, { message: 'Reading the clipboard failed' })
+        Alert.alert('Could not read clipboard', String(error))
+      })
+  }
+
+  const closeCapture = (): void => {
+    setCaptureOpen(false)
+    setCaptureText('')
+    setCaptureSource('manual')
+  }
 
   const generate = useMutation({
     mutationFn: async () => {
@@ -94,10 +151,58 @@ export default function MiningQueueScreen(): JSX.Element {
     )
   }
 
+  const captureFab = (
+    <View style={styles.fab}>
+      <IconButton icon="add" size={28} color={colors.textOnPrimary} onPress={() => setCaptureOpen(true)} />
+    </View>
+  )
+
+  const captureModal = (
+    <Modal visible={captureOpen} animationType="slide" transparent onRequestClose={closeCapture}>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalSheet}>
+          <Text style={styles.modalTitle}>Add a sentence</Text>
+          <Text style={styles.modalHint}>
+            Paste or type a German sentence. It joins the queue below — nothing is sent to AI until
+            you generate.
+          </Text>
+          <TextInput
+            style={styles.modalInput}
+            multiline
+            placeholder="Ich gehe heute Abend aus."
+            placeholderTextColor={colors.textMuted}
+            value={captureText}
+            onChangeText={(text) => {
+              setCaptureText(text)
+              setCaptureSource('manual')
+            }}
+          />
+          <Button
+            label="Paste from clipboard"
+            variant="secondary"
+            icon="clipboard-outline"
+            onPress={handlePasteFromClipboard}
+            small
+          />
+          <View style={styles.modalActions}>
+            <Button label="Cancel" variant="ghost" onPress={closeCapture} />
+            <Button
+              label={capture.isPending ? 'Adding…' : 'Add to queue'}
+              onPress={() => capture.mutate({ text: captureText.trim(), source: captureSource })}
+              disabled={captureText.trim().length === 0 || capture.isPending}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+
   if (queueQuery.isPending) {
     return (
       <View style={styles.container}>
         <Spinner />
+        {captureFab}
+        {captureModal}
       </View>
     )
   }
@@ -106,6 +211,8 @@ export default function MiningQueueScreen(): JSX.Element {
     return (
       <View style={styles.container}>
         <ErrorState message={String(queueQuery.error)} onRetry={() => void queueQuery.refetch()} />
+        {captureFab}
+        {captureModal}
       </View>
     )
   }
@@ -116,7 +223,7 @@ export default function MiningQueueScreen(): JSX.Element {
         <EmptyState
           icon="download"
           title="Queue is empty"
-          message="Text you capture — from the share sheet, clipboard, or later the browser extension — lands here before any AI processing."
+          message="Add a sentence manually, paste one from your clipboard, or capture text from the share sheet — it lands here before any AI processing."
         />
         {generate.data && generate.data.total > 0 ? (
           <Text style={styles.resultLabel}>
@@ -124,6 +231,8 @@ export default function MiningQueueScreen(): JSX.Element {
             {generate.data.failures > 0 ? ` · ${generate.data.failures} failed` : ''} — see Decks.
           </Text>
         ) : null}
+        {captureFab}
+        {captureModal}
       </View>
     )
   }
@@ -188,6 +297,8 @@ export default function MiningQueueScreen(): JSX.Element {
           />
         )}
       </View>
+      {captureFab}
+      {captureModal}
     </View>
   )
 }
@@ -222,4 +333,45 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     borderRadius: radius.sm,
   },
+  fab: {
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: 104,
+    width: 52,
+    height: 52,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  modalTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+  modalHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+  modalInput: {
+    minHeight: 96,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontSize: type.body,
+    color: colors.text,
+    textAlignVertical: 'top',
+  },
+  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
 })

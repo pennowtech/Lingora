@@ -183,13 +183,17 @@ export interface Tag {
  * A LiquidJS card template. Front and back are HTML with
  * {{ placeholders }}; styles is the CSS shared by both sides.
  */
+/** 'vocab' cards use word/meaning fields; 'cloze' cards use the sentence-blank fields — each kind has its own single default. */
+export type TemplateType = 'vocab' | 'cloze'
+
 export interface Template {
   id: string
   name: string // 'Default', 'Minimal cloze'
+  type: TemplateType
   frontTemplate: string // '{{ word }}'
   backTemplate: string // '{{ meaning }}<hr>{{ example }}'
   styles?: string // CSS applied to both sides
-  isDefault: boolean // the template used when a card has none assigned
+  isDefault: boolean // the template used when a card of this type has none assigned
   createdAt: number
   updatedAt: number
 }

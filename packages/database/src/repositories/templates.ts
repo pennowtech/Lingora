@@ -1,4 +1,4 @@
-import type { Template } from '@lingora/types'
+import type { Template, TemplateType } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /**
@@ -11,7 +11,7 @@ interface TemplateRow extends Omit<Template, 'isDefault'> {
   isDefault: number
 }
 
-const TEMPLATE_COLUMNS = `id, name, front_template AS frontTemplate, back_template AS backTemplate, styles, is_default AS isDefault, created_at AS createdAt, updated_at AS updatedAt`
+const TEMPLATE_COLUMNS = `id, name, type, front_template AS frontTemplate, back_template AS backTemplate, styles, is_default AS isDefault, created_at AS createdAt, updated_at AS updatedAt`
 
 /** SQLite stores booleans as 0/1 — convert so callers get a real boolean. */
 function toTemplate(row: TemplateRow): Template {
@@ -19,12 +19,16 @@ function toTemplate(row: TemplateRow): Template {
 }
 
 /**
- * Get all templates, default first, then alphabetically.
+ * Get all templates, optionally narrowed to one type, default first then
+ * alphabetically.
  */
-export async function getAllTemplates(db: DatabaseAdapter): Promise<Template[]> {
-  const rows = await db.query<TemplateRow>(
-    `SELECT ${TEMPLATE_COLUMNS} FROM templates ORDER BY is_default DESC, name ASC`,
-  )
+export async function getAllTemplates(db: DatabaseAdapter, type?: TemplateType): Promise<Template[]> {
+  const rows = type
+    ? await db.query<TemplateRow>(
+        `SELECT ${TEMPLATE_COLUMNS} FROM templates WHERE type = ? ORDER BY is_default DESC, name ASC`,
+        [type],
+      )
+    : await db.query<TemplateRow>(`SELECT ${TEMPLATE_COLUMNS} FROM templates ORDER BY is_default DESC, name ASC`)
   return rows.map(toTemplate)
 }
 
@@ -43,30 +47,35 @@ export async function getTemplateById(
 }
 
 /**
- * Get the default template — used for every card without an explicit template.
+ * Get the default template for a card type — used for every card of that
+ * type without an explicit template. Defaults to `'vocab'` since that's
+ * every caller predating cloze cards.
  */
-export async function getDefaultTemplate(db: DatabaseAdapter): Promise<Template | null> {
+export async function getDefaultTemplate(db: DatabaseAdapter, type: TemplateType = 'vocab'): Promise<Template | null> {
   const row = await db.querySingle<TemplateRow>(
-    `SELECT ${TEMPLATE_COLUMNS} FROM templates WHERE is_default = 1 LIMIT 1`,
+    `SELECT ${TEMPLATE_COLUMNS} FROM templates WHERE is_default = 1 AND type = ? LIMIT 1`,
+    [type],
   )
   return row ? toTemplate(row) : null
 }
 
 /**
- * Create a template. If it is flagged as default, the previous default is
- * cleared in the same transaction so there is always exactly one default.
+ * Create a template. If it is flagged as default, the previous default
+ * *of the same type* is cleared in the same transaction — vocab and cloze
+ * each keep exactly one default, independently.
  */
 export async function createTemplate(db: DatabaseAdapter, template: Template): Promise<void> {
   await db.transaction(async (tx) => {
     if (template.isDefault) {
-      await tx.execute(`UPDATE templates SET is_default = 0 WHERE is_default = 1`)
+      await tx.execute(`UPDATE templates SET is_default = 0 WHERE is_default = 1 AND type = ?`, [template.type])
     }
     await tx.execute(
-      `INSERT INTO templates (id, name, front_template, back_template, styles, is_default, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO templates (id, name, type, front_template, back_template, styles, is_default, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         template.id,
         template.name,
+        template.type,
         template.frontTemplate,
         template.backTemplate,
         template.styles ?? null,
@@ -80,20 +89,22 @@ export async function createTemplate(db: DatabaseAdapter, template: Template): P
 
 /**
  * Update a template's content. The isDefault flag is handled the same way
- * as in createTemplate so the single-default invariant holds.
+ * as in createTemplate so the single-default-per-type invariant holds.
  */
 export async function updateTemplate(db: DatabaseAdapter, template: Template): Promise<void> {
   await db.transaction(async (tx) => {
     if (template.isDefault) {
-      await tx.execute(`UPDATE templates SET is_default = 0 WHERE is_default = 1 AND id != ?`, [
+      await tx.execute(`UPDATE templates SET is_default = 0 WHERE is_default = 1 AND type = ? AND id != ?`, [
+        template.type,
         template.id,
       ])
     }
     await tx.execute(
-      `UPDATE templates SET name = ?, front_template = ?, back_template = ?, styles = ?, is_default = ?, updated_at = ?
+      `UPDATE templates SET name = ?, type = ?, front_template = ?, back_template = ?, styles = ?, is_default = ?, updated_at = ?
        WHERE id = ?`,
       [
         template.name,
+        template.type,
         template.frontTemplate,
         template.backTemplate,
         template.styles ?? null,

@@ -1,10 +1,10 @@
 import type { CefrLevel, LanguageCode, PartOfSpeech } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import type { DatabaseAdapter } from './adapter'
-import { addTagToCard, getOrCreateTag } from './repositories/tags'
-import { createCluster, createMeaning } from './repositories/clusters'
-import { createExample } from './repositories/examples'
-import { createInflections, createLemma, getLemmaByForm } from './repositories/lemmas'
+import { importRow, parseListField, resolveWordAndMeaning, type DuplicatePolicy } from './import-shared'
+import { getLemmaByForm } from './repositories/lemmas'
+
+export type { DuplicatePolicy } from './import-shared'
 
 const importLog = logger.child({ feature: 'import', component: 'csv-import' })
 
@@ -147,17 +147,25 @@ export function parseCsv(raw: string): CsvParseResult {
 // ─── Column mapping ─────────────────────────────────────────────────────────
 
 /** The card fields a CSV column can be mapped onto. word and meaning are required. */
-export type CsvField = 'word' | 'meaning' | 'example' | 'partOfSpeech' | 'cefrLevel' | 'tags'
+export type CsvField =
+  | 'word'
+  | 'meaning'
+  | 'example'
+  | 'exampleTranslation'
+  | 'synonyms'
+  | 'partOfSpeech'
+  | 'cefrLevel'
+  | 'tags'
 
 export type CsvColumnMapping = Partial<Record<CsvField, number>>
+
+/** Used for a row with no mapped/recognized part-of-speech/CEFR column — no picker for this in the UI, just a sane fallback. */
+const FALLBACK_PART_OF_SPEECH: PartOfSpeech = 'noun'
+const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 
 export interface CsvImportOptions {
   mapping: CsvColumnMapping
   language: LanguageCode
-  /** Used when the row has no mapped/valid part-of-speech column. */
-  defaultPartOfSpeech: PartOfSpeech
-  /** Used when the row has no mapped/valid CEFR column. */
-  defaultCefrLevel: CefrLevel
 }
 
 export interface CsvRowPreview {
@@ -165,10 +173,14 @@ export interface CsvRowPreview {
   word: string
   meaning: string
   example: string | null
+  exampleTranslation: string | null
+  synonyms: string[]
   partOfSpeech: PartOfSpeech
   cefrLevel: CefrLevel
   tags: string[]
   status: 'ok' | 'duplicate' | 'error'
+  /** The existing lemma this row's word already matches, if `status === 'duplicate'`. */
+  existingLemmaId: string | null
   errors: string[]
 }
 
@@ -191,37 +203,56 @@ export async function buildCsvImportPreview(
   const previews: CsvRowPreview[] = []
 
   for (const [rowIndex, row] of rows.entries()) {
-    const errors: string[] = []
-    const word = cell(row, mapping.word)
-    const meaning = cell(row, mapping.meaning)
-    if (!word) errors.push('Word is empty.')
-    if (!meaning) errors.push('Meaning is empty.')
-
     const exampleRaw = cell(row, mapping.example)
     const example = exampleRaw.length > 0 ? exampleRaw : null
 
+    const exampleTranslationRaw = cell(row, mapping.exampleTranslation)
+    const exampleTranslation = exampleTranslationRaw.length > 0 ? exampleTranslationRaw : null
+
+    const { word, meaning, errors } = resolveWordAndMeaning({
+      word: cell(row, mapping.word),
+      meaning: cell(row, mapping.meaning),
+      example,
+      exampleTranslation,
+    })
+
     const posRaw = cell(row, mapping.partOfSpeech)
-    const partOfSpeech = isPartOfSpeech(posRaw) ? (posRaw.toLowerCase() as PartOfSpeech) : options.defaultPartOfSpeech
+    const partOfSpeech = isPartOfSpeech(posRaw) ? (posRaw.toLowerCase() as PartOfSpeech) : FALLBACK_PART_OF_SPEECH
 
     const cefrRaw = cell(row, mapping.cefrLevel)
-    const cefrLevel = isCefrLevel(cefrRaw) ? (cefrRaw.toUpperCase() as CefrLevel) : options.defaultCefrLevel
+    const cefrLevel = isCefrLevel(cefrRaw) ? (cefrRaw.toUpperCase() as CefrLevel) : FALLBACK_CEFR_LEVEL
+
+    const synonymsRaw = cell(row, mapping.synonyms)
+    const synonyms = parseListField(synonymsRaw)
 
     const tagsRaw = cell(row, mapping.tags)
-    const tags = tagsRaw
-      .split(/[,;|]/)
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0)
+    const tags = parseListField(tagsRaw)
 
     let status: CsvRowPreview['status'] = errors.length > 0 ? 'error' : 'ok'
+    let existingLemmaId: string | null = null
     if (status === 'ok' && word) {
       const existing = await getLemmaByForm(db, word, options.language)
       if (existing) {
         status = 'duplicate'
+        existingLemmaId = existing.id
         errors.push(`"${word}" already exists in your library.`)
       }
     }
 
-    previews.push({ rowIndex, word, meaning, example, partOfSpeech, cefrLevel, tags, status, errors })
+    previews.push({
+      rowIndex,
+      word,
+      meaning,
+      example,
+      exampleTranslation,
+      synonyms,
+      partOfSpeech,
+      cefrLevel,
+      tags,
+      status,
+      existingLemmaId,
+      errors,
+    })
   }
 
   return previews
@@ -236,20 +267,26 @@ export interface CsvImportResult {
 }
 
 /**
- * Imports every 'ok' row from a preview, all in one transaction. 'duplicate'
- * rows count as skipped, 'error' rows count as failed — neither is attempted,
- * so a malformed row never partially writes or aborts the rows around it.
+ * Imports every 'ok' row from a preview, all in one transaction. 'error'
+ * rows count as failed and are never attempted. 'duplicate' rows follow
+ * `duplicatePolicy`: 'skip' (default, counts as skipped, matches the old
+ * behavior), 'merge' (adds this row's content onto the existing lemma's
+ * card), or 'duplicate' (a new card under the existing lemma — see
+ * `DuplicatePolicy` in import-shared.ts for why not a second lemma). The
+ * caller is expected to have already filtered `previews` down to whichever
+ * rows the user checked/wants imported.
  *
  * Each imported row becomes: lemma + its own surface-form inflection, a card
  * with initial FSRS state in the target deck, one 'General' cluster holding
- * one primary meaning (+ a selected example, if the row had one), and any
- * mapped tags.
+ * one meaning (+ a selected example, if the row had one, + any mapped
+ * synonyms), and any mapped tags.
  */
 export async function importCsvRows(
   db: DatabaseAdapter,
   previews: CsvRowPreview[],
   deckId: string,
   language: LanguageCode,
+  duplicatePolicy: DuplicatePolicy = 'skip',
 ): Promise<CsvImportResult> {
   const startedAt = Date.now()
   importLog.info('import.csv_import_started', {
@@ -263,7 +300,7 @@ export async function importCsvRows(
 
   await db.transaction(async (tx) => {
     for (const preview of previews) {
-      if (preview.status === 'duplicate') {
+      if (preview.status === 'duplicate' && duplicatePolicy === 'skip') {
         skipped += 1
         continue
       }
@@ -273,82 +310,15 @@ export async function importCsvRows(
       }
 
       try {
-        const now = Date.now()
-        const lemmaId = crypto.randomUUID()
-        await createLemma(tx, {
-          id: lemmaId,
-          form: preview.word,
-          language,
-          partOfSpeech: preview.partOfSpeech,
-          createdAt: now,
-          updatedAt: now,
-        })
-        await createInflections(tx, lemmaId, [preview.word])
-
-        const cardId = crypto.randomUUID()
-        await tx.execute(
-          `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-           VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL)`,
-          [cardId, lemmaId, deckId, now, now],
-        )
-        await tx.execute(
-          `INSERT INTO card_states
-           (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)
-           VALUES (?, 'new', 0, 0, 0, 0, NULL, ?)`,
-          [cardId, now],
-        )
-        await tx.execute(`INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`, [
-          crypto.randomUUID(),
+        await importRow(
+          tx,
+          preview,
           deckId,
-          cardId,
-          now,
-        ])
-
-        const clusterId = crypto.randomUUID()
-        await createCluster(tx, {
-          id: clusterId,
-          lemmaId,
-          label: 'General',
-          description: 'Imported from CSV',
-          cefrLevel: preview.cefrLevel,
-          orderIndex: 0,
-        })
-
-        const meaningId = crypto.randomUUID()
-        await createMeaning(tx, {
-          id: meaningId,
-          cardId,
-          clusterId,
-          translation: preview.meaning,
-          explanation: '',
-          cefrLevel: preview.cefrLevel,
-          isPrimary: true,
-          orderIndex: 0,
-        })
-        await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [
-          meaningId,
-          now,
-          cardId,
-        ])
-
-        if (preview.example) {
-          await createExample(tx, {
-            id: crypto.randomUUID(),
-            cardId,
-            clusterId,
-            sentence: preview.example,
-            translation: preview.meaning,
-            context: 'casual',
-            cefrLevel: preview.cefrLevel,
-            isSelected: true,
-          })
-        }
-
-        for (const tagName of preview.tags) {
-          const tag = await getOrCreateTag(tx, tagName)
-          await addTagToCard(tx, cardId, tag.id)
-        }
-
+          language,
+          preview.status === 'duplicate' ? preview.existingLemmaId : null,
+          duplicatePolicy,
+          'Imported from CSV',
+        )
         imported += 1
       } catch (error) {
         failed += 1

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { Template } from '@lingora/types'
+import type { Template, TemplateType } from '@lingora/types'
 import { createTemplate, deleteTemplate, getAllTemplates, updateTemplate } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -8,6 +8,11 @@ import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'rea
 import { CardRenderer } from '../../components/CardRenderer'
 import { Button, Card, Chip, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
 import {
+  CLOZE_BACK_TEMPLATE,
+  CLOZE_FRONT_TEMPLATE,
+  CLOZE_SAMPLE_CONTEXT,
+  CLOZE_STYLES,
+  CLOZE_TEMPLATE_VARIABLES,
   CONDITIONAL_EXAMPLE,
   DEFAULT_BACK_TEMPLATE,
   DEFAULT_FRONT_TEMPLATE,
@@ -36,6 +41,8 @@ const SAMPLE_CONTEXT: CardTemplateContext = {
   audio: '',
   image: '',
   cloze: '',
+  cloze_blanked: '',
+  cloze_revealed: '',
   context_hint: 'verb · separable',
 }
 
@@ -204,6 +211,7 @@ export default function TemplatesScreen(): JSX.Element {
 
   const templatesQuery = useQuery({ queryKey: ['templates'], queryFn: () => getAllTemplates(db) })
 
+  const [templateType, setTemplateType] = useState<TemplateType>('vocab')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [frontTemplate, setFrontTemplate] = useState('')
@@ -214,8 +222,14 @@ export default function TemplatesScreen(): JSX.Element {
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<string | null>('fields')
 
-  const templates = templatesQuery.data ?? []
+  const allTemplates = templatesQuery.data ?? []
+  const templates = allTemplates.filter((t) => t.type === templateType)
   const active = templates.find((t) => t.id === activeId) ?? templates[0]
+  const templateVariables = templateType === 'cloze' ? CLOZE_TEMPLATE_VARIABLES : TEMPLATE_VARIABLES
+  const sampleContext = templateType === 'cloze' ? CLOZE_SAMPLE_CONTEXT : SAMPLE_CONTEXT
+  const defaultFront = templateType === 'cloze' ? CLOZE_FRONT_TEMPLATE : DEFAULT_FRONT_TEMPLATE
+  const defaultBack = templateType === 'cloze' ? CLOZE_BACK_TEMPLATE : DEFAULT_BACK_TEMPLATE
+  const defaultStyles = templateType === 'cloze' ? CLOZE_STYLES : DEFAULT_STYLES
 
   // Load the selected template's fields into the editor whenever the
   // selection changes (or the list first loads) — not on every keystroke.
@@ -229,6 +243,12 @@ export default function TemplatesScreen(): JSX.Element {
     // Only re-sync editor fields from the template row when a different
     // template is selected (by id), not on every local edit or background refetch.
   }, [active?.id])
+
+  // Switching Vocabulary/Cloze always lands on that type's own selection
+  // (its default template, or a blank "+ New" state if it has none yet).
+  useEffect(() => {
+    setActiveId(null)
+  }, [templateType])
 
   const isDirty =
     !!active &&
@@ -248,6 +268,7 @@ export default function TemplatesScreen(): JSX.Element {
       const created: Template = {
         id: crypto.randomUUID(),
         name: name || 'New template',
+        type: templateType,
         frontTemplate,
         backTemplate,
         styles: styles_,
@@ -292,9 +313,9 @@ export default function TemplatesScreen(): JSX.Element {
   const startNewTemplate = (): void => {
     setActiveId(null)
     setName('New template')
-    setFrontTemplate(DEFAULT_FRONT_TEMPLATE)
-    setBackTemplate(DEFAULT_BACK_TEMPLATE)
-    setStyles_(DEFAULT_STYLES)
+    setFrontTemplate(defaultFront)
+    setBackTemplate(defaultBack)
+    setStyles_(defaultStyles)
   }
 
   const resetToDefault = (): void => {
@@ -304,9 +325,9 @@ export default function TemplatesScreen(): JSX.Element {
         text: 'Reset',
         style: 'destructive',
         onPress: () => {
-          setFrontTemplate(DEFAULT_FRONT_TEMPLATE)
-          setBackTemplate(DEFAULT_BACK_TEMPLATE)
-          setStyles_(DEFAULT_STYLES)
+          setFrontTemplate(defaultFront)
+          setBackTemplate(defaultBack)
+          setStyles_(defaultStyles)
         },
       },
     ])
@@ -329,10 +350,16 @@ export default function TemplatesScreen(): JSX.Element {
     )
   }
 
-  const previewHtml = renderCardHtml(previewSide === 'front' ? frontTemplate : backTemplate, styles_, SAMPLE_CONTEXT, previewSide)
+  const previewHtml = renderCardHtml(previewSide === 'front' ? frontTemplate : backTemplate, styles_, sampleContext, previewSide)
 
   return (
     <View style={styles.container}>
+      {/* Vocabulary/Cloze type toggle — each has its own template list and default */}
+      <View style={styles.typeRow}>
+        <Chip label="Vocabulary" selected={templateType === 'vocab'} onPress={() => setTemplateType('vocab')} />
+        <Chip label="Cloze" selected={templateType === 'cloze'} onPress={() => setTemplateType('cloze')} />
+      </View>
+
       {/* Template picker */}
       <View style={styles.pickerRow}>
         {templates.map((t) => (
@@ -380,7 +407,9 @@ export default function TemplatesScreen(): JSX.Element {
             <CardRenderer html={previewHtml} style={styles.previewRenderer} />
           </Card>
           <Text style={styles.editorHint}>
-            Rendered with sample data ("ausgehen") through the same engine the review session uses.
+            {templateType === 'cloze'
+              ? 'Rendered with a sample cloze sentence through the same engine the review session uses.'
+              : 'Rendered with sample data ("ausgehen") through the same engine the review session uses.'}
           </Text>
         </View>
       ) : (
@@ -397,7 +426,7 @@ export default function TemplatesScreen(): JSX.Element {
               Tap "Front" or "Back" to show a field on that side — a field can appear on both, or neither.
             </Text>
             <Card style={styles.fieldList}>
-              {TEMPLATE_VARIABLES.map((v, i) => {
+              {templateVariables.map((v, i) => {
                 const onFront = hasField(frontTemplate, v.name)
                 const onBack = hasField(backTemplate, v.name)
                 return (
@@ -494,7 +523,7 @@ export default function TemplatesScreen(): JSX.Element {
 
             <SectionHeader title="Available template variables" />
             <Card>
-              {TEMPLATE_VARIABLES.map((v, i) => (
+              {templateVariables.map((v, i) => (
                 <View key={v.name} style={[styles.variableRow, i > 0 && styles.rowDivider]}>
                   <Text style={styles.mono}>{`{{ ${v.name} }}`}</Text>
                   <Text style={styles.fieldDescription}>
@@ -583,6 +612,7 @@ export default function TemplatesScreen(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  typeRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
   pickerRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
   tabBar: {
     flexDirection: 'row',

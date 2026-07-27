@@ -5,6 +5,7 @@ import { aiCache } from './0003_ai_cache'
 import { deckEmoji } from './0004_deck_emoji'
 import { evaluationReports } from './0005_evaluation_reports'
 import { cardStateFsrsFields } from './0006_card_state_fsrs_fields'
+import { templateType } from './0007_template_type'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -20,6 +21,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   deckEmoji,
   evaluationReports,
   cardStateFsrsFields,
+  templateType,
 ]
 
 /**

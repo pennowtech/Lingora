@@ -430,6 +430,105 @@ AVD testing and user feedback, before starting WP5:
   example's id (previously always index `[0]`, which could silently diverge
   from what `buildCardContext` actually renders).
 
+### Post-WP4 polish, round 2: import robustness, deck actions, cloze practice
+
+A second round of fixes/features driven by AVD testing of real `.apkg`
+files, landing after the round documented above and before WP4.5:
+
+- **CSV/apkg preview table OOM crash, fixed.** The preview table rendered
+  *every* row (10+ cells each) as real native views inside a plain
+  `ScrollView`, not virtualized — importing a real-world 413-note Anki
+  collection exhausted the AVD's heap during Fabric's mount phase
+  (`OutOfMemoryError`, a hard crash with no JS-catchable error or visible
+  warning). Fixed by swapping the row body for a `FlatList` in both
+  `settings/csv-import.tsx` and `settings/apkg-import.tsx` (same frozen-
+  header layout, only ~20 rows mounted at a time regardless of file size).
+- **Cloze notes no longer require a "word"/"meaning" field.** A real Anki
+  Cloze note has no standalone word field — the fill-in-the-blank sentence
+  *is* the card. `resolveWordAndMeaning` (`packages/database/src/import-
+  shared.ts`) now derives an empty word from the cloze answer(s) and an
+  empty meaning from the example's translation when the example field
+  carries `{{c1::…}}` markup, only erroring when there's truly nothing to
+  fall back to. `CsvImportOptions`/`ApkgImportOptions` also dropped
+  `defaultPartOfSpeech`/`defaultCefrLevel` — no picker for these in the UI
+  anymore, just a hardcoded `noun`/`A1` fallback when a mapped column/field
+  is missing or unrecognized.
+- **Field mapping is a dropdown, not a wrapping row of chips.** Every
+  CSV/apkg field is optional now (was: word/meaning hard-required) and maps
+  through the new `Dropdown` component (`components/ui.tsx` — a tappable
+  field opening a bottom-sheet option list, `clearable` for a "None" row) —
+  cleaner than a `Chip` row once every field can point at any column.
+- **`.apkg` field-mapping chips no longer show columns that don't exist for
+  the actual notes being imported.** `fieldIndices` used to span the max
+  field count across *every* note type in the collection (Anki bundles a
+  user's whole note-type library in an export's metadata, even for a
+  single-deck export) — a collection mixing a 3-field Cloze type with, say,
+  a 7-field Image Occlusion type showed "Field 4".."Field 7" chips empty on
+  nearly every row. Now bounded to the dominant note type's own field count.
+- **Deck-scoped import, and a `⋮` action menu on every deck.** Both
+  `app/(tabs)/decks.tsx` (every row) and `app/deck/[id].tsx` (already had a
+  menu for rename/delete) gained "Import CSV into this deck"/"Import Anki
+  into this deck" entries, navigating to the existing import screens with
+  `?deckId=` pre-filled (`csv-import.tsx`/`apkg-import.tsx` read it via
+  `useLocalSearchParams` and preselect that deck, while still allowing a
+  different one). Both screens' "Import into deck" step also gained a
+  "+ New deck" chip (inline `createDeck` + auto-select, no need to back out
+  to the Decks tab first). "Export this deck" is present in both menus but
+  explicitly deferred (see Work package 4.5) — an alert explaining why plus
+  a link to Settings' whole-library JSON backup, not a silently-missing
+  button.
+- **Deck row due/card count is one line.** `decks.tsx`'s per-row subtitle
+  changed from a bare "`N cards`" (with due-ness only visible via a separate
+  pill, hidden entirely at zero due) to `"{dueCount} due/{cardCount} cards"`
+  always shown; the pressable due-count pill (navigates straight to review)
+  is unchanged alongside it.
+
+### Work package 4.5: Export formats — not started
+
+Import (CSV, Anki `.apkg`) is done; export is still JSON-only (the
+whole-library backup, `packages/database/src/backup.ts`). Deck rows and the
+deck detail screen already have "Export this deck" entries in their `⋮`
+menus (added alongside the deck-scoped import entry points below) that
+currently just explain this and link to Settings for the full JSON backup —
+an honest, visible deferral rather than a silent gap, matching how Phase 4
+deferred share-sheet capture.
+
+Planned formats, roughly in priority order:
+
+1. **CSV export** — mirrors the existing CSV importer's columns
+   (word/meaning/example/exampleTranslation/synonyms/POS/CEFR/tags), one row
+   per card (picks the primary meaning/selected example for a card with
+   several). Lossy for multi-meaning/multi-cluster cards, but round-trips
+   through the same importer, is easy to hand-edit, and is the cheapest to
+   build given the import code already exists. Build this first.
+2. **Anki `.apkg` export** — reverse of `apkg-import.ts`: fabricates a
+   valid Anki collection + a note type from Lingora's card shape, so a deck
+   can be studied in Anki/AnkiMobile or shared with someone using Anki.
+   Lossy the same direction import is (no meaning clusters/explanations);
+   review history is not fabricated (cards import into Anki as new, same as
+   Lingora's own import policy).
+3. **Markdown/plain-text export** — `word — meaning — example` per card, one
+   block per line. Not meant to round-trip; a "paste into Notes/a doc"
+   convenience. Lowest priority.
+4. **JSON (already shipped)** — stays the canonical full-fidelity backup
+   (meaning clusters, multiple meanings/examples, synonyms, phrases, FSRS
+   state, cloze cards); nothing else in this list captures the full data
+   model, so this remains the "whole library" format, not a per-deck one.
+
+Scope decision still open: whether CSV/apkg export are *deck-scoped* only
+(matching the `⋮` menu entry points already wired) or also available as a
+whole-library export from Settings, mirroring where JSON backup lives today.
+
+Acceptance criteria (once started):
+
+- CSV export produces a file `csv-import.ts` can re-import without manual
+  column remapping (same header names).
+- `.apkg` export opens in real Anki (or AnkiDroid/AnkiMobile) without a
+  "corrupt collection" error — verified against actual Anki, not just that
+  Lingora's own importer can read it back.
+- Every export format is reachable from both the deck-row `⋮` menu and (for
+  CSV/JSON) Settings → Import & Export.
+
 ### Work package 5: Learning statistics
 
 - Wire `stats.tsx`'s retention card to `getRetentionRate(db, 30)`.

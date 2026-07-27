@@ -88,6 +88,28 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
+  const startImport = (format: 'csv' | 'apkg'): void => {
+    setMenuOpen(false)
+    router.push({
+      pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
+      params: { deckId: id },
+    })
+  }
+
+  const showExport = (): void => {
+    setMenuOpen(false)
+    // Per-deck export (CSV/Anki/Markdown) is planned — see PHASE_5_STATUS.md
+    // Work package 4.5. Only the whole-library JSON backup exists today.
+    Alert.alert(
+      'Export coming soon',
+      'Exporting a single deck (CSV, Anki, Markdown) is planned but not built yet. For now, Settings → Import & Export → "Export everything" backs up your whole library as JSON.',
+      [
+        { text: 'OK', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => router.push('/settings/import-export') },
+      ],
+    )
+  }
+
   if (deckQuery.isPending) {
     return (
       <>
@@ -180,6 +202,14 @@ export default function DeckDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
+          <Button label="Import CSV into this deck" icon="grid" variant="secondary" onPress={() => startImport('csv')} />
+          <Button
+            label="Import Anki (.apkg) into this deck"
+            icon="albums"
+            variant="secondary"
+            onPress={() => startImport('apkg')}
+          />
+          <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={showExport} />
           <Button
             label="Rename deck"
             icon="pencil"

@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { Deck } from '@lingora/types'
-import { createDeck, getAllDecks, getDeckCounts, type DatabaseAdapter } from '@lingora/database'
+import { createDeck, deleteDeck, getAllDecks, getDeckCounts, renameDeck, type DatabaseAdapter } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Button, Card, EmptyState, ErrorState, Spinner } from '../../components/ui'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -32,7 +32,8 @@ async function loadDeckTree(db: DatabaseAdapter): Promise<DeckNode[]> {
 }
 
 /**
- * Deck list with nesting and due badges; the FAB creates a deck.
+ * Deck list with nesting and due badges; the FAB creates a deck. Each row's
+ * "⋮" menu offers import/export/rename/delete for that specific deck.
  */
 export default function DecksScreen(): JSX.Element {
   const { db } = useServices()
@@ -40,8 +41,16 @@ export default function DecksScreen(): JSX.Element {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
+  const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
+  const [renameDeckTarget, setRenameDeckTarget] = useState<Deck | null>(null)
+  const [renameValue, setRenameValue] = useState('')
 
   const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTree(db) })
+
+  const invalidateDecks = async (): Promise<void> => {
+    await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
+    await queryClient.invalidateQueries({ queryKey: ['decks'] })
+  }
 
   const create = useMutation({
     mutationFn: async () => {
@@ -60,10 +69,64 @@ export default function DecksScreen(): JSX.Element {
       setCreateOpen(false)
       setNewName('')
       setNewEmoji('')
-      await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
-      await queryClient.invalidateQueries({ queryKey: ['decks'] })
+      await invalidateDecks()
     },
   })
+
+  const rename = useMutation({
+    mutationFn: async () => {
+      if (!renameDeckTarget) return
+      const name = renameValue.trim()
+      if (name === '') throw new Error('Give the deck a name.')
+      await renameDeck(db, renameDeckTarget.id, name)
+    },
+    onSuccess: async () => {
+      setRenameDeckTarget(null)
+      await invalidateDecks()
+    },
+  })
+
+  const remove = useMutation({
+    mutationFn: async (deckId: string) => deleteDeck(db, deckId),
+    onSuccess: async () => {
+      await invalidateDecks()
+    },
+    onError: (error: unknown) => Alert.alert('Could not delete deck', String(error)),
+  })
+
+  const confirmDelete = (deck: Deck): void => {
+    setMenuDeck(null)
+    Alert.alert(
+      'Delete deck?',
+      'Cards that are only in this deck are deleted with it. Cards in other decks stay there.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => remove.mutate(deck.id) },
+      ],
+    )
+  }
+
+  const startImport = (deck: Deck, format: 'csv' | 'apkg'): void => {
+    setMenuDeck(null)
+    router.push({
+      pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
+      params: { deckId: deck.id },
+    })
+  }
+
+  const showExport = (): void => {
+    setMenuDeck(null)
+    // Per-deck export (CSV/Anki/Markdown) is planned — see PHASE_5_STATUS.md
+    // Work package 4.5. Only the whole-library JSON backup exists today.
+    Alert.alert(
+      'Export coming soon',
+      'Exporting a single deck (CSV, Anki, Markdown) is planned but not built yet. For now, Settings → Import & Export → "Export everything" backs up your whole library as JSON.',
+      [
+        { text: 'OK', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => router.push('/settings/import-export') },
+      ],
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -80,7 +143,7 @@ export default function DecksScreen(): JSX.Element {
       ) : (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {decksQuery.data.map((node) => (
-            <DeckRow key={node.deck.id} node={node} depth={0} />
+            <DeckRow key={node.deck.id} node={node} depth={0} onOpenMenu={setMenuDeck} />
           ))}
         </ScrollView>
       )}
@@ -120,12 +183,60 @@ export default function DecksScreen(): JSX.Element {
           />
         </View>
       </Modal>
+
+      {/* ── Per-deck actions menu ── */}
+      <Modal visible={menuDeck !== null} animationType="fade" transparent onRequestClose={() => setMenuDeck(null)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setMenuDeck(null)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          {menuDeck ? (
+            <>
+              <Text style={styles.modalTitle}>{menuDeck.emoji ?? '📚'} {menuDeck.name}</Text>
+              <Button label="Import CSV into this deck" icon="grid" variant="secondary" onPress={() => startImport(menuDeck, 'csv')} />
+              <Button label="Import Anki (.apkg) into this deck" icon="albums" variant="secondary" onPress={() => startImport(menuDeck, 'apkg')} />
+              <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={showExport} />
+              <Button
+                label="Rename deck"
+                icon="pencil"
+                variant="secondary"
+                onPress={() => {
+                  setRenameValue(menuDeck.name)
+                  setRenameDeckTarget(menuDeck)
+                  setMenuDeck(null)
+                }}
+              />
+              <Button label="Delete deck" icon="trash" variant="danger" onPress={() => confirmDelete(menuDeck)} />
+            </>
+          ) : null}
+        </View>
+      </Modal>
+
+      {/* ── Rename modal ── */}
+      <Modal
+        visible={renameDeckTarget !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setRenameDeckTarget(null)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setRenameDeckTarget(null)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Text style={styles.modalTitle}>Rename deck</Text>
+          <TextInput style={styles.inputField} value={renameValue} onChangeText={setRenameValue} autoFocus />
+          {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
+          <Button
+            label={rename.isPending ? 'Saving…' : 'Save'}
+            disabled={rename.isPending}
+            onPress={() => rename.mutate()}
+          />
+        </View>
+      </Modal>
     </View>
   )
 }
 
-function DeckRow(props: { node: DeckNode; depth: number }): JSX.Element {
-  const { node, depth } = props
+function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck) => void }): JSX.Element {
+  const { node, depth, onOpenMenu } = props
   return (
     <>
       <Card
@@ -135,7 +246,9 @@ function DeckRow(props: { node: DeckNode; depth: number }): JSX.Element {
         <Text style={styles.deckEmoji}>{node.deck.emoji ?? '📚'}</Text>
         <View style={styles.deckText}>
           <Text style={styles.deckName}>{node.deck.name}</Text>
-          <Text style={styles.deckMeta}>{node.cardCount} cards</Text>
+          <Text style={styles.deckMeta}>
+            {node.dueCount.toLocaleString()} due/{node.cardCount.toLocaleString()} cards
+          </Text>
         </View>
         {node.dueCount > 0 ? (
           <Pressable
@@ -149,9 +262,10 @@ function DeckRow(props: { node: DeckNode; depth: number }): JSX.Element {
         ) : (
           <Ionicons name="checkmark-circle" size={20} color={colors.success} />
         )}
+        <IconButton icon="ellipsis-vertical" onPress={() => onOpenMenu(node.deck)} />
       </Card>
       {node.children.map((child) => (
-        <DeckRow key={child.deck.id} node={child} depth={depth + 1} />
+        <DeckRow key={child.deck.id} node={child} depth={depth + 1} onOpenMenu={onOpenMenu} />
       ))}
     </>
   )

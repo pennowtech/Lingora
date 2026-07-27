@@ -32,8 +32,11 @@ export default function ImportExportScreen(): JSX.Element {
     setExportingFormat(format)
     log.info('export.format_export_pressed', { message: 'User pressed a whole-library format export button' })
     runExport(db, format, { deckName: 'Lingora vocabulary' })
-      .then(({ itemCount }) => {
-        Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`)
+      .then(({ itemCount, outcome }) => {
+        Alert.alert(
+          'Export ready',
+          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+        )
       })
       .catch((error: unknown) => {
         log.error('export.format_export_failed', error, { message: 'Whole-library format export failed' })
@@ -46,8 +49,11 @@ export default function ImportExportScreen(): JSX.Element {
     setExporting(true)
     log.info('export.backup_button_pressed', { message: 'User pressed "Export everything"' })
     exportBackupToFile(db)
-      .then(({ itemCount }) => {
-        Alert.alert('Backup ready', `Exported ${itemCount.toLocaleString()} rows. Choose where to save it.`)
+      .then(({ itemCount, outcome }) => {
+        Alert.alert(
+          'Backup ready',
+          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+        )
       })
       .catch((error: unknown) => {
         log.error('export.backup_failed', error, { message: 'Backup export failed' })

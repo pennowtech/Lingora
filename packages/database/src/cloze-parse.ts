@@ -62,3 +62,14 @@ export function buildClozeMarkup(blankedSentence: string, answerJoined: string):
     return `${result}{{c1::${answer}}}${part}`
   }, '')
 }
+
+/**
+ * Strips `{{cN::answer}}`/`{{cN::answer::hint}}` markup down to just
+ * `answer`, inline — a plain, fully "revealed" sentence for a human-facing
+ * export (Markdown) where showing raw Anki cloze syntax would be
+ * confusing. Not used for CSV/Anki export, which keep the real markup so a
+ * re-import (or real Anki) round-trips correctly.
+ */
+export function revealClozeMarkup(text: string): string {
+  return text.replace(new RegExp(CLOZE_TOKEN.source, 'g'), (_full, answer: string) => answer.trim())
+}

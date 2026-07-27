@@ -6,6 +6,7 @@ import { deckEmoji } from './0004_deck_emoji'
 import { evaluationReports } from './0005_evaluation_reports'
 import { cardStateFsrsFields } from './0006_card_state_fsrs_fields'
 import { templateType } from './0007_template_type'
+import { dedupeClustersAndOrphans } from './0008_dedupe_clusters_and_orphans'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -22,6 +23,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   evaluationReports,
   cardStateFsrsFields,
   templateType,
+  dedupeClustersAndOrphans,
 ]
 
 /**

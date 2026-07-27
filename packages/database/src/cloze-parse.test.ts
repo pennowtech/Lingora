@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup } from './cloze-parse'
+import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup, revealClozeMarkup } from './cloze-parse'
 
 describe('hasClozeMarkup', () => {
   it('detects real Anki cloze syntax', () => {
@@ -60,5 +60,25 @@ describe('buildClozeMarkup', () => {
     const parsed = parseClozeMarkup(original)!
     const rebuilt = buildClozeMarkup(parsed.blanked, parsed.answers.join('; '))
     expect(parseClozeMarkup(rebuilt)).toEqual(parsed)
+  })
+})
+
+describe('revealClozeMarkup', () => {
+  it('strips {{c1::answer}} down to just the answer, inline', () => {
+    expect(revealClozeMarkup('Wir gehen heute Abend {{c1::aus}}.')).toBe('Wir gehen heute Abend aus.')
+  })
+
+  it('reveals multiple answers in one sentence', () => {
+    expect(revealClozeMarkup('Der {{c1::Wettbewerb}} und der {{c1::Wettstreit}} sind ähnlich.')).toBe(
+      'Der Wettbewerb und der Wettstreit sind ähnlich.',
+    )
+  })
+
+  it('ignores a hint after a second "::"', () => {
+    expect(revealClozeMarkup('Wir gehen heute Abend {{c1::aus::separable verb}}.')).toBe('Wir gehen heute Abend aus.')
+  })
+
+  it('returns plain text unchanged', () => {
+    expect(revealClozeMarkup('Wir gehen heute Abend aus.')).toBe('Wir gehen heute Abend aus.')
   })
 })

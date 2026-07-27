@@ -1,5 +1,6 @@
 import {
   createBackup,
+  createDeckBackup,
   parseBackup,
   restoreBackup,
   type BackupPayload,
@@ -9,9 +10,9 @@ import {
 import type { DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import Constants from 'expo-constants'
-import { File, Paths } from 'expo-file-system'
+import { File } from 'expo-file-system'
 import * as SecureStore from 'expo-secure-store'
-import * as Sharing from 'expo-sharing'
+import { saveExportFile, type SaveOutcome } from './save-file'
 import { STORE_KEYS } from './services'
 
 const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
@@ -50,32 +51,48 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
  * the share sheet and file picker below use `application/octet-stream`
  * rather than `application/json`.
  */
-function backupFileName(exportedAt: number): string {
-  return `lingora-backup-${new Date(exportedAt).toISOString().slice(0, 10)}.lin`
+function backupFileName(exportedAt: number, deckName?: string): string {
+  const date = new Date(exportedAt).toISOString().slice(0, 10)
+  const slug = deckName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  return slug ? `${slug}-${date}.lin` : `lingora-backup-${date}.lin`
 }
 
-/** Builds the backup, writes it to cache, and opens the native share sheet to save/send it. */
-export async function exportBackupToFile(db: DatabaseAdapter): Promise<{ itemCount: number }> {
+/**
+ * Builds the backup — the whole library, or (with `deckId`) just one deck's
+ * own cards via `createDeckBackup`, export-only (a deck `.lin` has no
+ * matching restore path, see `createDeckBackup`'s doc comment) — and saves
+ * it (`saveExportFile` — a real folder picker on Android, the share sheet
+ * elsewhere).
+ */
+export async function exportBackupToFile(
+  db: DatabaseAdapter,
+  options: { deckId?: string; deckName?: string } = {},
+): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const settings = await readBackupSettings()
   const appVersion = Constants.expoConfig?.version ?? 'unknown'
-  const backup = await createBackup(db, settings, appVersion)
+  const backup = options.deckId
+    ? await createDeckBackup(db, options.deckId, settings, appVersion)
+    : await createBackup(db, settings, appVersion)
   const json = JSON.stringify(backup, null, 2)
-  const itemCount = Object.values(backup.tables).reduce((sum, rows) => sum + (rows?.length ?? 0), 0)
+  // Cards, not a sum across every table — a card with 2 meanings, 3
+  // examples, and 40 review-history rows should still read as "1 card
+  // exported," matching what CSV/Markdown/Anki export already report, not
+  // a much larger number that reads as "this exported more than my deck
+  // has" (real user-reported confusion: a 49-card deck with review history
+  // showed "417 cards exported").
+  const itemCount = backup.tables.cards?.length ?? 0
 
-  const file = new File(Paths.cache, backupFileName(backup.exportedAt))
-  if (file.exists) file.delete()
-  file.create()
-  file.write(json)
-
-  const canShare = await Sharing.isAvailableAsync()
-  if (canShare) {
-    await Sharing.shareAsync(file.uri, { mimeType: 'application/octet-stream', dialogTitle: 'Save Lingora backup' })
-  }
+  const outcome = await saveExportFile({
+    fileName: backupFileName(backup.exportedAt, options.deckName),
+    mimeType: 'application/octet-stream',
+    content: { kind: 'utf8', text: json },
+    dialogTitle: 'Save Lingora backup',
+  })
   log.info('export.backup_shared', {
-    message: canShare ? 'Backup file written and share sheet opened' : 'Backup file written; sharing unavailable',
+    message: `Backup file ${outcome === 'device' ? 'saved to device' : 'shared'}`,
     metadata: { itemCount },
   })
-  return { itemCount }
+  return { itemCount, outcome }
 }
 
 export interface PickedBackup {

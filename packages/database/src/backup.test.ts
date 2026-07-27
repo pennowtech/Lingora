@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
 import { migrate } from './migrations'
+import { createDeck } from './repositories/decks'
 import { seedDatabase } from './seed_dummy_data'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 import {
   BACKUP_FORMAT_VERSION,
   BackupValidationError,
   createBackup,
+  createDeckBackup,
   parseBackup,
   restoreBackup,
   type BackupPayload,
@@ -139,5 +142,58 @@ describe('backup / restore', () => {
 
     const after = await db.query('SELECT * FROM lemmas')
     expect(after).toEqual(before)
+  })
+
+  describe('createDeckBackup', () => {
+    it("includes only the target deck's own cards and their content", async () => {
+      const backup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')
+      expect(backup.tables.decks).toHaveLength(1)
+      expect(backup.tables.decks?.[0]).toMatchObject({ id: 'deck-default' })
+      expect(backup.tables.cards).toHaveLength(1)
+      expect(backup.tables.cards?.[0]).toMatchObject({ id: 'card-ausgehen' })
+      expect(backup.tables.meanings?.length).toBeGreaterThan(0)
+      expect(backup.tables.cloze_cards?.length).toBeGreaterThan(0)
+    })
+
+    it('omits mining queue and evaluations, and never includes an API key', async () => {
+      const backup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')
+      expect(backup.tables.sentence_mining_queue).toBeUndefined()
+      expect(backup.tables.evaluations).toBeUndefined()
+      expect(JSON.stringify(backup)).not.toMatch(/api[_-]?key/i)
+    })
+
+    it("excludes another deck's cards, lemmas, and meanings entirely", async () => {
+      const now = Date.now()
+      await createDeck(db, { id: 'other-deck', name: 'Other', createdAt: now, updatedAt: now })
+      const { rows } = parseCsv('word,meaning\nHund,dog\n')
+      const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
+      await importCsvRows(db, previews, 'other-deck', 'de')
+
+      const deckDefaultBackup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')
+      expect(deckDefaultBackup.tables.decks?.map((d) => d.id)).toEqual(['deck-default'])
+      expect(deckDefaultBackup.tables.lemmas?.map((l) => l.form)).not.toContain('Hund')
+      expect(deckDefaultBackup.tables.cards).toHaveLength(1)
+
+      const otherDeckBackup = await createDeckBackup(db, 'other-deck', {}, '1.0.0')
+      expect(otherDeckBackup.tables.decks?.map((d) => d.id)).toEqual(['other-deck'])
+      expect(otherDeckBackup.tables.lemmas?.map((l) => l.form)).toEqual(['Hund'])
+      expect(otherDeckBackup.tables.lemmas?.map((l) => l.form)).not.toContain('ausgehen')
+      expect(otherDeckBackup.tables.cards).toHaveLength(1)
+    })
+
+    it('returns empty card-scoped tables for a deck with no cards', async () => {
+      const now = Date.now()
+      await db.execute(`INSERT INTO decks (id, name, parent_id, created_at, updated_at) VALUES (?, ?, NULL, ?, ?)`, [
+        'empty-deck',
+        'Empty',
+        now,
+        now,
+      ])
+      const backup = await createDeckBackup(db, 'empty-deck', {}, '1.0.0')
+      expect(backup.tables.cards).toEqual([])
+      expect(backup.tables.decks).toHaveLength(1)
+      // Reference tables are still included in full, regardless of deck.
+      expect(backup.tables.templates?.length).toBeGreaterThan(0)
+    })
   })
 })

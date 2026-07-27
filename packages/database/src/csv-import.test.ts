@@ -89,9 +89,9 @@ describe('buildCsvImportPreview / importCsvRows', () => {
   })
 
   it('imports ok rows transactionally, creating a lemma, card, meaning, and example', async () => {
-    const { rows } = parseCsv('word,meaning,example,pos,cefr,tags\nHaus,house,"Das Haus ist groß.",noun,A2,common;home\n')
+    const { rows } = parseCsv('word,meaning,example\nHaus,house,"Das Haus ist groß."\n')
     const previews = await buildCsvImportPreview(db, rows, {
-      mapping: { word: 0, meaning: 1, example: 2, partOfSpeech: 3, cefrLevel: 4, tags: 5 },
+      mapping: { word: 0, meaning: 1, example: 2 },
       language: 'de',
     })
 
@@ -100,6 +100,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
 
     const lemma = await getLemmaByForm(db, 'Haus', 'de')
     expect(lemma).not.toBeNull()
+    // Part of speech/CEFR level are not mappable — every import gets the same fallback.
     expect(lemma?.partOfSpeech).toBe('noun')
 
     const card = await db.querySingle<{ id: string; primaryMeaningId: string | null }>(
@@ -112,7 +113,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       'SELECT translation, cefr_level AS cefrLevel FROM meanings WHERE card_id = ?',
       [card?.id],
     )
-    expect(meaning).toMatchObject({ translation: 'house', cefrLevel: 'A2' })
+    expect(meaning).toMatchObject({ translation: 'house', cefrLevel: 'A1' })
 
     const example = await db.querySingle<{ sentence: string }>(
       'SELECT sentence FROM examples WHERE card_id = ?',
@@ -120,11 +121,12 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     )
     expect(example?.sentence).toBe('Das Haus ist groß.')
 
+    // Tags are not mappable — no CSV column can populate them anymore.
     const tags = await db.query<{ name: string }>(
       `SELECT t.name FROM tags t JOIN card_tags ct ON ct.tag_id = t.id WHERE ct.card_id = ?`,
       [card?.id],
     )
-    expect(tags.map((t) => t.name).sort()).toEqual(['common', 'home'])
+    expect(tags).toEqual([])
   })
 
   it('counts duplicate and error rows without attempting to import them', async () => {
@@ -142,10 +144,10 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     expect(result.skipped).toBe(0)
   })
 
-  it('falls back to noun/A1 when part of speech or CEFR level is unmapped or invalid', async () => {
-    const { rows } = parseCsv('word,meaning,pos,cefr\nSchnell,fast,not-a-pos,not-a-level\n')
+  it('always falls back to noun/A1 — part of speech and CEFR level are not mappable', async () => {
+    const { rows } = parseCsv('word,meaning\nSchnell,fast\n')
     const previews = await buildCsvImportPreview(db, rows, {
-      mapping: { word: 0, meaning: 1, partOfSpeech: 2, cefrLevel: 3 },
+      mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
     expect(previews[0]).toMatchObject({ partOfSpeech: 'noun', cefrLevel: 'A1' })
@@ -194,6 +196,41 @@ describe('buildCsvImportPreview / importCsvRows', () => {
 
     const examples = await db.query<{ id: string }>('SELECT id FROM examples WHERE card_id = ?', [card?.id])
     expect(examples).toHaveLength(0)
+  })
+
+  it('creates BOTH a basic card and a cloze card when word/meaning/example and a dedicated cloze column are all mapped', async () => {
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation,cloze\n' +
+        'ausgehen,to go out,Wir gehen heute Abend aus.,We are going out tonight.,Wir gehen heute Abend {{c1::aus}}.\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, previews, deckId, 'de')
+
+    const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
+    const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
+      lemma?.id,
+    ])
+    expect(cards.map((c) => c.type)).toEqual(['basic', 'cloze'])
+
+    const basicCard = cards.find((c) => c.type === 'basic')!
+    const examples = await db.query<{ sentence: string }>('SELECT sentence FROM examples WHERE card_id = ?', [basicCard.id])
+    expect(examples).toEqual([{ sentence: 'Wir gehen heute Abend aus.' }])
+
+    const clozeCard = cards.find((c) => c.type === 'cloze')!
+    const cloze = await db.querySingle<{ sentence: string }>('SELECT sentence FROM cloze_cards WHERE card_id = ?', [
+      clozeCard.id,
+    ])
+    expect(cloze?.sentence).toBe('Wir gehen heute Abend [...].')
+
+    // Both cards carry their own meaning row.
+    const meanings = await db.query<{ translation: string }>(
+      'SELECT translation FROM meanings WHERE card_id IN (?, ?)',
+      [basicCard.id, clozeCard.id],
+    )
+    expect(meanings.every((m) => m.translation === 'to go out')).toBe(true)
   })
 
   it('derives word from the cloze answer and meaning from the translation when word/meaning are unmapped', async () => {
@@ -281,6 +318,31 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       [deckId, cards[0]?.id],
     )
     expect(deckMembership).toHaveLength(1)
+
+    // A merge reuses the lemma's existing cluster instead of creating a
+    // fresh "General" one every import — otherwise the word's detail page
+    // shows the same cluster label repeated once per import.
+    const clusters = await db.query<{ id: string }>('SELECT id FROM meaning_clusters WHERE lemma_id = ?', [lemmas[0]?.id])
+    expect(clusters).toHaveLength(1)
+  })
+
+  it('reuses a single cluster for a row that creates both a basic and a cloze card', async () => {
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation,cloze\n' +
+        'einbrechen,to break in,Der Dieb wollte ins Haus einbrechen.,The thief wanted to break into the house.,Der Dieb wollte ins Haus {{c1::einbrechen}}.\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, previews, deckId, 'de')
+
+    const lemma = await getLemmaByForm(db, 'einbrechen', 'de')
+    const cards = await db.query<{ id: string }>('SELECT id FROM cards WHERE lemma_id = ?', [lemma?.id])
+    expect(cards).toHaveLength(2)
+
+    const clusters = await db.query<{ id: string }>('SELECT id FROM meaning_clusters WHERE lemma_id = ?', [lemma?.id])
+    expect(clusters).toHaveLength(1)
   })
 
   it("duplicatePolicy 'merge' adds the target deck even when the existing card wasn't a deck_cards member", async () => {

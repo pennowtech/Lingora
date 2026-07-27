@@ -84,14 +84,39 @@ export async function moveDeck(
 }
 
 /**
- * Delete a deck and all its cards (via cascade).
- * Cards that are only in this deck are also deleted.
- * Cards in multiple decks remain in the other decks.
+ * Delete a deck and all its cards.
+ * Cards that are only in this deck are also deleted; cards that are also
+ * in another deck just lose their membership in this one.
+ *
+ * `deck_cards.deck_id` cascades on delete, but `cards.deck_id` deliberately
+ * has no foreign key (a card's "home" deck at creation vs. its actual
+ * memberships in `deck_cards` are different things — see the database
+ * package's architecture notes) — so deleting the `decks` row alone never
+ * touched `cards` at all. Every card exclusively in this deck is deleted
+ * explicitly first (cascading to its meanings/examples/synonyms/cloze/
+ * card_states/review_events/tags via their own `ON DELETE CASCADE` from
+ * `cards`), then any lemma left with zero cards anywhere is deleted too —
+ * otherwise it lingers forever as a false "already exists" on the next
+ * import/lookup of the same word, and re-importing it (merge/duplicate)
+ * keeps adding onto an orphaned, invisible card.
  * @param db The database adapter to use for the query.
  * @param deckId The ID of the deck to delete.
  */
 export async function deleteDeck(db: DatabaseAdapter, deckId: string): Promise<void> {
-  await db.execute(`DELETE FROM decks WHERE id = ?`, [deckId])
+  await db.transaction(async (tx) => {
+    const onlyInThisDeck = await tx.query<{ cardId: string }>(
+      `SELECT dc.card_id AS cardId
+       FROM deck_cards dc
+       WHERE dc.deck_id = ?
+         AND (SELECT COUNT(*) FROM deck_cards dc2 WHERE dc2.card_id = dc.card_id) = 1`,
+      [deckId],
+    )
+    for (const { cardId } of onlyInThisDeck) {
+      await tx.execute(`DELETE FROM cards WHERE id = ?`, [cardId])
+    }
+    await tx.execute(`DELETE FROM lemmas WHERE id NOT IN (SELECT DISTINCT lemma_id FROM cards)`)
+    await tx.execute(`DELETE FROM decks WHERE id = ?`, [deckId])
+  })
 }
 
 /** Card and due counts of one deck — the badges on the deck list. */

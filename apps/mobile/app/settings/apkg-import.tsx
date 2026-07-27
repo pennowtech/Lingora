@@ -24,18 +24,26 @@ const log = logger.child({ feature: 'import', screen: 'ApkgImportScreen' })
 const FIELD_LABELS: Record<ApkgField, string> = {
   word: 'Word',
   meaning: 'Meaning',
+  cloze: 'Cloze sentence ({{c1::word}})',
   example: 'Example sentence',
   exampleTranslation: 'Example translation',
   synonyms: 'Synonyms',
-  partOfSpeech: 'Part of speech',
-  cefrLevel: 'CEFR level',
 }
 // Every field is optional now — a real Anki Cloze note has no standalone
 // word/meaning field at all (the fill-in-the-blank sentence IS the card), so
-// mapping only Example (+ Example translation) works: buildApkgImportPreview
-// derives word/meaning from the cloze answer/translation. See
-// resolveWordAndMeaning in packages/database/src/import-shared.ts.
-const ALL_FIELDS: ApkgField[] = ['word', 'meaning', 'example', 'exampleTranslation', 'synonyms', 'partOfSpeech', 'cefrLevel']
+// mapping only Cloze sentence (+ Example translation) works:
+// buildApkgImportPreview derives word/meaning from the cloze answer/
+// translation. See resolveWordAndMeaning in packages/database/src/import-shared.ts.
+// A real Anki Cloze note's Text field (the one with {{c1::...}} markup)
+// should map to Cloze sentence, not Example sentence — Example is for a
+// plain, non-cloze sentence. (Mapping cloze markup to Example instead still
+// auto-detects it for backward compatibility, but Cloze sentence is the
+// direct, unambiguous mapping and exports cleaner.)
+// Part of speech and CEFR level are deliberately not mappable — every
+// import gets the same fallback (see FALLBACK_PART_OF_SPEECH/
+// FALLBACK_CEFR_LEVEL in apkg-import.ts). Tags aren't mappable either, but
+// for a different reason — they come free from the Anki note's own tags.
+const ALL_FIELDS: ApkgField[] = ['word', 'meaning', 'cloze', 'example', 'exampleTranslation', 'synonyms']
 
 const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
@@ -51,11 +59,11 @@ interface TableColumn {
 const TABLE_COLUMNS: TableColumn[] = [
   { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
   { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+  { label: 'Cloze', width: 220, cell: (p) => p.cloze ?? '—' },
   { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
   { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
   { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
-  { label: 'POS', width: 110, cell: (p) => p.partOfSpeech },
-  { label: 'CEFR', width: 80, cell: (p) => p.cefrLevel },
+  // Tags aren't mappable (no dropdown for them) but come free from the Anki note's own tags — still worth showing.
   { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
   { label: 'Status', width: 100, cell: (p) => p.status },
   { label: 'Issues', width: 260, cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—') },

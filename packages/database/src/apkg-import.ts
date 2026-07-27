@@ -1,7 +1,6 @@
 import type { CefrLevel, LanguageCode, PartOfSpeech } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import type { DatabaseAdapter } from './adapter'
-import { isCefrLevel, isPartOfSpeech } from './csv-import'
 import { importRow, parseListField, resolveWordAndMeaning, type DuplicatePolicy } from './import-shared'
 import { getLemmaByForm } from './repositories/lemmas'
 
@@ -213,18 +212,17 @@ export function stripAnkiHtml(field: string): string {
 
 // ─── Field mapping, preview, import ────────────────────────────────────────
 
-export type ApkgField =
-  | 'word'
-  | 'meaning'
-  | 'example'
-  | 'exampleTranslation'
-  | 'synonyms'
-  | 'partOfSpeech'
-  | 'cefrLevel'
+/**
+ * The note fields a mapping can point onto. Part of speech, CEFR level,
+ * and tags are deliberately not mappable — every imported note gets the
+ * same fallback part of speech/CEFR level (below); tags come free from
+ * the Anki note's own `tags` field (`ApkgRowPreview.tags`), not a mapping.
+ */
+export type ApkgField = 'word' | 'meaning' | 'cloze' | 'example' | 'exampleTranslation' | 'synonyms'
 
 export type ApkgFieldMapping = Partial<Record<ApkgField, number>>
 
-/** Used for a note with no mapped/recognized part-of-speech/CEFR field — no picker for this in the UI, just a sane fallback. */
+/** Every imported note's part-of-speech/CEFR level — no per-note mapping for these, just a sane fallback (see ApkgField's doc comment). */
 const FALLBACK_PART_OF_SPEECH: PartOfSpeech = 'noun'
 const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 
@@ -237,6 +235,10 @@ export interface ApkgRowPreview {
   noteId: number
   word: string
   meaning: string
+  /** True when word/meaning are genuine mapped content, not the cloze-derived fallback — see ImportableRow. */
+  hasOwnVocab: boolean
+  /** Cloze-sentence field (`{{c1::word}}` markup), mapped separately from `example` — see ImportableRow. */
+  cloze: string | null
   example: string | null
   exampleTranslation: string | null
   synonyms: string[]
@@ -268,24 +270,29 @@ export async function buildApkgImportPreview(
   const previews: ApkgRowPreview[] = []
 
   for (const note of notes) {
+    const clozeRaw = field(note.fields, mapping.cloze)
+    const cloze = clozeRaw.length > 0 ? clozeRaw : null
+
     const exampleRaw = field(note.fields, mapping.example)
     const example = exampleRaw.length > 0 ? exampleRaw : null
 
     const exampleTranslationRaw = field(note.fields, mapping.exampleTranslation)
     const exampleTranslation = exampleTranslationRaw.length > 0 ? exampleTranslationRaw : null
 
+    const wordRaw = field(note.fields, mapping.word)
+    const meaningRaw = field(note.fields, mapping.meaning)
+    const hasOwnVocab = wordRaw.length > 0 && meaningRaw.length > 0
+
     const { word, meaning, errors } = resolveWordAndMeaning({
-      word: field(note.fields, mapping.word),
-      meaning: field(note.fields, mapping.meaning),
+      word: wordRaw,
+      meaning: meaningRaw,
+      cloze,
       example,
       exampleTranslation,
     })
 
-    const posRaw = field(note.fields, mapping.partOfSpeech)
-    const partOfSpeech = isPartOfSpeech(posRaw) ? (posRaw.toLowerCase() as PartOfSpeech) : FALLBACK_PART_OF_SPEECH
-
-    const cefrRaw = field(note.fields, mapping.cefrLevel)
-    const cefrLevel = isCefrLevel(cefrRaw) ? (cefrRaw.toUpperCase() as CefrLevel) : FALLBACK_CEFR_LEVEL
+    const partOfSpeech = FALLBACK_PART_OF_SPEECH
+    const cefrLevel = FALLBACK_CEFR_LEVEL
 
     const synonymsRaw = field(note.fields, mapping.synonyms)
     const synonyms = parseListField(synonymsRaw)
@@ -305,6 +312,8 @@ export async function buildApkgImportPreview(
       noteId: note.id,
       word,
       meaning,
+      hasOwnVocab,
+      cloze,
       example,
       exampleTranslation,
       synonyms,

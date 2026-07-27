@@ -487,7 +487,13 @@ files, landing after the round documented above and before WP4.5:
 
 All four formats are implemented, deck-scoped (via each deck's `⋮` menu →
 "Export this deck" → format picker) and whole-library (Settings → Import &
-Export). Shared query: `packages/database/src/export-shared.ts#getExportableCards`
+Export). The picker itself is `components/ui.tsx#ExportFormatSheet` — a real
+bottom-sheet list (icon + label + description per format), replacing an
+earlier `Alert.alert`-with-one-button-per-format that silently dropped
+Markdown past Android's practical ~3-button limit and read as a bare
+message box rather than a menu (both real problems, reported after the
+first cut of this work package shipped). Shared query:
+`packages/database/src/export-shared.ts#getExportableCards`
 (optionally narrowed to one deck via `deck_cards`, same table `getCardsForDeck`
 reads) — every card's word/primary meaning/selected-or-cloze example/
 synonyms/tags, with a cloze card's `example` carrying real `{{c1::answer}}`
@@ -495,16 +501,25 @@ markup re-embedded by `cloze-parse.ts#buildClozeMarkup` (the reverse of
 `parseClozeMarkup`), so a cloze card round-trips as a real fill-in-the-blank
 rather than exporting as a blank-less plain sentence.
 
-1. **JSON → renamed to Lingora format, `.lin`.** Still exactly the same
-   `BackupPayload` JSON content (`packages/database/src/backup.ts`
-   unchanged) — this was a naming/branding decision only ("a Lingora file",
-   not "a JSON file"), not a new serialization. `apps/mobile/lib/backup.ts`'s
-   `backupFileName` now writes `.lin`; the share sheet and restore file
-   picker use `application/octet-stream` instead of `application/json`
-   since `.lin` has no registered system MIME type. Remains the only
-   full-fidelity format (meaning clusters, multiple meanings/examples,
-   synonyms, phrases, FSRS state, cloze cards) and the only whole-library
-   *restore* path — CSV/apkg are export-only from this app's own UI.
+1. **JSON → renamed to Lingora format, `.lin`.** Whole-library export still
+   exactly the same `BackupPayload` JSON content (`packages/database/src/backup.ts`'s
+   `createBackup` unchanged) — this was a naming/branding decision only ("a
+   Lingora file", not "a JSON file"), not a new serialization.
+   `apps/mobile/lib/backup.ts`'s `backupFileName` now writes `.lin`; the
+   share sheet and restore file picker use `application/octet-stream`
+   instead of `application/json` since `.lin` has no registered system MIME
+   type. Remains the only full-fidelity format (meaning clusters, multiple
+   meanings/examples, synonyms, phrases, FSRS state, cloze cards).
+   Also gained a **deck-scoped variant**, `backup.ts#createDeckBackup` —
+   same payload shape, filtered to one deck's own cards (and their
+   meanings/examples/synonyms/phrases/cloze/tags/FSRS state/review history,
+   resolved via `deck_cards` → `cards.lemma_id` → `lemmas`/`meaning_clusters`;
+   `templates`/`prompt_versions` included in full as small reference tables;
+   `sentence_mining_queue`/`evaluations` omitted as not deck-scoped data).
+   **Export-only by design** — `restoreBackup`'s policy is full-replace
+   only, so a deck `.lin` has no matching partial-restore path in this app;
+   it's for sharing/inspection, the same audience as CSV/Markdown/Anki.
+   Whole-library `.lin` remains the only *restorable* format.
 2. **CSV export** (`csv-export.ts#buildCsvExport`) — same header names as
    `CsvField`, so a file exported here re-imports through
    `buildCsvImportPreview` with zero manual remapping (verified by a round-
@@ -550,6 +565,251 @@ Acceptance criteria:
       still pending**, see the caveat above.
 - [x] Every export format is reachable from both the deck-row `⋮` menu
       (deck-scoped) and Settings → Import & Export (whole-library).
+
+**Post-ship fix: exports save directly to a chosen folder, not just a share
+sheet.** Every export previously always opened the OS share sheet
+(`Sharing.shareAsync`) — reported as bad UX, since a share sheet is for
+sending to another app, not for "save this file somewhere on my device."
+`apps/mobile/lib/save-file.ts#saveExportFile` now uses Android's Storage
+Access Framework on Android (`StorageAccessFramework.requestDirectoryPermissionsAsync`
+— a real native folder-browser dialog, granted once and reused via a
+SecureStore-persisted URI, re-prompted if a write against the stored URI
+ever fails) and falls back to the share sheet only on iOS (no SAF there —
+its share sheet's own "Save to Files" is the iOS equivalent) or if the user
+declines the Android folder prompt. Binary content (the `.apkg` zip bytes)
+goes through `base64-js` (added as a direct `apps/mobile` dependency) for
+the SAF write path, since `writeAsStringAsync` only accepts a string and
+Hermes doesn't reliably provide `atob`/`btoa`.
+**Caveat, not yet closed out:** like the `.apkg` schema above, this has not
+been exercised on a real device/AVD yet — verify the Android folder picker
+actually appears and the saved file lands in the chosen folder with the
+correct name/extension (note `StorageAccessFramework.createFileAsync`'s
+`fileName` parameter is documented as "without the extension," but the
+implementation here passes the full name including it, since Android's
+extension-guessing from a generic `application/octet-stream` MIME type for
+`.lin`/`.apkg` is unreliable — report back if the saved file's name/extension
+comes out wrong).
+
+**Post-ship fix: two real export-count/scope bugs, found via on-device
+testing.**
+
+- **"Meaning" duplicated "Example translation" in every export format —
+  for any card, not just cloze ones.** Root cause: `resolveWordAndMeaning`'s
+  meaning-fallback (see the WP4/import section above) applies to *any* row
+  with Meaning left unmapped/empty, cloze or plain vocab — not gated on
+  cloze markup the way the word-fallback is. The first fix only blanked
+  the duplicate for `isCloze` cards; `export-shared.ts#getExportableCards`
+  now blanks `meaning` whenever it exactly equals the example translation,
+  regardless of card type — the same result a fresh import with no meaning
+  mapped would produce, so round-tripping is unaffected. Covered by both a
+  cloze and a non-cloze regression test in `export.test.ts`.
+- **`.lin` export reported a wildly inflated "cards exported" count** (a
+  real 49-card deck showed "417 cards exported"), which read as if the
+  export had pulled in other decks' data too. It hadn't — `createDeckBackup`'s
+  SQL scoping was verified correct by a new test (`backup.test.ts`: a
+  second deck's lemma/card is asserted absent from the first deck's
+  export). The actual bug was `apps/mobile/lib/backup.ts#exportBackupToFile`'s
+  `itemCount`, which summed row counts across *every* table in the payload
+  (lemmas + meanings + examples + synonyms + tags + `card_states` +
+  `review_events` + ... ) rather than counting cards — a deck with review
+  history and multiple meanings/examples per card easily inflates past the
+  real card count. Fixed to `backup.tables.cards?.length`, matching what
+  CSV/Markdown/Anki export already report as "N cards exported." The
+  Settings "Export everything" button's message also changed from "N rows"
+  to "N cards" for the same consistency.
+
+**Post-ship feature: a dedicated "Cloze sentence" import field, separate
+from "Example sentence."** Cloze detection used to only look at whatever
+was mapped to Example — meaning the natural-seeming mapping ("this Anki
+note's cloze-marked Text field → Example sentence") produced exported CSV/
+Markdown files that showed raw `{{c1::word}}` syntax under an "Example"
+heading, confusing on its own and conflating two different concepts (a
+cloze card has no separate plain example — the cloze sentence *is* the
+example). Now:
+
+- `CsvField`/`ApkgField` gained a `cloze` value, with its own dropdown row
+  ("Cloze sentence ({{c1::word}})") and preview-table column in both
+  import screens, mapped independently from `example`.
+- `import-shared.ts#resolveWordAndMeaning`/`importRow` prefer the dedicated
+  `cloze` field when present, still falling back to scanning `example` for
+  `{{c1::...}}` markup when it isn't (backward compatible with a mapping
+  that puts cloze text there instead — the only option before this).
+- `ExportableCard` gained its own `cloze` field, mutually exclusive with
+  `example` (a cloze card's `example` is now always `null`, and vice
+  versa) — `csv-export.ts` writes a dedicated `cloze` CSV column (round-
+  trips onto the new mapping), and `markdown-export.ts` shows the cloze
+  sentence fully revealed via a new `cloze-parse.ts#revealClozeMarkup`
+  (`{{c1::aus}}` → `aus`, inline — readable prose, not Anki markup) instead
+  of raw `{{c1::...}}` syntax. `apkg-export.ts` reads the new `card.cloze`
+  field for the Anki Cloze note type's Text field (unchanged in substance,
+  just reading from the right field now).
+
+**Post-ship fix: a row with both real vocab content and cloze content now
+creates two cards, not one.** Reported after the dedicated Cloze field
+shipped: a CSV with word/meaning/example/translation *and* a mapped Cloze
+column only ever produced a single card typed `'cloze'` — which the
+regular review queue explicitly excludes (Practice Cloze cards never mix
+into normal review, an earlier deliberate fix) — so the word/meaning
+content was stored but never surfaced anywhere reachable. `import-shared.ts#importRow`
+now creates a **basic** card (word/meaning/example/synonyms/tags, for
+ordinary review) *and* a separate **cloze** card (for Practice Cloze)
+under the same lemma whenever a row has both genuine word/meaning content
+(`ImportableRow.hasOwnVocab`, set by the caller from the *raw* mapped
+cells before `resolveWordAndMeaning`'s fallback runs — needed since
+`importRow` can't otherwise tell "the user provided this" from "this was
+derived from the cloze answer/translation") *and* cloze markup from the
+**dedicated** `cloze` field specifically. Cloze markup merely detected
+inside `example` (no separate field mapped — the older, single-field
+behavior) still produces exactly one, cloze-only card as before, since in
+that case `example` *is* the raw markup with nothing clean to put on a
+basic card. The per-card creation/merge logic was factored into a new
+`upsertCard` helper (`'merge'` now finds the existing card matching the
+type being written, falling back to any existing card for a lemma that
+only ever had one type before) so the two-card path doesn't duplicate it.
+Covered by a new `csv-import.test.ts` test asserting both a `'basic'` and
+a `'cloze'` card exist under the same lemma, each with its own example/
+cloze row and its own meaning.
+
+**Post-ship fix: a word with both card types no longer shows up twice.**
+Immediate follow-on from the two-card import above: creating two cards for
+one word means the deck detail screen and CSV/Markdown export (both of
+which list/export one row per *card*) started showing the same word
+twice — read as an accidental duplicate rather than "this word has a
+cloze variant too."
+
+- `repositories/cards.ts#getCardsForDeck`/`getRecentlyAddedWords` now
+  fetch every card row and collapse them to one row per lemma in
+  application code (`collapseByLemma`) rather than SQL `GROUP BY`/window
+  functions — preferring the `'basic'` card's own fields for display, and
+  adding a new `CardListItem.hasCloze` boolean. Both screens (deck detail,
+  Home "Recently added") show a small `create-outline` badge next to a
+  word that has a cloze variant; tapping the row still navigates to
+  `/word/[form]` either way, so which specific card was picked as
+  "representative" doesn't affect navigation.
+- `export-shared.ts#mergeCardsByWord` does the equivalent for CSV/Markdown
+  export — merges a word's basic + cloze `ExportableCard`s into one row
+  (word/meaning/example from the basic card, `cloze` folded in from the
+  cloze card), called by `csv-export.ts`/`markdown-export.ts` right after
+  `getExportableCards`. **Deliberately not applied to Anki `.apkg`
+  export** — real Anki's own data model wants a separate Basic note and
+  Cloze note for a word studied both ways, so `apkg-export.ts` keeps
+  consuming `getExportableCards`'s raw, unmerged, one-row-per-card list
+  (`lemmas.form` being globally UNIQUE is what makes grouping by `word`
+  safe in the first place — it's exactly grouping by lemma).
+- Covered by `cards.test.ts` (new) and new cases in `export.test.ts`.
+
+**Post-ship fix: two real data-integrity bugs behind "too many 'General
+A1' clusters on a word's detail page."**
+
+- **`importRow` created a brand-new "General" meaning cluster on *every*
+  call** — once per `upsertCard` invocation, meaning a single row that
+  produces both a basic and a cloze card (the feature above) created
+  *two* clusters for one word in one import, and any `'merge'`/
+  `'duplicate'` re-import of an existing word created yet another one on
+  top (this part predates the dual-card feature — always true). A
+  cluster is now resolved *once* per `importRow` call — reusing the
+  lemma's existing cluster via `getClustersForLemma` when
+  `existingLemmaId` is set (merge/duplicate), otherwise creating exactly
+  one new cluster — and passed into both `upsertCard` calls instead of
+  each creating its own. Covered by two new `csv-import.test.ts` cases
+  (merge reuses the existing cluster; a dual-card row shares one cluster).
+- **`deleteDeck` never actually deleted cards, only the `decks` row and
+  (via a real `ON DELETE CASCADE`) the `deck_cards` membership rows** —
+  its own doc comment claimed "cards that are only in this deck are also
+  deleted," but `cards.deck_id` has no foreign key at all (a card's "home"
+  deck at creation is a different thing from its `deck_cards`
+  memberships), so nothing ever cascaded that far. The card, its lemma,
+  and every dependent row (meanings/examples/synonyms/cloze/card_states/
+  review_events/tags — all `ON DELETE CASCADE` from `cards`) lived on
+  forever, orphaned and invisible in the UI but still present to
+  `getLemmaByForm` — so re-importing/re-adding the same word after
+  "deleting" its deck always came back as `'duplicate'`, and a merge/
+  duplicate re-import kept adding content onto that invisible orphan
+  (piling up more clusters on top of the first bug). `deleteDeck` now
+  runs in a transaction: deletes every card whose *only* `deck_cards`
+  membership is the deck being deleted (a card also in another deck keeps
+  existing, only losing its membership in this one), then deletes any
+  lemma left with zero cards anywhere, then deletes the deck row.
+  Covered by three new `decks.test.ts` cases (exclusive card deleted with
+  its lemma; the same word re-imports as `'ok'` afterward, not
+  `'duplicate'`; a card also in a second deck survives with only that
+  deck's membership remaining).
+
+**Post-ship change: part of speech, CEFR level, and tags removed from
+CSV/Anki import mapping.** Per-row product-name reserved from feedback:
+these three were never worth a mapping step — every imported row got the
+same fallback part of speech/CEFR level regardless (the earlier "default
+part of speech/CEFR" pickers were already removed, see the WP4/import
+section above), and a per-row PoS/CEFR/tags column added mapping-step
+clutter for something that didn't vary. `CsvField`/`ApkgField` dropped
+`'partOfSpeech' | 'cefrLevel' | 'tags'` entirely (CSV) / `'partOfSpeech' |
+'cefrLevel'` (Anki — tags were never mappable there either, they already
+come free from the Anki note's own `tags`); `buildCsvImportPreview`/
+`buildApkgImportPreview` now always use the fallback constants directly,
+and CSV import no longer captures tags at all. The mapping-step UI and
+preview-table columns for all three were removed from both import
+screens (Anki's Tags preview column stays — it's real note data, just
+never had a mapping dropdown).
+
+CSV **export** also dropped part of speech/CEFR level entirely (nothing
+would round-trip onto them now that they're unmappable) and made every
+other optional column (`cloze`/`example`/`exampleTranslation`/`synonyms`/
+`tags`) **conditional** — `csv-export.ts` only includes a column if at
+least one exported card actually has a value for it, so an unused column
+doesn't clutter the file. `word`/`meaning` are always present. Covered by
+new `export.test.ts` cases (a column with zero cards using it is fully
+absent from the header, not just empty-valued) and updated `csv-import.test.ts`
+cases (tags no longer land on an imported card even when the CSV happens
+to have a "tags" column, since there's no mapping for it anymore).
+
+**Post-ship migration: the two bugs above (duplicate clusters,
+`deleteDeck` not deleting) only had their *code* fixed — the *data* they
+already wrote stayed corrupted.** Reported back after the code fixes
+landed: "General A1" duplication and "duplicate" false-positives on
+re-import were still visible, because every fix up to this point only
+stops *new* corruption — it does nothing for cluster/lemma rows already
+written by the old, buggy code during this session's (and any other
+device's) earlier testing. Migration `0008_dedupe_clusters_and_orphans`
+is a one-time repair that runs automatically for every existing install
+on next launch (migrations always apply on startup, no user action
+needed).
+
+Verified directly against the live AVD database (pulled via `adb`/
+`run-as`, inspected with `node:sqlite`) before considering this closed:
+2,932 lemmas, 0 with zero `cards` rows — but **329 cards with zero
+`deck_cards` membership anywhere**, and 34 lemmas still holding 2–19
+duplicate clusters. That's a real gap the first version of this migration
+missed: it only deleted a lemma when it had zero *cards*, but a card
+orphaned by the old `deleteDeck` bug still has a `cards` row — it's just
+invisible in every deck's UI (zero `deck_cards` rows) — so it was never
+"zero cards" from the lemma's point of view and slipped through. Fixed by
+adding a first step, `DELETE FROM cards WHERE id NOT IN (SELECT DISTINCT
+card_id FROM deck_cards)` (cascading to that card's meanings/examples/
+synonyms/cloze/card_states/review_events/tags), confirmed safe because
+every current card-creation path (CSV/Anki import, AI generation) inserts
+a `deck_cards` row atomically with the card, and `removeCardFromDeck`
+exists but is never called from any UI action — so on this codebase,
+today, a zero-`deck_cards` card can only be old-`deleteDeck` leftovers.
+Runs *before* the cluster-merge/orphaned-lemma steps, so a lemma whose
+only cards were exactly these becomes genuinely orphaned and gets caught
+by the existing "zero cards anywhere" cleanup, rather than surviving
+because it technically still had an invisible card row.
+
+Picks the oldest meaning cluster per lemma (`MIN(rowid)` — SQLite's
+documented bare-column-alongside-a-single-MIN/MAX-aggregate behavior,
+verified empirically before relying on it for real user data) as
+canonical, repoints every meanings/examples/synonyms row from a duplicate
+cluster onto it, deletes the now-empty duplicates, then deletes any
+lemma left with zero cards anywhere. Irreversible by nature (there's no
+record of what was deleted to restore), so `down` is a documented no-op
+rather than silently claiming to undo data deletion it can't. Covered by
+four `migrations/dedupe-clusters.test.ts` cases (duplicate clusters
+merged and child rows repointed; a zero-card lemma deleted; already-clean
+data with a real `deck_cards` row left untouched; a card with zero
+`deck_cards` membership — the actual live-device shape — deleted along
+with its lemma/cluster/meaning) — run against manually-seeded pre-fix-
+shaped corrupt data, since a fresh database never has this corruption for
+`migrate()`'s normal run of migration 0008 to actually exercise.
 
 ### Work package 5: Learning statistics
 

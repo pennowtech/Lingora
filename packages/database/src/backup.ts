@@ -271,6 +271,100 @@ export async function createBackup(
   return { formatVersion: BACKUP_FORMAT_VERSION, exportedAt: Date.now(), appVersion, settings, tables }
 }
 
+/** `IN (?, ?, ...)` for a non-empty array, or `IN (NULL)` (matches nothing) for an empty one — SQL doesn't allow a literal empty `IN ()`. */
+function inClause(values: readonly string[]): { sql: string; params: string[] } {
+  if (values.length === 0) return { sql: '(NULL)', params: [] }
+  return { sql: `(${values.map(() => '?').join(', ')})`, params: [...values] }
+}
+
+/**
+ * Same `.lin` payload shape as `createBackup`, but filtered down to one
+ * deck's own data — a "share this deck" file, not a full-library backup.
+ * Export-only by design: `restoreBackup`'s full-replace policy has no
+ * matching partial-restore mode, so a deck `.lin` isn't meant to be
+ * restored back through this app (it's for sharing/inspection, same
+ * audience as the CSV/Markdown/Anki exports).
+ *
+ * `templates` and `prompt_versions` are small reference tables included in
+ * full regardless of deck (a deck file is more useful with its rendering
+ * template attached); `sentence_mining_queue` and `evaluations` are omitted
+ * entirely (neither is deck-scoped data — mining queue entries predate
+ * having a card at all, and evaluation history isn't essential to a shared
+ * deck).
+ */
+export async function createDeckBackup(
+  db: DatabaseAdapter,
+  deckId: string,
+  settings: BackupSettings,
+  appVersion: string,
+): Promise<BackupPayload> {
+  const startedAt = Date.now()
+  exportLog.info('export.deck_backup_started', { message: 'Deck-scoped .lin export started' })
+
+  const cardRows = await db.query<{ id: string }>(`SELECT card_id AS id FROM deck_cards WHERE deck_id = ?`, [deckId])
+  const cardIds = cardRows.map((r) => r.id)
+  const cardIn = inClause(cardIds)
+
+  const lemmaRows =
+    cardIds.length > 0
+      ? await db.query<{ id: string }>(`SELECT DISTINCT lemma_id AS id FROM cards WHERE id IN ${cardIn.sql}`, cardIn.params)
+      : []
+  const lemmaIn = inClause(lemmaRows.map((r) => r.id))
+
+  const tagRows =
+    cardIds.length > 0
+      ? await db.query<{ id: string }>(`SELECT DISTINCT tag_id AS id FROM card_tags WHERE card_id IN ${cardIn.sql}`, cardIn.params)
+      : []
+  const tagIn = inClause(tagRows.map((r) => r.id))
+
+  const FILTERS: Partial<Record<BackupTableName, { where: string; params: string[] }>> = {
+    lemmas: { where: `id IN ${lemmaIn.sql}`, params: lemmaIn.params },
+    inflections: { where: `lemma_id IN ${lemmaIn.sql}`, params: lemmaIn.params },
+    decks: { where: `id = ?`, params: [deckId] },
+    meaning_clusters: { where: `lemma_id IN ${lemmaIn.sql}`, params: lemmaIn.params },
+    cards: { where: `id IN ${cardIn.sql}`, params: cardIn.params },
+    meanings: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    examples: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    synonyms: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    phrases: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    cloze_cards: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    audio: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    deck_cards: { where: `deck_id = ?`, params: [deckId] },
+    tags: { where: `id IN ${tagIn.sql}`, params: tagIn.params },
+    card_tags: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    generation_metadata: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    card_states: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    review_events: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+  }
+  // Included in full, not filtered — see the doc comment above.
+  const INCLUDE_ALL: readonly BackupTableName[] = ['templates', 'prompt_versions']
+  // Not deck-scoped data at all — omitted entirely from a deck export.
+  const OMIT: readonly BackupTableName[] = ['sentence_mining_queue', 'evaluations']
+
+  const tables: BackupPayload['tables'] = {}
+  let rowCount = 0
+  for (const tableName of TABLE_ORDER) {
+    if (OMIT.includes(tableName)) continue
+    const filter = FILTERS[tableName]
+    const rows = INCLUDE_ALL.includes(tableName)
+      ? await db.query<Record<string, unknown>>(`SELECT * FROM ${tableName}`)
+      : filter
+        ? await db.query<Record<string, unknown>>(`SELECT * FROM ${tableName} WHERE ${filter.where}`, filter.params)
+        : []
+    tables[tableName] = rows
+    rowCount += rows.length
+  }
+
+  exportLog.info('export.deck_backup_completed', {
+    message: 'Deck-scoped .lin export completed',
+    result: 'success',
+    durationMs: Date.now() - startedAt,
+    metadata: { itemCount: rowCount },
+  })
+
+  return { formatVersion: BACKUP_FORMAT_VERSION, exportedAt: Date.now(), appVersion, settings, tables }
+}
+
 export interface RestoreResult {
   tableCounts: Partial<Record<BackupTableName, number>>
 }

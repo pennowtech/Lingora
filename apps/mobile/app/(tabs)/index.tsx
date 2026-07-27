@@ -176,6 +176,11 @@ export default function HomeScreen(): JSX.Element {
                 <Text style={styles.wordForm}>{word.form}</Text>
                 {word.translation ? <Text style={styles.wordMeaning}>{word.translation}</Text> : null}
               </View>
+              {word.hasCloze ? (
+                <View style={styles.clozeBadge}>
+                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                </View>
+              ) : null}
               {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}
             </Card>
           ))
@@ -250,4 +255,13 @@ const styles = StyleSheet.create({
   wordRowText: { flex: 1, marginRight: spacing.md },
   wordForm: { fontSize: type.body, fontWeight: '700', color: colors.text },
   wordMeaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+  clozeBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: radius.full,
+    backgroundColor: colors.warningSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
 })

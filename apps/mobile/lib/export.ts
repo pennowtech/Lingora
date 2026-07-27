@@ -10,12 +10,13 @@ import {
 import { logger } from '@lingora/observability'
 import { File, Paths } from 'expo-file-system'
 import { openDatabaseAsync } from 'expo-sqlite'
-import * as Sharing from 'expo-sharing'
 import JSZip from 'jszip'
+import { exportBackupToFile } from './backup'
+import { saveExportFile, type SaveOutcome } from './save-file'
 
 const log = logger.child({ feature: 'export', component: 'export' })
 
-export type ExportFormat = 'csv' | 'markdown' | 'apkg'
+export type ExportFormat = 'csv' | 'markdown' | 'apkg' | 'lin'
 
 export interface ExportOptions {
   /** Narrows to one deck's cards; omit for the whole library. */
@@ -31,44 +32,40 @@ function slug(name: string): string {
     .replace(/^-+|-+$/g, '') || 'lingora'
 }
 
-async function shareFile(file: InstanceType<typeof File>, mimeType: string, dialogTitle: string): Promise<void> {
-  const canShare = await Sharing.isAvailableAsync()
-  if (canShare) {
-    await Sharing.shareAsync(file.uri, { mimeType, dialogTitle })
-  }
-}
-
 /** Exports to CSV — the same columns `csv-import.ts` reads, so the file re-imports with zero remapping. */
-export async function exportCsvToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number }> {
+export async function exportCsvToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const csv = await buildCsvExport(db, { ...(options.deckId && { deckId: options.deckId }) })
   const itemCount = csv.trim().split('\r\n').length - 1
 
-  const file = new File(Paths.cache, `${slug(options.deckName ?? 'lingora')}-${Date.now()}.csv`)
-  if (file.exists) file.delete()
-  file.create()
-  file.write(csv)
-
-  await shareFile(file, 'text/csv', 'Save CSV export')
-  log.info('export.csv_exported', { message: 'CSV export written and share sheet opened', metadata: { itemCount } })
-  return { itemCount }
+  const outcome = await saveExportFile({
+    fileName: `${slug(options.deckName ?? 'lingora')}-${Date.now()}.csv`,
+    mimeType: 'text/csv',
+    content: { kind: 'utf8', text: csv },
+    dialogTitle: 'Save CSV export',
+  })
+  log.info('export.csv_exported', { message: `CSV export ${outcome === 'device' ? 'saved to device' : 'shared'}`, metadata: { itemCount } })
+  return { itemCount, outcome }
 }
 
 /** Exports to a single Markdown file — one heading per card, not meant to round-trip. */
-export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number }> {
+export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const markdown = await buildMarkdownExport(db, {
     ...(options.deckId && { deckId: options.deckId }),
     title: options.deckName ?? 'Lingora vocabulary',
   })
   const itemCount = (markdown.match(/^### /gm) ?? []).length
 
-  const file = new File(Paths.cache, `${slug(options.deckName ?? 'lingora')}-${Date.now()}.md`)
-  if (file.exists) file.delete()
-  file.create()
-  file.write(markdown)
-
-  await shareFile(file, 'text/markdown', 'Save Markdown export')
-  log.info('export.markdown_exported', { message: 'Markdown export written and share sheet opened', metadata: { itemCount } })
-  return { itemCount }
+  const outcome = await saveExportFile({
+    fileName: `${slug(options.deckName ?? 'lingora')}-${Date.now()}.md`,
+    mimeType: 'text/markdown',
+    content: { kind: 'utf8', text: markdown },
+    dialogTitle: 'Save Markdown export',
+  })
+  log.info('export.markdown_exported', {
+    message: `Markdown export ${outcome === 'device' ? 'saved to device' : 'shared'}`,
+    metadata: { itemCount },
+  })
+  return { itemCount, outcome }
 }
 
 /**
@@ -78,9 +75,10 @@ export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportO
  * for the same reason: a deserialized in-memory database can't back the
  * disk-spilled temp b-trees a multi-table write like this needs), then
  * zips it with an empty `media` manifest (`{}` — Lingora doesn't export
- * audio/images) into a `.apkg` file and opens the share sheet.
+ * audio/images) into a `.apkg` file and saves it (`saveExportFile` — a real
+ * folder picker on Android, the share sheet elsewhere).
  */
-export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number }> {
+export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const cards = await getExportableCards(db, { ...(options.deckId && { deckId: options.deckId }) })
   const deckName = options.deckName ?? 'Lingora vocabulary'
 
@@ -103,25 +101,26 @@ export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptio
     zip.file('media', '{}')
     const zipBytes = await zip.generateAsync({ type: 'uint8array' })
 
-    const apkgFile = new File(Paths.cache, `${slug(deckName)}-${Date.now()}.apkg`)
-    if (apkgFile.exists) apkgFile.delete()
-    apkgFile.create()
-    apkgFile.write(zipBytes)
-
-    await shareFile(apkgFile, 'application/octet-stream', 'Save Anki export')
+    const outcome = await saveExportFile({
+      fileName: `${slug(deckName)}-${Date.now()}.apkg`,
+      mimeType: 'application/octet-stream',
+      content: { kind: 'bytes', data: zipBytes },
+      dialogTitle: 'Save Anki export',
+    })
     log.info('export.apkg_exported', {
-      message: 'Anki .apkg export written and share sheet opened',
+      message: `Anki .apkg export ${outcome === 'device' ? 'saved to device' : 'shared'}`,
       metadata: { itemCount: cards.length },
     })
-    return { itemCount: cards.length }
+    return { itemCount: cards.length, outcome }
   } finally {
     await ankiDb?.closeAsync()
     if (tempFile.exists) tempFile.delete()
   }
 }
 
-export async function runExport(db: DatabaseAdapter, format: ExportFormat, options: ExportOptions = {}): Promise<{ itemCount: number }> {
+export async function runExport(db: DatabaseAdapter, format: ExportFormat, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   if (format === 'csv') return exportCsvToFile(db, options)
   if (format === 'markdown') return exportMarkdownToFile(db, options)
+  if (format === 'lin') return exportBackupToFile(db, options)
   return exportApkgToFile(db, options)
 }

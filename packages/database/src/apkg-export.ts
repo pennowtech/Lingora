@@ -291,10 +291,10 @@ export async function buildApkgExport(
     const cardId = now + 1_000_000 + ordinal
     ordinal += 1
 
-    const isCloze = card.isCloze && card.example !== null
+    const isCloze = card.isCloze && card.cloze !== null
     const mid = isCloze ? CLOZE_MODEL_ID : BASIC_MODEL_ID
     const fields = isCloze
-      ? [card.example ?? '', card.exampleTranslation ?? '']
+      ? [card.cloze ?? '', card.exampleTranslation ?? '']
       : [card.word, card.meaning, card.example ?? '', card.exampleTranslation ?? '']
     const flds = fields.join('\x1f')
     const sortField = fields[0] ?? ''

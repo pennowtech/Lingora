@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { Button, Card, EmptyState, ErrorState, ExportFormatSheet, IconButton, Spinner } from '../../components/ui'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -46,6 +46,7 @@ export default function DecksScreen(): JSX.Element {
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
   const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
+  const [exportDeck, setExportDeck] = useState<Deck | null>(null)
   const [renameDeckTarget, setRenameDeckTarget] = useState<Deck | null>(null)
   const [renameValue, setRenameValue] = useState('')
 
@@ -120,7 +121,12 @@ export default function DecksScreen(): JSX.Element {
 
   const runDeckExport = (deck: Deck, format: ExportFormat): void => {
     runExport(db, format, { deckId: deck.id, deckName: deck.name })
-      .then(({ itemCount }) => Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`))
+      .then(({ itemCount, outcome }) =>
+        Alert.alert(
+          'Export ready',
+          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+        ),
+      )
       .catch((error: unknown) => {
         log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
         Alert.alert('Export failed', String(error))
@@ -129,12 +135,13 @@ export default function DecksScreen(): JSX.Element {
 
   const showExport = (deck: Deck): void => {
     setMenuDeck(null)
-    Alert.alert('Export this deck', 'Choose a format.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'CSV', onPress: () => runDeckExport(deck, 'csv') },
-      { text: 'Anki (.apkg)', onPress: () => runDeckExport(deck, 'apkg') },
-      { text: 'Markdown', onPress: () => runDeckExport(deck, 'markdown') },
-    ])
+    setExportDeck(deck)
+  }
+
+  const handleExportSelect = (format: ExportFormat): void => {
+    if (!exportDeck) return
+    setExportDeck(null)
+    runDeckExport(exportDeck, format)
   }
 
   return (
@@ -240,6 +247,13 @@ export default function DecksScreen(): JSX.Element {
           />
         </View>
       </Modal>
+
+      <ExportFormatSheet
+        visible={exportDeck !== null}
+        onClose={() => setExportDeck(null)}
+        onSelect={handleExportSelect}
+        {...(exportDeck && { title: `Export "${exportDeck.name}"` })}
+      />
     </View>
   )
 }

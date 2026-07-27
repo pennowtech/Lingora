@@ -16,27 +16,25 @@ const log = logger.child({ feature: 'import', screen: 'CsvImportScreen' })
 const FIELD_LABELS: Record<CsvField, string> = {
   word: 'Word',
   meaning: 'Meaning',
+  cloze: 'Cloze sentence ({{c1::word}})',
   example: 'Example sentence',
   exampleTranslation: 'Example translation',
   synonyms: 'Synonyms',
-  partOfSpeech: 'Part of speech',
-  cefrLevel: 'CEFR level',
-  tags: 'Tags',
 }
-// Every column is optional now — a Cloze-style import maps only Example (+
-// Example translation) and leaves Word/Meaning unmapped; buildCsvImportPreview
-// derives them from the cloze answer/translation. See resolveWordAndMeaning
-// in packages/database/src/import-shared.ts.
-const ALL_FIELDS: CsvField[] = [
-  'word',
-  'meaning',
-  'example',
-  'exampleTranslation',
-  'synonyms',
-  'partOfSpeech',
-  'cefrLevel',
-  'tags',
-]
+// Every column is optional now — a Cloze-style import maps only Cloze
+// sentence (+ Example translation) and leaves Word/Meaning unmapped;
+// buildCsvImportPreview derives them from the cloze answer/translation.
+// See resolveWordAndMeaning in packages/database/src/import-shared.ts.
+// Cloze and Example are separate mappings: map the fill-in-the-blank
+// sentence to Cloze sentence, not Example — a plain Example sentence is
+// for non-cloze cards. (If Cloze is left unmapped but Example contains
+// {{c1::...}} markup, that's still auto-detected for backward
+// compatibility, but the exported file will look cleaner if you map Cloze
+// directly.)
+// Part of speech, CEFR level, and tags are deliberately not mappable —
+// every import gets the same fallback part of speech/CEFR level and no
+// tags (see FALLBACK_PART_OF_SPEECH/FALLBACK_CEFR_LEVEL in csv-import.ts).
+const ALL_FIELDS: CsvField[] = ['word', 'meaning', 'cloze', 'example', 'exampleTranslation', 'synonyms']
 
 const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
@@ -52,12 +50,10 @@ interface TableColumn {
 const TABLE_COLUMNS: TableColumn[] = [
   { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
   { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+  { label: 'Cloze', width: 220, cell: (p) => p.cloze ?? '—' },
   { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
   { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
   { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
-  { label: 'POS', width: 110, cell: (p) => p.partOfSpeech },
-  { label: 'CEFR', width: 80, cell: (p) => p.cefrLevel },
-  { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
   { label: 'Status', width: 100, cell: (p) => p.status },
   { label: 'Issues', width: 260, cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—') },
 ]

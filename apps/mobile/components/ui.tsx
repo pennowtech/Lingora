@@ -13,6 +13,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native'
+import type { ExportFormat } from '../lib/export'
 import { cefrColors, colors, radius, spacing, type } from '../lib/theme'
 
 /**
@@ -218,6 +219,57 @@ export function Dropdown(props: {
   )
 }
 
+// ─── Export format sheet ────────────────────────────────────────────────────
+
+interface ExportFormatOption {
+  format: ExportFormat
+  label: string
+  description: string
+  icon: keyof typeof Ionicons.glyphMap
+}
+
+const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
+  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet — word, meaning, example, and more.', icon: 'grid' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'albums' },
+  { format: 'markdown', label: 'Markdown', description: 'A readable word — meaning — example list. Not re-importable.', icon: 'document-text' },
+  { format: 'lin', label: 'Lingora (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
+]
+
+/**
+ * A proper bottom-sheet list of export formats — replaces an earlier
+ * `Alert.alert` with one button per format, which silently dropped a
+ * format past Android's practical ~3-button limit and read as a bare
+ * message box rather than a real menu.
+ */
+export function ExportFormatSheet(props: {
+  visible: boolean
+  onClose: () => void
+  onSelect: (format: ExportFormat) => void
+  title?: string
+}): JSX.Element {
+  return (
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
+      <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
+      <View style={styles.dropdownSheet}>
+        <View style={styles.modalHandle} />
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as…'}</Text>
+        {EXPORT_FORMAT_OPTIONS.map((opt) => (
+          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+            <View style={styles.exportOptionIcon}>
+              <Ionicons name={opt.icon} size={18} color={colors.primary} />
+            </View>
+            <View style={styles.exportOptionText}>
+              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+          </Pressable>
+        ))}
+      </View>
+    </Modal>
+  )
+}
+
 export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
   const c = cefrColors[props.level]
   return (
@@ -419,6 +471,25 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   dropdownOptionLabel: { fontSize: type.body, color: colors.text, flex: 1, marginRight: spacing.sm },
+  exportOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  exportOptionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  exportOptionText: { flex: 1 },
+  exportOptionLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
+  exportOptionDescription: { fontSize: type.micro, color: colors.textSecondary, marginTop: 1 },
   cefrBadge: {
     paddingVertical: 2,
     paddingHorizontal: 7,

@@ -19,6 +19,7 @@ import {
   Card,
   CefrBadge,
   ErrorState,
+  ExportFormatSheet,
   IconButton,
   SectionHeader,
   Spinner,
@@ -49,6 +50,7 @@ export default function DeckDetailScreen(): JSX.Element {
   const { db } = useServices()
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [exportSheetOpen, setExportSheetOpen] = useState(false)
   const [renameOpen, setRenameOpen] = useState(false)
   const [renameValue, setRenameValue] = useState('')
 
@@ -103,7 +105,12 @@ export default function DeckDetailScreen(): JSX.Element {
   const runDeckExport = (format: ExportFormat): void => {
     if (!deckQuery.data) return
     runExport(db, format, { deckId: id, deckName: deckQuery.data.deck.name })
-      .then(({ itemCount }) => Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`))
+      .then(({ itemCount, outcome }) =>
+        Alert.alert(
+          'Export ready',
+          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+        ),
+      )
       .catch((error: unknown) => {
         log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
         Alert.alert('Export failed', String(error))
@@ -112,12 +119,12 @@ export default function DeckDetailScreen(): JSX.Element {
 
   const showExport = (): void => {
     setMenuOpen(false)
-    Alert.alert('Export this deck', 'Choose a format.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'CSV', onPress: () => runDeckExport('csv') },
-      { text: 'Anki (.apkg)', onPress: () => runDeckExport('apkg') },
-      { text: 'Markdown', onPress: () => runDeckExport('markdown') },
-    ])
+    setExportSheetOpen(true)
+  }
+
+  const handleExportSelect = (format: ExportFormat): void => {
+    setExportSheetOpen(false)
+    runDeckExport(format)
   }
 
   if (deckQuery.isPending) {
@@ -197,6 +204,11 @@ export default function DeckDetailScreen(): JSX.Element {
               {card.translation ? <Text style={styles.cardMeaning}>{card.translation}</Text> : null}
             </View>
             <View style={styles.cardRowRight}>
+              {card.hasCloze ? (
+                <View style={styles.clozeBadge}>
+                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                </View>
+              ) : null}
               {card.cefrLevel ? <CefrBadge level={card.cefrLevel} /> : null}
               <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
             </View>
@@ -260,6 +272,13 @@ export default function DeckDetailScreen(): JSX.Element {
           />
         </View>
       </Modal>
+
+      <ExportFormatSheet
+        visible={exportSheetOpen}
+        onClose={() => setExportSheetOpen(false)}
+        onSelect={handleExportSelect}
+        title={`Export "${deck.name}"`}
+      />
     </>
   )
 }
@@ -284,6 +303,14 @@ const styles = StyleSheet.create({
   cardForm: { fontSize: type.body, fontWeight: '700', color: colors.text },
   cardMeaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   cardRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  clozeBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: radius.full,
+    backgroundColor: colors.warningSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   footnote: { fontSize: type.micro, color: colors.textMuted, textAlign: 'center', marginTop: spacing.md },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {

@@ -6,6 +6,7 @@ export {
   BACKUP_FORMAT_VERSION,
   BackupValidationError,
   createBackup,
+  createDeckBackup,
   parseBackup,
   restoreBackup,
   type BackupPayload,
@@ -32,7 +33,7 @@ export {
 
 export { parseListField, type DuplicatePolicy, type ImportableRow } from './import-shared'
 export { buildClozeMarkup, CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
-export { getExportableCards, type ExportableCard } from './export-shared'
+export { getExportableCards, mergeCardsByWord, type ExportableCard } from './export-shared'
 export { buildCsvExport } from './csv-export'
 export { buildMarkdownExport } from './markdown-export'
 export { buildApkgExport } from './apkg-export'

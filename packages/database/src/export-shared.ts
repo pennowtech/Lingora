@@ -7,17 +7,22 @@ import { getTagsForCard } from './repositories/tags'
 /**
  * Shared query for every export format (CSV, Anki `.apkg`, Markdown) — the
  * same card shape `import-shared.ts#importRow` writes, read back out. A
- * cloze card's `example` has its `{{c1::answer}}` markup re-embedded via
- * `buildClozeMarkup` (the reverse of `parseClozeMarkup`), so exporting then
- * re-importing (or opening in real Anki) round-trips the same cloze
- * behavior rather than exporting a cloze card as a blank-less plain
- * sentence.
+ * cloze card's `{{c1::answer}}` markup (re-embedded via `buildClozeMarkup`,
+ * the reverse of `parseClozeMarkup`) lands in its own `cloze` field, not
+ * `example` — mirroring the dedicated "Cloze sentence" import mapping
+ * (`CsvField`/`ApkgField`'s `cloze`), so a cloze card's `example` is always
+ * null and vice versa. Exporting then re-importing (or opening in real
+ * Anki) round-trips the same cloze behavior rather than a blank-less plain
+ * sentence — and CSV/Markdown output no longer show raw `{{c1::...}}`
+ * markup under a column/heading labeled "Example."
  */
 
 export interface ExportableCard {
   cardId: string
   word: string
   meaning: string
+  /** `{{c1::answer}}` markup, set only for a cloze card — `example` is null when this is set, and vice versa. */
+  cloze: string | null
   example: string | null
   exampleTranslation: string | null
   synonyms: string[]
@@ -84,16 +89,25 @@ export async function getExportableCards(
   for (const row of rows) {
     if (!row.meaning) continue
     const isCloze = row.cardType === 'cloze' && row.clozeSentence !== null && row.clozeAnswer !== null
+    const exampleTranslation = isCloze ? row.clozeTranslation : row.exampleTranslation
+    // Any imported card's stored "meaning" can equal its example
+    // translation verbatim — not just cloze cards: import-shared.ts#resolveWordAndMeaning
+    // falls back to the example translation whenever meaning was left
+    // unmapped/empty, for a plain vocab row exactly the same as a cloze
+    // one. Surfacing that as a distinct "Meaning" column/field just repeats
+    // "Example translation" in every export format. Blank it instead: a
+    // fresh import with no meaning mapped produces the exact same result,
+    // so this doesn't change what a re-import derives.
+    const meaning = row.meaning === exampleTranslation ? '' : row.meaning
     const [synonyms, tags] = await Promise.all([getSynonymsForCard(db, row.cardId), getTagsForCard(db, row.cardId)])
 
     cards.push({
       cardId: row.cardId,
       word: row.word,
-      meaning: row.meaning,
-      example: isCloze
-        ? buildClozeMarkup(row.clozeSentence!, row.clozeAnswer!)
-        : row.exampleSentence,
-      exampleTranslation: isCloze ? row.clozeTranslation : row.exampleTranslation,
+      meaning,
+      cloze: isCloze ? buildClozeMarkup(row.clozeSentence!, row.clozeAnswer!) : null,
+      example: isCloze ? null : row.exampleSentence,
+      exampleTranslation,
       synonyms: synonyms.map((s) => s.word),
       tags: tags.map((t) => t.name),
       partOfSpeech: row.partOfSpeech,
@@ -103,4 +117,39 @@ export async function getExportableCards(
   }
 
   return cards
+}
+
+/**
+ * Merges a lemma's separate basic + cloze cards (see
+ * `import-shared.ts#importRow`) into one row — for CSV/Markdown, where a
+ * word showing up as two rows (one plain, one its cloze variant) reads as
+ * an accidental duplicate rather than two study modes of the same word.
+ * `lemmas.form` is globally UNIQUE, so grouping by `word` is exactly
+ * grouping by lemma. Prefers the non-cloze card's own fields (word/
+ * meaning matter more for display than a cloze sentence) and folds in the
+ * other card's `cloze`/`exampleTranslation`.
+ *
+ * Deliberately **not** applied to Anki `.apkg` export: real Anki's own
+ * data model wants a separate Basic note and Cloze note for a word studied
+ * both ways, so `apkg-export.ts` consumes `getExportableCards`'s raw,
+ * unmerged, one-row-per-card output directly.
+ */
+export function mergeCardsByWord(cards: ExportableCard[]): ExportableCard[] {
+  const byWord = new Map<string, ExportableCard>()
+  for (const card of cards) {
+    const existing = byWord.get(card.word)
+    if (!existing) {
+      byWord.set(card.word, card)
+      continue
+    }
+    const basic = existing.isCloze ? card : existing
+    const other = existing.isCloze ? existing : card
+    byWord.set(card.word, {
+      ...basic,
+      cloze: basic.cloze ?? other.cloze,
+      exampleTranslation: basic.exampleTranslation ?? other.exampleTranslation,
+      isCloze: false,
+    })
+  }
+  return Array.from(byWord.values())
 }

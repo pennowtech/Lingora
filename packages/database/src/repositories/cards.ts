@@ -169,10 +169,62 @@ export interface CardListItem {
   translation: string | null
   cefrLevel: CefrLevel | null
   createdAt: number
+  /** True when this lemma also has a separate cloze-practice card (see import-shared.ts#importRow) — shown as a small badge rather than a second list row. */
+  hasCloze: boolean
+}
+
+interface RawCardListRow {
+  cardId: string
+  lemmaId: string
+  form: string
+  translation: string | null
+  cefrLevel: CefrLevel | null
+  createdAt: number
+  cardType: string
 }
 
 const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
-    m.translation, m.cefr_level AS cefrLevel`
+    m.translation, m.cefr_level AS cefrLevel, c.type AS cardType`
+
+/**
+ * Collapses one row per lemma — a lemma can have both a 'basic' and a
+ * 'cloze' card (the same word imported/generated with both a regular
+ * meaning and a cloze-practice sentence, see import-shared.ts#importRow);
+ * listing both as separate rows reads as an accidental duplicate rather
+ * than two study modes of the same word. Prefers the 'basic' card's own
+ * fields for display (word/meaning matter more here than a cloze
+ * sentence); a lemma with only a cloze card keeps that card's fields.
+ */
+function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
+  const byLemma = new Map<string, CardListItem & { isBasic: boolean }>()
+  for (const row of rows) {
+    const isBasic = row.cardType !== 'cloze'
+    const existing = byLemma.get(row.lemmaId)
+    if (!existing) {
+      byLemma.set(row.lemmaId, {
+        cardId: row.cardId,
+        lemmaId: row.lemmaId,
+        form: row.form,
+        translation: row.translation,
+        cefrLevel: row.cefrLevel,
+        createdAt: row.createdAt,
+        hasCloze: row.cardType === 'cloze',
+        isBasic,
+      })
+      continue
+    }
+    if (row.cardType === 'cloze') existing.hasCloze = true
+    if (isBasic && !existing.isBasic) {
+      existing.cardId = row.cardId
+      existing.translation = row.translation
+      existing.cefrLevel = row.cefrLevel
+      existing.isBasic = true
+    }
+  }
+  return Array.from(byLemma.values())
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .map(({ isBasic: _isBasic, ...item }) => item)
+}
 
 /**
  * The most recently created cards with their lemma form and primary meaning.
@@ -182,15 +234,14 @@ export async function getRecentlyAddedWords(
   db: DatabaseAdapter,
   limit = 10,
 ): Promise<CardListItem[]> {
-  return db.query<CardListItem>(
+  const rows = await db.query<RawCardListRow>(
     `${CARD_LIST_SELECT}, c.created_at AS createdAt
      FROM cards c
      JOIN lemmas l ON l.id = c.lemma_id
      LEFT JOIN meanings m ON m.id = c.primary_meaning_id
-     ORDER BY c.created_at DESC
-     LIMIT ?`,
-    [limit],
+     ORDER BY c.created_at DESC`,
   )
+  return collapseByLemma(rows).slice(0, limit)
 }
 
 /**
@@ -201,17 +252,17 @@ export async function getCardsForDeck(
   deckId: string,
   limit = 100,
 ): Promise<CardListItem[]> {
-  return db.query<CardListItem>(
+  const rows = await db.query<RawCardListRow>(
     `${CARD_LIST_SELECT}, dc.added_at AS createdAt
      FROM deck_cards dc
      JOIN cards c ON c.id = dc.card_id
      JOIN lemmas l ON l.id = c.lemma_id
      LEFT JOIN meanings m ON m.id = c.primary_meaning_id
      WHERE dc.deck_id = ?
-     ORDER BY dc.added_at DESC
-     LIMIT ?`,
-    [deckId, limit],
+     ORDER BY dc.added_at DESC`,
+    [deckId],
   )
+  return collapseByLemma(rows).slice(0, limit)
 }
 
 /**

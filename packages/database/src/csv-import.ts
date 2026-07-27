@@ -146,20 +146,19 @@ export function parseCsv(raw: string): CsvParseResult {
 
 // ─── Column mapping ─────────────────────────────────────────────────────────
 
-/** The card fields a CSV column can be mapped onto. word and meaning are required. */
-export type CsvField =
-  | 'word'
-  | 'meaning'
-  | 'example'
-  | 'exampleTranslation'
-  | 'synonyms'
-  | 'partOfSpeech'
-  | 'cefrLevel'
-  | 'tags'
+/**
+ * The card fields a CSV column can be mapped onto. Every field is optional
+ * (see resolveWordAndMeaning's cloze-derived fallback). Part of speech,
+ * CEFR level, and tags are deliberately not mappable — every imported row
+ * gets the same fallback part of speech/CEFR level (below) and no tags;
+ * mapping a column to something the user would set the same way for every
+ * row anyway wasn't worth the extra mapping step.
+ */
+export type CsvField = 'word' | 'meaning' | 'cloze' | 'example' | 'exampleTranslation' | 'synonyms'
 
 export type CsvColumnMapping = Partial<Record<CsvField, number>>
 
-/** Used for a row with no mapped/recognized part-of-speech/CEFR column — no picker for this in the UI, just a sane fallback. */
+/** Every imported row's part-of-speech/CEFR level — no per-row mapping for these, just a sane fallback (see CsvField's doc comment). */
 const FALLBACK_PART_OF_SPEECH: PartOfSpeech = 'noun'
 const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 
@@ -172,6 +171,10 @@ export interface CsvRowPreview {
   rowIndex: number
   word: string
   meaning: string
+  /** True when word/meaning are genuine mapped content, not the cloze-derived fallback — see ImportableRow. */
+  hasOwnVocab: boolean
+  /** Cloze-sentence field (`{{c1::word}}` markup), mapped separately from `example` — see ImportableRow. */
+  cloze: string | null
   example: string | null
   exampleTranslation: string | null
   synonyms: string[]
@@ -203,30 +206,33 @@ export async function buildCsvImportPreview(
   const previews: CsvRowPreview[] = []
 
   for (const [rowIndex, row] of rows.entries()) {
+    const clozeRaw = cell(row, mapping.cloze)
+    const cloze = clozeRaw.length > 0 ? clozeRaw : null
+
     const exampleRaw = cell(row, mapping.example)
     const example = exampleRaw.length > 0 ? exampleRaw : null
 
     const exampleTranslationRaw = cell(row, mapping.exampleTranslation)
     const exampleTranslation = exampleTranslationRaw.length > 0 ? exampleTranslationRaw : null
 
+    const wordRaw = cell(row, mapping.word)
+    const meaningRaw = cell(row, mapping.meaning)
+    const hasOwnVocab = wordRaw.length > 0 && meaningRaw.length > 0
+
     const { word, meaning, errors } = resolveWordAndMeaning({
-      word: cell(row, mapping.word),
-      meaning: cell(row, mapping.meaning),
+      word: wordRaw,
+      meaning: meaningRaw,
+      cloze,
       example,
       exampleTranslation,
     })
 
-    const posRaw = cell(row, mapping.partOfSpeech)
-    const partOfSpeech = isPartOfSpeech(posRaw) ? (posRaw.toLowerCase() as PartOfSpeech) : FALLBACK_PART_OF_SPEECH
-
-    const cefrRaw = cell(row, mapping.cefrLevel)
-    const cefrLevel = isCefrLevel(cefrRaw) ? (cefrRaw.toUpperCase() as CefrLevel) : FALLBACK_CEFR_LEVEL
+    const partOfSpeech = FALLBACK_PART_OF_SPEECH
+    const cefrLevel = FALLBACK_CEFR_LEVEL
+    const tags: string[] = []
 
     const synonymsRaw = cell(row, mapping.synonyms)
     const synonyms = parseListField(synonymsRaw)
-
-    const tagsRaw = cell(row, mapping.tags)
-    const tags = parseListField(tagsRaw)
 
     let status: CsvRowPreview['status'] = errors.length > 0 ? 'error' : 'ok'
     let existingLemmaId: string | null = null
@@ -243,6 +249,8 @@ export async function buildCsvImportPreview(
       rowIndex,
       word,
       meaning,
+      hasOwnVocab,
+      cloze,
       example,
       exampleTranslation,
       synonyms,

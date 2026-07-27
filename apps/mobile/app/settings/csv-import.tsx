@@ -1,63 +1,120 @@
-import type { CsvColumnMapping, CsvField, CsvRowPreview } from '@lingora/database'
-import {
-  buildCsvImportPreview,
-  CEFR_LEVELS,
-  getAllDecks,
-  importCsvRows,
-  parseCsv,
-  PARTS_OF_SPEECH,
-} from '@lingora/database'
-import type { CefrLevel, PartOfSpeech } from '@lingora/types'
+import type { CsvColumnMapping, CsvField, CsvRowPreview, DuplicatePolicy } from '@lingora/database'
+import { buildCsvImportPreview, createDeck, getAllDecks, importCsvRows, parseCsv } from '@lingora/database'
+import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { File } from 'expo-file-system'
+import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useState, type JSX } from 'react'
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Button, Card, Chip, EmptyState, ErrorState, Spinner } from '../../components/ui'
+import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
+import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
-import { colors, spacing, type } from '../../lib/theme'
+import { colors, radius, spacing, type } from '../../lib/theme'
 
 const log = logger.child({ feature: 'import', screen: 'CsvImportScreen' })
 
 const FIELD_LABELS: Record<CsvField, string> = {
-  word: 'Word (required)',
-  meaning: 'Meaning (required)',
+  word: 'Word',
+  meaning: 'Meaning',
   example: 'Example sentence',
+  exampleTranslation: 'Example translation',
+  synonyms: 'Synonyms',
   partOfSpeech: 'Part of speech',
   cefrLevel: 'CEFR level',
   tags: 'Tags',
 }
-const OPTIONAL_FIELDS: CsvField[] = ['example', 'partOfSpeech', 'cefrLevel', 'tags']
-const REQUIRED_FIELDS: CsvField[] = ['word', 'meaning']
+// Every column is optional now — a Cloze-style import maps only Example (+
+// Example translation) and leaves Word/Meaning unmapped; buildCsvImportPreview
+// derives them from the cloze answer/translation. See resolveWordAndMeaning
+// in packages/database/src/import-shared.ts.
+const ALL_FIELDS: CsvField[] = [
+  'word',
+  'meaning',
+  'example',
+  'exampleTranslation',
+  'synonyms',
+  'partOfSpeech',
+  'cefrLevel',
+  'tags',
+]
+
+const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
+  { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
+  { value: 'merge', label: 'Merge', hint: 'Add this as another meaning on the existing card.' },
+  { value: 'duplicate', label: 'Keep both', hint: 'Add a second, separate card for the same word.' },
+]
+
+interface TableColumn {
+  label: string
+  width: number
+  cell: (preview: CsvRowPreview) => string
+}
+const TABLE_COLUMNS: TableColumn[] = [
+  { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
+  { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+  { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
+  { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
+  { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
+  { label: 'POS', width: 110, cell: (p) => p.partOfSpeech },
+  { label: 'CEFR', width: 80, cell: (p) => p.cefrLevel },
+  { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
+  { label: 'Status', width: 100, cell: (p) => p.status },
+  { label: 'Issues', width: 260, cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—') },
+]
+const SELECT_COLUMN_WIDTH = 48
+const SAMPLE_COLUMN_WIDTH = 160
 
 type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
 
 /**
- * CSV import with interactive column mapping (Work package 2). Parsing,
- * validation, and the transactional insert all live in
- * @lingora/database#csv-import — this screen is just the picker → map →
- * preview → confirm wizard around it.
+ * CSV import with interactive column mapping. Parsing, validation, and the
+ * transactional insert all live in @lingora/database#csv-import — this
+ * screen is just the picker → map → preview → confirm wizard around it.
  */
 export default function CsvImportScreen(): JSX.Element {
   const { db } = useServices()
   const queryClient = useQueryClient()
+  const params = useLocalSearchParams<{ deckId?: string }>()
 
   const [step, setStep] = useState<Step>('pick')
   const [fileName, setFileName] = useState('')
   const [headers, setHeaders] = useState<string[]>([])
   const [rows, setRows] = useState<string[][]>([])
   const [mapping, setMapping] = useState<CsvColumnMapping>({})
-  const [deckId, setDeckId] = useState<string | null>(null)
-  const [defaultPos, setDefaultPos] = useState<PartOfSpeech>('noun')
-  const [defaultCefr, setDefaultCefr] = useState<CefrLevel>('A1')
+  const [deckId, setDeckId] = useState<string | null>(params.deckId ?? null)
+  const [newDeckOpen, setNewDeckOpen] = useState(false)
+  const [newDeckName, setNewDeckName] = useState('')
+  const [duplicatePolicy, setDuplicatePolicy] = useState<DuplicatePolicy>('skip')
   const [previews, setPreviews] = useState<CsvRowPreview[]>([])
+  const [checkedIndexes, setCheckedIndexes] = useState<Set<number>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [result, setResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null)
 
   const decksQuery = useQuery({ queryKey: ['decks'], queryFn: () => getAllDecks(db) })
 
-  const canBuildPreview = mapping.word !== undefined && mapping.meaning !== undefined && deckId !== null
+  const createNewDeck = useMutation({
+    mutationFn: async (name: string) => {
+      const trimmed = name.trim()
+      if (trimmed === '') throw new Error('Give the deck a name.')
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
+      return id
+    },
+    onSuccess: async (id) => {
+      setDeckId(id)
+      setNewDeckOpen(false)
+      setNewDeckName('')
+      await queryClient.invalidateQueries({ queryKey: ['decks'] })
+      await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
+    },
+  })
+
+  // A word column is no longer strictly required — a Cloze-style import can
+  // map only Example, and the word/meaning get derived from the cloze
+  // markup. But *something* has to be mapped, or every row is empty.
+  const canBuildPreview = deckId !== null && (mapping.word !== undefined || mapping.example !== undefined)
 
   const handlePickFile = (): void => {
     setPickError(null)
@@ -100,14 +157,15 @@ export default function CsvImportScreen(): JSX.Element {
     if (!deckId) return
     setPreviewLoading(true)
     log.info('import.csv_preview_started', { message: 'Building CSV import preview' })
-    buildCsvImportPreview(db, rows, {
-      mapping,
-      language: 'de',
-      defaultPartOfSpeech: defaultPos,
-      defaultCefrLevel: defaultCefr,
-    })
+    buildCsvImportPreview(db, rows, { mapping, language: 'de' })
       .then((built) => {
         setPreviews(built)
+        // Checked by default: importable rows, and duplicates too (the
+        // chosen duplicate-handling policy decides what happens to them —
+        // unchecking is how you opt a specific row out). Rows with real
+        // errors (missing word/meaning) start unchecked since there's
+        // nothing valid to import yet.
+        setCheckedIndexes(new Set(built.filter((p) => p.status !== 'error').map((p) => p.rowIndex)))
         setStep('preview')
       })
       .catch((error: unknown) => {
@@ -118,20 +176,53 @@ export default function CsvImportScreen(): JSX.Element {
   }
 
   const counts = useMemo(() => {
-    const ok = previews.filter((p) => p.status === 'ok').length
     const duplicate = previews.filter((p) => p.status === 'duplicate').length
     const error = previews.filter((p) => p.status === 'error').length
-    return { ok, duplicate, error }
+    return { duplicate, error }
   }, [previews])
+
+  // "Will import" has to reflect what pressing Import actually does: every
+  // *checked* row that isn't a hard error, since a checked 'duplicate' row
+  // is genuinely imported (not skipped) once duplicatePolicy is 'merge' or
+  // 'duplicate' — counting only status === 'ok' undercounted it to 0
+  // whenever every checked row happened to be a duplicate.
+  const willImportCount = useMemo(
+    () =>
+      previews.filter(
+        (p) =>
+          checkedIndexes.has(p.rowIndex) && (p.status === 'ok' || (p.status === 'duplicate' && duplicatePolicy !== 'skip')),
+      ).length,
+    [previews, checkedIndexes, duplicatePolicy],
+  )
+
+  const checkedCount = useMemo(
+    () => previews.filter((p) => checkedIndexes.has(p.rowIndex)).length,
+    [previews, checkedIndexes],
+  )
+
+  const toggleChecked = (rowIndex: number): void => {
+    setCheckedIndexes((prev) => {
+      const next = new Set(prev)
+      if (next.has(rowIndex)) next.delete(rowIndex)
+      else next.add(rowIndex)
+      return next
+    })
+  }
+
+  const allVisibleChecked = previews.length > 0 && previews.every((p) => checkedIndexes.has(p.rowIndex))
+  const toggleSelectAll = (): void => {
+    setCheckedIndexes(allVisibleChecked ? new Set() : new Set(previews.map((p) => p.rowIndex)))
+  }
 
   const handleConfirmImport = (): void => {
     if (!deckId) return
+    const toImport = previews.filter((p) => checkedIndexes.has(p.rowIndex))
     setStep('importing')
     log.info('import.csv_import_confirmed', {
       message: 'User confirmed CSV import',
-      metadata: { itemCount: previews.length },
+      metadata: { itemCount: toImport.length },
     })
-    importCsvRows(db, previews, deckId, 'de')
+    importCsvRows(db, toImport, deckId, 'de', duplicatePolicy)
       .then(async (outcome) => {
         setResult(outcome)
         setStep('done')
@@ -151,8 +242,94 @@ export default function CsvImportScreen(): JSX.Element {
     setRows([])
     setMapping({})
     setPreviews([])
+    setCheckedIndexes(new Set())
     setResult(null)
     setPickError(null)
+  }
+
+  if (step === 'preview') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.previewHeaderArea}>
+          <Card style={styles.card}>
+            <Text style={styles.title}>Preview</Text>
+            <View style={styles.summaryRow}>
+              <SummaryStat label="Will import" value={willImportCount} color={colors.success} />
+              <SummaryStat label="Duplicates" value={counts.duplicate} color={colors.warning} />
+              <SummaryStat label="Errors" value={counts.error} color={colors.danger} />
+              <SummaryStat label="Selected" value={checkedCount} color={colors.primary} />
+            </View>
+          </Card>
+        </View>
+
+        {/* Table region fills remaining space; the header row lives outside
+            the vertical ScrollView below so it stays pinned on screen while
+            rows scroll — both share one horizontal ScrollView so columns
+            still line up when scrolling sideways. */}
+        <ScrollView horizontal style={styles.tableOuterScroll} showsHorizontalScrollIndicator>
+          <View style={styles.tableFlexColumn}>
+            <View style={styles.tableHeaderRow}>
+              <Pressable style={[styles.tableHeaderCheckboxCell, { width: SELECT_COLUMN_WIDTH }]} onPress={toggleSelectAll}>
+                <Ionicons
+                  name={allVisibleChecked ? 'checkbox' : 'square-outline'}
+                  size={18}
+                  color={allVisibleChecked ? colors.primary : colors.textMuted}
+                />
+              </Pressable>
+              {TABLE_COLUMNS.map((col) => (
+                <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
+                  {col.label}
+                </Text>
+              ))}
+            </View>
+            <FlatList
+              style={styles.tableBodyScroll}
+              data={previews}
+              keyExtractor={(preview) => String(preview.rowIndex)}
+              windowSize={7}
+              maxToRenderPerBatch={20}
+              initialNumToRender={20}
+              removeClippedSubviews
+              renderItem={({ item: preview, index: i }) => {
+                const checked = checkedIndexes.has(preview.rowIndex)
+                return (
+                  <View style={[styles.tableRow, i % 2 === 1 ? styles.tableRowAlt : null]}>
+                    <Pressable
+                      style={[styles.tableCheckboxCell, { width: SELECT_COLUMN_WIDTH }]}
+                      onPress={() => toggleChecked(preview.rowIndex)}
+                    >
+                      <Ionicons
+                        name={checked ? 'checkbox' : 'square-outline'}
+                        size={18}
+                        color={checked ? colors.primary : colors.textMuted}
+                      />
+                    </Pressable>
+                    {TABLE_COLUMNS.map((col) => (
+                      <Text
+                        key={col.label}
+                        style={[styles.tableCell, { width: col.width }, statusCellStyle(preview, col.label)]}
+                        numberOfLines={4}
+                      >
+                        {col.cell(preview)}
+                      </Text>
+                    ))}
+                  </View>
+                )
+              }}
+            />
+          </View>
+        </ScrollView>
+
+        <View style={styles.actions}>
+          <Button label="Back" variant="ghost" onPress={() => setStep('map')} />
+          <Button
+            label={`Import ${checkedCount.toLocaleString()} row${checkedCount === 1 ? '' : 's'}`}
+            onPress={handleConfirmImport}
+            disabled={checkedCount === 0}
+          />
+        </View>
+      </View>
+    )
   }
 
   return (
@@ -175,24 +352,58 @@ export default function CsvImportScreen(): JSX.Element {
             <Text style={styles.body}>{rows.length.toLocaleString()} rows detected. Map each column below.</Text>
           </Card>
 
-          {[...REQUIRED_FIELDS, ...OPTIONAL_FIELDS].map((field) => (
-            <Card key={field} style={styles.card}>
-              <Text style={styles.fieldLabel}>{FIELD_LABELS[field]}</Text>
-              <View style={styles.chipRow}>
-                {OPTIONAL_FIELDS.includes(field) ? (
-                  <Chip label="None" selected={mapping[field] === undefined} onPress={() => setField(field, null)} />
-                ) : null}
-                {headers.map((header, index) => (
-                  <Chip
-                    key={`${field}-${index}`}
-                    label={header || `Column ${index + 1}`}
-                    selected={mapping[field] === index}
-                    onPress={() => setField(field, index)}
-                  />
+          <Card style={[styles.card, styles.samplePreviewCard]}>
+            <Text style={styles.fieldLabel}>Sample data</Text>
+            <Text style={styles.hint}>The first few rows, so you can see what each column actually holds.</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator>
+              <View>
+                <View style={styles.tableHeaderRow}>
+                  {headers.map((header, index) => (
+                    <Text key={index} style={[styles.sampleHeaderCell, { width: SAMPLE_COLUMN_WIDTH }]}>
+                      {header || `Column ${index + 1}`}
+                    </Text>
+                  ))}
+                </View>
+                {rows.slice(0, 4).map((row, rowIndex) => (
+                  <View key={rowIndex} style={[styles.tableRow, rowIndex % 2 === 1 ? styles.tableRowAlt : null]}>
+                    {headers.map((_, index) => (
+                      <Text
+                        key={index}
+                        style={[styles.sampleCell, { width: SAMPLE_COLUMN_WIDTH }]}
+                        numberOfLines={2}
+                      >
+                        {row[index] && row[index].length > 0 ? row[index] : '—'}
+                      </Text>
+                    ))}
+                  </View>
                 ))}
               </View>
-            </Card>
-          ))}
+            </ScrollView>
+          </Card>
+
+          <Card style={styles.card}>
+            <Text style={styles.fieldLabel}>Field mapping</Text>
+            <Text style={styles.hint}>
+              Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes — they're
+              derived from the example's cloze markup and its translation.
+            </Text>
+            {ALL_FIELDS.map((field) => (
+              <View key={field} style={styles.mappingRow}>
+                <Text style={styles.mappingLabel}>{FIELD_LABELS[field]}</Text>
+                <Dropdown
+                  label={FIELD_LABELS[field]}
+                  placeholder="None"
+                  clearable
+                  value={mapping[field] !== undefined ? String(mapping[field]) : null}
+                  onChange={(v) => setField(field, v === null ? null : Number(v))}
+                  options={headers.map((header, index) => ({
+                    label: header || `Column ${index + 1}`,
+                    value: String(index),
+                  }))}
+                />
+              </View>
+            ))}
+          </Card>
 
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>Import into deck</Text>
@@ -205,28 +416,25 @@ export default function CsvImportScreen(): JSX.Element {
                 {(decksQuery.data ?? []).map((deck) => (
                   <Chip key={deck.id} label={deck.name} selected={deckId === deck.id} onPress={() => setDeckId(deck.id)} />
                 ))}
+                <Chip label="+ New deck" onPress={() => setNewDeckOpen(true)} />
               </View>
             )}
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Default part of speech</Text>
-            <Text style={styles.hint}>Used for rows with no mapped or recognized part-of-speech column.</Text>
+            <Text style={styles.fieldLabel}>If the word already exists</Text>
+            <Text style={styles.hint}>Applies to every duplicate row you leave checked in the next step.</Text>
             <View style={styles.chipRow}>
-              {PARTS_OF_SPEECH.map((pos) => (
-                <Chip key={pos} label={pos} selected={defaultPos === pos} onPress={() => setDefaultPos(pos)} />
+              {DUPLICATE_POLICIES.map((policy) => (
+                <Chip
+                  key={policy.value}
+                  label={policy.label}
+                  selected={duplicatePolicy === policy.value}
+                  onPress={() => setDuplicatePolicy(policy.value)}
+                />
               ))}
             </View>
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Default CEFR level</Text>
-            <Text style={styles.hint}>Used for rows with no mapped or recognized CEFR column.</Text>
-            <View style={styles.chipRow}>
-              {CEFR_LEVELS.map((level) => (
-                <Chip key={level} label={level} selected={defaultCefr === level} onPress={() => setDefaultCefr(level)} />
-              ))}
-            </View>
+            <Text style={styles.hint}>{DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint}</Text>
           </Card>
 
           <View style={styles.actions}>
@@ -235,44 +443,6 @@ export default function CsvImportScreen(): JSX.Element {
               label={previewLoading ? 'Checking…' : 'Preview import'}
               onPress={handleBuildPreview}
               disabled={!canBuildPreview || previewLoading}
-            />
-          </View>
-        </>
-      ) : null}
-
-      {step === 'preview' ? (
-        <>
-          <Card style={styles.card}>
-            <Text style={styles.title}>Preview</Text>
-            <View style={styles.summaryRow}>
-              <SummaryStat label="Will import" value={counts.ok} color={colors.success} />
-              <SummaryStat label="Duplicates" value={counts.duplicate} color={colors.warning} />
-              <SummaryStat label="Errors" value={counts.error} color={colors.danger} />
-            </View>
-          </Card>
-
-          {previews.slice(0, 50).map((preview) => (
-            <Card key={preview.rowIndex} style={styles.rowCard}>
-              <View style={styles.rowHeader}>
-                <Text style={styles.rowWord}>{preview.word || '(empty)'}</Text>
-                <StatusChip status={preview.status} />
-              </View>
-              <Text style={styles.rowMeaning}>{preview.meaning || '—'}</Text>
-              {preview.errors.length > 0 ? (
-                <Text style={styles.rowError}>{preview.errors.join(' ')}</Text>
-              ) : null}
-            </Card>
-          ))}
-          {previews.length > 50 ? (
-            <Text style={styles.hint}>…and {(previews.length - 50).toLocaleString()} more rows.</Text>
-          ) : null}
-
-          <View style={styles.actions}>
-            <Button label="Back" variant="ghost" onPress={() => setStep('map')} />
-            <Button
-              label={`Import ${counts.ok.toLocaleString()} rows`}
-              onPress={handleConfirmImport}
-              disabled={counts.ok === 0}
             />
           </View>
         </>
@@ -291,6 +461,30 @@ export default function CsvImportScreen(): JSX.Element {
           <Button label="Import another file" variant="secondary" onPress={handleStartOver} />
         </Card>
       ) : null}
+
+      {/* ── New deck modal ── */}
+      <Modal visible={newDeckOpen} animationType="slide" transparent onRequestClose={() => setNewDeckOpen(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Text style={styles.modalTitle}>New deck</Text>
+          <TextInput
+            style={styles.inputField}
+            placeholder="Deck name"
+            placeholderTextColor={colors.textMuted}
+            value={newDeckName}
+            onChangeText={setNewDeckName}
+            autoFocus
+          />
+          {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
+          <Button
+            label={createNewDeck.isPending ? 'Creating…' : 'Create & select'}
+            icon="add"
+            disabled={createNewDeck.isPending}
+            onPress={() => createNewDeck.mutate(newDeckName)}
+          />
+        </View>
+      </Modal>
     </ScrollView>
   )
 }
@@ -304,33 +498,108 @@ function SummaryStat(props: { label: string; value: number; color: string }): JS
   )
 }
 
-function StatusChip(props: { status: CsvRowPreview['status'] }): JSX.Element {
-  const config = {
-    ok: { label: 'OK', color: { fg: colors.success, bg: colors.successSoft } },
-    duplicate: { label: 'Duplicate', color: { fg: colors.warning, bg: colors.warningSoft } },
-    error: { label: 'Error', color: { fg: colors.danger, bg: colors.dangerSoft } },
-  }[props.status]
-  return <Chip label={config.label} selected color={config.color} />
+const STATUS_COLOR: Record<CsvRowPreview['status'], string> = {
+  ok: colors.success,
+  duplicate: colors.warning,
+  error: colors.danger,
+}
+
+/** Colors the Status cell by row status, and the Issues cell red when non-empty. */
+function statusCellStyle(preview: CsvRowPreview, columnLabel: string): TextStyle | undefined {
+  if (columnLabel === 'Status') return { color: STATUS_COLOR[preview.status], fontWeight: '700' }
+  if (columnLabel === 'Issues' && preview.errors.length > 0) return { color: colors.danger }
+  return undefined
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
   card: { gap: spacing.sm, marginBottom: spacing.sm },
-  rowCard: { gap: spacing.xs, marginBottom: spacing.xs, padding: spacing.md },
   title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
   body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
   fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
   hint: { fontSize: type.micro, color: colors.textMuted },
   errorText: { fontSize: type.caption, color: colors.danger },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.md },
-  summaryRow: { flexDirection: 'row', gap: spacing.lg },
+  mappingRow: { gap: spacing.xs, marginTop: spacing.sm },
+  mappingLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+    padding: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  summaryRow: { flexDirection: 'row', gap: spacing.lg, flexWrap: 'wrap' },
   summaryStat: { alignItems: 'center' },
   summaryValue: { fontSize: type.subheading, fontWeight: '700' },
   summaryLabel: { fontSize: type.micro, color: colors.textMuted },
-  rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rowWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  rowMeaning: { fontSize: type.caption, color: colors.textSecondary },
-  rowError: { fontSize: type.micro, color: colors.danger },
+  previewHeaderArea: { padding: spacing.lg, paddingBottom: 0 },
+  tableOuterScroll: { flex: 1, marginHorizontal: spacing.lg },
+  tableFlexColumn: { flex: 1 },
+  tableBodyScroll: { flex: 1 },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.surfaceMuted,
+    borderTopLeftRadius: radius.sm,
+    borderTopRightRadius: radius.sm,
+  },
+  tableHeaderCheckboxCell: { alignItems: 'center', justifyContent: 'center', paddingVertical: 2 },
+  tableHeaderCell: {
+    fontSize: type.caption,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+  },
+  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, alignItems: 'center' },
+  tableRowAlt: { backgroundColor: colors.surfaceMuted },
+  tableCheckboxCell: { alignItems: 'center', justifyContent: 'center', paddingVertical: 2 },
+  tableCell: {
+    fontSize: type.caption,
+    color: colors.text,
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+  },
+  samplePreviewCard: { padding: spacing.md },
+  sampleHeaderCell: {
+    fontSize: type.caption,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  sampleCell: {
+    fontSize: type.caption,
+    color: colors.text,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
+  modalSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.xl,
+    gap: spacing.md,
+  },
+  modalHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.border,
+  },
+  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+  inputField: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    fontSize: type.body,
+    color: colors.text,
+  },
+  errorLabel: { fontSize: type.caption, color: colors.danger },
 })

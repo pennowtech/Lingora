@@ -30,13 +30,18 @@ export {
   type CsvRowPreview,
 } from './csv-import'
 
+export { parseListField, type DuplicatePolicy, type ImportableRow } from './import-shared'
+export { CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
+
 export {
   buildApkgImportPreview,
+  dominantNoteType,
   importApkgNotes,
   readAnkiCollection,
   stripAnkiHtml,
   type AnkiDeckInfo,
   type AnkiNote,
+  type AnkiNoteType,
   type ApkgField,
   type ApkgFieldMapping,
   type ApkgImportOptions,

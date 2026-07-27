@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel } from '@lingora/types'
-import type { JSX, ReactNode } from 'react'
+import { useState, type JSX, type ReactNode } from 'react'
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -148,6 +150,71 @@ export function Chip(props: {
     >
       <Text style={[styles.chipLabel, { color: fg }]}>{label}</Text>
     </Pressable>
+  )
+}
+
+// ─── Dropdown ─────────────────────────────────────────────────────────────────
+
+export interface DropdownOption {
+  label: string
+  value: string
+}
+
+/**
+ * A tappable field showing the current selection, opening a bottom-sheet
+ * list of options — for a single choice among many (e.g. "which column is
+ * the word?"), where a `Chip` row would otherwise wrap across several lines.
+ * `clearable` adds a "None" row at the top, calling `onChange(null)` — for
+ * an optional field that can be left unmapped.
+ */
+export function Dropdown(props: {
+  label?: string
+  placeholder?: string
+  value: string | null
+  options: DropdownOption[]
+  onChange: (value: string | null) => void
+  clearable?: boolean
+}): JSX.Element {
+  const [open, setOpen] = useState(false)
+  const selected = props.options.find((o) => o.value === props.value)
+
+  const choose = (value: string | null): void => {
+    props.onChange(value)
+    setOpen(false)
+  }
+
+  return (
+    <>
+      <Pressable style={styles.dropdownField} onPress={() => setOpen(true)}>
+        <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
+          {selected?.label ?? props.placeholder ?? 'Select…'}
+        </Text>
+        <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+      </Pressable>
+      <Modal visible={open} animationType="fade" transparent onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.dropdownBackdrop} onPress={() => setOpen(false)} />
+        <View style={styles.dropdownSheet}>
+          <View style={styles.modalHandle} />
+          {props.label ? <Text style={styles.dropdownSheetTitle}>{props.label}</Text> : null}
+          <ScrollView style={styles.dropdownList}>
+            {props.clearable ? (
+              <Pressable style={styles.dropdownOption} onPress={() => choose(null)}>
+                <Text style={styles.dropdownOptionLabel}>None</Text>
+                {props.value === null ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
+              </Pressable>
+            ) : null}
+            {props.options.map((opt) => (
+              <Pressable key={opt.value} style={styles.dropdownOption} onPress={() => choose(opt.value)}>
+                <Text style={styles.dropdownOptionLabel} numberOfLines={2}>
+                  {opt.label}
+                </Text>
+                {props.value === opt.value ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      </Modal>
+    </>
   )
 }
 
@@ -312,6 +379,46 @@ const styles = StyleSheet.create({
     fontSize: type.caption,
     fontWeight: '600',
   },
+  dropdownField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  dropdownValue: { fontSize: type.body, fontWeight: '600', color: colors.text, flex: 1, marginRight: spacing.sm },
+  dropdownPlaceholder: { color: colors.textMuted, fontWeight: '400' },
+  dropdownBackdrop: { flex: 1, backgroundColor: '#00000066' },
+  dropdownSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.xl,
+    maxHeight: '70%',
+  },
+  modalHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.border,
+    marginBottom: spacing.md,
+  },
+  dropdownSheetTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.md },
+  dropdownList: { flexGrow: 0 },
+  dropdownOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  dropdownOptionLabel: { fontSize: type.body, color: colors.text, flex: 1, marginRight: spacing.sm },
   cefrBadge: {
     paddingVertical: 2,
     paddingHorizontal: 7,

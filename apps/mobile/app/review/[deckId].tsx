@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { Card as CardRow, CardState, ReviewRating, Template } from '@lingora/types'
 import {
   getCardsDueForReview,
@@ -26,7 +25,14 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTi
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { CardRenderer } from '../../components/CardRenderer'
 import { Button, EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
-import { buildCardContext, renderCardHtml, type CardTemplateContext } from '../../lib/templates'
+import {
+  buildCardContext,
+  CLOZE_BACK_TEMPLATE,
+  CLOZE_FRONT_TEMPLATE,
+  CLOZE_STYLES,
+  renderCardHtml,
+  type CardTemplateContext,
+} from '../../lib/templates'
 import { useServices } from '../../lib/services'
 import { colors, radius, ratingColors, spacing, type } from '../../lib/theme'
 
@@ -223,7 +229,11 @@ async function loadReviewQueue(
       getCardState(db, card.id),
     ])
     const cloze = clozes[0]
+    // Cloze cards only ever surface in a `mode=cloze` session — never mixed
+    // into a regular review queue — and vice versa, so each session shows
+    // exactly one kind of card.
     if (clozeOnly && !cloze) continue
+    if (!clozeOnly && cloze) continue
 
     // Same selection buildCardContext uses (primary meaning / selected
     // example, falling back to the first row) — keeps the id an edit
@@ -305,19 +315,19 @@ export default function ReviewSessionScreen(): JSX.Element {
     enabled: (params.deckId ?? '') !== '',
   })
 
-  // The card's own LiquidJS template (basic/reverse cards only — cloze mode
-  // keeps its fixed built-in layout, see the loop below). Falls back to a
-  // plain {{ word }} / {{ meaning }} shape if no default template exists
-  // yet (e.g. a database seeded before migration 0001's template row).
+  // The card's own LiquidJS template — vocab (basic/reverse) and cloze
+  // sessions each fetch their type's default template, matching the fact
+  // that a session is either all-cloze or all-vocab (see loadReviewQueue).
+  // Falls back to a plain built-in shape if no default template row exists
+  // yet (e.g. a database seeded before migration 0007 added `type`).
   const templateQuery = useQuery({
-    queryKey: ['default-template'],
-    queryFn: () => getDefaultTemplate(db),
-    enabled: !clozeOnly,
+    queryKey: ['default-template', clozeOnly ? 'cloze' : 'vocab'],
+    queryFn: () => getDefaultTemplate(db, clozeOnly ? 'cloze' : 'vocab'),
   })
   const template: Pick<Template, 'frontTemplate' | 'backTemplate' | 'styles'> = templateQuery.data ?? {
-    frontTemplate: '<div class="front">{{ word }}</div>',
-    backTemplate: '<div class="back">{{ meaning }}<hr>{{ example }}</div>',
-    styles: '',
+    frontTemplate: clozeOnly ? CLOZE_FRONT_TEMPLATE : '<div class="front">{{ word }}</div>',
+    backTemplate: clozeOnly ? CLOZE_BACK_TEMPLATE : '<div class="back">{{ meaning }}<hr>{{ example }}</div>',
+    styles: clozeOnly ? CLOZE_STYLES : '',
   }
 
   const queue = queueQuery.data ?? []
@@ -405,24 +415,11 @@ export default function ReviewSessionScreen(): JSX.Element {
   // swapped at the template-context level (word <-> meaning) so the same
   // stored template naturally renders meaning-first, rather than needing a
   // second template. Nothing yet produces 'phrase'/'image' cards for a
-  // dedicated layout to matter for either.
-  const isReverse = view?.card.type === 'reverse'
-
-  const showFront = (): string => {
-    if (clozeOnly && view?.clozeSentence) return view.clozeSentence
-    if (isReverse) return view?.meaning ?? view?.explanation ?? ''
-    return view?.form ?? ''
-  }
-  const showBack = (): { headline: string; example: string | null; exampleTranslation: string | null } => {
-    if (clozeOnly && view?.clozeAnswer) {
-      return { headline: view.clozeAnswer, example: view.example, exampleTranslation: view.exampleTranslation }
-    }
-    return {
-      headline: isReverse ? (view?.form ?? '—') : (view?.meaning ?? view?.explanation ?? '—'),
-      example: view?.example ?? null,
-      exampleTranslation: view?.exampleTranslation ?? null,
-    }
-  }
+  // dedicated layout to matter for either. Cloze cards never reverse.
+  const isReverse = !clozeOnly && view?.card.type === 'reverse'
+  // Every card in this session is the same kind (see loadReviewQueue), so
+  // `clozeOnly` alone tells us which template/layout applies.
+  const isCloze = clozeOnly
 
   const renderedContext = view
     ? isReverse
@@ -430,10 +427,22 @@ export default function ReviewSessionScreen(): JSX.Element {
       : view.templateContext
     : null
   const templateStyles = template.styles ?? ''
-  const frontHtml = renderedContext ? renderCardHtml(template.frontTemplate, templateStyles, renderedContext, 'front') : ''
-  const backHtml = renderedContext
-    ? renderCardHtml(`${template.frontTemplate}<hr/>${template.backTemplate}`, templateStyles, renderedContext, 'back')
-    : ''
+  const frontHtml = !view
+    ? ''
+    : renderCardHtml(template.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front')
+  // Vocab's back stacks front+back (word recap above the meaning); cloze's
+  // back template is the complete revealed-sentence layout on its own — the
+  // front's blanked sentence has no reason to repeat above it.
+  const backHtml = !view
+    ? ''
+    : isCloze
+      ? renderCardHtml(template.backTemplate, templateStyles, view.templateContext, 'back')
+      : renderCardHtml(
+          `${template.frontTemplate}<hr/>${template.backTemplate}`,
+          templateStyles,
+          renderedContext ?? view.templateContext,
+          'back',
+        )
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -443,7 +452,7 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
-        {clozeOnly ? (
+        {isCloze ? (
           <View style={styles.modePill}>
             <Text style={styles.modePillLabel}>cloze</Text>
           </View>
@@ -451,7 +460,7 @@ export default function ReviewSessionScreen(): JSX.Element {
         <Text style={styles.counter}>
           {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
         </Text>
-        {flipped && view && !clozeOnly ? <IconButton icon="create-outline" onPress={openEdit} /> : null}
+        {flipped && view && !isCloze ? <IconButton icon="create-outline" onPress={openEdit} /> : null}
       </View>
       {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
@@ -472,50 +481,23 @@ export default function ReviewSessionScreen(): JSX.Element {
         </View>
       ) : (
         <>
-          {/* Card */}
+          {/* Card — cloze and vocab cards both render through the same
+              LiquidJS + WebView pipeline (lib/templates.ts), just with a
+              different (fixed, for cloze) template — see isCloze above. */}
           {flipped ? (
             <SwipeableCard
               enabled={!rate.isPending}
               resetKey={view.card.id}
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
-              {clozeOnly ? (
-                <>
-                  <View style={styles.clozeTag}>
-                    <Ionicons name="create-outline" size={12} color={colors.warning} />
-                    <Text style={styles.clozeTagLabel}>cloze</Text>
-                  </View>
-                  <Text style={styles.front}>{showFront()}</Text>
-                  <View style={styles.backSection}>
-                    <View style={styles.divider} />
-                    <Text style={styles.back}>{showBack().headline}</Text>
-                    {showBack().example ? <Text style={styles.backExample}>{showBack().example}</Text> : null}
-                    {showBack().exampleTranslation ? (
-                      <Text style={styles.backExampleTranslation}>{showBack().exampleTranslation}</Text>
-                    ) : null}
-                  </View>
-                </>
-              ) : (
-                <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
-              )}
+              <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
-              {clozeOnly ? (
-                <>
-                  <View style={styles.clozeTag}>
-                    <Ionicons name="create-outline" size={12} color={colors.warning} />
-                    <Text style={styles.clozeTagLabel}>cloze</Text>
-                  </View>
-                  <Text style={styles.front}>{showFront()}</Text>
-                  <Text style={styles.tapHint}>tap to reveal</Text>
-                </>
-              ) : (
-                <View style={styles.templateFrontWrap}>
-                  <CardRenderer html={frontHtml} />
-                  <Text style={styles.tapHint}>tap to reveal</Text>
-                </View>
-              )}
+              <View style={styles.templateFrontWrap}>
+                <CardRenderer html={frontHtml} />
+                <Text style={styles.tapHint}>tap to reveal</Text>
+              </View>
             </Pressable>
           )}
 
@@ -651,27 +633,7 @@ const styles = StyleSheet.create({
   swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
   swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
   swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
-  clozeTag: {
-    position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.warningSoft,
-    paddingVertical: 3,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.full,
-  },
-  clozeTagLabel: { fontSize: type.micro, fontWeight: '700', color: colors.warning },
-  front: { fontSize: 34, fontWeight: '800', color: colors.text, textAlign: 'center' },
-  frontHint: { fontSize: type.caption, color: colors.textMuted, marginTop: spacing.sm, textAlign: 'center' },
   tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
-  backSection: { alignItems: 'center', alignSelf: 'stretch' },
-  divider: { alignSelf: 'stretch', height: 1, backgroundColor: colors.border, marginVertical: spacing.xl },
-  back: { fontSize: type.heading, fontWeight: '700', color: colors.primary, textAlign: 'center' },
-  backExample: { fontSize: type.body, color: colors.text, marginTop: spacing.md, textAlign: 'center' },
-  backExampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4, textAlign: 'center' },
   ratingRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingTop: 0 },
   ratingPlaceholder: { height: 76 },
   ratingButton: {

@@ -5,6 +5,7 @@ import { getLemmaByForm } from './repositories/lemmas'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 import {
   buildApkgImportPreview,
+  dominantNoteType,
   importApkgNotes,
   readAnkiCollection,
   stripAnkiHtml,
@@ -13,28 +14,33 @@ import {
 
 const FIELD_SEPARATOR = '\x1f'
 
-/** Builds a minimal Anki-shaped collection database for tests. */
+/** Builds a minimal legacy-schema (single `col` row, JSON blobs) Anki collection for tests. */
 async function seedAnkiCollection(db: NodeSqliteAdapter): Promise<void> {
   await db.executeScript(`
-    CREATE TABLE notes (id INTEGER PRIMARY KEY, flds TEXT NOT NULL, tags TEXT NOT NULL);
+    CREATE TABLE notes (id INTEGER PRIMARY KEY, mid INTEGER NOT NULL, flds TEXT NOT NULL, tags TEXT NOT NULL);
     CREATE TABLE cards (id INTEGER PRIMARY KEY, nid INTEGER NOT NULL, did INTEGER NOT NULL);
-    CREATE TABLE col (id INTEGER PRIMARY KEY, decks TEXT NOT NULL);
+    CREATE TABLE col (id INTEGER PRIMARY KEY, decks TEXT NOT NULL, models TEXT NOT NULL);
   `)
-  await db.execute(`INSERT INTO notes (id, flds, tags) VALUES (?, ?, ?)`, [
+  await db.execute(`INSERT INTO notes (id, mid, flds, tags) VALUES (?, ?, ?, ?)`, [
     1,
+    900,
     ['Haus', 'house', 'Das <b>Haus</b> ist groß.<br>Zweite Zeile.'].join(FIELD_SEPARATOR),
     ' common home ',
   ])
-  await db.execute(`INSERT INTO notes (id, flds, tags) VALUES (?, ?, ?)`, [
+  await db.execute(`INSERT INTO notes (id, mid, flds, tags) VALUES (?, ?, ?, ?)`, [
     2,
+    900,
     ['', 'missing word'].join(FIELD_SEPARATOR),
     '',
   ])
   await db.execute(`INSERT INTO cards (id, nid, did) VALUES (?, ?, ?)`, [10, 1, 100])
   await db.execute(`INSERT INTO cards (id, nid, did) VALUES (?, ?, ?)`, [20, 2, 100])
-  await db.execute(`INSERT INTO col (id, decks) VALUES (?, ?)`, [
+  await db.execute(`INSERT INTO col (id, decks, models) VALUES (?, ?, ?)`, [
     1,
     JSON.stringify({ '100': { id: 100, name: 'German::Vocab' } }),
+    JSON.stringify({
+      '900': { id: 900, name: 'Basic', flds: [{ name: 'German' }, { name: 'English' }, { name: 'Example' }] },
+    }),
   ])
 }
 
@@ -68,14 +74,31 @@ describe('readAnkiCollection', () => {
     expect(decks).toEqual([{ id: 100, name: 'Vocab' }])
   })
 
-  it('degrades gracefully when col.decks is missing', async () => {
+  it('reads note-type field names from the col.models JSON blob', async () => {
+    const { noteTypes } = await readAnkiCollection(ankiDb)
+    expect(noteTypes).toEqual([{ id: 900, name: 'Basic', fieldNames: ['German', 'English', 'Example'] }])
+  })
+
+  it('dominantNoteType picks the note type with the most notes', async () => {
+    const { notes, noteTypes } = await readAnkiCollection(ankiDb)
+    expect(dominantNoteType(notes, noteTypes)).toEqual({
+      id: 900,
+      name: 'Basic',
+      fieldNames: ['German', 'English', 'Example'],
+    })
+    expect(dominantNoteType([], noteTypes)).toEqual({ id: 900, name: 'Basic', fieldNames: ['German', 'English', 'Example'] })
+    expect(dominantNoteType(notes, [])).toBeNull()
+  })
+
+  it('degrades gracefully when col.decks/col.models are missing', async () => {
     const bareDb = new NodeSqliteAdapter()
     await bareDb.executeScript(`
-      CREATE TABLE notes (id INTEGER PRIMARY KEY, flds TEXT NOT NULL, tags TEXT NOT NULL);
+      CREATE TABLE notes (id INTEGER PRIMARY KEY, mid INTEGER NOT NULL, flds TEXT NOT NULL, tags TEXT NOT NULL);
       CREATE TABLE cards (id INTEGER PRIMARY KEY, nid INTEGER NOT NULL, did INTEGER NOT NULL);
     `)
-    const { notes, decks } = await readAnkiCollection(bareDb)
+    const { notes, decks, noteTypes } = await readAnkiCollection(bareDb)
     expect(notes).toEqual([])
+    expect(noteTypes).toEqual([])
     expect(decks).toEqual([])
     bareDb.close()
   })
@@ -108,8 +131,6 @@ describe('buildApkgImportPreview / importApkgNotes', () => {
     const previews = await buildApkgImportPreview(lingoraDb, notes, {
       mapping: { word: 0, meaning: 1, example: 2 },
       language: 'de',
-      defaultPartOfSpeech: 'noun',
-      defaultCefrLevel: 'A1',
     })
 
     expect(previews[0]).toMatchObject({ status: 'ok', word: 'Haus', meaning: 'house', tags: ['common', 'home'] })
@@ -121,8 +142,6 @@ describe('buildApkgImportPreview / importApkgNotes', () => {
     const previews = await buildApkgImportPreview(lingoraDb, notes, {
       mapping: { word: 0, meaning: 1, example: 2 },
       language: 'de',
-      defaultPartOfSpeech: 'noun',
-      defaultCefrLevel: 'A1',
     })
 
     const progressCalls: Array<[number, number]> = []
@@ -150,8 +169,6 @@ describe('buildApkgImportPreview / importApkgNotes', () => {
     const previews = await buildApkgImportPreview(lingoraDb, notes, {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
-      defaultPartOfSpeech: 'noun',
-      defaultCefrLevel: 'A1',
     })
 
     const result = await importApkgNotes(lingoraDb, previews, deckId, 'de', { shouldCancel: () => true })

@@ -56,6 +56,17 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
 ]
 
 /**
+ * The variable set a `type: 'cloze'` template can use — a sentence-level
+ * fill-in-the-blank exercise has no word/meaning/synonyms of its own, so it
+ * gets its own short list rather than the vocab TEMPLATE_VARIABLES above.
+ */
+export const CLOZE_TEMPLATE_VARIABLES: TemplateVariable[] = [
+  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder — the front', icon: 'create' },
+  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted — the back', icon: 'eye' },
+  { name: 'translation', label: 'Sentence translation', description: 'Translation of the cloze sentence', icon: 'swap-horizontal' },
+]
+
+/**
  * Shipped default front/back/styles — a Duocards-style layout (big centered
  * word, a soft pill tag for the part of speech, and a bordered "example
  * card" on the back) rather than bare unstyled text. Deliberately uses real
@@ -132,6 +143,10 @@ export interface CardTemplateContext {
   audio: string
   image: string
   cloze: string
+  /** The cloze sentence with each blank shown as a visible placeholder — the review front. See CLOZE_FRONT_TEMPLATE. */
+  cloze_blanked: string
+  /** The cloze sentence with every blank revealed and highlighted — the review back. See CLOZE_BACK_TEMPLATE. */
+  cloze_revealed: string
   context_hint: string
 }
 
@@ -161,12 +176,14 @@ export function buildCardContext(args: {
     other_meanings: args.meanings.filter((m) => m.id !== primary?.id).map((m) => m.translation),
     example,
     example_highlighted: highlightWord(example, args.lemma.form),
-    translation: selectedExample?.translation ?? '',
+    translation: selectedExample?.translation ?? args.cloze?.translation ?? '',
     synonyms: args.synonyms.map((s) => ({ word: s.word, nuance: s.nuance ?? '', formality: s.formality })),
     phrases: args.phrases.map((p) => ({ expression: p.expression, meaning: p.meaning })),
     audio: '',
     image: '',
     cloze: args.cloze ? `${args.cloze.sentence} → ${args.cloze.answer}` : '',
+    cloze_blanked: args.cloze ? renderClozeBlanked(args.cloze.sentence) : '',
+    cloze_revealed: args.cloze ? renderClozeRevealed(args.cloze.sentence, args.cloze.answer) : '',
     context_hint: genderLabel,
   }
 }
@@ -226,6 +243,81 @@ export function highlightWord(example: string, word: string): string {
 
   const re = new RegExp(`\\b(${pattern})(\\w*)`, 'gi')
   return escaped.replace(re, '<mark class="dc-hl">$1$2</mark>')
+}
+
+/** The literal placeholder `packages/database`'s cloze parser puts in `Cloze.sentence` for each blank. */
+const CLOZE_BLANK_TOKEN = '[...]'
+
+/** Cloze front: every blank becomes a visible, styled placeholder — never the answer. */
+function renderClozeBlanked(sentence: string): string {
+  const escaped = escapeHtmlShell(sentence)
+  return escaped.split(CLOZE_BLANK_TOKEN).join('<span class="dc-blank">_____</span>')
+}
+
+/**
+ * Cloze back: every blank is replaced with its answer, highlighted the same
+ * way `highlightWord` marks a vocab card's target word. `Cloze.answer` holds
+ * every blank's answer joined with "; ", in the order the blanks appear in
+ * `Cloze.sentence` (see packages/database/src/cloze-parse.ts) — split back
+ * apart here and consumed positionally.
+ */
+function renderClozeRevealed(sentence: string, answerJoined: string): string {
+  const answers = answerJoined
+    .split(';')
+    .map((a) => a.trim())
+    .filter((a) => a.length > 0)
+  const escaped = escapeHtmlShell(sentence)
+  const parts = escaped.split(CLOZE_BLANK_TOKEN)
+  return parts.reduce((result, part, i) => {
+    if (i === 0) return part
+    const answer = escapeHtmlShell(answers[i - 1] ?? '')
+    return `${result}<mark class="dc-hl">${answer}</mark>${part}`
+  }, '')
+}
+
+/**
+ * Shipped default cloze-mode front/back/styles — the `type: 'cloze'`
+ * counterpart to DEFAULT_FRONT_TEMPLATE/DEFAULT_BACK_TEMPLATE/DEFAULT_STYLES
+ * above: seeded as the cloze default template row, the "+ New" starting
+ * point when creating another cloze template, and what "Reset to default"
+ * restores in the editor. Smaller sentence text than the vocab template's
+ * big centered word, since a whole sentence needs more room than a single
+ * headword.
+ */
+export const CLOZE_FRONT_TEMPLATE = `<div class="dc-cloze">
+  <div class="dc-cloze-sentence">{{ cloze_blanked }}</div>
+  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}
+</div>`
+
+export const CLOZE_BACK_TEMPLATE = `<div class="dc-cloze">
+  <div class="dc-cloze-sentence">{{ cloze_revealed }}</div>
+  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}
+</div>`
+
+export const CLOZE_STYLES = `:root{--accent:#534AB7;}
+.dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; }
+.dc-cloze-sentence { font-size: 1.15rem; font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; }
+.dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; }
+.dc-blank { display: inline-block; min-width: 2.5em; border-bottom: 2px solid var(--accent); color: transparent; }
+mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }`
+
+/** Sample data for the cloze template editor's live preview — a two-blank sentence, matching the "there can be 2+ clozes" case. */
+export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
+  word: '',
+  gender: '',
+  meaning: '',
+  other_meanings: [],
+  example: '',
+  example_highlighted: '',
+  translation: 'We are going out tonight.',
+  synonyms: [],
+  phrases: [],
+  audio: '',
+  image: '',
+  cloze: '',
+  cloze_blanked: renderClozeBlanked('Wir gehen heute Abend [...].'),
+  cloze_revealed: renderClozeRevealed('Wir gehen heute Abend [...].', 'aus'),
+  context_hint: '',
 }
 
 /**

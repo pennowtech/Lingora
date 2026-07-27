@@ -67,6 +67,7 @@ const TABLE_COLUMNS = {
   templates: [
     'id',
     'name',
+    'type',
     'front_template',
     'back_template',
     'styles',

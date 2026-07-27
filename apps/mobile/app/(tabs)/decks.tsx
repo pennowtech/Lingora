@@ -1,13 +1,17 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { Deck } from '@lingora/types'
 import { createDeck, deleteDeck, getAllDecks, getDeckCounts, renameDeck, type DatabaseAdapter } from '@lingora/database'
+import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
+
+const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
 
 /** A deck with its computed counts and resolved children. */
 interface DeckNode {
@@ -114,18 +118,23 @@ export default function DecksScreen(): JSX.Element {
     })
   }
 
-  const showExport = (): void => {
+  const runDeckExport = (deck: Deck, format: ExportFormat): void => {
+    runExport(db, format, { deckId: deck.id, deckName: deck.name })
+      .then(({ itemCount }) => Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`))
+      .catch((error: unknown) => {
+        log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
+        Alert.alert('Export failed', String(error))
+      })
+  }
+
+  const showExport = (deck: Deck): void => {
     setMenuDeck(null)
-    // Per-deck export (CSV/Anki/Markdown) is planned — see PHASE_5_STATUS.md
-    // Work package 4.5. Only the whole-library JSON backup exists today.
-    Alert.alert(
-      'Export coming soon',
-      'Exporting a single deck (CSV, Anki, Markdown) is planned but not built yet. For now, Settings → Import & Export → "Export everything" backs up your whole library as JSON.',
-      [
-        { text: 'OK', style: 'cancel' },
-        { text: 'Open Settings', onPress: () => router.push('/settings/import-export') },
-      ],
-    )
+    Alert.alert('Export this deck', 'Choose a format.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'CSV', onPress: () => runDeckExport(deck, 'csv') },
+      { text: 'Anki (.apkg)', onPress: () => runDeckExport(deck, 'apkg') },
+      { text: 'Markdown', onPress: () => runDeckExport(deck, 'markdown') },
+    ])
   }
 
   return (
@@ -194,7 +203,7 @@ export default function DecksScreen(): JSX.Element {
               <Text style={styles.modalTitle}>{menuDeck.emoji ?? '📚'} {menuDeck.name}</Text>
               <Button label="Import CSV into this deck" icon="grid" variant="secondary" onPress={() => startImport(menuDeck, 'csv')} />
               <Button label="Import Anki (.apkg) into this deck" icon="albums" variant="secondary" onPress={() => startImport(menuDeck, 'apkg')} />
-              <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={showExport} />
+              <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={() => showExport(menuDeck)} />
               <Button
                 label="Rename deck"
                 icon="pencil"

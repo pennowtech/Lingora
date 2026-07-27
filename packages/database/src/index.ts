@@ -31,7 +31,11 @@ export {
 } from './csv-import'
 
 export { parseListField, type DuplicatePolicy, type ImportableRow } from './import-shared'
-export { CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
+export { buildClozeMarkup, CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
+export { getExportableCards, type ExportableCard } from './export-shared'
+export { buildCsvExport } from './csv-export'
+export { buildMarkdownExport } from './markdown-export'
+export { buildApkgExport } from './apkg-export'
 
 export {
   buildApkgImportPreview,

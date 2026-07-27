@@ -9,6 +9,7 @@ import {
   renameDeck,
   type DatabaseAdapter,
 } from '@lingora/database'
+import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
@@ -22,8 +23,11 @@ import {
   SectionHeader,
   Spinner,
 } from '../../components/ui'
+import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
+
+const log = logger.child({ feature: 'export', screen: 'DeckDetailScreen' })
 
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
@@ -96,18 +100,24 @@ export default function DeckDetailScreen(): JSX.Element {
     })
   }
 
+  const runDeckExport = (format: ExportFormat): void => {
+    if (!deckQuery.data) return
+    runExport(db, format, { deckId: id, deckName: deckQuery.data.deck.name })
+      .then(({ itemCount }) => Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`))
+      .catch((error: unknown) => {
+        log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
+        Alert.alert('Export failed', String(error))
+      })
+  }
+
   const showExport = (): void => {
     setMenuOpen(false)
-    // Per-deck export (CSV/Anki/Markdown) is planned — see PHASE_5_STATUS.md
-    // Work package 4.5. Only the whole-library JSON backup exists today.
-    Alert.alert(
-      'Export coming soon',
-      'Exporting a single deck (CSV, Anki, Markdown) is planned but not built yet. For now, Settings → Import & Export → "Export everything" backs up your whole library as JSON.',
-      [
-        { text: 'OK', style: 'cancel' },
-        { text: 'Open Settings', onPress: () => router.push('/settings/import-export') },
-      ],
-    )
+    Alert.alert('Export this deck', 'Choose a format.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'CSV', onPress: () => runDeckExport('csv') },
+      { text: 'Anki (.apkg)', onPress: () => runDeckExport('apkg') },
+      { text: 'Markdown', onPress: () => runDeckExport('markdown') },
+    ])
   }
 
   if (deckQuery.isPending) {

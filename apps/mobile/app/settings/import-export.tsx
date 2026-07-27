@@ -7,6 +7,7 @@ import { useState, type JSX } from 'react'
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Button, Card, SectionHeader } from '../../components/ui'
 import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile } from '../../lib/backup'
+import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -25,6 +26,21 @@ export default function ImportExportScreen(): JSX.Element {
   const queryClient = useQueryClient()
   const [exporting, setExporting] = useState(false)
   const [restoring, setRestoring] = useState(false)
+  const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(null)
+
+  const handleFormatExport = (format: ExportFormat): void => {
+    setExportingFormat(format)
+    log.info('export.format_export_pressed', { message: 'User pressed a whole-library format export button' })
+    runExport(db, format, { deckName: 'Lingora vocabulary' })
+      .then(({ itemCount }) => {
+        Alert.alert('Export ready', `Exported ${itemCount.toLocaleString()} cards. Choose where to save it.`)
+      })
+      .catch((error: unknown) => {
+        log.error('export.format_export_failed', error, { message: 'Whole-library format export failed' })
+        Alert.alert('Export failed', String(error))
+      })
+      .finally(() => setExportingFormat(null))
+  }
 
   const handleExport = (): void => {
     setExporting(true)
@@ -139,7 +155,7 @@ export default function ImportExportScreen(): JSX.Element {
             <Ionicons name="cloud-upload" size={20} color={colors.primary} />
           </View>
           <View style={styles.optionText}>
-            <Text style={styles.optionTitle}>Restore from JSON backup</Text>
+            <Text style={styles.optionTitle}>Restore from Lingora backup (.lin)</Text>
             <Text style={styles.optionDetail}>
               Replaces everything on this device with a previously exported backup.
             </Text>
@@ -163,7 +179,7 @@ export default function ImportExportScreen(): JSX.Element {
             <Ionicons name="cloud-download" size={20} color={colors.primary} />
           </View>
           <View style={styles.optionText}>
-            <Text style={styles.optionTitle}>JSON backup</Text>
+            <Text style={styles.optionTitle}>Lingora backup (.lin)</Text>
             <Text style={styles.optionDetail}>
               Your full library — decks, cards, review history. Your data is always yours. API keys
               are never included.
@@ -179,6 +195,71 @@ export default function ImportExportScreen(): JSX.Element {
           small
         />
         {exporting ? <ActivityIndicator size="small" color={colors.primary} /> : null}
+      </Card>
+
+      <Card style={styles.optionCard}>
+        <View style={styles.optionHeader}>
+          <View style={[styles.optionIcon, { backgroundColor: colors.successSoft }]}>
+            <Ionicons name="grid" size={20} color={colors.success} />
+          </View>
+          <View style={styles.optionText}>
+            <Text style={styles.optionTitle}>CSV</Text>
+            <Text style={styles.optionDetail}>
+              One row per card — the same columns CSV import reads, so this file re-imports as-is.
+            </Text>
+          </View>
+        </View>
+        <Button
+          label={exportingFormat === 'csv' ? 'Exporting…' : 'Export as CSV'}
+          variant="secondary"
+          icon="download"
+          onPress={() => handleFormatExport('csv')}
+          disabled={exportingFormat !== null}
+          small
+        />
+      </Card>
+
+      <Card style={styles.optionCard}>
+        <View style={styles.optionHeader}>
+          <View style={[styles.optionIcon, { backgroundColor: colors.infoSoft }]}>
+            <Ionicons name="albums" size={20} color={colors.info} />
+          </View>
+          <View style={styles.optionText}>
+            <Text style={styles.optionTitle}>Anki deck (.apkg)</Text>
+            <Text style={styles.optionDetail}>
+              Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history
+              isn't carried over.
+            </Text>
+          </View>
+        </View>
+        <Button
+          label={exportingFormat === 'apkg' ? 'Exporting…' : 'Export as .apkg'}
+          variant="secondary"
+          icon="download"
+          onPress={() => handleFormatExport('apkg')}
+          disabled={exportingFormat !== null}
+          small
+        />
+      </Card>
+
+      <Card style={styles.optionCard}>
+        <View style={styles.optionHeader}>
+          <View style={[styles.optionIcon, { backgroundColor: colors.primarySoft }]}>
+            <Ionicons name="document-text" size={20} color={colors.primary} />
+          </View>
+          <View style={styles.optionText}>
+            <Text style={styles.optionTitle}>Markdown</Text>
+            <Text style={styles.optionDetail}>A readable word — meaning — example list. Not meant to re-import.</Text>
+          </View>
+        </View>
+        <Button
+          label={exportingFormat === 'markdown' ? 'Exporting…' : 'Export as Markdown'}
+          variant="secondary"
+          icon="download"
+          onPress={() => handleFormatExport('markdown')}
+          disabled={exportingFormat !== null}
+          small
+        />
       </Card>
     </ScrollView>
   )

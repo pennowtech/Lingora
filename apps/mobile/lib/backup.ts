@@ -42,8 +42,16 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
   ])
 }
 
+/**
+ * `.lin` — the Lingora backup format's own extension. The content is still
+ * plain JSON (`BackupPayload`, unchanged) — this is a naming/branding
+ * decision (a backup is "a Lingora file", not "a JSON file" to the user),
+ * not a new serialization. `.lin` has no registered system MIME type, so
+ * the share sheet and file picker below use `application/octet-stream`
+ * rather than `application/json`.
+ */
 function backupFileName(exportedAt: number): string {
-  return `lingora-backup-${new Date(exportedAt).toISOString().slice(0, 10)}.json`
+  return `lingora-backup-${new Date(exportedAt).toISOString().slice(0, 10)}.lin`
 }
 
 /** Builds the backup, writes it to cache, and opens the native share sheet to save/send it. */
@@ -61,7 +69,7 @@ export async function exportBackupToFile(db: DatabaseAdapter): Promise<{ itemCou
 
   const canShare = await Sharing.isAvailableAsync()
   if (canShare) {
-    await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Save Lingora backup' })
+    await Sharing.shareAsync(file.uri, { mimeType: 'application/octet-stream', dialogTitle: 'Save Lingora backup' })
   }
   log.info('export.backup_shared', {
     message: canShare ? 'Backup file written and share sheet opened' : 'Backup file written; sharing unavailable',
@@ -77,7 +85,11 @@ export interface PickedBackup {
 
 /** Opens the native file picker and validates the chosen file — throws BackupValidationError on a bad file. */
 export async function pickAndParseBackupFile(): Promise<PickedBackup | null> {
-  const picked = await File.pickFileAsync({ mimeTypes: ['application/json', 'text/plain'] })
+  // '*/*' rather than a specific MIME type: '.lin' has no registered system
+  // MIME type, and Android's picker resolves unknown extensions to
+  // 'application/octet-stream' inconsistently across OEMs — filtering by a
+  // specific type risks hiding the very file the user is looking for.
+  const picked = await File.pickFileAsync({ mimeTypes: ['application/octet-stream', 'application/json', 'text/plain', '*/*'] })
   if (picked.canceled) return null
 
   const raw = await picked.result.text()

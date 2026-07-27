@@ -40,3 +40,25 @@ export function parseClozeMarkup(text: string): ParsedCloze | null {
   if (answers.length === 0) return null
   return { blanked, answers }
 }
+
+/**
+ * The reverse of `parseClozeMarkup`: re-embeds `{{c1::answer}}` markup into
+ * a blanked sentence, for export (CSV/Anki) — round-tripping a stored
+ * `Cloze` row (`sentence` = blanked, `answer` = every answer joined with
+ * "; ", see cloze-parse.test.ts) back into the same syntax a re-import (or
+ * real Anki) understands. Every blank gets cloze number `c1` — this
+ * importer never distinguished cloze numbers on the way in either (see the
+ * module doc comment), so there's no original numbering to restore.
+ */
+export function buildClozeMarkup(blankedSentence: string, answerJoined: string): string {
+  const answers = answerJoined
+    .split(';')
+    .map((a) => a.trim())
+    .filter((a) => a.length > 0)
+  const parts = blankedSentence.split(CLOZE_BLANK)
+  return parts.reduce((result, part, i) => {
+    if (i === 0) return part
+    const answer = answers[i - 1] ?? ''
+    return `${result}{{c1::${answer}}}${part}`
+  }, '')
+}

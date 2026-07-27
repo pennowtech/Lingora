@@ -483,51 +483,73 @@ files, landing after the round documented above and before WP4.5:
   always shown; the pressable due-count pill (navigates straight to review)
   is unchanged alongside it.
 
-### Work package 4.5: Export formats — not started
+### Work package 4.5: Export formats — ✅ Complete (pending real-Anki verification)
 
-Import (CSV, Anki `.apkg`) is done; export is still JSON-only (the
-whole-library backup, `packages/database/src/backup.ts`). Deck rows and the
-deck detail screen already have "Export this deck" entries in their `⋮`
-menus (added alongside the deck-scoped import entry points below) that
-currently just explain this and link to Settings for the full JSON backup —
-an honest, visible deferral rather than a silent gap, matching how Phase 4
-deferred share-sheet capture.
+All four formats are implemented, deck-scoped (via each deck's `⋮` menu →
+"Export this deck" → format picker) and whole-library (Settings → Import &
+Export). Shared query: `packages/database/src/export-shared.ts#getExportableCards`
+(optionally narrowed to one deck via `deck_cards`, same table `getCardsForDeck`
+reads) — every card's word/primary meaning/selected-or-cloze example/
+synonyms/tags, with a cloze card's `example` carrying real `{{c1::answer}}`
+markup re-embedded by `cloze-parse.ts#buildClozeMarkup` (the reverse of
+`parseClozeMarkup`), so a cloze card round-trips as a real fill-in-the-blank
+rather than exporting as a blank-less plain sentence.
 
-Planned formats, roughly in priority order:
+1. **JSON → renamed to Lingora format, `.lin`.** Still exactly the same
+   `BackupPayload` JSON content (`packages/database/src/backup.ts`
+   unchanged) — this was a naming/branding decision only ("a Lingora file",
+   not "a JSON file"), not a new serialization. `apps/mobile/lib/backup.ts`'s
+   `backupFileName` now writes `.lin`; the share sheet and restore file
+   picker use `application/octet-stream` instead of `application/json`
+   since `.lin` has no registered system MIME type. Remains the only
+   full-fidelity format (meaning clusters, multiple meanings/examples,
+   synonyms, phrases, FSRS state, cloze cards) and the only whole-library
+   *restore* path — CSV/apkg are export-only from this app's own UI.
+2. **CSV export** (`csv-export.ts#buildCsvExport`) — same header names as
+   `CsvField`, so a file exported here re-imports through
+   `buildCsvImportPreview` with zero manual remapping (verified by a round-
+   trip test in `export.test.ts`: export, then re-parse and preview the
+   result, every row comes back as `'duplicate'` — the already-imported
+   card, correctly recognized). RFC4180 field escaping (`csv-export.ts#csvField`).
+3. **Markdown export** (`markdown-export.ts#buildMarkdownExport`) — one
+   `### word` block per card with meaning/example/synonyms/tags. Not meant
+   to round-trip (no importer reads it back) — a "paste into Notes/a doc"
+   convenience, matching the original plan.
+4. **Anki `.apkg` export** (`apkg-export.ts#buildApkgExport` +
+   `apps/mobile/lib/export.ts#exportApkgToFile`) — writes a legacy-schema
+   Anki collection (`collection.anki2`, the same format
+   `readAnkiCollection`'s fallback path already reads, and the format real
+   Anki has kept backward-compatible support for since old exports use it
+   too) into a real temp SQLite file (`openDatabaseAsync`, mirroring
+   `lib/apkg.ts`'s importer — a deserialized in-memory database can't back
+   the disk-spilled temp b-trees a multi-table write needs), then zips it
+   with `jszip` (`collection.anki2` + an empty `media` manifest, `{}`, since
+   Lingora doesn't export audio/images) into a `.apkg` and opens the share
+   sheet. Two note types are fabricated: "Lingora Basic" (plain front/back)
+   and "Lingora Cloze" (Anki's own `type: 1` cloze note type, using
+   `{{cloze:Text}}` in its template) — a card's `{{c1::answer}}` markup
+   (see above) makes it a real, natively-rendered fill-in-the-blank in
+   Anki's own cloze engine, not a plain sentence with visible brackets.
+   **Caveat, not yet closed out:** built from the documented/long-stable
+   legacy Anki2 schema (col/notes/cards/revlog/graves tables, `col.models`/
+   `col.decks`/`col.dconf`/`col.conf` JSON shapes) and covered by a Vitest
+   check that the written SQLite rows/JSON have the right shape
+   (`export.test.ts`), but **not verified by actually opening an export in
+   real Anki/AnkiDroid/AnkiMobile** — no Anki client is available in this
+   development environment. Before relying on this for real deck sharing,
+   export a file and confirm it opens cleanly (no "corrupt collection"
+   error) in an actual Anki client; report back with the exact error if it
+   doesn't so the JSON metadata in `apkg-export.ts` can be corrected.
 
-1. **CSV export** — mirrors the existing CSV importer's columns
-   (word/meaning/example/exampleTranslation/synonyms/POS/CEFR/tags), one row
-   per card (picks the primary meaning/selected example for a card with
-   several). Lossy for multi-meaning/multi-cluster cards, but round-trips
-   through the same importer, is easy to hand-edit, and is the cheapest to
-   build given the import code already exists. Build this first.
-2. **Anki `.apkg` export** — reverse of `apkg-import.ts`: fabricates a
-   valid Anki collection + a note type from Lingora's card shape, so a deck
-   can be studied in Anki/AnkiMobile or shared with someone using Anki.
-   Lossy the same direction import is (no meaning clusters/explanations);
-   review history is not fabricated (cards import into Anki as new, same as
-   Lingora's own import policy).
-3. **Markdown/plain-text export** — `word — meaning — example` per card, one
-   block per line. Not meant to round-trip; a "paste into Notes/a doc"
-   convenience. Lowest priority.
-4. **JSON (already shipped)** — stays the canonical full-fidelity backup
-   (meaning clusters, multiple meanings/examples, synonyms, phrases, FSRS
-   state, cloze cards); nothing else in this list captures the full data
-   model, so this remains the "whole library" format, not a per-deck one.
+Acceptance criteria:
 
-Scope decision still open: whether CSV/apkg export are *deck-scoped* only
-(matching the `⋮` menu entry points already wired) or also available as a
-whole-library export from Settings, mirroring where JSON backup lives today.
-
-Acceptance criteria (once started):
-
-- CSV export produces a file `csv-import.ts` can re-import without manual
-  column remapping (same header names).
-- `.apkg` export opens in real Anki (or AnkiDroid/AnkiMobile) without a
-  "corrupt collection" error — verified against actual Anki, not just that
-  Lingora's own importer can read it back.
-- Every export format is reachable from both the deck-row `⋮` menu and (for
-  CSV/JSON) Settings → Import & Export.
+- [x] CSV export produces a file `csv-import.ts` can re-import without
+      manual column remapping (verified by an automated round-trip test).
+- [ ] `.apkg` export opens in real Anki (or AnkiDroid/AnkiMobile) without a
+      "corrupt collection" error — **verification against actual Anki is
+      still pending**, see the caveat above.
+- [x] Every export format is reachable from both the deck-row `⋮` menu
+      (deck-scoped) and Settings → Import & Export (whole-library).
 
 ### Work package 5: Learning statistics
 

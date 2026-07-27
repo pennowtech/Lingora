@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasClozeMarkup, parseClozeMarkup } from './cloze-parse'
+import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup } from './cloze-parse'
 
 describe('hasClozeMarkup', () => {
   it('detects real Anki cloze syntax', () => {
@@ -42,5 +42,23 @@ describe('parseClozeMarkup', () => {
   it('supports the single-colon variant', () => {
     const result = parseClozeMarkup('Wir gehen heute Abend {{x1:aus}}.')
     expect(result).toEqual({ blanked: 'Wir gehen heute Abend [...].', answers: ['aus'] })
+  })
+})
+
+describe('buildClozeMarkup', () => {
+  it('re-embeds a single answer as {{c1::answer}}', () => {
+    expect(buildClozeMarkup('Wir gehen heute Abend [...].', 'aus')).toBe('Wir gehen heute Abend {{c1::aus}}.')
+  })
+
+  it('re-embeds multiple answers in order, each as its own {{c1::...}}', () => {
+    const result = buildClozeMarkup('Der [...] und der [...] sind ähnlich.', 'Wettbewerb; Wettstreit')
+    expect(result).toBe('Der {{c1::Wettbewerb}} und der {{c1::Wettstreit}} sind ähnlich.')
+  })
+
+  it('round-trips through parseClozeMarkup back to the same blanked sentence', () => {
+    const original = 'Wir gehen heute Abend {{c1::aus}}.'
+    const parsed = parseClozeMarkup(original)!
+    const rebuilt = buildClozeMarkup(parsed.blanked, parsed.answers.join('; '))
+    expect(parseClozeMarkup(rebuilt)).toEqual(parsed)
   })
 })

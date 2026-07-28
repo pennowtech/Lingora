@@ -438,6 +438,8 @@ export interface WordGuideEntry {
   chunkId: number
   partOfSpeech?: string
   gender?: string
+  /** Short English gloss — the same role as a generated meaning's `translation`, used when adding this entry to a deck as a card. */
+  translation: string
   usage?: string
   intro: string
   synonyms: WordGuideSynonym[]

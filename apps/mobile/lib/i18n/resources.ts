@@ -44,6 +44,7 @@ const ENGLISH_PHRASES = [
   '"{{term}}" is new', "This word isn't in your library yet. Generate meanings, examples, and synonyms with AI.",
   'Translating…', 'Generating…', 'Generate with AI', 'Add your OpenAI key in Settings to generate new words',
   'Generation came back incomplete', 'Nothing was saved — try again.',
+  'From your installed dictionary — free, no AI needed.',
 
   // Decks / Deck detail
   'Give the deck a name.', 'Could not delete deck', 'Delete deck?',
@@ -173,6 +174,12 @@ const ENGLISH_PHRASES = [
   '{{words}} words planned, {{chunks}} chunks of ~100.',
   '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet',
   'Install all available', 'Chunks', 'Words {{start}}–{{end}}', '{{count}} words', 'Not generated yet',
+  'Uninstall all', 'Uninstalling…', 'Word guides uninstalled', 'Removed {{count}} chunks.',
+  'Could not uninstall word guides', 'Uninstall all word guides?',
+  'Removes every installed chunk from this device. Cards you already added to your deck are not affected.',
+  'No translation to add.', 'No dictionary entry to add.', 'Details', 'More info', 'Hide details',
+  'Understanding the German {{wordClass}} "{{headword}}"', 'Usage', 'Examples of Usage',
+  'Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Pronoun', 'Article', 'Phrase', 'Word',
 
   // Settings — provider chrome
   'Connected', 'No internet connection', 'DeepL validation failed', '{{provider}} validation failed',
@@ -239,6 +246,7 @@ const de: Partial<Record<Phrase, string>> = {
   'Translating…': 'Übersetze…', 'Generating…': 'Erzeuge…', 'Generate with AI': 'Mit KI erzeugen',
   'Add your OpenAI key in Settings to generate new words': 'Füge deinen OpenAI-Schlüssel in den Einstellungen hinzu, um neue Wörter zu erzeugen',
   'Generation came back incomplete': 'Die Generierung kam unvollständig zurück',
+  'From your installed dictionary — free, no AI needed.': 'Aus deinem installierten Wörterbuch — kostenlos, keine KI nötig.',
   'Nothing was saved — try again.': 'Es wurde nichts gespeichert — versuche es erneut.',
 
   'Give the deck a name.': 'Gib dem Stapel einen Namen.', 'Could not delete deck': 'Stapel konnte nicht gelöscht werden',
@@ -456,6 +464,18 @@ const de: Partial<Record<Phrase, string>> = {
     '{{installed}} installiert · {{available}} verfügbar zum Installieren · {{pending}} noch nicht erzeugt',
   'Install all available': 'Alle verfügbaren installieren', Chunks: 'Abschnitte',
   'Words {{start}}–{{end}}': 'Wörter {{start}}–{{end}}', '{{count}} words': '{{count}} Wörter', 'Not generated yet': 'Noch nicht erzeugt',
+  'Uninstall all': 'Alle deinstallieren', 'Uninstalling…': 'Wird deinstalliert…',
+  'Word guides uninstalled': 'Wortführer deinstalliert', 'Removed {{count}} chunks.': '{{count}} Abschnitte entfernt.',
+  'Could not uninstall word guides': 'Wortführer konnten nicht deinstalliert werden',
+  'Uninstall all word guides?': 'Alle Wortführer deinstallieren?',
+  'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
+    'Entfernt jeden installierten Abschnitt von diesem Gerät. Bereits zu deinem Stapel hinzugefügte Karten sind davon nicht betroffen.',
+  'No translation to add.': 'Keine Übersetzung zum Hinzufügen.', 'No dictionary entry to add.': 'Kein Wörterbucheintrag zum Hinzufügen.',
+  Details: 'Details', 'More info': 'Mehr Infos', 'Hide details': 'Details ausblenden',
+  'Understanding the German {{wordClass}} "{{headword}}"': 'Das deutsche {{wordClass}} „{{headword}}" verstehen',
+  Usage: 'Verwendung', 'Examples of Usage': 'Anwendungsbeispiele',
+  Noun: 'Substantiv', Verb: 'Verb', Adjective: 'Adjektiv', Adverb: 'Adverb', Preposition: 'Präposition',
+  Conjunction: 'Konjunktion', Pronoun: 'Pronomen', Article: 'Artikel', Phrase: 'Redewendung',
 
   Connected: 'Verbunden', 'No internet connection': 'Keine Internetverbindung', 'DeepL validation failed': 'DeepL-Überprüfung fehlgeschlagen',
   '{{provider}} validation failed': '{{provider}}-Überprüfung fehlgeschlagen',
@@ -522,6 +542,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'Translating…': 'Traduction…', 'Generating…': 'Génération…', 'Generate with AI': "Générer avec l'IA",
   'Add your OpenAI key in Settings to generate new words': 'Ajoutez votre clé OpenAI dans les réglages pour générer de nouveaux mots',
   'Generation came back incomplete': 'La génération est revenue incomplète',
+  'From your installed dictionary — free, no AI needed.': 'Depuis votre dictionnaire installé — gratuit, aucune IA nécessaire.',
   'Nothing was saved — try again.': "Rien n'a été enregistré — réessayez.",
 
   'Give the deck a name.': 'Donnez un nom au paquet.', 'Could not delete deck': 'Impossible de supprimer le paquet',
@@ -739,6 +760,18 @@ const fr: Partial<Record<Phrase, string>> = {
     '{{installed}} installés · {{available}} disponibles à installer · {{pending}} pas encore générés',
   'Install all available': 'Installer tout ce qui est disponible', Chunks: 'Segments',
   'Words {{start}}–{{end}}': 'Mots {{start}}–{{end}}', '{{count}} words': '{{count}} mots', 'Not generated yet': 'Pas encore généré',
+  'Uninstall all': 'Tout désinstaller', 'Uninstalling…': 'Désinstallation…',
+  'Word guides uninstalled': 'Guides de mots désinstallés', 'Removed {{count}} chunks.': '{{count}} segments supprimés.',
+  'Could not uninstall word guides': "Impossible de désinstaller les guides de mots",
+  'Uninstall all word guides?': 'Désinstaller tous les guides de mots ?',
+  'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
+    "Supprime chaque segment installé de cet appareil. Les cartes déjà ajoutées à votre paquet ne sont pas affectées.",
+  'No translation to add.': 'Aucune traduction à ajouter.', 'No dictionary entry to add.': 'Aucune entrée de dictionnaire à ajouter.',
+  Details: 'Détails', 'More info': "Plus d'infos", 'Hide details': 'Masquer les détails',
+  'Understanding the German {{wordClass}} "{{headword}}"': 'Comprendre le {{wordClass}} allemand « {{headword}} »',
+  Usage: 'Usage', 'Examples of Usage': "Exemples d'usage",
+  Noun: 'Nom', Verb: 'Verbe', Adjective: 'Adjectif', Adverb: 'Adverbe', Preposition: 'Préposition',
+  Conjunction: 'Conjonction', Pronoun: 'Pronom', Article: 'Article', Phrase: 'Expression',
 
   Connected: 'Connecté', 'No internet connection': 'Pas de connexion Internet', 'DeepL validation failed': 'Échec de la vérification DeepL',
   '{{provider}} validation failed': 'Échec de la vérification {{provider}}',
@@ -805,6 +838,7 @@ const es: Partial<Record<Phrase, string>> = {
   'Translating…': 'Traduciendo…', 'Generating…': 'Generando…', 'Generate with AI': 'Generar con IA',
   'Add your OpenAI key in Settings to generate new words': 'Añade tu clave de OpenAI en Ajustes para generar nuevas palabras',
   'Generation came back incomplete': 'La generación volvió incompleta',
+  'From your installed dictionary — free, no AI needed.': 'De tu diccionario instalado — gratis, sin necesidad de IA.',
   'Nothing was saved — try again.': 'No se guardó nada — inténtalo de nuevo.',
 
   'Give the deck a name.': 'Ponle un nombre al mazo.', 'Could not delete deck': 'No se pudo eliminar el mazo',
@@ -1022,6 +1056,18 @@ const es: Partial<Record<Phrase, string>> = {
     '{{installed}} instalados · {{available}} disponibles para instalar · {{pending}} aún no generados',
   'Install all available': 'Instalar todo lo disponible', Chunks: 'Fragmentos',
   'Words {{start}}–{{end}}': 'Palabras {{start}}–{{end}}', '{{count}} words': '{{count}} palabras', 'Not generated yet': 'Aún no generado',
+  'Uninstall all': 'Desinstalar todo', 'Uninstalling…': 'Desinstalando…',
+  'Word guides uninstalled': 'Guías de palabras desinstaladas', 'Removed {{count}} chunks.': '{{count}} fragmentos eliminados.',
+  'Could not uninstall word guides': 'No se pudieron desinstalar las guías de palabras',
+  'Uninstall all word guides?': '¿Desinstalar todas las guías de palabras?',
+  'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
+    'Elimina cada fragmento instalado de este dispositivo. Las tarjetas que ya añadiste a tu mazo no se ven afectadas.',
+  'No translation to add.': 'No hay traducción para añadir.', 'No dictionary entry to add.': 'No hay entrada de diccionario para añadir.',
+  Details: 'Detalles', 'More info': 'Más información', 'Hide details': 'Ocultar detalles',
+  'Understanding the German {{wordClass}} "{{headword}}"': 'Entendiendo el {{wordClass}} alemán "{{headword}}"',
+  Usage: 'Uso', 'Examples of Usage': 'Ejemplos de uso',
+  Noun: 'Sustantivo', Verb: 'Verbo', Adjective: 'Adjetivo', Adverb: 'Adverbio', Preposition: 'Preposición',
+  Conjunction: 'Conjunción', Pronoun: 'Pronombre', Article: 'Artículo', Phrase: 'Frase',
 
   Connected: 'Conectado', 'No internet connection': 'Sin conexión a Internet', 'DeepL validation failed': 'Error de verificación de DeepL',
   '{{provider}} validation failed': 'Error de verificación de {{provider}}',
@@ -1088,6 +1134,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'Translating…': 'अनुवाद हो रहा है…', 'Generating…': 'बन रहा है…', 'Generate with AI': 'AI से बनाएं',
   'Add your OpenAI key in Settings to generate new words': 'नए शब्द बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें',
   'Generation came back incomplete': 'जनरेशन अधूरा वापस आया',
+  'From your installed dictionary — free, no AI needed.': 'आपके इंस्टॉल किए गए शब्दकोश से — मुफ़्त, AI की ज़रूरत नहीं।',
   'Nothing was saved — try again.': 'कुछ भी सहेजा नहीं गया — फिर से कोशिश करें।',
 
   'Give the deck a name.': 'डेक को एक नाम दें।', 'Could not delete deck': 'डेक हटाया नहीं जा सका',
@@ -1305,6 +1352,18 @@ const hi: Partial<Record<Phrase, string>> = {
     '{{installed}} इंस्टॉल किए गए · {{available}} इंस्टॉल के लिए उपलब्ध · {{pending}} अभी तक नहीं बने',
   'Install all available': 'सभी उपलब्ध इंस्टॉल करें', Chunks: 'हिस्से',
   'Words {{start}}–{{end}}': 'शब्द {{start}}–{{end}}', '{{count}} words': '{{count}} शब्द', 'Not generated yet': 'अभी तक नहीं बना',
+  'Uninstall all': 'सभी अनइंस्टॉल करें', 'Uninstalling…': 'अनइंस्टॉल हो रहा है…',
+  'Word guides uninstalled': 'शब्द गाइड अनइंस्टॉल हो गए', 'Removed {{count}} chunks.': '{{count}} हिस्से हटा दिए गए।',
+  'Could not uninstall word guides': 'शब्द गाइड अनइंस्टॉल नहीं हो सके',
+  'Uninstall all word guides?': 'सभी शब्द गाइड अनइंस्टॉल करें?',
+  'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
+    'यह इस डिवाइस से हर इंस्टॉल किया हुआ हिस्सा हटा देता है। आपके डेक में पहले से जोड़े गए कार्ड प्रभावित नहीं होते।',
+  'No translation to add.': 'जोड़ने के लिए कोई अनुवाद नहीं।', 'No dictionary entry to add.': 'जोड़ने के लिए कोई शब्दकोश प्रविष्टि नहीं।',
+  Details: 'विवरण', 'More info': 'अधिक जानकारी', 'Hide details': 'विवरण छुपाएं',
+  'Understanding the German {{wordClass}} "{{headword}}"': 'जर्मन {{wordClass}} "{{headword}}" को समझना',
+  Usage: 'उपयोग', 'Examples of Usage': 'उपयोग के उदाहरण',
+  Noun: 'संज्ञा', Verb: 'क्रिया', Adjective: 'विशेषण', Adverb: 'क्रिया-विशेषण', Preposition: 'पूर्वसर्ग',
+  Conjunction: 'संयोजक', Pronoun: 'सर्वनाम', Article: 'आर्टिकल', Phrase: 'वाक्यांश',
 
   Connected: 'कनेक्टेड', 'No internet connection': 'इंटरनेट कनेक्शन नहीं है', 'DeepL validation failed': 'DeepL सत्यापन विफल',
   '{{provider}} validation failed': '{{provider}} सत्यापन विफल',

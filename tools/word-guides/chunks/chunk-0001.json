@@ -9,6 +9,7 @@
     {
       "headword": "du",
       "partOfSpeech": "pronoun",
+      "translation": "you (informal, singular)",
       "intro": "The informal second-person singular pronoun — 'you' when speaking to one person you know well (family, friends, children, or by mutual agreement). Its formal counterpart is 'Sie'.",
       "usage": "Declines by case: du (nominative), dich (accusative), dir (dative), dein (possessive). Verbs take the '-st' ending with du: du gehst, du bist.",
       "synonyms": [],
@@ -38,6 +39,7 @@
     {
       "headword": "euch",
       "partOfSpeech": "pronoun",
+      "translation": "you (plural, accusative/dative)",
       "intro": "The accusative and dative form of 'ihr' — 'you' (plural, informal), used when addressing more than one person you'd individually call 'du'.",
       "usage": "Same form for both accusative and dative: 'Ich sehe euch' (I see you-all) vs. 'Ich gebe euch das Buch' (I give you-all the book).",
       "synonyms": [],
@@ -67,6 +69,7 @@
     {
       "headword": "ich",
       "partOfSpeech": "pronoun",
+      "translation": "I",
       "intro": "The first-person singular pronoun — 'I'. Always capitalized only at the start of a sentence, unlike English where 'I' is always capitalized.",
       "usage": "Declines as: ich (nominative), mich (accusative), mir (dative), mein (possessive).",
       "synonyms": [],
@@ -97,6 +100,7 @@
       "headword": "das",
       "partOfSpeech": "article/pronoun",
       "gender": "neuter",
+      "translation": "the / that",
       "intro": "The definite article 'the' for neuter nouns, or a demonstrative/relative pronoun meaning 'that/this/which'. Extremely common — it also appears as the all-purpose 'das ist...' ('that is...').",
       "usage": "As an article: das Kind (the child), das Haus (the house). As a pronoun: 'Das ist mein Buch' (That is my book).",
       "synonyms": [],
@@ -127,6 +131,7 @@
       "headword": "der",
       "partOfSpeech": "article/pronoun",
       "gender": "masculine",
+      "translation": "the (masculine)",
       "intro": "The definite article 'the' for masculine nominative nouns (and dative/genitive feminine), one of the most frequent words in German. Also functions as a relative pronoun ('who/that').",
       "usage": "Declines heavily by case and gender across the der/die/das system — der Mann (the man, nominative masc.) vs. dem Mann (dative masc.).",
       "synonyms": [],
@@ -157,6 +162,7 @@
       "headword": "die",
       "partOfSpeech": "article/pronoun",
       "gender": "feminine",
+      "translation": "the (feminine/plural)",
       "intro": "The definite article 'the' for feminine nominative/accusative nouns, and for all plural nouns regardless of gender. One of the highest-frequency words in the language.",
       "usage": "die Frau (the woman, singular feminine), die Kinder (the children, plural — any gender).",
       "synonyms": [],
@@ -186,6 +192,7 @@
     {
       "headword": "an",
       "partOfSpeech": "preposition",
+      "translation": "at / on",
       "intro": "A two-way preposition meaning 'at' or 'on' (vertical surfaces, edges, points in time) — takes accusative for motion toward, dative for static location.",
       "usage": "an + dative = location ('am Fenster' — at the window); an + accusative = direction ('an die Wand' — onto the wall).",
       "synonyms": [],
@@ -215,6 +222,7 @@
     {
       "headword": "auf",
       "partOfSpeech": "preposition",
+      "translation": "on / onto",
       "intro": "A two-way preposition meaning 'on/onto/upon' (horizontal surfaces) — dative for location, accusative for motion onto something.",
       "usage": "auf + dative = 'auf dem Tisch' (on the table, static); auf + accusative = 'auf den Tisch' (onto the table, motion).",
       "synonyms": [],
@@ -244,6 +252,7 @@
     {
       "headword": "nach",
       "partOfSpeech": "preposition",
+      "translation": "after / to(ward)",
       "intro": "A preposition meaning 'after' (time/sequence) or 'to/toward' (with city and country names, and cardinal directions). Always takes the dative case.",
       "usage": "nach + dative always: 'nach der Arbeit' (after work), 'nach Berlin' (to Berlin).",
       "synonyms": [],
@@ -274,6 +283,7 @@
       "headword": "ein",
       "partOfSpeech": "article",
       "gender": "masculine/neuter",
+      "translation": "a / an / one",
       "intro": "The indefinite article 'a/an' for masculine and neuter nominative nouns. Also used as the numeral 'one' in some contexts.",
       "usage": "ein Mann (a man, masc.), ein Kind (a child, neut.) — declines to einen/einem/eines by case.",
       "synonyms": [],
@@ -304,6 +314,7 @@
       "headword": "es",
       "partOfSpeech": "pronoun",
       "gender": "neuter",
+      "translation": "it",
       "intro": "The neuter third-person singular pronoun 'it', and also the impersonal subject used in weather/time expressions and many fixed phrases ('es gibt' — there is/are).",
       "usage": "Refers back to neuter nouns, and appears as a placeholder subject: 'Es regnet' (It's raining).",
       "synonyms": [],
@@ -333,6 +344,7 @@
     {
       "headword": "sowohl",
       "partOfSpeech": "conjunction",
+      "translation": "both (sowohl ... als auch = both ... and)",
       "intro": "Used in the fixed pair 'sowohl ... als auch' ('both ... and', literally 'as well ... as also') to link two items that are both true or included.",
       "usage": "Always paired with 'als auch': 'sowohl A als auch B'.",
       "synonyms": [
@@ -367,6 +379,7 @@
     {
       "headword": "und",
       "partOfSpeech": "conjunction",
+      "translation": "and",
       "intro": "The basic coordinating conjunction 'and', linking words, phrases, or clauses of equal weight. One of the most frequent words in any German text.",
       "usage": "Doesn't change word order in the clause that follows it (unlike subordinating conjunctions).",
       "synonyms": [],
@@ -396,6 +409,7 @@
     {
       "headword": "da",
       "partOfSpeech": "adverb/conjunction",
+      "translation": "there / since",
       "intro": "As an adverb, 'there/here' (pointing to a place already established). As a subordinating conjunction, 'since/because' (giving a reason, often at the start of a sentence).",
       "usage": "As a conjunction it sends the verb to the end of its clause: 'Da es regnet, bleiben wir zu Hause.'",
       "synonyms": [
@@ -430,6 +444,7 @@
     {
       "headword": "damalig",
       "partOfSpeech": "adjective",
+      "translation": "former / of that time",
       "intro": "'Former/of that time' — describes something as it was at a specific point in the past being discussed, not now.",
       "usage": "Almost always used attributively before a noun: 'der damalige Präsident' (the president at that time).",
       "synonyms": [
@@ -464,6 +479,7 @@
     {
       "headword": "aus",
       "partOfSpeech": "preposition",
+      "translation": "out of / from",
       "intro": "A preposition meaning 'out of' or 'from' (origin) — always takes the dative case. Also used to describe material something is made of.",
       "usage": "aus + dative: 'aus Deutschland' (from Germany), 'aus Holz' (made of wood).",
       "synonyms": [],
@@ -493,6 +509,7 @@
     {
       "headword": "von",
       "partOfSpeech": "preposition",
+      "translation": "from / of / by",
       "intro": "A preposition meaning 'from/of/by' — always dative. Used for origin, possession (informally, instead of the genitive), and the agent in passive sentences.",
       "usage": "von + dative: 'von mir' (from me / of mine), 'von dem Lehrer gelobt' (praised by the teacher).",
       "synonyms": [],
@@ -522,6 +539,7 @@
     {
       "headword": "vor",
       "partOfSpeech": "preposition",
+      "translation": "before / in front of",
       "intro": "A two-way preposition meaning 'before/in front of' (space or time) — dative for location, accusative for motion. Also used with a time expression to mean 'ago'.",
       "usage": "vor + dative for static position/time-ago: 'vor dem Haus' (in front of the house), 'vor drei Jahren' (three years ago).",
       "synonyms": [],
@@ -551,6 +569,7 @@
     {
       "headword": "ist",
       "partOfSpeech": "verb",
+      "translation": "is",
       "intro": "The third-person singular present tense of 'sein' (to be) — 'is'. One of the most irregular and most frequent verbs in German.",
       "usage": "sein conjugates irregularly: ich bin, du bist, er/sie/es ist, wir sind, ihr seid, sie sind. Past: war. Perfect: ist gewesen.",
       "synonyms": [],
@@ -580,6 +599,7 @@
     {
       "headword": "hinein",
       "partOfSpeech": "adverb",
+      "translation": "into / inward",
       "intro": "'Into/inward' — describes motion from the speaker's position toward the inside of something, away from the speaker.",
       "usage": "Often combines with verbs as a separable prefix: hineingehen (to go in), hineinschauen (to look in).",
       "synonyms": [
@@ -614,6 +634,7 @@
     {
       "headword": "was",
       "partOfSpeech": "pronoun",
+      "translation": "what",
       "intro": "The interrogative and relative pronoun 'what' — used to ask questions and to refer back to indefinite pronouns or whole clauses.",
       "usage": "As a question word: 'Was machst du?' (What are you doing?). As a relative pronoun: 'Alles, was ich weiß' (Everything that I know).",
       "synonyms": [],
@@ -643,6 +664,7 @@
     {
       "headword": "man",
       "partOfSpeech": "pronoun",
+      "translation": "one / you / people",
       "intro": "The impersonal pronoun 'one/you/people (in general)' — used to make a generalized statement without naming a specific subject. Very common in spoken and written German where English often uses 'you' or the passive voice.",
       "usage": "Only ever used in the nominative case, always with a third-person-singular verb: 'Man sagt...' (People/one say(s)...).",
       "synonyms": [],
@@ -672,6 +694,7 @@
     {
       "headword": "mich",
       "partOfSpeech": "pronoun",
+      "translation": "me",
       "intro": "The accusative form of 'ich' — 'me', used as a direct object or after accusative prepositions.",
       "usage": "'Er sieht mich' (He sees me) — contrast with dative 'mir' (to/for me).",
       "synonyms": [],
@@ -701,6 +724,7 @@
     {
       "headword": "mir",
       "partOfSpeech": "pronoun",
+      "translation": "to me / for me",
       "intro": "The dative form of 'ich' — 'to me/for me', used as an indirect object and with dative verbs/prepositions.",
       "usage": "'Gib mir das Buch' (Give me the book) — the recipient, not the direct object.",
       "synonyms": [],
@@ -730,6 +754,7 @@
     {
       "headword": "diese",
       "partOfSpeech": "pronoun/article",
+      "translation": "this / these (feminine/plural)",
       "intro": "The demonstrative 'this/these' for feminine singular nouns and all plural nouns — points to something specific and nearby (physically or in the conversation).",
       "usage": "diese Frau (this woman, fem. sg.), diese Bücher (these books, plural).",
       "synonyms": [],
@@ -760,6 +785,7 @@
       "headword": "dieser",
       "partOfSpeech": "pronoun/article",
       "gender": "masculine",
+      "translation": "this (masculine)",
       "intro": "The demonstrative 'this' for masculine singular nominative nouns — points to something specific and nearby.",
       "usage": "dieser Mann (this man) — declines to diesen/diesem/dieses by case, same pattern as 'der'.",
       "synonyms": [],
@@ -790,6 +816,7 @@
       "headword": "dieses",
       "partOfSpeech": "pronoun/article",
       "gender": "neuter",
+      "translation": "this (neuter)",
       "intro": "The demonstrative 'this' for neuter singular nominative/accusative nouns.",
       "usage": "dieses Jahr (this year), dieses Buch (this book).",
       "synonyms": [],
@@ -819,6 +846,7 @@
     {
       "headword": "er",
       "partOfSpeech": "pronoun",
+      "translation": "he / it",
       "intro": "The third-person singular masculine pronoun 'he' (or 'it', when referring back to a masculine noun).",
       "usage": "Declines as: er (nominative), ihn (accusative), ihm (dative).",
       "synonyms": [],
@@ -848,6 +876,7 @@
     {
       "headword": "als",
       "partOfSpeech": "conjunction",
+      "translation": "when / as / than",
       "intro": "Has three common uses: 'when' (for a single past event), 'as' (in a role/capacity), and 'than' (in comparisons).",
       "usage": "Sends the verb to the end of its clause as a subordinating conjunction: 'Als ich ankam, regnete es.'",
       "synonyms": [],
@@ -877,6 +906,7 @@
     {
       "headword": "denn",
       "partOfSpeech": "conjunction",
+      "translation": "because / for",
       "intro": "A coordinating conjunction meaning 'because/for', giving a reason — similar meaning to 'weil' but, unlike 'weil', doesn't change the word order of its clause.",
       "usage": "Keeps normal (verb-second) word order, unlike 'weil'/'da': 'Ich bleibe zu Hause, denn ich bin müde.'",
       "synonyms": [
@@ -911,6 +941,7 @@
     {
       "headword": "für",
       "partOfSpeech": "preposition",
+      "translation": "for",
       "intro": "A preposition meaning 'for' — always takes the accusative case. Used for purpose, benefit, duration, or exchange.",
       "usage": "für + accusative always: 'für mich' (for me), 'für zwei Wochen' (for two weeks).",
       "synonyms": [],
@@ -940,6 +971,7 @@
     {
       "headword": "mein",
       "partOfSpeech": "pronoun",
+      "translation": "my",
       "intro": "The possessive pronoun 'my', used before masculine/neuter singular nouns (nominative) or as a predicate.",
       "usage": "mein Bruder (my brother), meine Schwester (my sister, fem.) — declines like 'ein'.",
       "synonyms": [],
@@ -969,6 +1001,7 @@
     {
       "headword": "bei",
       "partOfSpeech": "preposition",
+      "translation": "at / near / with",
       "intro": "A preposition meaning 'at/near/with (someone's place)' — always dative. Common in expressions of location, company, and circumstance.",
       "usage": "bei + dative always: 'bei mir' (at my place), 'bei der Arbeit' (while working).",
       "synonyms": [],
@@ -998,6 +1031,7 @@
     {
       "headword": "dein",
       "partOfSpeech": "pronoun",
+      "translation": "your (informal, singular)",
       "intro": "The possessive pronoun 'your' (informal singular), the 'du'-form counterpart to 'mein'.",
       "usage": "dein Buch (your book), deine Tasche (your bag, fem.) — declines like 'ein'.",
       "synonyms": [],
@@ -1027,6 +1061,7 @@
     {
       "headword": "euer",
       "partOfSpeech": "pronoun",
+      "translation": "your (informal, plural)",
       "intro": "The possessive pronoun 'your' (informal plural), the 'ihr'-form counterpart to 'mein'.",
       "usage": "euer Haus (your house), eure Kinder (your children) — note the dropped 'e' when an ending is added: euer → eure, not euere.",
       "synonyms": [],
@@ -1056,6 +1091,7 @@
     {
       "headword": "war",
       "partOfSpeech": "verb",
+      "translation": "was",
       "intro": "The simple past (first/third person singular) of 'sein' (to be) — 'was'. German's simple past of 'sein' is used in speech far more than most other verbs' simple past forms.",
       "usage": "ich/er/sie/es war, du warst, wir/sie waren, ihr wart.",
       "synonyms": [],
@@ -1085,6 +1121,7 @@
     {
       "headword": "wurde",
       "partOfSpeech": "verb",
+      "translation": "became / was (passive)",
       "intro": "The simple past (first/third person singular) of 'werden' — 'became', or the auxiliary used to form the passive voice in the past tense ('was [verb]ed').",
       "usage": "As passive auxiliary: 'Das Haus wurde gebaut' (The house was built).",
       "synonyms": [],
@@ -1114,6 +1151,7 @@
     {
       "headword": "kein",
       "partOfSpeech": "article",
+      "translation": "no / not a (masculine/neuter)",
       "intro": "The negative article 'no/not a/not any' — negates a noun the way 'nicht' negates a verb or adjective. Used instead of 'nicht ein'.",
       "usage": "kein Geld (no money), keine Zeit (no time, fem.) — declines like 'ein'.",
       "synonyms": [],
@@ -1143,6 +1181,7 @@
     {
       "headword": "keine",
       "partOfSpeech": "article",
+      "translation": "no / not any (feminine/plural)",
       "intro": "The feminine/plural form of 'kein' — 'no/not any', negating feminine singular or any plural noun.",
       "usage": "keine Zeit (no time, fem. sg.), keine Bücher (no books, plural).",
       "synonyms": [],
@@ -1172,6 +1211,7 @@
     {
       "headword": "nicht",
       "partOfSpeech": "adverb",
+      "translation": "not",
       "intro": "The general-purpose negation word 'not' — negates verbs, adjectives, and whole statements (as opposed to 'kein', which negates nouns).",
       "usage": "Typically placed after the verb and direct object, but before what's being negated: 'Ich verstehe das nicht' (I don't understand that).",
       "synonyms": [],
@@ -1201,6 +1241,7 @@
     {
       "headword": "seid",
       "partOfSpeech": "verb",
+      "translation": "are (you all)",
       "intro": "The second-person plural present tense of 'sein' (to be) — 'are' (you all are). Easy to confuse with the possessive 'seid' vs. reflexive 'sich' vs. 'seit' (since) — a very common spelling mix-up even among native speakers.",
       "usage": "ihr seid — used only with 'ihr'.",
       "synonyms": [],
@@ -1230,6 +1271,7 @@
     {
       "headword": "sind",
       "partOfSpeech": "verb",
+      "translation": "are",
       "intro": "The present tense of 'sein' (to be) used with 'wir', 'sie' (they), and the formal 'Sie' — 'are'.",
       "usage": "wir sind, sie sind, Sie sind (formal).",
       "synonyms": [],
@@ -1259,6 +1301,7 @@
     {
       "headword": "kann",
       "partOfSpeech": "verb",
+      "translation": "can",
       "intro": "The first- and third-person singular present tense of 'können' (can/to be able to) — one of German's core modal verbs.",
       "usage": "ich/er/sie/es kann, du kannst, wir/sie können, ihr könnt. Past: konnte. Perfect: hat gekonnt / hat + infinitive + können.",
       "synonyms": [],
@@ -1288,6 +1331,7 @@
     {
       "headword": "mit",
       "partOfSpeech": "preposition",
+      "translation": "with",
       "intro": "A preposition meaning 'with' — always dative. Used for accompaniment, means/tools, and manner.",
       "usage": "mit + dative always: 'mit mir' (with me), 'mit dem Auto' (by car).",
       "synonyms": [],
@@ -1317,6 +1361,7 @@
     {
       "headword": "aber",
       "partOfSpeech": "conjunction",
+      "translation": "but",
       "intro": "The most common word for 'but' — introduces a contrast without implying the first statement was wrong (contrast with 'sondern').",
       "usage": "Doesn't change word order: 'Ich bin müde, aber ich arbeite weiter.'",
       "synonyms": [
@@ -1351,6 +1396,7 @@
     {
       "headword": "sondern",
       "partOfSpeech": "conjunction",
+      "translation": "but rather",
       "intro": "'But rather' — used after a negated statement to introduce the correct alternative, not just a contrast (unlike 'aber').",
       "usage": "Only follows a 'nicht'/'kein' clause: 'Das ist nicht rot, sondern blau.'",
       "synonyms": [],
@@ -1380,6 +1426,7 @@
     {
       "headword": "all",
       "partOfSpeech": "determiner",
+      "translation": "all",
       "intro": "'All' — the uninflected/short form used before another determiner: 'all das' (all that), 'all mein Geld' (all my money).",
       "usage": "Less common on its own than 'alle'; often precedes another article or possessive.",
       "synonyms": [
@@ -1414,6 +1461,7 @@
     {
       "headword": "alle",
       "partOfSpeech": "determiner",
+      "translation": "all / everyone",
       "intro": "'All/everyone' — the inflected plural form, one of the most common ways to say 'all' or 'everybody' in German.",
       "usage": "alle Leute (all people), or standalone: 'Alle sind da' (Everyone is here).",
       "synonyms": [],
@@ -1443,6 +1491,7 @@
     {
       "headword": "ganz",
       "partOfSpeech": "adjective/adverb",
+      "translation": "whole / entire / quite",
       "intro": "'Whole/entire' as an adjective, or 'quite/completely' as an intensifying adverb before another adjective.",
       "usage": "die ganze Stadt (the whole city); ganz gut (quite good).",
       "synonyms": [
@@ -1477,6 +1526,7 @@
     {
       "headword": "also",
       "partOfSpeech": "adverb",
+      "translation": "so / therefore",
       "intro": "'So/therefore/thus' — a very common connector introducing a conclusion or a rephrasing, similar in feel to English 'so...' at the start of a sentence.",
       "usage": "Triggers verb-second word order: 'Also, ich denke...' (So, I think...).",
       "synonyms": [
@@ -1511,6 +1561,7 @@
     {
       "headword": "daher",
       "partOfSpeech": "adverb",
+      "translation": "therefore",
       "intro": "'Therefore/from there' — introduces a logical consequence, more formal-sounding than 'also'.",
       "usage": "Triggers inversion when it starts the clause: 'Daher bleiben wir zu Hause.'",
       "synonyms": [
@@ -1545,6 +1596,7 @@
     {
       "headword": "so",
       "partOfSpeech": "adverb",
+      "translation": "so / like this",
       "intro": "'So/like this/that' — one of the most versatile German adverbs: used for degree ('so groß' — so big), manner ('mach es so' — do it like this), and as a filler.",
       "usage": "Often paired with 'wie' for comparisons: 'so groß wie...' (as big as...).",
       "synonyms": [],
@@ -1574,6 +1626,7 @@
     {
       "headword": "einfach",
       "partOfSpeech": "adjective/adverb",
+      "translation": "simple / simply",
       "intro": "'Simple/easy' as an adjective, or 'simply/just' as an adverb emphasizing ease or directness.",
       "usage": "Das ist einfach (That's simple); Sag es einfach (Just say it).",
       "synonyms": [
@@ -1608,6 +1661,7 @@
     {
       "headword": "genau",
       "partOfSpeech": "adjective/adverb",
+      "translation": "exact / exactly",
       "intro": "'Exact/precise' as an adjective, or 'exactly/precisely' as an adverb — also used alone as an agreement ('Genau!' — 'Exactly!').",
       "usage": "genau um drei Uhr (exactly at three o'clock).",
       "synonyms": [
@@ -1642,6 +1696,7 @@
     {
       "headword": "gerade",
       "partOfSpeech": "adverb/adjective",
+      "translation": "just now / straight",
       "intro": "'Just (now)/right now' as a temporal adverb, or 'straight' as an adjective (e.g. a straight line).",
       "usage": "Ich esse gerade (I'm just now eating); eine gerade Linie (a straight line).",
       "synonyms": [],
@@ -1671,6 +1726,7 @@
     {
       "headword": "dort",
       "partOfSpeech": "adverb",
+      "translation": "there",
       "intro": "'There' — refers to a location away from the speaker, more formal/written than 'da' in this sense.",
       "usage": "Static location, contrast with 'dorthin' (motion toward there).",
       "synonyms": [
@@ -1705,6 +1761,7 @@
     {
       "headword": "dorthin",
       "partOfSpeech": "adverb",
+      "translation": "(to) there",
       "intro": "'(To) there' — the directional counterpart of 'dort', indicating motion toward that place.",
       "usage": "Contrast with static 'dort': 'Wir fahren dorthin' (We're driving there).",
       "synonyms": [],
@@ -1734,6 +1791,7 @@
     {
       "headword": "hier",
       "partOfSpeech": "adverb",
+      "translation": "here",
       "intro": "'Here' — refers to the speaker's current location.",
       "usage": "Static; the directional counterpart is 'hierher' (to here).",
       "synonyms": [],
@@ -1763,6 +1821,7 @@
     {
       "headword": "sie",
       "partOfSpeech": "pronoun",
+      "translation": "she / they / you (formal)",
       "intro": "Covers three distinct meanings depending on capitalization/context: lowercase 'sie' = 'she' or 'they'; capitalized 'Sie' = the formal 'you'.",
       "usage": "Verb agreement disambiguates: 'sie ist' (she is) vs. 'sie sind' (they are) vs. 'Sie sind' (you are, formal).",
       "synonyms": [],
@@ -1792,6 +1851,7 @@
     {
       "headword": "gernhaben",
       "partOfSpeech": "verb",
+      "translation": "to like / be fond of",
       "intro": "'To like/be fond of' — usually written as two words, 'gern haben', meaning to have affection for someone or something, gentler than 'lieben' (to love).",
       "usage": "Conjugates via 'haben': ich habe dich gern (I'm fond of you) — literally 'have gladly'.",
       "synonyms": [
@@ -1826,6 +1886,7 @@
     {
       "headword": "gleich",
       "partOfSpeech": "adjective/adverb",
+      "translation": "same / right away",
       "intro": "'Same/equal' as an adjective, or 'right away/in a moment' as a temporal adverb.",
       "usage": "gleiche Größe (same size); Ich komme gleich (I'll be right there).",
       "synonyms": [
@@ -1860,6 +1921,7 @@
     {
       "headword": "wie",
       "partOfSpeech": "adverb/conjunction",
+      "translation": "how / as / like",
       "intro": "'How' (question word) or 'as/like' (comparison) — extremely common in both questions and comparative constructions.",
       "usage": "Wie geht's? (How's it going?); so groß wie du (as tall as you).",
       "synonyms": [],
@@ -1889,6 +1951,7 @@
     {
       "headword": "bringen",
       "partOfSpeech": "verb",
+      "translation": "to bring",
       "intro": "'To bring' — to carry or deliver something/someone to a place. An irregular verb.",
       "usage": "bringen, brachte, hat gebracht. 'Ich bringe dir das Buch' (I'll bring you the book).",
       "synonyms": [
@@ -1923,6 +1986,7 @@
     {
       "headword": "erhalten",
       "partOfSpeech": "verb",
+      "translation": "to receive / to preserve",
       "intro": "'To receive' (formally) or 'to preserve/maintain' — a common verb with two related but distinct senses.",
       "usage": "erhalten, erhielt, hat erhalten. 'Ich habe deine Nachricht erhalten' (I received your message).",
       "synonyms": [
@@ -1961,6 +2025,7 @@
     {
       "headword": "holen",
       "partOfSpeech": "verb",
+      "translation": "to fetch / get",
       "intro": "'To fetch/get' — to go and bring something back, often used casually in everyday speech.",
       "usage": "holen (regular): holte, hat geholt. 'Ich hole die Post' (I'll get the mail).",
       "synonyms": [
@@ -1995,6 +2060,7 @@
     {
       "headword": "falls",
       "partOfSpeech": "conjunction",
+      "translation": "in case / if",
       "intro": "'In case/if' — introduces a conditional clause, similar to 'wenn' but with a stronger sense of 'in the event that'.",
       "usage": "Sends the verb to the end of its clause: 'Falls es regnet, bleiben wir drinnen.'",
       "synonyms": [
@@ -2029,6 +2095,7 @@
     {
       "headword": "ob",
       "partOfSpeech": "conjunction",
+      "translation": "whether / if",
       "intro": "'Whether/if' — introduces an indirect yes/no question.",
       "usage": "Sends the verb to the end of its clause: 'Ich weiß nicht, ob er kommt.'",
       "synonyms": [],
@@ -2058,6 +2125,7 @@
     {
       "headword": "wenn",
       "partOfSpeech": "conjunction",
+      "translation": "if / whenever",
       "intro": "'If/whenever' — introduces a conditional or repeated-time clause. The most common way to say 'if' in German.",
       "usage": "Sends the verb to the end of its clause: 'Wenn es regnet, bleibe ich zu Hause.'",
       "synonyms": [
@@ -2092,6 +2160,7 @@
     {
       "headword": "auswärts",
       "partOfSpeech": "adverb",
+      "translation": "out of town / away",
       "intro": "'Out of town/away' — describes being or doing something away from home, or (in sports) an away game.",
       "usage": "auswärts essen (to eat out); ein Auswärtsspiel (an away game).",
       "synonyms": [],
@@ -2121,6 +2190,7 @@
     {
       "headword": "außerhalb",
       "partOfSpeech": "preposition/adverb",
+      "translation": "outside of",
       "intro": "'Outside of' — a genitive preposition describing being outside a boundary, place, or time period.",
       "usage": "außerhalb + genitive: 'außerhalb der Stadt' (outside the city).",
       "synonyms": [],
@@ -2150,6 +2220,7 @@
     {
       "headword": "benachrichtigen",
       "partOfSpeech": "verb",
+      "translation": "to notify / inform",
       "intro": "'To notify/inform' — a somewhat formal verb used to tell someone about something officially or urgently.",
       "usage": "benachrichtigen (regular, weak): benachrichtigte, hat benachrichtigt.",
       "synonyms": [
@@ -2184,6 +2255,7 @@
     {
       "headword": "etwa",
       "partOfSpeech": "adverb",
+      "translation": "approximately / perhaps",
       "intro": "'Approximately/about' (with numbers), or 'perhaps/by any chance' (softening a question, often suggesting doubt or surprise).",
       "usage": "etwa zehn Minuten (about ten minutes); 'Bist du etwa krank?' (Are you sick, by any chance?).",
       "synonyms": [
@@ -2218,6 +2290,7 @@
     {
       "headword": "gegen",
       "partOfSpeech": "preposition",
+      "translation": "against / toward",
       "intro": "'Against/toward' — always accusative. Used for opposition (sports, arguments), approximate time, and physical direction.",
       "usage": "gegen + accusative always: 'gegen die Wand' (against the wall), 'gegen sechs Uhr' (around six o'clock).",
       "synonyms": [],
@@ -2247,6 +2320,7 @@
     {
       "headword": "aufwärts",
       "partOfSpeech": "adverb",
+      "translation": "upward",
       "intro": "'Upward' — describes movement in an upward direction, physically or figuratively (e.g. an improving trend).",
       "usage": "aufwärts gehen (to go up/improve).",
       "synonyms": [
@@ -2281,6 +2355,7 @@
     {
       "headword": "hinauf",
       "partOfSpeech": "adverb",
+      "translation": "up (toward)",
       "intro": "'Up (toward)' — describes upward motion away from the speaker, often combined with verbs as a separable prefix.",
       "usage": "hinaufgehen (to go up), den Berg hinauf (up the mountain).",
       "synonyms": [
@@ -2315,6 +2390,7 @@
     {
       "headword": "ihm",
       "partOfSpeech": "pronoun",
+      "translation": "to him / to it",
       "intro": "The dative form of 'er' (he) or 'es' (it) — 'to him/to it'.",
       "usage": "Ich gebe ihm das Buch (I give him the book).",
       "synonyms": [],
@@ -2344,6 +2420,7 @@
     {
       "headword": "eben",
       "partOfSpeech": "adverb",
+      "translation": "just / precisely",
       "intro": "'Just/precisely' (temporal, 'just now') or a filler particle expressing resigned agreement ('that's just how it is').",
       "usage": "Ich war eben da (I was just there); 'So ist es eben' (That's just how it is).",
       "synonyms": [
@@ -2378,6 +2455,7 @@
     {
       "headword": "jetzt",
       "partOfSpeech": "adverb",
+      "translation": "now",
       "intro": "'Now' — the most direct and common word for the present moment.",
       "usage": "Often starts a sentence, triggering inversion: 'Jetzt verstehe ich.'",
       "synonyms": [
@@ -2412,6 +2490,7 @@
     {
       "headword": "nun",
       "partOfSpeech": "adverb",
+      "translation": "now",
       "intro": "'Now' — slightly more formal/literary than 'jetzt', and also used as a discourse filler meaning 'well then'.",
       "usage": "'Nun, was machen wir?' (Well then, what shall we do?).",
       "synonyms": [
@@ -2447,6 +2526,7 @@
       "headword": "eine",
       "partOfSpeech": "article",
       "gender": "feminine",
+      "translation": "a / an (feminine)",
       "intro": "The indefinite article 'a/an' for feminine nominative/accusative nouns — the feminine form of 'ein'.",
       "usage": "eine Frau (a woman), eine Idee (an idea).",
       "synonyms": [],
@@ -2476,6 +2556,7 @@
     {
       "headword": "eins",
       "partOfSpeech": "numeral",
+      "translation": "one",
       "intro": "The number 'one', used when counting on its own (not directly before a noun, where 'ein/eine' is used instead).",
       "usage": "'Eins, zwei, drei...' (One, two, three...) vs. 'ein Buch' (one book).",
       "synonyms": [],
@@ -2505,6 +2586,7 @@
     {
       "headword": "eingekehrt",
       "partOfSpeech": "verb (past participle)",
+      "translation": "stopped in (past participle)",
       "intro": "Past participle of 'einkehren' — 'to stop in' (at an inn/restaurant while traveling) or, figuratively, 'to have settled in' (e.g. 'Ruhe ist eingekehrt' — calm has settled in).",
       "usage": "einkehren, kehrte ein, ist eingekehrt (takes 'sein' as the perfect auxiliary — a motion/state-change verb).",
       "synonyms": [],
@@ -2534,6 +2616,7 @@
     {
       "headword": "komm",
       "partOfSpeech": "verb (imperative)",
+      "translation": "come! (imperative)",
       "intro": "The informal singular imperative of 'kommen' (to come) — 'Come!'. The infinitive 'kommen' (below) is the dictionary form; this is its command form used when speaking to one person you'd call 'du'.",
       "usage": "komm! (to one person) vs. kommt! (to several people, informal) vs. kommen Sie! (formal).",
       "synonyms": [],
@@ -2563,6 +2646,7 @@
     {
       "headword": "kommen",
       "partOfSpeech": "verb",
+      "translation": "to come",
       "intro": "'To come' — one of the most frequent and irregular German verbs, used for arrival, origin ('woher kommst du?' — where are you from?), and many idiomatic expressions.",
       "usage": "kommen, kam, ist gekommen (takes 'sein' in the perfect tense). ich komme, du kommst, er/sie/es kommt.",
       "synonyms": [],
@@ -2592,6 +2676,7 @@
     {
       "headword": "gesund",
       "partOfSpeech": "adjective",
+      "translation": "healthy",
       "intro": "'Healthy' — describes physical wellbeing or, more broadly, something that is good for one's health (food, habits).",
       "usage": "gesund sein (to be healthy), gesundes Essen (healthy food).",
       "synonyms": [],
@@ -2621,6 +2706,7 @@
     {
       "headword": "gut",
       "partOfSpeech": "adjective/adverb",
+      "translation": "good / well",
       "intro": "'Good/well' — one of the most common adjectives/adverbs in the language, used broadly for quality, skill, and wellbeing.",
       "usage": "Irregular comparison: gut, besser, am besten (good, better, best).",
       "synonyms": [],
@@ -2650,6 +2736,7 @@
     {
       "headword": "ihr",
       "partOfSpeech": "pronoun",
+      "translation": "you (plural, informal) / her/their",
       "intro": "Has two common meanings: the informal second-person plural 'you (all)' as a subject pronoun, or the possessive 'her/their' before a noun.",
       "usage": "As subject: 'Ihr seid spät' (You all are late). As possessive: 'ihr Buch' (her/their book).",
       "synonyms": [],
@@ -2679,6 +2766,7 @@
     {
       "headword": "ihre",
       "partOfSpeech": "pronoun",
+      "translation": "her / their (feminine/plural)",
       "intro": "The feminine/plural-inflected form of the possessive 'ihr' — 'her/their' before feminine singular or any plural noun.",
       "usage": "ihre Tasche (her/their bag, fem.), ihre Kinder (her/their children, plural).",
       "synonyms": [],
@@ -2708,6 +2796,7 @@
     {
       "headword": "inwiefern",
       "partOfSpeech": "adverb",
+      "translation": "to what extent",
       "intro": "'To what extent/in what way' — a somewhat formal question word probing how or how much something is true.",
       "usage": "'Inwiefern hat sich das geändert?' (In what way/to what extent has that changed?).",
       "synonyms": [],
@@ -2737,6 +2826,7 @@
     {
       "headword": "klar",
       "partOfSpeech": "adjective",
+      "translation": "clear",
       "intro": "'Clear' — describes something easy to understand or see through (an idea, water, the sky). Also used alone as an informal 'sure!/of course!'.",
       "usage": "klares Wasser (clear water); 'Klar!' (Sure!/Of course!).",
       "synonyms": [
@@ -2771,6 +2861,7 @@
     {
       "headword": "abgekriegt",
       "partOfSpeech": "verb (past participle, colloquial)",
+      "translation": "gotten a share of (colloquial past participle)",
       "intro": "Colloquial past participle of 'abkriegen' — 'to get a share of (something)' or, informally, 'to get hit/hurt'.",
       "usage": "abkriegen, kriegte ab, hat abgekriegt — casual register, more common in speech than writing.",
       "synonyms": [],
@@ -2800,6 +2891,7 @@
     {
       "headword": "bekam",
       "partOfSpeech": "verb",
+      "translation": "received (simple past)",
       "intro": "The simple past (first/third person singular) of 'bekommen' (to receive/get).",
       "usage": "bekommen, bekam, hat bekommen. ich/er/sie/es bekam.",
       "synonyms": [
@@ -2835,6 +2927,7 @@
       "headword": "Bedarf",
       "partOfSpeech": "noun",
       "gender": "masculine",
+      "translation": "need / demand",
       "intro": "'Need/demand' — a formal noun describing a requirement or market demand for something.",
       "usage": "der Bedarf (an + dative) — 'Bedarf an Fachkräften' (demand for skilled workers). No standard plural in most uses.",
       "synonyms": [
@@ -2870,6 +2963,7 @@
       "headword": "Bedürfnis",
       "partOfSpeech": "noun",
       "gender": "neuter",
+      "translation": "need / necessity",
       "intro": "'Need/necessity' — a more personal/emotional noun than 'Bedarf', often describing psychological or basic human needs.",
       "usage": "das Bedürfnis, die Bedürfnisse (plural) — 'Grundbedürfnisse' (basic needs).",
       "synonyms": [
@@ -2905,6 +2999,7 @@
       "headword": "Mangel",
       "partOfSpeech": "noun",
       "gender": "masculine",
+      "translation": "lack / shortage",
       "intro": "'Lack/shortage' — describes an insufficient amount of something needed.",
       "usage": "der Mangel an + dative — 'Mangel an Wasser' (lack of water). Plural: die Mängel (often 'defects' in a formal sense).",
       "synonyms": [],
@@ -2934,6 +3029,7 @@
     {
       "headword": "siehe",
       "partOfSpeech": "verb (imperative, cross-reference)",
+      "translation": "see (cross-reference)",
       "intro": "'See' — the formal imperative of 'sehen', used almost exclusively as a cross-reference marker in texts ('siehe Seite 5' — see page 5), similar to English 'see' in citations.",
       "usage": "Only used this way in written references, not as a spoken command (that would be 'sieh!' or 'schau!').",
       "synonyms": [],
@@ -2963,6 +3059,7 @@
     {
       "headword": "tat",
       "partOfSpeech": "verb",
+      "translation": "did (simple past)",
       "intro": "The simple past (first/third person singular) of 'tun' (to do) — 'did'.",
       "usage": "tun, tat, hat getan. ich/er/sie/es tat.",
       "synonyms": [],
@@ -2992,6 +3089,7 @@
     {
       "headword": "taten",
       "partOfSpeech": "verb",
+      "translation": "did (simple past, plural)",
       "intro": "The simple past plural of 'tun' (to do) — 'did' (we/they did). Inflected form of the same verb as 'tat' above.",
       "usage": "wir/sie taten. Not to be confused with the capitalized noun 'Taten' (deeds), which is unrelated in form but shares the root.",
       "synonyms": [],
@@ -3021,6 +3119,7 @@
     {
       "headword": "artig",
       "partOfSpeech": "adjective",
+      "translation": "well-behaved / polite",
       "intro": "'Well-behaved/polite' — used almost exclusively to describe children or animals behaving well.",
       "usage": "ein artiges Kind (a well-behaved child); 'Sei artig!' (Be good!).",
       "synonyms": [
@@ -3055,6 +3154,7 @@
     {
       "headword": "gutes",
       "partOfSpeech": "adjective",
+      "translation": "good (neuter/inflected)",
       "intro": "The neuter/inflected form of 'gut' (good) — appears before a neuter noun with no preceding article, or as a substantivized adjective ('etwas Gutes' — something good). Inflected form of the same word as 'gut' above.",
       "usage": "gutes Essen (good food, neuter, no article); alles Gute (all the best).",
       "synonyms": [],

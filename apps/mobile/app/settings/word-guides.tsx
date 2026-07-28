@@ -11,6 +11,7 @@ import {
   getWordGuideManifest,
   installAllAvailable,
   installBundledChunk,
+  uninstallAllInstalled,
   uninstallChunk,
   type WordGuideManifestChunk,
 } from '../../lib/wordGuides'
@@ -77,6 +78,29 @@ export default function WordGuidesScreen(): JSX.Element {
     },
   })
 
+  const uninstallAll = useMutation({
+    mutationFn: () => uninstallAllInstalled(db, manifest.language),
+    onSuccess: async (count) => {
+      await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
+      Alert.alert(t('Word guides uninstalled'), t('Removed {{count}} chunks.', { count: count.toLocaleString() }))
+    },
+    onError: (error: unknown) => {
+      log.error('settings.word_guide_uninstall_all_failed', error, { message: 'Word guide "uninstall all" failed' })
+      Alert.alert(t('Could not uninstall word guides'), String(error))
+    },
+  })
+
+  const confirmUninstallAll = (): void => {
+    Alert.alert(
+      t('Uninstall all word guides?'),
+      t('Removes every installed chunk from this device. Cards you already added to your deck are not affected.'),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Uninstall'), style: 'destructive', onPress: () => uninstallAll.mutate() },
+      ],
+    )
+  }
+
   const installedSet = new Set(installedQuery.data ?? [])
   const rows: ChunkRow[] = manifest.chunks.map((chunk) => ({
     ...chunk,
@@ -121,6 +145,16 @@ export default function WordGuidesScreen(): JSX.Element {
               disabled={installAll.isPending || availableCount === 0}
               style={styles.installAllButton}
             />
+            {installedCount > 0 ? (
+              <Button
+                label={uninstallAll.isPending ? t('Uninstalling…') : t('Uninstall all')}
+                icon="trash"
+                variant="secondary"
+                onPress={confirmUninstallAll}
+                disabled={uninstallAll.isPending}
+                style={styles.installAllButton}
+              />
+            ) : null}
           </>
         )}
       </Card>
@@ -144,9 +178,11 @@ export default function WordGuidesScreen(): JSX.Element {
                 style={styles.uninstallButton}
                 onPress={() => uninstall.mutate(item.index)}
                 disabled={uninstall.isPending}
+                accessibilityRole="button"
+                accessibilityLabel={t('Uninstall')}
               >
-                <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-                <Text style={styles.uninstallLabel}>{t('Installed')}</Text>
+                <Ionicons name="trash-outline" size={15} color={colors.danger} />
+                <Text style={styles.uninstallLabel}>{t('Uninstall')}</Text>
               </Pressable>
             ) : item.status === 'available' ? (
               <Pressable
@@ -192,7 +228,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   installLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  uninstallButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.success },
+  uninstallButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.dangerSoft,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+  },
+  uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
   pendingLabel: { fontSize: type.micro, color: colors.textMuted },
 })

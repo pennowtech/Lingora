@@ -270,6 +270,52 @@ export function ExportFormatSheet(props: {
   )
 }
 
+// ─── Import format sheet ────────────────────────────────────────────────────
+
+export type ImportFormat = 'csv' | 'apkg'
+
+interface ImportFormatOption {
+  format: ImportFormat
+  label: string
+  description: string
+  icon: keyof typeof Ionicons.glyphMap
+}
+
+const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
+  { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck — including Cloze notes.', icon: 'albums' },
+]
+
+/** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */
+export function ImportFormatSheet(props: {
+  visible: boolean
+  onClose: () => void
+  onSelect: (format: ImportFormat) => void
+  title?: string
+}): JSX.Element {
+  return (
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
+      <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
+      <View style={styles.dropdownSheet}>
+        <View style={styles.modalHandle} />
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from…'}</Text>
+        {IMPORT_FORMAT_OPTIONS.map((opt) => (
+          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+            <View style={styles.exportOptionIcon}>
+              <Ionicons name={opt.icon} size={18} color={colors.primary} />
+            </View>
+            <View style={styles.exportOptionText}>
+              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+          </Pressable>
+        ))}
+      </View>
+    </Modal>
+  )
+}
+
 export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
   const c = cefrColors[props.level]
   return (

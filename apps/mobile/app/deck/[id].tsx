@@ -21,8 +21,10 @@ import {
   ErrorState,
   ExportFormatSheet,
   IconButton,
+  ImportFormatSheet,
   SectionHeader,
   Spinner,
+  type ImportFormat,
 } from '../../components/ui'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
@@ -50,6 +52,7 @@ export default function DeckDetailScreen(): JSX.Element {
   const { db } = useServices()
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [importSheetOpen, setImportSheetOpen] = useState(false)
   const [exportSheetOpen, setExportSheetOpen] = useState(false)
   const [renameOpen, setRenameOpen] = useState(false)
   const [renameValue, setRenameValue] = useState('')
@@ -94,8 +97,13 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
-  const startImport = (format: 'csv' | 'apkg'): void => {
+  const showImport = (): void => {
     setMenuOpen(false)
+    setImportSheetOpen(true)
+  }
+
+  const handleImportSelect = (format: ImportFormat): void => {
+    setImportSheetOpen(false)
     router.push({
       pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
       params: { deckId: id },
@@ -224,13 +232,7 @@ export default function DeckDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Button label="Import CSV into this deck" icon="grid" variant="secondary" onPress={() => startImport('csv')} />
-          <Button
-            label="Import Anki (.apkg) into this deck"
-            icon="albums"
-            variant="secondary"
-            onPress={() => startImport('apkg')}
-          />
+          <Button label="Import into this deck" icon="download" variant="secondary" onPress={showImport} />
           <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={showExport} />
           <Button
             label="Rename deck"
@@ -272,6 +274,13 @@ export default function DeckDetailScreen(): JSX.Element {
           />
         </View>
       </Modal>
+
+      <ImportFormatSheet
+        visible={importSheetOpen}
+        onClose={() => setImportSheetOpen(false)}
+        onSelect={handleImportSelect}
+        title={`Import into "${deck.name}"`}
+      />
 
       <ExportFormatSheet
         visible={exportSheetOpen}

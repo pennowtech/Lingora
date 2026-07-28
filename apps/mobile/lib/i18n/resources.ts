@@ -44,6 +44,7 @@ const ENGLISH_PHRASES = [
   '"{{term}}" is new', "This word isn't in your library yet. Generate meanings, examples, and synonyms with AI.",
   'Translating…', 'Generating…', 'Generate with AI', 'Add your OpenAI key in Settings to generate new words',
   'Generation came back incomplete', 'Nothing was saved — try again.',
+  'From your installed dictionary — free, no AI needed.',
 
   // Decks / Deck detail
   'Give the deck a name.', 'Could not delete deck', 'Delete deck?',
@@ -239,6 +240,7 @@ const de: Partial<Record<Phrase, string>> = {
   'Translating…': 'Übersetze…', 'Generating…': 'Erzeuge…', 'Generate with AI': 'Mit KI erzeugen',
   'Add your OpenAI key in Settings to generate new words': 'Füge deinen OpenAI-Schlüssel in den Einstellungen hinzu, um neue Wörter zu erzeugen',
   'Generation came back incomplete': 'Die Generierung kam unvollständig zurück',
+  'From your installed dictionary — free, no AI needed.': 'Aus deinem installierten Wörterbuch — kostenlos, keine KI nötig.',
   'Nothing was saved — try again.': 'Es wurde nichts gespeichert — versuche es erneut.',
 
   'Give the deck a name.': 'Gib dem Stapel einen Namen.', 'Could not delete deck': 'Stapel konnte nicht gelöscht werden',
@@ -522,6 +524,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'Translating…': 'Traduction…', 'Generating…': 'Génération…', 'Generate with AI': "Générer avec l'IA",
   'Add your OpenAI key in Settings to generate new words': 'Ajoutez votre clé OpenAI dans les réglages pour générer de nouveaux mots',
   'Generation came back incomplete': 'La génération est revenue incomplète',
+  'From your installed dictionary — free, no AI needed.': 'Depuis votre dictionnaire installé — gratuit, aucune IA nécessaire.',
   'Nothing was saved — try again.': "Rien n'a été enregistré — réessayez.",
 
   'Give the deck a name.': 'Donnez un nom au paquet.', 'Could not delete deck': 'Impossible de supprimer le paquet',
@@ -805,6 +808,7 @@ const es: Partial<Record<Phrase, string>> = {
   'Translating…': 'Traduciendo…', 'Generating…': 'Generando…', 'Generate with AI': 'Generar con IA',
   'Add your OpenAI key in Settings to generate new words': 'Añade tu clave de OpenAI en Ajustes para generar nuevas palabras',
   'Generation came back incomplete': 'La generación volvió incompleta',
+  'From your installed dictionary — free, no AI needed.': 'De tu diccionario instalado — gratis, sin necesidad de IA.',
   'Nothing was saved — try again.': 'No se guardó nada — inténtalo de nuevo.',
 
   'Give the deck a name.': 'Ponle un nombre al mazo.', 'Could not delete deck': 'No se pudo eliminar el mazo',
@@ -1088,6 +1092,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'Translating…': 'अनुवाद हो रहा है…', 'Generating…': 'बन रहा है…', 'Generate with AI': 'AI से बनाएं',
   'Add your OpenAI key in Settings to generate new words': 'नए शब्द बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें',
   'Generation came back incomplete': 'जनरेशन अधूरा वापस आया',
+  'From your installed dictionary — free, no AI needed.': 'आपके इंस्टॉल किए गए शब्दकोश से — मुफ़्त, AI की ज़रूरत नहीं।',
   'Nothing was saved — try again.': 'कुछ भी सहेजा नहीं गया — फिर से कोशिश करें।',
 
   'Give the deck a name.': 'डेक को एक नाम दें।', 'Could not delete deck': 'डेक हटाया नहीं जा सका',

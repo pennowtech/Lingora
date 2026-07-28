@@ -1,13 +1,16 @@
 import { Ionicons } from '@expo/vector-icons'
-import { searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database'
+import { getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Card, CefrBadge, EmptyState, ErrorState } from '../../components/ui'
+import { Card, CefrBadge, Chip, EmptyState, ErrorState } from '../../components/ui'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
+import { getWordGuideManifest } from '../../lib/wordGuides'
+
+const WORD_GUIDE_LANGUAGE = getWordGuideManifest().language
 
 /** Debounce the raw input so FTS5 runs per pause, not per keystroke. */
 function useDebounced(value: string, delayMs: number): string {
@@ -34,6 +37,17 @@ export default function SearchScreen(): JSX.Element {
     queryKey: ['search', term],
     queryFn: () => searchLemmasWithPreview(db, term),
     enabled: term !== '',
+  })
+
+  // A free, offline lookup against the installed word-guides dictionary (see
+  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — reference
+  // content only, deliberately not turned into a card here. Independent of
+  // `pipeline`/`tier`/an internet connection, unlike quickTranslate/generate
+  // below.
+  const wordGuide = useQuery({
+    queryKey: ['word-guide-preview', term],
+    queryFn: () => getWordGuide(db, term, WORD_GUIDE_LANGUAGE),
+    enabled: term !== '' && (search.data?.length ?? 0) === 0,
   })
 
   // A plain dictionary lookup (Google Translate/DeepL/whichever is active in
@@ -110,6 +124,36 @@ export default function SearchScreen(): JSX.Element {
             title={t('"{{term}}" is new', { term })}
             message={t("This word isn't in your library yet. Generate meanings, examples, and synonyms with AI.")}
           />
+          <View style={styles.newWordCards}>
+          {wordGuide.data ? (
+            <Card style={styles.guideCard}>
+              <View style={styles.guideHeaderRow}>
+                <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
+                {wordGuide.data.partOfSpeech ? (
+                  <Text style={styles.guideMeta}>
+                    {wordGuide.data.partOfSpeech}
+                    {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
+                  </Text>
+                ) : null}
+              </View>
+              <Text style={styles.guideIntro}>{wordGuide.data.intro}</Text>
+              {wordGuide.data.usage ? <Text style={styles.guideUsage}>{wordGuide.data.usage}</Text> : null}
+              {wordGuide.data.synonyms.length > 0 ? (
+                <View style={styles.guideChipRow}>
+                  {wordGuide.data.synonyms.map((syn) => (
+                    <Chip key={syn.word} label={syn.word} />
+                  ))}
+                </View>
+              ) : null}
+              {wordGuide.data.examples.slice(0, 2).map((ex) => (
+                <View key={ex.sentence} style={styles.guideExample}>
+                  <Text style={styles.guideExampleSentence}>{ex.sentence}</Text>
+                  <Text style={styles.guideExampleTranslation}>{ex.translation}</Text>
+                </View>
+              ))}
+              <Text style={styles.guideFootnote}>{t('From your installed dictionary — free, no AI needed.')}</Text>
+            </Card>
+          ) : null}
           {quickTranslate.isPending ? (
             <Card style={styles.translateCard}>
               <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -155,6 +199,7 @@ export default function SearchScreen(): JSX.Element {
               <Text style={styles.partialHint}>{t('Nothing was saved — try again.')}</Text>
             </Card>
           ) : null}
+          </View>
         </View>
       ) : (
         <FlatList
@@ -217,8 +262,23 @@ const styles = StyleSheet.create({
   pos: { fontSize: type.micro, color: colors.textMuted },
   meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  newWordCards: { marginTop: -spacing.xl },
+  guideCard: {
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  guideHeaderRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm },
+  guideHeadword: { fontSize: type.heading, fontWeight: '700', color: colors.text },
+  guideMeta: { fontSize: type.micro, color: colors.textMuted },
+  guideIntro: { fontSize: type.body, color: colors.text, lineHeight: 21 },
+  guideUsage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+  guideChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  guideExample: { gap: 2 },
+  guideExampleSentence: { fontSize: type.caption, fontWeight: '600', color: colors.text },
+  guideExampleTranslation: { fontSize: type.micro, color: colors.textSecondary },
+  guideFootnote: { fontSize: type.micro, fontWeight: '600', color: colors.primary },
   translateCard: {
-    marginTop: -spacing.xl,
+    marginTop: spacing.md,
     marginBottom: spacing.md,
     gap: spacing.xs,
   },

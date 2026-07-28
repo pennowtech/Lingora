@@ -99,10 +99,22 @@ export class ExpoSQLiteAdapter implements DatabaseAdapter {
    * expo-sqlite hands the callback a transaction-scoped connection; statements
    * run inside the callback through that connection are committed together or
    * rolled back together if the callback throws.
+   *
+   * expo-sqlite's own `withExclusiveTransactionAsync` awaits its task but
+   * discards whatever it returns and always resolves `undefined` (confirmed
+   * against its runtime source, not just its .d.ts) — every caller here that
+   * relies on `transaction()`'s return value (persistWordGeneration,
+   * persistWordGuideAsCard, ...) would silently get `undefined` on a real
+   * device without this. Captured via a closure variable instead of relying
+   * on expo-sqlite to forward it.
    */
   async transaction<T>(fn: (adapter: DatabaseAdapter) => Promise<T>): Promise<T> {
-    return this.enqueue(() =>
-      this.db.withExclusiveTransactionAsync(async (txn) => fn(new ExpoSQLiteAdapter(txn))),
-    )
+    return this.enqueue(async () => {
+      let result: T
+      await this.db.withExclusiveTransactionAsync(async (txn) => {
+        result = await fn(new ExpoSQLiteAdapter(txn))
+      })
+      return result!
+    })
   }
 }

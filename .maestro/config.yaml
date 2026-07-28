@@ -1,0 +1,7 @@
+# Maestro workspace config — Lingora UI test automation.
+# Run all flows:  maestro test .maestro/flows
+# Run one flow:   maestro test .maestro/flows/smoke_launch.yaml
+flows:
+  - "flows/*.yaml"
+executionOrder:
+  continueOnFailure: true

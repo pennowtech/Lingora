@@ -1,0 +1,30 @@
+# LINGORA-E2E-000 — pipeline smoke: app launches to the tab bar and every tab is tappable.
+# Verifies the Maestro→AVD→app pipeline before the full critical-journey suite (LingoraDocs/7_maestro_test_plan.md).
+#
+# NOTE: this is a *development* build, so we open the dev-client deep link to load the JS bundle from
+# Metro (localhost:8081 via `adb reverse`). For CI/release, build a standalone APK so a plain
+# `launchApp` opens the app directly (see .maestro/README.md).
+#
+# NOTE: asserts on visible tab labels, not testID — WP1 (7_maestro_test_plan.md) wires up
+# `tab-home|search|decks|mine|settings` testIDs; migrate this flow to `id:` once that lands, per this
+# repo's own convention (see .maestro/README.md).
+appId: com.lingora.mobile
+name: smoke_launch
+tags:
+  - smoke
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 90000
+- assertVisible: "Search"
+- assertVisible: "Decks"
+- assertVisible: "Mine"
+- assertVisible: "Settings"
+- tapOn: "Search"
+- assertVisible:
+    text: "Search"
+- tapOn: "Decks"
+- tapOn: "Home"
+- assertVisible: "Guten Tag!"

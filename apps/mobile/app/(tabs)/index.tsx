@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import type { JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
@@ -42,6 +43,7 @@ async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
  */
 export default function HomeScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
 
   const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
   const recentQuery = useQuery({
@@ -58,18 +60,18 @@ export default function HomeScreen(): JSX.Element {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Guten Tag! 👋</Text>
-            <Text style={styles.subGreeting}>Ready for today's session?</Text>
+            <Text style={styles.subGreeting}>{t('Ready for today\'s session?')}</Text>
           </View>
           <View style={styles.streakPill}>
             <Ionicons name="flame" size={16} color={colors.warning} />
-            <Text style={styles.streakLabel}>{stats?.streakDays ?? 0} days</Text>
+            <Text style={styles.streakLabel}>{t('{{count}} days', { count: stats?.streakDays ?? 0 })}</Text>
           </View>
         </View>
 
         {statsQuery.isError || recentQuery.isError ? (
           <View style={styles.errorBanner}>
             <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
-            <Text style={styles.errorBannerText}>Some data on this screen couldn't load.</Text>
+            <Text style={styles.errorBannerText}>{t('Some data on this screen couldn\'t load.')}</Text>
             <Pressable
               onPress={() => {
                 if (statsQuery.isError) void statsQuery.refetch()
@@ -77,7 +79,7 @@ export default function HomeScreen(): JSX.Element {
               }}
               hitSlop={8}
             >
-              <Text style={styles.errorBannerRetry}>Retry</Text>
+              <Text style={styles.errorBannerRetry}>{t('Retry')}</Text>
             </Pressable>
           </View>
         ) : null}
@@ -85,9 +87,9 @@ export default function HomeScreen(): JSX.Element {
         {/* Due-today hero card */}
         <Card style={styles.heroCard}>
           <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
-          <Text style={styles.heroLabel}>cards due for review</Text>
+          <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
           <Button
-            label="Start review"
+            label={t('Start review')}
             icon="play"
             onPress={() =>
               router.push({ pathname: '/review/[deckId]', params: { deckId: DEFAULT_DECK_ID } })
@@ -100,30 +102,30 @@ export default function HomeScreen(): JSX.Element {
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
             <Text style={styles.statValue}>{stats?.reviewedToday ?? '–'}</Text>
-            <Text style={styles.statLabel}>reviewed today</Text>
+            <Text style={styles.statLabel}>{t('reviewed today')}</Text>
           </Card>
           <Card style={styles.statCard}>
             <Text style={styles.statValue}>
               {stats ? `${Math.round(stats.retention30d * 100)}%` : '–'}
             </Text>
-            <Text style={styles.statLabel}>retention</Text>
+            <Text style={styles.statLabel}>{t('retention')}</Text>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
             <Text style={styles.statValue}>{stats?.totalCards ?? '–'}</Text>
-            <Text style={styles.statLabel}>total cards →</Text>
+            <Text style={styles.statLabel}>{t('total cards →')}</Text>
           </Card>
         </View>
 
         {/* Quick actions */}
-        <SectionHeader title="Quick actions" />
+        <SectionHeader title={t('Quick actions')} />
         <View style={styles.actionsRow}>
           <Card style={styles.actionCard} onPress={() => router.push('/search')}>
             <Ionicons name="search" size={22} color={colors.primary} />
-            <Text style={styles.actionLabel}>Look up a word</Text>
+            <Text style={styles.actionLabel}>{t('Look up a word')}</Text>
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/mine')}>
             <Ionicons name="download" size={22} color={colors.primary} />
-            <Text style={styles.actionLabel}>Mining queue</Text>
+            <Text style={styles.actionLabel}>{t('Mining queue')}</Text>
           </Card>
           <Card
             style={styles.actionCard}
@@ -135,21 +137,21 @@ export default function HomeScreen(): JSX.Element {
             }
           >
             <Ionicons name="create-outline" size={22} color={colors.primary} />
-            <Text style={styles.actionLabel}>Practice cloze</Text>
+            <Text style={styles.actionLabel}>{t('Practice cloze')}</Text>
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/stats')}>
             <Ionicons name="stats-chart" size={22} color={colors.primary} />
-            <Text style={styles.actionLabel}>Statistics</Text>
+            <Text style={styles.actionLabel}>{t('Statistics')}</Text>
           </Card>
         </View>
 
         {/* Recently added */}
-        <SectionHeader title="Recently added" action="See all" onAction={() => router.push('/decks')} />
+        <SectionHeader title={t('Recently added')} action={t('See all')} onAction={() => router.push('/decks')} />
         {recent.length === 0 && recentQuery.isSuccess ? (
           <EmptyState
             icon="sparkles-outline"
-            title="No words yet"
-            message="Look up a word to add your first card."
+            title={t('No words yet')}
+            message={t('Look up a word to add your first card.')}
           />
         ) : (
           recent.map((word) => (

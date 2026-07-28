@@ -5,6 +5,7 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
 import { Button, Card, Chip, EmptyState, ErrorState, Spinner } from '../../components/ui'
 import { pickAndParseBackupFile } from '../../lib/backup'
@@ -45,6 +46,7 @@ type Step = 'pick' | 'source-deck' | 'target' | 'preview' | 'importing' | 'done'
  */
 export default function LinImportScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
 
@@ -71,7 +73,7 @@ export default function LinImportScreen(): JSX.Element {
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
       const trimmed = name.trim()
-      if (trimmed === '') throw new Error('Give the deck a name.')
+      if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
@@ -94,7 +96,7 @@ export default function LinImportScreen(): JSX.Element {
         if (!picked) return
         const decks = getDecksInPayload(picked.payload)
         if (decks.length === 0) {
-          setPickError('This file has no decks to import.')
+          setPickError(t('This file has no decks to import.'))
           return
         }
         setFileName(picked.fileName)
@@ -126,7 +128,7 @@ export default function LinImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.lin_preview_failed', error, { message: 'Building .lin import preview failed' })
-        Alert.alert('Could not read this file', String(error))
+        Alert.alert(t('Could not read this file'), String(error))
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -179,7 +181,7 @@ export default function LinImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.lin_import_failed', error, { message: '.lin import failed' })
-        Alert.alert('Import failed', String(error))
+        Alert.alert(t('Import failed'), String(error))
         setStep('preview')
       })
   }
@@ -202,11 +204,11 @@ export default function LinImportScreen(): JSX.Element {
       <View style={styles.container}>
         <View style={styles.previewHeaderArea}>
           <Card style={styles.card}>
-            <Text style={styles.title}>Preview</Text>
+            <Text style={styles.title}>{t('Preview')}</Text>
             <View style={styles.summaryRow}>
-              <SummaryStat label="Will import" value={willImportCount} color={colors.success} />
-              <SummaryStat label="Duplicates" value={counts.duplicate} color={colors.warning} />
-              <SummaryStat label="Selected" value={checkedCount} color={colors.primary} />
+              <SummaryStat label={t('Will import')} value={willImportCount} color={colors.success} />
+              <SummaryStat label={t('Duplicates')} value={counts.duplicate} color={colors.warning} />
+              <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
         </View>
@@ -223,7 +225,7 @@ export default function LinImportScreen(): JSX.Element {
               </Pressable>
               {TABLE_COLUMNS.map((col) => (
                 <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
-                  {col.label}
+                  {t(col.label)}
                 </Text>
               ))}
             </View>
@@ -266,9 +268,9 @@ export default function LinImportScreen(): JSX.Element {
         </ScrollView>
 
         <View style={styles.actions}>
-          <Button label="Back" variant="ghost" onPress={() => setStep('target')} />
+          <Button label={t('Back')} variant="ghost" onPress={() => setStep('target')} />
           <Button
-            label={`Import ${checkedCount.toLocaleString()} word${checkedCount === 1 ? '' : 's'}`}
+            label={t('Import {{count}} words', { count: checkedCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
@@ -281,13 +283,11 @@ export default function LinImportScreen(): JSX.Element {
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {step === 'pick' ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>Import from a .lin file</Text>
+          <Text style={styles.title}>{t('Import from a .lin file')}</Text>
           <Text style={styles.body}>
-            Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own
-            deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review
-            history, and FSRS scheduling all come across.
+            {t('Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
-          <Button label="Choose .lin file" icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose .lin file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -295,7 +295,7 @@ export default function LinImportScreen(): JSX.Element {
       {step === 'source-deck' ? (
         <Card style={styles.card}>
           <Text style={styles.title}>{fileName}</Text>
-          <Text style={styles.body}>This file has more than one deck. Which one do you want to import?</Text>
+          <Text style={styles.body}>{t('This file has more than one deck. Which one do you want to import?')}</Text>
           <View style={styles.chipRow}>
             {deckOptions.map((deck) => (
               <Chip
@@ -307,8 +307,8 @@ export default function LinImportScreen(): JSX.Element {
             ))}
           </View>
           <View style={styles.actions}>
-            <Button label="Back" variant="ghost" onPress={handleStartOver} />
-            <Button label="Continue" onPress={() => setStep('target')} disabled={!sourceDeckId} />
+            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
+            <Button label={t('Continue')} onPress={() => setStep('target')} disabled={!sourceDeckId} />
           </View>
         </Card>
       ) : null}
@@ -318,13 +318,15 @@ export default function LinImportScreen(): JSX.Element {
           <Card style={styles.card}>
             <Text style={styles.title}>{fileName}</Text>
             <Text style={styles.body}>
-              Importing "{deckOptions.find((d) => d.id === sourceDeckId)?.name ?? ''}" (
-              {deckOptions.find((d) => d.id === sourceDeckId)?.cardCount ?? 0} cards).
+              {t('Importing "{{name}}" ({{count}} cards).', {
+                name: deckOptions.find((d) => d.id === sourceDeckId)?.name ?? '',
+                count: deckOptions.find((d) => d.id === sourceDeckId)?.cardCount ?? 0,
+              })}
             </Text>
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Import into deck</Text>
+            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
             {decksQuery.isPending ? (
               <Spinner />
             ) : decksQuery.isError ? (
@@ -339,31 +341,31 @@ export default function LinImportScreen(): JSX.Element {
                     onPress={() => setTargetDeckId(deck.id)}
                   />
                 ))}
-                <Chip label="+ New deck" onPress={() => setNewDeckOpen(true)} />
+                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
               </View>
             )}
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>If the word already exists</Text>
-            <Text style={styles.hint}>Applies to every duplicate row you leave checked in the next step.</Text>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip
                   key={policy.value}
-                  label={policy.label}
+                  label={t(policy.label)}
                   selected={duplicatePolicy === policy.value}
                   onPress={() => setDuplicatePolicy(policy.value)}
                 />
               ))}
             </View>
-            <Text style={styles.hint}>{DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint}</Text>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
           </Card>
 
           <View style={styles.actions}>
-            <Button label="Back" variant="ghost" onPress={handleStartOver} />
+            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
-              label={previewLoading ? 'Checking…' : 'Preview import'}
+              label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!targetDeckId || previewLoading}
             />
@@ -373,7 +375,7 @@ export default function LinImportScreen(): JSX.Element {
 
       {step === 'importing' ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>Importing…</Text>
+          <Text style={styles.title}>{t('Importing…')}</Text>
           <Spinner />
         </Card>
       ) : null}
@@ -382,15 +384,18 @@ export default function LinImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <EmptyState
             icon="checkmark-circle"
-            title="Import complete"
-            message={`Imported ${result.imported.toLocaleString()} words (${result.cardsImported.toLocaleString()} cards).`}
+            title={t('Import complete')}
+            message={t('Imported {{words}} words ({{cards}} cards).', {
+              words: result.imported.toLocaleString(),
+              cards: result.cardsImported.toLocaleString(),
+            })}
           />
           <View style={styles.summaryRow}>
-            <SummaryStat label="Imported" value={result.imported} color={colors.success} />
-            <SummaryStat label="Skipped" value={result.skipped} color={colors.warning} />
-            <SummaryStat label="Cards" value={result.cardsImported} color={colors.primary} />
+            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+            <SummaryStat label={t('Cards')} value={result.cardsImported} color={colors.primary} />
           </View>
-          <Button label="Import another file" variant="secondary" onPress={handleStartOver} />
+          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
         </Card>
       ) : null}
 
@@ -399,10 +404,10 @@ export default function LinImportScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>New deck</Text>
+          <Text style={styles.modalTitle}>{t('New deck')}</Text>
           <TextInput
             style={styles.inputField}
-            placeholder="Deck name"
+            placeholder={t('Deck name')}
             placeholderTextColor={colors.textMuted}
             value={newDeckName}
             onChangeText={setNewDeckName}
@@ -410,7 +415,7 @@ export default function LinImportScreen(): JSX.Element {
           />
           {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
           <Button
-            label={createNewDeck.isPending ? 'Creating…' : 'Create & select'}
+            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
             icon="add"
             disabled={createNewDeck.isPending}
             onPress={() => createNewDeck.mutate(newDeckName)}

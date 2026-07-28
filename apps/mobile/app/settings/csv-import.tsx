@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { File } from 'expo-file-system'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
 import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
@@ -69,6 +70,7 @@ type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
  */
 export default function CsvImportScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
 
@@ -92,7 +94,7 @@ export default function CsvImportScreen(): JSX.Element {
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
       const trimmed = name.trim()
-      if (trimmed === '') throw new Error('Give the deck a name.')
+      if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
@@ -121,7 +123,7 @@ export default function CsvImportScreen(): JSX.Element {
         const text = await picked.result.text()
         const parsed = parseCsv(text)
         if (parsed.headers.length === 0 || parsed.rows.length === 0) {
-          setPickError('This file has no rows to import.')
+          setPickError(t('This file has no rows to import.'))
           return
         }
         setFileName(picked.result.name)
@@ -166,7 +168,7 @@ export default function CsvImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.csv_preview_failed', error, { message: 'Building CSV import preview failed' })
-        Alert.alert('Could not read this file', String(error))
+        Alert.alert(t('Could not read this file'), String(error))
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -226,7 +228,7 @@ export default function CsvImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.csv_import_failed', error, { message: 'CSV import failed' })
-        Alert.alert('Import failed', String(error))
+        Alert.alert(t('Import failed'), String(error))
         setStep('preview')
       })
   }
@@ -248,12 +250,12 @@ export default function CsvImportScreen(): JSX.Element {
       <View style={styles.container}>
         <View style={styles.previewHeaderArea}>
           <Card style={styles.card}>
-            <Text style={styles.title}>Preview</Text>
+            <Text style={styles.title}>{t('Preview')}</Text>
             <View style={styles.summaryRow}>
-              <SummaryStat label="Will import" value={willImportCount} color={colors.success} />
-              <SummaryStat label="Duplicates" value={counts.duplicate} color={colors.warning} />
-              <SummaryStat label="Errors" value={counts.error} color={colors.danger} />
-              <SummaryStat label="Selected" value={checkedCount} color={colors.primary} />
+              <SummaryStat label={t('Will import')} value={willImportCount} color={colors.success} />
+              <SummaryStat label={t('Duplicates')} value={counts.duplicate} color={colors.warning} />
+              <SummaryStat label={t('Errors')} value={counts.error} color={colors.danger} />
+              <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
         </View>
@@ -274,7 +276,7 @@ export default function CsvImportScreen(): JSX.Element {
               </Pressable>
               {TABLE_COLUMNS.map((col) => (
                 <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
-                  {col.label}
+                  {t(col.label)}
                 </Text>
               ))}
             </View>
@@ -317,9 +319,9 @@ export default function CsvImportScreen(): JSX.Element {
         </ScrollView>
 
         <View style={styles.actions}>
-          <Button label="Back" variant="ghost" onPress={() => setStep('map')} />
+          <Button label={t('Back')} variant="ghost" onPress={() => setStep('map')} />
           <Button
-            label={`Import ${checkedCount.toLocaleString()} row${checkedCount === 1 ? '' : 's'}`}
+            label={t('Import {{count}} rows', { count: checkedCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
@@ -332,11 +334,11 @@ export default function CsvImportScreen(): JSX.Element {
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {step === 'pick' ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>Import from CSV</Text>
+          <Text style={styles.title}>{t('Import from CSV')}</Text>
           <Text style={styles.body}>
-            From Quizlet, Memrise, or a spreadsheet export. You'll choose which column means what next.
+            {t("From Quizlet, Memrise, or a spreadsheet export. You'll choose which column means what next.")}
           </Text>
-          <Button label="Choose CSV file" icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose CSV file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -345,18 +347,18 @@ export default function CsvImportScreen(): JSX.Element {
         <>
           <Card style={styles.card}>
             <Text style={styles.title}>{fileName}</Text>
-            <Text style={styles.body}>{rows.length.toLocaleString()} rows detected. Map each column below.</Text>
+            <Text style={styles.body}>{t('{{count}} rows detected. Map each column below.', { count: rows.length.toLocaleString() })}</Text>
           </Card>
 
           <Card style={[styles.card, styles.samplePreviewCard]}>
-            <Text style={styles.fieldLabel}>Sample data</Text>
-            <Text style={styles.hint}>The first few rows, so you can see what each column actually holds.</Text>
+            <Text style={styles.fieldLabel}>{t('Sample data')}</Text>
+            <Text style={styles.hint}>{t('The first few rows, so you can see what each column actually holds.')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator>
               <View>
                 <View style={styles.tableHeaderRow}>
                   {headers.map((header, index) => (
                     <Text key={index} style={[styles.sampleHeaderCell, { width: SAMPLE_COLUMN_WIDTH }]}>
-                      {header || `Column ${index + 1}`}
+                      {header || t('Column {{n}}', { n: index + 1 })}
                     </Text>
                   ))}
                 </View>
@@ -378,22 +380,21 @@ export default function CsvImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Field mapping</Text>
+            <Text style={styles.fieldLabel}>{t('Field mapping')}</Text>
             <Text style={styles.hint}>
-              Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes — they're
-              derived from the example's cloze markup and its translation.
+              {t("Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes — they're derived from the example's cloze markup and its translation.")}
             </Text>
             {ALL_FIELDS.map((field) => (
               <View key={field} style={styles.mappingRow}>
-                <Text style={styles.mappingLabel}>{FIELD_LABELS[field]}</Text>
+                <Text style={styles.mappingLabel}>{field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}</Text>
                 <Dropdown
-                  label={FIELD_LABELS[field]}
-                  placeholder="None"
+                  label={field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}
+                  placeholder={t('None')}
                   clearable
                   value={mapping[field] !== undefined ? String(mapping[field]) : null}
                   onChange={(v) => setField(field, v === null ? null : Number(v))}
                   options={headers.map((header, index) => ({
-                    label: header || `Column ${index + 1}`,
+                    label: header || t('Column {{n}}', { n: index + 1 }),
                     value: String(index),
                   }))}
                 />
@@ -402,7 +403,7 @@ export default function CsvImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Import into deck</Text>
+            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
             {decksQuery.isPending ? (
               <Spinner />
             ) : decksQuery.isError ? (
@@ -412,31 +413,31 @@ export default function CsvImportScreen(): JSX.Element {
                 {(decksQuery.data ?? []).map((deck) => (
                   <Chip key={deck.id} label={deck.name} selected={deckId === deck.id} onPress={() => setDeckId(deck.id)} />
                 ))}
-                <Chip label="+ New deck" onPress={() => setNewDeckOpen(true)} />
+                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
               </View>
             )}
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>If the word already exists</Text>
-            <Text style={styles.hint}>Applies to every duplicate row you leave checked in the next step.</Text>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip
                   key={policy.value}
-                  label={policy.label}
+                  label={t(policy.label)}
                   selected={duplicatePolicy === policy.value}
                   onPress={() => setDuplicatePolicy(policy.value)}
                 />
               ))}
             </View>
-            <Text style={styles.hint}>{DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint}</Text>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
           </Card>
 
           <View style={styles.actions}>
-            <Button label="Back" variant="ghost" onPress={handleStartOver} />
+            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
-              label={previewLoading ? 'Checking…' : 'Preview import'}
+              label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!canBuildPreview || previewLoading}
             />
@@ -444,17 +445,17 @@ export default function CsvImportScreen(): JSX.Element {
         </>
       ) : null}
 
-      {step === 'importing' ? <Spinner message="Importing…" /> : null}
+      {step === 'importing' ? <Spinner message={t('Importing…')} /> : null}
 
       {step === 'done' && result ? (
         <Card style={styles.card}>
-          <EmptyState icon="checkmark-circle" title="Import complete" message={`Imported ${result.imported.toLocaleString()} words.`} />
+          <EmptyState icon="checkmark-circle" title={t('Import complete')} message={t('Imported {{count}} words.', { count: result.imported.toLocaleString() })} />
           <View style={styles.summaryRow}>
-            <SummaryStat label="Imported" value={result.imported} color={colors.success} />
-            <SummaryStat label="Skipped" value={result.skipped} color={colors.warning} />
-            <SummaryStat label="Failed" value={result.failed} color={colors.danger} />
+            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+            <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
           </View>
-          <Button label="Import another file" variant="secondary" onPress={handleStartOver} />
+          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
         </Card>
       ) : null}
 
@@ -463,10 +464,10 @@ export default function CsvImportScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>New deck</Text>
+          <Text style={styles.modalTitle}>{t('New deck')}</Text>
           <TextInput
             style={styles.inputField}
-            placeholder="Deck name"
+            placeholder={t('Deck name')}
             placeholderTextColor={colors.textMuted}
             value={newDeckName}
             onChangeText={setNewDeckName}
@@ -474,7 +475,7 @@ export default function CsvImportScreen(): JSX.Element {
           />
           {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
           <Button
-            label={createNewDeck.isPending ? 'Creating…' : 'Create & select'}
+            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
             icon="add"
             disabled={createNewDeck.isPending}
             onPress={() => createNewDeck.mutate(newDeckName)}

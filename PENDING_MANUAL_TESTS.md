@@ -6,6 +6,43 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
+## App language (i18n): English/German/French/Spanish/Hindi (not yet AVD-verified, requires a native rebuild)
+
+New `expo-localization` dependency (native module) — a plain Metro reload is not enough. Run "Mobile:
+Rebuild native dev client (expo run:android)" before testing any of this.
+
+- [ ] **Native rebuild succeeds** — no Scudo/SIGABRT/unresolved-module error after adding `expo-localization`.
+- [ ] **Settings → Learning → App Language**: five language chips (English/German/French/Spanish/Hindi)
+      plus "Follow device"; tapping one immediately re-renders visible UI text in that language with no
+      restart needed.
+- [ ] **"Follow device"** picks up the AVD's system language (change it in Android Settings → System →
+      Languages, relaunch the app) when it's one of the five supported languages, and falls back to
+      English for an unsupported device language.
+- [ ] **Persistence**: force-close and relaunch the app — the chosen language (not "Follow device" default)
+      is still applied, with no flash of English before it resolves (the preference is read during the
+      existing app-bootstrap loading screen, before first paint).
+- [ ] **Full-screen coverage pass** — every screen's chrome (titles, section headers, buttons, empty/error
+      states, alerts, form labels) is now wrapped with `t()` and translated in all four languages: Home,
+      Search, Decks, Deck detail, Mine (mining queue), Word detail, Review session, Stats, Settings
+      (including all provider cards, DeepL row, App Language picker), and every settings sub-screen
+      (Import & export, CSV import, Anki import, .lin import, Card templates, Pronunciation, Word guides).
+      Spot-check a few screens per language rather than every screen — pick at least one list screen
+      (Decks), one form-heavy screen (CSV import mapping step), and one with Alert dialogs (delete a deck)
+      per language.
+- [ ] **Deliberately still English regardless of language** (confirm this is intentional, not a bug):
+      the Card Templates screen's help-sheet paragraphs (`HELP_SECTIONS` in
+      `app/settings/templates.tsx`), and the word detail screen's German grammar terminology (Konjunktiv
+      II, Präteritum, Passive voice, etc. — these are German grammar terms, not app chrome, and stay in
+      German/English regardless of app language).
+- [ ] **Interpolated strings render correctly** — no literal `{{placeholder}}` text visible anywhere;
+      spot-check a few count-based strings (e.g. Decks screen's "N due/M cards", Stats screen's "N
+      lapses", Word guides "N installed · M available") in a non-English language.
+- [ ] **Card Templates screen's Front/Back toggle chips**: in non-English languages, the "Back" chip label
+      falls back to the navigation "Back" translation (e.g. German "Zurück") rather than a card-side-
+      specific translation — a deliberate simplification to avoid a key collision between "go back" and
+      "card back side"; confirm this reads as merely imprecise, not broken or confusing to the point of
+      being unusable.
+
 ## Word guides WP1–5: word list, chunk 1 content, table, explain-flow, install UI (not yet AVD-verified)
 
 WP1–3 are pure data/tooling + a database table — automated Vitest coverage (including an end-to-end test

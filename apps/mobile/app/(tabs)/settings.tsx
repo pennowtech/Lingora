@@ -3,8 +3,17 @@ import type { CefrLevel } from '@lingora/types'
 import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { Card, Chip, SectionHeader } from '../../components/ui'
+import {
+  APP_LANGUAGES,
+  getStoredLanguagePreference,
+  isAppLanguage,
+  setAppLanguagePreference,
+  type AppLanguage,
+  type AppLanguagePreference,
+} from '../../lib/i18n'
 import {
   DEFAULT_MODELS,
   GENERATION_PROVIDERS,
@@ -25,6 +34,14 @@ import {
 import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
 import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
 import { logger } from '@lingora/observability'
+
+const APP_LANGUAGE_LABELS: Record<AppLanguage, string> = {
+  en: 'English',
+  de: 'German',
+  fr: 'French',
+  es: 'Spanish',
+  hi: 'Hindi',
+}
 
 const log = logger.child({ feature: 'settings', screen: 'SettingsScreen' })
 
@@ -111,6 +128,7 @@ const emptyProviderState = (name: GenerationProviderName): ProviderFormState => 
  */
 export default function SettingsScreen(): JSX.Element {
   const { tier, reloadServices } = useServices()
+  const { t } = useTranslation()
 
   const [translationProvider, setTranslationProviderState] = useState<TranslationProviderName>('google')
   const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
@@ -121,6 +139,7 @@ export default function SettingsScreen(): JSX.Element {
   const [deeplValidating, setDeeplValidating] = useState(false)
   const [deeplUsage, setDeeplUsage] = useState<UsageSnapshot>(ZERO_USAGE)
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
+  const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [expandedProvider, setExpandedProvider] = useState<GenerationProviderName | null>(null)
@@ -141,6 +160,21 @@ export default function SettingsScreen(): JSX.Element {
   })
 
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    getStoredLanguagePreference()
+      .then((stored) => {
+        if (stored === 'system' || isAppLanguage(stored)) setAppLanguageState(stored as AppLanguagePreference)
+      })
+      .catch(() => undefined)
+  }, [])
+
+  const changeAppLanguage = (preference: AppLanguagePreference): void => {
+    setAppLanguageState(preference)
+    setAppLanguagePreference(preference).catch((error: unknown) => {
+      log.error('settings.app_language_change_failed', error, { message: 'Failed to persist app language preference' })
+    })
+  }
 
   useEffect(() => {
     const load = async (): Promise<void> => {
@@ -264,7 +298,7 @@ export default function SettingsScreen(): JSX.Element {
     void validateDeepLKey(deeplKey)
       .then((result) => {
         Alert.alert(
-          result.ok ? 'Connected' : result.networkUnavailable ? 'No internet connection' : 'DeepL validation failed',
+          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('DeepL validation failed'),
           result.message,
         )
       })
@@ -294,7 +328,7 @@ export default function SettingsScreen(): JSX.Element {
     void VALIDATORS[name](apiKey, model)
       .then((result) => {
         Alert.alert(
-          result.ok ? 'Connected' : result.networkUnavailable ? 'No internet connection' : `${PROVIDER_META[name].label} validation failed`,
+          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
           result.message,
         )
       })
@@ -316,12 +350,12 @@ export default function SettingsScreen(): JSX.Element {
 
   const deleteAllKeys = (): void => {
     Alert.alert(
-      'Delete all API keys?',
-      'This removes every provider key from this device. Vocabulary and progress are unaffected.',
+      t('Delete all API keys?'),
+      t('This removes every provider key from this device. Vocabulary and progress are unaffected.'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('Cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('Delete'),
           style: 'destructive',
           onPress: () => {
             for (const name of GENERATION_PROVIDERS) {
@@ -360,10 +394,9 @@ export default function SettingsScreen(): JSX.Element {
         <View style={styles.banner}>
           <Ionicons name="lock-closed" size={16} color={colors.warning} />
           <View style={styles.bannerText}>
-            <Text style={styles.bannerTitle}>Limited mode</Text>
+            <Text style={styles.bannerTitle}>{t('Limited mode')}</Text>
             <Text style={styles.bannerMessage}>
-              Without a generation key, card creation with AI is disabled. Translation and manual cards still
-              work. Add a key to one of the providers below for the full experience.
+              {t('Without a generation key, card creation with AI is disabled. Translation and manual cards still work. Add a key to one of the providers below for the full experience.')}
             </Text>
           </View>
         </View>
@@ -373,23 +406,22 @@ export default function SettingsScreen(): JSX.Element {
         <View style={[styles.banner, { backgroundColor: colors.dangerSoft }]}>
           <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
           <View style={styles.bannerText}>
-            <Text style={[styles.bannerTitle, { color: colors.danger }]}>Couldn't load saved settings</Text>
+            <Text style={[styles.bannerTitle, { color: colors.danger }]}>{t("Couldn't load saved settings")}</Text>
             <Text style={styles.bannerMessage}>{loadError}</Text>
           </View>
         </View>
       ) : null}
 
       {/* ── Generation provider slot ── */}
-      <SectionHeader title="Generation" />
+      <SectionHeader title={t("Generation")} />
       <Card style={styles.providerCard}>
         <Text style={styles.fieldHint}>
-          Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is
-          configured and enabled. Bring your own API key — nothing is sent until you generate a card.
+          {t('Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled. Bring your own API key — nothing is sent until you generate a card.')}
         </Text>
 
         {configuredProviders.length > 1 ? (
           <View style={{ marginTop: spacing.md }}>
-            <Text style={styles.fieldLabel}>Active provider</Text>
+            <Text style={styles.fieldLabel}>{t('Active provider')}</Text>
             <View style={styles.chipRow}>
               {configuredProviders.map((name) => (
                 <Chip
@@ -425,11 +457,11 @@ export default function SettingsScreen(): JSX.Element {
       </Card>
 
       {/* ── Translation provider slot ── */}
-      <SectionHeader title="Translation" />
+      <SectionHeader title={t("Translation")} />
       <Card style={styles.providerCard}>
         <ProviderOption
-          label="Google Translate"
-          detail="Free tier, no key needed"
+          label={t('Google Translate')}
+          detail={t('Free tier, no key needed')}
           selected={translationProvider === 'google'}
           onPress={() => changeTranslationProvider('google')}
         />
@@ -455,7 +487,7 @@ export default function SettingsScreen(): JSX.Element {
             <ProviderOption
               key={name}
               label={PROVIDER_META[name].label}
-              detail={available ? 'Uses this provider’s key above' : 'Add a key above to enable'}
+              detail={available ? t('Uses this provider’s key above') : t('Add a key above to enable')}
               selected={translationProvider === name}
               disabled={!available}
               onPress={() => changeTranslationProvider(name)}
@@ -465,10 +497,10 @@ export default function SettingsScreen(): JSX.Element {
       </Card>
 
       {/* ── Learning ── */}
-      <SectionHeader title="Learning" />
+      <SectionHeader title={t("Learning")} />
       <Card>
-        <Text style={styles.fieldLabel}>Default CEFR level</Text>
-        <Text style={styles.fieldHint}>Examples and explanations are calibrated to this level.</Text>
+        <Text style={styles.fieldLabel}>{t('Default CEFR level')}</Text>
+        <Text style={styles.fieldHint}>{t('Examples and explanations are calibrated to this level.')}</Text>
         <View style={styles.chipRow}>
           {CEFR_LEVELS.map((level) => (
             <Chip
@@ -482,34 +514,49 @@ export default function SettingsScreen(): JSX.Element {
         </View>
       </Card>
 
-      {/* ── Data ── */}
-      <SectionHeader title="Data" />
       <Card>
-        <LinkRow icon="swap-vertical" label="Import & export" detail="Anki, CSV, JSON backup" onPress={() => router.push('/settings/import-export')} />
-        <LinkRow icon="color-palette" label="Card templates" detail="Customize card layouts" onPress={() => router.push('/settings/templates')} divider />
-        <LinkRow icon="volume-high" label="Pronunciation" detail="Voice, rate, pitch" onPress={() => router.push('/settings/tts')} divider />
-        <LinkRow icon="library" label="Word guides" detail="Free starter dictionary — no AI key needed" onPress={() => router.push('/settings/word-guides')} divider />
+        <Text style={styles.fieldLabel}>{t('App Language')}</Text>
+        <View style={styles.chipRow}>
+          <Chip label={t('Follow device')} selected={appLanguage === 'system'} onPress={() => changeAppLanguage('system')} />
+          {APP_LANGUAGES.map((language) => (
+            <Chip
+              key={language}
+              label={t(APP_LANGUAGE_LABELS[language])}
+              selected={appLanguage === language}
+              onPress={() => changeAppLanguage(language)}
+            />
+          ))}
+        </View>
+      </Card>
+
+      {/* ── Data ── */}
+      <SectionHeader title={t("Data")} />
+      <Card>
+        <LinkRow icon="swap-vertical" label={t('Import & export')} detail={t('Anki, CSV, JSON backup')} onPress={() => router.push('/settings/import-export')} />
+        <LinkRow icon="color-palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} divider />
+        <LinkRow icon="volume-high" label={t('Pronunciation')} detail={t('Voice, rate, pitch')} onPress={() => router.push('/settings/tts')} divider />
+        <LinkRow icon="library" label={t('Word guides')} detail={t('Free starter dictionary — no AI key needed')} onPress={() => router.push('/settings/word-guides')} divider />
       </Card>
 
       {/* ── Privacy ── */}
-      <SectionHeader title="Privacy" />
+      <SectionHeader title={t("Privacy")} />
       <Card style={{ gap: spacing.md }}>
         <Row>
           <Ionicons name="shield-checkmark-outline" size={17} color={colors.success} />
           <Text style={styles.privacyText}>
-            API keys stay on this device (Expo SecureStore) and are never included in exports or backups.
+            {t('API keys stay on this device (Expo SecureStore) and are never included in exports or backups.')}
           </Text>
         </Row>
         <Pressable style={styles.dangerButton} onPress={deleteAllKeys}>
           <Ionicons name="trash-outline" size={16} color={colors.danger} />
-          <Text style={styles.dangerButtonLabel}>Delete all API keys</Text>
+          <Text style={styles.dangerButtonLabel}>{t('Delete all API keys')}</Text>
         </Pressable>
       </Card>
 
       {/* ── About ── */}
-      <SectionHeader title="About" />
+      <SectionHeader title={t("About")} />
       <Card>
-        <LinkRow icon="information-circle" label="Lingora" detail="v0.0.1 · offline-first · your data stays on device" onPress={() => undefined} />
+        <LinkRow icon="information-circle" label="Lingora" detail={t('v0.0.1 · offline-first · your data stays on device')} onPress={() => undefined} />
       </Card>
     </ScrollView>
   )
@@ -533,6 +580,7 @@ function ProviderCard(props: {
 }): JSX.Element {
   const { meta, state, active, expanded, showKey, validating, usage } = props
   const hasKey = state.apiKey.trim() !== ''
+  const { t } = useTranslation()
 
   return (
     <View style={styles.providerBlock}>
@@ -545,11 +593,11 @@ function ProviderCard(props: {
             <Text style={styles.optionLabel}>{meta.label}</Text>
             {active ? (
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeLabel}>Active</Text>
+                <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
               </View>
             ) : null}
           </View>
-          <Text style={styles.optionDetail}>{meta.description}</Text>
+          <Text style={styles.optionDetail}>{t(meta.description)}</Text>
         </View>
         <Switch value={state.enabled && hasKey} onValueChange={props.onToggleEnabled} disabled={!hasKey} />
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
@@ -557,7 +605,7 @@ function ProviderCard(props: {
 
       {expanded ? (
         <View style={styles.providerBody}>
-          <Text style={styles.fieldLabel}>Model</Text>
+          <Text style={styles.fieldLabel}>{t('Model')}</Text>
           <View style={styles.chipRow}>
             {meta.models.map((model) => (
               <Chip key={model} label={model} selected={model === state.model} onPress={() => props.onChangeModel(model)} />
@@ -567,7 +615,7 @@ function ProviderCard(props: {
           <View style={styles.keyInputWrap}>
             <TextInput
               style={styles.keyInputWithIcon}
-              placeholder={`Paste your ${meta.label} API key…`}
+              placeholder={t('Paste your {{provider}} API key…', { provider: meta.label })}
               placeholderTextColor={colors.textMuted}
               value={state.apiKey}
               onChangeText={props.onChangeApiKey}
@@ -577,7 +625,7 @@ function ProviderCard(props: {
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={showKey ? `Hide ${meta.label} API key` : `Show ${meta.label} API key`}
+              accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
               onPress={props.onToggleShowKey}
               style={styles.keyInputEye}
             >
@@ -594,22 +642,22 @@ function ProviderCard(props: {
               {validating ? (
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : (
-                <Text style={styles.secondaryButtonLabel}>Validate key</Text>
+                <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
               )}
             </Pressable>
             <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>Clear</Text>
+              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
             </Pressable>
           </View>
 
           <View style={styles.usageBox}>
-            <Text style={styles.usageLabel}>Device-observed usage</Text>
+            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
             <Text style={styles.usageDetail}>
-              {usage.requests.toLocaleString()} request{usage.requests === 1 ? '' : 's'} ·{' '}
-              {usage.tokensUsed.toLocaleString()} tokens
+              {t('{{count}} requests', { count: usage.requests.toLocaleString() })} ·{' '}
+              {t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })}
             </Text>
             <Pressable onPress={() => void Linking.openURL(meta.usageUrl)}>
-              <Text style={styles.usageLink}>Open {meta.label} usage ↗</Text>
+              <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
             </Pressable>
           </View>
         </View>
@@ -644,6 +692,7 @@ function DeepLRow(props: {
   onClearKey: () => void
 }): JSX.Element {
   const hasKey = props.apiKey.trim() !== ''
+  const { t } = useTranslation()
 
   return (
     <View style={styles.providerBlock}>
@@ -656,12 +705,12 @@ function DeepLRow(props: {
           />
           <View style={styles.optionText}>
             <Text style={styles.optionLabel}>DeepL</Text>
-            <Text style={styles.optionDetail}>Best German↔English quality — bring your own key</Text>
+            <Text style={styles.optionDetail}>{t('Best German↔English quality — bring your own key')}</Text>
           </View>
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={props.expanded ? 'Hide DeepL settings' : 'Show DeepL settings'}
+          accessibilityLabel={props.expanded ? t('Hide DeepL settings') : t('Show DeepL settings')}
           onPress={props.onToggleExpanded}
           hitSlop={8}
         >
@@ -674,7 +723,7 @@ function DeepLRow(props: {
           <View style={styles.keyInputWrap}>
             <TextInput
               style={styles.keyInputWithIcon}
-              placeholder="Paste your DeepL API key…"
+              placeholder={t('Paste your DeepL API key…')}
               placeholderTextColor={colors.textMuted}
               value={props.apiKey}
               onChangeText={props.onChangeApiKey}
@@ -684,7 +733,7 @@ function DeepLRow(props: {
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={props.showKey ? 'Hide DeepL API key' : 'Show DeepL API key'}
+              accessibilityLabel={props.showKey ? t('Hide DeepL API key') : t('Show DeepL API key')}
               onPress={props.onToggleShowKey}
               style={styles.keyInputEye}
             >
@@ -693,7 +742,7 @@ function DeepLRow(props: {
           </View>
 
           <Row>
-            <Text style={[styles.optionLabel, { flex: 1 }]}>Enabled</Text>
+            <Text style={[styles.optionLabel, { flex: 1 }]}>{t('Enabled')}</Text>
             <Switch value={props.enabled && hasKey} onValueChange={props.onToggleEnabled} disabled={!hasKey} />
           </Row>
 
@@ -706,22 +755,22 @@ function DeepLRow(props: {
               {props.validating ? (
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : (
-                <Text style={styles.secondaryButtonLabel}>Validate key</Text>
+                <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
               )}
             </Pressable>
             <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>Clear</Text>
+              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
             </Pressable>
           </View>
 
           <View style={styles.usageBox}>
-            <Text style={styles.usageLabel}>Device-observed usage</Text>
+            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
             <Text style={styles.usageDetail}>
-              {props.usage.requests.toLocaleString()} request{props.usage.requests === 1 ? '' : 's'} ·{' '}
-              {props.usage.tokensUsed.toLocaleString()} tokens
+              {t('{{count}} requests', { count: props.usage.requests.toLocaleString() })} ·{' '}
+              {t('{{count}} tokens', { count: props.usage.tokensUsed.toLocaleString() })}
             </Text>
             <Pressable onPress={() => void Linking.openURL(DEEPL_USAGE_URL)}>
-              <Text style={styles.usageLink}>Open DeepL usage ↗</Text>
+              <Text style={styles.usageLink}>{t('Open DeepL usage ↗')}</Text>
             </Pressable>
           </View>
         </View>

@@ -11,6 +11,7 @@ import {
 } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import type { JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, EmptyState, ErrorState, SectionHeader, Spinner } from '../components/ui'
 import { useServices } from '../lib/services'
@@ -54,6 +55,7 @@ async function loadStats(db: DatabaseAdapter): Promise<StatsData> {
  */
 export default function StatsScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const statsQuery = useQuery({ queryKey: ['learning-stats'], queryFn: () => loadStats(db) })
 
   if (statsQuery.isPending) {
@@ -74,8 +76,8 @@ export default function StatsScreen(): JSX.Element {
     return (
       <EmptyState
         icon="stats-chart-outline"
-        title="No stats yet"
-        message="Add and review some words to see your learning statistics here."
+        title={t('No stats yet')}
+        message={t('Add and review some words to see your learning statistics here.')}
       />
     )
   }
@@ -86,24 +88,24 @@ export default function StatsScreen(): JSX.Element {
       <View style={styles.grid}>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>{Math.round(stats.retention30d * 100)}%</Text>
-          <Text style={styles.gridLabel}>retention (30 d)</Text>
+          <Text style={styles.gridLabel}>{t('retention (30 d)')}</Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>🔥 {stats.streakDays}</Text>
-          <Text style={styles.gridLabel}>day streak</Text>
+          <Text style={styles.gridLabel}>{t('day streak')}</Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>{stats.totalCards}</Text>
-          <Text style={styles.gridLabel}>total cards</Text>
+          <Text style={styles.gridLabel}>{t('total cards')}</Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>+{stats.newThisWeek}</Text>
-          <Text style={styles.gridLabel}>new this week</Text>
+          <Text style={styles.gridLabel}>{t('new this week')}</Text>
         </Card>
       </View>
 
       {/* Streak heatmap */}
-      <SectionHeader title="Review activity" />
+      <SectionHeader title={t('Review activity')} />
       <Card>
         <View style={styles.heatmap}>
           {stats.heatmap.map((row, rowIndex) => (
@@ -118,16 +120,16 @@ export default function StatsScreen(): JSX.Element {
           ))}
         </View>
         <View style={styles.heatLegend}>
-          <Text style={styles.legendLabel}>less</Text>
+          <Text style={styles.legendLabel}>{t('less')}</Text>
           {HEAT_COLORS.map((c) => (
             <View key={c} style={[styles.legendCell, { backgroundColor: c }]} />
           ))}
-          <Text style={styles.legendLabel}>more</Text>
+          <Text style={styles.legendLabel}>{t('more')}</Text>
         </View>
       </Card>
 
       {/* Vocabulary growth */}
-      <SectionHeader title="Vocabulary growth" />
+      <SectionHeader title={t('Vocabulary growth')} />
       <Card>
         <View style={styles.chart}>
           {stats.growth.map((week, i) => (
@@ -137,14 +139,14 @@ export default function StatsScreen(): JSX.Element {
             </View>
           ))}
         </View>
-        <Text style={styles.chartCaption}>new words per week</Text>
+        <Text style={styles.chartCaption}>{t('new words per week')}</Text>
       </Card>
 
       {/* Difficult words */}
-      <SectionHeader title="Difficult words" />
+      <SectionHeader title={t('Difficult words')} />
       {stats.difficultWords.length === 0 ? (
         <Card>
-          <Text style={styles.chartCaption}>No lapses yet — nothing difficult to show.</Text>
+          <Text style={styles.chartCaption}>{t('No lapses yet — nothing difficult to show.')}</Text>
         </Card>
       ) : (
         <Card>
@@ -152,7 +154,7 @@ export default function StatsScreen(): JSX.Element {
             <View key={word.form} style={[styles.difficultRow, i > 0 && styles.rowDivider]}>
               <Text style={styles.difficultWord}>{word.form}</Text>
               <View style={styles.lapsesPill}>
-                <Text style={styles.lapsesLabel}>{word.lapses} lapses</Text>
+                <Text style={styles.lapsesLabel}>{t('{{count}} lapses', { count: word.lapses })}</Text>
               </View>
             </View>
           ))}

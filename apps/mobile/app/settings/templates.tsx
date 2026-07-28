@@ -4,6 +4,7 @@ import { createTemplate, deleteTemplate, getAllTemplates, updateTemplate } from 
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { CardRenderer } from '../../components/CardRenderer'
 import { Button, Card, Chip, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
@@ -206,6 +207,7 @@ function withField(template: string, variable: string, enabled: boolean): string
  */
 export default function TemplatesScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const [previewCardSize, setPreviewCardSize] = useState<{ width: number; height: number } | null>(null)
   const queryClient = useQueryClient()
 
@@ -285,7 +287,7 @@ export default function TemplatesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.template_save_failed', error, { message: 'Saving a card template failed' })
-      Alert.alert('Could not save template', String(error))
+      Alert.alert(t('Could not save template'), String(error))
     },
   })
 
@@ -295,7 +297,7 @@ export default function TemplatesScreen(): JSX.Element {
       await updateTemplate(db, { ...active, isDefault: true })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
-    onError: (error: unknown) => Alert.alert('Could not set default template', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not set default template'), String(error)),
   })
 
   const remove = useMutation({
@@ -307,22 +309,22 @@ export default function TemplatesScreen(): JSX.Element {
       setActiveId(null)
       await queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
-    onError: (error: unknown) => Alert.alert('Could not delete template', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not delete template'), String(error)),
   })
 
   const startNewTemplate = (): void => {
     setActiveId(null)
-    setName('New template')
+    setName(t('New template'))
     setFrontTemplate(defaultFront)
     setBackTemplate(defaultBack)
     setStyles_(defaultStyles)
   }
 
   const resetToDefault = (): void => {
-    Alert.alert('Reset to default layout & style?', 'This replaces the front, back, and CSS in the editor — tap "Save changes" to keep it. Unsaved edits are lost.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('Reset to default layout & style?'), t('This replaces the front, back, and CSS in the editor — tap "Save changes" to keep it. Unsaved edits are lost.'), [
+      { text: t('Cancel'), style: 'cancel' },
       {
-        text: 'Reset',
+        text: t('Reset'),
         style: 'destructive',
         onPress: () => {
           setFrontTemplate(defaultFront)
@@ -356,23 +358,23 @@ export default function TemplatesScreen(): JSX.Element {
     <View style={styles.container}>
       {/* Vocabulary/Cloze type toggle — each has its own template list and default */}
       <View style={styles.typeRow}>
-        <Chip label="Vocabulary" selected={templateType === 'vocab'} onPress={() => setTemplateType('vocab')} />
-        <Chip label="Cloze" selected={templateType === 'cloze'} onPress={() => setTemplateType('cloze')} />
+        <Chip label={t('Vocabulary')} selected={templateType === 'vocab'} onPress={() => setTemplateType('vocab')} />
+        <Chip label={t('Cloze')} selected={templateType === 'cloze'} onPress={() => setTemplateType('cloze')} />
       </View>
 
       {/* Template picker */}
       <View style={styles.pickerRow}>
-        {templates.map((t) => (
-          <Chip key={t.id} label={t.isDefault ? `★ ${t.name}` : t.name} selected={t.id === activeId} onPress={() => setActiveId(t.id)} />
+        {templates.map((tpl) => (
+          <Chip key={tpl.id} label={tpl.isDefault ? `★ ${tpl.name}` : tpl.name} selected={tpl.id === activeId} onPress={() => setActiveId(tpl.id)} />
         ))}
-        <Chip label="+ New" onPress={startNewTemplate} />
+        <Chip label={t('+ New')} onPress={startNewTemplate} />
       </View>
 
       {/* Tabs + help */}
       <View style={styles.tabBar}>
         <View style={styles.tabRow}>
-          {(['fields', 'style', 'preview', 'code'] as Tab[]).map((t) => (
-            <Chip key={t} label={t[0]!.toUpperCase() + t.slice(1)} selected={tab === t} onPress={() => setTab(t)} />
+          {(['fields', 'style', 'preview', 'code'] as Tab[]).map((tabName) => (
+            <Chip key={tabName} label={tabName[0]!.toUpperCase() + tabName.slice(1)} selected={tab === tabName} onPress={() => setTab(tabName)} />
           ))}
         </View>
         <IconButton
@@ -393,12 +395,13 @@ export default function TemplatesScreen(): JSX.Element {
         // fits on one screen during an actual review).
         <View style={styles.previewPane}>
           <View style={styles.previewTabRow}>
-            <Chip label="Front" selected={previewSide === 'front'} onPress={() => setPreviewSide('front')} />
-            <Chip label="Back" selected={previewSide === 'back'} onPress={() => setPreviewSide('back')} />
+            <Chip label={t('Front')} selected={previewSide === 'front'} onPress={() => setPreviewSide('front')} />
+            <Chip label={t('Back')} selected={previewSide === 'back'} onPress={() => setPreviewSide('back')} />
           </View>
           <Text style={styles.dimensionCaption}>
-            {previewCardSize ? `${Math.round(previewCardSize.width)} × ${Math.round(previewCardSize.height)} pt` : '—'} — actual
-            review card size on this device
+            {previewCardSize ? `${Math.round(previewCardSize.width)} × ${Math.round(previewCardSize.height)} pt` : '—'}
+            {' — '}
+            {t('actual review card size on this device')}
           </Text>
           <Card
             style={[styles.previewCard, styles.previewCardFlex]}
@@ -408,22 +411,22 @@ export default function TemplatesScreen(): JSX.Element {
           </Card>
           <Text style={styles.editorHint}>
             {templateType === 'cloze'
-              ? 'Rendered with a sample cloze sentence through the same engine the review session uses.'
-              : 'Rendered with sample data ("ausgehen") through the same engine the review session uses.'}
+              ? t('Rendered with a sample cloze sentence through the same engine the review session uses.')
+              : t('Rendered with sample data ("ausgehen") through the same engine the review session uses.')}
           </Text>
         </View>
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           {tab === 'fields' ? (
           <>
-            <SectionHeader title="Template name" />
+            <SectionHeader title={t('Template name')} />
             <Card>
-              <TextInput style={styles.nameInput} value={name} onChangeText={setName} placeholder="Template name" />
+              <TextInput style={styles.nameInput} value={name} onChangeText={setName} placeholder={t('Template name')} />
             </Card>
 
-            <SectionHeader title="Fields" />
+            <SectionHeader title={t('Fields')} />
             <Text style={styles.fieldsHint}>
-              Tap "Front" or "Back" to show a field on that side — a field can appear on both, or neither.
+              {t('Tap "Front" or "Back" to show a field on that side — a field can appear on both, or neither.')}
             </Text>
             <Card style={styles.fieldList}>
               {templateVariables.map((v, i) => {
@@ -440,12 +443,12 @@ export default function TemplatesScreen(): JSX.Element {
                     </View>
                     <View style={styles.fieldToggles}>
                       <Chip
-                        label="Front"
+                        label={t('Front')}
                         selected={onFront}
                         onPress={() => setFrontTemplate((prev) => withField(prev, v.name, !onFront))}
                       />
                       <Chip
-                        label="Back"
+                        label={t('Back')}
                         selected={onBack}
                         onPress={() => setBackTemplate((prev) => withField(prev, v.name, !onBack))}
                       />
@@ -459,8 +462,8 @@ export default function TemplatesScreen(): JSX.Element {
 
         {tab === 'style' ? (
           <>
-            <SectionHeader title="Layout & style" action="Reset to default" onAction={resetToDefault} />
-            <SectionHeader title="Accent color" />
+            <SectionHeader title={t('Layout & style')} action={t('Reset to default')} onAction={resetToDefault} />
+            <SectionHeader title={t('Accent color')} />
             <Card>
               <View style={styles.chipRow}>
                 {ACCENT_COLORS.map((color) => (
@@ -475,12 +478,11 @@ export default function TemplatesScreen(): JSX.Element {
                 ))}
               </View>
               <Text style={styles.editorHint}>
-                Stored as a <Text style={styles.mono}>:root{'{--accent:...}'}</Text> rule — reference it in your CSS
-                below as <Text style={styles.mono}>var(--accent)</Text>.
+                {t('Stored as a')} <Text style={styles.mono}>:root{'{--accent:...}'}</Text> {t('rule — reference it in your CSS below as')} <Text style={styles.mono}>var(--accent)</Text>.
               </Text>
             </Card>
 
-            <SectionHeader title="CSS" />
+            <SectionHeader title={t('CSS')} />
             <Card>
               <TextInput
                 style={styles.editor}
@@ -490,14 +492,14 @@ export default function TemplatesScreen(): JSX.Element {
                 autoCapitalize="none"
                 autoCorrect={false}
               />
-              <Text style={styles.editorHint}>Applied to both sides in the real WebView renderer.</Text>
+              <Text style={styles.editorHint}>{t('Applied to both sides in the real WebView renderer.')}</Text>
             </Card>
           </>
         ) : null}
 
         {tab === 'code' ? (
           <>
-            <SectionHeader title="Front (Liquid)" />
+            <SectionHeader title={t('Front (Liquid)')} />
             <Card>
               <TextInput
                 style={styles.editor}
@@ -509,7 +511,7 @@ export default function TemplatesScreen(): JSX.Element {
               />
             </Card>
 
-            <SectionHeader title="Back (Liquid)" />
+            <SectionHeader title={t('Back (Liquid)')} />
             <Card>
               <TextInput
                 style={styles.editor}
@@ -521,7 +523,7 @@ export default function TemplatesScreen(): JSX.Element {
               />
             </Card>
 
-            <SectionHeader title="Available template variables" />
+            <SectionHeader title={t('Available template variables')} />
             <Card>
               {templateVariables.map((v, i) => (
                 <View key={v.name} style={[styles.variableRow, i > 0 && styles.rowDivider]}>
@@ -533,7 +535,7 @@ export default function TemplatesScreen(): JSX.Element {
               ))}
             </Card>
 
-            <SectionHeader title="Conditional example" />
+            <SectionHeader title={t('Conditional example')} />
             <Card>
               <Text style={styles.codeBlock}>{CONDITIONAL_EXAMPLE}</Text>
             </Card>
@@ -544,24 +546,24 @@ export default function TemplatesScreen(): JSX.Element {
 
       <View style={styles.actions}>
         {active && !active.isDefault ? (
-          <Button label="Set default" variant="ghost" small onPress={() => setDefault.mutate()} disabled={setDefault.isPending} />
+          <Button label={t('Set default')} variant="ghost" small onPress={() => setDefault.mutate()} disabled={setDefault.isPending} />
         ) : null}
         {active ? (
           <Button
-            label={remove.isPending ? 'Deleting…' : 'Delete'}
+            label={remove.isPending ? t('Deleting…') : t('Delete')}
             variant="danger"
             small
             onPress={() =>
-              Alert.alert('Delete this template?', `"${active.name}" will be removed.`, [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: () => remove.mutate() },
+              Alert.alert(t('Delete this template?'), t('"{{name}}" will be removed.', { name: active.name }), [
+                { text: t('Cancel'), style: 'cancel' },
+                { text: t('Delete'), style: 'destructive', onPress: () => remove.mutate() },
               ])
             }
             disabled={remove.isPending || active.isDefault}
           />
         ) : null}
         <Button
-          label={save.isPending ? 'Saving…' : active ? 'Save changes' : 'Create template'}
+          label={save.isPending ? t('Saving…') : active ? t('Save changes') : t('Create template')}
           icon="save"
           small
           onPress={() => save.mutate()}
@@ -574,7 +576,7 @@ export default function TemplatesScreen(): JSX.Element {
         <View style={styles.helpBackdrop}>
           <View style={styles.helpSheet}>
             <View style={styles.helpHeader}>
-              <Text style={styles.helpTitle}>Template editor help</Text>
+              <Text style={styles.helpTitle}>{t('Template editor help')}</Text>
               <IconButton icon="close" onPress={() => setHelpOpen(false)} />
             </View>
             <ScrollView>
@@ -585,7 +587,7 @@ export default function TemplatesScreen(): JSX.Element {
                     <Card onPress={() => setHelpSection(isOpen ? null : section.id)} style={styles.helpAccordionHeader}>
                       <View style={styles.helpAccordionHeaderRow}>
                         <Ionicons name={section.icon} size={18} color={colors.primary} />
-                        <Text style={styles.helpSectionTitle}>{section.title}</Text>
+                        <Text style={styles.helpSectionTitle}>{t(section.title)}</Text>
                         <View style={styles.helpAccordionSpacer} />
                         <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
                       </View>

@@ -272,7 +272,7 @@ export function ExportFormatSheet(props: {
 
 // ─── Import format sheet ────────────────────────────────────────────────────
 
-export type ImportFormat = 'csv' | 'apkg'
+export type ImportFormat = 'csv' | 'apkg' | 'lin'
 
 interface ImportFormatOption {
   format: ImportFormat
@@ -284,6 +284,7 @@ interface ImportFormatOption {
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck — including Cloze notes.', icon: 'albums' },
+  { format: 'lin', label: 'Lingora (.lin)', description: 'A deck someone shared from Lingora — full fidelity, including review history.', icon: 'sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */

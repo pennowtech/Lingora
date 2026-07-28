@@ -15,22 +15,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { streakFromDayIndexes } from '../../lib/stats'
 import { colors, radius, spacing, type } from '../../lib/theme'
-
-/** Consecutive reviewed days counting back from today (or yesterday, so an unfinished today doesn't break it). */
-function streakFromDayIndexes(days: number[]): number {
-  if (days.length === 0) return 0
-  const today = Math.floor(Date.now() / 86_400_000)
-  let expected = days[0] === today || days[0] === today - 1 ? days[0] : -1
-  if (expected === -1) return 0
-  let streak = 0
-  for (const day of days) {
-    if (day !== expected) break
-    streak += 1
-    expected -= 1
-  }
-  return streak
-}
 
 interface HomeStats {
   dueNow: number

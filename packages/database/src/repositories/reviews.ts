@@ -145,6 +145,37 @@ export async function getReviewedDayIndexes(db: DatabaseAdapter, limit = 366): P
 }
 
 /**
+ * Review counts per UTC day index (unix ms / 86400000) for the last `days`
+ * days, including days with zero reviews — the stats screen's heatmap
+ * needs a real count per cell (intensity), not just which days had any
+ * review at all (`getReviewedDayIndexes`, still used for the streak).
+ */
+export interface DayReviewCount {
+  day: number
+  count: number
+}
+
+export async function getReviewCountsByDay(db: DatabaseAdapter, days = 35): Promise<DayReviewCount[]> {
+  const today = Math.floor(Date.now() / 86_400_000)
+  const since = (today - days + 1) * 86_400_000
+
+  const rows = await db.query<DayReviewCount>(
+    `SELECT CAST(review_date / 86400000 AS INTEGER) AS day, COUNT(*) AS count
+     FROM review_events
+     WHERE review_date >= ?
+     GROUP BY day`,
+    [since],
+  )
+  const countByDay = new Map(rows.map((r) => [r.day, r.count]))
+
+  const result: DayReviewCount[] = []
+  for (let day = today - days + 1; day <= today; day++) {
+    result.push({ day, count: countByDay.get(day) ?? 0 })
+  }
+  return result
+}
+
+/**
  * Get the retention rate over the last N days.
  * Retention = (hard + good + easy) / total reviews.
  *
@@ -171,4 +202,32 @@ export async function getRetentionRate(db: DatabaseAdapter, days = 30): Promise<
 
   if (!result || result.total === 0) return 0
   return result.remembered / result.total
+}
+
+/** One entry of the stats screen's "difficult words" list. */
+export interface DifficultWord {
+  form: string
+  lapses: number
+}
+
+/**
+ * Words with the most FSRS lapses ("again" ratings that dropped a card
+ * back to relearning), most-lapsed first, `lapses = 0` excluded (nothing
+ * difficult about a card that's never been forgotten). A lemma with
+ * several cards (e.g. a basic + cloze pair, see import-shared.ts) sums
+ * their lapses — the word itself is what's difficult, not one specific
+ * card of it.
+ */
+export async function getDifficultWords(db: DatabaseAdapter, limit = 10): Promise<DifficultWord[]> {
+  return db.query<DifficultWord>(
+    `SELECT l.form AS form, SUM(cs.lapses) AS lapses
+     FROM card_states cs
+     JOIN cards c ON c.id = cs.card_id
+     JOIN lemmas l ON l.id = c.lemma_id
+     GROUP BY l.id
+     HAVING SUM(cs.lapses) > 0
+     ORDER BY lapses DESC
+     LIMIT ?`,
+    [limit],
+  )
 }

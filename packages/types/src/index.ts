@@ -411,3 +411,35 @@ export interface Evaluation {
   note?: string // optional free-text detail from the report workflow
   createdAt: number
 }
+
+// ─── Word guides ────────────────────────────────────────────────────────────
+
+/**
+ * A bulk-installed, pre-generated reference-dictionary entry — see
+ * LingoraDocs/6_word_guides_plan.md. Deliberately unrelated to
+ * Lemma/Card/Deck: installing or looking up a word guide never touches a
+ * user's own vocabulary. Consulted by the explain-flow as a free fallback
+ * before a live AI call.
+ */
+export interface WordGuideExample {
+  sentence: string
+  translation: string
+  type: 'indicative' | 'konjunktivII' | 'passive'
+}
+
+export interface WordGuideSynonym {
+  word: string
+  gloss: string
+}
+
+export interface WordGuideEntry {
+  headword: string
+  language: LanguageCode
+  chunkId: number
+  partOfSpeech?: string
+  gender?: string
+  usage?: string
+  intro: string
+  synonyms: WordGuideSynonym[]
+  examples: WordGuideExample[]
+}

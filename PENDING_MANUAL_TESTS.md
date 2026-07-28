@@ -6,6 +6,56 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
+## Card action bar: speaker/explanation/translate-toggle/edit/lookup (not yet AVD-verified, requires a native rebuild)
+
+New `expo-speech` dependency (native module) — a plain Metro reload is not
+enough. Run "Mobile: Rebuild native dev client (expo run:android)" (or the
+equivalent VS Code task) before testing any of this.
+
+- [ ] **Native rebuild succeeds** — no Scudo/SIGABRT/unresolved-module error
+      after adding `expo-speech`.
+- [ ] **Layout: controls live on the card, not beside it** — on the review
+      session's flipped card, the word/example speaker row sits inside the
+      same bordered box as the WebView content (top), and the action bar +
+      explanation text sit inside that same box (bottom) — not as separate
+      rows above/below it. On word detail, the action bar sits inside the
+      meaning card's border, and each example's speaker sits inline next to
+      its sentence within that example's own card.
+- [ ] **Speaker buttons** (word detail header word, each example sentence;
+      review session's flipped card — word and selected example) actually
+      play audio in the target language on the AVD (device TTS voices are
+      typically pre-installed, but confirm — an AVD image can lack a
+      language pack).
+- [ ] **Explanation ("book") button**:
+      - A meaning with a stored explanation reveals it on tap, no AI call.
+      - A meaning with **no** stored explanation, tier `'full'` (AI key
+        configured): tapping generates one via `ai.generateMeaning`, shows
+        "Generating…" while pending, then displays and persists it (revisit
+        the word — it should now show without regenerating).
+      - Same case, tier `'translation'` (no AI key): shows the "AI not
+        configured" alert instead of attempting a call.
+- [ ] **Translate-toggle**: hides the meaning/example-translation text
+      (shows `•••` on word detail, blanks the rendered HTML on the review
+      card) without touching the stored data — untoggling immediately
+      restores it, and it resets automatically when the review session
+      advances to the next card.
+- [ ] **Edit button**: opens the edit modal pre-filled with the current
+      meaning/example/translation on both screens; saving persists via
+      `updateMeaningText`/`updateExampleText` and the screen reflects the
+      change after the query invalidation.
+- [ ] **Google lookup button**: opens the device browser (or an app chooser)
+      to a Google search for the word — confirm it doesn't silently no-op.
+- [ ] **Settings → Pronunciation** (`app/settings/tts.tsx`): rate/pitch chips
+      persist (revisit the screen, the previously-selected chip is still
+      highlighted) and audibly change playback speed/tone; the voice dropdown
+      lists the device's installed German voices (empty-state message if
+      none); "Test" plays a sample sentence with the current settings applied;
+      changing a setting here changes every speaker button's playback
+      app-wide (no per-screen override).
+- [ ] **Regression**: review session's rating buttons, swipe gestures, and
+      cloze mode (which doesn't get the new toolbar) still work exactly as
+      before.
+
 ## Work package 5 — Learning statistics (not yet AVD-verified)
 
 Run via the "Mobile: Expo start (Android, localhost)" VS Code task (or

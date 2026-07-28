@@ -106,6 +106,8 @@ export const STORE_KEYS = {
   generationProvider: 'lingora.generation_provider',
   defaultCefr: 'lingora.default_cefr',
   exportDirectoryUri: 'lingora.export_directory_uri',
+  ttsPitch: 'lingora.tts_pitch',
+  ttsRate: 'lingora.tts_rate',
 } as const
 
 export const DEFAULT_DECK_ID = 'deck-default'

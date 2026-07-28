@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
 import { migrate } from './migrations'
-import { createDeck, deleteDeck } from './repositories/decks'
+import { createDeck, deleteDeck, getAllDecks, mergeDecks } from './repositories/decks'
 import { getLemmaByForm } from './repositories/lemmas'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 
@@ -81,5 +81,71 @@ describe('deleteDeck', () => {
       card?.id,
     ])
     expect(membershipsAfter).toEqual([{ deckId: 'deck-b' }])
+  })
+})
+
+describe('mergeDecks', () => {
+  let db: NodeSqliteAdapter
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  it("moves the source deck's cards into the target and deletes the source", async () => {
+    const now = Date.now()
+    await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
+    await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
+    const { rows } = parseCsv('word,meaning\nHaus,house\n')
+    const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
+    await importCsvRows(db, previews, 'deck-a', 'de')
+
+    await mergeDecks(db, 'deck-a', 'deck-b')
+
+    const decks = await getAllDecks(db)
+    expect(decks.map((d) => d.id)).toEqual(['deck-b'])
+    const memberships = await db.query<{ deckId: string }>('SELECT deck_id AS deckId FROM deck_cards')
+    expect(memberships).toEqual([{ deckId: 'deck-b' }])
+  })
+
+  it('a card already in both decks keeps a single membership, not a duplicate row', async () => {
+    const now = Date.now()
+    await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
+    await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
+    const { rows } = parseCsv('word,meaning\nHaus,house\n')
+    const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
+    await importCsvRows(db, previews, 'deck-a', 'de')
+    const card = await db.querySingle<{ id: string }>('SELECT id FROM cards')
+    await db.execute(`INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`, [
+      'membership-b',
+      'deck-b',
+      card?.id,
+      now,
+    ])
+
+    await mergeDecks(db, 'deck-a', 'deck-b')
+
+    const memberships = await db.query<{ deckId: string }>('SELECT deck_id AS deckId FROM deck_cards WHERE card_id = ?', [
+      card?.id,
+    ])
+    expect(memberships).toEqual([{ deckId: 'deck-b' }])
+  })
+
+  it('re-parents decks nested under the source onto the target instead of orphaning them', async () => {
+    const now = Date.now()
+    await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
+    await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
+    await createDeck(db, { id: 'deck-a-child', name: 'A child', parentId: 'deck-a', createdAt: now, updatedAt: now })
+
+    await mergeDecks(db, 'deck-a', 'deck-b')
+
+    const child = await db.querySingle<{ parentId: string }>('SELECT parent_id AS parentId FROM decks WHERE id = ?', [
+      'deck-a-child',
+    ])
+    expect(child).toEqual({ parentId: 'deck-b' })
   })
 })

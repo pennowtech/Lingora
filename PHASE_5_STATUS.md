@@ -11,13 +11,16 @@
 - **Assessed branch:** `main`
 - **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `30c2207`
   (Work package 4 merged, PR #32)
-- **Overall status:** **In progress (approximately 85–90%)** — Work packages
-  1–5 and 7 (FSRS scheduler, review session data/scheduling, swipe gestures,
-  LiquidJS template engine + editor, learning statistics, deck-scoped
-  `.lin` import) are shipped; 1–4 are AVD-verified, 5 and 7 are
-  typecheck/lint/test-verified but not yet AVD-verified (see
-  `PENDING_MANUAL_TESTS.md`). Only deck move/merge + final acceptance
-  (Work package 6) remains.
+- **Overall status:** **Code-complete, AVD acceptance pass pending
+  (approximately 95%)** — every planned work package (1–7: FSRS scheduler,
+  review session data/scheduling, swipe gestures, LiquidJS template engine +
+  editor, learning statistics, deck move/merge, deck-scoped `.lin` import)
+  is implemented, typecheck/lint-clean, and test-covered. Work packages 1–4
+  are AVD-verified from earlier in Phase 5; 5, 6, and 7 (plus the card
+  action bar / TTS settings feature added alongside them) are not yet
+  AVD-verified — see `PENDING_MANUAL_TESTS.md` for the full outstanding
+  checklist. That manual pass is the only thing left before Phase 5 can be
+  called done.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on
   the Pixel 6 Pro Android Virtual Device with Node 26; migration 0006
   (`card_states.reps`/`learning_steps`) verified to apply cleanly on an
@@ -863,31 +866,50 @@ Covered by three new `packages/database/src/stats.test.ts` cases
 typecheck, `pnpm lint`, and the full `@lingora/database` Vitest suite
 (86 tests). Not yet verified on the AVD.
 
-### Work package 6: Deck move/merge completion and final acceptance pass
+### Work package 6: Deck move/merge completion and final acceptance pass — done (AVD pass still pending)
 
-- Wire `moveDeck` to a UI action (e.g. a "Move to…" option in the deck
-  detail screen's action menu, reusing the deck-picker modal pattern from
-  Phase 4's add-to-deck flow).
-- Decide and document deck "merge": implement a real
+- `moveDeck` (re-parents a deck, already existed since Phase 2) is now
+  reachable from both deck-management surfaces: deck detail's `⋮` menu
+  (`deck/[id].tsx`) and the Decks tab's per-deck `⋮` menu (`(tabs)/decks.tsx`)
+  each gained a "Move to…" button opening a deck picker (a "Top level (no
+  parent)" row plus every other eligible deck, disabled while already
+  top-level).
+- Deck merge is implemented for real, not deferred: a new
   `mergeDecks(db, sourceDeckId, targetDeckId)` repository function
-  (re-parenting every `deck_cards` row, then deleting the source deck) if
-  time allows, or explicitly defer it the way Phase 4 deferred share-sheet
-  capture — a documented, approved scope decision is acceptable; a silent
-  gap is not.
-- Full Phase 5 acceptance pass: typecheck + lint + tests across every
-  touched package, an AVD cold-start check (no Scudo/SIGABRT/unresolved-
-  module/fatal errors, matching the Phase 4 acceptance bar), and a full
-  review-session-to-stats walkthrough on a real seeded deck.
-- Update this document's checklist and the external roadmap's Phase 5
-  status block, following the exact pattern used to close out Phase 4.
+  (`packages/database/src/repositories/decks.ts`) re-points every
+  `deck_cards` row from source to target (dropping the source's row first
+  for any card already in both, to satisfy `deck_cards`' unique
+  `(deck_id, card_id)` index rather than violate it), re-parents any deck
+  nested under the source onto the target instead of orphaning it, then
+  deletes the source deck. Cards are never deleted by a merge — only
+  reassigned. Reachable via the same two `⋮` menus' new "Merge into…"
+  button, with a destructive-action confirmation naming both decks and the
+  card count before it runs.
+- **Cycle safety**: both pickers exclude the deck being acted on and every
+  one of its own descendants (`apps/mobile/lib/deckTree.ts#collectDescendantIds`,
+  shared between `deck/[id].tsx` and `(tabs)/decks.tsx`) — moving or
+  merging a deck into its own child would otherwise create a parent-id
+  cycle (move) or try to re-parent the target onto itself (merge, since
+  the "re-parent source's children onto target" step would hit the target
+  itself if the target were among those children).
+- Covered by 3 new `packages/database/src/decks.test.ts` cases: a plain
+  merge (cards moved, source deck gone), the duplicate-membership case
+  (a card already in both decks keeps exactly one `deck_cards` row after
+  merging), and the nested-deck case (a child of the source is re-parented
+  onto the target, not orphaned).
 
 Acceptance criteria:
 
-- `moveDeck` is reachable and verified from the UI.
-- Deck merge either works end-to-end or is explicitly, visibly deferred
-  (disabled control with a reason, not an absent one).
-- Every item in the Phase 5 completion checklist below is checked with
-  evidence, the way Phase 4's was.
+- ✅ `moveDeck` is reachable from the UI (deck detail and Decks tab).
+- ✅ Deck merge works end-to-end (not deferred) — reachable from the UI,
+  destructive-confirmed, cycle-safe.
+- ⬜ Every item in the Phase 5 completion checklist below is checked with
+  evidence — the code/test/typecheck/lint side is done for every work
+  package, but the AVD cold-start check and a full review-session-to-stats
+  walkthrough on a real seeded deck are still outstanding. See
+  `PENDING_MANUAL_TESTS.md` for the consolidated list across all of
+  Phase 5 — that manual pass, not any remaining code, is what's left to
+  close out Phase 5.
 
 ### Work package 7: deck-scoped `.lin` import — done
 

@@ -119,6 +119,50 @@ export async function deleteDeck(db: DatabaseAdapter, deckId: string): Promise<v
   })
 }
 
+/**
+ * Merge `sourceDeckId` into `targetDeckId`: every card in the source deck
+ * ends up in the target deck too, any deck nested under the source is
+ * re-parented under the target instead of being orphaned, and the source
+ * deck itself is deleted. Cards are never deleted — a card that was
+ * exclusively in the source deck now lives only in the target; a card that
+ * was already in both keeps a single membership (the source's duplicate
+ * `deck_cards` row is dropped, not the target's).
+ *
+ * The caller is responsible for not passing a `targetDeckId` that is `source`
+ * itself or one of its own descendants — merging a deck into its own child
+ * would try to re-parent that child onto itself, a cycle. `apps/mobile/app/
+ * deck/[id].tsx`'s deck picker excludes both before this is ever called.
+ * @param db The database adapter to use for the query.
+ * @param sourceDeckId The deck to merge away.
+ * @param targetDeckId The deck to merge into.
+ */
+export async function mergeDecks(
+  db: DatabaseAdapter,
+  sourceDeckId: string,
+  targetDeckId: string,
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    // A card already in both decks would violate deck_cards' (deck_id, card_id)
+    // unique index if its source row were simply re-pointed — drop the
+    // source's redundant membership first, keeping the target's.
+    await tx.execute(
+      `DELETE FROM deck_cards
+       WHERE deck_id = ? AND card_id IN (SELECT card_id FROM deck_cards WHERE deck_id = ?)`,
+      [sourceDeckId, targetDeckId],
+    )
+    await tx.execute(`UPDATE deck_cards SET deck_id = ? WHERE deck_id = ?`, [
+      targetDeckId,
+      sourceDeckId,
+    ])
+    await tx.execute(`UPDATE decks SET parent_id = ?, updated_at = ? WHERE parent_id = ?`, [
+      targetDeckId,
+      Date.now(),
+      sourceDeckId,
+    ])
+    await tx.execute(`DELETE FROM decks WHERE id = ?`, [sourceDeckId])
+  })
+}
+
 /** Card and due counts of one deck — the badges on the deck list. */
 export interface DeckCounts {
   deckId: string

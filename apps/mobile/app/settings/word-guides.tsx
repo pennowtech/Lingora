@@ -1,0 +1,189 @@
+import { Ionicons } from '@expo/vector-icons'
+import { logger } from '@lingora/observability'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, type JSX } from 'react'
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Button, Card, ErrorState, SectionHeader, Spinner } from '../../components/ui'
+import {
+  getBundledChunkIndexes,
+  getInstalledChunkIndexes,
+  getWordGuideManifest,
+  installAllAvailable,
+  installBundledChunk,
+  uninstallChunk,
+  type WordGuideManifestChunk,
+} from '../../lib/wordGuides'
+import { useServices } from '../../lib/services'
+import { colors, radius, spacing, type } from '../../lib/theme'
+
+const log = logger.child({ feature: 'settings', screen: 'WordGuidesScreen' })
+
+type ChunkStatus = 'installed' | 'available' | 'pending'
+
+interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
+  status: ChunkStatus
+}
+
+/**
+ * A free, offline starter dictionary — chunks of pre-generated word content
+ * (see LingoraDocs/6_word_guides_plan.md) a user can install without an AI
+ * key. Installing feeds the explain-flow's dictionary-lookup step
+ * (word/[form].tsx, review/[deckId].tsx); nothing here touches decks/cards.
+ */
+export default function WordGuidesScreen(): JSX.Element {
+  const { db } = useServices()
+  const queryClient = useQueryClient()
+  const manifest = getWordGuideManifest()
+  const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes()), [])
+
+  const installedQuery = useQuery({
+    queryKey: ['word-guide-installed-chunks', manifest.language],
+    queryFn: () => getInstalledChunkIndexes(db, manifest.language),
+  })
+
+  const install = useMutation({
+    mutationFn: (chunkIndex: number) => installBundledChunk(db, chunkIndex),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
+    },
+    onError: (error: unknown) => {
+      log.error('settings.word_guide_chunk_install_failed', error, { message: 'Word guide chunk install failed' })
+      Alert.alert('Could not install this chunk', String(error))
+    },
+  })
+
+  const uninstall = useMutation({
+    mutationFn: (chunkIndex: number) => uninstallChunk(db, chunkIndex, manifest.language),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
+    },
+    onError: (error: unknown) => {
+      log.error('settings.word_guide_chunk_uninstall_failed', error, { message: 'Word guide chunk uninstall failed' })
+      Alert.alert('Could not remove this chunk', String(error))
+    },
+  })
+
+  const installAll = useMutation({
+    mutationFn: () => installAllAvailable(db, manifest.language),
+    onSuccess: async (count) => {
+      await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
+      Alert.alert('Word guides installed', `Installed ${count.toLocaleString()} new chunk${count === 1 ? '' : 's'}.`)
+    },
+    onError: (error: unknown) => {
+      log.error('settings.word_guide_install_all_failed', error, { message: 'Word guide "install all" failed' })
+      Alert.alert('Could not install word guides', String(error))
+    },
+  })
+
+  const installedSet = new Set(installedQuery.data ?? [])
+  const rows: ChunkRow[] = manifest.chunks.map((chunk) => ({
+    ...chunk,
+    status: installedSet.has(chunk.index)
+      ? 'installed'
+      : bundledChunkIndexes.has(chunk.index)
+        ? 'available'
+        : 'pending',
+  }))
+  const installedCount = rows.filter((r) => r.status === 'installed').length
+  const availableCount = rows.filter((r) => r.status === 'available').length
+
+  return (
+    <View style={styles.container}>
+      <Card style={styles.summaryCard}>
+        <Text style={styles.title}>German word guides</Text>
+        <Text style={styles.body}>
+          A free, pre-written dictionary — install to get instant word explanations without an AI key.
+          {' '}
+          {manifest.totalWords.toLocaleString()} words planned, {manifest.totalChunks} chunks of ~100.
+        </Text>
+        {installedQuery.isPending ? (
+          <Spinner />
+        ) : installedQuery.isError ? (
+          <ErrorState message={String(installedQuery.error)} onRetry={() => void installedQuery.refetch()} />
+        ) : (
+          <>
+            <Text style={styles.progress}>
+              {installedCount} installed · {availableCount} available to install · {manifest.totalChunks - installedCount - availableCount} not generated yet
+            </Text>
+            <Button
+              label={installAll.isPending ? 'Installing…' : 'Install all available'}
+              icon="download"
+              onPress={() => installAll.mutate()}
+              disabled={installAll.isPending || availableCount === 0}
+              style={styles.installAllButton}
+            />
+          </>
+        )}
+      </Card>
+
+      <SectionHeader title="Chunks" />
+
+      <FlatList
+        data={rows}
+        keyExtractor={(row) => String(row.index)}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <Card style={[styles.chunkRow, item.status === 'pending' && styles.chunkRowPending]}>
+            <View style={styles.chunkText}>
+              <Text style={styles.chunkTitle}>
+                Words {item.rankStart.toLocaleString()}–{item.rankEnd.toLocaleString()}
+              </Text>
+              <Text style={styles.chunkMeta}>{item.wordCount.toLocaleString()} words</Text>
+            </View>
+            {item.status === 'installed' ? (
+              <Pressable
+                style={styles.uninstallButton}
+                onPress={() => uninstall.mutate(item.index)}
+                disabled={uninstall.isPending}
+              >
+                <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+                <Text style={styles.uninstallLabel}>Installed</Text>
+              </Pressable>
+            ) : item.status === 'available' ? (
+              <Pressable
+                style={styles.installButton}
+                onPress={() => install.mutate(item.index)}
+                disabled={install.isPending}
+              >
+                <Text style={styles.installLabel}>Install</Text>
+              </Pressable>
+            ) : (
+              <Text style={styles.pendingLabel}>Not generated yet</Text>
+            )}
+          </Card>
+        )}
+      />
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
+  summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
+  title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+  body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+  progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
+  installAllButton: { marginTop: spacing.sm },
+  listContent: { paddingBottom: spacing.xxl },
+  chunkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  chunkRowPending: { opacity: 0.5 },
+  chunkText: { flex: 1 },
+  chunkTitle: { fontSize: type.body, fontWeight: '600', color: colors.text },
+  chunkMeta: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+  installButton: {
+    backgroundColor: colors.primarySoft,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+  },
+  installLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+  uninstallButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.success },
+  pendingLabel: { fontSize: type.micro, color: colors.textMuted },
+})

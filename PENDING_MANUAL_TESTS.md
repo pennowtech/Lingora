@@ -6,36 +6,39 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
-## Word guides WP1–4: word list, chunk 1 content, `word_guides` table, explain-flow integration
+## Word guides WP1–5: word list, chunk 1 content, table, explain-flow, install UI (not yet AVD-verified)
 
 WP1–3 are pure data/tooling + a database table — automated Vitest coverage (including an end-to-end test
-against the real `chunk-0001.json` pilot data) is the whole story, nothing to check on-device.
+against the real `chunk-0001.json` pilot data) already covers them, nothing to check on-device. WP4/WP5
+are both app-facing and now testable end-to-end (WP5 supplies the install UI WP4's dictionary lookup
+needed to be reachable at all):
 
-WP4 (`handleExplain` in `word/[form].tsx`/`review/[deckId].tsx` now checks the installed `word_guides`
-dictionary before falling back to AI) **is app-facing but not yet testable on-device** — there's still no
-UI to install a chunk (that's WP5). Until WP5 lands, exercising WP4's new path requires manually inserting
-a row via `adb`/`run-as` + `node:sqlite` (same live-device-inspection technique used earlier this phase)
-or a temporary debug button. Once WP5 exists, verify on the AVD:
-
-- [ ] **Priority order, word with a stored explanation**: unchanged from before — tapping "explain" shows
-      the stored `meaning.explanation` immediately, no dictionary lookup, no AI call.
-- [ ] **Priority order, word in the installed dictionary, no stored explanation**: tapping "explain" shows
-      the dictionary's `intro` text with no AI call (confirm via logging — `ai.generateMeaning` should not
-      fire), and the word now has a stored explanation on revisit (persisted via `updateMeaningText`, so a
-      second tap doesn't re-query `word_guides`).
-- [ ] **Priority order, word not in the installed dictionary**: falls through exactly as before —
-      AI-generates if `tier === 'full'`, else shows "AI not configured".
-- [ ] **Same on both screens**: word detail (`word/[form].tsx`) and the review session's flipped card
-      (`review/[deckId].tsx`) both follow this order identically.
-- [ ] **Regression**: a `'translation'`-tier install (no AI key) can now get explanations for free for any
-      installed dictionary word — confirm this actually works, since it's the main value proposition of
-      this feature for that tier.
-
-## Word guides WP5 (not started — Settings install UI)
-
-Not yet implemented. Expect: a chunk browser (progress summary, per-chunk install/uninstall, "Install all
-available," pending-chunk placeholder rows) — same shape of checklist as the `.lin` import/export and
-card-action-bar sections below, once it exists.
+- [ ] **Settings → Word guides** (`settings/word-guides.tsx`, linked from Settings' Data section) opens
+      and shows the progress summary (0 installed, 1 available, 141 not generated yet, on a fresh
+      install) and a scrollable list of all 142 chunks.
+- [ ] **Chunk 1 row** shows "Install," installing it succeeds, the row switches to "Installed" with a
+      checkmark, and the progress summary updates (1 installed, 0 available).
+- [ ] **Chunks 2–142** show a greyed "Not generated yet" row, not hidden, and aren't tappable.
+- [ ] **"Install all available"** with only chunk 1 available installs exactly that one chunk and reports
+      "Installed 1 new chunk."; running it again with nothing new available is a no-op (button disabled,
+      `availableCount === 0`).
+- [ ] **Uninstall** chunk 1 → row switches back to "Install"; confirm via `adb`/`run-as` +
+      `node:sqlite` (same live-device-inspection technique used earlier this phase) that `word_guides` has
+      zero rows for that chunk afterward — not just that the UI updated.
+- [ ] **Explain-flow priority order** (`word/[form].tsx` and `review/[deckId].tsx`, now reachable with
+      chunk 1 installed):
+  - A word with an already-stored explanation: tapping "explain" shows it immediately, no dictionary
+    lookup, no AI call (unchanged from before this feature).
+  - One of chunk 1's ~100 words (e.g. "kommen"), no stored explanation: tapping "explain" shows the
+    dictionary's `intro` text with no AI call (confirm via logging — `ai.generateMeaning` should not
+    fire), and the word now has a stored explanation on revisit (persisted via `updateMeaningText`, so a
+    second tap doesn't re-query `word_guides`).
+  - A word outside chunk 1: falls through exactly as before — AI-generates if `tier === 'full'`, else
+    shows "AI not configured".
+  - Same behavior on both screens (word detail and the review session's flipped card).
+- [ ] **The actual value proposition**: on a `'translation'`-tier install (no AI key configured), explain
+      now works for free for any of chunk 1's ~100 words — confirm this concretely, it's the main reason
+      this feature exists.
 
 ## Card action bar: speaker/explanation/translate-toggle/edit/lookup (not yet AVD-verified, requires a native rebuild)
 

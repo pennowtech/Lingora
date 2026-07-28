@@ -6,6 +6,22 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
+## Word guides WP1–3: word list, chunk 1 content, `word_guides` table (no manual testing needed yet)
+
+Pure data/tooling + a new database table and repository functions — nothing user-facing exists yet.
+`word_guides` isn't queried or written to from any screen, so there's no on-device behavior to check.
+Automated coverage (Vitest, including an end-to-end test against the real `chunk-0001.json` pilot data)
+is the whole story for this pass. Manual/AVD testing becomes relevant starting at:
+
+- **WP4 (explain-flow integration)** — once `handleExplain` in `word/[form].tsx`/`review/[deckId].tsx`
+  actually reads from `word_guides`, this section should gain real steps: verify the priority order (stored
+  explanation → installed dictionary → live AI → "not configured"), verify a dictionary-sourced explanation
+  gets persisted via `updateMeaningText` so it isn't re-looked-up every time, verify a word outside the
+  installed chunk(s) still falls through to today's behavior unchanged.
+- **WP5 (Settings install UI)** — chunk browser, install/uninstall, "Install all available," pending-chunk
+  placeholder rows — same shape of checklist as the existing `.lin` import/export and card-action-bar
+  sections above.
+
 ## Card action bar: speaker/explanation/translate-toggle/edit/lookup (not yet AVD-verified, requires a native rebuild)
 
 New `expo-speech` dependency (native module) — a plain Metro reload is not

@@ -30,6 +30,8 @@ import {
   getSynonymsForCard,
   persistRegeneratedExamples,
   setEvaluation,
+  updateExampleText,
+  updateMeaningText,
   updatePrimaryMeaning,
   updateSelectedExample,
   type DatabaseAdapter,
@@ -37,16 +39,17 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   Button,
   Card,
+  CardActionBar,
   CefrBadge,
   Chip,
   ErrorState,
   EvalBar,
-  IconButton,
   SectionHeader,
+  SpeakerButton,
   Spinner,
 } from '../../components/ui'
 import { useServices } from '../../lib/services'
@@ -144,6 +147,16 @@ export default function WordDetailScreen(): JSX.Element {
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
 
+  // Card action bar state — explanation visibility/generation, translation
+  // hiding (a recall-practice toggle: blanks the meaning + example
+  // translations without touching the stored data), and the edit modal.
+  const [explainVisible, setExplainVisible] = useState(false)
+  const [translationHidden, setTranslationHidden] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editMeaning, setEditMeaning] = useState('')
+  const [editExample, setEditExample] = useState('')
+  const [editTranslation, setEditTranslation] = useState('')
+
   const wordQuery = useQuery({
     queryKey: ['word', form],
     queryFn: () => loadWord(db, form ?? ''),
@@ -159,6 +172,8 @@ export default function WordDetailScreen(): JSX.Element {
   const word = wordQuery.data
   const activeClusterId = clusterId ?? word?.clusters[0]?.cluster.id ?? null
   const active = word?.clusters.find((c) => c.cluster.id === activeClusterId)
+  const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
+  const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
 
   const evaluationTargetIds = (word?.clusters ?? []).flatMap((c) => [
     ...c.examples.map((ex) => ex.id),
@@ -264,7 +279,69 @@ export default function WordDetailScreen(): JSX.Element {
     )
   }
 
-  const noop = (): void => undefined
+  // Book icon: reveal a stored explanation, or generate one on demand
+  // (persisted so it's stored next time — see updateMeaningText) if this
+  // meaning has none yet and an AI provider is configured.
+  const generateExplanation = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error('Add your AI provider key in Settings to generate an explanation.')
+      if (!word || !active || !headlineMeaning) throw new Error('This word has no meaning yet.')
+      const result = await ai.generateMeaning(
+        word.lemma.form,
+        { label: active.cluster.label, description: active.cluster.description },
+        { cefrLevel: cefr, language: word.lemma.language },
+      )
+      const explanation = result.data[0]?.explanation ?? ''
+      await updateMeaningText(db, headlineMeaning.id, headlineMeaning.translation, explanation)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
+    onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
+  })
+
+  const handleExplain = (): void => {
+    if (!headlineMeaning) return
+    if (headlineMeaning.explanation.trim() !== '') {
+      setExplainVisible((visible) => !visible)
+      return
+    }
+    if (tier !== 'full') {
+      Alert.alert(
+        'AI not configured',
+        'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+      )
+      return
+    }
+    setExplainVisible(true)
+    generateExplanation.mutate()
+  }
+
+  const openEdit = (): void => {
+    if (!headlineMeaning) return
+    setEditMeaning(headlineMeaning.translation)
+    setEditExample(selectedExample?.sentence ?? '')
+    setEditTranslation(selectedExample?.translation ?? '')
+    setEditOpen(true)
+  }
+
+  const saveEdit = useMutation({
+    mutationFn: async () => {
+      if (!headlineMeaning) throw new Error('This word has no meaning yet.')
+      await Promise.all([
+        updateMeaningText(db, headlineMeaning.id, editMeaning, headlineMeaning.explanation),
+        selectedExample ? updateExampleText(db, selectedExample.id, editExample, editTranslation) : Promise.resolve(),
+      ])
+    },
+    onSuccess: async () => {
+      setEditOpen(false)
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    },
+    onError: (error: unknown) => Alert.alert('Could not save your changes', String(error)),
+  })
+
+  const handleLookup = (): void => {
+    if (!word) return
+    void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(word.lemma.form)}`)
+  }
 
   if (wordQuery.isPending) {
     return (
@@ -316,8 +393,7 @@ export default function WordDetailScreen(): JSX.Element {
               {inflectionMeta ? ` · ${inflectionMeta}` : ''}
             </Text>
           </View>
-          {/* TODO(post-v1): play pronunciation from the audio table */}
-          <IconButton icon="volume-high" size={26} color={colors.primary} onPress={noop} />
+          <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
         </View>
 
         {/* ── Cluster tabs (one per semantic context) ── */}
@@ -344,35 +420,46 @@ export default function WordDetailScreen(): JSX.Element {
         {active ? (
           <>
             {/* ── Meanings ── */}
-            {active.meanings.length > 0 ? (
-              <Card style={styles.meaningCard}>
-                {(() => {
-                  // The headline is this cluster's own primary meaning if it has one, else
-                  // its first meaning (a cluster with no card-wide primary still needs a
-                  // heading). Only OTHER meanings in this cluster get a "make primary" chip —
-                  // offering one for the meaning already shown as the headline is a no-op
-                  // that reads as a confusing duplicate.
-                  const headline = active.meanings.find((m) => m.isPrimary) ?? active.meanings[0]!
-                  const others = active.meanings.filter((m) => m.id !== headline.id)
-                  return (
-                    <>
-                      <Text style={styles.primaryMeaning}>{headline.translation}</Text>
-                      <Text style={styles.explanation}>{headline.explanation}</Text>
-                      {others.length > 0 ? (
-                        <View style={styles.secondaryRow}>
-                          {others.map((m) => (
-                            <Chip
-                              key={m.id}
-                              label={m.isPrimary ? m.translation : `Make primary: ${m.translation}`}
-                              {...(!m.isPrimary && { onPress: () => setPrimaryMeaning.mutate(m.id) })}
-                            />
-                          ))}
-                        </View>
-                      ) : null}
-                    </>
-                  )
-                })()}
-              </Card>
+            {active.meanings.length > 0 && headlineMeaning ? (
+              <>
+                <Card style={styles.meaningCard}>
+                  <Text style={styles.primaryMeaning}>
+                    {translationHidden ? '•••' : headlineMeaning.translation}
+                  </Text>
+                  {explainVisible ? (
+                    <Text style={styles.explanation}>
+                      {generateExplanation.isPending
+                        ? 'Generating…'
+                        : headlineMeaning.explanation || 'No explanation yet.'}
+                    </Text>
+                  ) : null}
+                  {/* Only OTHER meanings in this cluster get a "make primary" chip —
+                      offering one for the meaning already shown as the headline is a
+                      no-op that reads as a confusing duplicate. */}
+                  {active.meanings.filter((m) => m.id !== headlineMeaning.id).length > 0 ? (
+                    <View style={styles.secondaryRow}>
+                      {active.meanings
+                        .filter((m) => m.id !== headlineMeaning.id)
+                        .map((m) => (
+                          <Chip
+                            key={m.id}
+                            label={m.isPrimary ? m.translation : `Make primary: ${m.translation}`}
+                            {...(!m.isPrimary && { onPress: () => setPrimaryMeaning.mutate(m.id) })}
+                          />
+                        ))}
+                    </View>
+                  ) : null}
+                </Card>
+                <CardActionBar
+                  onExplain={handleExplain}
+                  explainVisible={explainVisible}
+                  explainLoading={generateExplanation.isPending}
+                  onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
+                  translationHidden={translationHidden}
+                  onEdit={openEdit}
+                  onLookup={handleLookup}
+                />
+              </>
             ) : null}
 
             {/* ── Examples ── */}
@@ -422,8 +509,11 @@ export default function WordDetailScreen(): JSX.Element {
                       <Text style={styles.useOnFlashcardLabel}>use on flashcard</Text>
                     </Pressable>
                   )}
-                  <Text style={styles.exampleSentence}>{ex.sentence}</Text>
-                  <Text style={styles.exampleTranslation}>{ex.translation}</Text>
+                  <View style={styles.exampleSentenceRow}>
+                    <Text style={styles.exampleSentence}>{ex.sentence}</Text>
+                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                  </View>
+                  <Text style={styles.exampleTranslation}>{translationHidden ? '•••' : ex.translation}</Text>
                   <View style={styles.exampleFooter}>
                     <View style={styles.tagRow}>
                       <CefrBadge level={ex.cefrLevel} />
@@ -599,6 +689,52 @@ export default function WordDetailScreen(): JSX.Element {
         </View>
       </Modal>
 
+      {/* ── Edit this card — the CardActionBar's pencil icon ── */}
+      <Modal visible={editOpen} animationType="slide" transparent onRequestClose={() => setEditOpen(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setEditOpen(false)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Text style={styles.modalTitle}>Edit this card</Text>
+          <Text style={styles.editLabel}>Meaning</Text>
+          <TextInput
+            style={styles.editInput}
+            value={editMeaning}
+            onChangeText={setEditMeaning}
+            multiline
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <Text style={styles.editLabel}>Example sentence</Text>
+          <TextInput
+            style={styles.editInput}
+            value={editExample}
+            onChangeText={setEditExample}
+            multiline
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <Text style={styles.editLabel}>Example translation</Text>
+          <TextInput
+            style={styles.editInput}
+            value={editTranslation}
+            onChangeText={setEditTranslation}
+            multiline
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
+          <View style={styles.reportActions}>
+            <Button label="Cancel" variant="ghost" onPress={() => setEditOpen(false)} />
+            <Button
+              label={saveEdit.isPending ? 'Saving…' : 'Save changes'}
+              icon="save"
+              onPress={() => saveEdit.mutate()}
+              disabled={saveEdit.isPending}
+            />
+          </View>
+        </View>
+      </Modal>
+
       {/* ── Report modal ── */}
       <Modal
         visible={reportTarget !== null}
@@ -687,7 +823,18 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
-  exampleSentence: { fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
+  editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+  editInput: {
+    fontSize: type.body,
+    color: colors.text,
+    minHeight: 44,
+    textAlignVertical: 'top',
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+  },
+  exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
   exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
   exampleFooter: {
     flexDirection: 'row',

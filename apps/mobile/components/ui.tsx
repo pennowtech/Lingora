@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { CefrLevel } from '@lingora/types'
+import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { useState, type JSX, type ReactNode } from 'react'
 import {
   ActivityIndicator,
@@ -14,6 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native'
 import type { ExportFormat } from '../lib/export'
+import { speak } from '../lib/speech'
 import { cefrColors, colors, radius, spacing, type } from '../lib/theme'
 
 /**
@@ -128,6 +129,78 @@ export function IconButton(props: {
       style={({ pressed }) => [props.disabled && { opacity: 0.4 }, pressed && { opacity: 0.6 }]}
     >
       <Ionicons name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />
+    </Pressable>
+  )
+}
+
+/** A small speaker icon that reads `text` aloud via the device's TTS engine — see lib/speech.ts. */
+export function SpeakerButton(props: {
+  text: string
+  language: LanguageCode
+  size?: number
+  color?: string
+}): JSX.Element {
+  return (
+    <IconButton
+      icon="volume-medium-outline"
+      size={props.size ?? 20}
+      color={props.color ?? colors.primary}
+      onPress={() => speak(props.text, props.language)}
+    />
+  )
+}
+
+/**
+ * The four-icon row shown under a revealed card: explanation ("book"),
+ * translation visibility toggle, edit, and "look up in Google". Shared
+ * between the review session's flipped card and the word detail screen so
+ * both offer the same controls.
+ */
+export function CardActionBar(props: {
+  onExplain: () => void
+  explainVisible: boolean
+  explainLoading?: boolean
+  onToggleTranslation: () => void
+  translationHidden: boolean
+  onEdit: () => void
+  onLookup: () => void
+}): JSX.Element {
+  return (
+    <View style={styles.cardActionBar}>
+      <CardActionButton
+        icon={props.explainVisible ? 'book' : 'book-outline'}
+        label="Explain"
+        active={props.explainVisible}
+        onPress={props.onExplain}
+        {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
+      />
+      <CardActionButton
+        icon={props.translationHidden ? 'eye-off-outline' : 'language-outline'}
+        label="Translation"
+        active={!props.translationHidden}
+        onPress={props.onToggleTranslation}
+      />
+      <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+      <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
+    </View>
+  )
+}
+
+function CardActionButton(props: {
+  icon: keyof typeof Ionicons.glyphMap
+  label: string
+  active?: boolean
+  loading?: boolean
+  onPress: () => void
+}): JSX.Element {
+  return (
+    <Pressable style={styles.cardActionButton} onPress={props.onPress} disabled={props.loading} hitSlop={4}>
+      {props.loading ? (
+        <ActivityIndicator size="small" color={colors.primary} />
+      ) : (
+        <Ionicons name={props.icon} size={20} color={props.active ? colors.primary : colors.textSecondary} />
+      )}
+      <Text style={[styles.cardActionLabel, props.active && { color: colors.primary }]}>{props.label}</Text>
     </Pressable>
   )
 }
@@ -432,6 +505,14 @@ const styles = StyleSheet.create({
   cardPressed: {
     opacity: 0.85,
   },
+  cardActionBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+  cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

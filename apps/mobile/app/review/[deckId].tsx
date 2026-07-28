@@ -1,8 +1,9 @@
-import type { Card as CardRow, CardState, ReviewRating, Template } from '@lingora/types'
+import type { Card as CardRow, CardState, LanguageCode, ReviewRating, Template } from '@lingora/types'
 import {
   getCardsDueForReview,
   getCardState,
   getClozesForCard,
+  getClustersForLemma,
   getDefaultTemplate,
   getExamplesForCard,
   getLemmaById,
@@ -19,12 +20,21 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
-import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { CardRenderer } from '../../components/CardRenderer'
-import { Button, EmptyState, ErrorState, IconButton, ProgressBar, Spinner } from '../../components/ui'
+import {
+  Button,
+  CardActionBar,
+  EmptyState,
+  ErrorState,
+  IconButton,
+  ProgressBar,
+  SpeakerButton,
+  Spinner,
+} from '../../components/ui'
 import {
   buildCardContext,
   CLOZE_BACK_TEMPLATE,
@@ -132,7 +142,7 @@ function SwipeableCard(props: {
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.card, cardStyle]}>
+      <Animated.View style={[styles.card, styles.cardFlippedContent, cardStyle]}>
         <Animated.Text
           style={[
             styles.swipeBadge,
@@ -184,10 +194,13 @@ interface ReviewCard {
   card: CardRow
   cardState: CardState
   form: string
+  language: LanguageCode
   meta: string
   meaningId: string | null
   meaning: string | null
   explanation: string | null
+  /** The meaning's own cluster — needed to call ai.generateMeaning() for an on-demand explanation. */
+  clusterRef: { label: string; description: string } | null
   exampleId: string | null
   example: string | null
   exampleTranslation: string | null
@@ -220,13 +233,14 @@ async function loadReviewQueue(
     const lemma = await getLemmaById(db, card.lemmaId)
     if (!lemma) continue
 
-    const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
+    const [meanings, examples, clozes, synonyms, phrases, cardState, clusters] = await Promise.all([
       getMeaningsForCard(db, card.id),
       getExamplesForCard(db, card.id),
       getClozesForCard(db, card.id),
       getSynonymsForCard(db, card.id),
       getPhrasesForCard(db, card.id),
       getCardState(db, card.id),
+      getClustersForLemma(db, card.lemmaId),
     ])
     const cloze = clozes[0]
     // Cloze cards only ever surface in a `mode=cloze` session — never mixed
@@ -240,16 +254,19 @@ async function loadReviewQueue(
     // targets in sync with what's actually rendered on the card.
     const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0]
     const selectedExample = examples.find((e) => e.isSelected) ?? examples[0]
+    const meaningCluster = primaryMeaning ? clusters.find((c) => c.id === primaryMeaning.clusterId) : undefined
 
     const meta = [lemma.partOfSpeech, lemma.gender].filter(Boolean).join(' · ')
     views.push({
       card,
       cardState: cardState ?? createInitialCardState(card.id),
       form: lemma.form,
+      language: lemma.language,
       meta,
       meaningId: primaryMeaning?.id ?? null,
       meaning: primaryMeaning?.translation ?? null,
       explanation: primaryMeaning?.explanation ?? null,
+      clusterRef: meaningCluster ? { label: meaningCluster.label, description: meaningCluster.description } : null,
       exampleId: selectedExample?.id ?? null,
       example: selectedExample?.sentence ?? null,
       exampleTranslation: selectedExample?.translation ?? null,
@@ -288,7 +305,7 @@ function formatTimeRemaining(remainingCards: number, avgMsPerCard: number): stri
  */
 export default function ReviewSessionScreen(): JSX.Element {
   const params = useLocalSearchParams<{ deckId: string; mode?: string }>()
-  const { db } = useServices()
+  const { db, ai, tier, defaultCefr } = useServices()
   const queryClient = useQueryClient()
   const clozeOnly = params.mode === 'cloze'
 
@@ -296,6 +313,13 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [flipped, setFlipped] = useState(false)
   const [durationsMs, setDurationsMs] = useState<number[]>([])
   const cardStartedAt = useRef(Date.now())
+
+  // Card action bar state — explanation visibility/generation and
+  // translation hiding (a recall-practice toggle: blanks the rendered
+  // meaning/example-translation without touching stored data). Both reset
+  // per card (see the useEffect below the queue/view derivation).
+  const [explainVisible, setExplainVisible] = useState(false)
+  const [translationHidden, setTranslationHidden] = useState(false)
 
   // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
   // from the template editor (which only edits layout/style, never content)
@@ -355,6 +379,8 @@ export default function ReviewSessionScreen(): JSX.Element {
     onSuccess: async (durationMs) => {
       setDurationsMs((prev) => [...prev, durationMs])
       setFlipped(false)
+      setExplainVisible(false)
+      setTranslationHidden(false)
       setIndex((i) => i + 1)
       cardStartedAt.current = Date.now()
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
@@ -391,6 +417,46 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
   })
 
+  // Book icon: reveal a stored explanation, or generate one on demand
+  // (persisted via updateMeaningText so it's stored next time) if this
+  // meaning has none yet and an AI provider is configured.
+  const generateExplanation = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error('Add your AI provider key in Settings to generate an explanation.')
+      if (!view?.meaningId || !view.clusterRef) throw new Error('This word has no meaning yet.')
+      const result = await ai.generateMeaning(view.form, view.clusterRef, {
+        cefrLevel: defaultCefr,
+        language: view.language,
+      })
+      const explanation = result.data[0]?.explanation ?? ''
+      await updateMeaningText(db, view.meaningId, view.meaning ?? '', explanation)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
+    onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
+  })
+
+  const handleExplain = (): void => {
+    if (!view) return
+    if ((view.explanation ?? '').trim() !== '') {
+      setExplainVisible((visible) => !visible)
+      return
+    }
+    if (tier !== 'full') {
+      Alert.alert(
+        'AI not configured',
+        'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+      )
+      return
+    }
+    setExplainVisible(true)
+    generateExplanation.mutate()
+  }
+
+  const handleLookup = (): void => {
+    if (!view) return
+    void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(view.form)}`)
+  }
+
   const avgMsPerCard = durationsMs.length > 0 ? durationsMs.reduce((a, b) => a + b, 0) / durationsMs.length : 8000
   const remainingAfterCurrent = Math.max(0, queue.length - index - 1)
   const timeRemaining = formatTimeRemaining(remainingAfterCurrent, avgMsPerCard)
@@ -426,6 +492,14 @@ export default function ReviewSessionScreen(): JSX.Element {
       ? { ...view.templateContext, word: view.templateContext.meaning, meaning: view.templateContext.word }
       : view.templateContext
     : null
+  // The translate-toggle in CardActionBar (vocab cards only, see below)
+  // blanks the meaning/translation fields for a "quiz yourself" pass —
+  // recomputed per render since renderCardHtml is a pure function of its
+  // context, not a persisted edit.
+  const backContext =
+    translationHidden && !isCloze && renderedContext
+      ? { ...renderedContext, meaning: '', translation: '', other_meanings: [] }
+      : renderedContext
   const templateStyles = template.styles ?? ''
   const frontHtml = !view
     ? ''
@@ -440,7 +514,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       : renderCardHtml(
           `${template.frontTemplate}<hr/>${template.backTemplate}`,
           templateStyles,
-          renderedContext ?? view.templateContext,
+          backContext ?? view.templateContext,
           'back',
         )
 
@@ -460,7 +534,6 @@ export default function ReviewSessionScreen(): JSX.Element {
         <Text style={styles.counter}>
           {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
         </Text>
-        {flipped && view && !isCloze ? <IconButton icon="create-outline" onPress={openEdit} /> : null}
       </View>
       {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
@@ -483,14 +556,55 @@ export default function ReviewSessionScreen(): JSX.Element {
         <>
           {/* Card — cloze and vocab cards both render through the same
               LiquidJS + WebView pipeline (lib/templates.ts), just with a
-              different (fixed, for cloze) template — see isCloze above. */}
+              different (fixed, for cloze) template — see isCloze above.
+              The speaker row, action bar, and explanation are native
+              elements (not baked into the customizable LiquidJS template,
+              so they work regardless of the user's own layout) but render
+              INSIDE the same bordered card box as the WebView content, top
+              and bottom, rather than as separate rows outside it. */}
           {flipped ? (
             <SwipeableCard
               enabled={!rate.isPending}
               resetKey={view.card.id}
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
+              {!isCloze ? (
+                <View style={styles.speakerRow}>
+                  <View style={styles.speakerItem}>
+                    <SpeakerButton text={view.form} language={view.language} />
+                    <Text style={styles.speakerLabel}>{view.form}</Text>
+                  </View>
+                  {view.example ? (
+                    <View style={styles.speakerItem}>
+                      <SpeakerButton text={view.example} language={view.language} />
+                      <Text style={styles.speakerLabel} numberOfLines={1}>
+                        {view.example}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
+
               <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
+
+              {!isCloze ? (
+                <>
+                  {explainVisible ? (
+                    <Text style={styles.explanationText}>
+                      {generateExplanation.isPending ? 'Generating…' : (view.explanation ?? '') || 'No explanation yet.'}
+                    </Text>
+                  ) : null}
+                  <CardActionBar
+                    onExplain={handleExplain}
+                    explainVisible={explainVisible}
+                    explainLoading={generateExplanation.isPending}
+                    onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
+                    translationHidden={translationHidden}
+                    onEdit={openEdit}
+                    onLookup={handleLookup}
+                  />
+                </>
+              ) : null}
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
@@ -618,6 +732,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing.xl,
   },
+  // Overrides `card`'s centering for the flipped state, which stacks
+  // several native rows (speakers, WebView content, action bar) top to
+  // bottom inside the same bordered box instead of centering one child.
+  cardFlippedContent: { alignItems: 'stretch', justifyContent: 'flex-start', padding: spacing.md },
   swipeBadge: {
     position: 'absolute',
     fontSize: type.subheading,
@@ -634,6 +752,21 @@ const styles = StyleSheet.create({
   swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
   swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
   tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
+  speakerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    gap: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  speakerItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
+  speakerLabel: { fontSize: type.caption, color: colors.textSecondary, flexShrink: 1 },
+  explanationText: {
+    fontSize: type.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingBottom: spacing.sm,
+    lineHeight: 18,
+  },
   ratingRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingTop: 0 },
   ratingPlaceholder: { height: 76 },
   ratingButton: {

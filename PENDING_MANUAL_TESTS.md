@@ -6,21 +6,36 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
-## Word guides WP1–3: word list, chunk 1 content, `word_guides` table (no manual testing needed yet)
+## Word guides WP1–4: word list, chunk 1 content, `word_guides` table, explain-flow integration
 
-Pure data/tooling + a new database table and repository functions — nothing user-facing exists yet.
-`word_guides` isn't queried or written to from any screen, so there's no on-device behavior to check.
-Automated coverage (Vitest, including an end-to-end test against the real `chunk-0001.json` pilot data)
-is the whole story for this pass. Manual/AVD testing becomes relevant starting at:
+WP1–3 are pure data/tooling + a database table — automated Vitest coverage (including an end-to-end test
+against the real `chunk-0001.json` pilot data) is the whole story, nothing to check on-device.
 
-- **WP4 (explain-flow integration)** — once `handleExplain` in `word/[form].tsx`/`review/[deckId].tsx`
-  actually reads from `word_guides`, this section should gain real steps: verify the priority order (stored
-  explanation → installed dictionary → live AI → "not configured"), verify a dictionary-sourced explanation
-  gets persisted via `updateMeaningText` so it isn't re-looked-up every time, verify a word outside the
-  installed chunk(s) still falls through to today's behavior unchanged.
-- **WP5 (Settings install UI)** — chunk browser, install/uninstall, "Install all available," pending-chunk
-  placeholder rows — same shape of checklist as the existing `.lin` import/export and card-action-bar
-  sections above.
+WP4 (`handleExplain` in `word/[form].tsx`/`review/[deckId].tsx` now checks the installed `word_guides`
+dictionary before falling back to AI) **is app-facing but not yet testable on-device** — there's still no
+UI to install a chunk (that's WP5). Until WP5 lands, exercising WP4's new path requires manually inserting
+a row via `adb`/`run-as` + `node:sqlite` (same live-device-inspection technique used earlier this phase)
+or a temporary debug button. Once WP5 exists, verify on the AVD:
+
+- [ ] **Priority order, word with a stored explanation**: unchanged from before — tapping "explain" shows
+      the stored `meaning.explanation` immediately, no dictionary lookup, no AI call.
+- [ ] **Priority order, word in the installed dictionary, no stored explanation**: tapping "explain" shows
+      the dictionary's `intro` text with no AI call (confirm via logging — `ai.generateMeaning` should not
+      fire), and the word now has a stored explanation on revisit (persisted via `updateMeaningText`, so a
+      second tap doesn't re-query `word_guides`).
+- [ ] **Priority order, word not in the installed dictionary**: falls through exactly as before —
+      AI-generates if `tier === 'full'`, else shows "AI not configured".
+- [ ] **Same on both screens**: word detail (`word/[form].tsx`) and the review session's flipped card
+      (`review/[deckId].tsx`) both follow this order identically.
+- [ ] **Regression**: a `'translation'`-tier install (no AI key) can now get explanations for free for any
+      installed dictionary word — confirm this actually works, since it's the main value proposition of
+      this feature for that tier.
+
+## Word guides WP5 (not started — Settings install UI)
+
+Not yet implemented. Expect: a chunk browser (progress summary, per-chunk install/uninstall, "Install all
+available," pending-chunk placeholder rows) — same shape of checklist as the `.lin` import/export and
+card-action-bar sections below, once it exists.
 
 ## Card action bar: speaker/explanation/translate-toggle/edit/lookup (not yet AVD-verified, requires a native rebuild)
 

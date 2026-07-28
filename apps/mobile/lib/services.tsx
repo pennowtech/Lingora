@@ -15,6 +15,7 @@ import { configureObservability, logger } from '@lingora/observability'
 import { createExpoJsonLinesSink } from '@lingora/observability/expo'
 import { applyStoredLanguagePreference } from './i18n'
 import { withUsageTracking } from './providerUsage'
+import { warmUpSpeechEngine } from './speech'
 import {
   ExpoSQLiteAdapter,
   migrate,
@@ -349,6 +350,7 @@ export function ServicesProvider({
 
     const init = async (): Promise<void> => {
       try {
+        warmUpSpeechEngine()
         await applyStoredLanguagePreference()
         const db = await openDatabase()
         const aiServices = await buildAIServices(db)

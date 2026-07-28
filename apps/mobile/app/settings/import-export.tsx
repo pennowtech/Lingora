@@ -16,6 +16,7 @@ const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
 type OptionId =
   | 'import-apkg'
   | 'import-csv'
+  | 'import-lin-deck'
   | 'import-restore'
   | 'export-lin'
   | 'export-csv'
@@ -199,6 +200,21 @@ export default function ImportExportScreen(): JSX.Element {
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/csv-import')}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>Choose CSV file</Text>
+        </Pressable>
+      </OptionAccordion>
+
+      <OptionAccordion
+        icon="sparkles"
+        iconBg={colors.primarySoft}
+        iconColor={colors.primary}
+        title="A shared deck (.lin)"
+        detail="Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device."
+        expanded={expanded.has('import-lin-deck')}
+        onToggle={() => toggle('import-lin-deck')}
+      >
+        <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lin-import')}>
+          <Ionicons name="folder-open" size={16} color={colors.primary} />
+          <Text style={styles.actionButtonLabel}>Choose .lin file</Text>
         </Pressable>
       </OptionAccordion>
 

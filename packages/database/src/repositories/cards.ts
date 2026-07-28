@@ -273,6 +273,38 @@ export async function getTotalCardCount(db: DatabaseAdapter): Promise<number> {
   return result?.count ?? 0
 }
 
+/** One week's new-word count for the stats screen's vocabulary growth chart. */
+export interface WeeklyGrowth {
+  /** Unix ms — the start of this week's bucket. */
+  weekStart: number
+  count: number
+}
+
+/**
+ * New words per week for the last `weeks` weeks, oldest first (most recent
+ * last — the chart reads left to right). Counts distinct **lemmas**, not
+ * cards: a single import row can now create both a basic and a cloze card
+ * for the same word at once (see import-shared.ts#importRow) — counting
+ * cards would show a word as "2 new words" the day it's added.
+ */
+export async function getVocabularyGrowth(db: DatabaseAdapter, weeks = 7): Promise<WeeklyGrowth[]> {
+  const weekMs = 7 * 24 * 60 * 60 * 1000
+  const since = Date.now() - weeks * weekMs
+
+  const rows = await db.query<{ createdAt: number }>(`SELECT created_at AS createdAt FROM lemmas WHERE created_at >= ?`, [
+    since,
+  ])
+
+  const buckets: WeeklyGrowth[] = []
+  for (let i = 0; i < weeks; i++) {
+    const weekStart = since + i * weekMs
+    const weekEnd = weekStart + weekMs
+    const count = rows.filter((r) => r.createdAt >= weekStart && r.createdAt < weekEnd).length
+    buckets.push({ weekStart, count })
+  }
+  return buckets
+}
+
 /**
  * Count how many cards in a deck are due right now.
  * Used on the home screen to show the due count badge.

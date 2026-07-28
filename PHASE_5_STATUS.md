@@ -11,12 +11,13 @@
 - **Assessed branch:** `main`
 - **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `30c2207`
   (Work package 4 merged, PR #32)
-- **Overall status:** **In progress (approximately 65–70%)** — Work packages
-  1–4 (FSRS scheduler, review session data/scheduling, swipe gestures,
-  LiquidJS template engine + editor) are shipped and AVD-verified; only
-  statistics wiring (Work package 5) and deck move/merge + final acceptance
-  (Work package 6) remain, both still on `apps/mobile/lib/dummy.ts` stand-ins
-  behind `TODO(phase5)` markers.
+- **Overall status:** **In progress (approximately 85–90%)** — Work packages
+  1–5 and 7 (FSRS scheduler, review session data/scheduling, swipe gestures,
+  LiquidJS template engine + editor, learning statistics, deck-scoped
+  `.lin` import) are shipped; 1–4 are AVD-verified, 5 and 7 are
+  typecheck/lint/test-verified but not yet AVD-verified (see
+  `PENDING_MANUAL_TESTS.md`). Only deck move/merge + final acceptance
+  (Work package 6) remains.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on
   the Pixel 6 Pro Android Virtual Device with Node 26; migration 0006
   (`card_states.reps`/`learning_steps`) verified to apply cleanly on an
@@ -111,10 +112,10 @@ facing feature.
 | Deck management: create/rename/delete/nest   | Complete (Phase 4) | `apps/mobile/app/(tabs)/decks.tsx` and `app/deck/[id].tsx` already call `createDeck`/`renameDeck`/`deleteDeck`; nesting renders via `parentId`.                                                                                                            |
 | Deck management: move                        | Partial     | `moveDeck` repository function exists and is untested by any screen; no UI calls it. See Work package 6.                                                                                                                                                  |
 | Deck management: merge                       | Missing     | No repository function or UI exists to merge two decks' cards. Not mentioned as a data-layer primitive anywhere in Phase 2 either — likely needs a new repository function. See Work package 6 for a scope decision.                                     |
-| Statistics: retention rate                   | Partial (data layer complete) | `getRetentionRate(db, days)` exists and works; `stats.tsx` renders `dummyStats.retention30d` instead of calling it.                                                                                                                                       |
-| Statistics: streak heatmap                   | Partial (data layer complete) | `getReviewedDayIndexes` returns exactly the distinct-day data a heatmap needs; `stats.tsx` renders a hardcoded 5×7 grid.                                                                                                                                  |
-| Statistics: vocabulary growth                | Missing     | No repository function buckets card-creation counts by week. `stats.tsx` renders a hardcoded array. See Work package 5.                                                                                                                                   |
-| Statistics: difficult words                  | Missing     | No repository function joins `card_states.lapses` back to lemma forms. `stats.tsx` renders three hardcoded words. See Work package 5.                                                                                                                     |
+| Statistics: retention rate                   | Complete    | `getRetentionRate(db, 30)` is wired into `stats.tsx`'s overview grid.                                                                                                                                                                                      |
+| Statistics: streak heatmap                   | Complete    | New `getReviewCountsByDay(db, 35)` returns a real per-day count (including zero-count days, unlike the pre-existing `getReviewedDayIndexes`); `lib/stats.ts#buildHeatmap` buckets it into a 5×7 intensity grid relative to the user's own busiest day.   |
+| Statistics: vocabulary growth                | Complete    | New `getVocabularyGrowth(db, weeks)` buckets **lemma** `created_at` (not card `created_at`, to avoid double-counting a word that got both a basic and cloze card from one import row) into weekly windows, wired into the growth chart.                  |
+| Statistics: difficult words                  | Complete    | New `getDifficultWords(db, limit)` sums `card_states.lapses` per lemma (a lemma with a basic+cloze pair sums both), excludes zero-lapse words, ordered descending, capped at 10.                                                                          |
 | Review session progress/time-remaining        | Complete    | A progress bar, N/total counter, and a "~N min left" estimate (from the session's own rated-card pace so far, seeded with an 8s default before the first rating) are all shown.                                                                          |
 
 ## Known incomplete or misleading behavior
@@ -126,10 +127,13 @@ it loads real due cards, schedules ratings through `packages/srs`, and
 persists them via `recordReview`, rendering front/back through the real
 LiquidJS + WebView pipeline. `settings/templates.tsx` is likewise real:
 full CRUD against the `templates` table, live preview through the same
-renderer. `stats.tsx` is the only screen still on `apps/mobile/lib/dummy.ts`
-stand-ins — see Work package 5. There is no partial regression risk from
-touching that file — it can still be rewritten wholesale rather than
-patched.
+renderer. `stats.tsx` is now real too (Work package 5, below) — every
+number on the screen traces to `getRetentionRate`/`getTotalCardCount`/
+`getReviewCountsByDay`/`getVocabularyGrowth`/`getDifficultWords`, with
+loading/error/empty states for a fresh install with zero review history.
+`apps/mobile/lib/dummy.ts` had nothing left to export once `stats.tsx`
+stopped using it, so the file was deleted rather than left as an unused
+stub.
 
 ### `packages/core` naming collision — fixed (Work package 1)
 
@@ -516,10 +520,11 @@ rather than exporting as a blank-less plain sentence.
    resolved via `deck_cards` → `cards.lemma_id` → `lemmas`/`meaning_clusters`;
    `templates`/`prompt_versions` included in full as small reference tables;
    `sentence_mining_queue`/`evaluations` omitted as not deck-scoped data).
-   **Export-only by design** — `restoreBackup`'s policy is full-replace
-   only, so a deck `.lin` has no matching partial-restore path in this app;
-   it's for sharing/inspection, the same audience as CSV/Markdown/Anki.
-   Whole-library `.lin` remains the only *restorable* format.
+   Was export-only through Work package 6; Work package 7 (below) added a
+   matching **additive** deck `.lin` importer (`lin-import.ts`) — distinct
+   from `restoreBackup`'s full-replace whole-library restore, which remains
+   the only *replacing* restore path. A deck `.lin` import never deletes
+   anything already on the device.
 2. **CSV export** (`csv-export.ts#buildCsvExport`) — same header names as
    `CsvField`, so a file exported here re-imports through
    `buildCsvImportPreview` with zero manual remapping (verified by a round-
@@ -811,27 +816,52 @@ with its lemma/cluster/meaning) — run against manually-seeded pre-fix-
 shaped corrupt data, since a fresh database never has this corruption for
 `migrate()`'s normal run of migration 0008 to actually exercise.
 
-### Work package 5: Learning statistics
+### Work package 5: Learning statistics — done
 
-- Wire `stats.tsx`'s retention card to `getRetentionRate(db, 30)`.
-- Wire the streak heatmap to `getReviewedDayIndexes(db)`, bucketed into the
-  same 5×7 (or however many weeks fit) grid shape the dummy version used.
-- Add a new repository function bucketing card-creation counts by week
-  (vocabulary growth) — `cards.created_at` grouped by week, most recent
-  last.
-- Add a new repository function for "difficult words" — join
-  `card_states.lapses` (or a lapse-count derived from `review_events`) back
-  to `lemmas.form`, ordered by lapse count descending, capped at a
-  reasonable count (e.g. top 10).
-- Keep the existing card layout (overview grid, heatmap, growth chart,
-  difficult-words list) — only the data source changes.
+- `stats.tsx`'s retention card is wired to `getRetentionRate(db, 30)`.
+- The streak heatmap is wired to a new `getReviewCountsByDay(db, days = 35)`
+  (`packages/database/src/repositories/reviews.ts`) — a per-UTC-day-index
+  review count for the trailing N days, explicitly filling in zero-count
+  days (unlike the pre-existing `getReviewedDayIndexes`, which only returns
+  days that had at least one review and is still used, unchanged, for the
+  streak number itself). A new `apps/mobile/lib/stats.ts#buildHeatmap`
+  buckets those counts into a 5×7 intensity grid (0–4) scaled to the user's
+  own busiest day in range, not a fixed absolute threshold — an active
+  long-time user and a light new user both get a legible gradient.
+- A new `getVocabularyGrowth(db, weeks = 7)`
+  (`packages/database/src/repositories/cards.ts`) buckets **lemma**
+  `created_at` (not `cards.created_at` — a single import row can create both
+  a basic and a cloze card for one word at once, so counting cards would
+  show "2 new words" the day one word is added) into weekly windows, oldest
+  first.
+- A new `getDifficultWords(db, limit = 10)`
+  (`packages/database/src/repositories/reviews.ts`) sums `card_states.lapses`
+  per lemma (a lemma with a basic+cloze pair sums both cards' lapses — the
+  word is what's difficult, not one specific card of it), excludes
+  zero-lapse words, ordered descending.
+- `apps/mobile/app/(tabs)/index.tsx`'s local `streakFromDayIndexes` was
+  extracted unchanged into the new `lib/stats.ts` so both the home screen
+  and the stats screen share one implementation.
+- The card layout (overview grid, heatmap, growth chart, difficult-words
+  list) is unchanged from the dummy version — only the data source changed.
+- `apps/mobile/lib/dummy.ts` is deleted (nothing left to export once
+  `stats.tsx` stopped using `dummyStats`).
 
 Acceptance criteria:
 
-- Every number on the stats screen traces to a real query, not a constant.
-- The screen has loading/error/empty states for a fresh install with zero
-  review history (currently untestable since the data is hardcoded) —
-  matches the Phase 4 Work package 6 loading/error/empty-state standard.
+- ✅ Every number on the stats screen traces to a real query, not a
+  constant.
+- ✅ The screen has loading/error/empty states for a fresh install with zero
+  review history: a `Spinner` while the combined query is pending, an
+  `ErrorState` with retry on failure, and an `EmptyState` ("No stats yet")
+  when `getTotalCardCount` is zero — matches the Phase 4 Work package 6
+  loading/error/empty-state standard.
+
+Covered by three new `packages/database/src/stats.test.ts` cases
+(`getVocabularyGrowth` weekly bucketing, `getReviewCountsByDay` zero-filling,
+`getDifficultWords` ranking + zero-lapse exclusion), plus a clean mobile
+typecheck, `pnpm lint`, and the full `@lingora/database` Vitest suite
+(86 tests). Not yet verified on the AVD.
 
 ### Work package 6: Deck move/merge completion and final acceptance pass
 
@@ -858,6 +888,86 @@ Acceptance criteria:
   (disabled control with a reason, not an absent one).
 - Every item in the Phase 5 completion checklist below is checked with
   evidence, the way Phase 4's was.
+
+### Work package 7: deck-scoped `.lin` import — done
+
+Added after Work packages 1–6 were already planned, at the user's explicit
+request: `createDeckBackup` (Work package 4) was export-only; this adds the
+matching import path, in the same pick → map → preview → confirm wizard
+shape as CSV/Anki import (explicitly requested, rather than a bespoke flow).
+
+- `packages/database/src/lin-import.ts` — new module, three phases:
+  `parseLinImportFile`/`getDecksInPayload` (parse + list the deck(s) in the
+  file — a deck-scoped `.lin` always has exactly one; a whole-library `.lin`
+  used as an import source may have several, and the user picks),
+  `buildLinImportPreview` (one row per lemma in the chosen source deck,
+  flagged 'ok'/'duplicate' against this device's existing lemmas via the
+  same `getLemmaByForm` the CSV/Anki importers use — nothing written yet),
+  `importLinDeck` (imports every non-skipped lemma's full subgraph in one
+  transaction).
+- **Additive, never a replace**: unlike `restoreBackup`, nothing already on
+  the device is ever deleted. Every imported row gets a fresh ID — no
+  attempt to preserve the source file's IDs, both to dodge any FK collision
+  and because re-importing the same file (skip or duplicate policy) needs
+  to behave predictably either way.
+- **Duplicate handling matches CSV/Anki's established semantics**, per an
+  explicit user decision (skip vs. keep-both, with a preview table
+  regardless of duplicate status — same shape as CSV/Anki import, not a
+  bespoke flow): `LinDuplicatePolicy` is `'skip'` or `'duplicate'`. Because
+  `lemmas.form` is globally UNIQUE (see `import-shared.ts`'s
+  `DuplicatePolicy` doc comment), "keep both" attaches a second card under
+  the *existing local* lemma rather than creating a second lemma — never
+  reintroducing the "General A1" duplicate-cluster bug fixed earlier this
+  phase.
+- **What carries over**: inflections, meaning clusters, meanings, examples,
+  synonyms, phrases, cloze cards, FSRS card state, review history
+  (`review_events`), and tags (resolved by name via `getOrCreateTag`, not
+  by the file's tag IDs). **What's deliberately dropped**: `audio` (file
+  paths point at the source device's filesystem — meaningless on this
+  one), `generation_metadata` (provenance only), and
+  `templates`/`prompt_versions`/`sentence_mining_queue`/`evaluations`
+  (global or not deck-scoped — importing one deck shouldn't change this
+  device's template list or mining queue).
+- Insert order respects the same "card before its meanings" constraint
+  `persistWordGeneration` and `import-shared.ts#importRow` already follow
+  (`cards.primary_meaning_id` is nullable by design, see CLAUDE.md) — cards
+  are written first with `primary_meaning_id` unset, then
+  meanings/examples/synonyms/phrases/cloze rows, then a final
+  `updateCardPrimaryMeaning` pass. Cards/state/deck-membership are written
+  with raw `tx.execute` rather than the `createCardWithState` repository
+  helper, since that helper opens its own transaction and the whole import
+  already runs inside one (`NodeSqliteAdapter` doesn't support nested
+  transactions — caught by a first test run).
+- `apps/mobile/app/settings/lin-import.tsx` — new screen, same wizard shape
+  as `csv-import.tsx`/`apkg-import.tsx` (pick file → pick source deck when
+  the file has more than one → pick target deck + duplicate policy →
+  preview table, one row per lemma with a Word/Meaning/Cards/Status column
+  and a checkbox, all rows shown regardless of duplicate status per the
+  user's explicit request → confirm). Reuses `pickAndParseBackupFile` from
+  `lib/backup.ts` (identical `.lin` parsing/validation, already built for
+  whole-library restore). Reachable two ways: `ImportFormatSheet` (now a
+  three-option sheet — CSV/Anki/Lingora, `components/ui.tsx`) from a deck's
+  own `⋮` menu (`deck/[id].tsx`, `(tabs)/decks.tsx`, `deckId` param
+  pre-selects the target deck), and a new "A shared deck (.lin)" accordion
+  in Settings → Import & Export (whole-library, no deck pre-selected).
+- Covered by 6 new `packages/database/src/lin-import.test.ts` cases,
+  including an FSRS-state/review-history carryover check and a two-deck
+  exclusion test (mirroring the one already written for
+  `createDeckBackup`'s export side) proving a whole-library `.lin` used as
+  an import source only pulls in the chosen deck's lemmas.
+
+Acceptance criteria:
+
+- ✅ A deck `.lin` file can be imported into a new or existing deck without
+  touching any other data already on the device.
+- ✅ A word that already exists locally is never silently duplicated as a
+  second lemma; the user chooses skip or keep-both, with a preview table
+  either way.
+- ✅ Typecheck (mobile + database) and lint are clean; the full
+  `@lingora/database` Vitest suite passes (92 tests after this work
+  package, including the new `lin-import.test.ts`).
+
+Not yet AVD-verified — see `PENDING_MANUAL_TESTS.md`.
 
 ## Validation baseline
 

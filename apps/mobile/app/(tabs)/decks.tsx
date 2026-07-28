@@ -23,6 +23,12 @@ import { colors, radius, spacing, type } from '../../lib/theme'
 
 const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
 
+const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lin-import'> = {
+  csv: '/settings/csv-import',
+  apkg: '/settings/apkg-import',
+  lin: '/settings/lin-import',
+}
+
 /** A deck with its computed counts and resolved children. */
 interface DeckNode {
   deck: Deck
@@ -132,7 +138,7 @@ export default function DecksScreen(): JSX.Element {
     const deck = importDeck
     setImportDeck(null)
     router.push({
-      pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
+      pathname: IMPORT_ROUTES[format],
       params: { deckId: deck.id },
     })
   }

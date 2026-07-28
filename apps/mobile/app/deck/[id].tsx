@@ -32,6 +32,12 @@ import { colors, radius, spacing, type } from '../../lib/theme'
 
 const log = logger.child({ feature: 'export', screen: 'DeckDetailScreen' })
 
+const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lin-import'> = {
+  csv: '/settings/csv-import',
+  apkg: '/settings/apkg-import',
+  lin: '/settings/lin-import',
+}
+
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
@@ -105,7 +111,7 @@ export default function DeckDetailScreen(): JSX.Element {
   const handleImportSelect = (format: ImportFormat): void => {
     setImportSheetOpen(false)
     router.push({
-      pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
+      pathname: IMPORT_ROUTES[format],
       params: { deckId: id },
     })
   }

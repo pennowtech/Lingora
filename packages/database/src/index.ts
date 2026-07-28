@@ -55,6 +55,18 @@ export {
 } from './apkg-import'
 
 export {
+  buildLinImportPreview,
+  getDecksInPayload,
+  importLinDeck,
+  parseLinImportFile,
+  type LinDeckOption,
+  type LinCardPreview,
+  type LinDuplicatePolicy,
+  type LinImportResult,
+  type LinLemmaPreview,
+} from './lin-import'
+
+export {
   ALL_MIGRATIONS,
   getCurrentSchemaVersion,
   migrate,

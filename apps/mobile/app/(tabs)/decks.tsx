@@ -6,7 +6,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Button, Card, EmptyState, ErrorState, ExportFormatSheet, IconButton, Spinner } from '../../components/ui'
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  ExportFormatSheet,
+  IconButton,
+  ImportFormatSheet,
+  Spinner,
+  type ImportFormat,
+} from '../../components/ui'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -46,6 +56,7 @@ export default function DecksScreen(): JSX.Element {
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
   const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
+  const [importDeck, setImportDeck] = useState<Deck | null>(null)
   const [exportDeck, setExportDeck] = useState<Deck | null>(null)
   const [renameDeckTarget, setRenameDeckTarget] = useState<Deck | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -111,8 +122,15 @@ export default function DecksScreen(): JSX.Element {
     )
   }
 
-  const startImport = (deck: Deck, format: 'csv' | 'apkg'): void => {
+  const showImport = (deck: Deck): void => {
     setMenuDeck(null)
+    setImportDeck(deck)
+  }
+
+  const handleImportSelect = (format: ImportFormat): void => {
+    if (!importDeck) return
+    const deck = importDeck
+    setImportDeck(null)
     router.push({
       pathname: format === 'csv' ? '/settings/csv-import' : '/settings/apkg-import',
       params: { deckId: deck.id },
@@ -208,8 +226,7 @@ export default function DecksScreen(): JSX.Element {
           {menuDeck ? (
             <>
               <Text style={styles.modalTitle}>{menuDeck.emoji ?? '📚'} {menuDeck.name}</Text>
-              <Button label="Import CSV into this deck" icon="grid" variant="secondary" onPress={() => startImport(menuDeck, 'csv')} />
-              <Button label="Import Anki (.apkg) into this deck" icon="albums" variant="secondary" onPress={() => startImport(menuDeck, 'apkg')} />
+              <Button label="Import into this deck" icon="download" variant="secondary" onPress={() => showImport(menuDeck)} />
               <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={() => showExport(menuDeck)} />
               <Button
                 label="Rename deck"
@@ -247,6 +264,13 @@ export default function DecksScreen(): JSX.Element {
           />
         </View>
       </Modal>
+
+      <ImportFormatSheet
+        visible={importDeck !== null}
+        onClose={() => setImportDeck(null)}
+        onSelect={handleImportSelect}
+        {...(importDeck && { title: `Import into "${importDeck.name}"` })}
+      />
 
       <ExportFormatSheet
         visible={exportDeck !== null}

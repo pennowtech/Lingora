@@ -13,6 +13,7 @@ import {
 } from '@lingora/ai'
 import { configureObservability, logger } from '@lingora/observability'
 import { createExpoJsonLinesSink } from '@lingora/observability/expo'
+import { applyStoredLanguagePreference } from './i18n'
 import { withUsageTracking } from './providerUsage'
 import {
   ExpoSQLiteAdapter,
@@ -348,6 +349,7 @@ export function ServicesProvider({
 
     const init = async (): Promise<void> => {
       try {
+        await applyStoredLanguagePreference()
         const db = await openDatabase()
         const aiServices = await buildAIServices(db)
         if (cancelled) return

@@ -3,11 +3,13 @@ import { getPendingMineEntries } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { Tabs } from 'expo-router'
 import type { JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useServices } from '../../lib/services'
 import { colors } from '../../lib/theme'
 
 export default function TabsLayout(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const mineQuery = useQuery({
     queryKey: ['mine-queue'],
     queryFn: () => getPendingMineEntries(db),
@@ -29,7 +31,7 @@ export default function TabsLayout(): JSX.Element {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('Home'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
@@ -37,21 +39,21 @@ export default function TabsLayout(): JSX.Element {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Search',
+          title: t('Search'),
           tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="decks"
         options={{
-          title: 'Decks',
+          title: t('Decks'),
           tabBarIcon: ({ color, size }) => <Ionicons name="albums" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="mine"
         options={{
-          title: 'Mine',
+          title: t('Mine'),
           ...(pendingCount > 0 && { tabBarBadge: pendingCount }),
           tabBarIcon: ({ color, size }) => <Ionicons name="download" size={size} color={color} />,
         }}
@@ -59,7 +61,7 @@ export default function TabsLayout(): JSX.Element {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: t('Settings'),
           tabBarIcon: ({ color, size }) => <Ionicons name="settings-sharp" size={size} color={color} />,
         }}
       />

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Button, Card, ErrorState, SectionHeader, Spinner } from '../../components/ui'
 import {
@@ -32,6 +33,7 @@ interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
  */
 export default function WordGuidesScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const manifest = getWordGuideManifest()
   const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes()), [])
@@ -48,7 +50,7 @@ export default function WordGuidesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_chunk_install_failed', error, { message: 'Word guide chunk install failed' })
-      Alert.alert('Could not install this chunk', String(error))
+      Alert.alert(t('Could not install this chunk'), String(error))
     },
   })
 
@@ -59,7 +61,7 @@ export default function WordGuidesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_chunk_uninstall_failed', error, { message: 'Word guide chunk uninstall failed' })
-      Alert.alert('Could not remove this chunk', String(error))
+      Alert.alert(t('Could not remove this chunk'), String(error))
     },
   })
 
@@ -67,11 +69,11 @@ export default function WordGuidesScreen(): JSX.Element {
     mutationFn: () => installAllAvailable(db, manifest.language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
-      Alert.alert('Word guides installed', `Installed ${count.toLocaleString()} new chunk${count === 1 ? '' : 's'}.`)
+      Alert.alert(t('Word guides installed'), t('Installed {{count}} new chunks.', { count: count.toLocaleString() }))
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_install_all_failed', error, { message: 'Word guide "install all" failed' })
-      Alert.alert('Could not install word guides', String(error))
+      Alert.alert(t('Could not install word guides'), String(error))
     },
   })
 
@@ -90,11 +92,14 @@ export default function WordGuidesScreen(): JSX.Element {
   return (
     <View style={styles.container}>
       <Card style={styles.summaryCard}>
-        <Text style={styles.title}>German word guides</Text>
+        <Text style={styles.title}>{t('German word guides')}</Text>
         <Text style={styles.body}>
-          A free, pre-written dictionary — install to get instant word explanations without an AI key.
+          {t('A free, pre-written dictionary — install to get instant word explanations without an AI key.')}
           {' '}
-          {manifest.totalWords.toLocaleString()} words planned, {manifest.totalChunks} chunks of ~100.
+          {t('{{words}} words planned, {{chunks}} chunks of ~100.', {
+            words: manifest.totalWords.toLocaleString(),
+            chunks: manifest.totalChunks,
+          })}
         </Text>
         {installedQuery.isPending ? (
           <Spinner />
@@ -103,10 +108,14 @@ export default function WordGuidesScreen(): JSX.Element {
         ) : (
           <>
             <Text style={styles.progress}>
-              {installedCount} installed · {availableCount} available to install · {manifest.totalChunks - installedCount - availableCount} not generated yet
+              {t('{{installed}} installed · {{available}} available to install · {{pending}} not generated yet', {
+                installed: installedCount,
+                available: availableCount,
+                pending: manifest.totalChunks - installedCount - availableCount,
+              })}
             </Text>
             <Button
-              label={installAll.isPending ? 'Installing…' : 'Install all available'}
+              label={installAll.isPending ? t('Installing…') : t('Install all available')}
               icon="download"
               onPress={() => installAll.mutate()}
               disabled={installAll.isPending || availableCount === 0}
@@ -116,7 +125,7 @@ export default function WordGuidesScreen(): JSX.Element {
         )}
       </Card>
 
-      <SectionHeader title="Chunks" />
+      <SectionHeader title={t('Chunks')} />
 
       <FlatList
         data={rows}
@@ -126,9 +135,9 @@ export default function WordGuidesScreen(): JSX.Element {
           <Card style={[styles.chunkRow, item.status === 'pending' && styles.chunkRowPending]}>
             <View style={styles.chunkText}>
               <Text style={styles.chunkTitle}>
-                Words {item.rankStart.toLocaleString()}–{item.rankEnd.toLocaleString()}
+                {t('Words {{start}}–{{end}}', { start: item.rankStart.toLocaleString(), end: item.rankEnd.toLocaleString() })}
               </Text>
-              <Text style={styles.chunkMeta}>{item.wordCount.toLocaleString()} words</Text>
+              <Text style={styles.chunkMeta}>{t('{{count}} words', { count: item.wordCount.toLocaleString() })}</Text>
             </View>
             {item.status === 'installed' ? (
               <Pressable
@@ -137,7 +146,7 @@ export default function WordGuidesScreen(): JSX.Element {
                 disabled={uninstall.isPending}
               >
                 <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-                <Text style={styles.uninstallLabel}>Installed</Text>
+                <Text style={styles.uninstallLabel}>{t('Installed')}</Text>
               </Pressable>
             ) : item.status === 'available' ? (
               <Pressable
@@ -145,10 +154,10 @@ export default function WordGuidesScreen(): JSX.Element {
                 onPress={() => install.mutate(item.index)}
                 disabled={install.isPending}
               >
-                <Text style={styles.installLabel}>Install</Text>
+                <Text style={styles.installLabel}>{t('Install')}</Text>
               </Pressable>
             ) : (
-              <Text style={styles.pendingLabel}>Not generated yet</Text>
+              <Text style={styles.pendingLabel}>{t('Not generated yet')}</Text>
             )}
           </Card>
         )}

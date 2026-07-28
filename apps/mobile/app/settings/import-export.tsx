@@ -4,6 +4,7 @@ import { logger } from '@lingora/observability'
 import { useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, SectionHeader } from '../../components/ui'
 import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile } from '../../lib/backup'
@@ -71,6 +72,7 @@ function OptionAccordion(props: {
  */
 export default function ImportExportScreen(): JSX.Element {
   const { db, reloadServices } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [exporting, setExporting] = useState(false)
   const [restoring, setRestoring] = useState(false)
@@ -92,13 +94,13 @@ export default function ImportExportScreen(): JSX.Element {
     runExport(db, format, { deckName: 'Lingora vocabulary' })
       .then(({ itemCount, outcome }) => {
         Alert.alert(
-          'Export ready',
-          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+          t('Export ready'),
+          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
         )
       })
       .catch((error: unknown) => {
         log.error('export.format_export_failed', error, { message: 'Whole-library format export failed' })
-        Alert.alert('Export failed', String(error))
+        Alert.alert(t('Export failed'), String(error))
       })
       .finally(() => setExportingFormat(null))
   }
@@ -109,13 +111,13 @@ export default function ImportExportScreen(): JSX.Element {
     exportBackupToFile(db)
       .then(({ itemCount, outcome }) => {
         Alert.alert(
-          'Backup ready',
-          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+          t('Backup ready'),
+          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
         )
       })
       .catch((error: unknown) => {
         log.error('export.backup_failed', error, { message: 'Backup export failed' })
-        Alert.alert('Export failed', String(error))
+        Alert.alert(t('Export failed'), String(error))
       })
       .finally(() => setExporting(false))
   }
@@ -126,12 +128,15 @@ export default function ImportExportScreen(): JSX.Element {
       .then((picked) => {
         if (!picked) return // user canceled the file picker
         Alert.alert(
-          'Restore from backup?',
-          `This replaces everything currently on this device with the contents of "${picked.fileName}" (exported ${new Date(picked.payload.exportedAt).toLocaleDateString()}). This cannot be undone.`,
+          t('Restore from backup?'),
+          t(
+            'This replaces everything currently on this device with the contents of "{{fileName}}" (exported {{date}}). This cannot be undone.',
+            { fileName: picked.fileName, date: new Date(picked.payload.exportedAt).toLocaleDateString() },
+          ),
           [
-            { text: 'Cancel', style: 'cancel' },
+            { text: t('Cancel'), style: 'cancel' },
             {
-              text: 'Restore',
+              text: t('Restore'),
               style: 'destructive',
               onPress: () => {
                 setRestoring(true)
@@ -143,11 +148,11 @@ export default function ImportExportScreen(): JSX.Element {
                     )
                     await queryClient.invalidateQueries()
                     await reloadServices()
-                    Alert.alert('Restore complete', `Restored ${totalRows.toLocaleString()} rows.`)
+                    Alert.alert(t('Restore complete'), t('Restored {{count}} rows.', { count: totalRows.toLocaleString() }))
                   })
                   .catch((error: unknown) => {
                     log.error('import.restore_failed', error, { message: 'Backup restore failed' })
-                    Alert.alert('Restore failed', String(error))
+                    Alert.alert(t('Restore failed'), String(error))
                   })
                   .finally(() => setRestoring(false))
               },
@@ -161,30 +166,30 @@ export default function ImportExportScreen(): JSX.Element {
             message: 'Picked file failed backup validation',
             metadata: { itemCount: error.issues.length },
           })
-          Alert.alert('Invalid backup file', [error.message, ...error.issues.slice(0, 5)].join('\n'))
+          Alert.alert(t('Invalid backup file'), [error.message, ...error.issues.slice(0, 5)].join('\n'))
           return
         }
         log.error('import.restore_failed', error, { message: 'Backup file picking failed' })
-        Alert.alert('Could not read file', String(error))
+        Alert.alert(t('Could not read file'), String(error))
       })
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      <SectionHeader title="Import" />
+      <SectionHeader title={t('Import')} />
 
       <OptionAccordion
         icon="albums"
         iconBg={colors.infoSoft}
         iconColor={colors.info}
-        title="Anki deck (.apkg)"
-        detail="Bring your existing decks. Review history isn't imported — cards start fresh."
+        title={t('Anki deck (.apkg)')}
+        detail={t("Bring your existing decks. Review history isn't imported — cards start fresh.")}
         expanded={expanded.has('import-apkg')}
         onToggle={() => toggle('import-apkg')}
       >
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/apkg-import')}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>Choose .apkg file</Text>
+          <Text style={styles.actionButtonLabel}>{t('Choose .apkg file')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -192,14 +197,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="grid"
         iconBg={colors.successSoft}
         iconColor={colors.success}
-        title="CSV with column mapping"
-        detail="From Quizlet, Memrise, or spreadsheets."
+        title={t('CSV with column mapping')}
+        detail={t('From Quizlet, Memrise, or spreadsheets.')}
         expanded={expanded.has('import-csv')}
         onToggle={() => toggle('import-csv')}
       >
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/csv-import')}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>Choose CSV file</Text>
+          <Text style={styles.actionButtonLabel}>{t('Choose CSV file')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -207,14 +212,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="sparkles"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title="A shared deck (.lin)"
-        detail="Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device."
+        title={t('A shared deck (.lin)')}
+        detail={t("Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.")}
         expanded={expanded.has('import-lin-deck')}
         onToggle={() => toggle('import-lin-deck')}
       >
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lin-import')}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>Choose .lin file</Text>
+          <Text style={styles.actionButtonLabel}>{t('Choose .lin file')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -222,32 +227,32 @@ export default function ImportExportScreen(): JSX.Element {
         icon="cloud-upload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title="Restore from Lingora backup (.lin)"
-        detail="Replaces everything on this device with a previously exported backup."
+        title={t('Restore from Lingora backup (.lin)')}
+        detail={t('Replaces everything on this device with a previously exported backup.')}
         expanded={expanded.has('import-restore')}
         onToggle={() => toggle('import-restore')}
       >
         <Pressable style={styles.actionButton} onPress={handleRestore} disabled={restoring}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{restoring ? 'Restoring…' : 'Choose backup file'}</Text>
+          <Text style={styles.actionButtonLabel}>{restoring ? t('Restoring…') : t('Choose backup file')}</Text>
           {restoring ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
       </OptionAccordion>
 
-      <SectionHeader title="Export" />
+      <SectionHeader title={t('Export')} />
 
       <OptionAccordion
         icon="cloud-download"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title="Lingora backup (.lin)"
-        detail="Your full library — decks, cards, review history. Your data is always yours. API keys are never included."
+        title={t('Lingora backup (.lin)')}
+        detail={t('Your full library — decks, cards, review history. Your data is always yours. API keys are never included.')}
         expanded={expanded.has('export-lin')}
         onToggle={() => toggle('export-lin')}
       >
         <Pressable style={styles.actionButton} onPress={handleExport} disabled={exporting}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exporting ? 'Exporting…' : 'Export everything'}</Text>
+          <Text style={styles.actionButtonLabel}>{exporting ? t('Exporting…') : t('Export everything')}</Text>
           {exporting ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
       </OptionAccordion>
@@ -256,14 +261,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="grid"
         iconBg={colors.successSoft}
         iconColor={colors.success}
-        title="CSV"
-        detail="One row per card — the same columns CSV import reads, so this file re-imports as-is."
+        title={t('CSV')}
+        detail={t('One row per card — the same columns CSV import reads, so this file re-imports as-is.')}
         expanded={expanded.has('export-csv')}
         onToggle={() => toggle('export-csv')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('csv')} disabled={exportingFormat !== null}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'csv' ? 'Exporting…' : 'Export as CSV'}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'csv' ? t('Exporting…') : t('Export as CSV')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -271,14 +276,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="albums"
         iconBg={colors.infoSoft}
         iconColor={colors.info}
-        title="Anki deck (.apkg)"
-        detail="Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over."
+        title={t('Anki deck (.apkg)')}
+        detail={t("Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.")}
         expanded={expanded.has('export-apkg')}
         onToggle={() => toggle('export-apkg')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('apkg')} disabled={exportingFormat !== null}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'apkg' ? 'Exporting…' : 'Export as .apkg'}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'apkg' ? t('Exporting…') : t('Export as .apkg')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -286,8 +291,8 @@ export default function ImportExportScreen(): JSX.Element {
         icon="document-text"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title="Markdown"
-        detail="A readable word — meaning — example list. Not meant to re-import."
+        title={t('Markdown')}
+        detail={t('A readable word — meaning — example list. Not meant to re-import.')}
         expanded={expanded.has('export-markdown')}
         onToggle={() => toggle('export-markdown')}
       >
@@ -297,7 +302,7 @@ export default function ImportExportScreen(): JSX.Element {
           disabled={exportingFormat !== null}
         >
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? 'Exporting…' : 'Export as Markdown'}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? t('Exporting…') : t('Export as Markdown')}</Text>
         </Pressable>
       </OptionAccordion>
     </ScrollView>

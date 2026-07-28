@@ -3,6 +3,7 @@ import { searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/datab
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Card, CefrBadge, EmptyState, ErrorState } from '../../components/ui'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
@@ -24,6 +25,7 @@ function useDebounced(value: string, delayMs: number): string {
  */
 export default function SearchScreen(): JSX.Element {
   const { db, dictionary, pipeline, tier, defaultCefr } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const term = useDebounced(query.trim(), 250)
@@ -73,7 +75,7 @@ export default function SearchScreen(): JSX.Element {
         <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
           style={styles.input}
-          placeholder="Type a German or English word…"
+          placeholder={t('Type a German or English word…')}
           placeholderTextColor={colors.textMuted}
           value={query}
           onChangeText={(text) => {
@@ -92,8 +94,8 @@ export default function SearchScreen(): JSX.Element {
       {term === '' ? (
         <EmptyState
           icon="search"
-          title="Instant lookup"
-          message={'Search in German ("ausgeh…") or English ("go out").\nInflected forms like "ging aus" work too.'}
+          title={t('Instant lookup')}
+          message={t('Search in German ("ausgeh…") or English ("go out").\nInflected forms like "ging aus" work too.')}
         />
       ) : search.isPending ? (
         <View style={styles.centered}>
@@ -105,13 +107,13 @@ export default function SearchScreen(): JSX.Element {
         <View>
           <EmptyState
             icon="sparkles"
-            title={`"${term}" is new`}
-            message="This word isn't in your library yet. Generate meanings, examples, and synonyms with AI."
+            title={t('"{{term}}" is new', { term })}
+            message={t("This word isn't in your library yet. Generate meanings, examples, and synonyms with AI.")}
           />
           {quickTranslate.isPending ? (
             <Card style={styles.translateCard}>
               <ActivityIndicator size="small" color={colors.textSecondary} />
-              <Text style={styles.translateLabel}>Translating…</Text>
+              <Text style={styles.translateLabel}>{t('Translating…')}</Text>
             </Card>
           ) : quickTranslate.data ? (
             <Card style={styles.translateCard}>
@@ -124,19 +126,19 @@ export default function SearchScreen(): JSX.Element {
           {generate.isPending ? (
             <Card style={styles.generateCard}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.generateLabel}>Generating…</Text>
+              <Text style={styles.generateLabel}>{t('Generating…')}</Text>
             </Card>
           ) : tier === 'full' ? (
             <Card style={styles.generateCard} onPress={() => generate.mutate(term)}>
               <Ionicons name="sparkles" size={18} color={colors.primary} />
-              <Text style={styles.generateLabel}>Generate with AI</Text>
+              <Text style={styles.generateLabel}>{t('Generate with AI')}</Text>
             </Card>
           ) : (
             <Pressable onPress={() => router.push('/settings')}>
               <Card style={styles.limitedCard}>
                 <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
                 <Text style={styles.limitedLabel}>
-                  Add your OpenAI key in Settings to generate new words
+                  {t('Add your OpenAI key in Settings to generate new words')}
                 </Text>
               </Card>
             </Pressable>
@@ -146,11 +148,11 @@ export default function SearchScreen(): JSX.Element {
           ) : null}
           {partial ? (
             <Card style={styles.partialCard}>
-              <Text style={styles.partialTitle}>Generation came back incomplete</Text>
+              <Text style={styles.partialTitle}>{t('Generation came back incomplete')}</Text>
               <Text style={styles.partialBody}>
                 {partial.issues.slice(0, 3).join('\n')}
               </Text>
-              <Text style={styles.partialHint}>Nothing was saved — try again.</Text>
+              <Text style={styles.partialHint}>{t('Nothing was saved — try again.')}</Text>
             </Card>
           ) : null}
         </View>

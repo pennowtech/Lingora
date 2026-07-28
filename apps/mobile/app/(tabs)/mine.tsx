@@ -12,6 +12,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as Clipboard from 'expo-clipboard'
 import { router } from 'expo-router'
 import { useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
@@ -37,6 +38,7 @@ const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
  */
 export default function MiningQueueScreen(): JSX.Element {
   const { db, pipeline, tier, defaultCefr } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<string[] | null>(null)
   const [progress, setProgress] = useState<string | null>(null)
@@ -56,7 +58,7 @@ export default function MiningQueueScreen(): JSX.Element {
   const discard = useMutation({
     mutationFn: (entryId: string) => deleteMineEntry(db, entryId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
-    onError: (error: unknown) => Alert.alert('Could not discard capture', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not discard capture'), String(error)),
   })
 
   const capture = useMutation({
@@ -82,7 +84,7 @@ export default function MiningQueueScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('mining.capture_failed', error, { message: 'Manual capture failed to save' })
-      Alert.alert('Could not save capture', String(error))
+      Alert.alert(t('Could not save capture'), String(error))
     },
   })
 
@@ -90,7 +92,7 @@ export default function MiningQueueScreen(): JSX.Element {
     Clipboard.getStringAsync()
       .then((text) => {
         if (!text.trim()) {
-          Alert.alert('Clipboard is empty', 'Copy some text first, then paste it here.')
+          Alert.alert(t('Clipboard is empty'), t('Copy some text first, then paste it here.'))
           return
         }
         setCaptureText(text.trim())
@@ -98,7 +100,7 @@ export default function MiningQueueScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('mining.clipboard_read_failed', error, { message: 'Reading the clipboard failed' })
-        Alert.alert('Could not read clipboard', String(error))
+        Alert.alert(t('Could not read clipboard'), String(error))
       })
   }
 
@@ -110,7 +112,7 @@ export default function MiningQueueScreen(): JSX.Element {
 
   const generate = useMutation({
     mutationFn: async () => {
-      if (!pipeline) throw new Error('Add your OpenAI key in Settings to generate cards.')
+      if (!pipeline) throw new Error(t('Add your OpenAI key in Settings to generate cards.'))
       const chosen = entries.filter((e) => selectedIds.includes(e.id))
       let failures = 0
 
@@ -161,10 +163,9 @@ export default function MiningQueueScreen(): JSX.Element {
     <Modal visible={captureOpen} animationType="slide" transparent onRequestClose={closeCapture}>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>Add a sentence</Text>
+          <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
           <Text style={styles.modalHint}>
-            Paste or type a German sentence. It joins the queue below — nothing is sent to AI until
-            you generate.
+            {t('Paste or type a German sentence. It joins the queue below — nothing is sent to AI until you generate.')}
           </Text>
           <TextInput
             style={styles.modalInput}
@@ -178,16 +179,16 @@ export default function MiningQueueScreen(): JSX.Element {
             }}
           />
           <Button
-            label="Paste from clipboard"
+            label={t('Paste from clipboard')}
             variant="secondary"
             icon="clipboard-outline"
             onPress={handlePasteFromClipboard}
             small
           />
           <View style={styles.modalActions}>
-            <Button label="Cancel" variant="ghost" onPress={closeCapture} />
+            <Button label={t('Cancel')} variant="ghost" onPress={closeCapture} />
             <Button
-              label={capture.isPending ? 'Adding…' : 'Add to queue'}
+              label={capture.isPending ? t('Adding…') : t('Add to queue')}
               onPress={() => capture.mutate({ text: captureText.trim(), source: captureSource })}
               disabled={captureText.trim().length === 0 || capture.isPending}
             />
@@ -222,13 +223,18 @@ export default function MiningQueueScreen(): JSX.Element {
       <View style={styles.container}>
         <EmptyState
           icon="download"
-          title="Queue is empty"
-          message="Add a sentence manually, paste one from your clipboard, or capture text from the share sheet — it lands here before any AI processing."
+          title={t('Queue is empty')}
+          message={t('Add a sentence manually, paste one from your clipboard, or capture text from the share sheet — it lands here before any AI processing.')}
         />
         {generate.data && generate.data.total > 0 ? (
           <Text style={styles.resultLabel}>
-            {generate.data.total - generate.data.failures} of {generate.data.total} generated
-            {generate.data.failures > 0 ? ` · ${generate.data.failures} failed` : ''} — see Decks.
+            {t('{{done}} of {{total}} generated', {
+              done: generate.data.total - generate.data.failures,
+              total: generate.data.total,
+            })}
+            {generate.data.failures > 0 ? ` · ${t('{{count}} failed', { count: generate.data.failures })}` : ''}
+            {' — '}
+            {t('see Decks.')}
           </Text>
         ) : null}
         {captureFab}
@@ -241,8 +247,7 @@ export default function MiningQueueScreen(): JSX.Element {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.intro}>
-          Review your captures. Discard what you don't need, then generate cards for the rest — no
-          API call is wasted on text you didn't ask for.
+          {t("Review your captures. Discard what you don't need, then generate cards for the rest — no API call is wasted on text you didn't ask for.")}
         </Text>
 
         {entries.map((entry) => {
@@ -280,17 +285,14 @@ export default function MiningQueueScreen(): JSX.Element {
       <View style={styles.bottomBar}>
         {tier === 'full' ? (
           <Button
-            label={
-              progress ??
-              `Generate ${selectedIds.length} card${selectedIds.length === 1 ? '' : 's'} with AI`
-            }
+            label={progress ?? t('Generate {{count}} cards with AI', { count: selectedIds.length })}
             icon="sparkles"
             onPress={() => generate.mutate()}
             disabled={selectedIds.length === 0 || generate.isPending}
           />
         ) : (
           <Button
-            label="Add your OpenAI key to generate cards"
+            label={t('Add your OpenAI key to generate cards')}
             icon="key"
             variant="secondary"
             onPress={() => router.push('/settings')}

@@ -40,6 +40,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   Button,
@@ -135,6 +136,7 @@ async function loadWord(db: DatabaseAdapter, form: string): Promise<WordView | n
 export default function WordDetailScreen(): JSX.Element {
   const { form } = useLocalSearchParams<{ form: string }>()
   const { db, ai, tier, defaultCefr } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
 
   const [clusterId, setClusterId] = useState<string | null>(null)
@@ -190,8 +192,8 @@ export default function WordDetailScreen(): JSX.Element {
 
   const generateExamples = useMutation({
     mutationFn: async () => {
-      if (!ai) throw new Error('Add your OpenAI key in Settings to generate examples.')
-      if (!word || !active || !word.card) throw new Error('This word has no card yet.')
+      if (!ai) throw new Error(t('Add your OpenAI key in Settings to generate examples.'))
+      if (!word || !active || !word.card) throw new Error(t('This word has no card yet.'))
       const result = await ai.generateExamples(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
@@ -221,7 +223,7 @@ export default function WordDetailScreen(): JSX.Element {
     mutationFn: (args: { targetType: EvaluationTarget; targetId: string; rating: 'up' | 'down' }) =>
       setEvaluation(db, args),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evaluations', form] }),
-    onError: (error: unknown) => Alert.alert('Could not save your feedback', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not save your feedback'), String(error)),
   })
 
   const report = useMutation({
@@ -239,30 +241,30 @@ export default function WordDetailScreen(): JSX.Element {
       setReportNote('')
       await queryClient.invalidateQueries({ queryKey: ['evaluations', form] })
     },
-    onError: (error: unknown) => Alert.alert('Could not save your report', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not save your report'), String(error)),
   })
 
   const setPrimaryMeaning = useMutation({
     mutationFn: (meaningId: string) => {
-      if (!word?.card) throw new Error('This word has no card yet.')
+      if (!word?.card) throw new Error(t('This word has no card yet.'))
       return updatePrimaryMeaning(db, word.card.id, meaningId)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert('Could not change the primary meaning', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not change the primary meaning'), String(error)),
   })
 
   const selectExample = useMutation({
     mutationFn: (exampleId: string) => {
-      if (!word?.card) throw new Error('This word has no card yet.')
+      if (!word?.card) throw new Error(t('This word has no card yet.'))
       return updateSelectedExample(db, word.card.id, exampleId)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert('Could not update the flashcard example', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not update the flashcard example'), String(error)),
   })
 
   const addToDeck = useMutation({
     mutationFn: async (deckId: string) => {
-      if (!word?.card) throw new Error('This word has no card yet.')
+      if (!word?.card) throw new Error(t('This word has no card yet.'))
       await addCardToDeck(db, deckId, word.card.id)
       return deckId
     },
@@ -285,8 +287,8 @@ export default function WordDetailScreen(): JSX.Element {
   // meaning has none yet and an AI provider is configured.
   const generateExplanation = useMutation({
     mutationFn: async () => {
-      if (!ai) throw new Error('Add your AI provider key in Settings to generate an explanation.')
-      if (!word || !active || !headlineMeaning) throw new Error('This word has no meaning yet.')
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
+      if (!word || !active || !headlineMeaning) throw new Error(t('This word has no meaning yet.'))
       const result = await ai.generateMeaning(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
@@ -296,7 +298,7 @@ export default function WordDetailScreen(): JSX.Element {
       await updateMeaningText(db, headlineMeaning.id, headlineMeaning.translation, explanation)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
   })
 
   // Checked before AI generation: a bulk-installed, pre-generated dictionary
@@ -307,7 +309,7 @@ export default function WordDetailScreen(): JSX.Element {
   // it's only looked up once per word.
   const explainFromDictionary = useMutation({
     mutationFn: async () => {
-      if (!word || !headlineMeaning) throw new Error('This word has no meaning yet.')
+      if (!word || !headlineMeaning) throw new Error(t('This word has no meaning yet.'))
       const guide = await getWordGuide(db, word.lemma.form, word.lemma.language)
       if (!guide) return null
       await updateMeaningText(db, headlineMeaning.id, headlineMeaning.translation, guide.intro)
@@ -320,14 +322,14 @@ export default function WordDetailScreen(): JSX.Element {
       }
       if (tier !== 'full') {
         Alert.alert(
-          'AI not configured',
-          'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+          t('AI not configured'),
+          t('Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.'),
         )
         return
       }
       generateExplanation.mutate()
     },
-    onError: (error: unknown) => Alert.alert('Could not look up an explanation', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
   })
 
   const handleExplain = (): void => {
@@ -350,7 +352,7 @@ export default function WordDetailScreen(): JSX.Element {
 
   const saveEdit = useMutation({
     mutationFn: async () => {
-      if (!headlineMeaning) throw new Error('This word has no meaning yet.')
+      if (!headlineMeaning) throw new Error(t('This word has no meaning yet.'))
       await Promise.all([
         updateMeaningText(db, headlineMeaning.id, editMeaning, headlineMeaning.explanation),
         selectedExample ? updateExampleText(db, selectedExample.id, editExample, editTranslation) : Promise.resolve(),
@@ -360,7 +362,7 @@ export default function WordDetailScreen(): JSX.Element {
       setEditOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => Alert.alert('Could not save your changes', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not save your changes'), String(error)),
   })
 
   const handleLookup = (): void => {
@@ -385,7 +387,7 @@ export default function WordDetailScreen(): JSX.Element {
           message={
             wordQuery.isError
               ? String(wordQuery.error)
-              : `"${form ?? ''}" isn't in your library yet. Look it up from the Search tab to generate it.`
+              : t('"{{form}}" isn\'t in your library yet. Look it up from the Search tab to generate it.', { form: form ?? '' })
           }
           {...(wordQuery.isError && { onRetry: () => void wordQuery.refetch() })}
         />
@@ -454,8 +456,8 @@ export default function WordDetailScreen(): JSX.Element {
                   {explainVisible ? (
                     <Text style={styles.explanation}>
                       {explainFromDictionary.isPending || generateExplanation.isPending
-                        ? 'Generating…'
-                        : headlineMeaning.explanation || 'No explanation yet.'}
+                        ? t('Generating…')
+                        : headlineMeaning.explanation || t('No explanation yet.')}
                     </Text>
                   ) : null}
                   {/* Only OTHER meanings in this cluster get a "make primary" chip —
@@ -468,7 +470,7 @@ export default function WordDetailScreen(): JSX.Element {
                         .map((m) => (
                           <Chip
                             key={m.id}
-                            label={m.isPrimary ? m.translation : `Make primary: ${m.translation}`}
+                            label={m.isPrimary ? m.translation : t('Make primary: {{translation}}', { translation: m.translation })}
                             {...(!m.isPrimary && { onPress: () => setPrimaryMeaning.mutate(m.id) })}
                           />
                         ))}
@@ -488,7 +490,7 @@ export default function WordDetailScreen(): JSX.Element {
             ) : null}
 
             {/* ── Examples ── */}
-            <SectionHeader title="Examples" />
+            <SectionHeader title={t('Examples')} />
 
             {/* CEFR selector — the level new generations target */}
             <View style={styles.chipRow}>
@@ -522,7 +524,7 @@ export default function WordDetailScreen(): JSX.Element {
                   {ex.isSelected ? (
                     <View style={styles.selectedBanner}>
                       <Ionicons name="star" size={11} color={colors.primary} />
-                      <Text style={styles.selectedBannerLabel}>shown on flashcard</Text>
+                      <Text style={styles.selectedBannerLabel}>{t('shown on flashcard')}</Text>
                     </View>
                   ) : (
                     <Pressable
@@ -531,7 +533,7 @@ export default function WordDetailScreen(): JSX.Element {
                       disabled={selectExample.isPending}
                     >
                       <Ionicons name="star-outline" size={11} color={colors.textMuted} />
-                      <Text style={styles.useOnFlashcardLabel}>use on flashcard</Text>
+                      <Text style={styles.useOnFlashcardLabel}>{t('use on flashcard')}</Text>
                     </Pressable>
                   )}
                   <View style={styles.exampleSentenceRow}>
@@ -561,7 +563,7 @@ export default function WordDetailScreen(): JSX.Element {
             <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen((v) => !v)}>
               <Ionicons name="options" size={16} color={colors.primary} />
               <Text style={styles.grammarToggleLabel}>
-                Advanced grammar options{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}
+                {t('Advanced grammar options')}{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}
               </Text>
               <Ionicons name={grammarOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
             </Pressable>
@@ -570,7 +572,7 @@ export default function WordDetailScreen(): JSX.Element {
               <Card style={styles.grammarPanel}>
                 {GRAMMAR_GROUPS.map((group) => (
                   <View key={group.title} style={styles.grammarGroup}>
-                    <Text style={styles.grammarGroupTitle}>{group.title}</Text>
+                    <Text style={styles.grammarGroupTitle}>{t(group.title)}</Text>
                     <View style={styles.chipRow}>
                       {group.options.map((option) => (
                         <Chip
@@ -584,18 +586,18 @@ export default function WordDetailScreen(): JSX.Element {
                   </View>
                 ))}
                 {grammarSelection.length > 0 ? (
-                  <Text style={styles.grammarSummary}>Active: {grammarSelection.join(' + ')}</Text>
+                  <Text style={styles.grammarSummary}>{t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}</Text>
                 ) : null}
                 {tier === 'full' ? (
                   <Button
-                    label={generateExamples.isPending ? 'Generating…' : 'Generate examples'}
+                    label={generateExamples.isPending ? t('Generating…') : t('Generate examples')}
                     icon="sparkles"
                     disabled={generateExamples.isPending}
                     onPress={() => generateExamples.mutate()}
                   />
                 ) : (
                   <Text style={styles.limitedHint}>
-                    Add your OpenAI key in Settings to generate targeted examples.
+                    {t('Add your OpenAI key in Settings to generate targeted examples.')}
                   </Text>
                 )}
                 {generateExamples.isError ? (
@@ -607,7 +609,7 @@ export default function WordDetailScreen(): JSX.Element {
             {/* ── Synonyms ── */}
             {active.synonyms.length > 0 ? (
               <>
-                <SectionHeader title="Synonyms" />
+                <SectionHeader title={t('Synonyms')} />
                 <Card>
                   {active.synonyms.map((syn, i) => (
                     <View key={syn.id} style={[styles.synRow, i > 0 && styles.rowDivider]}>
@@ -636,7 +638,7 @@ export default function WordDetailScreen(): JSX.Element {
         {/* ── Phrases (card-scoped, shown for every cluster) ── */}
         {word.phrases.length > 0 ? (
           <>
-            <SectionHeader title="Phrases & collocations" />
+            <SectionHeader title={t('Phrases & collocations')} />
             {word.phrases.map((phrase) => (
               <Card key={phrase.id} style={styles.phraseCard}>
                 <View style={styles.phraseHeader}>
@@ -654,7 +656,7 @@ export default function WordDetailScreen(): JSX.Element {
         {/* ── Cloze preview ── */}
         {word.clozes.length > 0 ? (
           <>
-            <SectionHeader title={word.clozes.length === 1 ? 'Cloze card' : 'Cloze cards'} />
+            <SectionHeader title={word.clozes.length === 1 ? t('Cloze card') : t('Cloze cards')} />
             {word.clozes.map((cloze) => (
               <Card key={cloze.id} style={styles.clozeCard}>
                 <Text style={styles.clozeSentence}>{cloze.sentence}</Text>
@@ -674,7 +676,7 @@ export default function WordDetailScreen(): JSX.Element {
       {word.card ? (
         <View style={styles.bottomBar}>
           <Button
-            label={addedToDeck ? 'Added ✓ — add to another deck' : 'Add to deck'}
+            label={addedToDeck ? t('Added ✓ — add to another deck') : t('Add to deck')}
             icon="add-circle"
             onPress={() => setDeckPickerOpen(true)}
             style={styles.addButton}
@@ -687,7 +689,7 @@ export default function WordDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setDeckPickerOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>Add "{word.lemma.form}" to…</Text>
+          <Text style={styles.modalTitle}>{t('Add "{{form}}" to…', { form: word.lemma.form })}</Text>
           {decksQuery.isPending ? (
             <Spinner />
           ) : decksQuery.isError ? (
@@ -719,8 +721,8 @@ export default function WordDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setEditOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>Edit this card</Text>
-          <Text style={styles.editLabel}>Meaning</Text>
+          <Text style={styles.modalTitle}>{t('Edit this card')}</Text>
+          <Text style={styles.editLabel}>{t('Meaning')}</Text>
           <TextInput
             style={styles.editInput}
             value={editMeaning}
@@ -729,7 +731,7 @@ export default function WordDetailScreen(): JSX.Element {
             autoCapitalize="none"
             autoCorrect={false}
           />
-          <Text style={styles.editLabel}>Example sentence</Text>
+          <Text style={styles.editLabel}>{t('Example sentence')}</Text>
           <TextInput
             style={styles.editInput}
             value={editExample}
@@ -738,7 +740,7 @@ export default function WordDetailScreen(): JSX.Element {
             autoCapitalize="none"
             autoCorrect={false}
           />
-          <Text style={styles.editLabel}>Example translation</Text>
+          <Text style={styles.editLabel}>{t('Example translation')}</Text>
           <TextInput
             style={styles.editInput}
             value={editTranslation}
@@ -749,9 +751,9 @@ export default function WordDetailScreen(): JSX.Element {
           />
           {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
           <View style={styles.reportActions}>
-            <Button label="Cancel" variant="ghost" onPress={() => setEditOpen(false)} />
+            <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
             <Button
-              label={saveEdit.isPending ? 'Saving…' : 'Save changes'}
+              label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
               icon="save"
               onPress={() => saveEdit.mutate()}
               disabled={saveEdit.isPending}
@@ -770,12 +772,12 @@ export default function WordDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setReportTarget(null)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>What's wrong with this?</Text>
+          <Text style={styles.modalTitle}>{t("What's wrong with this?")}</Text>
           <View style={styles.chipRow}>
             {REPORT_REASONS.map((r) => (
               <Chip
                 key={r.value}
-                label={r.label}
+                label={t(r.label)}
                 selected={reportReason === r.value}
                 onPress={() => setReportReason(r.value)}
               />
@@ -783,7 +785,7 @@ export default function WordDetailScreen(): JSX.Element {
           </View>
           <TextInput
             style={styles.reportNoteInput}
-            placeholder="Optional details…"
+            placeholder={t('Optional details…')}
             placeholderTextColor={colors.textMuted}
             multiline
             value={reportNote}
@@ -791,9 +793,9 @@ export default function WordDetailScreen(): JSX.Element {
           />
           {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
           <View style={styles.reportActions}>
-            <Button label="Cancel" variant="ghost" onPress={() => setReportTarget(null)} />
+            <Button label={t('Cancel')} variant="ghost" onPress={() => setReportTarget(null)} />
             <Button
-              label={report.isPending ? 'Sending…' : 'Send report'}
+              label={report.isPending ? t('Sending…') : t('Send report')}
               disabled={reportReason === null || report.isPending}
               onPress={() =>
                 reportTarget &&

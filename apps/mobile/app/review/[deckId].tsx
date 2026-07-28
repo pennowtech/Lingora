@@ -21,6 +21,7 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -90,6 +91,7 @@ function SwipeableCard(props: {
   onSwipeRating: (rating: ReviewRating) => void
   children: ReactNode
 }): JSX.Element {
+  const { t } = useTranslation()
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
 
@@ -152,7 +154,7 @@ function SwipeableCard(props: {
             goodBadge,
           ]}
         >
-          GOOD
+          {t('GOOD')}
         </Animated.Text>
         <Animated.Text
           style={[
@@ -162,7 +164,7 @@ function SwipeableCard(props: {
             againBadge,
           ]}
         >
-          AGAIN
+          {t('AGAIN')}
         </Animated.Text>
         <Animated.Text
           style={[
@@ -172,7 +174,7 @@ function SwipeableCard(props: {
             easyBadge,
           ]}
         >
-          EASY
+          {t('EASY')}
         </Animated.Text>
         <Animated.Text
           style={[
@@ -182,7 +184,7 @@ function SwipeableCard(props: {
             hardBadge,
           ]}
         >
-          HARD
+          {t('HARD')}
         </Animated.Text>
         {props.children}
       </Animated.View>
@@ -307,6 +309,7 @@ function formatTimeRemaining(remainingCards: number, avgMsPerCard: number): stri
 export default function ReviewSessionScreen(): JSX.Element {
   const params = useLocalSearchParams<{ deckId: string; mode?: string }>()
   const { db, ai, tier, defaultCefr } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const clozeOnly = params.mode === 'cloze'
 
@@ -361,7 +364,7 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const rate = useMutation({
     mutationFn: async (rating: ReviewRating) => {
-      if (!view) throw new Error('No card to rate.')
+      if (!view) throw new Error(t('No card to rate.'))
       const now = Date.now()
       const newState = schedule(view.cardState, rating, now)
       await recordReview(
@@ -388,7 +391,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.rating_failed', error, { message: 'Recording a review rating failed' })
-      Alert.alert('Could not save your rating', String(error))
+      Alert.alert(t('Could not save your rating'), String(error))
     },
   })
 
@@ -402,7 +405,7 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const saveEdit = useMutation({
     mutationFn: async () => {
-      if (!view) throw new Error('No card to edit.')
+      if (!view) throw new Error(t('No card to edit.'))
       await Promise.all([
         view.meaningId ? updateMeaningText(db, view.meaningId, editMeaning, view.explanation ?? '') : Promise.resolve(),
         view.exampleId ? updateExampleText(db, view.exampleId, editExample, editTranslation) : Promise.resolve(),
@@ -414,7 +417,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.card_edit_failed', error, { message: 'Saving a manual card edit failed' })
-      Alert.alert('Could not save your changes', String(error))
+      Alert.alert(t('Could not save your changes'), String(error))
     },
   })
 
@@ -423,8 +426,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   // meaning has none yet and an AI provider is configured.
   const generateExplanation = useMutation({
     mutationFn: async () => {
-      if (!ai) throw new Error('Add your AI provider key in Settings to generate an explanation.')
-      if (!view?.meaningId || !view.clusterRef) throw new Error('This word has no meaning yet.')
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
+      if (!view?.meaningId || !view.clusterRef) throw new Error(t('This word has no meaning yet.'))
       const result = await ai.generateMeaning(view.form, view.clusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
@@ -433,7 +436,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       await updateMeaningText(db, view.meaningId, view.meaning ?? '', explanation)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
-    onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
   })
 
   // Checked before AI generation: a bulk-installed, pre-generated dictionary
@@ -444,7 +447,7 @@ export default function ReviewSessionScreen(): JSX.Element {
   // one is, so it's only looked up once per word.
   const explainFromDictionary = useMutation({
     mutationFn: async () => {
-      if (!view?.meaningId) throw new Error('This word has no meaning yet.')
+      if (!view?.meaningId) throw new Error(t('This word has no meaning yet.'))
       const guide = await getWordGuide(db, view.form, view.language)
       if (!guide) return null
       await updateMeaningText(db, view.meaningId, view.meaning ?? '', guide.intro)
@@ -457,14 +460,14 @@ export default function ReviewSessionScreen(): JSX.Element {
       }
       if (tier !== 'full') {
         Alert.alert(
-          'AI not configured',
-          'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+          t('AI not configured'),
+          t('Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.'),
         )
         return
       }
       generateExplanation.mutate()
     },
-    onError: (error: unknown) => Alert.alert('Could not look up an explanation', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
   })
 
   const handleExplain = (): void => {
@@ -553,7 +556,7 @@ export default function ReviewSessionScreen(): JSX.Element {
         </View>
         {isCloze ? (
           <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>cloze</Text>
+            <Text style={styles.modePillLabel}>{t('cloze')}</Text>
           </View>
         ) : null}
         <Text style={styles.counter}>
@@ -566,15 +569,15 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.doneWrap}>
           <EmptyState
             icon={queue.length === 0 ? 'checkmark-done' : 'trophy'}
-            title={queue.length === 0 ? 'Nothing due right now' : 'Session complete!'}
+            title={queue.length === 0 ? t('Nothing due right now') : t('Session complete!')}
             message={
               queue.length === 0
-                ? "This deck has no cards due for review. Add words or check back later."
-                : `You reviewed ${queue.length} cards. Great work — come back when the next cards are due.`
+                ? t('This deck has no cards due for review. Add words or check back later.')
+                : t('You reviewed {{count}} cards. Great work — come back when the next cards are due.', { count: queue.length })
             }
           />
           <Pressable style={styles.doneButton} onPress={() => router.back()}>
-            <Text style={styles.doneButtonLabel}>Back to deck</Text>
+            <Text style={styles.doneButtonLabel}>{t('Back to deck')}</Text>
           </Pressable>
         </View>
       ) : (
@@ -617,8 +620,8 @@ export default function ReviewSessionScreen(): JSX.Element {
                   {explainVisible ? (
                     <Text style={styles.explanationText}>
                       {explainFromDictionary.isPending || generateExplanation.isPending
-                        ? 'Generating…'
-                        : (view.explanation ?? '') || 'No explanation yet.'}
+                        ? t('Generating…')
+                        : (view.explanation ?? '') || t('No explanation yet.')}
                     </Text>
                   ) : null}
                   <CardActionBar
@@ -637,7 +640,7 @@ export default function ReviewSessionScreen(): JSX.Element {
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
               <View style={styles.templateFrontWrap}>
                 <CardRenderer html={frontHtml} />
-                <Text style={styles.tapHint}>tap to reveal</Text>
+                <Text style={styles.tapHint}>{t('tap to reveal')}</Text>
               </View>
             </Pressable>
           )}
@@ -654,7 +657,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                     onPress={() => rate.mutate(rating)}
                     disabled={rate.isPending}
                   >
-                    <Text style={[styles.ratingLabel, { color: ratingColors[rating].fg }]}>{label}</Text>
+                    <Text style={[styles.ratingLabel, { color: ratingColors[rating].fg }]}>{t(label)}</Text>
                     <Text style={[styles.ratingInterval, { color: ratingColors[rating].fg }]}>
                       {formatInterval(Date.now(), preview.nextReviewAt)}
                     </Text>
@@ -674,10 +677,10 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.editBackdrop}>
           <View style={styles.editSheet}>
             <View style={styles.editHeader}>
-              <Text style={styles.editTitle}>Edit this card</Text>
+              <Text style={styles.editTitle}>{t('Edit this card')}</Text>
               <IconButton icon="close" onPress={() => setEditOpen(false)} />
             </View>
-            <Text style={styles.editLabel}>Meaning</Text>
+            <Text style={styles.editLabel}>{t('Meaning')}</Text>
             <TextInput
               style={styles.editInput}
               value={editMeaning}
@@ -686,7 +689,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <Text style={styles.editLabel}>Example sentence</Text>
+            <Text style={styles.editLabel}>{t('Example sentence')}</Text>
             <TextInput
               style={styles.editInput}
               value={editExample}
@@ -695,7 +698,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <Text style={styles.editLabel}>Example translation</Text>
+            <Text style={styles.editLabel}>{t('Example translation')}</Text>
             <TextInput
               style={styles.editInput}
               value={editTranslation}
@@ -705,13 +708,17 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCorrect={false}
             />
             <Text style={styles.editHint}>
-              Basic inline HTML works too — {'<b>bold</b>'}, {'<i>italic</i>'}, {'<span style="color:#D64545">red</span>'}.
+              {t('Basic inline HTML works too — {{bold}}, {{italic}}, {{colored}}.', {
+                bold: '<b>bold</b>',
+                italic: '<i>italic</i>',
+                colored: '<span style="color:#D64545">red</span>',
+              })}
             </Text>
             {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
             <View style={styles.editActions}>
-              <Button label="Cancel" variant="ghost" onPress={() => setEditOpen(false)} />
+              <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
-                label={saveEdit.isPending ? 'Saving…' : 'Save changes'}
+                label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
                 icon="save"
                 onPress={() => saveEdit.mutate()}
                 disabled={saveEdit.isPending}

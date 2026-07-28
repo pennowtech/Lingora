@@ -13,6 +13,7 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useRef, useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
 import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, ProgressBar, Spinner } from '../../components/ui'
 import { pickAndParseApkgFile } from '../../lib/apkg'
@@ -84,6 +85,7 @@ type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
  */
 export default function ApkgImportScreen(): JSX.Element {
   const { db } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
 
@@ -112,7 +114,7 @@ export default function ApkgImportScreen(): JSX.Element {
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
       const trimmed = name.trim()
-      if (trimmed === '') throw new Error('Give the deck a name.')
+      if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
@@ -144,7 +146,7 @@ export default function ApkgImportScreen(): JSX.Element {
   const fieldIndices = Array.from({ length: fieldCount }, (_, i) => i)
   const fieldChipLabel = (index: number): string => {
     const name = dominantType?.fieldNames[index]
-    return name && name.length > 0 ? name : `Field ${index + 1}`
+    return name && name.length > 0 ? name : t('Field {{n}}', { n: index + 1 })
   }
 
   // A word field is no longer strictly required — a Cloze note can map only
@@ -159,7 +161,7 @@ export default function ApkgImportScreen(): JSX.Element {
       .then((picked) => {
         if (!picked) return
         if (picked.notes.length === 0) {
-          setPickError('This collection has no notes to import.')
+          setPickError(t('This collection has no notes to import.'))
           return
         }
         setFileName(picked.fileName)
@@ -201,7 +203,7 @@ export default function ApkgImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.apkg_preview_failed', error, { message: 'Building Anki import preview failed' })
-        Alert.alert('Could not read this collection', String(error))
+        Alert.alert(t('Could not read this collection'), String(error))
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -266,7 +268,7 @@ export default function ApkgImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.apkg_import_failed', error, { message: 'Anki import failed' })
-        Alert.alert('Import failed', String(error))
+        Alert.alert(t('Import failed'), String(error))
         setStep('preview')
       })
   }
@@ -290,12 +292,12 @@ export default function ApkgImportScreen(): JSX.Element {
       <View style={styles.container}>
         <View style={styles.previewHeaderArea}>
           <Card style={styles.card}>
-            <Text style={styles.title}>Preview</Text>
+            <Text style={styles.title}>{t('Preview')}</Text>
             <View style={styles.summaryRow}>
-              <SummaryStat label="Will import" value={willImportCount} color={colors.success} />
-              <SummaryStat label="Duplicates" value={counts.duplicate} color={colors.warning} />
-              <SummaryStat label="Errors" value={counts.error} color={colors.danger} />
-              <SummaryStat label="Selected" value={checkedCount} color={colors.primary} />
+              <SummaryStat label={t('Will import')} value={willImportCount} color={colors.success} />
+              <SummaryStat label={t('Duplicates')} value={counts.duplicate} color={colors.warning} />
+              <SummaryStat label={t('Errors')} value={counts.error} color={colors.danger} />
+              <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
         </View>
@@ -316,7 +318,7 @@ export default function ApkgImportScreen(): JSX.Element {
               </Pressable>
               {TABLE_COLUMNS.map((col) => (
                 <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
-                  {col.label}
+                  {t(col.label)}
                 </Text>
               ))}
             </View>
@@ -359,9 +361,9 @@ export default function ApkgImportScreen(): JSX.Element {
         </ScrollView>
 
         <View style={styles.actions}>
-          <Button label="Back" variant="ghost" onPress={() => setStep('map')} />
+          <Button label={t('Back')} variant="ghost" onPress={() => setStep('map')} />
           <Button
-            label={`Import ${checkedCount.toLocaleString()} row${checkedCount === 1 ? '' : 's'}`}
+            label={t('Import {{count}} rows', { count: checkedCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
@@ -374,12 +376,11 @@ export default function ApkgImportScreen(): JSX.Element {
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {step === 'pick' ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>Import from Anki</Text>
+          <Text style={styles.title}>{t('Import from Anki')}</Text>
           <Text style={styles.body}>
-            Choose a `.apkg` export. Review history isn't imported — every card starts fresh — and
-            media (audio/images) is stripped rather than copied.
+            {t("Choose a `.apkg` export. Review history isn't imported — every card starts fresh — and media (audio/images) is stripped rather than copied.")}
           </Text>
-          <Button label="Choose .apkg file" icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose .apkg file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -389,15 +390,16 @@ export default function ApkgImportScreen(): JSX.Element {
           <Card style={styles.card}>
             <Text style={styles.title}>{fileName}</Text>
             <Text style={styles.body}>
-              {notes.length.toLocaleString()} notes across {Math.max(decks.length, 1)} deck
-              {decks.length === 1 ? '' : 's'}. Map each field below — it applies to every note, so a
-              note type without that many fields just leaves it empty.
+              {t('{{notes}} notes across {{decks}} decks. Map each field below — it applies to every note, so a note type without that many fields just leaves it empty.', {
+                notes: notes.length.toLocaleString(),
+                decks: Math.max(decks.length, 1),
+              })}
             </Text>
           </Card>
 
           <Card style={[styles.card, styles.samplePreviewCard]}>
-            <Text style={styles.fieldLabel}>Sample data</Text>
-            <Text style={styles.hint}>The first few notes, so you can see what each field actually holds.</Text>
+            <Text style={styles.fieldLabel}>{t('Sample data')}</Text>
+            <Text style={styles.hint}>{t('The first few notes, so you can see what each field actually holds.')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator>
               <View>
                 <View style={styles.tableHeaderRow}>
@@ -425,17 +427,16 @@ export default function ApkgImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Field mapping</Text>
+            <Text style={styles.fieldLabel}>{t('Field mapping')}</Text>
             <Text style={styles.hint}>
-              Everything is optional. Leave Word/Meaning unmapped for Cloze notes — they're derived
-              from the example's cloze markup and its translation.
+              {t("Everything is optional. Leave Word/Meaning unmapped for Cloze notes — they're derived from the example's cloze markup and its translation.")}
             </Text>
             {ALL_FIELDS.map((fieldName) => (
               <View key={fieldName} style={styles.mappingRow}>
-                <Text style={styles.mappingLabel}>{FIELD_LABELS[fieldName]}</Text>
+                <Text style={styles.mappingLabel}>{fieldName === 'cloze' ? FIELD_LABELS[fieldName] : t(FIELD_LABELS[fieldName])}</Text>
                 <Dropdown
-                  label={FIELD_LABELS[fieldName]}
-                  placeholder="None"
+                  label={fieldName === 'cloze' ? FIELD_LABELS[fieldName] : t(FIELD_LABELS[fieldName])}
+                  placeholder={t('None')}
                   clearable
                   value={mapping[fieldName] !== undefined ? String(mapping[fieldName]) : null}
                   onChange={(v) => setField(fieldName, v === null ? null : Number(v))}
@@ -446,7 +447,7 @@ export default function ApkgImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>Import into deck</Text>
+            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
             {decksQuery.isPending ? (
               <Spinner />
             ) : decksQuery.isError ? (
@@ -456,31 +457,31 @@ export default function ApkgImportScreen(): JSX.Element {
                 {(decksQuery.data ?? []).map((deck) => (
                   <Chip key={deck.id} label={deck.name} selected={deckId === deck.id} onPress={() => setDeckId(deck.id)} />
                 ))}
-                <Chip label="+ New deck" onPress={() => setNewDeckOpen(true)} />
+                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
               </View>
             )}
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>If the word already exists</Text>
-            <Text style={styles.hint}>Applies to every duplicate row you leave checked in the next step.</Text>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip
                   key={policy.value}
-                  label={policy.label}
+                  label={t(policy.label)}
                   selected={duplicatePolicy === policy.value}
                   onPress={() => setDuplicatePolicy(policy.value)}
                 />
               ))}
             </View>
-            <Text style={styles.hint}>{DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint}</Text>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
           </Card>
 
           <View style={styles.actions}>
-            <Button label="Back" variant="ghost" onPress={handleStartOver} />
+            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
-              label={previewLoading ? 'Checking…' : 'Preview import'}
+              label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!canBuildPreview || previewLoading}
             />
@@ -490,13 +491,13 @@ export default function ApkgImportScreen(): JSX.Element {
 
       {step === 'importing' && progress ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>Importing…</Text>
+          <Text style={styles.title}>{t('Importing…')}</Text>
           <Text style={styles.body}>
-            {progress.done.toLocaleString()} of {progress.total.toLocaleString()} notes
+            {t('{{done}} of {{total}} notes', { done: progress.done.toLocaleString(), total: progress.total.toLocaleString() })}
           </Text>
           <ProgressBar progress={progress.total > 0 ? progress.done / progress.total : 0} />
           <Button
-            label="Cancel"
+            label={t('Cancel')}
             variant="ghost"
             onPress={() => {
               cancelRequested.current = true
@@ -509,15 +510,15 @@ export default function ApkgImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <EmptyState
             icon="checkmark-circle"
-            title={result.cancelled ? 'Import canceled' : 'Import complete'}
-            message={`Imported ${result.imported.toLocaleString()} words.${result.cancelled ? ' The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).' : ''}`}
+            title={result.cancelled ? t('Import canceled') : t('Import complete')}
+            message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
           />
           <View style={styles.summaryRow}>
-            <SummaryStat label="Imported" value={result.imported} color={colors.success} />
-            <SummaryStat label="Skipped" value={result.skipped} color={colors.warning} />
-            <SummaryStat label="Failed" value={result.failed} color={colors.danger} />
+            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+            <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
           </View>
-          <Button label="Import another file" variant="secondary" onPress={handleStartOver} />
+          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
         </Card>
       ) : null}
 
@@ -526,10 +527,10 @@ export default function ApkgImportScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>New deck</Text>
+          <Text style={styles.modalTitle}>{t('New deck')}</Text>
           <TextInput
             style={styles.inputField}
-            placeholder="Deck name"
+            placeholder={t('Deck name')}
             placeholderTextColor={colors.textMuted}
             value={newDeckName}
             onChangeText={setNewDeckName}
@@ -537,7 +538,7 @@ export default function ApkgImportScreen(): JSX.Element {
           />
           {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
           <Button
-            label={createNewDeck.isPending ? 'Creating…' : 'Create & select'}
+            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
             icon="add"
             disabled={createNewDeck.isPending}
             onPress={() => createNewDeck.mutate(newDeckName)}

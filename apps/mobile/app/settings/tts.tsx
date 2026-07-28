@@ -2,6 +2,7 @@ import type { LanguageCode } from '@lingora/types'
 import { VoiceQuality, type Voice } from 'expo-speech'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Button, Card, Chip, Dropdown, SectionHeader, Spinner } from '../../components/ui'
 import { speak } from '../../lib/speech'
@@ -29,6 +30,7 @@ const SAMPLE_TEXT = 'Ich habe viel über die Kultur erfahren.'
  * app (word detail, review session) reads these at speak-time.
  */
 export default function TtsSettingsScreen(): JSX.Element {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [testing, setTesting] = useState(false)
 
@@ -72,7 +74,7 @@ export default function TtsSettingsScreen(): JSX.Element {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      <SectionHeader title="Speaking rate" />
+      <SectionHeader title={t('Speaking rate')} />
       <Card>
         <View style={styles.chipRow}>
           {RATE_OPTIONS.map((rate) => (
@@ -86,13 +88,13 @@ export default function TtsSettingsScreen(): JSX.Element {
         </View>
       </Card>
 
-      <SectionHeader title="Pitch" />
+      <SectionHeader title={t('Pitch')} />
       <Card>
         <View style={styles.chipRow}>
           {PITCH_OPTIONS.map((pitch) => (
             <Chip
               key={pitch}
-              label={pitch === 1.0 ? 'Normal' : `${pitch}×`}
+              label={pitch === 1.0 ? t('Normal') : `${pitch}×`}
               selected={settings.pitch === pitch}
               onPress={() => handlePitch(pitch)}
             />
@@ -100,29 +102,28 @@ export default function TtsSettingsScreen(): JSX.Element {
         </View>
       </Card>
 
-      <SectionHeader title="Voice (German)" />
+      <SectionHeader title={t('Voice (German)')} />
       <Card>
         {voicesQuery.isPending ? (
           <Spinner />
         ) : voices.length === 0 ? (
-          <Text style={styles.hint}>No German voices are installed on this device.</Text>
+          <Text style={styles.hint}>{t('No German voices are installed on this device.')}</Text>
         ) : (
           <Dropdown
-            placeholder="Device default"
+            placeholder={t('Device default')}
             clearable
             value={settings.voice}
             onChange={handleVoice}
-            options={voices.map((v) => ({ label: `${v.name}${v.quality === VoiceQuality.Enhanced ? ' (Enhanced)' : ''}`, value: v.identifier }))}
+            options={voices.map((v) => ({ label: `${v.name}${v.quality === VoiceQuality.Enhanced ? ` (${t('Enhanced')})` : ''}`, value: v.identifier }))}
           />
         )}
         <Text style={styles.hint}>
-          Voices come from the device's own text-to-speech engine — install more from your phone's
-          system settings if you don't see the one you want.
+          {t("Voices come from the device's own text-to-speech engine — install more from your phone's system settings if you don't see the one you want.")}
         </Text>
       </Card>
 
       <Button
-        label={testing ? 'Playing…' : 'Test'}
+        label={testing ? t('Playing…') : t('Test')}
         icon="volume-high"
         variant="secondary"
         onPress={handleTest}

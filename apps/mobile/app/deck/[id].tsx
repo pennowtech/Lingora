@@ -17,6 +17,7 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   Button,
@@ -61,6 +62,7 @@ async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
 export default function DeckDetailScreen(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { db } = useServices()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
   const [importSheetOpen, setImportSheetOpen] = useState(false)
@@ -87,7 +89,7 @@ export default function DeckDetailScreen(): JSX.Element {
   const rename = useMutation({
     mutationFn: async () => {
       const name = renameValue.trim()
-      if (name === '') throw new Error('Give the deck a name.')
+      if (name === '') throw new Error(t('Give the deck a name.'))
       await renameDeck(db, id, name)
     },
     onSuccess: async () => {
@@ -103,17 +105,17 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.back()
     },
-    onError: (error: unknown) => Alert.alert('Could not delete deck', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not delete deck'), String(error)),
   })
 
   const confirmDelete = (): void => {
     setMenuOpen(false)
     Alert.alert(
-      'Delete deck?',
-      'Cards that are only in this deck are deleted with it. Cards in other decks stay there.',
+      t('Delete deck?'),
+      t('Cards that are only in this deck are deleted with it. Cards in other decks stay there.'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => remove.mutate() },
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Delete'), style: 'destructive', onPress: () => remove.mutate() },
       ],
     )
   }
@@ -125,7 +127,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['deck', id] })
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
     },
-    onError: (error: unknown) => Alert.alert('Could not move deck', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not move deck'), String(error)),
   })
 
   const merge = useMutation({
@@ -135,7 +137,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.back()
     },
-    onError: (error: unknown) => Alert.alert('Could not merge deck', String(error)),
+    onError: (error: unknown) => Alert.alert(t('Could not merge deck'), String(error)),
   })
 
   const showMove = (): void => {
@@ -155,11 +157,14 @@ export default function DeckDetailScreen(): JSX.Element {
     }
     if (pickerMode === 'merge') {
       Alert.alert(
-        `Merge into "${target.name}"?`,
-        `This deletes "${deckQuery.data?.deck.name ?? 'this deck'}" and moves all its cards into "${target.name}". This cannot be undone.`,
+        t('Merge into "{{name}}"?', { name: target.name }),
+        t('This deletes "{{source}}" and moves all its cards into "{{target}}". This cannot be undone.', {
+          source: deckQuery.data?.deck.name ?? t('this deck'),
+          target: target.name,
+        }),
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Merge', style: 'destructive', onPress: () => merge.mutate(target.id) },
+          { text: t('Cancel'), style: 'cancel' },
+          { text: t('Merge'), style: 'destructive', onPress: () => merge.mutate(target.id) },
         ],
       )
     }
@@ -183,13 +188,13 @@ export default function DeckDetailScreen(): JSX.Element {
     runExport(db, format, { deckId: id, deckName: deckQuery.data.deck.name })
       .then(({ itemCount, outcome }) =>
         Alert.alert(
-          'Export ready',
-          `Exported ${itemCount.toLocaleString()} cards.${outcome === 'device' ? ' Saved to the folder you chose.' : ' Choose where to save it.'}`,
+          t('Export ready'),
+          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
         ),
       )
       .catch((error: unknown) => {
         log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
-        Alert.alert('Export failed', String(error))
+        Alert.alert(t('Export failed'), String(error))
       })
   }
 
@@ -206,7 +211,7 @@ export default function DeckDetailScreen(): JSX.Element {
   if (deckQuery.isPending) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Deck' }} />
+        <Stack.Screen options={{ title: t('Deck') }} />
         <Spinner />
       </>
     )
@@ -215,9 +220,9 @@ export default function DeckDetailScreen(): JSX.Element {
   if (deckQuery.isError || !deckQuery.data) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Deck' }} />
+        <Stack.Screen options={{ title: t('Deck') }} />
         <ErrorState
-          message={deckQuery.isError ? String(deckQuery.error) : 'This deck no longer exists.'}
+          message={deckQuery.isError ? String(deckQuery.error) : t('This deck no longer exists.')}
           {...(deckQuery.isError && { onRetry: () => void deckQuery.refetch() })}
         />
       </>
@@ -243,28 +248,28 @@ export default function DeckDetailScreen(): JSX.Element {
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
             <Text style={styles.statValue}>{cardCount}</Text>
-            <Text style={styles.statLabel}>cards</Text>
+            <Text style={styles.statLabel}>{t('cards')}</Text>
           </Card>
           <Card style={styles.statCard}>
             <Text style={[styles.statValue, { color: colors.primary }]}>{dueCount}</Text>
-            <Text style={styles.statLabel}>due now</Text>
+            <Text style={styles.statLabel}>{t('due now')}</Text>
           </Card>
           <Card style={styles.statCard}>
             <Text style={[styles.statValue, { color: colors.success }]}>
               {Math.round(retention * 100)}%
             </Text>
-            <Text style={styles.statLabel}>retention</Text>
+            <Text style={styles.statLabel}>{t('retention')}</Text>
           </Card>
         </View>
 
         <Button
-          label={dueCount > 0 ? `Review ${dueCount} due cards` : 'Nothing due — study ahead'}
+          label={dueCount > 0 ? t('Review {{count}} due cards', { count: dueCount }) : t('Nothing due — study ahead')}
           icon="play"
           onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
           style={styles.reviewButton}
         />
         <Button
-          label="Practice cloze"
+          label={t('Practice cloze')}
           icon="create-outline"
           variant="secondary"
           onPress={() =>
@@ -273,7 +278,7 @@ export default function DeckDetailScreen(): JSX.Element {
           style={styles.clozeButton}
         />
 
-        <SectionHeader title="Cards" />
+        <SectionHeader title={t('Cards')} />
         {cards.map((card) => (
           <Card
             key={card.cardId}
@@ -296,7 +301,7 @@ export default function DeckDetailScreen(): JSX.Element {
           </Card>
         ))}
         {cards.length === 0 ? (
-          <Text style={styles.footnote}>No cards yet — add words from Search.</Text>
+          <Text style={styles.footnote}>{t('No cards yet — add words from Search.')}</Text>
         ) : null}
       </ScrollView>
 
@@ -305,10 +310,10 @@ export default function DeckDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Button label="Import into this deck" icon="download" variant="secondary" onPress={showImport} />
-          <Button label="Export this deck" icon="cloud-download" variant="secondary" onPress={showExport} />
+          <Button label={t('Import into this deck')} icon="download" variant="secondary" onPress={showImport} />
+          <Button label={t('Export this deck')} icon="cloud-download" variant="secondary" onPress={showExport} />
           <Button
-            label="Rename deck"
+            label={t('Rename deck')}
             icon="pencil"
             variant="secondary"
             onPress={() => {
@@ -317,10 +322,10 @@ export default function DeckDetailScreen(): JSX.Element {
               setRenameOpen(true)
             }}
           />
-          <Button label="Move to…" icon="folder-open-outline" variant="secondary" onPress={showMove} />
-          <Button label="Merge into…" icon="git-merge-outline" variant="secondary" onPress={showMerge} />
+          <Button label={t('Move to…')} icon="folder-open-outline" variant="secondary" onPress={showMove} />
+          <Button label={t('Merge into…')} icon="git-merge-outline" variant="secondary" onPress={showMerge} />
           <Button
-            label={remove.isPending ? 'Deleting…' : 'Delete deck'}
+            label={remove.isPending ? t('Deleting…') : t('Delete deck')}
             icon="trash"
             variant="danger"
             onPress={confirmDelete}
@@ -334,7 +339,7 @@ export default function DeckDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setRenameOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>Rename deck</Text>
+          <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
           <TextInput
             style={styles.inputField}
             value={renameValue}
@@ -343,7 +348,7 @@ export default function DeckDetailScreen(): JSX.Element {
           />
           {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
           <Button
-            label={rename.isPending ? 'Saving…' : 'Save'}
+            label={rename.isPending ? t('Saving…') : t('Save')}
             disabled={rename.isPending}
             onPress={() => rename.mutate()}
           />
@@ -356,7 +361,9 @@ export default function DeckDetailScreen(): JSX.Element {
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>
-            {pickerMode === 'move' ? `Move "${deck.name}" to…` : `Merge "${deck.name}" into…`}
+            {pickerMode === 'move'
+              ? t('Move "{{name}}" to…', { name: deck.name })
+              : t('Merge "{{name}}" into…', { name: deck.name })}
           </Text>
           {pickerMode === 'move' ? (
             <Pressable
@@ -365,7 +372,7 @@ export default function DeckDetailScreen(): JSX.Element {
               disabled={move.isPending || deck.parentId === undefined}
             >
               <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
-              <Text style={styles.deckRowLabel}>Top level (no parent)</Text>
+              <Text style={styles.deckRowLabel}>{t('Top level (no parent)')}</Text>
             </Pressable>
           ) : null}
           {allDecksQuery.isPending ? (
@@ -375,8 +382,8 @@ export default function DeckDetailScreen(): JSX.Element {
           ) : pickerTargets.length === 0 ? (
             <Text style={styles.hint}>
               {pickerMode === 'move'
-                ? 'No other deck to nest this one under.'
-                : 'No other deck to merge into.'}
+                ? t('No other deck to nest this one under.')
+                : t('No other deck to merge into.')}
             </Text>
           ) : (
             pickerTargets.map((target) => (
@@ -400,14 +407,14 @@ export default function DeckDetailScreen(): JSX.Element {
         visible={importSheetOpen}
         onClose={() => setImportSheetOpen(false)}
         onSelect={handleImportSelect}
-        title={`Import into "${deck.name}"`}
+        title={t('Import into "{{name}}"', { name: deck.name })}
       />
 
       <ExportFormatSheet
         visible={exportSheetOpen}
         onClose={() => setExportSheetOpen(false)}
         onSelect={handleExportSelect}
-        title={`Export "${deck.name}"`}
+        title={t('Export "{{name}}"', { name: deck.name })}
       />
     </>
   )

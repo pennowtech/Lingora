@@ -149,9 +149,47 @@ or via a deck's own `⋮` → Import → Lingora (.lin).
       Import → Lingora (.lin) option pre-selects that deck as the import
       target; the Settings-launched import does not pre-select any deck.
 
-## Work package 6 — deck move/merge + final acceptance (not started)
+## Work package 6 — deck move/merge (not yet AVD-verified)
 
-Not yet implemented. Expect: `moveDeck` reachable from the deck detail
-action menu, a merge decision (implemented or explicitly deferred), and a
-full cold-start AVD pass across every Phase 5 screen before calling Phase 5
-done.
+Test from both entry points — deck detail's `⋮` menu (`deck/[id].tsx`) and
+the Decks tab's per-deck `⋮` menu (`(tabs)/decks.tsx`) — since the logic is
+duplicated across two screens (each with its own state) and only the
+descendant-exclusion helper (`lib/deckTree.ts`) is shared.
+
+- [ ] **Move — top level**: "Move to…" → "Top level (no parent)" on a
+      nested deck un-nests it; the option is disabled (or absent) on a deck
+      already at top level.
+- [ ] **Move — into another deck**: picking a deck re-parents it there;
+      confirm the deck tree (indentation on the Decks tab) reflects the new
+      nesting immediately.
+- [ ] **Move — cycle prevention**: a deck with children does **not** show
+      itself or any of its own descendants as a valid move target.
+- [ ] **Merge — basic**: "Merge into…" → pick a target → confirm the
+      destructive-action alert names both decks → after merging, the source
+      deck is gone from the deck list and its cards now appear in the
+      target deck with their content/review-history intact (open a merged
+      card and check it reviews normally).
+- [ ] **Merge — overlapping cards**: if a card was already in both decks
+      before merging, it appears exactly once in the target afterward (not
+      duplicated).
+- [ ] **Merge — nested source**: merging a deck that has its own child
+      deck(s) re-parents those children onto the target instead of
+      orphaning or deleting them.
+- [ ] **Merge — cycle prevention**: same as move, a deck cannot be merged
+      into itself or one of its own descendants.
+- [ ] **Regression**: rename/delete/import/export still work from both
+      `⋮` menus after this change.
+
+## Phase 5 final acceptance pass (not started)
+
+The last item before Phase 5 as a whole can be marked done — do this after
+every section above is checked:
+
+- [ ] **AVD cold start**: fresh app launch shows no Scudo/SIGABRT/unresolved-
+      module/fatal error (matching the Phase 4 acceptance bar).
+- [ ] **Full walkthrough on a real seeded deck**: look up/import words →
+      review a session (ratings, swipe gestures, cloze mode) → check Stats
+      reflects that session (retention, streak, heatmap, growth, difficult
+      words) → move/merge a deck → export and re-import a `.lin` file —
+      one continuous pass with no crashes or stale data anywhere in that
+      chain.

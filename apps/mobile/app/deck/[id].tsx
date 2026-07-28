@@ -1,11 +1,15 @@
 import { Ionicons } from '@expo/vector-icons'
+import type { Deck } from '@lingora/types'
 import {
   deleteDeck,
+  getAllDecks,
   getCardCountForDeck,
   getCardsForDeck,
   getDeckById,
   getDueCardsCount,
   getRetentionRate,
+  mergeDecks,
+  moveDeck,
   renameDeck,
   type DatabaseAdapter,
 } from '@lingora/database'
@@ -26,6 +30,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
+import { collectDescendantIds } from '../../lib/deckTree'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -62,11 +67,21 @@ export default function DeckDetailScreen(): JSX.Element {
   const [exportSheetOpen, setExportSheetOpen] = useState(false)
   const [renameOpen, setRenameOpen] = useState(false)
   const [renameValue, setRenameValue] = useState('')
+  // 'move' re-parents this deck (nesting); 'merge' folds this deck's cards
+  // into another deck and deletes this one. Both share one deck-picker
+  // modal, distinguished by this mode.
+  const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
 
   const deckQuery = useQuery({
     queryKey: ['deck', id],
     queryFn: () => loadDeckDetail(db, id ?? ''),
     enabled: (id ?? '') !== '',
+  })
+
+  const allDecksQuery = useQuery({
+    queryKey: ['decks'],
+    queryFn: () => getAllDecks(db),
+    enabled: pickerMode !== null,
   })
 
   const rename = useMutation({
@@ -101,6 +116,53 @@ export default function DeckDetailScreen(): JSX.Element {
         { text: 'Delete', style: 'destructive', onPress: () => remove.mutate() },
       ],
     )
+  }
+
+  const move = useMutation({
+    mutationFn: (newParentId: string | null) => moveDeck(db, id, newParentId),
+    onSuccess: async () => {
+      setPickerMode(null)
+      await queryClient.invalidateQueries({ queryKey: ['deck', id] })
+      await queryClient.invalidateQueries({ queryKey: ['decks'] })
+    },
+    onError: (error: unknown) => Alert.alert('Could not move deck', String(error)),
+  })
+
+  const merge = useMutation({
+    mutationFn: (targetDeckId: string) => mergeDecks(db, id, targetDeckId),
+    onSuccess: async () => {
+      setPickerMode(null)
+      await queryClient.invalidateQueries()
+      router.back()
+    },
+    onError: (error: unknown) => Alert.alert('Could not merge deck', String(error)),
+  })
+
+  const showMove = (): void => {
+    setMenuOpen(false)
+    setPickerMode('move')
+  }
+
+  const showMerge = (): void => {
+    setMenuOpen(false)
+    setPickerMode('merge')
+  }
+
+  const handlePickTarget = (target: Deck): void => {
+    if (pickerMode === 'move') {
+      move.mutate(target.id)
+      return
+    }
+    if (pickerMode === 'merge') {
+      Alert.alert(
+        `Merge into "${target.name}"?`,
+        `This deletes "${deckQuery.data?.deck.name ?? 'this deck'}" and moves all its cards into "${target.name}". This cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Merge', style: 'destructive', onPress: () => merge.mutate(target.id) },
+        ],
+      )
+    }
   }
 
   const showImport = (): void => {
@@ -163,6 +225,11 @@ export default function DeckDetailScreen(): JSX.Element {
   }
 
   const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
+
+  const allDecks = allDecksQuery.data ?? []
+  const excludedIds = collectDescendantIds(allDecks, deck.id)
+  excludedIds.add(deck.id)
+  const pickerTargets = allDecks.filter((d) => !excludedIds.has(d.id))
 
   return (
     <>
@@ -250,6 +317,8 @@ export default function DeckDetailScreen(): JSX.Element {
               setRenameOpen(true)
             }}
           />
+          <Button label="Move to…" icon="folder-open-outline" variant="secondary" onPress={showMove} />
+          <Button label="Merge into…" icon="git-merge-outline" variant="secondary" onPress={showMerge} />
           <Button
             label={remove.isPending ? 'Deleting…' : 'Delete deck'}
             icon="trash"
@@ -278,6 +347,52 @@ export default function DeckDetailScreen(): JSX.Element {
             disabled={rename.isPending}
             onPress={() => rename.mutate()}
           />
+        </View>
+      </Modal>
+
+      {/* ── Move/merge deck picker — shared between both actions, see pickerMode ── */}
+      <Modal visible={pickerMode !== null} animationType="slide" transparent onRequestClose={() => setPickerMode(null)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setPickerMode(null)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Text style={styles.modalTitle}>
+            {pickerMode === 'move' ? `Move "${deck.name}" to…` : `Merge "${deck.name}" into…`}
+          </Text>
+          {pickerMode === 'move' ? (
+            <Pressable
+              style={styles.deckRow}
+              onPress={() => move.mutate(null)}
+              disabled={move.isPending || deck.parentId === undefined}
+            >
+              <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.deckRowLabel}>Top level (no parent)</Text>
+            </Pressable>
+          ) : null}
+          {allDecksQuery.isPending ? (
+            <Spinner />
+          ) : allDecksQuery.isError ? (
+            <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
+          ) : pickerTargets.length === 0 ? (
+            <Text style={styles.hint}>
+              {pickerMode === 'move'
+                ? 'No other deck to nest this one under.'
+                : 'No other deck to merge into.'}
+            </Text>
+          ) : (
+            pickerTargets.map((target) => (
+              <Pressable
+                key={target.id}
+                style={styles.deckRow}
+                onPress={() => handlePickTarget(target)}
+                disabled={move.isPending || merge.isPending}
+              >
+                <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                <Text style={styles.deckRowLabel}>{target.name}</Text>
+              </Pressable>
+            ))
+          )}
+          {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
+          {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
         </View>
       </Modal>
 
@@ -354,4 +469,8 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   errorLabel: { fontSize: type.caption, color: colors.danger },
+  deckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+  deckRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+  deckEmoji: { fontSize: 20 },
+  hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
 })

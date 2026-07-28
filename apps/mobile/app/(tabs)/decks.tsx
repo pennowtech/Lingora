@@ -1,6 +1,15 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { Deck } from '@lingora/types'
-import { createDeck, deleteDeck, getAllDecks, getDeckCounts, renameDeck, type DatabaseAdapter } from '@lingora/database'
+import {
+  createDeck,
+  deleteDeck,
+  getAllDecks,
+  getDeckCounts,
+  mergeDecks,
+  moveDeck,
+  renameDeck,
+  type DatabaseAdapter,
+} from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
@@ -17,6 +26,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
+import { collectDescendantIds } from '../../lib/deckTree'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -66,8 +76,15 @@ export default function DecksScreen(): JSX.Element {
   const [exportDeck, setExportDeck] = useState<Deck | null>(null)
   const [renameDeckTarget, setRenameDeckTarget] = useState<Deck | null>(null)
   const [renameValue, setRenameValue] = useState('')
+  const [pickerDeck, setPickerDeck] = useState<Deck | null>(null)
+  const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
 
   const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTree(db) })
+  const allDecksQuery = useQuery({
+    queryKey: ['decks'],
+    queryFn: () => getAllDecks(db),
+    enabled: pickerDeck !== null,
+  })
 
   const invalidateDecks = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
@@ -128,6 +145,62 @@ export default function DecksScreen(): JSX.Element {
     )
   }
 
+  const move = useMutation({
+    mutationFn: (newParentId: string | null) => {
+      if (!pickerDeck) throw new Error('No deck selected.')
+      return moveDeck(db, pickerDeck.id, newParentId)
+    },
+    onSuccess: async () => {
+      setPickerDeck(null)
+      setPickerMode(null)
+      await invalidateDecks()
+    },
+    onError: (error: unknown) => Alert.alert('Could not move deck', String(error)),
+  })
+
+  const merge = useMutation({
+    mutationFn: (targetDeckId: string) => {
+      if (!pickerDeck) throw new Error('No deck selected.')
+      return mergeDecks(db, pickerDeck.id, targetDeckId)
+    },
+    onSuccess: async () => {
+      setPickerDeck(null)
+      setPickerMode(null)
+      await invalidateDecks()
+    },
+    onError: (error: unknown) => Alert.alert('Could not merge deck', String(error)),
+  })
+
+  const showMove = (deck: Deck): void => {
+    setMenuDeck(null)
+    setPickerDeck(deck)
+    setPickerMode('move')
+  }
+
+  const showMerge = (deck: Deck): void => {
+    setMenuDeck(null)
+    setPickerDeck(deck)
+    setPickerMode('merge')
+  }
+
+  const handlePickTarget = (target: Deck): void => {
+    if (!pickerDeck) return
+    if (pickerMode === 'move') {
+      move.mutate(target.id)
+      return
+    }
+    if (pickerMode === 'merge') {
+      Alert.alert(
+        `Merge into "${target.name}"?`,
+        `This deletes "${pickerDeck.name}" and moves all its cards into "${target.name}". This cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Merge', style: 'destructive', onPress: () => merge.mutate(target.id) },
+        ],
+      )
+    }
+  }
+
   const showImport = (deck: Deck): void => {
     setMenuDeck(null)
     setImportDeck(deck)
@@ -167,6 +240,15 @@ export default function DecksScreen(): JSX.Element {
     setExportDeck(null)
     runDeckExport(exportDeck, format)
   }
+
+  const allDecks = allDecksQuery.data ?? []
+  const pickerTargets = pickerDeck
+    ? (() => {
+        const excludedIds = collectDescendantIds(allDecks, pickerDeck.id)
+        excludedIds.add(pickerDeck.id)
+        return allDecks.filter((d) => !excludedIds.has(d.id))
+      })()
+    : []
 
   return (
     <View style={styles.container}>
@@ -244,6 +326,8 @@ export default function DecksScreen(): JSX.Element {
                   setMenuDeck(null)
                 }}
               />
+              <Button label="Move to…" icon="folder-open-outline" variant="secondary" onPress={() => showMove(menuDeck)} />
+              <Button label="Merge into…" icon="git-merge-outline" variant="secondary" onPress={() => showMerge(menuDeck)} />
               <Button label="Delete deck" icon="trash" variant="danger" onPress={() => confirmDelete(menuDeck)} />
             </>
           ) : null}
@@ -268,6 +352,68 @@ export default function DecksScreen(): JSX.Element {
             disabled={rename.isPending}
             onPress={() => rename.mutate()}
           />
+        </View>
+      </Modal>
+
+      {/* ── Move/merge deck picker — shared between both actions, see pickerMode ── */}
+      <Modal
+        visible={pickerDeck !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => {
+          setPickerDeck(null)
+          setPickerMode(null)
+        }}
+      >
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => {
+            setPickerDeck(null)
+            setPickerMode(null)
+          }}
+        />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          {pickerDeck ? (
+            <>
+              <Text style={styles.modalTitle}>
+                {pickerMode === 'move' ? `Move "${pickerDeck.name}" to…` : `Merge "${pickerDeck.name}" into…`}
+              </Text>
+              {pickerMode === 'move' ? (
+                <Pressable
+                  style={styles.pickerRow}
+                  onPress={() => move.mutate(null)}
+                  disabled={move.isPending || pickerDeck.parentId === undefined}
+                >
+                  <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+                  <Text style={styles.pickerRowLabel}>Top level (no parent)</Text>
+                </Pressable>
+              ) : null}
+              {allDecksQuery.isPending ? (
+                <Spinner />
+              ) : allDecksQuery.isError ? (
+                <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
+              ) : pickerTargets.length === 0 ? (
+                <Text style={styles.hint}>
+                  {pickerMode === 'move' ? 'No other deck to nest this one under.' : 'No other deck to merge into.'}
+                </Text>
+              ) : (
+                pickerTargets.map((target) => (
+                  <Pressable
+                    key={target.id}
+                    style={styles.pickerRow}
+                    onPress={() => handlePickTarget(target)}
+                    disabled={move.isPending || merge.isPending}
+                  >
+                    <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                    <Text style={styles.pickerRowLabel}>{target.name}</Text>
+                  </Pressable>
+                ))
+              )}
+              {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
+              {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
+            </>
+          ) : null}
         </View>
       </Modal>
 
@@ -388,4 +534,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   errorLabel: { fontSize: type.caption, color: colors.danger },
+  pickerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+  pickerRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+  hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
 })

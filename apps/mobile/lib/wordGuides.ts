@@ -81,3 +81,12 @@ export async function installAllAvailable(db: DatabaseAdapter, language: Languag
   }
   return toInstall.length
 }
+
+/** Uninstalls every currently-installed chunk. Returns how many were removed. */
+export async function uninstallAllInstalled(db: DatabaseAdapter, language: LanguageCode): Promise<number> {
+  const installed = await getInstalledChunkIndexes(db, language)
+  for (const chunkIndex of installed) {
+    await uninstallChunk(db, chunkIndex, language)
+  }
+  return installed.length
+}

@@ -1,11 +1,18 @@
 import { Ionicons } from '@expo/vector-icons'
-import { getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database'
+import {
+  getWordGuide,
+  persistTranslationAsCard,
+  persistWordGuideAsCard,
+  searchLemmasWithPreview,
+  type LemmaSearchPreview,
+} from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Card, CefrBadge, Chip, EmptyState, ErrorState } from '../../components/ui'
+import { Button, Card, Chip, EmptyState, ErrorState } from '../../components/ui'
+import { WordGuideModal } from '../../components/WordGuideModal'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 import { getWordGuideManifest } from '../../lib/wordGuides'
@@ -31,6 +38,7 @@ export default function SearchScreen(): JSX.Element {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
+  const [guideModalOpen, setGuideModalOpen] = useState(false)
   const term = useDebounced(query.trim(), 250)
 
   const search = useQuery({
@@ -40,14 +48,27 @@ export default function SearchScreen(): JSX.Element {
   })
 
   // A free, offline lookup against the installed word-guides dictionary (see
-  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — reference
-  // content only, deliberately not turned into a card here. Independent of
-  // `pipeline`/`tier`/an internet connection, unlike quickTranslate/generate
-  // below.
+  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — shown as a
+  // read-only preview by default, with an explicit "Add to deck" action
+  // (addFromGuide below) for the user to opt into turning it into a real
+  // card. Independent of `pipeline`/`tier`/an internet connection, unlike
+  // quickTranslate/generate below.
   const wordGuide = useQuery({
     queryKey: ['word-guide-preview', term],
     queryFn: () => getWordGuide(db, term, WORD_GUIDE_LANGUAGE),
     enabled: term !== '' && (search.data?.length ?? 0) === 0,
+  })
+
+  const addFromGuide = useMutation({
+    mutationFn: () => {
+      if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
+      return persistWordGuideAsCard(db, wordGuide.data, DEFAULT_DECK_ID)
+    },
+    onSuccess: async ({ lemma }) => {
+      setGuideModalOpen(false)
+      await queryClient.invalidateQueries()
+      router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
+    },
   })
 
   // A plain dictionary lookup (Google Translate/DeepL/whichever is active in
@@ -65,6 +86,30 @@ export default function SearchScreen(): JSX.Element {
     },
     enabled: term !== '' && (search.data?.length ?? 0) === 0,
     staleTime: 5 * 60 * 1000,
+  })
+
+  // Only offered when the term is already German (source === 'de') — the
+  // repository needs the German form as the lemma, and when the user typed
+  // English instead, `quickTranslate.data.text` is the German translation,
+  // not `term` itself, and could ambiguously map to more than one German
+  // word, so there's no single correct lemma.form to create in that
+  // direction.
+  const addFromTranslation = useMutation({
+    mutationFn: () => {
+      if (!quickTranslate.data || quickTranslate.data.source !== 'de') {
+        throw new Error(t('No translation to add.'))
+      }
+      return persistTranslationAsCard(
+        db,
+        { form: term, language: 'de', translation: quickTranslate.data.text },
+        DEFAULT_DECK_ID,
+        defaultCefr,
+      )
+    },
+    onSuccess: async ({ lemma }) => {
+      await queryClient.invalidateQueries()
+      router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
+    },
   })
 
   const generate = useMutation({
@@ -95,6 +140,9 @@ export default function SearchScreen(): JSX.Element {
           onChangeText={(text) => {
             setQuery(text)
             generate.reset()
+            addFromGuide.reset()
+            addFromTranslation.reset()
+            setGuideModalOpen(false)
           }}
           autoCorrect={false}
           autoCapitalize="none"
@@ -136,24 +184,30 @@ export default function SearchScreen(): JSX.Element {
                   </Text>
                 ) : null}
               </View>
-              <Text style={styles.guideIntro}>{wordGuide.data.intro}</Text>
-              {wordGuide.data.usage ? <Text style={styles.guideUsage}>{wordGuide.data.usage}</Text> : null}
-              {wordGuide.data.synonyms.length > 0 ? (
-                <View style={styles.guideChipRow}>
-                  {wordGuide.data.synonyms.map((syn) => (
-                    <Chip key={syn.word} label={syn.word} />
-                  ))}
-                </View>
-              ) : null}
-              {wordGuide.data.examples.slice(0, 2).map((ex) => (
-                <View key={ex.sentence} style={styles.guideExample}>
-                  <Text style={styles.guideExampleSentence}>{ex.sentence}</Text>
-                  <Text style={styles.guideExampleTranslation}>{ex.translation}</Text>
-                </View>
-              ))}
-              <Text style={styles.guideFootnote}>{t('From your installed dictionary — free, no AI needed.')}</Text>
+              <Text style={styles.guideTranslation}>{wordGuide.data.translation}</Text>
+              <Chip label={t('More info')} onPress={() => setGuideModalOpen(true)} />
             </Card>
           ) : null}
+
+          {/* ── Word guide detail modal ── */}
+          <WordGuideModal
+            visible={guideModalOpen}
+            guide={wordGuide.data ?? null}
+            onClose={() => setGuideModalOpen(false)}
+            footer={
+              <>
+                <Button
+                  label={addFromGuide.isPending ? t('Adding…') : t('Add to deck')}
+                  icon="add-circle"
+                  onPress={() => addFromGuide.mutate()}
+                  disabled={addFromGuide.isPending}
+                />
+                {addFromGuide.isError ? (
+                  <Text style={styles.generateError}>{String(addFromGuide.error)}</Text>
+                ) : null}
+              </>
+            }
+          />
           {quickTranslate.isPending ? (
             <Card style={styles.translateCard}>
               <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -165,6 +219,19 @@ export default function SearchScreen(): JSX.Element {
                 {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()} · {dictionary.name}
               </Text>
               <Text style={styles.translateText}>{quickTranslate.data.text}</Text>
+              {quickTranslate.data.source === 'de' ? (
+                <Button
+                  label={addFromTranslation.isPending ? t('Adding…') : t('Add to deck')}
+                  icon="add-circle"
+                  variant="secondary"
+                  small
+                  onPress={() => addFromTranslation.mutate()}
+                  disabled={addFromTranslation.isPending}
+                />
+              ) : null}
+              {addFromTranslation.isError ? (
+                <Text style={styles.generateError}>{String(addFromTranslation.error)}</Text>
+              ) : null}
             </Card>
           ) : null}
           {generate.isPending ? (
@@ -207,26 +274,22 @@ export default function SearchScreen(): JSX.Element {
           keyExtractor={(item: LemmaSearchPreview) => item.lemma.id}
           contentContainerStyle={styles.list}
           keyboardShouldPersistTaps="handled"
-          renderItem={({ item }) => (
-            <Card
-              style={styles.row}
-              onPress={() =>
-                router.push({ pathname: '/word/[form]', params: { form: item.lemma.form } })
-              }
-            >
-              <View style={styles.rowText}>
-                <View style={styles.rowTitle}>
+          renderItem={({ item }) => {
+            const openDetail = (): void =>
+              router.push({ pathname: '/word/[form]', params: { form: item.lemma.form } })
+            return (
+              <Card style={styles.row} onPress={openDetail}>
+                <View style={styles.rowText}>
                   <Text style={styles.form}>{item.lemma.form}</Text>
-                  <Text style={styles.pos}>{item.lemma.partOfSpeech}</Text>
+                  {item.translation ? <Text style={styles.meaning}>{item.translation}</Text> : null}
                 </View>
-                {item.translation ? <Text style={styles.meaning}>{item.translation}</Text> : null}
-              </View>
-              <View style={styles.rowRight}>
-                {item.inDeck ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
-                {item.cefrLevel ? <CefrBadge level={item.cefrLevel} /> : null}
-              </View>
-            </Card>
-          )}
+                <View style={styles.rowRight}>
+                  {item.inDeck ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
+                  {item.hasDetail ? <Chip label={t('Details')} onPress={openDetail} /> : null}
+                </View>
+              </Card>
+            )
+          }}
         />
       )}
     </View>
@@ -257,9 +320,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   rowText: { flex: 1, marginRight: spacing.md },
-  rowTitle: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm },
   form: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  pos: { fontSize: type.micro, color: colors.textMuted },
   meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   newWordCards: { marginTop: -spacing.xl },
@@ -270,13 +331,7 @@ const styles = StyleSheet.create({
   guideHeaderRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm },
   guideHeadword: { fontSize: type.heading, fontWeight: '700', color: colors.text },
   guideMeta: { fontSize: type.micro, color: colors.textMuted },
-  guideIntro: { fontSize: type.body, color: colors.text, lineHeight: 21 },
-  guideUsage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
-  guideChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  guideExample: { gap: 2 },
-  guideExampleSentence: { fontSize: type.caption, fontWeight: '600', color: colors.text },
-  guideExampleTranslation: { fontSize: type.micro, color: colors.textSecondary },
-  guideFootnote: { fontSize: type.micro, fontWeight: '600', color: colors.primary },
+  guideTranslation: { fontSize: type.heading, fontWeight: '700', color: colors.text },
   translateCard: {
     marginTop: spacing.md,
     marginBottom: spacing.md,

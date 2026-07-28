@@ -125,6 +125,14 @@ export interface LemmaSearchPreview {
   cefrLevel: CefrLevel | null
   /** Whether any card of this lemma is already in a deck. */
   inDeck: boolean
+  /**
+   * Whether this lemma has more than a bare translation — a non-empty
+   * explanation, or any examples/synonyms — so the result row can offer a
+   * "Details" chip only when there's actually more to see (an AI-generated
+   * or word-guide-added card typically does; a plain quick-translate add
+   * typically doesn't).
+   */
+  hasDetail: boolean
 }
 
 /**
@@ -141,8 +149,8 @@ export async function searchLemmasWithPreview(
   const previews: LemmaSearchPreview[] = []
 
   for (const lemma of lemmas) {
-    const meaning = await db.querySingle<{ translation: string; cefrLevel: CefrLevel }>(
-      `SELECT m.translation, m.cefr_level AS cefrLevel
+    const meaning = await db.querySingle<{ translation: string; cefrLevel: CefrLevel; explanation: string }>(
+      `SELECT m.translation, m.cefr_level AS cefrLevel, m.explanation
        FROM meanings m
        JOIN cards c ON c.id = m.card_id
        WHERE c.lemma_id = ? AND m.is_primary = 1
@@ -156,11 +164,18 @@ export async function searchLemmasWithPreview(
        WHERE c.lemma_id = ?`,
       [lemma.id],
     )
+    const extras = await db.querySingle<{ n: number }>(
+      `SELECT
+         (SELECT COUNT(*) FROM examples ex JOIN cards c ON c.id = ex.card_id WHERE c.lemma_id = ?) +
+         (SELECT COUNT(*) FROM synonyms sy JOIN cards c ON c.id = sy.card_id WHERE c.lemma_id = ?) AS n`,
+      [lemma.id, lemma.id],
+    )
     previews.push({
       lemma,
       translation: meaning?.translation ?? null,
       cefrLevel: meaning?.cefrLevel ?? null,
       inDeck: (membership?.n ?? 0) > 0,
+      hasDetail: (meaning?.explanation.trim() ?? '') !== '' || (extras?.n ?? 0) > 0,
     })
   }
 

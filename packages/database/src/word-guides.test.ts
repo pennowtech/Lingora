@@ -3,10 +3,14 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { migrate } from './migrations'
+import { createDeck } from './repositories/decks'
+import { getLemmaByForm } from './repositories/lemmas'
 import {
   getInstalledWordGuideChunkIds,
   getWordGuide,
   installWordGuideChunk,
+  persistTranslationAsCard,
+  persistWordGuideAsCard,
   uninstallWordGuideChunk,
 } from './repositories/word-guides'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
@@ -14,6 +18,7 @@ import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 const ERFAHREN: Omit<WordGuideEntry, 'language' | 'chunkId'> = {
   headword: 'erfahren',
   partOfSpeech: 'verb',
+  translation: 'to experience / to learn',
   usage: '3rd person: erfährt · past: erfuhr · perfect: hat erfahren',
   intro: 'To experience or to learn (find out) something.',
   synonyms: [{ word: 'erleben', gloss: 'to experience' }],
@@ -26,6 +31,7 @@ const HAUS: Omit<WordGuideEntry, 'language' | 'chunkId'> = {
   headword: 'Haus',
   partOfSpeech: 'noun',
   gender: 'das',
+  translation: 'house',
   intro: 'A building where people live.',
   synonyms: [],
   examples: [{ sentence: 'Das Haus ist groß.', translation: 'The house is big.', type: 'indicative' }],
@@ -110,5 +116,88 @@ describe('word_guides repository', () => {
     expect(kommen).toMatchObject({ headword: 'kommen', partOfSpeech: 'verb' })
     expect(kommen?.examples).toHaveLength(4)
     expect(kommen?.examples.map((e) => e.type).sort()).toEqual(['indicative', 'indicative', 'konjunktivII', 'passive'])
+  })
+
+  describe('persistWordGuideAsCard', () => {
+    beforeEach(async () => {
+      await createDeck(db, { id: 'deck-default', name: 'Default', createdAt: Date.now(), updatedAt: Date.now() })
+    })
+
+    it('turns a dictionary entry into a real, reviewable card', async () => {
+      const entry: WordGuideEntry = { ...ERFAHREN, language: 'de', chunkId: 1 }
+
+      const { lemma, cardId } = await persistWordGuideAsCard(db, entry, 'deck-default')
+
+      expect(lemma.form).toBe('erfahren')
+      expect(lemma.partOfSpeech).toBe('verb')
+      const stored = await getLemmaByForm(db, 'erfahren', 'de')
+      expect(stored?.id).toBe(lemma.id)
+
+      const card = await db.querySingle<{ deckId: string }>(
+        'SELECT deck_id AS deckId FROM cards WHERE id = ?',
+        [cardId],
+      )
+      expect(card?.deckId).toBe('deck-default')
+
+      const meaning = await db.querySingle<{ translation: string; isPrimary: number }>(
+        'SELECT translation, is_primary AS isPrimary FROM meanings WHERE card_id = ?',
+        [cardId],
+      )
+      expect(meaning?.translation).toBe('to experience / to learn')
+      expect(meaning?.isPrimary).toBe(1)
+
+      const examples = await db.query('SELECT * FROM examples WHERE card_id = ?', [cardId])
+      expect(examples).toHaveLength(1)
+
+      const synonyms = await db.query('SELECT * FROM synonyms WHERE card_id = ?', [cardId])
+      expect(synonyms).toHaveLength(1)
+    })
+
+    it('maps a free-text part of speech ("article/pronoun") to the closest closed union value', async () => {
+      const entry: WordGuideEntry = {
+        ...ERFAHREN,
+        headword: 'das',
+        partOfSpeech: 'article/pronoun',
+        language: 'de',
+        chunkId: 1,
+      }
+
+      const { lemma } = await persistWordGuideAsCard(db, entry, 'deck-default')
+      expect(lemma.partOfSpeech).toBe('article')
+    })
+
+    it('throws rather than duplicating when the lemma already exists', async () => {
+      const entry: WordGuideEntry = { ...ERFAHREN, language: 'de', chunkId: 1 }
+      await persistWordGuideAsCard(db, entry, 'deck-default')
+
+      await expect(persistWordGuideAsCard(db, entry, 'deck-default')).rejects.toThrow(/already exists/)
+    })
+  })
+
+  describe('persistTranslationAsCard', () => {
+    beforeEach(async () => {
+      await createDeck(db, { id: 'deck-default', name: 'Default', createdAt: Date.now(), updatedAt: Date.now() })
+    })
+
+    it('creates a minimal card from a plain translation, with an empty explanation', async () => {
+      const { lemma, cardId } = await persistTranslationAsCard(
+        db,
+        { form: 'sprechen', language: 'de', translation: 'to speak' },
+        'deck-default',
+      )
+
+      expect(lemma.form).toBe('sprechen')
+      expect(lemma.partOfSpeech).toBe('noun')
+
+      const meaning = await db.querySingle<{ translation: string; explanation: string }>(
+        'SELECT translation, explanation FROM meanings WHERE card_id = ?',
+        [cardId],
+      )
+      expect(meaning?.translation).toBe('to speak')
+      expect(meaning?.explanation).toBe('')
+
+      const examples = await db.query('SELECT * FROM examples WHERE card_id = ?', [cardId])
+      expect(examples).toHaveLength(0)
+    })
   })
 })

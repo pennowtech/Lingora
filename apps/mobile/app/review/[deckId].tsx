@@ -27,6 +27,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { CardRenderer } from '../../components/CardRenderer'
+import { WordGuideModal } from '../../components/WordGuideModal'
 import {
   Button,
   CardActionBar,
@@ -323,6 +324,7 @@ export default function ReviewSessionScreen(): JSX.Element {
   // meaning/example-translation without touching stored data). Both reset
   // per card (see the useEffect below the queue/view derivation).
   const [explainVisible, setExplainVisible] = useState(false)
+  const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [translationHidden, setTranslationHidden] = useState(false)
 
   // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
@@ -384,6 +386,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       setDurationsMs((prev) => [...prev, durationMs])
       setFlipped(false)
       setExplainVisible(false)
+      setGuideModalOpen(false)
       setTranslationHidden(false)
       setIndex((i) => i + 1)
       cardStartedAt.current = Date.now()
@@ -439,32 +442,44 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
   })
 
-  // Checked before AI generation: a bulk-installed, pre-generated dictionary
-  // (see LingoraDocs/6_word_guides_plan.md) that's free and works even
-  // without an AI key configured. Priority order: stored explanation
-  // (view.explanation) → this installed dictionary → live AI → "AI not
-  // configured". A dictionary hit is persisted the same way an AI-generated
-  // one is, so it's only looked up once per word.
-  const explainFromDictionary = useMutation({
-    mutationFn: async () => {
+  // Checked before AI generation, and on EVERY tap (not just when nothing is
+  // stored yet): a bulk-installed, pre-generated dictionary (see
+  // LingoraDocs/6_word_guides_plan.md) that's free and works even without an
+  // AI key configured. Priority order: stored explanation that isn't just
+  // the dictionary's own intro text (plain text) → this installed
+  // dictionary (the rich WordGuideModal — see components/WordGuideModal.tsx)
+  // → live AI (plain text) → "AI not configured". The `stored === intro`
+  // check is what upgrades a word whose explanation was persisted by an
+  // older build of this screen (which used to copy guide.intro into
+  // meanings.explanation) to the rich card instead of being stuck showing
+  // that intro as plain text forever — a genuinely AI-written or
+  // user-edited explanation never matches, so it's always left as plain
+  // text, per the explicit intent this priority order was designed around.
+  const lookupWordGuide = useMutation({
+    mutationFn: () => {
       if (!view?.meaningId) throw new Error(t('This word has no meaning yet.'))
-      const guide = await getWordGuide(db, view.form, view.language)
-      if (!guide) return null
-      await updateMeaningText(db, view.meaningId, view.meaning ?? '', guide.intro)
-      return guide
+      return getWordGuide(db, view.form, view.language)
     },
-    onSuccess: async (guide) => {
-      if (guide) {
-        await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+    onSuccess: (guide) => {
+      const stored = (view?.explanation ?? '').trim()
+      if (guide && (stored === '' || stored === guide.intro.trim())) {
+        setExplainVisible(false)
+        setGuideModalOpen(true)
+        return
+      }
+      if (stored !== '') {
+        setExplainVisible(true)
         return
       }
       if (tier !== 'full') {
+        setExplainVisible(false)
         Alert.alert(
           t('AI not configured'),
           t('Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.'),
         )
         return
       }
+      setExplainVisible(true)
       generateExplanation.mutate()
     },
     onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
@@ -472,12 +487,13 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const handleExplain = (): void => {
     if (!view) return
-    if ((view.explanation ?? '').trim() !== '') {
-      setExplainVisible((visible) => !visible)
+    if (explainVisible || guideModalOpen) {
+      setExplainVisible(false)
+      setGuideModalOpen(false)
       return
     }
     setExplainVisible(true)
-    explainFromDictionary.mutate()
+    lookupWordGuide.mutate()
   }
 
   const handleLookup = (): void => {
@@ -619,7 +635,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                 <>
                   {explainVisible ? (
                     <Text style={styles.explanationText}>
-                      {explainFromDictionary.isPending || generateExplanation.isPending
+                      {lookupWordGuide.isPending || generateExplanation.isPending
                         ? t('Generating…')
                         : (view.explanation ?? '') || t('No explanation yet.')}
                     </Text>
@@ -627,7 +643,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                   <CardActionBar
                     onExplain={handleExplain}
                     explainVisible={explainVisible}
-                    explainLoading={explainFromDictionary.isPending || generateExplanation.isPending}
+                    explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
                     onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
                     translationHidden={translationHidden}
                     onEdit={openEdit}
@@ -727,6 +743,12 @@ export default function ReviewSessionScreen(): JSX.Element {
           </View>
         </View>
       </Modal>
+
+      <WordGuideModal
+        visible={guideModalOpen}
+        guide={lookupWordGuide.data ?? null}
+        onClose={() => setGuideModalOpen(false)}
+      />
     </SafeAreaView>
   )
 }

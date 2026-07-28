@@ -10,6 +10,7 @@ import {
   getMeaningsForCard,
   getPhrasesForCard,
   getSynonymsForCard,
+  getWordGuide,
   recordReview,
   updateExampleText,
   updateMeaningText,
@@ -435,21 +436,45 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
   })
 
+  // Checked before AI generation: a bulk-installed, pre-generated dictionary
+  // (see LingoraDocs/6_word_guides_plan.md) that's free and works even
+  // without an AI key configured. Priority order: stored explanation
+  // (view.explanation) → this installed dictionary → live AI → "AI not
+  // configured". A dictionary hit is persisted the same way an AI-generated
+  // one is, so it's only looked up once per word.
+  const explainFromDictionary = useMutation({
+    mutationFn: async () => {
+      if (!view?.meaningId) throw new Error('This word has no meaning yet.')
+      const guide = await getWordGuide(db, view.form, view.language)
+      if (!guide) return null
+      await updateMeaningText(db, view.meaningId, view.meaning ?? '', guide.intro)
+      return guide
+    },
+    onSuccess: async (guide) => {
+      if (guide) {
+        await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+        return
+      }
+      if (tier !== 'full') {
+        Alert.alert(
+          'AI not configured',
+          'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+        )
+        return
+      }
+      generateExplanation.mutate()
+    },
+    onError: (error: unknown) => Alert.alert('Could not look up an explanation', String(error)),
+  })
+
   const handleExplain = (): void => {
     if (!view) return
     if ((view.explanation ?? '').trim() !== '') {
       setExplainVisible((visible) => !visible)
       return
     }
-    if (tier !== 'full') {
-      Alert.alert(
-        'AI not configured',
-        'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
-      )
-      return
-    }
     setExplainVisible(true)
-    generateExplanation.mutate()
+    explainFromDictionary.mutate()
   }
 
   const handleLookup = (): void => {
@@ -591,13 +616,15 @@ export default function ReviewSessionScreen(): JSX.Element {
                 <>
                   {explainVisible ? (
                     <Text style={styles.explanationText}>
-                      {generateExplanation.isPending ? 'Generating…' : (view.explanation ?? '') || 'No explanation yet.'}
+                      {explainFromDictionary.isPending || generateExplanation.isPending
+                        ? 'Generating…'
+                        : (view.explanation ?? '') || 'No explanation yet.'}
                     </Text>
                   ) : null}
                   <CardActionBar
                     onExplain={handleExplain}
                     explainVisible={explainVisible}
-                    explainLoading={generateExplanation.isPending}
+                    explainLoading={explainFromDictionary.isPending || generateExplanation.isPending}
                     onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
                     translationHidden={translationHidden}
                     onEdit={openEdit}

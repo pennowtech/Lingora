@@ -28,6 +28,7 @@ import {
   getMeaningsForCluster,
   getPhrasesForCard,
   getSynonymsForCard,
+  getWordGuide,
   persistRegeneratedExamples,
   setEvaluation,
   updateExampleText,
@@ -298,21 +299,45 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert('Could not generate an explanation', String(error)),
   })
 
+  // Checked before AI generation: a bulk-installed, pre-generated dictionary
+  // (see LingoraDocs/6_word_guides_plan.md) that's free and works even
+  // without an AI key configured. Priority order: stored explanation
+  // (above) → this installed dictionary → live AI → "AI not configured". A
+  // dictionary hit is persisted the same way an AI-generated one is, so
+  // it's only looked up once per word.
+  const explainFromDictionary = useMutation({
+    mutationFn: async () => {
+      if (!word || !headlineMeaning) throw new Error('This word has no meaning yet.')
+      const guide = await getWordGuide(db, word.lemma.form, word.lemma.language)
+      if (!guide) return null
+      await updateMeaningText(db, headlineMeaning.id, headlineMeaning.translation, guide.intro)
+      return guide
+    },
+    onSuccess: async (guide) => {
+      if (guide) {
+        await queryClient.invalidateQueries({ queryKey: ['word', form] })
+        return
+      }
+      if (tier !== 'full') {
+        Alert.alert(
+          'AI not configured',
+          'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
+        )
+        return
+      }
+      generateExplanation.mutate()
+    },
+    onError: (error: unknown) => Alert.alert('Could not look up an explanation', String(error)),
+  })
+
   const handleExplain = (): void => {
     if (!headlineMeaning) return
     if (headlineMeaning.explanation.trim() !== '') {
       setExplainVisible((visible) => !visible)
       return
     }
-    if (tier !== 'full') {
-      Alert.alert(
-        'AI not configured',
-        'Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.',
-      )
-      return
-    }
     setExplainVisible(true)
-    generateExplanation.mutate()
+    explainFromDictionary.mutate()
   }
 
   const openEdit = (): void => {
@@ -428,7 +453,7 @@ export default function WordDetailScreen(): JSX.Element {
                   </Text>
                   {explainVisible ? (
                     <Text style={styles.explanation}>
-                      {generateExplanation.isPending
+                      {explainFromDictionary.isPending || generateExplanation.isPending
                         ? 'Generating…'
                         : headlineMeaning.explanation || 'No explanation yet.'}
                     </Text>
@@ -453,7 +478,7 @@ export default function WordDetailScreen(): JSX.Element {
                 <CardActionBar
                   onExplain={handleExplain}
                   explainVisible={explainVisible}
-                  explainLoading={generateExplanation.isPending}
+                  explainLoading={explainFromDictionary.isPending || generateExplanation.isPending}
                   onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
                   translationHidden={translationHidden}
                   onEdit={openEdit}

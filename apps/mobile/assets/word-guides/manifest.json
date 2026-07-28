@@ -1,0 +1,1004 @@
+{
+  "language": "de",
+  "wordListVersion": "928b078c40cc35c8",
+  "wordsPerChunk": 100,
+  "totalWords": 14152,
+  "totalChunks": 142,
+  "chunks": [
+    {
+      "index": 1,
+      "wordCount": 100,
+      "rankStart": 1,
+      "rankEnd": 100,
+      "status": "pending"
+    },
+    {
+      "index": 2,
+      "wordCount": 100,
+      "rankStart": 101,
+      "rankEnd": 200,
+      "status": "pending"
+    },
+    {
+      "index": 3,
+      "wordCount": 100,
+      "rankStart": 201,
+      "rankEnd": 300,
+      "status": "pending"
+    },
+    {
+      "index": 4,
+      "wordCount": 100,
+      "rankStart": 301,
+      "rankEnd": 400,
+      "status": "pending"
+    },
+    {
+      "index": 5,
+      "wordCount": 100,
+      "rankStart": 401,
+      "rankEnd": 500,
+      "status": "pending"
+    },
+    {
+      "index": 6,
+      "wordCount": 100,
+      "rankStart": 501,
+      "rankEnd": 600,
+      "status": "pending"
+    },
+    {
+      "index": 7,
+      "wordCount": 100,
+      "rankStart": 601,
+      "rankEnd": 700,
+      "status": "pending"
+    },
+    {
+      "index": 8,
+      "wordCount": 100,
+      "rankStart": 701,
+      "rankEnd": 800,
+      "status": "pending"
+    },
+    {
+      "index": 9,
+      "wordCount": 100,
+      "rankStart": 801,
+      "rankEnd": 900,
+      "status": "pending"
+    },
+    {
+      "index": 10,
+      "wordCount": 100,
+      "rankStart": 901,
+      "rankEnd": 1000,
+      "status": "pending"
+    },
+    {
+      "index": 11,
+      "wordCount": 100,
+      "rankStart": 1001,
+      "rankEnd": 1100,
+      "status": "pending"
+    },
+    {
+      "index": 12,
+      "wordCount": 100,
+      "rankStart": 1101,
+      "rankEnd": 1200,
+      "status": "pending"
+    },
+    {
+      "index": 13,
+      "wordCount": 100,
+      "rankStart": 1201,
+      "rankEnd": 1300,
+      "status": "pending"
+    },
+    {
+      "index": 14,
+      "wordCount": 100,
+      "rankStart": 1301,
+      "rankEnd": 1400,
+      "status": "pending"
+    },
+    {
+      "index": 15,
+      "wordCount": 100,
+      "rankStart": 1401,
+      "rankEnd": 1500,
+      "status": "pending"
+    },
+    {
+      "index": 16,
+      "wordCount": 100,
+      "rankStart": 1501,
+      "rankEnd": 1600,
+      "status": "pending"
+    },
+    {
+      "index": 17,
+      "wordCount": 100,
+      "rankStart": 1601,
+      "rankEnd": 1700,
+      "status": "pending"
+    },
+    {
+      "index": 18,
+      "wordCount": 100,
+      "rankStart": 1701,
+      "rankEnd": 1800,
+      "status": "pending"
+    },
+    {
+      "index": 19,
+      "wordCount": 100,
+      "rankStart": 1801,
+      "rankEnd": 1900,
+      "status": "pending"
+    },
+    {
+      "index": 20,
+      "wordCount": 100,
+      "rankStart": 1901,
+      "rankEnd": 2000,
+      "status": "pending"
+    },
+    {
+      "index": 21,
+      "wordCount": 100,
+      "rankStart": 2001,
+      "rankEnd": 2100,
+      "status": "pending"
+    },
+    {
+      "index": 22,
+      "wordCount": 100,
+      "rankStart": 2101,
+      "rankEnd": 2200,
+      "status": "pending"
+    },
+    {
+      "index": 23,
+      "wordCount": 100,
+      "rankStart": 2201,
+      "rankEnd": 2300,
+      "status": "pending"
+    },
+    {
+      "index": 24,
+      "wordCount": 100,
+      "rankStart": 2301,
+      "rankEnd": 2400,
+      "status": "pending"
+    },
+    {
+      "index": 25,
+      "wordCount": 100,
+      "rankStart": 2401,
+      "rankEnd": 2500,
+      "status": "pending"
+    },
+    {
+      "index": 26,
+      "wordCount": 100,
+      "rankStart": 2501,
+      "rankEnd": 2600,
+      "status": "pending"
+    },
+    {
+      "index": 27,
+      "wordCount": 100,
+      "rankStart": 2601,
+      "rankEnd": 2700,
+      "status": "pending"
+    },
+    {
+      "index": 28,
+      "wordCount": 100,
+      "rankStart": 2701,
+      "rankEnd": 2800,
+      "status": "pending"
+    },
+    {
+      "index": 29,
+      "wordCount": 100,
+      "rankStart": 2801,
+      "rankEnd": 2900,
+      "status": "pending"
+    },
+    {
+      "index": 30,
+      "wordCount": 100,
+      "rankStart": 2901,
+      "rankEnd": 3000,
+      "status": "pending"
+    },
+    {
+      "index": 31,
+      "wordCount": 100,
+      "rankStart": 3001,
+      "rankEnd": 3100,
+      "status": "pending"
+    },
+    {
+      "index": 32,
+      "wordCount": 100,
+      "rankStart": 3101,
+      "rankEnd": 3200,
+      "status": "pending"
+    },
+    {
+      "index": 33,
+      "wordCount": 100,
+      "rankStart": 3201,
+      "rankEnd": 3300,
+      "status": "pending"
+    },
+    {
+      "index": 34,
+      "wordCount": 100,
+      "rankStart": 3301,
+      "rankEnd": 3400,
+      "status": "pending"
+    },
+    {
+      "index": 35,
+      "wordCount": 100,
+      "rankStart": 3401,
+      "rankEnd": 3500,
+      "status": "pending"
+    },
+    {
+      "index": 36,
+      "wordCount": 100,
+      "rankStart": 3501,
+      "rankEnd": 3600,
+      "status": "pending"
+    },
+    {
+      "index": 37,
+      "wordCount": 100,
+      "rankStart": 3601,
+      "rankEnd": 3700,
+      "status": "pending"
+    },
+    {
+      "index": 38,
+      "wordCount": 100,
+      "rankStart": 3701,
+      "rankEnd": 3800,
+      "status": "pending"
+    },
+    {
+      "index": 39,
+      "wordCount": 100,
+      "rankStart": 3801,
+      "rankEnd": 3900,
+      "status": "pending"
+    },
+    {
+      "index": 40,
+      "wordCount": 100,
+      "rankStart": 3901,
+      "rankEnd": 4000,
+      "status": "pending"
+    },
+    {
+      "index": 41,
+      "wordCount": 100,
+      "rankStart": 4001,
+      "rankEnd": 4100,
+      "status": "pending"
+    },
+    {
+      "index": 42,
+      "wordCount": 100,
+      "rankStart": 4101,
+      "rankEnd": 4200,
+      "status": "pending"
+    },
+    {
+      "index": 43,
+      "wordCount": 100,
+      "rankStart": 4201,
+      "rankEnd": 4300,
+      "status": "pending"
+    },
+    {
+      "index": 44,
+      "wordCount": 100,
+      "rankStart": 4301,
+      "rankEnd": 4400,
+      "status": "pending"
+    },
+    {
+      "index": 45,
+      "wordCount": 100,
+      "rankStart": 4401,
+      "rankEnd": 4500,
+      "status": "pending"
+    },
+    {
+      "index": 46,
+      "wordCount": 100,
+      "rankStart": 4501,
+      "rankEnd": 4600,
+      "status": "pending"
+    },
+    {
+      "index": 47,
+      "wordCount": 100,
+      "rankStart": 4601,
+      "rankEnd": 4700,
+      "status": "pending"
+    },
+    {
+      "index": 48,
+      "wordCount": 100,
+      "rankStart": 4701,
+      "rankEnd": 4800,
+      "status": "pending"
+    },
+    {
+      "index": 49,
+      "wordCount": 100,
+      "rankStart": 4801,
+      "rankEnd": 4900,
+      "status": "pending"
+    },
+    {
+      "index": 50,
+      "wordCount": 100,
+      "rankStart": 4901,
+      "rankEnd": 5000,
+      "status": "pending"
+    },
+    {
+      "index": 51,
+      "wordCount": 100,
+      "rankStart": 5001,
+      "rankEnd": 5100,
+      "status": "pending"
+    },
+    {
+      "index": 52,
+      "wordCount": 100,
+      "rankStart": 5101,
+      "rankEnd": 5200,
+      "status": "pending"
+    },
+    {
+      "index": 53,
+      "wordCount": 100,
+      "rankStart": 5201,
+      "rankEnd": 5300,
+      "status": "pending"
+    },
+    {
+      "index": 54,
+      "wordCount": 100,
+      "rankStart": 5301,
+      "rankEnd": 5400,
+      "status": "pending"
+    },
+    {
+      "index": 55,
+      "wordCount": 100,
+      "rankStart": 5401,
+      "rankEnd": 5500,
+      "status": "pending"
+    },
+    {
+      "index": 56,
+      "wordCount": 100,
+      "rankStart": 5501,
+      "rankEnd": 5600,
+      "status": "pending"
+    },
+    {
+      "index": 57,
+      "wordCount": 100,
+      "rankStart": 5601,
+      "rankEnd": 5700,
+      "status": "pending"
+    },
+    {
+      "index": 58,
+      "wordCount": 100,
+      "rankStart": 5701,
+      "rankEnd": 5800,
+      "status": "pending"
+    },
+    {
+      "index": 59,
+      "wordCount": 100,
+      "rankStart": 5801,
+      "rankEnd": 5900,
+      "status": "pending"
+    },
+    {
+      "index": 60,
+      "wordCount": 100,
+      "rankStart": 5901,
+      "rankEnd": 6000,
+      "status": "pending"
+    },
+    {
+      "index": 61,
+      "wordCount": 100,
+      "rankStart": 6001,
+      "rankEnd": 6100,
+      "status": "pending"
+    },
+    {
+      "index": 62,
+      "wordCount": 100,
+      "rankStart": 6101,
+      "rankEnd": 6200,
+      "status": "pending"
+    },
+    {
+      "index": 63,
+      "wordCount": 100,
+      "rankStart": 6201,
+      "rankEnd": 6300,
+      "status": "pending"
+    },
+    {
+      "index": 64,
+      "wordCount": 100,
+      "rankStart": 6301,
+      "rankEnd": 6400,
+      "status": "pending"
+    },
+    {
+      "index": 65,
+      "wordCount": 100,
+      "rankStart": 6401,
+      "rankEnd": 6500,
+      "status": "pending"
+    },
+    {
+      "index": 66,
+      "wordCount": 100,
+      "rankStart": 6501,
+      "rankEnd": 6600,
+      "status": "pending"
+    },
+    {
+      "index": 67,
+      "wordCount": 100,
+      "rankStart": 6601,
+      "rankEnd": 6700,
+      "status": "pending"
+    },
+    {
+      "index": 68,
+      "wordCount": 100,
+      "rankStart": 6701,
+      "rankEnd": 6800,
+      "status": "pending"
+    },
+    {
+      "index": 69,
+      "wordCount": 100,
+      "rankStart": 6801,
+      "rankEnd": 6900,
+      "status": "pending"
+    },
+    {
+      "index": 70,
+      "wordCount": 100,
+      "rankStart": 6901,
+      "rankEnd": 7000,
+      "status": "pending"
+    },
+    {
+      "index": 71,
+      "wordCount": 100,
+      "rankStart": 7001,
+      "rankEnd": 7100,
+      "status": "pending"
+    },
+    {
+      "index": 72,
+      "wordCount": 100,
+      "rankStart": 7101,
+      "rankEnd": 7200,
+      "status": "pending"
+    },
+    {
+      "index": 73,
+      "wordCount": 100,
+      "rankStart": 7201,
+      "rankEnd": 7300,
+      "status": "pending"
+    },
+    {
+      "index": 74,
+      "wordCount": 100,
+      "rankStart": 7301,
+      "rankEnd": 7400,
+      "status": "pending"
+    },
+    {
+      "index": 75,
+      "wordCount": 100,
+      "rankStart": 7401,
+      "rankEnd": 7500,
+      "status": "pending"
+    },
+    {
+      "index": 76,
+      "wordCount": 100,
+      "rankStart": 7501,
+      "rankEnd": 7600,
+      "status": "pending"
+    },
+    {
+      "index": 77,
+      "wordCount": 100,
+      "rankStart": 7601,
+      "rankEnd": 7700,
+      "status": "pending"
+    },
+    {
+      "index": 78,
+      "wordCount": 100,
+      "rankStart": 7701,
+      "rankEnd": 7800,
+      "status": "pending"
+    },
+    {
+      "index": 79,
+      "wordCount": 100,
+      "rankStart": 7801,
+      "rankEnd": 7900,
+      "status": "pending"
+    },
+    {
+      "index": 80,
+      "wordCount": 100,
+      "rankStart": 7901,
+      "rankEnd": 8000,
+      "status": "pending"
+    },
+    {
+      "index": 81,
+      "wordCount": 100,
+      "rankStart": 8001,
+      "rankEnd": 8100,
+      "status": "pending"
+    },
+    {
+      "index": 82,
+      "wordCount": 100,
+      "rankStart": 8101,
+      "rankEnd": 8200,
+      "status": "pending"
+    },
+    {
+      "index": 83,
+      "wordCount": 100,
+      "rankStart": 8201,
+      "rankEnd": 8300,
+      "status": "pending"
+    },
+    {
+      "index": 84,
+      "wordCount": 100,
+      "rankStart": 8301,
+      "rankEnd": 8400,
+      "status": "pending"
+    },
+    {
+      "index": 85,
+      "wordCount": 100,
+      "rankStart": 8401,
+      "rankEnd": 8500,
+      "status": "pending"
+    },
+    {
+      "index": 86,
+      "wordCount": 100,
+      "rankStart": 8501,
+      "rankEnd": 8600,
+      "status": "pending"
+    },
+    {
+      "index": 87,
+      "wordCount": 100,
+      "rankStart": 8601,
+      "rankEnd": 8700,
+      "status": "pending"
+    },
+    {
+      "index": 88,
+      "wordCount": 100,
+      "rankStart": 8701,
+      "rankEnd": 8800,
+      "status": "pending"
+    },
+    {
+      "index": 89,
+      "wordCount": 100,
+      "rankStart": 8801,
+      "rankEnd": 8900,
+      "status": "pending"
+    },
+    {
+      "index": 90,
+      "wordCount": 100,
+      "rankStart": 8901,
+      "rankEnd": 9000,
+      "status": "pending"
+    },
+    {
+      "index": 91,
+      "wordCount": 100,
+      "rankStart": 9001,
+      "rankEnd": 9100,
+      "status": "pending"
+    },
+    {
+      "index": 92,
+      "wordCount": 100,
+      "rankStart": 9101,
+      "rankEnd": 9200,
+      "status": "pending"
+    },
+    {
+      "index": 93,
+      "wordCount": 100,
+      "rankStart": 9201,
+      "rankEnd": 9300,
+      "status": "pending"
+    },
+    {
+      "index": 94,
+      "wordCount": 100,
+      "rankStart": 9301,
+      "rankEnd": 9400,
+      "status": "pending"
+    },
+    {
+      "index": 95,
+      "wordCount": 100,
+      "rankStart": 9401,
+      "rankEnd": 9500,
+      "status": "pending"
+    },
+    {
+      "index": 96,
+      "wordCount": 100,
+      "rankStart": 9501,
+      "rankEnd": 9600,
+      "status": "pending"
+    },
+    {
+      "index": 97,
+      "wordCount": 100,
+      "rankStart": 9601,
+      "rankEnd": 9700,
+      "status": "pending"
+    },
+    {
+      "index": 98,
+      "wordCount": 100,
+      "rankStart": 9701,
+      "rankEnd": 9800,
+      "status": "pending"
+    },
+    {
+      "index": 99,
+      "wordCount": 100,
+      "rankStart": 9801,
+      "rankEnd": 9900,
+      "status": "pending"
+    },
+    {
+      "index": 100,
+      "wordCount": 100,
+      "rankStart": 9901,
+      "rankEnd": 10000,
+      "status": "pending"
+    },
+    {
+      "index": 101,
+      "wordCount": 100,
+      "rankStart": 10001,
+      "rankEnd": 10100,
+      "status": "pending"
+    },
+    {
+      "index": 102,
+      "wordCount": 100,
+      "rankStart": 10101,
+      "rankEnd": 10200,
+      "status": "pending"
+    },
+    {
+      "index": 103,
+      "wordCount": 100,
+      "rankStart": 10201,
+      "rankEnd": 10300,
+      "status": "pending"
+    },
+    {
+      "index": 104,
+      "wordCount": 100,
+      "rankStart": 10301,
+      "rankEnd": 10400,
+      "status": "pending"
+    },
+    {
+      "index": 105,
+      "wordCount": 100,
+      "rankStart": 10401,
+      "rankEnd": 10500,
+      "status": "pending"
+    },
+    {
+      "index": 106,
+      "wordCount": 100,
+      "rankStart": 10501,
+      "rankEnd": 10600,
+      "status": "pending"
+    },
+    {
+      "index": 107,
+      "wordCount": 100,
+      "rankStart": 10601,
+      "rankEnd": 10700,
+      "status": "pending"
+    },
+    {
+      "index": 108,
+      "wordCount": 100,
+      "rankStart": 10701,
+      "rankEnd": 10800,
+      "status": "pending"
+    },
+    {
+      "index": 109,
+      "wordCount": 100,
+      "rankStart": 10801,
+      "rankEnd": 10900,
+      "status": "pending"
+    },
+    {
+      "index": 110,
+      "wordCount": 100,
+      "rankStart": 10901,
+      "rankEnd": 11000,
+      "status": "pending"
+    },
+    {
+      "index": 111,
+      "wordCount": 100,
+      "rankStart": 11001,
+      "rankEnd": 11100,
+      "status": "pending"
+    },
+    {
+      "index": 112,
+      "wordCount": 100,
+      "rankStart": 11101,
+      "rankEnd": 11200,
+      "status": "pending"
+    },
+    {
+      "index": 113,
+      "wordCount": 100,
+      "rankStart": 11201,
+      "rankEnd": 11300,
+      "status": "pending"
+    },
+    {
+      "index": 114,
+      "wordCount": 100,
+      "rankStart": 11301,
+      "rankEnd": 11400,
+      "status": "pending"
+    },
+    {
+      "index": 115,
+      "wordCount": 100,
+      "rankStart": 11401,
+      "rankEnd": 11500,
+      "status": "pending"
+    },
+    {
+      "index": 116,
+      "wordCount": 100,
+      "rankStart": 11501,
+      "rankEnd": 11600,
+      "status": "pending"
+    },
+    {
+      "index": 117,
+      "wordCount": 100,
+      "rankStart": 11601,
+      "rankEnd": 11700,
+      "status": "pending"
+    },
+    {
+      "index": 118,
+      "wordCount": 100,
+      "rankStart": 11701,
+      "rankEnd": 11800,
+      "status": "pending"
+    },
+    {
+      "index": 119,
+      "wordCount": 100,
+      "rankStart": 11801,
+      "rankEnd": 11900,
+      "status": "pending"
+    },
+    {
+      "index": 120,
+      "wordCount": 100,
+      "rankStart": 11901,
+      "rankEnd": 12000,
+      "status": "pending"
+    },
+    {
+      "index": 121,
+      "wordCount": 100,
+      "rankStart": 12001,
+      "rankEnd": 12100,
+      "status": "pending"
+    },
+    {
+      "index": 122,
+      "wordCount": 100,
+      "rankStart": 12101,
+      "rankEnd": 12200,
+      "status": "pending"
+    },
+    {
+      "index": 123,
+      "wordCount": 100,
+      "rankStart": 12201,
+      "rankEnd": 12300,
+      "status": "pending"
+    },
+    {
+      "index": 124,
+      "wordCount": 100,
+      "rankStart": 12301,
+      "rankEnd": 12400,
+      "status": "pending"
+    },
+    {
+      "index": 125,
+      "wordCount": 100,
+      "rankStart": 12401,
+      "rankEnd": 12500,
+      "status": "pending"
+    },
+    {
+      "index": 126,
+      "wordCount": 100,
+      "rankStart": 12501,
+      "rankEnd": 12600,
+      "status": "pending"
+    },
+    {
+      "index": 127,
+      "wordCount": 100,
+      "rankStart": 12601,
+      "rankEnd": 12700,
+      "status": "pending"
+    },
+    {
+      "index": 128,
+      "wordCount": 100,
+      "rankStart": 12701,
+      "rankEnd": 12800,
+      "status": "pending"
+    },
+    {
+      "index": 129,
+      "wordCount": 100,
+      "rankStart": 12801,
+      "rankEnd": 12900,
+      "status": "pending"
+    },
+    {
+      "index": 130,
+      "wordCount": 100,
+      "rankStart": 12901,
+      "rankEnd": 13000,
+      "status": "pending"
+    },
+    {
+      "index": 131,
+      "wordCount": 100,
+      "rankStart": 13001,
+      "rankEnd": 13100,
+      "status": "pending"
+    },
+    {
+      "index": 132,
+      "wordCount": 100,
+      "rankStart": 13101,
+      "rankEnd": 13200,
+      "status": "pending"
+    },
+    {
+      "index": 133,
+      "wordCount": 100,
+      "rankStart": 13201,
+      "rankEnd": 13300,
+      "status": "pending"
+    },
+    {
+      "index": 134,
+      "wordCount": 100,
+      "rankStart": 13301,
+      "rankEnd": 13400,
+      "status": "pending"
+    },
+    {
+      "index": 135,
+      "wordCount": 100,
+      "rankStart": 13401,
+      "rankEnd": 13500,
+      "status": "pending"
+    },
+    {
+      "index": 136,
+      "wordCount": 100,
+      "rankStart": 13501,
+      "rankEnd": 13600,
+      "status": "pending"
+    },
+    {
+      "index": 137,
+      "wordCount": 100,
+      "rankStart": 13601,
+      "rankEnd": 13700,
+      "status": "pending"
+    },
+    {
+      "index": 138,
+      "wordCount": 100,
+      "rankStart": 13701,
+      "rankEnd": 13800,
+      "status": "pending"
+    },
+    {
+      "index": 139,
+      "wordCount": 100,
+      "rankStart": 13801,
+      "rankEnd": 13900,
+      "status": "pending"
+    },
+    {
+      "index": 140,
+      "wordCount": 100,
+      "rankStart": 13901,
+      "rankEnd": 14000,
+      "status": "pending"
+    },
+    {
+      "index": 141,
+      "wordCount": 100,
+      "rankStart": 14001,
+      "rankEnd": 14100,
+      "status": "pending"
+    },
+    {
+      "index": 142,
+      "wordCount": 52,
+      "rankStart": 14101,
+      "rankEnd": 14152,
+      "status": "pending"
+    }
+  ],
+  "doneWords": []
+}

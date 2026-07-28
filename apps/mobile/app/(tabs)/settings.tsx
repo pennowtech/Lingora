@@ -488,6 +488,7 @@ export default function SettingsScreen(): JSX.Element {
         <LinkRow icon="swap-vertical" label="Import & export" detail="Anki, CSV, JSON backup" onPress={() => router.push('/settings/import-export')} />
         <LinkRow icon="color-palette" label="Card templates" detail="Customize card layouts" onPress={() => router.push('/settings/templates')} divider />
         <LinkRow icon="volume-high" label="Pronunciation" detail="Voice, rate, pitch" onPress={() => router.push('/settings/tts')} divider />
+        <LinkRow icon="library" label="Word guides" detail="Free starter dictionary — no AI key needed" onPress={() => router.push('/settings/word-guides')} divider />
       </Card>
 
       {/* ── Privacy ── */}

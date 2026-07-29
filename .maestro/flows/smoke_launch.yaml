@@ -5,9 +5,8 @@
 # Metro (localhost:8081 via `adb reverse`). For CI/release, build a standalone APK so a plain
 # `launchApp` opens the app directly (see .maestro/README.md).
 #
-# NOTE: asserts on visible tab labels, not testID — WP1 (7_maestro_test_plan.md) wires up
-# `tab-home|search|decks|mine|settings` testIDs; migrate this flow to `id:` once that lands, per this
-# repo's own convention (see .maestro/README.md).
+# WP1 done: tab bar uses `id:` (tabBarButtonTestID -> tab-home|search|decks|mine|settings on
+# (tabs)/_layout.tsx), immune to the app-language i18n work translating the tab labels.
 appId: com.lingora.mobile
 name: smoke_launch
 tags:
@@ -16,15 +15,23 @@ tags:
 - launchApp
 - openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
 - extendedWaitUntil:
-    visible: "Home"
+    visible:
+      id: "tab-home"
     timeout: 90000
-- assertVisible: "Search"
-- assertVisible: "Decks"
-- assertVisible: "Mine"
-- assertVisible: "Settings"
-- tapOn: "Search"
+- assertVisible:
+    id: "tab-search"
+- assertVisible:
+    id: "tab-decks"
+- assertVisible:
+    id: "tab-mine"
+- assertVisible:
+    id: "tab-settings"
+- tapOn:
+    id: "tab-search"
 - assertVisible:
     text: "Search"
-- tapOn: "Decks"
-- tapOn: "Home"
-- assertVisible: "Guten Tag!"
+- tapOn:
+    id: "tab-decks"
+- tapOn:
+    id: "tab-home"
+- assertVisible: "Guten Tag.*" # the actual text is "Guten Tag! 👋" — Maestro's plain-string match is exact, not substring

@@ -1,0 +1,29 @@
+# LINGORA-E2E-001 — look up a seeded word, confirm the word detail screen renders its content.
+# Fixture: seedDatabase's dev seed includes "ausgehen" (verb, "to go out") as a card — see
+# apps/mobile/lib/services.tsx / packages/database's seed. No network/AI call needed.
+appId: com.lingora.mobile
+name: lookup_word_view_detail
+tags:
+  - tier0
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- assertVisible:
+    id: "tab-search"
+- tapOn:
+    id: "tab-search"
+- assertVisible:
+    text: "Search"
+- tapOn:
+    id: "search-input"
+- inputText: "ausgehen"
+- assertVisible: "ausgehen"
+# "ausgehen" is a seeded card, so the results row shows a checkmark + "Details" chip
+# (Search's existing-results-list redesign) rather than being tappable itself.
+- tapOn: "Details"
+- assertVisible: "to go out"
+- assertVisible: "Examples"

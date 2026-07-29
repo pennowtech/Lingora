@@ -133,6 +133,7 @@ export default function SearchScreen(): JSX.Element {
       <View style={styles.searchBox}>
         <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
+          testID="search-input"
           style={styles.input}
           placeholder={t('Type a German or English word…')}
           placeholderTextColor={colors.textMuted}

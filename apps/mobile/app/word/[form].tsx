@@ -739,6 +739,7 @@ export default function WordDetailScreen(): JSX.Element {
           <Text style={styles.modalTitle}>{t('Edit this card')}</Text>
           <Text style={styles.editLabel}>{t('Meaning')}</Text>
           <TextInput
+            testID="edit-meaning-input"
             style={styles.editInput}
             value={editMeaning}
             onChangeText={setEditMeaning}

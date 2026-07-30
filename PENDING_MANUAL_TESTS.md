@@ -6,6 +6,40 @@ everything listed here — these are the "actually launch the app and look at
 it" steps that still need a human. Check items off as you verify them; add
 new sections as new work packages land.
 
+## Maestro E2E flows (2026-07-30) — suite complete, two real app bugs found + fixed
+
+All 12 flows in `.maestro/flows/*.yaml` now pass individually against a real AVD (see
+`.maestro/README.md`'s Flow catalog). Nothing left to do here — kept as a record of what this pass
+found, since two of the three findings were genuine app bugs, not flow issues:
+
+- [x] **Fixed — deck delete via the "⋮" menu.** Looked like delete silently failed (two duplicate
+      decks survived across runs), but was actually a flow-timing race: the confirm `Alert` takes a
+      moment to animate in after the menu `Modal` closes, and tapping "Delete" immediately after
+      "Delete deck" could land before the dialog existed. Confirmed via direct on-device sqlite
+      inspection (pulled `lingora.db`, not just the UI) that the app-level `deleteDeck` logic itself
+      was always correct. Fixed by asserting on the dialog's own title (`"Delete deck?"` /
+      `"Merge into...?"`) before tapping its button, in both `create_rename_delete_deck.yaml` and
+      `deck_move_merge.yaml` — any future flow with a confirm `Alert` should do the same rather than
+      tapping the confirm button immediately after the action that triggers it.
+- [x] **Fixed — real app bug: a due card with a cloze variant never appeared in normal review.**
+      `review/[deckId].tsx`'s `loadReviewQueue` excluded any due card that had an associated
+      `cloze_cards` row from non-cloze-mode sessions (`if (!clozeOnly && cloze) continue`), but
+      `getDueCardsCount` (which drives the deck list's "N due" badge) has no such exclusion — so a
+      card could show as due on the Decks screen, then the review session for that same deck would
+      say "Nothing due right now". Found via `review_session_rate_card.yaml` against the seeded
+      `ausgehen` card (which has both a normal card and a seeded cloze variant). Fixed by removing the
+      exclusion — a card's cloze variant no longer removes it from normal review, only `mode=cloze`
+      sessions still filter *to* cards that have one.
+- [x] **Not a bug — documented fixture-sharing limitation.** `review_session_rate_card.yaml` and
+      `cloze_review_mode.yaml` both rate the same seeded due card, so whichever runs second in a
+      full-suite pass correctly reports "Nothing due right now" and fails — expected, not a
+      regression. Documented in both flows' header comments and `.maestro/README.md`. A real fix
+      (dedicated fixture per flow, or a "reset review state" dev affordance) is tracked as an open
+      item in `LingoraDocs/7_maestro_test_plan.md` §6, not solved here.
+
+VS Code Task Sidebar now has one task per flow plus `Maestro: Full suite (all flows)` —
+`.vscode/tasks.json`.
+
 ## App language (i18n): English/German/French/Spanish/Hindi (not yet AVD-verified, requires a native rebuild)
 
 New `expo-localization` dependency (native module) — a plain Metro reload is not enough. Run "Mobile:

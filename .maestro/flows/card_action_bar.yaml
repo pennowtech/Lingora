@@ -1,0 +1,49 @@
+# LINGORA-E2E-005 — word detail's card action bar: explain (stored, no AI call), toggle
+# translation visibility, edit + save a meaning. Fixture: "ausgehen" ships with a stored
+# explanation in the seed data, so "Explain" never needs a live AI/dictionary call.
+appId: com.lingora.mobile
+name: card_action_bar
+tags:
+  - tier1
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-search"
+- tapOn:
+    id: "search-input"
+- inputText: "ausgehen"
+- tapOn: "Details"
+- assertVisible: "to go out"
+
+- tapOn: "Explain"
+- assertVisible: "to leave home for a social activity"
+
+- tapOn: "Translation"
+- assertNotVisible: "to go out"
+- tapOn: "Translation"
+- assertVisible: "to go out"
+
+- tapOn: "Edit"
+- assertVisible: "Edit this card"
+- tapOn:
+    id: "edit-meaning-input"
+- eraseText
+- inputText: "to head out"
+- tapOn: "Save changes"
+- assertVisible: "to head out"
+
+# Restore the seeded meaning text so other flows that assert "to go out" (e.g.
+# add_word_to_deck.yaml) stay correct on the next run — seedDatabase's INSERT OR IGNORE
+# won't revert an edit made through the app.
+- tapOn: "Edit"
+- tapOn:
+    id: "edit-meaning-input"
+- eraseText
+- inputText: "to go out"
+- tapOn: "Save changes"
+- assertVisible: "to go out"

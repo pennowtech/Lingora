@@ -1,0 +1,17 @@
+# LINGORA-E2E-010 — stats screen renders with seeded review history (from the smoke/review flows
+# having run at least once; falls back to the "No stats yet" empty state on a truly fresh db,
+# which this flow also accepts as a valid render, not a failure).
+appId: com.lingora.mobile
+name: stats_screen
+tags:
+  - tier2
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn: "Statistics"
+- assertVisible:
+    text: "total cards|No stats yet"

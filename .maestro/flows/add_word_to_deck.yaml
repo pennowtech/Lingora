@@ -1,0 +1,46 @@
+# LINGORA-E2E-002 — add a seeded card to a second deck; confirm it shows up in that deck's card list.
+# Fixture: "ausgehen" (seeded card, already in "My Vocabulary") — see packages/database/src/seed_dummy_data.ts.
+# No network/AI call: addToDeck just links the existing card to a new deck row.
+appId: com.lingora.mobile
+name: add_word_to_deck
+tags:
+  - tier0
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+
+# Create a fresh target deck so this flow is idempotent across reruns without a clean-state reset.
+- tapOn:
+    id: "tab-decks"
+- tapOn:
+    id: "create-deck-fab"
+- tapOn:
+    id: "new-deck-name-input"
+- inputText: "Maestro Add Deck"
+- tapOn: "Create deck"
+- assertVisible: "Maestro Add Deck"
+
+# Look up the seeded word and add it to the new deck.
+- tapOn:
+    id: "tab-search"
+- tapOn:
+    id: "search-input"
+- inputText: "ausgehen"
+- tapOn: "Details"
+- assertVisible: "to go out"
+- tapOn: "Add to deck"
+- tapOn: "Maestro Add Deck"
+# Button label is "Added ✓ — add to another deck" — full match, not substring, so use a regex.
+- assertVisible: ".*Added.*"
+
+# Confirm it actually landed in the deck's card list. word/[form] is a stack route outside the
+# tab group (no tab bar visible here) — back out to Search first.
+- back
+- tapOn:
+    id: "tab-decks"
+- tapOn: "Maestro Add Deck"
+- assertVisible: "ausgehen"

@@ -1,0 +1,54 @@
+# LINGORA-E2E-009 — deck move (re-parent) and merge, via decks list + deck detail pickers.
+# No AI/network dependency; creates its own two throwaway decks so it's idempotent across reruns.
+appId: com.lingora.mobile
+name: deck_move_merge
+tags:
+  - tier1
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-decks"
+
+- tapOn:
+    id: "create-deck-fab"
+- tapOn:
+    id: "new-deck-name-input"
+- inputText: "Maestro Parent Deck"
+- tapOn: "Create deck"
+- assertVisible: "Maestro Parent Deck"
+
+- tapOn:
+    id: "create-deck-fab"
+- tapOn:
+    id: "new-deck-name-input"
+- inputText: "Maestro Child Deck"
+- tapOn: "Create deck"
+- assertVisible: "Maestro Child Deck"
+
+# Move "Maestro Child Deck" under "Maestro Parent Deck", from the child's own detail screen.
+- tapOn: "Maestro Child Deck"
+- tapOn:
+    id: "deck-menu-button"
+- tapOn: "Move to…"
+- tapOn: "Maestro Parent Deck"
+- back
+- assertVisible: "Maestro Parent Deck"
+- assertVisible: "Maestro Child Deck"
+
+# Merge "Maestro Child Deck" into "Maestro Parent Deck" — deletes the child.
+- tapOn: "Maestro Child Deck"
+- tapOn:
+    id: "deck-menu-button"
+- tapOn: "Merge into…"
+- tapOn: "Maestro Parent Deck"
+# The confirm Alert takes a moment to animate in — wait for it before tapping "Merge" so the tap
+# doesn't race the dialog (see create_rename_delete_deck.yaml for the same fix + full explanation).
+- assertVisible: "Merge into.*"
+- tapOn: "Merge"
+- assertVisible: "Maestro Parent Deck"
+- assertNotVisible: "Maestro Child Deck"

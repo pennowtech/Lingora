@@ -275,7 +275,7 @@ export default function DecksScreen(): JSX.Element {
         </ScrollView>
       )}
 
-      <Pressable style={styles.fab} onPress={() => setCreateOpen(true)}>
+      <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setCreateOpen(true)}>
         <Ionicons name="add" size={28} color={colors.textOnPrimary} />
       </Pressable>
 
@@ -286,6 +286,7 @@ export default function DecksScreen(): JSX.Element {
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t('New deck')}</Text>
           <TextInput
+            testID="new-deck-name-input"
             style={styles.inputField}
             placeholder={t('Deck name')}
             placeholderTextColor={colors.textMuted}

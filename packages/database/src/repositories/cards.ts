@@ -8,7 +8,7 @@ import type { DatabaseAdapter } from '../adapter'
  */
 function cardColumns(prefix = ''): string {
   const p = prefix === '' ? '' : `${prefix}.`
-  return `${p}id, ${p}lemma_id AS lemmaId, ${p}deck_id AS deckId, ${p}type, ${p}primary_meaning_id AS primaryMeaningId, ${p}created_at AS createdAt, ${p}updated_at AS updatedAt, ${p}suspended_at AS suspendedAt`
+  return `${p}id, ${p}lemma_id AS lemmaId, ${p}deck_id AS deckId, ${p}type, ${p}primary_meaning_id AS primaryMeaningId, ${p}created_at AS createdAt, ${p}updated_at AS updatedAt, ${p}suspended_at AS suspendedAt, ${p}source`
 }
 
 /**

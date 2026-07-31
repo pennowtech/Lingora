@@ -182,7 +182,7 @@ describe('word_guides repository', () => {
     it('creates a minimal card from a plain translation, with an empty explanation', async () => {
       const { lemma, cardId } = await persistTranslationAsCard(
         db,
-        { form: 'sprechen', language: 'de', translation: 'to speak' },
+        { form: 'sprechen', language: 'de', translation: 'to speak', provider: 'google' },
         'deck-default',
       )
 

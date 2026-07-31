@@ -1,5 +1,6 @@
 import type {
   Card,
+  CardSource,
   CefrLevel,
   Lemma,
   LanguageCode,
@@ -213,11 +214,12 @@ export async function persistWordGuideAsCard(
       type: 'basic',
       createdAt: now,
       updatedAt: now,
+      source: 'word_guide',
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
     )
     await tx.execute(
       `INSERT INTO card_states
@@ -295,7 +297,7 @@ export async function persistWordGuideAsCard(
  */
 export async function persistTranslationAsCard(
   db: DatabaseAdapter,
-  args: { form: string; language: LanguageCode; translation: string },
+  args: { form: string; language: LanguageCode; translation: string; provider: Exclude<CardSource, 'word_guide'> },
   deckId: string,
   cefrLevel: CefrLevel = 'A1',
 ): Promise<{ lemma: Lemma; cardId: string }> {
@@ -326,11 +328,12 @@ export async function persistTranslationAsCard(
       type: 'basic',
       createdAt: now,
       updatedAt: now,
+      source: args.provider,
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
     )
     await tx.execute(
       `INSERT INTO card_states

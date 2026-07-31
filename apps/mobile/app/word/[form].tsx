@@ -55,6 +55,7 @@ import {
   Spinner,
 } from '../../components/ui'
 import { WordGuideModal } from '../../components/WordGuideModal'
+import { CardSourceIcon } from '../../lib/cardSource'
 import { useServices } from '../../lib/services'
 import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
 
@@ -429,7 +430,10 @@ export default function WordDetailScreen(): JSX.Element {
         {/* ── Word header ── */}
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
-            <Text style={styles.wordForm}>{word.lemma.form}</Text>
+            <View style={styles.wordFormRow}>
+              <Text style={styles.wordForm}>{word.lemma.form}</Text>
+              <CardSourceIcon source={word.card?.source} size={18} />
+            </View>
             <Text style={styles.wordMeta}>
               {lemmaMeta}
               {inflectionMeta ? ` · ${inflectionMeta}` : ''}
@@ -837,6 +841,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerText: { flex: 1, marginRight: spacing.md },
+  wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
   wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   clusterTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },

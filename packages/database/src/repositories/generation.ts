@@ -178,11 +178,12 @@ export async function persistWordGeneration(
       type: 'basic',
       createdAt: now,
       updatedAt: now,
+      source: usage.provider,
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
     )
     await tx.execute(
       `INSERT INTO card_states

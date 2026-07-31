@@ -70,6 +70,11 @@ export interface MeaningCluster {
 
 export type CardType = 'basic' | 'reverse' | 'cloze' | 'phrase' | 'image'
 
+/** How a card was created — drives the small source icon in Search and word detail. Unset
+ * (undefined) for cards from before this existed, and for paths that don't set it (CSV/Anki
+ * import, manual entry) — the UI treats that as "no icon", not an error. */
+export type CardSource = AIProviderName | 'google' | 'deepl' | 'word_guide'
+
 export interface Card {
   id: string
   lemmaId: string
@@ -79,6 +84,7 @@ export interface Card {
   createdAt: number
   updatedAt: number
   suspendedAt?: number // if set, card is suspended from review
+  source?: CardSource
 }
 
 // ─── Meanings ─────────────────────────────────────────────────────────────────

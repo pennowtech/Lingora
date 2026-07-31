@@ -1,0 +1,27 @@
+# LINGORA-E2E-003 — start a review session on the seeded due card, rate it (tap, not swipe),
+# confirm it leaves the due queue. Fixture: "ausgehen" in "My Vocabulary" is seeded with
+# next_review_date = seed time, so it's due on a fresh AVD/db. Shares that same due card with
+# cloze_review_mode.yaml — see that flow's header comment for why only one of the two passes per
+# seeded install without a state reset in between.
+appId: com.lingora.mobile
+name: review_session_rate_card
+tags:
+  - tier0
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-decks"
+- tapOn: "My Vocabulary"
+- tapOn:
+    text: "Review.*due cards"
+- assertVisible: "tap to reveal"
+- tapOn: "tap to reveal"
+- assertVisible: "Good"
+- tapOn: "Good"
+- assertVisible: "Session complete!"
+- tapOn: "Back to deck"

@@ -155,7 +155,13 @@ export default function MiningQueueScreen(): JSX.Element {
 
   const captureFab = (
     <View style={styles.fab}>
-      <IconButton icon="add" size={28} color={colors.textOnPrimary} onPress={() => setCaptureOpen(true)} />
+      <IconButton
+        testID="mine-capture-fab"
+        icon="add"
+        size={28}
+        color={colors.textOnPrimary}
+        onPress={() => setCaptureOpen(true)}
+      />
     </View>
   )
 
@@ -168,6 +174,7 @@ export default function MiningQueueScreen(): JSX.Element {
             {t('Paste or type a German sentence. It joins the queue below — nothing is sent to AI until you generate.')}
           </Text>
           <TextInput
+            testID="mine-capture-input"
             style={styles.modalInput}
             multiline
             placeholder="Ich gehe heute Abend aus."

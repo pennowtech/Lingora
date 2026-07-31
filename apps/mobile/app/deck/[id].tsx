@@ -241,7 +241,9 @@ export default function DeckDetailScreen(): JSX.Element {
       <Stack.Screen
         options={{
           title: `${deck.emoji ?? '📚'} ${deck.name}`,
-          headerRight: () => <IconButton icon="ellipsis-horizontal" onPress={() => setMenuOpen(true)} />,
+          headerRight: () => (
+            <IconButton testID="deck-menu-button" icon="ellipsis-horizontal" onPress={() => setMenuOpen(true)} />
+          ),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
@@ -341,6 +343,7 @@ export default function DeckDetailScreen(): JSX.Element {
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
           <TextInput
+            testID="rename-deck-input"
             style={styles.inputField}
             value={renameValue}
             onChangeText={setRenameValue}

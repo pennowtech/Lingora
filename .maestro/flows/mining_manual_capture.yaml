@@ -1,0 +1,24 @@
+# LINGORA-E2E-011 — sentence mining: manual capture of a sentence, confirm it appears in the queue.
+# No AI call: capture only stores the raw text (createMineEntry) — nothing is sent to AI until a
+# separate "generate" step, out of scope here.
+appId: com.lingora.mobile
+name: mining_manual_capture
+tags:
+  - tier2
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-mine"
+- tapOn:
+    id: "mine-capture-fab"
+- tapOn:
+    id: "mine-capture-input"
+- inputText: "Maestro hat einen Testsatz erfasst."
+- tapOn: "Add to queue"
+# The queue row wraps captured text in German-style quotes, so match loosely rather than exactly.
+- assertVisible: ".*Maestro hat einen Testsatz erfasst.*"

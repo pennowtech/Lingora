@@ -1,0 +1,33 @@
+# LINGORA-E2E-006 — template editor: switch Fields/Style/Preview/Code tabs, confirm each renders.
+# No seed-data dependency — this is the shared default template, not a specific card.
+appId: com.lingora.mobile
+name: template_editor_tabs
+tags:
+  - tier1
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element: "Card templates"
+    direction: DOWN
+- tapOn: "Card templates"
+- assertVisible: "Fields"
+
+- tapOn: "Style"
+- assertVisible: "Style"
+
+- tapOn: "Preview"
+- assertVisible: "Front"
+- assertVisible: "Back"
+
+- tapOn: "Code"
+- assertVisible: "Code"
+
+- tapOn: "Fields"
+- assertVisible: "Fields"

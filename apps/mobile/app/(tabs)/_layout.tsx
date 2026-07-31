@@ -33,6 +33,7 @@ export default function TabsLayout(): JSX.Element {
         options={{
           title: t('Home'),
           headerShown: false,
+          tabBarButtonTestID: 'tab-home',
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
@@ -40,6 +41,7 @@ export default function TabsLayout(): JSX.Element {
         name="search"
         options={{
           title: t('Search'),
+          tabBarButtonTestID: 'tab-search',
           tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
         }}
       />
@@ -47,6 +49,7 @@ export default function TabsLayout(): JSX.Element {
         name="decks"
         options={{
           title: t('Decks'),
+          tabBarButtonTestID: 'tab-decks',
           tabBarIcon: ({ color, size }) => <Ionicons name="albums" size={size} color={color} />,
         }}
       />
@@ -54,6 +57,7 @@ export default function TabsLayout(): JSX.Element {
         name="mine"
         options={{
           title: t('Mine'),
+          tabBarButtonTestID: 'tab-mine',
           ...(pendingCount > 0 && { tabBarBadge: pendingCount }),
           tabBarIcon: ({ color, size }) => <Ionicons name="download" size={size} color={color} />,
         }}
@@ -62,6 +66,7 @@ export default function TabsLayout(): JSX.Element {
         name="settings"
         options={{
           title: t('Settings'),
+          tabBarButtonTestID: 'tab-settings',
           tabBarIcon: ({ color, size }) => <Ionicons name="settings-sharp" size={size} color={color} />,
         }}
       />

@@ -1,4 +1,4 @@
-import type { CefrLevel, Inflection, Lemma } from '@lingora/types'
+import type { CardSource, CefrLevel, Inflection, Lemma } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 import { buildFTSQuery } from '../fts'
 
@@ -133,6 +133,8 @@ export interface LemmaSearchPreview {
    * typically doesn't).
    */
   hasDetail: boolean
+  /** How the lemma's card was created — drives the small source icon in the result row. */
+  source: CardSource | null
 }
 
 /**
@@ -149,8 +151,13 @@ export async function searchLemmasWithPreview(
   const previews: LemmaSearchPreview[] = []
 
   for (const lemma of lemmas) {
-    const meaning = await db.querySingle<{ translation: string; cefrLevel: CefrLevel; explanation: string }>(
-      `SELECT m.translation, m.cefr_level AS cefrLevel, m.explanation
+    const meaning = await db.querySingle<{
+      translation: string
+      cefrLevel: CefrLevel
+      explanation: string
+      source: CardSource | null
+    }>(
+      `SELECT m.translation, m.cefr_level AS cefrLevel, m.explanation, c.source
        FROM meanings m
        JOIN cards c ON c.id = m.card_id
        WHERE c.lemma_id = ? AND m.is_primary = 1
@@ -176,6 +183,7 @@ export async function searchLemmasWithPreview(
       cefrLevel: meaning?.cefrLevel ?? null,
       inDeck: (membership?.n ?? 0) > 0,
       hasDetail: (meaning?.explanation.trim() ?? '') !== '' || (extras?.n ?? 0) > 0,
+      source: meaning?.source ?? null,
     })
   }
 

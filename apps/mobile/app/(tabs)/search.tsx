@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, Card, Chip, EmptyState, ErrorState } from '../../components/ui'
 import { WordGuideModal } from '../../components/WordGuideModal'
+import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 import { getWordGuideManifest } from '../../lib/wordGuides'
@@ -101,7 +102,12 @@ export default function SearchScreen(): JSX.Element {
       }
       return persistTranslationAsCard(
         db,
-        { form: term, language: 'de', translation: quickTranslate.data.text },
+        {
+          form: term,
+          language: 'de',
+          translation: quickTranslate.data.text,
+          provider: dictionaryNameToCardSource(dictionary.name),
+        },
         DEFAULT_DECK_ID,
         defaultCefr,
       )
@@ -133,6 +139,7 @@ export default function SearchScreen(): JSX.Element {
       <View style={styles.searchBox}>
         <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
+          testID="search-input"
           style={styles.input}
           placeholder={t('Type a German or English word…')}
           placeholderTextColor={colors.textMuted}
@@ -215,9 +222,12 @@ export default function SearchScreen(): JSX.Element {
             </Card>
           ) : quickTranslate.data ? (
             <Card style={styles.translateCard}>
-              <Text style={styles.translateDirection}>
-                {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()} · {dictionary.name}
-              </Text>
+              <View style={styles.translateDirectionRow}>
+                <Text style={styles.translateDirection}>
+                  {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()}
+                </Text>
+                <CardSourceIcon source={dictionaryNameToCardSource(dictionary.name)} size={14} />
+              </View>
               <Text style={styles.translateText}>{quickTranslate.data.text}</Text>
               {quickTranslate.data.source === 'de' ? (
                 <Button
@@ -284,6 +294,7 @@ export default function SearchScreen(): JSX.Element {
                   {item.translation ? <Text style={styles.meaning}>{item.translation}</Text> : null}
                 </View>
                 <View style={styles.rowRight}>
+                  <CardSourceIcon source={item.source} />
                   {item.inDeck ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
                   {item.hasDetail ? <Chip label={t('Details')} onPress={openDetail} /> : null}
                 </View>
@@ -335,6 +346,11 @@ const styles = StyleSheet.create({
   translateCard: {
     marginTop: spacing.md,
     marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  translateDirectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.xs,
   },
   translateDirection: {

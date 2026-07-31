@@ -247,11 +247,13 @@ async function loadReviewQueue(
       getClustersForLemma(db, card.lemmaId),
     ])
     const cloze = clozes[0]
-    // Cloze cards only ever surface in a `mode=cloze` session — never mixed
-    // into a regular review queue — and vice versa, so each session shows
-    // exactly one kind of card.
+    // A `mode=cloze` session is scoped to cards that actually have a cloze
+    // variant. A normal session is NOT the mirror of that — a due card that
+    // happens to also have a cloze variant must still show up for regular
+    // review (getDueCardsCount, which drives the deck list's "N due" badge,
+    // has no cloze awareness at all, so excluding these here would silently
+    // make some "due" cards impossible to ever review outside cloze mode).
     if (clozeOnly && !cloze) continue
-    if (!clozeOnly && cloze) continue
 
     // Same selection buildCardContext uses (primary meaning / selected
     // example, falling back to the first row) — keeps the id an edit

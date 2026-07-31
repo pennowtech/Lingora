@@ -1,0 +1,44 @@
+# LINGORA-E2E-004 — create a deck, rename it, delete it. No seed-data dependency.
+appId: com.lingora.mobile
+name: create_rename_delete_deck
+tags:
+  - tier0
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-decks"
+
+- tapOn:
+    id: "create-deck-fab"
+- tapOn:
+    id: "new-deck-name-input"
+- inputText: "Maestro CRUD Deck"
+- tapOn: "Create deck"
+- assertVisible: "Maestro CRUD Deck"
+
+- tapOn: "Maestro CRUD Deck"
+- tapOn:
+    id: "deck-menu-button"
+- tapOn: "Rename deck"
+- tapOn:
+    id: "rename-deck-input"
+- eraseText
+- inputText: "Maestro CRUD Deck Renamed"
+- tapOn: "Save"
+# Header title is "<emoji> <name>" — plain-string match is full, not substring, so use a regex.
+- assertVisible: ".*Maestro CRUD Deck Renamed"
+
+- tapOn:
+    id: "deck-menu-button"
+- tapOn: "Delete deck"
+# The confirm Alert takes a moment to animate in after the menu sheet closes — assert on its
+# title first so the "Delete" tap doesn't race the dialog and land on nothing/the wrong element
+# (this is what caused two "Maestro CRUD Deck Renamed" decks to survive earlier runs of this flow).
+- assertVisible: "Delete deck?"
+- tapOn: "Delete"
+- assertNotVisible: "Maestro CRUD Deck Renamed"

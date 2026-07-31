@@ -9,6 +9,7 @@ import { templateType } from './0007_template_type'
 import { dedupeClustersAndOrphans } from './0008_dedupe_clusters_and_orphans'
 import { wordGuides } from './0009_word_guides'
 import { wordGuideTranslation } from './0010_word_guide_translation'
+import { cardSource } from './0011_card_source'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -28,6 +29,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   dedupeClustersAndOrphans,
   wordGuides,
   wordGuideTranslation,
+  cardSource,
 ]
 
 /**

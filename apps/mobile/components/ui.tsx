@@ -120,9 +120,11 @@ export function IconButton(props: {
   color?: string
   size?: number
   disabled?: boolean
+  testID?: string
 }): JSX.Element {
   return (
     <Pressable
+      testID={props.testID}
       onPress={props.onPress}
       disabled={props.disabled}
       hitSlop={8}

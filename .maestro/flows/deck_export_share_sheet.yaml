@@ -1,0 +1,35 @@
+# LINGORA-E2E-008 — deck-scoped export opens the format sheet and the native share/save sheet
+# without crashing. The native Android chooser itself isn't driven (out of scope, see
+# LingoraDocs/7_maestro_test_plan.md §4) — this just confirms it appears, then backs out of it.
+appId: com.lingora.mobile
+name: deck_export_share_sheet
+tags:
+  - tier1
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-decks"
+- tapOn: "My Vocabulary"
+- tapOn:
+    id: "deck-menu-button"
+- tapOn: "Export this deck"
+- assertVisible: "Markdown"
+- tapOn: "Markdown"
+# The native Android "save/share" flow takes over here — a separate Activity, not a JS-driven
+# Modal, and observed to vary between a share-sheet ("Sharing 1 file") and a Storage Access
+# Framework folder picker ("Files on ...") depending on the OS's remembered last choice — not
+# something the app controls or this flow should pin to one outcome of. Just give it a moment,
+# then back out twice (covers either UI) and confirm the app is still responsive underneath.
+- waitForAnimationToEnd
+- back
+- back
+# Backing out of the native picker leaves the app's own "Export ready" confirmation Alert on
+# screen — dismiss it before checking the app underneath is responsive.
+- tapOn: "OK"
+- assertVisible:
+    id: "deck-menu-button"

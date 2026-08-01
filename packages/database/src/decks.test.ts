@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
 import { migrate } from './migrations'
-import { createDeck, deleteDeck, getAllDecks, mergeDecks } from './repositories/decks'
+import { createDeck, deleteDeck, getAllDecks, mergeDecks, resetDeckProgress } from './repositories/decks'
 import { getLemmaByForm } from './repositories/lemmas'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 
@@ -147,5 +147,73 @@ describe('mergeDecks', () => {
       'deck-a-child',
     ])
     expect(child).toEqual({ parentId: 'deck-b' })
+  })
+})
+
+describe('resetDeckProgress', () => {
+  let db: NodeSqliteAdapter
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  it('resets card_states and cloze_states to fresh for every card in the deck, leaving review history alone', async () => {
+    const now = Date.now()
+    await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
+    const { rows } = parseCsv('word,meaning\nHaus,house\n')
+    const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
+    await importCsvRows(db, previews, 'deck-a', 'de')
+
+    const card = await db.querySingle<{ id: string }>('SELECT id FROM cards LIMIT 1')
+    const cardId = card?.id
+    // A cloze variant of its own — createCloze also creates the matching cloze_states row.
+    await db.execute(
+      `INSERT INTO cloze_cards (id, card_id, sentence, cloze, translation, difficulty, cefr_level)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ['cloze-1', cardId, 'Das ist ein [...].', 'Haus', 'That is a house.', 'easy', 'A1'],
+    )
+    await db.execute(`INSERT OR IGNORE INTO cloze_states (card_id, state, next_review_date) VALUES (?, 'new', 0)`, [
+      cardId,
+    ])
+
+    // Simulate both having been reviewed already.
+    await db.execute(
+      `UPDATE card_states SET state = 'review', stability = 5, difficulty = 3, lapses = 2, next_review_date = ? WHERE card_id = ?`,
+      [now + 86_400_000, cardId],
+    )
+    await db.execute(
+      `UPDATE cloze_states SET state = 'review', stability = 5, difficulty = 3, lapses = 2, next_review_date = ? WHERE card_id = ?`,
+      [now + 86_400_000, cardId],
+    )
+    await db.execute(`INSERT INTO review_events (id, card_id, rating, review_date, duration_ms) VALUES (?, ?, ?, ?, ?)`, [
+      'review-1',
+      cardId,
+      'good',
+      now,
+      1200,
+    ])
+
+    await resetDeckProgress(db, 'deck-a')
+
+    const cardState = await db.querySingle<{ state: string; lapses: number; nextReviewDate: number }>(
+      `SELECT state, lapses, next_review_date AS nextReviewDate FROM card_states WHERE card_id = ?`,
+      [cardId],
+    )
+    expect(cardState).toEqual({ state: 'new', lapses: 0, nextReviewDate: 0 })
+
+    const clozeState = await db.querySingle<{ state: string; lapses: number; nextReviewDate: number }>(
+      `SELECT state, lapses, next_review_date AS nextReviewDate FROM cloze_states WHERE card_id = ?`,
+      [cardId],
+    )
+    expect(clozeState).toEqual({ state: 'new', lapses: 0, nextReviewDate: 0 })
+
+    // Review history is untouched.
+    const reviewEvents = await db.query('SELECT id FROM review_events WHERE card_id = ?', [cardId])
+    expect(reviewEvents).toHaveLength(1)
   })
 })

@@ -26,6 +26,26 @@ export async function getDeckById(db: DatabaseAdapter, deckId: string): Promise<
 }
 
 /**
+ * Every deck that has any card of this lemma — a lemma can have more than one card (e.g. a basic
+ * and a cloze card, see import-shared.ts), each possibly in a different deck. Used to show "which
+ * deck(s) is this word already in" instead of an "Add to deck" button that would just duplicate
+ * an existing membership.
+ * @param db The database adapter to use for the query.
+ * @param lemmaId The ID of the lemma to look up deck membership for.
+ */
+export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Promise<Deck[]> {
+  return db.query<Deck>(
+    `SELECT DISTINCT d.id, d.name, d.parent_id AS parentId, d.emoji, d.created_at AS createdAt, d.updated_at AS updatedAt
+     FROM decks d
+     JOIN deck_cards dc ON dc.deck_id = d.id
+     JOIN cards c ON c.id = dc.card_id
+     WHERE c.lemma_id = ?
+     ORDER BY d.name ASC`,
+    [lemmaId],
+  )
+}
+
+/**
  * Get all direct children of a deck.
  * Used to render nested deck trees.
  * @param db The database adapter to use for the query.
@@ -230,4 +250,34 @@ export async function removeCardFromDeck(
   cardId: string,
 ): Promise<void> {
   await db.execute(`DELETE FROM deck_cards WHERE deck_id = ? AND card_id = ?`, [deckId, cardId])
+}
+
+/**
+ * Reset every card in a deck back to a fresh, never-reviewed FSRS state — both the word-meaning
+ * schedule (card_states) and the independent cloze schedule (cloze_states, migration 0013), since
+ * practicing one no longer touches the other's due date. Review history (review_events) is left
+ * alone; this resets what's due next, not the record of what was already studied — "reset
+ * progress" means the learning schedule starts over, not that the study log gets erased.
+ * @param db The database adapter to use for the query.
+ * @param deckId The ID of the deck whose cards' progress should be reset.
+ */
+export async function resetDeckProgress(db: DatabaseAdapter, deckId: string): Promise<void> {
+  await db.transaction(async (tx) => {
+    for (const table of ['card_states', 'cloze_states']) {
+      await tx.execute(
+        `UPDATE ${table} SET
+           state = 'new',
+           stability = 0,
+           difficulty = 0,
+           retrievability = 0,
+           lapses = 0,
+           last_reviewed_at = NULL,
+           next_review_date = 0,
+           reps = 0,
+           learning_steps = 0
+         WHERE card_id IN (SELECT card_id FROM deck_cards WHERE deck_id = ?)`,
+        [deckId],
+      )
+    }
+  })
 }

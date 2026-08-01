@@ -1,913 +1,328 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { CefrLevel } from '@lingora/types'
+import { logger } from '@lingora/observability'
+import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
-import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
-import { Card, Chip, SectionHeader } from '../../components/ui'
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Card, LinkRow } from '../../components/ui'
+import { PROVIDER_STORE_KEYS } from '../../lib/aiProviderMeta'
 import {
-  APP_LANGUAGES,
-  getStoredLanguagePreference,
-  isAppLanguage,
-  setAppLanguagePreference,
-  type AppLanguage,
-  type AppLanguagePreference,
-} from '../../lib/i18n'
-import {
-  DEFAULT_MODELS,
+  DEFAULT_NATIVE_LANGUAGE,
+  DEFAULT_TARGET_LANGUAGE,
   GENERATION_PROVIDERS,
   STORE_KEYS,
+  SUPPORTED_LANGUAGES,
   TRANSLATION_PROVIDERS,
   useServices,
   type GenerationProviderName,
   type TranslationProviderName,
 } from '../../lib/services'
-import {
-  validateClaudeKey,
-  validateDeepLKey,
-  validateGeminiKey,
-  validateMistralKey,
-  validateOpenAIKey,
-  type ValidationResult,
-} from '../../lib/providerValidation'
-import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
-import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
-import { logger } from '@lingora/observability'
-
-const APP_LANGUAGE_LABELS: Record<AppLanguage, string> = {
-  en: 'English',
-  de: 'German',
-  fr: 'French',
-  es: 'Spanish',
-  hi: 'Hindi',
-}
+import { colors, radius, spacing, type } from '../../lib/theme'
 
 const log = logger.child({ feature: 'settings', screen: 'SettingsScreen' })
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-const ZERO_USAGE: UsageSnapshot = { requests: 0, tokensUsed: 0 }
 
-interface ProviderMeta {
+const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
+  en: 'English',
+  de: 'German',
+  ja: 'Japanese',
+  es: 'Spanish',
+  fr: 'French',
+}
+
+const TRANSLATION_LABELS: Record<TranslationProviderName, string> = {
+  google: 'Google Translate',
+  deepl: 'DeepL',
+  openai: 'OpenAI',
+  mistral: 'Mistral',
+  gemini: 'Gemini',
+  anthropic: 'Claude',
+}
+
+interface MenuSummary {
+  configuredCount: number
+  translationLabel: string
+  cefr: CefrLevel
+  nativeLanguage: LanguageCode
+  targetLanguage: LanguageCode
+}
+
+interface SearchableSetting {
+  key: string
   label: string
+  group: string
+  keywords: string[]
+  route: string
   icon: keyof typeof Ionicons.glyphMap
-  color: string
-  models: readonly string[]
-  usageUrl: string
-  description: string
 }
 
-const PROVIDER_META: Record<GenerationProviderName, ProviderMeta> = {
-  openai: {
-    label: 'OpenAI',
-    icon: 'sparkles-outline',
-    color: colors.primary,
-    models: ['gpt-4.1-mini', 'gpt-4.1'],
-    usageUrl: 'https://platform.openai.com/usage',
-    description: 'Meanings, examples, clusters, phrases, and cloze — the default generation provider.',
-  },
-  mistral: {
-    label: 'Mistral',
-    icon: 'flash-outline',
-    color: '#F97316',
-    models: ['mistral-small-latest', 'mistral-medium-latest'],
-    usageUrl: 'https://console.mistral.ai/usage',
-    description: 'BYOK alternative for card generation and translation.',
-  },
-  gemini: {
-    label: 'Gemini',
-    icon: 'logo-google',
-    color: '#4285F4',
-    models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
-    usageUrl: 'https://aistudio.google.com/usage',
-    description: 'Google Gemini BYOK for card generation and translation.',
-  },
-  anthropic: {
-    label: 'Claude',
-    icon: 'chatbubble-ellipses-outline',
-    color: '#D97757',
-    models: ['claude-haiku-4-5-20251001', 'claude-sonnet-5'],
-    usageUrl: 'https://platform.claude.com/settings/usage',
-    description: 'Claude BYOK for card generation and translation.',
-  },
-}
-
-const PROVIDER_STORE_KEYS: Record<GenerationProviderName, { key: string; enabled: string; model: string }> = {
-  openai: { key: STORE_KEYS.openaiKey, enabled: STORE_KEYS.openaiEnabled, model: STORE_KEYS.openaiModel },
-  mistral: { key: STORE_KEYS.mistralKey, enabled: STORE_KEYS.mistralEnabled, model: STORE_KEYS.mistralModel },
-  gemini: { key: STORE_KEYS.geminiKey, enabled: STORE_KEYS.geminiEnabled, model: STORE_KEYS.geminiModel },
-  anthropic: { key: STORE_KEYS.claudeKey, enabled: STORE_KEYS.claudeEnabled, model: STORE_KEYS.claudeModel },
-}
-
-const VALIDATORS: Record<GenerationProviderName, (key: string, model: string) => Promise<ValidationResult>> = {
-  openai: validateOpenAIKey,
-  mistral: validateMistralKey,
-  gemini: validateGeminiKey,
-  anthropic: validateClaudeKey,
-}
-
-interface ProviderFormState {
-  apiKey: string
-  model: string
-  enabled: boolean
-}
-
-const emptyProviderState = (name: GenerationProviderName): ProviderFormState => ({
-  apiKey: '',
-  model: DEFAULT_MODELS[name],
-  enabled: true,
-})
+/** A flat index of every setting reachable from this menu, across every sub-screen — searched by
+ * label/group/keywords (Samsung-style settings search). Search jumps to the containing screen,
+ * not a scroll position within it — there's no way to deep-link into e.g. "the OpenAI card is
+ * open and scrolled into view" without a lot more plumbing, and getting to the right screen in one
+ * tap already does most of the work a search here needs to do. */
+const SEARCHABLE_SETTINGS: SearchableSetting[] = [
+  { key: 'ai-providers', label: 'AI Providers', group: 'AI Providers', keywords: ['ai', 'api', 'key', 'generation', 'provider'], route: '/settings/ai-providers', icon: 'sparkles-outline' },
+  { key: 'openai', label: 'OpenAI', group: 'AI Providers', keywords: ['gpt', 'api key'], route: '/settings/ai-providers', icon: 'sparkles-outline' },
+  { key: 'mistral', label: 'Mistral', group: 'AI Providers', keywords: ['api key'], route: '/settings/ai-providers', icon: 'flash-outline' },
+  { key: 'gemini', label: 'Gemini', group: 'AI Providers', keywords: ['google', 'api key'], route: '/settings/ai-providers', icon: 'logo-google' },
+  { key: 'claude', label: 'Claude', group: 'AI Providers', keywords: ['anthropic', 'api key'], route: '/settings/ai-providers', icon: 'chatbubble-ellipses-outline' },
+  { key: 'delete-ai-keys', label: 'Delete All AI Providers Keys', group: 'AI Providers', keywords: ['delete', 'remove', 'clear', 'key'], route: '/settings/ai-providers', icon: 'trash-outline' },
+  { key: 'translation', label: 'Translation', group: 'Translation', keywords: ['translate'], route: '/settings/translation', icon: 'language-outline' },
+  { key: 'google-translate', label: 'Google Translate', group: 'Translation', keywords: ['translate', 'free'], route: '/settings/translation', icon: 'language-outline' },
+  { key: 'deepl', label: 'DeepL', group: 'Translation', keywords: ['translate', 'api key'], route: '/settings/translation', icon: 'language-outline' },
+  { key: 'learning', label: 'Learning', group: 'Learning', keywords: ['cefr', 'level', 'language'], route: '/settings/learning', icon: 'school-outline' },
+  { key: 'cefr', label: 'Default CEFR level', group: 'Learning', keywords: ['a1', 'a2', 'b1', 'b2', 'c1', 'c2', 'level'], route: '/settings/learning', icon: 'school-outline' },
+  { key: 'vocab-languages', label: 'I speak / I’m learning', group: 'Learning', keywords: ['native', 'target', 'language', 'speak', 'learning'], route: '/settings/learning', icon: 'globe-outline' },
+  { key: 'general', label: 'General', group: 'General', keywords: ['audio', 'pronunciation', 'app language', 'locale', 'ui'], route: '/settings/general', icon: 'options-outline' },
+  { key: 'audio-settings', label: 'Audio Settings', group: 'General', keywords: ['tts', 'voice', 'rate', 'pitch', 'speech', 'pronunciation'], route: '/settings/tts', icon: 'volume-high' },
+  { key: 'app-language', label: 'App Language', group: 'General', keywords: ['locale', 'ui', 'interface'], route: '/settings/general', icon: 'globe-outline' },
+  { key: 'data', label: 'Data', group: 'Data', keywords: ['import', 'export'], route: '/settings/data', icon: 'swap-vertical' },
+  { key: 'import-export', label: 'Import & export', group: 'Data', keywords: ['anki', 'csv', 'json', 'backup', 'restore'], route: '/settings/import-export', icon: 'swap-vertical' },
+  { key: 'templates', label: 'Card templates', group: 'Data', keywords: ['layout', 'design', 'liquid'], route: '/settings/templates', icon: 'color-palette' },
+  { key: 'word-guides', label: 'Word guides', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
+  { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync' },
+  { key: 'about', label: 'About', group: 'About', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
+]
 
 /**
- * Settings: per-provider AI configuration (generation + translation slots),
- * default CEFR level, data tools, and app info.
- *
- * Keys and preferences live in Expo SecureStore — never in plain storage.
- * Saving a key rebuilds the AI pipeline (reloadServices), so the tier and
- * every generate button react immediately.
+ * Settings menu — a short list of rows to each sub-screen (AI Providers, Translation, Learning,
+ * Data, Privacy, About), rather than one long scroll with every provider card, language picker,
+ * and data-tool link inline. Each sub-screen (apps/mobile/app/settings/*.tsx) loads its own
+ * SecureStore state; this screen only loads a light summary for the subtitle under each row.
  */
 export default function SettingsScreen(): JSX.Element {
-  const { tier, reloadServices } = useServices()
+  const { tier } = useServices()
   const { t } = useTranslation()
 
-  const [translationProvider, setTranslationProviderState] = useState<TranslationProviderName>('google')
-  const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
-  const [deeplKey, setDeeplKey] = useState('')
-  const [deeplEnabled, setDeeplEnabledState] = useState(true)
-  const [deeplExpanded, setDeeplExpanded] = useState(false)
-  const [deeplShowKey, setDeeplShowKey] = useState(false)
-  const [deeplValidating, setDeeplValidating] = useState(false)
-  const [deeplUsage, setDeeplUsage] = useState<UsageSnapshot>(ZERO_USAGE)
-  const [cefr, setCefrState] = useState<CefrLevel>('B1')
-  const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
+  const [query, setQuery] = useState('')
   const [loaded, setLoaded] = useState(false)
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const [expandedProvider, setExpandedProvider] = useState<GenerationProviderName | null>(null)
-  const [showKey, setShowKey] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
-  const [validating, setValidating] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
-
-  const [providers, setProviders] = useState<Record<GenerationProviderName, ProviderFormState>>({
-    openai: emptyProviderState('openai'),
-    mistral: emptyProviderState('mistral'),
-    gemini: emptyProviderState('gemini'),
-    anthropic: emptyProviderState('anthropic'),
+  const [summary, setSummary] = useState<MenuSummary>({
+    configuredCount: 0,
+    translationLabel: TRANSLATION_LABELS.google,
+    cefr: 'B1',
+    nativeLanguage: DEFAULT_NATIVE_LANGUAGE,
+    targetLanguage: DEFAULT_TARGET_LANGUAGE,
   })
-  const [usage, setUsage] = useState<Record<GenerationProviderName, UsageSnapshot>>({
-    openai: ZERO_USAGE,
-    mistral: ZERO_USAGE,
-    gemini: ZERO_USAGE,
-    anthropic: ZERO_USAGE,
-  })
-
-  const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    getStoredLanguagePreference()
-      .then((stored) => {
-        if (stored === 'system' || isAppLanguage(stored)) setAppLanguageState(stored as AppLanguagePreference)
-      })
-      .catch(() => undefined)
-  }, [])
-
-  const changeAppLanguage = (preference: AppLanguagePreference): void => {
-    setAppLanguageState(preference)
-    setAppLanguagePreference(preference).catch((error: unknown) => {
-      log.error('settings.app_language_change_failed', error, { message: 'Failed to persist app language preference' })
-    })
-  }
 
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
-        const entries = await Promise.all(
-          GENERATION_PROVIDERS.map(async (name) => {
-            const keys = PROVIDER_STORE_KEYS[name]
-            const [apiKey, model, enabledRaw, providerUsage] = await Promise.all([
-              SecureStore.getItemAsync(keys.key),
-              SecureStore.getItemAsync(keys.model),
-              SecureStore.getItemAsync(keys.enabled),
-              getUsage(name),
-            ])
-            return [
-              name,
-              { apiKey: apiKey ?? '', model: model ?? DEFAULT_MODELS[name], enabled: enabledRaw !== 'false' },
-              providerUsage,
-            ] as const
-          }),
-        )
-        const [storedTranslation, storedGeneration, storedDeepl, storedDeeplEnabled, storedDeeplUsage, storedCefr] =
-          await Promise.all([
-            SecureStore.getItemAsync(STORE_KEYS.translationProvider),
-            SecureStore.getItemAsync(STORE_KEYS.generationProvider),
-            SecureStore.getItemAsync(STORE_KEYS.deeplKey),
-            SecureStore.getItemAsync(STORE_KEYS.deeplEnabled),
-            getUsage('deepl'),
-            SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
-          ])
+        const [keyPresence, storedTranslation, storedCefr, storedNativeLanguage, storedTargetLanguage] = await Promise.all([
+          Promise.all(
+            GENERATION_PROVIDERS.map(async (name: GenerationProviderName) => {
+              const [apiKey, enabledRaw] = await Promise.all([
+                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key),
+                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].enabled),
+              ])
+              return (apiKey ?? '').trim() !== '' && enabledRaw !== 'false'
+            }),
+          ),
+          SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+          SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+          SecureStore.getItemAsync(STORE_KEYS.nativeLanguage),
+          SecureStore.getItemAsync(STORE_KEYS.targetLanguage),
+        ])
 
-        setProviders((prev) => {
-          const next = { ...prev }
-          for (const [name, state] of entries) next[name] = state
-          return next
+        const translationName = (TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')
+          ? (storedTranslation as TranslationProviderName)
+          : 'google'
+
+        setSummary({
+          configuredCount: keyPresence.filter(Boolean).length,
+          translationLabel: TRANSLATION_LABELS[translationName],
+          cefr: (CEFR_LEVELS as string[]).includes(storedCefr ?? '') ? (storedCefr as CefrLevel) : 'B1',
+          nativeLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedNativeLanguage ?? '')
+            ? (storedNativeLanguage as LanguageCode)
+            : DEFAULT_NATIVE_LANGUAGE,
+          targetLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedTargetLanguage ?? '')
+            ? (storedTargetLanguage as LanguageCode)
+            : DEFAULT_TARGET_LANGUAGE,
         })
-        setUsage((prev) => {
-          const next = { ...prev }
-          for (const [name, , providerUsage] of entries) next[name] = providerUsage
-          return next
-        })
-        if ((TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')) {
-          setTranslationProviderState(storedTranslation as TranslationProviderName)
-        }
-        if ((GENERATION_PROVIDERS as readonly string[]).includes(storedGeneration ?? '')) {
-          setGenerationProviderState(storedGeneration as GenerationProviderName)
-        }
-        setDeeplKey(storedDeepl ?? '')
-        setDeeplEnabledState(storedDeeplEnabled !== 'false')
-        setDeeplUsage(storedDeeplUsage)
-        if ((CEFR_LEVELS as string[]).includes(storedCefr ?? '')) {
-          setCefrState(storedCefr as CefrLevel)
-        }
       } catch (error) {
-        log.error('settings.load_failed', error, { message: 'Failed to load stored settings' })
-        setLoadError(String(error))
+        log.error('settings.menu_summary_load_failed', error, { message: 'Failed to load settings menu summary' })
       } finally {
         setLoaded(true)
       }
     }
     void load()
+    // Re-read every time the tab regains focus isn't wired here (no useFocusEffect elsewhere in
+    // this app's settings screens either) — a sub-screen edit rebuilds the AI pipeline
+    // immediately (reloadServices), so `tier`/limitedMode above stays live; only this summary
+    // text catches up on next visit, which is fine for a subtitle.
   }, [])
 
-  /** Persist + rebuild the pipeline, debounced so typing a key isn't N rebuilds. */
-  const persist = (storeKey: string, value: string): void => {
-    void SecureStore.setItemAsync(storeKey, value)
-    if (reloadTimer.current) clearTimeout(reloadTimer.current)
-    reloadTimer.current = setTimeout(() => void reloadServices(), 600)
-  }
-
-  const updateProvider = (name: GenerationProviderName, patch: Partial<ProviderFormState>): void => {
-    setProviders((prev) => ({ ...prev, [name]: { ...prev[name], ...patch } }))
-  }
-
-  const changeApiKey = (name: GenerationProviderName, value: string): void => {
-    updateProvider(name, { apiKey: value })
-    persist(PROVIDER_STORE_KEYS[name].key, value.trim())
-  }
-  const changeModel = (name: GenerationProviderName, value: string): void => {
-    updateProvider(name, { model: value })
-    persist(PROVIDER_STORE_KEYS[name].model, value)
-  }
-  const changeEnabled = (name: GenerationProviderName, value: boolean): void => {
-    updateProvider(name, { enabled: value })
-    persist(PROVIDER_STORE_KEYS[name].enabled, value ? 'true' : 'false')
-    log.info('settings.provider_enabled_changed', {
-      message: `${value ? 'Enabled' : 'Disabled'} a generation provider`,
-      metadata: { provider: name, settingKey: 'enabled' },
-    })
-  }
-  const changeGenerationProvider = (name: GenerationProviderName): void => {
-    setGenerationProviderState(name)
-    persist(STORE_KEYS.generationProvider, name)
-    log.info('settings.generation_provider_changed', {
-      message: 'Active generation provider changed',
-      metadata: { provider: name },
-    })
-  }
-  const changeTranslationProvider = (value: TranslationProviderName): void => {
-    setTranslationProviderState(value)
-    persist(STORE_KEYS.translationProvider, value)
-    log.info('settings.translation_provider_changed', {
-      message: 'Translation provider changed',
-      metadata: { provider: value },
-    })
-  }
-  const changeDeeplKey = (value: string): void => {
-    setDeeplKey(value)
-    persist(STORE_KEYS.deeplKey, value.trim())
-  }
-  const changeDeeplEnabled = (value: boolean): void => {
-    setDeeplEnabledState(value)
-    persist(STORE_KEYS.deeplEnabled, value ? 'true' : 'false')
-    log.info('settings.provider_enabled_changed', {
-      message: `${value ? 'Enabled' : 'Disabled'} DeepL`,
-      metadata: { provider: 'deepl', settingKey: 'enabled' },
-    })
-  }
-  const validateDeepl = (): void => {
-    if (!deeplKey.trim()) return
-    setDeeplValidating(true)
-    void validateDeepLKey(deeplKey)
-      .then((result) => {
-        Alert.alert(
-          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('DeepL validation failed'),
-          result.message,
-        )
-      })
-      .finally(() => {
-        setDeeplValidating(false)
-        void getUsage('deepl').then(setDeeplUsage)
-      })
-  }
-  const clearDeeplKey = (): void => {
-    setDeeplKey('')
-    persist(STORE_KEYS.deeplKey, '')
-    void clearUsage('deepl').then(() => setDeeplUsage(ZERO_USAGE))
-    log.info('settings.provider_key_cleared', {
-      message: 'Provider API key cleared',
-      metadata: { provider: 'deepl' },
-    })
-  }
-  const setCefr = (level: CefrLevel): void => {
-    setCefrState(level)
-    persist(STORE_KEYS.defaultCefr, level)
-  }
-
-  const validate = (name: GenerationProviderName): void => {
-    const { apiKey, model } = providers[name]
-    if (!apiKey.trim()) return
-    setValidating((prev) => ({ ...prev, [name]: true }))
-    void VALIDATORS[name](apiKey, model)
-      .then((result) => {
-        Alert.alert(
-          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
-          result.message,
-        )
-      })
-      .finally(() => {
-        setValidating((prev) => ({ ...prev, [name]: false }))
-        void getUsage(name).then((snapshot) => setUsage((prev) => ({ ...prev, [name]: snapshot })))
-      })
-  }
-
-  const clearProviderKey = (name: GenerationProviderName): void => {
-    updateProvider(name, { apiKey: '' })
-    persist(PROVIDER_STORE_KEYS[name].key, '')
-    void clearUsage(name).then(() => setUsage((prev) => ({ ...prev, [name]: ZERO_USAGE })))
-    log.info('settings.provider_key_cleared', {
-      message: 'Provider API key cleared',
-      metadata: { provider: name },
-    })
-  }
-
-  const deleteAllKeys = (): void => {
-    Alert.alert(
-      t('Delete all API keys?'),
-      t('This removes every provider key from this device. Vocabulary and progress are unaffected.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: () => {
-            for (const name of GENERATION_PROVIDERS) {
-              updateProvider(name, { apiKey: '' })
-              void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].key, '')
-              void clearUsage(name)
-            }
-            setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })
-            setDeeplKey('')
-            setDeeplUsage(ZERO_USAGE)
-            void SecureStore.setItemAsync(STORE_KEYS.deeplKey, '')
-            void clearUsage('deepl')
-            void reloadServices()
-            log.info('settings.all_provider_keys_deleted', {
-              message: 'User deleted every provider API key from this device',
-              metadata: { itemCount: GENERATION_PROVIDERS.length },
-            })
-          },
-        },
-      ],
+  const trimmedQuery = query.trim().toLowerCase()
+  const searchResults = useMemo(() => {
+    if (!trimmedQuery) return null
+    return SEARCHABLE_SETTINGS.filter(
+      (item) =>
+        item.label.toLowerCase().includes(trimmedQuery) ||
+        item.group.toLowerCase().includes(trimmedQuery) ||
+        item.keywords.some((keyword) => keyword.includes(trimmedQuery)),
     )
-  }
-
-  const configuredProviders = GENERATION_PROVIDERS.filter(
-    (name) => providers[name].enabled && providers[name].apiKey.trim() !== '',
-  )
-  const activeGenerationProvider =
-    generationProvider && configuredProviders.includes(generationProvider) ? generationProvider : configuredProviders[0]
+  }, [trimmedQuery])
 
   const limitedMode = loaded && tier !== 'full'
 
+  const aiProvidersDetail =
+    summary.configuredCount === 0
+      ? t('No provider configured — AI generation disabled')
+      : t('{{count}} of {{total}} configured', { count: summary.configuredCount, total: GENERATION_PROVIDERS.length })
+
+  const learningDetail = t('{{cefr}} · {{native}} → {{target}}', {
+    cefr: summary.cefr,
+    native: t(VOCAB_LANGUAGE_LABELS[summary.nativeLanguage]),
+    target: t(VOCAB_LANGUAGE_LABELS[summary.targetLanguage]),
+  })
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      {/* Limited-mode banner */}
-      {limitedMode ? (
-        <View style={styles.banner}>
-          <Ionicons name="lock-closed" size={16} color={colors.warning} />
-          <View style={styles.bannerText}>
-            <Text style={styles.bannerTitle}>{t('Limited mode')}</Text>
-            <Text style={styles.bannerMessage}>
-              {t('Without a generation key, card creation with AI is disabled. Translation and manual cards still work. Add a key to one of the providers below for the full experience.')}
-            </Text>
-          </View>
-        </View>
-      ) : null}
-
-      {loadError ? (
-        <View style={[styles.banner, { backgroundColor: colors.dangerSoft }]}>
-          <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
-          <View style={styles.bannerText}>
-            <Text style={[styles.bannerTitle, { color: colors.danger }]}>{t("Couldn't load saved settings")}</Text>
-            <Text style={styles.bannerMessage}>{loadError}</Text>
-          </View>
-        </View>
-      ) : null}
-
-      {/* ── Generation provider slot ── */}
-      <SectionHeader title={t("Generation")} />
-      <Card style={styles.providerCard}>
-        <Text style={styles.fieldHint}>
-          {t('Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled. Bring your own API key — nothing is sent until you generate a card.')}
-        </Text>
-
-        {configuredProviders.length > 1 ? (
-          <View style={{ marginTop: spacing.md }}>
-            <Text style={styles.fieldLabel}>{t('Active provider')}</Text>
-            <View style={styles.chipRow}>
-              {configuredProviders.map((name) => (
-                <Chip
-                  key={name}
-                  label={PROVIDER_META[name].label}
-                  selected={name === activeGenerationProvider}
-                  onPress={() => changeGenerationProvider(name)}
-                />
-              ))}
-            </View>
-          </View>
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={18} color={colors.textMuted} />
+        <TextInput
+          testID="settings-search-input"
+          style={styles.searchInput}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('Search settings')}
+          placeholderTextColor={colors.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+        {query ? (
+          <Pressable testID="settings-search-clear" onPress={() => setQuery('')} hitSlop={8}>
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+          </Pressable>
         ) : null}
+      </View>
 
-        {GENERATION_PROVIDERS.map((name) => (
-          <ProviderCard
-            key={name}
-            meta={PROVIDER_META[name]}
-            state={providers[name]}
-            active={name === activeGenerationProvider}
-            expanded={expandedProvider === name}
-            showKey={showKey[name] ?? false}
-            validating={validating[name] ?? false}
-            usage={usage[name]}
-            onToggleExpanded={() => setExpandedProvider((prev) => (prev === name ? null : name))}
-            onToggleEnabled={(value) => changeEnabled(name, value)}
-            onToggleShowKey={() => setShowKey((prev) => ({ ...prev, [name]: !prev[name] }))}
-            onChangeApiKey={(value) => changeApiKey(name, value)}
-            onChangeModel={(value) => changeModel(name, value)}
-            onValidate={() => validate(name)}
-            onClearKey={() => clearProviderKey(name)}
-          />
-        ))}
-      </Card>
-
-      {/* ── Translation provider slot ── */}
-      <SectionHeader title={t("Translation")} />
-      <Card style={styles.providerCard}>
-        <ProviderOption
-          label={t('Google Translate')}
-          detail={t('Free tier, no key needed')}
-          selected={translationProvider === 'google'}
-          onPress={() => changeTranslationProvider('google')}
-        />
-        <DeepLRow
-          selected={translationProvider === 'deepl'}
-          onSelect={() => changeTranslationProvider('deepl')}
-          expanded={deeplExpanded}
-          onToggleExpanded={() => setDeeplExpanded((v) => !v)}
-          apiKey={deeplKey}
-          enabled={deeplEnabled}
-          showKey={deeplShowKey}
-          validating={deeplValidating}
-          usage={deeplUsage}
-          onToggleEnabled={changeDeeplEnabled}
-          onToggleShowKey={() => setDeeplShowKey((v) => !v)}
-          onChangeApiKey={changeDeeplKey}
-          onValidate={validateDeepl}
-          onClearKey={clearDeeplKey}
-        />
-        {GENERATION_PROVIDERS.map((name) => {
-          const available = configuredProviders.includes(name)
-          return (
-            <ProviderOption
-              key={name}
-              label={PROVIDER_META[name].label}
-              detail={available ? t('Uses this provider’s key above') : t('Add a key above to enable')}
-              selected={translationProvider === name}
-              disabled={!available}
-              onPress={() => changeTranslationProvider(name)}
-            />
-          )
-        })}
-      </Card>
-
-      {/* ── Learning ── */}
-      <SectionHeader title={t("Learning")} />
-      <Card>
-        <Text style={styles.fieldLabel}>{t('Default CEFR level')}</Text>
-        <Text style={styles.fieldHint}>{t('Examples and explanations are calibrated to this level.')}</Text>
-        <View style={styles.chipRow}>
-          {CEFR_LEVELS.map((level) => (
-            <Chip
-              key={level}
-              label={level}
-              selected={level === cefr}
-              color={cefrColors[level]}
-              onPress={() => setCefr(level)}
-            />
-          ))}
-        </View>
-      </Card>
-
-      <Card>
-        <Text style={styles.fieldLabel}>{t('App Language')}</Text>
-        <View style={styles.chipRow}>
-          <Chip label={t('Follow device')} selected={appLanguage === 'system'} onPress={() => changeAppLanguage('system')} />
-          {APP_LANGUAGES.map((language) => (
-            <Chip
-              key={language}
-              label={t(APP_LANGUAGE_LABELS[language])}
-              selected={appLanguage === language}
-              onPress={() => changeAppLanguage(language)}
-            />
-          ))}
-        </View>
-      </Card>
-
-      {/* ── Data ── */}
-      <SectionHeader title={t("Data")} />
-      <Card>
-        <LinkRow icon="swap-vertical" label={t('Import & export')} detail={t('Anki, CSV, JSON backup')} onPress={() => router.push('/settings/import-export')} />
-        <LinkRow icon="color-palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} divider />
-        <LinkRow icon="volume-high" label={t('Pronunciation')} detail={t('Voice, rate, pitch')} onPress={() => router.push('/settings/tts')} divider />
-        <LinkRow icon="library" label={t('Word guides')} detail={t('Free starter dictionary — no AI key needed')} onPress={() => router.push('/settings/word-guides')} divider />
-      </Card>
-
-      {/* ── Privacy ── */}
-      <SectionHeader title={t("Privacy")} />
-      <Card style={{ gap: spacing.md }}>
-        <Row>
-          <Ionicons name="shield-checkmark-outline" size={17} color={colors.success} />
-          <Text style={styles.privacyText}>
-            {t('API keys stay on this device (Expo SecureStore) and are never included in exports or backups.')}
-          </Text>
-        </Row>
-        <Pressable style={styles.dangerButton} onPress={deleteAllKeys}>
-          <Ionicons name="trash-outline" size={16} color={colors.danger} />
-          <Text style={styles.dangerButtonLabel}>{t('Delete all API keys')}</Text>
-        </Pressable>
-      </Card>
-
-      {/* ── About ── */}
-      <SectionHeader title={t("About")} />
-      <Card>
-        <LinkRow icon="information-circle" label="Lingora" detail={t('v0.0.1 · offline-first · your data stays on device')} onPress={() => undefined} />
-      </Card>
-    </ScrollView>
-  )
-}
-
-function ProviderCard(props: {
-  meta: ProviderMeta
-  state: ProviderFormState
-  active: boolean
-  expanded: boolean
-  showKey: boolean
-  validating: boolean
-  usage: UsageSnapshot
-  onToggleExpanded: () => void
-  onToggleEnabled: (value: boolean) => void
-  onToggleShowKey: () => void
-  onChangeApiKey: (value: string) => void
-  onChangeModel: (value: string) => void
-  onValidate: () => void
-  onClearKey: () => void
-}): JSX.Element {
-  const { meta, state, active, expanded, showKey, validating, usage } = props
-  const hasKey = state.apiKey.trim() !== ''
-  const { t } = useTranslation()
-
-  return (
-    <View style={styles.providerBlock}>
-      <Pressable style={styles.providerHeader} onPress={props.onToggleExpanded}>
-        <View style={[styles.providerIcon, { backgroundColor: `${meta.color}1A` }]}>
-          <Ionicons name={meta.icon} size={18} color={meta.color} />
-        </View>
-        <View style={styles.optionText}>
-          <View style={styles.providerNameRow}>
-            <Text style={styles.optionLabel}>{meta.label}</Text>
-            {active ? (
-              <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
+      {searchResults ? (
+        <Card style={styles.menuCard}>
+          {searchResults.length === 0 ? (
+            <Text style={styles.noResults}>{t('No settings match “{{query}}”', { query: query.trim() })}</Text>
+          ) : (
+            searchResults.map((item, index) => (
+              <LinkRow
+                key={item.key}
+                testID={`settings-search-result-${item.key}`}
+                icon={item.icon}
+                label={item.label}
+                detail={item.group}
+                onPress={() => router.push(item.route)}
+                divider={index > 0}
+              />
+            ))
+          )}
+        </Card>
+      ) : (
+        <>
+          {limitedMode ? (
+            <View style={styles.banner}>
+              <Ionicons name="lock-closed" size={16} color={colors.warning} />
+              <View style={styles.bannerText}>
+                <Text style={styles.bannerTitle}>{t('Limited mode')}</Text>
+                <Text style={styles.bannerMessage}>
+                  {t('Without a generation key, card creation with AI is disabled. Translation and manual cards still work. Add a key under AI Providers for the full experience.')}
+                </Text>
               </View>
-            ) : null}
-          </View>
-          <Text style={styles.optionDetail}>{t(meta.description)}</Text>
-        </View>
-        <Switch value={state.enabled && hasKey} onValueChange={props.onToggleEnabled} disabled={!hasKey} />
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-      </Pressable>
+            </View>
+          ) : null}
 
-      {expanded ? (
-        <View style={styles.providerBody}>
-          <Text style={styles.fieldLabel}>{t('Model')}</Text>
-          <View style={styles.chipRow}>
-            {meta.models.map((model) => (
-              <Chip key={model} label={model} selected={model === state.model} onPress={() => props.onChangeModel(model)} />
-            ))}
-          </View>
-
-          <View style={styles.keyInputWrap}>
-            <TextInput
-              style={styles.keyInputWithIcon}
-              placeholder={t('Paste your {{provider}} API key…', { provider: meta.label })}
-              placeholderTextColor={colors.textMuted}
-              value={state.apiKey}
-              onChangeText={props.onChangeApiKey}
-              secureTextEntry={!showKey}
-              autoCapitalize="none"
-              autoCorrect={false}
+          <Card style={styles.menuCard}>
+            <LinkRow
+              testID="settings-menu-ai-providers"
+              icon="sparkles-outline"
+              label={t('AI Providers')}
+              detail={aiProvidersDetail}
+              onPress={() => router.push('/settings/ai-providers')}
             />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
-              onPress={props.onToggleShowKey}
-              style={styles.keyInputEye}
-            >
-              <Ionicons name={showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          <View style={styles.providerActionsRow}>
-            <Pressable
-              style={[styles.secondaryButton, (validating || !hasKey) && styles.secondaryButtonDisabled]}
-              onPress={props.onValidate}
-              disabled={validating || !hasKey}
-            >
-              {validating ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : (
-                <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
-              )}
-            </Pressable>
-            <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.usageBox}>
-            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
-            <Text style={styles.usageDetail}>
-              {t('{{count}} requests', { count: usage.requests.toLocaleString() })} ·{' '}
-              {t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })}
-            </Text>
-            <Pressable onPress={() => void Linking.openURL(meta.usageUrl)}>
-              <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
-            </Pressable>
-          </View>
-        </View>
-      ) : null}
-    </View>
-  )
-}
-
-const DEEPL_USAGE_URL = 'https://www.deepl.com/en/your-account/usage'
-
-/**
- * DeepL fills only the translation slot (no generation), so it gets its own
- * row instead of reusing ProviderCard: a radio button selects it as the
- * active translation provider, a separate chevron expands the key/usage
- * panel — the two are independent, unlike the generation providers where
- * expanding and being "active" are the same click.
- */
-function DeepLRow(props: {
-  selected: boolean
-  onSelect: () => void
-  expanded: boolean
-  onToggleExpanded: () => void
-  apiKey: string
-  enabled: boolean
-  showKey: boolean
-  validating: boolean
-  usage: UsageSnapshot
-  onToggleEnabled: (value: boolean) => void
-  onToggleShowKey: () => void
-  onChangeApiKey: (value: string) => void
-  onValidate: () => void
-  onClearKey: () => void
-}): JSX.Element {
-  const hasKey = props.apiKey.trim() !== ''
-  const { t } = useTranslation()
-
-  return (
-    <View style={styles.providerBlock}>
-      <View style={styles.providerHeader}>
-        <Pressable style={[styles.option, styles.flexFill]} onPress={props.onSelect}>
-          <Ionicons
-            name={props.selected ? 'radio-button-on' : 'radio-button-off'}
-            size={20}
-            color={props.selected ? colors.primary : colors.textMuted}
-          />
-          <View style={styles.optionText}>
-            <Text style={styles.optionLabel}>DeepL</Text>
-            <Text style={styles.optionDetail}>{t('Best German↔English quality — bring your own key')}</Text>
-          </View>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={props.expanded ? t('Hide DeepL settings') : t('Show DeepL settings')}
-          onPress={props.onToggleExpanded}
-          hitSlop={8}
-        >
-          <Ionicons name={props.expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-        </Pressable>
-      </View>
-
-      {props.expanded ? (
-        <View style={styles.providerBody}>
-          <View style={styles.keyInputWrap}>
-            <TextInput
-              style={styles.keyInputWithIcon}
-              placeholder={t('Paste your DeepL API key…')}
-              placeholderTextColor={colors.textMuted}
-              value={props.apiKey}
-              onChangeText={props.onChangeApiKey}
-              secureTextEntry={!props.showKey}
-              autoCapitalize="none"
-              autoCorrect={false}
+            <LinkRow
+              testID="settings-menu-translation"
+              icon="language-outline"
+              label={t('Translation')}
+              detail={summary.translationLabel}
+              onPress={() => router.push('/settings/translation')}
+              divider
             />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={props.showKey ? t('Hide DeepL API key') : t('Show DeepL API key')}
-              onPress={props.onToggleShowKey}
-              style={styles.keyInputEye}
-            >
-              <Ionicons name={props.showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          <Row>
-            <Text style={[styles.optionLabel, { flex: 1 }]}>{t('Enabled')}</Text>
-            <Switch value={props.enabled && hasKey} onValueChange={props.onToggleEnabled} disabled={!hasKey} />
-          </Row>
-
-          <View style={styles.providerActionsRow}>
-            <Pressable
-              style={[styles.secondaryButton, (props.validating || !hasKey) && styles.secondaryButtonDisabled]}
-              onPress={props.onValidate}
-              disabled={props.validating || !hasKey}
-            >
-              {props.validating ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : (
-                <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
-              )}
-            </Pressable>
-            <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.usageBox}>
-            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
-            <Text style={styles.usageDetail}>
-              {t('{{count}} requests', { count: props.usage.requests.toLocaleString() })} ·{' '}
-              {t('{{count}} tokens', { count: props.usage.tokensUsed.toLocaleString() })}
-            </Text>
-            <Pressable onPress={() => void Linking.openURL(DEEPL_USAGE_URL)}>
-              <Text style={styles.usageLink}>{t('Open DeepL usage ↗')}</Text>
-            </Pressable>
-          </View>
-        </View>
-      ) : null}
-    </View>
-  )
-}
-
-function Row(props: { children: ReactNode }): JSX.Element {
-  return <View style={styles.row}>{props.children}</View>
-}
-
-function ProviderOption(props: {
-  label: string
-  detail: string
-  selected: boolean
-  disabled?: boolean
-  onPress: () => void
-}): JSX.Element {
-  return (
-    <Pressable style={[styles.option, props.disabled && styles.optionDisabled]} onPress={props.onPress} disabled={props.disabled}>
-      <Ionicons
-        name={props.selected ? 'radio-button-on' : 'radio-button-off'}
-        size={20}
-        color={props.selected ? colors.primary : colors.textMuted}
-      />
-      <View style={styles.optionText}>
-        <Text style={styles.optionLabel}>{props.label}</Text>
-        <Text style={styles.optionDetail}>{props.detail}</Text>
-      </View>
-    </Pressable>
-  )
-}
-
-function LinkRow(props: {
-  icon: keyof typeof Ionicons.glyphMap
-  label: string
-  detail: string
-  onPress: () => void
-  divider?: boolean
-}): JSX.Element {
-  return (
-    <Pressable style={[styles.linkRow, props.divider && styles.rowDivider]} onPress={props.onPress}>
-      <Ionicons name={props.icon} size={20} color={colors.primary} />
-      <View style={styles.optionText}>
-        <Text style={styles.optionLabel}>{props.label}</Text>
-        <Text style={styles.optionDetail}>{props.detail}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-    </Pressable>
+            <LinkRow
+              testID="settings-menu-learning"
+              icon="school-outline"
+              label={t('Learning')}
+              detail={learningDetail}
+              onPress={() => router.push('/settings/learning')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-general"
+              icon="options-outline"
+              label={t('General')}
+              detail={t('Audio settings, app language')}
+              onPress={() => router.push('/settings/general')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-data"
+              icon="swap-vertical"
+              label={t('Data')}
+              detail={t('Import & export, templates, word guides')}
+              onPress={() => router.push('/settings/data')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-sync"
+              icon="sync"
+              label={t('Sync')}
+              detail={t('Sync decks, cards, and progress to a Google account')}
+              onPress={() => router.push('/settings/sync')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-about"
+              icon="information-circle-outline"
+              label={t('About')}
+              detail="Lingora"
+              onPress={() => router.push('/settings/about')}
+              divider
+            />
+          </Card>
+        </>
+      )}
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  searchInput: { flex: 1, fontSize: type.body, color: colors.text, padding: 0 },
+  noResults: { fontSize: type.caption, color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
   banner: {
     flexDirection: 'row',
     gap: spacing.md,
     backgroundColor: colors.warningSoft,
     borderRadius: radius.md,
     padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   bannerText: { flex: 1 },
   bannerTitle: { fontSize: type.body, fontWeight: '700', color: colors.warning },
   bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
-  providerCard: { gap: 0 },
-  providerBlock: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.md, paddingTop: spacing.md },
-  providerHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  providerIcon: { width: 34, height: 34, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  providerNameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 1 },
-  activeBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.success },
-  providerBody: { marginTop: spacing.md, gap: spacing.sm },
-  providerActionsRow: { flexDirection: 'row', gap: spacing.sm },
-  option: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xs },
-  flexFill: { flex: 1 },
-  optionDisabled: { opacity: 0.45 },
-  optionText: { flex: 1 },
-  optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
-  optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  keyInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    fontSize: type.caption,
-    color: colors.text,
-    backgroundColor: colors.background,
-    marginTop: spacing.sm,
-  },
-  keyInputWrap: { position: 'relative' },
-  keyInputWithIcon: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.md,
-    paddingLeft: spacing.md,
-    paddingRight: 44,
-    fontSize: type.caption,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  keyInputEye: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, alignItems: 'center', justifyContent: 'center' },
-  secondaryButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryButtonDisabled: { opacity: 0.45 },
-  secondaryButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  usageBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.sm, padding: spacing.md, gap: 2 },
-  usageLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textSecondary },
-  usageDetail: { fontSize: type.caption, color: colors.textSecondary },
-  usageLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, marginTop: 2 },
-  fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-  linkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  privacyText: { flex: 1, fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
-  dangerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.dangerSoft,
-    backgroundColor: colors.dangerSoft,
-  },
-  dangerButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+  menuCard: { gap: 0 },
 })

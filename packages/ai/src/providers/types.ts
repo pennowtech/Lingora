@@ -79,6 +79,14 @@ export interface DictionaryProvider {
   readonly name: string
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
   detectLanguage(text: string): Promise<AIResult<LanguageCode>>
+  /**
+   * Optional: alternate translations for an ambiguous word (e.g. "foundation" → Stiftung,
+   * Grundlage, Fundament, ...), beyond the single best guess `translate` returns. Additive to
+   * the interface on purpose — only providers whose API exposes a dictionary/alternates section
+   * (Google Translate's `dt=bd`) implement it; DeepL and the LLM-backed providers simply omit it,
+   * and callers must treat it as optional.
+   */
+  translateAlternatives?(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string[]>>
 }
 
 export interface AIProvider {
@@ -98,7 +106,12 @@ export interface AIProvider {
 
   // Per-section calls, used by the Phase 4 regenerate buttons.
   generateClusters(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedClusterOutline[]>>
-  generateMeaning(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<GeneratedMeaning[]>>
+  /**
+   * @param question A learner-typed follow-up question (max ~100 chars) to address within the
+   *                  explanation/usage notes — the word detail/review "More info" sheet's
+   *                  follow-up composer. Omitted for the initial (no-question) explanation.
+   */
+  generateMeaning(word: string, cluster: ClusterRef, ctx: GenerationContext, question?: string): Promise<AIResult<GeneratedMeaning[]>>
   generateExamples(word: string, cluster: ClusterRef, ctx: GenerationContext, opts?: ExampleGenerationOptions): Promise<AIResult<GeneratedExample[]>>
   generateSynonyms(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<GeneratedSynonym[]>>
   generatePhrases(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedPhrase[]>>

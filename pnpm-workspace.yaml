@@ -4,9 +4,11 @@ packages:
 virtualStoreDir: .pnpm
 virtualStoreDirMaxLength: 30
 allowBuilds:
+  '@firebase/util': true
   better-sqlite3: false
   esbuild: false
   msgpackr-extract: false
+  protobufjs: true
 minimumReleaseAgeExclude:
   - '@expo/cli@56.1.19'
   - '@expo/config-plugins@56.0.12'
@@ -21,3 +23,4 @@ minimumReleaseAgeExclude:
   - expo-modules-jsi@56.0.12
   - expo-router@56.2.14
   - expo@56.0.15
+  - react-native-nitro-modules@0.36.5

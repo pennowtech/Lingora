@@ -18,7 +18,9 @@ import {
   DEFAULT_BACK_TEMPLATE,
   DEFAULT_FRONT_TEMPLATE,
   DEFAULT_STYLES,
+  hasTemplateField,
   highlightWord,
+  LOOP_TEMPLATE_FIELDS,
   renderCardHtml,
   TEMPLATE_VARIABLES,
   type CardTemplateContext,
@@ -153,8 +155,6 @@ const HELP_SECTIONS: HelpSection[] = [
 // directly (a bare {{ synonyms }} prints "[object Object]" for a list of
 // objects) so they need a real {% for %} loop; that loop is the minimum
 // HTML/Liquid required, not a stylistic <div> choice.
-const LOOP_FIELDS = new Set(['other_meanings', 'synonyms', 'phrases'])
-
 function fieldSnippet(variable: string): string {
   switch (variable) {
     case 'other_meanings':
@@ -172,20 +172,13 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-function hasField(template: string, variable: string): boolean {
-  if (LOOP_FIELDS.has(variable)) {
-    return new RegExp(`\\{%\\s*for\\s+\\w+\\s+in\\s+${escapeRegExp(variable)}\\b`).test(template)
-  }
-  return new RegExp(`\\{\\{\\s*${escapeRegExp(variable)}\\s*\\}\\}`).test(template)
-}
-
 function withField(template: string, variable: string, enabled: boolean): string {
   if (enabled) {
-    if (hasField(template, variable)) return template
+    if (hasTemplateField(template, variable)) return template
     const snippet = fieldSnippet(variable)
     return template.trim() ? `${template} ${snippet}` : snippet
   }
-  const pattern = LOOP_FIELDS.has(variable)
+  const pattern = LOOP_TEMPLATE_FIELDS.has(variable)
     ? new RegExp(`\\{%\\s*for\\s+\\w+\\s+in\\s+${escapeRegExp(variable)}\\b[\\s\\S]*?\\{%\\s*endfor\\s*%\\}`, 'g')
     : new RegExp(`\\{\\{\\s*${escapeRegExp(variable)}\\s*\\}\\}`, 'g')
   return template.replace(pattern, '').replace(/[ \t]+/g, ' ').trim()
@@ -430,8 +423,8 @@ export default function TemplatesScreen(): JSX.Element {
             </Text>
             <Card style={styles.fieldList}>
               {templateVariables.map((v, i) => {
-                const onFront = hasField(frontTemplate, v.name)
-                const onBack = hasField(backTemplate, v.name)
+                const onFront = hasTemplateField(frontTemplate, v.name)
+                const onBack = hasTemplateField(backTemplate, v.name)
                 return (
                   <View key={v.name} style={[styles.fieldRow, i > 0 && styles.rowDivider]}>
                     <View style={styles.fieldIcon}>

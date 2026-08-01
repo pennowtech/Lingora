@@ -7,10 +7,13 @@ import {
   getCardsForDeck,
   getDeckById,
   getDueCardsCount,
+  getDueClozeCount,
   getRetentionRate,
   mergeDecks,
   moveDeck,
+  removeCardFromDeck,
   renameDeck,
+  resetDeckProgress,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -47,13 +50,16 @@ const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/ap
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
-  const [cardCount, dueCount, retention, cards] = await Promise.all([
+  const [cardCount, dueCount, dueClozeCount, retention, cards] = await Promise.all([
     getCardCountForDeck(db, deckId),
     getDueCardsCount(db, deckId),
+    // Cloze practice has its own independent FSRS schedule (migration 0013) — separate due count,
+    // separate from word-meaning review's dueCount above.
+    getDueClozeCount(db, deckId),
     getRetentionRate(db, 30), // global for now — per-deck retention lands with Phase 5 stats
     getCardsForDeck(db, deckId),
   ])
-  return { deck, cardCount, dueCount, retention, cards }
+  return { deck, cardCount, dueCount, dueClozeCount, retention, cards }
 }
 
 /**
@@ -73,6 +79,8 @@ export default function DeckDetailScreen(): JSX.Element {
   // into another deck and deletes this one. Both share one deck-picker
   // modal, distinguished by this mode.
   const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedCardIds, setSelectedCardIds] = useState<Set<string>>(new Set())
 
   const deckQuery = useQuery({
     queryKey: ['deck', id],
@@ -139,6 +147,75 @@ export default function DeckDetailScreen(): JSX.Element {
     },
     onError: (error: unknown) => Alert.alert(t('Could not merge deck'), String(error)),
   })
+
+  const resetProgress = useMutation({
+    mutationFn: () => resetDeckProgress(db, id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries()
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not reset progress'), String(error)),
+  })
+
+  const removeCards = useMutation({
+    mutationFn: async (cardIds: string[]) => {
+      for (const cardId of cardIds) {
+        await removeCardFromDeck(db, id, cardId)
+      }
+    },
+    onSuccess: async () => {
+      setSelectMode(false)
+      setSelectedCardIds(new Set())
+      await queryClient.invalidateQueries({ queryKey: ['deck', id] })
+      await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not remove card'), String(error)),
+  })
+
+  const toggleCardSelected = (cardId: string): void => {
+    setSelectMode(true)
+    setSelectedCardIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(cardId)) {
+        next.delete(cardId)
+      } else {
+        next.add(cardId)
+      }
+      return next
+    })
+  }
+
+  const cancelSelectMode = (): void => {
+    setSelectMode(false)
+    setSelectedCardIds(new Set())
+  }
+
+  const confirmRemoveSelected = (): void => {
+    const count = selectedCardIds.size
+    Alert.alert(
+      t('Remove {{count}} cards from this deck?', { count }),
+      t('This only removes them from this deck — cards that live in other decks too stay there.'),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        {
+          text: t('Remove'),
+          style: 'destructive',
+          onPress: () => removeCards.mutate(Array.from(selectedCardIds)),
+        },
+      ],
+    )
+  }
+
+  const confirmResetProgress = (): void => {
+    setMenuOpen(false)
+    Alert.alert(
+      t('Reset progress?'),
+      t('Every card in this deck goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.'),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Reset'), style: 'destructive', onPress: () => resetProgress.mutate() },
+      ],
+    )
+  }
 
   const showMove = (): void => {
     setMenuOpen(false)
@@ -229,7 +306,7 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
-  const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
+  const { deck, cardCount, dueCount, dueClozeCount, retention, cards } = deckQuery.data
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -265,13 +342,13 @@ export default function DeckDetailScreen(): JSX.Element {
         </View>
 
         <Button
-          label={dueCount > 0 ? t('Review {{count}} due cards', { count: dueCount }) : t('Nothing due — study ahead')}
+          label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due — study ahead')}
           icon="play"
           onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
           style={styles.reviewButton}
         />
         <Button
-          label={t('Practice cloze')}
+          label={dueClozeCount > 0 ? t('Practice {{count}} cloze', { count: dueClozeCount }) : t('Practice cloze')}
           icon="create-outline"
           variant="secondary"
           onPress={() =>
@@ -279,39 +356,115 @@ export default function DeckDetailScreen(): JSX.Element {
           }
           style={styles.clozeButton}
         />
+        {/* Same due queue/schedule as "Review N words" above — reverse is a direction, not a
+            separate skill the way cloze is, so there's no separate due count for it. */}
+        <Button
+          label={t('Practice reverse')}
+          icon="swap-horizontal"
+          variant="secondary"
+          onPress={() =>
+            router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'reverse' } })
+          }
+          style={styles.clozeButton}
+        />
 
-        <SectionHeader title={t('Cards')} />
-        {cards.map((card) => (
-          <Card
-            key={card.cardId}
-            style={styles.cardRow}
-            onPress={() => router.push({ pathname: '/word/[form]', params: { form: card.form } })}
-          >
-            <View style={styles.cardRowText}>
-              <Text style={styles.cardForm}>{card.form}</Text>
-              {card.translation ? <Text style={styles.cardMeaning}>{card.translation}</Text> : null}
-            </View>
-            <View style={styles.cardRowRight}>
-              {card.hasCloze ? (
-                <View style={styles.clozeBadge}>
-                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+        <SectionHeader
+          title={selectMode ? t('{{count}} selected', { count: selectedCardIds.size }) : t('Cards')}
+        />
+        {cards.map((card) => {
+          const selected = selectedCardIds.has(card.cardId)
+          return (
+            <Card
+              key={card.cardId}
+              style={styles.cardRow}
+              // Opens like a review card (tap-to-flip word/meaning, and a header toggle to the
+              // cloze view too if this word has one) rather than the full word management page —
+              // this is "look at this card the way I'd study it", not "edit this card". Long-press
+              // enters multi-select (mirrors the deck list's own selection pattern); once in select
+              // mode, a normal tap toggles selection instead of opening the card.
+              onPress={() =>
+                selectMode
+                  ? toggleCardSelected(card.cardId)
+                  : router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, cardId: card.cardId } })
+              }
+              onLongPress={() => toggleCardSelected(card.cardId)}
+            >
+              {selectMode ? (
+                <View style={[styles.checkbox, selected ? styles.checkboxChecked : null]}>
+                  {selected ? <Ionicons name="checkmark" size={14} color={colors.textOnPrimary} /> : null}
                 </View>
               ) : null}
-              {card.cefrLevel ? <CefrBadge level={card.cefrLevel} /> : null}
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-            </View>
-          </Card>
-        ))}
+              <View style={styles.cardRowText}>
+                <Text style={styles.cardForm}>{card.form}</Text>
+                {card.translation ? <Text style={styles.cardMeaning}>{card.translation}</Text> : null}
+              </View>
+              <View style={styles.cardRowRight}>
+                {card.hasCloze ? (
+                  <View style={styles.clozeBadge}>
+                    <Ionicons name="create-outline" size={12} color={colors.warning} />
+                  </View>
+                ) : null}
+                {card.cefrLevel ? <CefrBadge level={card.cefrLevel} /> : null}
+                {selectMode ? null : <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />}
+              </View>
+            </Card>
+          )
+        })}
         {cards.length === 0 ? (
           <Text style={styles.footnote}>{t('No cards yet — add words from Search.')}</Text>
         ) : null}
       </ScrollView>
+
+      {selectMode ? (
+        <View style={styles.selectionBar}>
+          <Pressable onPress={cancelSelectMode} hitSlop={8}>
+            <Text style={styles.selectionCancel}>{t('Cancel')}</Text>
+          </Pressable>
+          <Button
+            testID="bulk-delete-cards-button"
+            label={removeCards.isPending ? t('Removing…') : t('Remove {{count}}', { count: selectedCardIds.size })}
+            icon="trash"
+            variant="danger"
+            small
+            onPress={confirmRemoveSelected}
+            disabled={removeCards.isPending || selectedCardIds.size === 0}
+          />
+        </View>
+      ) : null}
+
+      {selectMode ? null : (
+        <Pressable
+          testID="add-card-fab"
+          style={styles.fab}
+          onPress={() => router.push({ pathname: '/deck/add-card', params: { deckId: id } })}
+        >
+          <Ionicons name="add" size={28} color={colors.textOnPrimary} />
+        </Pressable>
+      )}
 
       {/* ── Deck actions menu ── */}
       <Modal visible={menuOpen} animationType="fade" transparent onRequestClose={() => setMenuOpen(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
+          <Button
+            label={t('Add card manually')}
+            icon="add-circle-outline"
+            variant="secondary"
+            onPress={() => {
+              setMenuOpen(false)
+              router.push({ pathname: '/deck/add-card', params: { deckId: id } })
+            }}
+          />
+          <Button
+            label={t('Select cards')}
+            icon="checkmark-circle-outline"
+            variant="secondary"
+            onPress={() => {
+              setMenuOpen(false)
+              setSelectMode(true)
+            }}
+          />
           <Button label={t('Import into this deck')} icon="download" variant="secondary" onPress={showImport} />
           <Button label={t('Export this deck')} icon="cloud-download" variant="secondary" onPress={showExport} />
           <Button
@@ -326,6 +479,13 @@ export default function DeckDetailScreen(): JSX.Element {
           />
           <Button label={t('Move to…')} icon="folder-open-outline" variant="secondary" onPress={showMove} />
           <Button label={t('Merge into…')} icon="git-merge-outline" variant="secondary" onPress={showMerge} />
+          <Button
+            label={resetProgress.isPending ? t('Resetting…') : t('Reset progress')}
+            icon="refresh-outline"
+            variant="secondary"
+            onPress={confirmResetProgress}
+            disabled={resetProgress.isPending}
+          />
           <Button
             label={remove.isPending ? t('Deleting…') : t('Delete deck')}
             icon="trash"
@@ -426,6 +586,21 @@ export default function DeckDetailScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg },
+  fab: {
+    position: 'absolute',
+    right: spacing.xl,
+    bottom: spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
   statsRow: { flexDirection: 'row', gap: spacing.sm },
   statCard: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
@@ -452,6 +627,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footnote: { fontSize: type.micro, color: colors.textMuted, textAlign: 'center', marginTop: spacing.md },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.full,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
+  selectionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.lg,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  selectionCancel: { fontSize: type.body, fontWeight: '700', color: colors.textSecondary },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {
     backgroundColor: colors.surface,

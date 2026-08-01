@@ -16,7 +16,7 @@ interface MeaningRow extends Omit<Meaning, 'isPrimary'> {
   isPrimary: number
 }
 
-const MEANING_COLUMNS = `id, card_id AS cardId, meaning_cluster_id AS clusterId, translation, explanation, is_primary AS isPrimary, cefr_level AS cefrLevel, order_index AS orderIndex`
+const MEANING_COLUMNS = `id, card_id AS cardId, meaning_cluster_id AS clusterId, translation, explanation, usage, is_primary AS isPrimary, cefr_level AS cefrLevel, order_index AS orderIndex`
 
 /** SQLite stores booleans as 0/1 — convert so callers get a real boolean. */
 function toMeaning(row: MeaningRow): Meaning {
@@ -98,14 +98,15 @@ export async function getMeaningsForCluster(
  */
 export async function createMeaning(db: DatabaseAdapter, meaning: Meaning): Promise<void> {
   await db.execute(
-    `INSERT INTO meanings (id, card_id, meaning_cluster_id, translation, explanation, is_primary, cefr_level, order_index)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO meanings (id, card_id, meaning_cluster_id, translation, explanation, usage, is_primary, cefr_level, order_index)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       meaning.id,
       meaning.cardId,
       meaning.clusterId,
       meaning.translation,
       meaning.explanation,
+      meaning.usage ?? null,
       meaning.isPrimary ? 1 : 0,
       meaning.cefrLevel,
       meaning.orderIndex,
@@ -148,10 +149,12 @@ export async function updateMeaningText(
   meaningId: string,
   translation: string,
   explanation: string,
+  usage?: string,
 ): Promise<void> {
-  await db.execute(`UPDATE meanings SET translation = ?, explanation = ? WHERE id = ?`, [
+  await db.execute(`UPDATE meanings SET translation = ?, explanation = ?, usage = ? WHERE id = ?`, [
     translation,
     explanation,
+    usage ?? null,
     meaningId,
   ])
 }

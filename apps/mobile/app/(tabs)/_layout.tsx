@@ -1,75 +1,31 @@
-import { Ionicons } from '@expo/vector-icons'
-import { getPendingMineEntries } from '@lingora/database'
-import { useQuery } from '@tanstack/react-query'
-import { Tabs } from 'expo-router'
+import { Stack } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useServices } from '../../lib/services'
 import { colors } from '../../lib/theme'
 
+/**
+ * The 5 former "tab" screens now render through a plain header-only Stack — the actual tab bar
+ * moved to the root layout's BottomTabBar (apps/mobile/components/BottomTabBar.tsx), rendered
+ * once for the whole app instead of only around these 5 screens. See that component's doc comment
+ * for why: the old per-group Tabs navigator's bar disappeared on every stack-pushed screen
+ * (word/[form], deck/[id], settings/*, stats), which is most of the app.
+ */
 export default function TabsLayout(): JSX.Element {
-  const { db } = useServices()
   const { t } = useTranslation()
-  const mineQuery = useQuery({
-    queryKey: ['mine-queue'],
-    queryFn: () => getPendingMineEntries(db),
-  })
-  const pendingCount = mineQuery.data?.length ?? 0
 
   return (
-    <Tabs
+    <Stack
       screenOptions={{
         headerShadowVisible: false,
         headerStyle: { backgroundColor: colors.background },
         headerTitleStyle: { fontWeight: '700', color: colors.text },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t('Home'),
-          headerShown: false,
-          tabBarButtonTestID: 'tab-home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: t('Search'),
-          tabBarButtonTestID: 'tab-search',
-          tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="decks"
-        options={{
-          title: t('Decks'),
-          tabBarButtonTestID: 'tab-decks',
-          tabBarIcon: ({ color, size }) => <Ionicons name="albums" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="mine"
-        options={{
-          title: t('Mine'),
-          tabBarButtonTestID: 'tab-mine',
-          ...(pendingCount > 0 && { tabBarBadge: pendingCount }),
-          tabBarIcon: ({ color, size }) => <Ionicons name="download" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: t('Settings'),
-          tabBarButtonTestID: 'tab-settings',
-          tabBarIcon: ({ color, size }) => <Ionicons name="settings-sharp" size={size} color={color} />,
-        }}
-      />
-    </Tabs>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="search" options={{ title: t('Search') }} />
+      <Stack.Screen name="decks" options={{ title: t('Decks') }} />
+      <Stack.Screen name="mine" options={{ title: t('Mine') }} />
+      <Stack.Screen name="settings" options={{ title: t('Settings') }} />
+    </Stack>
   )
 }

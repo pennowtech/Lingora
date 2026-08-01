@@ -54,6 +54,40 @@ export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string)
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
   }
+  // A stable order matters beyond display: the review session (apps/mobile/app/review/[deckId].tsx)
+  // indexes into this array by position and re-fetches it mid-session (e.g. after generating an
+  // on-demand AI explanation). Without an explicit ORDER BY, SQLite doesn't guarantee row order
+  // between two calls — especially with DISTINCT, which can plan a different scan — so a refetch
+  // could silently reshuffle the array and leave `queue[index]` pointing at a different card than
+  // the one on screen, which read as the session randomly "jumping" to the next card.
+  query += ` ORDER BY cs.next_review_date ASC, c.id ASC`
+  return db.query<Card>(query, params)
+}
+
+/**
+ * Get all cards due for CLOZE PRACTICE right now — the same "new or past next_review_date, not
+ * suspended" rule as getCardsDueForReview, but against cloze_states (migration 0013), entirely
+ * independent of the card's word-meaning schedule. INNER JOIN cloze_cards so a card without any
+ * cloze variant never shows up here regardless of its cloze_states row.
+ * @param db The database adapter to use for the query.
+ * @param deckId Optional deck ID to filter cards by deck.
+ * @returns An array of cards due for cloze practice.
+ */
+export async function getClozeCardsDueForReview(db: DatabaseAdapter, deckId?: string): Promise<Card[]> {
+  const params: unknown[] = [Date.now()]
+
+  let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
+    INNER JOIN deck_cards dc ON c.id = dc.card_id
+    INNER JOIN cloze_states cs ON c.id = cs.card_id
+    INNER JOIN cloze_cards cc ON c.id = cc.card_id
+    WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+  if (deckId) {
+    query += ` AND dc.deck_id = ?`
+    params.push(deckId)
+  }
+  // Same stable-order reasoning as getCardsDueForReview above — a re-fetched, silently-reordered
+  // array desyncs from the session's numeric index into it.
+  query += ` ORDER BY cs.next_review_date ASC, c.id ASC`
   return db.query<Card>(query, params)
 }
 
@@ -317,6 +351,28 @@ export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Pr
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
      INNER JOIN card_states cs ON c.id = cs.card_id
+     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+  if (deckId) {
+    query += ` AND dc.deck_id = ?`
+    params.push(deckId)
+  }
+  const result = await db.querySingle<{ count: number }>(query, params)
+  return result?.count ?? 0
+}
+
+/**
+ * Count of cards due for cloze practice right now — the cloze_states equivalent of
+ * getDueCardsCount, for the deck detail screen's "Practice N cloze" label.
+ * @param db The database adapter to use for the query.
+ * @param deckId The ID of the deck to count due cloze cards for.
+ * @returns The number of cards due for cloze practice.
+ */
+export async function getDueClozeCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
+  const params: unknown[] = [Date.now()]
+  let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
+     INNER JOIN deck_cards dc ON c.id = dc.card_id
+     INNER JOIN cloze_states cs ON c.id = cs.card_id
+     INNER JOIN cloze_cards cc ON c.id = cc.card_id
      WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`

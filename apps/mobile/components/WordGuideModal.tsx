@@ -29,6 +29,10 @@ export function WordGuideModal(props: {
   guide: WordGuideEntry | null
   onClose: () => void
   footer?: ReactNode
+  /** Overrides the "From your installed dictionary…" footnote — for reuse by the AI explanation
+   * sheet (word/[form].tsx, review/[deckId].tsx), which renders through this same presentation
+   * but isn't the installed word-guides dictionary. */
+  footnote?: string
 }): JSX.Element {
   const { t } = useTranslation()
   const { guide } = props
@@ -88,7 +92,9 @@ export function WordGuideModal(props: {
                   </>
                 ) : null}
 
-                <Text style={styles.footnote}>{t('From your installed dictionary — free, no AI needed.')}</Text>
+                <Text style={styles.footnote}>
+                  {props.footnote ?? t('From your installed dictionary — free, no AI needed.')}
+                </Text>
               </ScrollView>
               {props.footer}
             </>

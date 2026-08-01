@@ -8,14 +8,15 @@ import {
   mergeDecks,
   moveDeck,
   renameDeck,
+  resetDeckProgress,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router } from 'expo-router'
+import { router, Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   Button,
   Card,
@@ -27,6 +28,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
+import { requestCloudSync, useCloudSync } from '../../lib/cloudSync'
 import { collectDescendantIds } from '../../lib/deckTree'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
@@ -70,6 +72,7 @@ export default function DecksScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const sync = useCloudSync()
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
@@ -143,6 +146,28 @@ export default function DecksScreen(): JSX.Element {
       [
         { text: t('Cancel'), style: 'cancel' },
         { text: t('Delete'), style: 'destructive', onPress: () => remove.mutate(deck.id) },
+      ],
+    )
+  }
+
+  const resetProgress = useMutation({
+    mutationFn: (deckId: string) => resetDeckProgress(db, deckId),
+    onSuccess: async () => {
+      await invalidateDecks()
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not reset progress'), String(error)),
+  })
+
+  const confirmResetProgress = (deck: Deck): void => {
+    setMenuDeck(null)
+    Alert.alert(
+      t('Reset progress?'),
+      t('Every card in "{{name}}" goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
+        name: deck.name,
+      }),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Reset'), style: 'destructive', onPress: () => resetProgress.mutate(deck.id) },
       ],
     )
   }
@@ -246,6 +271,18 @@ export default function DecksScreen(): JSX.Element {
     runDeckExport(exportDeck, format)
   }
 
+  const handleSyncNow = (): void => {
+    requestCloudSync(db)
+      .then(async (summary) => {
+        await invalidateDecks()
+        Alert.alert(
+          t('Synced'),
+          t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', summary),
+        )
+      })
+      .catch((error: unknown) => Alert.alert(t('Sync failed'), String(error)))
+  }
+
   const allDecks = allDecksQuery.data ?? []
   const pickerTargets = pickerDeck
     ? (() => {
@@ -257,6 +294,18 @@ export default function DecksScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () =>
+            sync.phase === 'syncing' ? (
+              <View style={styles.syncButton}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : (
+              <IconButton testID="deck-sync-now-button" icon="sync" onPress={handleSyncNow} />
+            ),
+        }}
+      />
       {decksQuery.isPending ? (
         <Spinner />
       ) : decksQuery.isError ? (
@@ -320,6 +369,16 @@ export default function DecksScreen(): JSX.Element {
           {menuDeck ? (
             <>
               <Text style={styles.modalTitle}>{menuDeck.emoji ?? '📚'} {menuDeck.name}</Text>
+              <Button
+                label={t('Add card manually')}
+                icon="add-circle-outline"
+                variant="secondary"
+                onPress={() => {
+                  const deckId = menuDeck.id
+                  setMenuDeck(null)
+                  router.push({ pathname: '/deck/add-card', params: { deckId } })
+                }}
+              />
               <Button label={t('Import into this deck')} icon="download" variant="secondary" onPress={() => showImport(menuDeck)} />
               <Button label={t('Export this deck')} icon="cloud-download" variant="secondary" onPress={() => showExport(menuDeck)} />
               <Button
@@ -334,6 +393,12 @@ export default function DecksScreen(): JSX.Element {
               />
               <Button label={t('Move to…')} icon="folder-open-outline" variant="secondary" onPress={() => showMove(menuDeck)} />
               <Button label={t('Merge into…')} icon="git-merge-outline" variant="secondary" onPress={() => showMerge(menuDeck)} />
+              <Button
+                label={t('Reset progress')}
+                icon="refresh-outline"
+                variant="secondary"
+                onPress={() => confirmResetProgress(menuDeck)}
+              />
               <Button label={t('Delete deck')} icon="trash" variant="danger" onPress={() => confirmDelete(menuDeck)} />
             </>
           ) : null}
@@ -481,6 +546,7 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: spacing.lg, paddingBottom: 96 },
   deckCard: {
     flexDirection: 'row',

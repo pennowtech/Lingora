@@ -1,0 +1,367 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "hostFilePath",
+      "type": "promptString",
+      "description": "Absolute path or glob for files to copy to the selected Android target's Download folder"
+    },
+    {
+      "id": "devicePathOrGlob",
+      "type": "promptString",
+      "default": "/sdcard/Download/*",
+      "description": "Path or glob on the selected Android target to copy into this machine's Downloads folder"
+    },
+    {
+      "id": "adbTarget",
+      "type": "promptString",
+      "description": "ADB serial from the 'Android Target: List connected' task (for example emulator-5554)"
+    },
+    {
+      "id": "maestroFlow",
+      "type": "pickString",
+      "description": "Maestro flow to run",
+      "options": [
+        "smoke_launch",
+        "lookup_word_view_detail",
+        "add_word_to_deck",
+        "review_session_rate_card",
+        "create_rename_delete_deck",
+        "card_action_bar",
+        "template_editor_tabs",
+        "cloze_review_mode",
+        "deck_export_share_sheet",
+        "deck_move_merge",
+        "stats_screen",
+        "mining_manual_capture"
+      ]
+    }
+  ],
+  "options": {
+    "env": {
+      "ANDROID_HOME": "${env:HOME}/Library/Android/sdk",
+      "PATH": "${env:HOME}/.maestro/bin:${env:HOME}/Library/Android/sdk/emulator:${env:HOME}/Library/Android/sdk/platform-tools:${env:PATH}"
+    }
+  },
+  "windows": {
+    "options": {
+      "env": {
+        "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+        "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:PATH}"
+      }
+    }
+  },
+  "tasks": [
+    // ── Android emulator lifecycle ──────────────────────────────────────
+    {
+      "label": "Android Emulator: Cold boot",
+      "type": "shell",
+      "command": "emulator -avd Pixel_10_Pro_XL -no-snapshot-load >/private/tmp/lingora-emulator.log 2>&1 &",
+      "windows": {
+        "command": "Start-Process \"$env:LOCALAPPDATA\\Android\\Sdk\\emulator\\emulator.exe\" -ArgumentList '-avd Pixel_10_Pro_XL -no-snapshot-load'"
+      },
+      "detail": "Two AVDs are configured on this machine (Pixel_6_Pro, Pixel_10_Pro_XL) — this task targets Pixel_6_Pro, the one with the Lingora dev client installed. Duplicate this task with a different -avd value to boot the other.",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "android" }
+    },
+    {
+      "label": "Android Emulator: Wait until ready",
+      "type": "shell",
+      "command": "adb -e wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" }
+    },
+    {
+      "label": "Android Emulator: Stop",
+      "type": "shell",
+      "command": "adb -e emu kill",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" }
+    },
+    {
+      "label": "Android Emulator: Stop emulator + Metro + ADB",
+      "type": "shell",
+      "command": "adb emu kill 2>/dev/null; pkill -f 'expo start' 2>/dev/null; pkill -f 'expo run' 2>/dev/null; pkill -f 'qemu-system' 2>/dev/null; pkill -f 'emulator64' 2>/dev/null; pkill -f 'crashpad_handler' 2>/dev/null; lsof -ti:8081 2>/dev/null | xargs -r kill -9; lsof -ti:19000,19001,19002 2>/dev/null | xargs -r kill -9; adb kill-server 2>/dev/null; echo 'Stopped: emulator, Metro/expo, adb server, and anything still bound to the Metro/Expo ports.'",
+      "windows": {
+        "command": "adb emu kill 2>$null; Get-Process -Name 'qemu-system-*','emulator*','node' -ErrorAction SilentlyContinue | Where-Object { $_.Path -match 'expo|qemu|emulator' -or $_.ProcessName -match 'qemu|emulator' } | Stop-Process -Force -ErrorAction SilentlyContinue; adb kill-server 2>$null; Write-Host 'Stopped: emulator, Metro/expo, adb server.'"
+      },
+      "detail": "Stops the emulator process tree, Expo/Metro processes, anything bound to Expo ports, and the ADB server. The next ADB command starts the server again automatically. Safe to run when nothing is active.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Emulator: Boot + wait",
+      "dependsOn": ["Android Emulator: Cold boot", "Android Emulator: Wait until ready"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+
+    // ── Metro and builds ─────────────────────────────────────────────────
+    {
+      "label": "Metro: Start for Android emulator",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/mobile exec expo start --android --localhost",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "____never_matches____" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting Metro Bundler",
+          "endsPattern": "Waiting on http"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "metro" },
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Build: Native Android dev client (choose target)",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/mobile run android",
+      "detail": "Builds and installs the native development client. Expo prompts for a target when multiple Android targets are connected. Required after native dependency or plugin changes.",
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "metro" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Android preview APK (offline, no Metro)",
+      "type": "shell",
+      "command": "pnpm --dir apps/mobile build:android:preview",
+      "detail": "Creates an installable EAS preview APK with the JavaScript bundle embedded. The installed app runs without Metro. The first build prompts for Expo login and EAS project/signing setup.",
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "build" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Metro: Reload app",
+      "type": "shell",
+      "command": "curl -s -X POST http://localhost:8081/reload",
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Metro: Reset cache and stop app",
+      "type": "shell",
+      "command": "pkill -f 'expo start' 2>/dev/null; pkill -f 'expo run' 2>/dev/null; lsof -ti:8081 2>/dev/null | xargs -r kill -9; adb -s \"${input:adbTarget}\" shell am force-stop com.lingora.mobile; rm -rf apps/mobile/.expo; echo 'Metro cache cleared and app stopped. Start the appropriate Metro task next.'",
+      "detail": "Use when the app is stuck or showing a stale bundle. Prompts for the exact ADB target, stops Metro and the app, and clears Expo's local cache. It does not restart Metro.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "metro" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Target: Clear all Lingora app data",
+      "type": "shell",
+      "command": "adb -s \"${input:adbTarget}\" shell am force-stop com.lingora.mobile; adb -s \"${input:adbTarget}\" shell pm clear com.lingora.mobile; echo 'Lingora app data cleared on ${input:adbTarget}: database, SecureStore, settings, and cache were removed.'",
+      "detail": "Destructive: prompts for the exact ADB target and wipes all Lingora data without uninstalling the app. Use after migration testing or when a clean application state is required.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "metro" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Target: Relaunch installed app",
+      "type": "shell",
+      "command": "adb -s \"${input:adbTarget}\" shell am force-stop com.lingora.mobile; sleep 1; adb -s \"${input:adbTarget}\" shell monkey -p com.lingora.mobile -c android.intent.category.LAUNCHER 1",
+      "detail": "Prompts for the exact ADB target, then force-stops and relaunches its installed Lingora app without rebuilding.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "metro" },
+      "problemMatcher": []
+    },
+
+    // ── Android targets and physical phone ───────────────────────────────
+    {
+      "label": "Android Target: List connected",
+      "type": "shell",
+      "command": "adb devices -l",
+      "detail": "Plug the phone in via USB first and accept the 'Allow USB debugging?' prompt on the phone, with Developer Options > USB debugging already enabled.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "device" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Phone: Connect Metro over USB",
+      "type": "shell",
+      "command": "adb -d reverse tcp:8081 tcp:8081",
+      "detail": "Routes the physical phone's localhost:8081 to Metro over USB. Run after connecting the phone and again after reconnecting its USB cable.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "device" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Target: Push file to Download",
+      "type": "shell",
+      "command": "matched=0; for f in ${input:hostFilePath}; do if [ -e \"$f\" ]; then matched=1; echo \"Pushing to ${input:adbTarget}: $f\"; adb -s \"${input:adbTarget}\" push \"$f\" /sdcard/Download/; fi; done; if [ \"$matched\" -eq 0 ]; then echo \"No file matched: ${input:hostFilePath}\"; exit 1; fi",
+      "detail": "Prompts for an ADB target and a local path or glob, then copies every matching file into that target's Download folder.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android Target: Pull files from Download",
+      "type": "shell",
+      "command": "matched=0; for f in $(adb -s \"${input:adbTarget}\" shell \"ls ${input:devicePathOrGlob} 2>/dev/null\" | tr -d '\\r'); do matched=1; echo \"Pulling from ${input:adbTarget}: $f\"; adb -s \"${input:adbTarget}\" pull \"$f\" \"$HOME/Downloads/\"; done; if [ \"$matched\" -eq 0 ]; then echo \"No file matched on ${input:adbTarget}: ${input:devicePathOrGlob}\"; exit 1; fi",
+      "detail": "Prompts for an ADB target and target-side path or glob, then copies every match into this machine's Downloads folder.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Metro: Start for Android phone over USB",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/mobile exec expo start --localhost",
+      "detail": "Starts Metro on localhost without auto-launching an emulator. Run 'Android Phone: Connect Metro over USB', then open the installed development client on the phone.",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "____never_matches____" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting Metro Bundler",
+          "endsPattern": "Waiting on http"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "device" }
+    },
+
+    // ── End-to-end tests (native macOS; AVD + Metro required) ────────────
+    {
+      "label": "E2E: Run all Maestro flows",
+      "type": "shell",
+      "command": "maestro test .maestro/flows",
+      "detail": "Runs the complete Maestro UI suite. Boot the Android emulator and start Metro first.",
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "e2e" },
+      "problemMatcher": []
+    },
+    {
+      "label": "E2E: Run selected Maestro flow",
+      "type": "shell",
+      "command": "maestro test .maestro/flows/${input:maestroFlow}.yaml",
+      "detail": "Prompts for one Maestro flow. Boot the Android emulator and start Metro first.",
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "e2e" },
+      "problemMatcher": []
+    },
+
+    // ── Firebase / Google sign-in setup ──────────────────────────────────
+    {
+      "label": "Android: Print debug keystore SHA-1 / SHA-256",
+      "type": "shell",
+      "command": "keytool -list -v -keystore apps/mobile/android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android | grep -E 'SHA1:|SHA256:'",
+      "windows": {
+        "command": "keytool -list -v -keystore apps\\mobile\\android\\app\\debug.keystore -alias androiddebugkey -storepass android -keypass android | Select-String 'SHA1:|SHA256:'"
+      },
+      "detail": "Reads the fingerprints of the auto-generated Android debug keystore (apps/mobile/android/app/debug.keystore, created by Expo prebuild — run 'Build: Native Android dev client' at least once first if it doesn't exist yet). Add both to the Firebase console (Project settings > your Android app > Add fingerprint) so Google Sign-In works against debug builds. A release build needs the equivalent fingerprints from its own release keystore instead — this task only covers debug.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "android" },
+      "problemMatcher": []
+    },
+
+    // ── Install / format ─────────────────────────────────────────────────
+    {
+      "label": "Workspace: pnpm install",
+      "type": "shell",
+      "command": "pnpm install",
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Lint",
+      "type": "shell",
+      "command": "pnpm lint",
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Workspace: Format (prettier write)",
+      "type": "shell",
+      "command": "pnpm format",
+      "problemMatcher": []
+    },
+
+    // ── Quality checks ───────────────────────────────────────────────────
+    {
+      "label": "Quality: Typecheck — mobile",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/mobile run typecheck",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — database",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/database/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — types",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/types/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — ai",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — observability",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/observability/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — srs",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/srs/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck — core",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc -p packages/core/tsconfig.json --noEmit",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Quality: Typecheck all",
+      "dependsOn": [
+        "Quality: Typecheck — types",
+        "Quality: Typecheck — core",
+        "Quality: Typecheck — observability",
+        "Quality: Typecheck — srs",
+        "Quality: Typecheck — database",
+        "Quality: Typecheck — ai",
+        "Quality: Typecheck — mobile"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Quality: Test — ai",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/ai run test",
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Test — database",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/database run test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Test — observability",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/observability run test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Test — srs",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/srs run test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Test all",
+      "dependsOn": [
+        "Quality: Test — ai",
+        "Quality: Test — database",
+        "Quality: Test — observability",
+        "Quality: Test — srs"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Quality: Check everything (no emulator)",
+      "dependsOn": ["Quality: Typecheck all", "Quality: Lint", "Quality: Test all"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

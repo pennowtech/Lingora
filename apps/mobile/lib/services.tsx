@@ -1,4 +1,4 @@
-import type { CefrLevel } from '@lingora/types'
+import type { CefrLevel, LanguageCode } from '@lingora/types'
 import {
   AnthropicProvider,
   createAIPipeline,
@@ -107,12 +107,21 @@ export const STORE_KEYS = {
   translationProvider: 'lingora.translation_provider',
   generationProvider: 'lingora.generation_provider',
   defaultCefr: 'lingora.default_cefr',
+  nativeLanguage: 'lingora.native_language',
+  targetLanguage: 'lingora.target_language',
   exportDirectoryUri: 'lingora.export_directory_uri',
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
 } as const
 
 export const DEFAULT_DECK_ID = 'deck-default'
+
+/** Every language the dictionary/generation providers know how to handle (see LanguageCode). */
+export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr']
+
+/** Preserves today's hardcoded German→English behavior for users who never open the setting. */
+export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
+export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'
 
 export interface Services {
   db: DatabaseAdapter
@@ -130,6 +139,10 @@ export interface Services {
   dictionary: DictionaryProvider
   tier: FeatureTier
   defaultCefr: CefrLevel
+  /** The learner's own language — explanations/UI copy target this (word/[form].tsx header, etc.). */
+  nativeLanguage: LanguageCode
+  /** The language being learned — new words/generation default here (search.tsx). */
+  targetLanguage: LanguageCode
   /** Re-read keys/preferences and rebuild the pipeline — call after settings change. */
   reloadServices: () => Promise<void>
 }
@@ -235,7 +248,9 @@ function instantiateGenerationProvider(
 
 async function buildAIServices(
   db: DatabaseAdapter,
-): Promise<Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr' | 'dictionary'>> {
+): Promise<
+  Pick<Services, 'ai' | 'pipeline' | 'tier' | 'defaultCefr' | 'dictionary' | 'nativeLanguage' | 'targetLanguage'>
+> {
   const [
     openai,
     mistral,
@@ -246,6 +261,8 @@ async function buildAIServices(
     storedTranslationProvider,
     storedGenerationProvider,
     storedCefr,
+    storedNativeLanguage,
+    storedTargetLanguage,
   ] = await Promise.all([
     readProviderConfig(STORE_KEYS.openaiKey, STORE_KEYS.openaiEnabled, STORE_KEYS.openaiModel, DEFAULT_MODELS.openai),
     readProviderConfig(
@@ -266,11 +283,23 @@ async function buildAIServices(
     SecureStore.getItemAsync(STORE_KEYS.translationProvider),
     SecureStore.getItemAsync(STORE_KEYS.generationProvider),
     SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+    SecureStore.getItemAsync(STORE_KEYS.nativeLanguage),
+    SecureStore.getItemAsync(STORE_KEYS.targetLanguage),
   ])
 
   const defaultCefr: CefrLevel = (VALID_CEFR as readonly string[]).includes(storedCefr ?? '')
     ? (storedCefr as CefrLevel)
     : 'B1'
+  const nativeLanguage: LanguageCode = (SUPPORTED_LANGUAGES as readonly string[]).includes(
+    storedNativeLanguage ?? '',
+  )
+    ? (storedNativeLanguage as LanguageCode)
+    : DEFAULT_NATIVE_LANGUAGE
+  const targetLanguage: LanguageCode = (SUPPORTED_LANGUAGES as readonly string[]).includes(
+    storedTargetLanguage ?? '',
+  )
+    ? (storedTargetLanguage as LanguageCode)
+    : DEFAULT_TARGET_LANGUAGE
 
   const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude }
   const configured = GENERATION_PROVIDERS.filter(
@@ -310,7 +339,7 @@ async function buildAIServices(
       metadata: { itemCount: configured.length },
       message: 'No generation provider configured — tier is translation-only',
     })
-    return { ai: null, pipeline: null, tier: 'translation', defaultCefr, dictionary }
+    return { ai: null, pipeline: null, tier: 'translation', defaultCefr, dictionary, nativeLanguage, targetLanguage }
   }
 
   const chosen = configs[generationProviderName]
@@ -324,7 +353,7 @@ async function buildAIServices(
     result: 'success',
     metadata: { provider: generationProviderName, modelAlias: chosen.model, itemCount: configured.length },
   })
-  return { ai, pipeline, tier: 'full', defaultCefr, dictionary }
+  return { ai, pipeline, tier: 'full', defaultCefr, dictionary, nativeLanguage, targetLanguage }
 }
 
 const ServicesContext = createContext<Services | null>(null)

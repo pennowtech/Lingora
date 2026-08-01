@@ -225,6 +225,36 @@ export const cardStates = sqliteTable(
 )
 
 /**
+ * CLOZE STATES
+ *
+ * The exact same shape as cardStates (migration 0013) but for cloze practice, kept as an entirely
+ * separate FSRS schedule — one card's word-meaning review and its cloze practice used to share a
+ * single card_states row, so rating it in either mode marked it not-due for the other too. This
+ * table gives cloze its own row, own due date, own review history, per card.
+ */
+export const clozeStates = sqliteTable(
+  'cloze_states',
+  {
+    cardId: text('card_id')
+      .primaryKey()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    state: text('state').notNull().default('new'),
+    stability: real('stability').notNull().default(0),
+    difficulty: real('difficulty').notNull().default(0),
+    retrievability: real('retrievability').notNull().default(0),
+    lapses: integer('lapses').notNull().default(0),
+    lastReviewedAt: integer('last_reviewed_at'),
+    nextReviewDate: integer('next_review_date').notNull(),
+    reps: integer('reps').notNull().default(0),
+    learningSteps: integer('learning_steps').notNull().default(0),
+  },
+  (table) => [
+    index('cloze_states_state_idx').on(table.state),
+    index('cloze_states_next_review_idx').on(table.nextReviewDate),
+  ],
+)
+
+/**
  * SENTENCE MINING QUEUE
  *
  * Captured sentences waiting to be processed for sentence mining into cards. This allows us to decouple the capture of

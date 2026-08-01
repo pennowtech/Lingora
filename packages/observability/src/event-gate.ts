@@ -35,7 +35,11 @@ export class EventGate {
     if (this.minute.length >= this.maxPerMinute) return output
     this.minute.push(nowMs)
     if (event.level === 'warn' || event.level === 'error' || event.level === 'fatal') {
-      const key = `${event.level}:${event.event}:${event.errorCode ?? ''}`
+      // Component included deliberately: two unrelated call sites can share an event name/level/
+      // errorCode (e.g. any two DB writes surfacing the same SQLite error code from different
+      // features) — without this, they'd coalesce into one misleading summary carrying only the
+      // FIRST occurrence's context, misattributing every later occurrence to the wrong component.
+      const key = `${event.level}:${event.event}:${event.errorCode ?? ''}:${event.context.component ?? ''}`
       const duplicate = this.duplicates.get(key)
       if (duplicate && nowMs - duplicate.firstMs < this.duplicateWindowMs) {
         duplicate.count += 1

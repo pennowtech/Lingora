@@ -1,0 +1,42 @@
+# LINGORA-E2E-LIVE-002 — real DeepL translation: configure a real key, select DeepL as the
+# translation provider, search a word, confirm DeepL (not Google) actually served the translation.
+#
+# NOT part of the routine suite — real API cost/latency, same reasoning as generate_word_mistral.
+# Run explicitly:
+#
+#   maestro test -e DEEPL_KEY=$DEEPL_API_KEY .maestro/flows/live/translate_deepl.yaml
+appId: com.lingora.mobile
+name: translate_deepl
+tags:
+  - live
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element:
+      id: "deepl-expand-toggle"
+    direction: DOWN
+- tapOn:
+    id: "deepl-expand-toggle"
+- tapOn:
+    id: "provider-key-input-deepl"
+- eraseText
+- inputText: "${DEEPL_KEY}"
+- tapOn: "Translation"
+- tapOn:
+    id: "translation-select-deepl"
+
+- tapOn:
+    id: "tab-search"
+- tapOn:
+    id: "search-input"
+- inputText: "Bibliothek"
+- extendedWaitUntil:
+    visible: ".*deepl.*"
+    timeout: 15000

@@ -5,20 +5,20 @@
     "scheme": "lingora",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-lingora.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.lingora.mobile",
+      "icon": "./assets/icon-lingora.png",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#3E3789",
+        "foregroundImage": "./assets/icon-lingora.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -26,7 +26,16 @@
     "plugins": [
       "expo-sqlite",
       "expo-secure-store",
+      "expo-notifications",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "react-native-nitro-google-signin",
       "./plugins/withDebugUserCaTrust.js"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6ec55f92-b57a-415e-ab24-7d8ed7d421fd"
+      }
+    }
   }
 }

@@ -1,0 +1,48 @@
+# LINGORA-E2E-014 — type a key into a generation provider, enable it, confirm Limited mode clears.
+# No live call: the key is a dummy string, never tapped through "Validate key" (that's the
+# live-tier flow). Deliberately doesn't clear the key back out afterward — that "Clear" tap proved
+# unreliable in this same investigation (unclear why, unlike the Switch fix above, which is a
+# understood/robust conditional-retry) and isn't worth more time chasing; leaves the device with a
+# dummy OpenAI key configured, which is harmless and doesn't affect other flows.
+appId: com.lingora.mobile
+name: settings_generation_provider_toggle
+tags:
+  - settings
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element:
+      id: "provider-header-openai"
+    direction: DOWN
+- tapOn:
+    id: "provider-header-openai"
+- tapOn:
+    id: "provider-key-input-openai"
+- eraseText
+- inputText: "sk-maestro-dummy-not-a-real-key"
+
+# Tapping id: "provider-toggle-openai" here is unreliable — traced through several theories
+# (disabled-at-tap-time race, a still-open keyboard shifting the layout, an Android accessibility
+# -click gap on RN's Switch) without one clean single cause; some combination of these is real.
+# Wrapping a PLAIN retry around the tap was wrong: a Switch is a toggle, so blindly re-tapping on
+# a failed assertion flips it back off, then back on, forever chasing its own tail. `runFlow:
+# when:` makes each retry attempt conditional — only tap if it isn't already in the target state —
+# so retries actually converge regardless of which cause is in play on a given run.
+- retry:
+    maxRetries: 5
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Active"
+          commands:
+            - tapOn:
+                id: "provider-toggle-openai"
+      - assertVisible: "Active"
+- assertNotVisible: "Limited mode"

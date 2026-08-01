@@ -40,6 +40,7 @@ describe('GoogleTranslateProvider.translate', () => {
     expect(url.searchParams.get('sl')).toBe('de')
     expect(url.searchParams.get('tl')).toBe('en')
     expect(url.searchParams.get('q')).toBe('Haus')
+    expect(url.searchParams.getAll('dt')).toEqual(['t', 'bd'])
   })
 
   it('concatenates multi-segment translations', async () => {
@@ -87,6 +88,52 @@ describe('GoogleTranslateProvider.translate', () => {
     await expect(provider.translate('Haus', 'de', 'en')).rejects.toMatchObject({
       code: 'provider',
       retryable: true,
+    })
+  })
+})
+
+// The shape translate.googleapis.com returns for en→de 'foundation' with dt=t&dt=bd.
+const FOUNDATION_RESPONSE = [
+  [['Stiftung', 'foundation', null, null, 10]],
+  [
+    [
+      'noun',
+      ['Stiftung', 'Grundlage', 'Gründung', 'Fundament', 'Basis', 'Grund', 'Begründung', 'Grundstock', 'Sockel'],
+      [],
+      'foundation',
+      1,
+    ],
+  ],
+  'en',
+]
+
+describe('GoogleTranslateProvider.translateAlternatives', () => {
+  it('flattens the bilingual-dictionary section into a deduped, capped list', async () => {
+    const fetchFn = fetchReturning({ payload: FOUNDATION_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    const result = await provider.translateAlternatives('foundation', 'en', 'de')
+
+    expect(result.data).toEqual([
+      'Stiftung',
+      'Grundlage',
+      'Gründung',
+      'Fundament',
+      'Basis',
+      'Grund',
+      'Begründung',
+      'Grundstock',
+    ])
+    expect(result.data.length).toBeLessThanOrEqual(8)
+  })
+
+  it('rejects when the response carries no dictionary section', async () => {
+    const fetchFn = fetchReturning({ payload: [[['house', 'Haus', null, null, 1]], null, 'de'] })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    await expect(provider.translateAlternatives('Haus', 'de', 'en')).rejects.toMatchObject({
+      code: 'provider',
+      retryable: false,
     })
   })
 })

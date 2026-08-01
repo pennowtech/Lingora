@@ -62,6 +62,22 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     return { data: translation, usage: { tokensUsed: 0, latencyMs } }
   }
 
+  /** Alternate translations for ambiguous words, from the `dt=bd` bilingual-dictionary section. */
+  async translateAlternatives(
+    text: string,
+    source: LanguageCode,
+    target: LanguageCode,
+  ): Promise<AIResult<string[]>> {
+    const { payload, latencyMs } = await this.request(text, source, target)
+
+    const alternatives = readAlternatives(payload)
+    if (alternatives.length === 0) {
+      throw new AIProviderError('Google Translate returned no alternatives', this.name, false)
+    }
+
+    return { data: alternatives, usage: { tokensUsed: 0, latencyMs } }
+  }
+
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {
     // 'auto' asks the endpoint to detect; the result rides on index [2].
     const { payload, latencyMs } = await this.request(text, 'auto', 'en')
@@ -119,13 +135,17 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     target: string,
     startedAt: number,
   ): Promise<{ payload: unknown; latencyMs: number }> {
-    const params = new URLSearchParams({
-      client: 'gtx',
-      sl: source,
-      tl: target,
-      dt: 't',
-      q: text,
-    })
+    // dt=t is the single best-guess translation (used by readTranslation); dt=bd is the
+    // bilingual-dictionary section, grouped by part of speech, that readAlternatives parses for
+    // the "show all meanings" case (e.g. "foundation" → Stiftung, Grundlage, Fundament, ...).
+    const params = new URLSearchParams([
+      ['client', 'gtx'],
+      ['sl', source],
+      ['tl', target],
+      ['dt', 't'],
+      ['dt', 'bd'],
+      ['q', text],
+    ])
     const url = `${this.baseUrl}/translate_a/single?${params.toString()}`
     const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
@@ -179,4 +199,27 @@ function readTranslation(payload: unknown): string {
     }
   }
   return translation.trim()
+}
+
+const MAX_ALTERNATIVES = 8
+
+/**
+ * payload[1] (present only with dt=bd) is a list of part-of-speech entries:
+ * [posTag, termsArray, detailArray, sourceWord, freq]. Flatten every entry's termsArray, dedupe,
+ * and cap — grammatical grouping isn't surfaced, just the flat "here are the possible meanings"
+ * list the UI wants.
+ */
+function readAlternatives(payload: unknown): string[] {
+  if (!Array.isArray(payload) || !Array.isArray(payload[1])) return []
+
+  const seen = new Set<string>()
+  for (const entry of payload[1] as unknown[]) {
+    if (!Array.isArray(entry) || !Array.isArray(entry[1])) continue
+    for (const term of entry[1] as unknown[]) {
+      if (typeof term === 'string' && term.trim() !== '') seen.add(term.trim())
+      if (seen.size >= MAX_ALTERNATIVES) break
+    }
+    if (seen.size >= MAX_ALTERNATIVES) break
+  }
+  return Array.from(seen)
 }

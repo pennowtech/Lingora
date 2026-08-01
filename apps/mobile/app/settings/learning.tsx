@@ -3,7 +3,7 @@ import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
@@ -23,6 +23,12 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
 }
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+
+/** Japanese/Spanish/French show up in the language pickers (SUPPORTED_LANGUAGES) but nothing in
+ * the generation/dictionary pipeline has real content for them yet — only German and English are
+ * actually usable today. Selecting one of the others warns instead of silently switching to a
+ * language pair that won't work. */
+const FULLY_SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de']
 
 /** The "Learning" sub-screen: default CEFR level and the native/target vocabulary language pair.
  * The app's own UI language lives in Settings > General now, alongside Audio Settings — it's an
@@ -88,10 +94,23 @@ export default function LearningScreen(): JSX.Element {
     persist(STORE_KEYS.defaultCefr, level)
   }
 
+  const warnUnsupportedLanguage = (language: LanguageCode): void => {
+    Alert.alert(
+      t('Not supported yet'),
+      t('{{language}} isn\'t ready yet — English and German are the only languages Lingora fully supports right now.', {
+        language: t(VOCAB_LANGUAGE_LABELS[language]),
+      }),
+    )
+  }
+
   // Swapping native/target to the same language would make every reverse-direction check
   // (search.tsx's auto-detect, the word/[form].tsx header) ambiguous, so each setter nudges the
   // other language out of the way rather than allowing that state.
   const setNativeLanguage = (language: LanguageCode): void => {
+    if (!FULLY_SUPPORTED_LANGUAGES.includes(language)) {
+      warnUnsupportedLanguage(language)
+      return
+    }
     setNativeLanguageState(language)
     persistLanguage(STORE_KEYS.nativeLanguage, language)
     if (language === targetLanguage) {
@@ -105,6 +124,10 @@ export default function LearningScreen(): JSX.Element {
     })
   }
   const setTargetLanguage = (language: LanguageCode): void => {
+    if (!FULLY_SUPPORTED_LANGUAGES.includes(language)) {
+      warnUnsupportedLanguage(language)
+      return
+    }
     setTargetLanguageState(language)
     persistLanguage(STORE_KEYS.targetLanguage, language)
     if (language === nativeLanguage) {

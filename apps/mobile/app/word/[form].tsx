@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import type {
   Card as CardRow,
-  CefrLevel,
   Cloze,
   EvaluationReportReason,
   EvaluationTarget,
@@ -12,6 +11,7 @@ import type {
   MeaningCluster,
   Phrase,
   Synonym,
+  WordGuideEntry,
 } from '@lingora/types'
 import {
   addCardToDeck,
@@ -21,6 +21,7 @@ import {
   getCardsByLemma,
   getClozesForCard,
   getClustersForLemma,
+  getDecksForLemma,
   getExamplesForCard,
   getInflectionsForLemma,
   getLatestEvaluationsForTargets,
@@ -30,6 +31,7 @@ import {
   getSynonymsForCard,
   getWordGuide,
   persistRegeneratedExamples,
+  regenerateWordPackage,
   setEvaluation,
   updateExampleText,
   updateMeaningText,
@@ -38,26 +40,46 @@ import {
   type DatabaseAdapter,
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Stack, useLocalSearchParams } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
 import {
   Button,
   Card,
   CardActionBar,
   CefrBadge,
   Chip,
+  Dropdown,
   ErrorState,
   EvalBar,
+  IconButton,
   SectionHeader,
   SpeakerButton,
   Spinner,
 } from '../../components/ui'
+import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
+import { AskAISheet } from '../../components/AskAISheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
+import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { useServices } from '../../lib/services'
-import { cefrColors, colors, radius, spacing, type } from '../../lib/theme'
+import { colors, radius, spacing, type } from '../../lib/theme'
+
+/** Cards created by one of the AI providers — as opposed to a dictionary quick-translate, the
+ * installed word-guides dictionary, or manual/import entry (see packages/types CardSource). */
+const AI_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
 
 const REPORT_REASONS: Array<{ value: EvaluationReportReason; label: string }> = [
   { value: 'inaccurate_translation', label: 'Inaccurate translation' },
@@ -67,7 +89,6 @@ const REPORT_REASONS: Array<{ value: EvaluationReportReason; label: string }> = 
   { value: 'other', label: 'Other' },
 ]
 
-const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const CONTEXT_TABS = [
   'all',
   'casual',
@@ -136,28 +157,34 @@ async function loadWord(db: DatabaseAdapter, form: string): Promise<WordView | n
  * CEFR-controlled examples with the grammar panel, synonyms, phrases, cloze.
  */
 export default function WordDetailScreen(): JSX.Element {
-  const { form } = useLocalSearchParams<{ form: string }>()
-  const { db, ai, tier, defaultCefr } = useServices()
+  // nativeTerm is only set when search.tsx's reverse-direction auto-detect generated this word
+  // (the user typed a native-language word, e.g. "rumor", and got the target-language equivalent,
+  // e.g. "Gerucht") — it's what lets the headline show the word the learner actually typed instead
+  // of the unfamiliar target-language form. Absent for every other way of reaching this screen
+  // (straight search, decks, review), which keeps their current headword-first display unchanged.
+  const { form, nativeTerm } = useLocalSearchParams<{ form: string; nativeTerm?: string }>()
+  const { db, ai, tier, defaultCefr, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
 
   const [clusterId, setClusterId] = useState<string | null>(null)
-  const [cefr, setCefr] = useState<CefrLevel>(defaultCefr)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
-  const [addedToDeck, setAddedToDeck] = useState<string | null>(null)
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
 
-  // Card action bar state — explanation visibility/generation, translation
-  // hiding (a recall-practice toggle: blanks the meaning + example
-  // translations without touching the stored data), and the edit modal.
+  // Card action bar state — explanation visibility/generation (dictionary-sourced cards only; AI
+  // cards always show their explanation inline, see isAiCard below), the "More info" follow-up
+  // sheet (AI cards only), and the edit modal. Meaning and example translations are always
+  // visible now — there's no recall-practice hide-translation toggle anymore.
   const [explainVisible, setExplainVisible] = useState(false)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
-  const [translationHidden, setTranslationHidden] = useState(false)
+  const [aiSheetOpen, setAiSheetOpen] = useState(false)
+  const [askAiOpen, setAskAiOpen] = useState(false)
+  const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
   const [editOpen, setEditOpen] = useState(false)
   const [editMeaning, setEditMeaning] = useState('')
   const [editExample, setEditExample] = useState('')
@@ -176,10 +203,21 @@ export default function WordDetailScreen(): JSX.Element {
   })
 
   const word = wordQuery.data
+
+  // Real, persisted deck membership — not session-local state. Drives the sticky bottom bar
+  // (breadcrumb of deck names instead of an "Add to deck" button once it's actually in one) and
+  // the picker modal's per-row checkmarks, which previously only reflected whatever was added
+  // during the *current* visit to this screen.
+  const existingDecksQuery = useQuery({
+    queryKey: ['lemma-decks', word?.lemma.id],
+    queryFn: () => getDecksForLemma(db, word!.lemma.id),
+    enabled: !!word?.lemma.id,
+  })
   const activeClusterId = clusterId ?? word?.clusters[0]?.cluster.id ?? null
   const active = word?.clusters.find((c) => c.cluster.id === activeClusterId)
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
+  const isAiCard = !!word?.card?.source && AI_SOURCES.includes(word.card.source)
 
   const evaluationTargetIds = (word?.clusters ?? []).flatMap((c) => [
     ...c.examples.map((ex) => ex.id),
@@ -193,19 +231,26 @@ export default function WordDetailScreen(): JSX.Element {
   const ratingFor = (targetId: string): 'up' | 'down' | undefined =>
     evaluationsQuery.data?.get(targetId)?.rating
 
+  // Which generation batch (by generationMetadataId) came from the Advanced grammar options panel
+  // with at least one option actually selected — those examples get a highlighted background in
+  // the list below. Session-only (not persisted): there's no lasting "was this grammar-targeted"
+  // flag in the schema, and there doesn't need to be — it's just a "these are the ones you just
+  // asked for" cue for the current visit, same lifetime as the grammar selection itself.
+  const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null)
+
   const generateExamples = useMutation({
     mutationFn: async () => {
-      if (!ai) throw new Error(t('Add your OpenAI key in Settings to generate examples.'))
+      if (!ai) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate examples.'))
       if (!word || !active || !word.card) throw new Error(t('This word has no card yet.'))
       const result = await ai.generateExamples(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: cefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language },
         { grammar: grammarSelection },
       )
       const promptVersion = await getActivePromptVersion(db, 'examples')
       if (!promptVersion) throw new Error('Prompt versions are not seeded yet.')
-      await persistRegeneratedExamples(db, {
+      const { generationMetadataId } = await persistRegeneratedExamples(db, {
         cardId: word.card.id,
         clusterId: active.cluster.id,
         examples: result.data,
@@ -218,8 +263,12 @@ export default function WordDetailScreen(): JSX.Element {
           latencyMs: result.usage.latencyMs,
         },
       })
+      return { generationMetadataId, grammarTargeted: grammarSelection.length > 0 }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
+    onSuccess: async ({ generationMetadataId, grammarTargeted }) => {
+      setGrammarHighlightMetadataId(grammarTargeted ? generationMetadataId : null)
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    },
   })
 
   const evaluate = useMutation({
@@ -247,15 +296,6 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert(t('Could not save your report'), String(error)),
   })
 
-  const setPrimaryMeaning = useMutation({
-    mutationFn: (meaningId: string) => {
-      if (!word?.card) throw new Error(t('This word has no card yet.'))
-      return updatePrimaryMeaning(db, word.card.id, meaningId)
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert(t('Could not change the primary meaning'), String(error)),
-  })
-
   const selectExample = useMutation({
     mutationFn: (exampleId: string) => {
       if (!word?.card) throw new Error(t('This word has no card yet.'))
@@ -265,15 +305,29 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert(t('Could not update the flashcard example'), String(error)),
   })
 
+  // Whichever cluster is on screen when "Add to deck" is tapped becomes the card's primary
+  // meaning AND its selected example — what word-meaning cards actually show (cloze cards are
+  // generated independently of any meaning/cluster, so they're unaffected — see buildCardContext
+  // in lib/templates.ts for the separate translation-mismatch bug that affected those). Cluster
+  // tabs are purely a viewing choice otherwise (switching tabs alone never touches
+  // primary_meaning_id or is_selected); this is the one moment that choice gets committed,
+  // matching "whatever translation was selected during Add to Deck should be used on deck cards."
   const addToDeck = useMutation({
     mutationFn: async (deckId: string) => {
       if (!word?.card) throw new Error(t('This word has no card yet.'))
+      if (headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId) {
+        await updatePrimaryMeaning(db, word.card.id, headlineMeaning.id)
+      }
+      if (selectedExample && !selectedExample.isSelected) {
+        await updateSelectedExample(db, word.card.id, selectedExample.id)
+      }
       await addCardToDeck(db, deckId, word.card.id)
       return deckId
     },
-    onSuccess: async (deckId) => {
-      setAddedToDeck(deckId)
+    onSuccess: async () => {
       setDeckPickerOpen(false)
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+      await queryClient.invalidateQueries({ queryKey: ['lemma-decks', word?.lemma.id] })
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
@@ -285,9 +339,10 @@ export default function WordDetailScreen(): JSX.Element {
     )
   }
 
-  // Book icon: reveal a stored explanation, or generate one on demand
-  // (persisted so it's stored next time — see updateMeaningText) if this
-  // meaning has none yet and an AI provider is configured.
+  // AI cards: the base explanation is generated once (on first open, if missing — see the
+  // auto-generate effect below) and persisted, so it's free to re-show next time. Regenerating it
+  // outright (the action bar's refresh-style affordance, if ever added) would go through this
+  // same mutation with no question.
   const generateExplanation = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
@@ -295,14 +350,106 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateMeaning(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: cefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language },
       )
-      const explanation = result.data[0]?.explanation ?? ''
-      await updateMeaningText(db, headlineMeaning.id, headlineMeaning.translation, explanation)
+      const generated = result.data[0]
+      await updateMeaningText(
+        db,
+        headlineMeaning.id,
+        headlineMeaning.translation,
+        generated?.explanation ?? '',
+        generated?.usage ?? undefined,
+      )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
     onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
   })
+
+  // Regenerate — replaces every meaning cluster (meanings/examples/synonyms), phrase, and cloze
+  // on this card with a fresh AI generation. Unlike generateExamples/generateExplanation above,
+  // this is whole-card and destructive (old content is gone, not just supplemented), so it's
+  // gated behind a confirm dialog (see handleRegenerate) and only ever offered on AI-sourced cards.
+  // The lemma/card ids themselves — and with them FSRS review history and deck membership — are
+  // untouched; see regenerateWordPackage's own doc comment for exactly what is and isn't replaced.
+  const regenerateCard = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to regenerate this card.'))
+      if (!word?.card) throw new Error(t('This word has no card yet.'))
+      const result = await ai.generateWordPackage(word.lemma.form, {
+        cefrLevel: defaultCefr,
+        language: word.lemma.language,
+      })
+      if (result.kind === 'partial') {
+        throw new Error(t('Generation came back incomplete — nothing was changed. Try again.'))
+      }
+      const promptVersion = await getActivePromptVersion(db, 'word_package')
+      if (!promptVersion) throw new Error('Prompt versions are not seeded yet.')
+      await regenerateWordPackage(db, word.lemma.id, word.card.id, result.data, {
+        provider: ai.name,
+        model: ai.model,
+        promptVersionId: promptVersion.id,
+        generatedAt: Date.now(),
+        tokensUsed: result.usage.tokensUsed,
+        latencyMs: result.usage.latencyMs,
+      })
+    },
+    onSuccess: async () => {
+      // The old explanation/synonyms/examples this thread referenced no longer exist, and so does
+      // whichever cluster id was selected — the regenerated word gets entirely new cluster ids,
+      // so a stale selection would find nothing and the Meanings section would render blank.
+      setFollowUps([])
+      setClusterId(null)
+      await queryClient.invalidateQueries()
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not regenerate this card'), String(error)),
+  })
+
+  const handleRegenerate = (): void => {
+    if (!ai) {
+      showAIProviderRequiredAlert(t, t('regenerate this card'), () => router.push('/settings'))
+      return
+    }
+    Alert.alert(
+      t('Regenerate this card?'),
+      t('This replaces the meanings, examples, synonyms, phrases, and cloze cards with a fresh AI generation. This cannot be undone.'),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Regenerate'), style: 'destructive', onPress: () => regenerateCard.mutate() },
+      ],
+    )
+  }
+
+  // A follow-up question typed into the "More info" sheet's composer. Deliberately NOT persisted
+  // to the card's own explanation/usage — an ephemeral, session-only thread (see the "More info"
+  // design decision this session): the base explanation stays the one stored, reusable answer,
+  // and follow-ups just accumulate in `followUps` for as long as this sheet stays open.
+  const askFollowUp = useMutation({
+    mutationFn: async (question: string) => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
+      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.generateMeaning(
+        word.lemma.form,
+        { label: active.cluster.label, description: active.cluster.description },
+        { cefrLevel: defaultCefr, language: word.lemma.language },
+        question,
+      )
+      const generated = result.data[0]
+      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null }
+    },
+    onSuccess: (entry) => setFollowUps((prev) => [...prev, entry]),
+    onError: (error: unknown) => Alert.alert(t('Could not get an answer'), String(error)),
+  })
+
+  // AI cards show their explanation inline as soon as it exists — no tap required (see the
+  // "explanation always visible" decision) — and generate it the very first time a card with
+  // none yet is opened, provided a generation key is actually configured. Never re-fires once a
+  // request is in flight or has already produced/found an explanation.
+  useEffect(() => {
+    if (!isAiCard || !headlineMeaning || !word) return
+    if (headlineMeaning.explanation.trim() !== '') return
+    if (tier !== 'full' || generateExplanation.isPending) return
+    generateExplanation.mutate()
+  }, [isAiCard, headlineMeaning?.id, headlineMeaning?.explanation, word, tier])
 
   // Checked before AI generation, and on EVERY tap (not just when nothing is
   // stored yet): a bulk-installed, pre-generated dictionary (see
@@ -335,10 +482,7 @@ export default function WordDetailScreen(): JSX.Element {
       }
       if (tier !== 'full') {
         setExplainVisible(false)
-        Alert.alert(
-          t('AI not configured'),
-          t('Add an OpenAI, Mistral, Gemini, or Claude key in Settings to generate an explanation for this meaning.'),
-        )
+        showAIProviderRequiredAlert(t, t('generate an explanation for this meaning'), () => router.push('/settings'))
         return
       }
       setExplainVisible(true)
@@ -347,8 +491,15 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
   })
 
+  // "More info" on an AI card opens the follow-up sheet (its explanation is already showing
+  // inline — see the auto-generate effect above); on a dictionary/word-guide/manual card this is
+  // still the original toggle-a-lookup "Explain" behavior.
   const handleExplain = (): void => {
     if (!headlineMeaning) return
+    if (isAiCard) {
+      setAiSheetOpen(true)
+      return
+    }
     if (explainVisible || guideModalOpen) {
       setExplainVisible(false)
       setGuideModalOpen(false)
@@ -356,6 +507,44 @@ export default function WordDetailScreen(): JSX.Element {
     }
     setExplainVisible(true)
     lookupWordGuide.mutate()
+  }
+
+  // When lookupWordGuide falls back to a live AI explanation (no installed-dictionary entry for
+  // this word), present it through the exact same WordGuideModal presentation instead of a plain
+  // Text blob — a dictionary-sourced explanation and an AI-generated one should look the same to
+  // the person reading them, only the footnote at the bottom says which one it was. Not persisted
+  // anywhere — built fresh from whatever's already loaded each render.
+  const aiExplanationGuide: WordGuideEntry | null =
+    explainVisible &&
+    !guideModalOpen &&
+    !lookupWordGuide.isPending &&
+    !generateExplanation.isPending &&
+    word &&
+    headlineMeaning?.explanation
+      ? {
+          headword: word.lemma.form,
+          language: word.lemma.language,
+          chunkId: 0,
+          partOfSpeech: word.lemma.partOfSpeech,
+          translation: headlineMeaning.translation,
+          ...(headlineMeaning.usage && { usage: headlineMeaning.usage }),
+          intro: headlineMeaning.explanation,
+          synonyms: (active?.synonyms ?? []).map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
+          examples: selectedExample
+            ? [{ sentence: selectedExample.sentence, translation: selectedExample.translation, type: 'indicative' as const }]
+            : [],
+        }
+      : null
+
+  // "Ask AI" is a separate, minimal affordance from Explain/More info — just the follow-up
+  // question composer (see AskAISheet), available on every card, AI-sourced or not (askFollowUp
+  // only needs the active cluster's label/description, which every card has).
+  const handleAskAI = (): void => {
+    if (!ai) {
+      showAIProviderRequiredAlert(t, t('ask a follow-up question'), () => router.push('/settings'))
+      return
+    }
+    setAskAiOpen(true)
   }
 
   const openEdit = (): void => {
@@ -379,6 +568,27 @@ export default function WordDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
     onError: (error: unknown) => Alert.alert(t('Could not save your changes'), String(error)),
+  })
+
+  // Fills the edit modal's example fields from a fresh AI generation — doesn't persist anything
+  // itself, "Save changes" above still does that, same as hand-typing would.
+  const generateEditExample = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('No AI provider is active.'))
+      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.generateExamples(
+        word.lemma.form,
+        { label: active.cluster.label, description: active.cluster.description },
+        { cefrLevel: defaultCefr, language: word.lemma.language },
+      )
+      return result.data[0]
+    },
+    onSuccess: (generated) => {
+      if (!generated) return
+      setEditExample(generated.sentence)
+      setEditTranslation(generated.translation)
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not generate an example'), String(error)),
   })
 
   const handleLookup = (): void => {
@@ -412,7 +622,7 @@ export default function WordDetailScreen(): JSX.Element {
   }
 
   const lemmaMeta = [
-    word.lemma.partOfSpeech,
+    word.lemma.partOfSpeech === 'unknown' ? undefined : word.lemma.partOfSpeech,
     word.lemma.gender,
     word.lemma.plural ? `pl. ${word.lemma.plural}` : undefined,
   ]
@@ -423,15 +633,21 @@ export default function WordDetailScreen(): JSX.Element {
     .map((inf) => inf.surface)
     .join(' · ')
 
+  // The nav bar shows the language direction (e.g. "DE → EN"), not the word itself — the word is
+  // already the big, bold headline just below it, so repeating it in the header was redundant.
+  // The lemma's own stored language is always the "from" side; the learner's native language
+  // (Settings → Learning) is the "to" side, even for words looked up in an older/other pairing.
+  const languageDirectionTitle = `${word.lemma.language.toUpperCase()} → ${nativeLanguage.toUpperCase()}`
+
   return (
     <>
-      <Stack.Screen options={{ title: word.lemma.form }} />
+      <Stack.Screen options={{ title: languageDirectionTitle }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
         {/* ── Word header ── */}
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
             <View style={styles.wordFormRow}>
-              <Text style={styles.wordForm}>{word.lemma.form}</Text>
+              <Text style={styles.wordForm}>{nativeTerm ?? word.lemma.form}</Text>
               <CardSourceIcon source={word.card?.source} size={18} />
             </View>
             <Text style={styles.wordMeta}>
@@ -469,77 +685,65 @@ export default function WordDetailScreen(): JSX.Element {
             {active.meanings.length > 0 && headlineMeaning ? (
               <>
                 <Card style={styles.meaningCard}>
+                  {/* A word's own meaning is always shown — hiding it was never useful; the
+                      Translation toggle now only blanks EXAMPLE translations, for recall
+                      practice (see CardActionBar below). No "make primary" toggle any more —
+                      whichever translation was selected when the card was created (Add to
+                      deck / generation) is the one used on deck cards and clozes, permanently.
+                      Reverse-lookup words (nativeTerm set) swap this with the header: the
+                      headline shows the native word the learner typed, so this slot shows the
+                      target-language word (word.lemma.form) they're actually learning instead. */}
                   <Text style={styles.primaryMeaning}>
-                    {translationHidden ? '•••' : headlineMeaning.translation}
+                    {nativeTerm ? word.lemma.form : headlineMeaning.translation}
                   </Text>
-                  {explainVisible ? (
+                  {isAiCard ? (
                     <Text style={styles.explanation}>
-                      {lookupWordGuide.isPending || generateExplanation.isPending
-                        ? t('Generating…')
-                        : headlineMeaning.explanation || t('No explanation yet.')}
+                      {generateExplanation.isPending ? t('Generating…') : headlineMeaning.explanation || t('No explanation yet.')}
                     </Text>
-                  ) : null}
-                  {/* Only OTHER meanings in this cluster get a "make primary" chip —
-                      offering one for the meaning already shown as the headline is a
-                      no-op that reads as a confusing duplicate. */}
-                  {active.meanings.filter((m) => m.id !== headlineMeaning.id).length > 0 ? (
-                    <View style={styles.secondaryRow}>
-                      {active.meanings
-                        .filter((m) => m.id !== headlineMeaning.id)
-                        .map((m) => (
-                          <Chip
-                            key={m.id}
-                            label={m.isPrimary ? m.translation : t('Make primary: {{translation}}', { translation: m.translation })}
-                            {...(!m.isPrimary && { onPress: () => setPrimaryMeaning.mutate(m.id) })}
-                          />
-                        ))}
-                    </View>
                   ) : null}
                 </Card>
                 <CardActionBar
                   onExplain={handleExplain}
-                  explainVisible={explainVisible}
+                  explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                  onToggleTranslation={() => setTranslationHidden((hidden) => !hidden)}
-                  translationHidden={translationHidden}
+                  {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
                   onEdit={openEdit}
                   onLookup={handleLookup}
+                  onAskAI={handleAskAI}
+                  {...(isAiCard && {
+                    onRegenerate: handleRegenerate,
+                    regenerateLoading: regenerateCard.isPending,
+                  })}
                 />
               </>
             ) : null}
 
             {/* ── Examples ── */}
-            <SectionHeader title={t('Examples')} />
-
-            {/* CEFR selector — the level new generations target */}
-            <View style={styles.chipRow}>
-              {CEFR_LEVELS.map((level) => (
-                <Chip
-                  key={level}
-                  label={level}
-                  selected={level === cefr}
-                  color={cefrColors[level]}
-                  onPress={() => setCefr(level)}
+            {/* Context filter as a compact dropdown next to the section title, not a chip row —
+                7 chips wrapped across two lines and cost real vertical space for a filter used
+                occasionally, not every time. No CEFR picker here anymore either — new examples
+                always target the level set in Settings (defaultCefr). */}
+            <View style={styles.examplesHeaderRow}>
+              <Text style={styles.examplesTitle}>{t('Examples')}</Text>
+              <View style={styles.examplesFilterDropdown}>
+                <Dropdown
+                  value={contextTab}
+                  options={CONTEXT_TABS.map((tab) => ({ value: tab, label: t(tab.replace('_', ' ')) }))}
+                  onChange={(value) => setContextTab((value ?? 'all') as (typeof CONTEXT_TABS)[number])}
                 />
-              ))}
-            </View>
-
-            {/* Context category tabs */}
-            <View style={styles.chipRow}>
-              {CONTEXT_TABS.map((tab) => (
-                <Chip
-                  key={tab}
-                  label={tab.replace('_', ' ')}
-                  selected={tab === contextTab}
-                  onPress={() => setContextTab(tab)}
-                />
-              ))}
+              </View>
             </View>
 
             {active.examples
               .filter((ex) => contextTab === 'all' || ex.context === contextTab)
               .map((ex) => (
-                <Card key={ex.id} style={styles.exampleCard}>
+                <Card
+                  key={ex.id}
+                  style={[
+                    styles.exampleCard,
+                    ex.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
+                  ]}
+                >
                   {ex.isSelected ? (
                     <View style={styles.selectedBanner}>
                       <Ionicons name="star" size={11} color={colors.primary} />
@@ -558,15 +762,16 @@ export default function WordDetailScreen(): JSX.Element {
                   <View style={styles.exampleSentenceRow}>
                     <Text style={styles.exampleSentence}>{ex.sentence}</Text>
                     <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                    {isAiCard ? (
+                      <IconButton
+                        icon="help-circle-outline"
+                        size={16}
+                        onPress={() => setAiSheetOpen(true)}
+                      />
+                    ) : null}
                   </View>
-                  <Text style={styles.exampleTranslation}>{translationHidden ? '•••' : ex.translation}</Text>
+                  <Text style={styles.exampleTranslation}>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>
-                    <View style={styles.tagRow}>
-                      <CefrBadge level={ex.cefrLevel} />
-                      {(ex.grammarTags ?? []).map((tag) => (
-                        <Chip key={tag} label={tag} />
-                      ))}
-                    </View>
                     <EvalBar
                       activeRating={ratingFor(ex.id)}
                       onUp={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })}
@@ -615,9 +820,18 @@ export default function WordDetailScreen(): JSX.Element {
                     onPress={() => generateExamples.mutate()}
                   />
                 ) : (
-                  <Text style={styles.limitedHint}>
-                    {t('Add your OpenAI key in Settings to generate targeted examples.')}
-                  </Text>
+                  <>
+                    <Text style={styles.limitedHint}>
+                      {t('No AI provider is active — add and enable one to generate targeted examples.')}
+                    </Text>
+                    <Button
+                      label={t('Open Settings')}
+                      icon="key-outline"
+                      variant="secondary"
+                      small
+                      onPress={() => router.push('/settings')}
+                    />
+                  </>
                 )}
                 {generateExamples.isError ? (
                   <Text style={styles.generateError}>{String(generateExamples.error)}</Text>
@@ -691,15 +905,27 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={{ height: 96 }} />
       </ScrollView>
 
-      {/* ── Sticky add-to-deck bar ── */}
+      {/* ── Sticky add-to-deck bar — a deck-name breadcrumb once it's actually in one, not a
+          button that reads as an invitation to add it again. Still tappable, to add to another
+          deck. ── */}
       {word.card ? (
         <View style={styles.bottomBar}>
-          <Button
-            label={addedToDeck ? t('Added ✓ — add to another deck') : t('Add to deck')}
-            icon="add-circle"
-            onPress={() => setDeckPickerOpen(true)}
-            style={styles.addButton}
-          />
+          {existingDecksQuery.data && existingDecksQuery.data.length > 0 ? (
+            <Pressable style={styles.inDeckBar} onPress={() => setDeckPickerOpen(true)}>
+              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+              <Text style={styles.inDeckBarLabel} numberOfLines={1}>
+                {existingDecksQuery.data.map((d) => d.name).join(' • ')}
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
+          ) : (
+            <Button
+              label={t('Add to deck')}
+              icon="add-circle"
+              onPress={() => setDeckPickerOpen(true)}
+              style={styles.addButton}
+            />
+          )}
         </View>
       ) : null}
 
@@ -723,7 +949,7 @@ export default function WordDetailScreen(): JSX.Element {
               >
                 <Text style={styles.deckEmoji}>{deck.emoji ?? '📚'}</Text>
                 <Text style={styles.deckName}>{deck.name}</Text>
-                {addedToDeck === deck.id ? (
+                {existingDecksQuery.data?.some((d) => d.id === deck.id) ? (
                   <Ionicons name="checkmark-circle" size={18} color={colors.success} />
                 ) : null}
               </Pressable>
@@ -751,7 +977,23 @@ export default function WordDetailScreen(): JSX.Element {
             autoCapitalize="none"
             autoCorrect={false}
           />
-          <Text style={styles.editLabel}>{t('Example sentence')}</Text>
+          <View style={styles.editLabelRow}>
+            <Text style={styles.editLabel}>{t('Example sentence')}</Text>
+            {tier === 'full' ? (
+              <Pressable
+                style={styles.generateInlineButton}
+                onPress={() => generateEditExample.mutate()}
+                disabled={generateEditExample.isPending}
+              >
+                {generateEditExample.isPending ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <Ionicons name="sparkles" size={14} color={colors.primary} />
+                )}
+                <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
           <TextInput
             style={styles.editInput}
             value={editExample}
@@ -828,9 +1070,41 @@ export default function WordDetailScreen(): JSX.Element {
       </Modal>
 
       <WordGuideModal
-        visible={guideModalOpen}
-        guide={lookupWordGuide.data ?? null}
-        onClose={() => setGuideModalOpen(false)}
+        visible={guideModalOpen || aiExplanationGuide !== null}
+        guide={guideModalOpen ? (lookupWordGuide.data ?? null) : aiExplanationGuide}
+        onClose={() => {
+          setGuideModalOpen(false)
+          setExplainVisible(false)
+        }}
+        {...(!guideModalOpen && { footnote: t('Generated with AI — not from your installed dictionary.') })}
+      />
+
+      {/* "More info" — AI cards only, the rich explanation/synonyms/usage sheet. */}
+      {isAiCard && headlineMeaning ? (
+        <AIExplanationSheet
+          visible={aiSheetOpen}
+          onClose={() => setAiSheetOpen(false)}
+          headword={word.lemma.form}
+          partOfSpeech={word.lemma.partOfSpeech}
+          language={word.lemma.language}
+          translation={headlineMeaning.translation}
+          explanation={headlineMeaning.explanation}
+          usage={headlineMeaning.usage ?? null}
+          loading={generateExplanation.isPending}
+          synonyms={active?.synonyms ?? []}
+          followUps={followUps}
+          askLoading={askFollowUp.isPending}
+          onAsk={(question) => askFollowUp.mutate(question)}
+        />
+      ) : null}
+
+      {/* "Ask AI" — every card, AI-sourced or not; just the question composer + Q&A thread. */}
+      <AskAISheet
+        visible={askAiOpen}
+        onClose={() => setAskAiOpen(false)}
+        followUps={followUps}
+        askLoading={askFollowUp.isPending}
+        onAsk={(question) => askFollowUp.mutate(question)}
       />
     </>
   )
@@ -858,11 +1132,20 @@ const styles = StyleSheet.create({
   clusterTabLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
   clusterTabLabelActive: { color: colors.textOnPrimary },
   meaningCard: { marginTop: spacing.lg },
-  primaryMeaning: { fontSize: type.heading, fontWeight: '800', color: colors.text },
+  primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
   explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },
-  secondaryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
+  examplesHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+  examplesFilterDropdown: { width: 150 },
   exampleCard: { marginBottom: spacing.sm },
+  exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: spacing.sm },
   selectedBannerLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
   useOnFlashcardLabel: { fontSize: type.micro, fontWeight: '600', color: colors.textMuted },
@@ -878,6 +1161,9 @@ const styles = StyleSheet.create({
   },
   reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
   editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+  editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
   editInput: {
     fontSize: type.body,
     color: colors.text,
@@ -892,11 +1178,10 @@ const styles = StyleSheet.create({
   exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
   exampleFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginTop: spacing.md,
   },
-  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, alignItems: 'center', flex: 1 },
   grammarToggle: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -950,6 +1235,13 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   addButton: {},
+  inDeckBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  inDeckBarLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {
     backgroundColor: colors.surface,

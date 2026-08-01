@@ -15,6 +15,7 @@ const LOCALES: Record<LanguageCode, string> = {
   ja: 'ja-JP',
   es: 'es-ES',
   fr: 'fr-FR',
+  vi: 'vi-VN',
 }
 
 /**

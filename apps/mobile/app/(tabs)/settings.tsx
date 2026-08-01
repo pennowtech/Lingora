@@ -33,6 +33,7 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
   ja: 'Japanese',
   es: 'Spanish',
   fr: 'French',
+  vi: 'Vietnamese',
 }
 
 const TRANSLATION_LABELS: Record<TranslationProviderName, string> = {

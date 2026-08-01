@@ -112,9 +112,16 @@ export const STORE_KEYS = {
   exportDirectoryUri: 'lingora.export_directory_uri',
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
+  hasSeeded: 'lingora.has_seeded',
 } as const
 
 export const DEFAULT_DECK_ID = 'deck-default'
+
+/** Not a real deck id — a review-screen route param meaning "every deck, unfiltered" (see the
+ * due-card repository queries, which already treat an omitted deckId that way). Used by Home's
+ * review shortcuts so the deck they open always matches the due-count they're showing, instead
+ * of pointing at one hardcoded deck that may not even exist any more. */
+export const ALL_DECKS_ID = 'all'
 
 /** Every language the dictionary/generation providers know how to handle (see LanguageCode). */
 export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr']
@@ -183,9 +190,17 @@ async function openDatabase(): Promise<DatabaseAdapter> {
       const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
       await migrate(db)
       dbLog.info('database.migrations_applied', { message: 'Pending schema migrations applied', result: 'success' })
-      // Development seed — idempotent (fixed ids, INSERT OR IGNORE), guarantees
-      // deck-default exists and every screen has content on first launch.
-      await seedDatabase(db)
+      // Demo seed (fixed ids, INSERT OR IGNORE) — gives a brand-new install some content to look
+      // at. Gated behind a one-time SecureStore flag, not just seedDatabase's own idempotency:
+      // INSERT OR IGNORE only no-ops while the deck-default row still exists, so re-running it
+      // unconditionally on every launch silently resurrected the demo deck/card the instant a user
+      // deleted it (deleteDeck really does remove the row) — deleting "My Vocabulary" looked
+      // permanent but came back on the next app open.
+      const alreadySeeded = (await SecureStore.getItemAsync(STORE_KEYS.hasSeeded)) === 'true'
+      if (!alreadySeeded) {
+        await seedDatabase(db)
+        await SecureStore.setItemAsync(STORE_KEYS.hasSeeded, 'true')
+      }
       dbLog.info('database.open_completed', {
         message: 'Database ready',
         result: 'success',

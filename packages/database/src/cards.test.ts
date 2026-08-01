@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
-import { getCardsForDeck, getRecentlyAddedWords } from './repositories/cards'
+import {
+  createCardWithState,
+  getCardsDueForReview,
+  getCardsForDeck,
+  getDueCardsCount,
+  getRecentlyAddedWords,
+} from './repositories/cards'
 import { createDeck } from './repositories/decks'
+import { createLemma } from './repositories/lemmas'
 import { migrate } from './migrations'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 
@@ -47,5 +54,47 @@ describe('card list de-duplication (basic + cloze cards of the same word)', () =
     const words = await getRecentlyAddedWords(db, 10)
     expect(words).toHaveLength(2)
     expect(words.find((w) => w.form === 'einbrechen')).toMatchObject({ hasCloze: true })
+  })
+})
+
+describe('due-card queries ignore orphaned deck memberships', () => {
+  let db: NodeSqliteAdapter
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  // Reproduces a real device state found in the field: a deck_cards row survived its own deck's
+  // deletion (observed with zero rows in `decks` but hundreds of still-referenced deck_cards rows —
+  // some deletion path evidently didn't cascade). Simulated here by turning foreign_keys off just
+  // for the raw delete, the same way that real-world gap must have happened, since the schema does
+  // declare ON DELETE CASCADE and every adapter enables the pragma on its own connections.
+  it('a card whose only deck was deleted out from under it no longer counts as due', async () => {
+    const now = Date.now()
+    const deckId = 'orphan-deck'
+    await createDeck(db, { id: deckId, name: 'Soon to be deleted', createdAt: now, updatedAt: now })
+
+    const lemmaId = crypto.randomUUID()
+    await createLemma(db, { id: lemmaId, form: 'Haus', language: 'de', partOfSpeech: 'noun', createdAt: now, updatedAt: now })
+    const cardId = crypto.randomUUID()
+    await createCardWithState(
+      db,
+      { id: cardId, lemmaId, deckId, type: 'basic', createdAt: now, updatedAt: now },
+      { cardId, stability: 1, difficulty: 5, retrievability: 1, nextReviewAt: now, lapses: 0, state: 'new', reps: 0, learningSteps: 0 },
+    )
+
+    expect(await getDueCardsCount(db)).toBe(1)
+
+    await db.execute('PRAGMA foreign_keys = OFF')
+    await db.execute('DELETE FROM decks WHERE id = ?', [deckId])
+    await db.execute('PRAGMA foreign_keys = ON')
+
+    expect(await getDueCardsCount(db)).toBe(0)
+    expect(await getCardsDueForReview(db)).toHaveLength(0)
   })
 })

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import {
   getDueCardsCount,
+  getDueClozeCount,
   getRecentlyAddedWords,
   getRetentionRate,
   getReviewedDayIndexes,
@@ -15,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
-import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { streakFromDayIndexes } from '../../lib/stats'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -23,6 +24,7 @@ import type { ThemeColors } from '../../lib/themes'
 
 interface HomeStats {
   dueNow: number
+  dueCloze: number
   reviewedToday: number
   retention30d: number
   totalCards: number
@@ -30,14 +32,31 @@ interface HomeStats {
 }
 
 async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
-  const [dueNow, reviewedToday, retention30d, totalCards, days] = await Promise.all([
+  const [dueNow, dueCloze, reviewedToday, retention30d, totalCards, days] = await Promise.all([
     getDueCardsCount(db),
+    getDueClozeCount(db),
     getTodayReviewCount(db),
     getRetentionRate(db, 30),
     getTotalCardCount(db),
     getReviewedDayIndexes(db),
   ])
-  return { dueNow, reviewedToday, retention30d, totalCards, streakDays: streakFromDayIndexes(days) }
+  return {
+    dueNow,
+    dueCloze,
+    reviewedToday,
+    retention30d,
+    totalCards,
+    streakDays: streakFromDayIndexes(days),
+  }
+}
+
+/** Morning/afternoon/evening greeting, computed once per render from the device clock — a static
+ * "Guten Tag!" read the same at 7am and 11pm, which felt stale on a screen that's otherwise all
+ * about "right now". */
+function greetingFor(hour: number): string {
+  if (hour < 12) return 'Guten Morgen!'
+  if (hour < 18) return 'Guten Tag!'
+  return 'Guten Abend!'
 }
 
 /**
@@ -63,8 +82,12 @@ export default function HomeScreen(): JSX.Element {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Guten Tag! 👋</Text>
-            <Text style={styles.subGreeting}>{t('Ready for today\'s session?')}</Text>
+            <Text style={styles.greeting}>{greetingFor(new Date().getHours())} 👋</Text>
+            <Text style={styles.subGreeting}>
+              {stats && stats.dueNow === 0
+                ? t('All caught up — nothing due right now.')
+                : t('Ready for today\'s session?')}
+            </Text>
           </View>
           <View style={styles.streakPill}>
             <Ionicons name="flame" size={16} color={colors.warning} />
@@ -88,7 +111,9 @@ export default function HomeScreen(): JSX.Element {
           </View>
         ) : null}
 
-        {/* Due-today hero card */}
+        {/* Due-today hero card. Reviews across every deck (ALL_DECKS_ID), never a single hardcoded
+            one — the count above the button and the cards the button actually opens always match,
+            whatever decks exist right now. */}
         <Card style={styles.heroCard}>
           <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
           <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
@@ -96,8 +121,9 @@ export default function HomeScreen(): JSX.Element {
             label={t('Start review')}
             icon="play"
             onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: DEFAULT_DECK_ID } })
+              router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
             }
+            disabled={stats?.dueNow === 0}
             style={styles.heroButton}
           />
         </Card>
@@ -120,9 +146,35 @@ export default function HomeScreen(): JSX.Element {
           </Card>
         </View>
 
-        {/* Quick actions */}
+        {/* Quick actions — the two review tiles are scoped to every deck (ALL_DECKS_ID), same as
+            the hero above, and grey themselves out (no onPress) once their own due count is 0
+            instead of opening a review screen with nothing in it. */}
         <SectionHeader title={t('Quick actions')} />
         <View style={styles.actionsRow}>
+          <Card
+            style={[styles.actionCard, stats?.dueNow === 0 && styles.actionCardDisabled]}
+            {...(stats?.dueNow !== 0 && {
+              onPress: () => router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } }),
+            })}
+          >
+            <Ionicons name="book-outline" size={22} color={colors.primary} />
+            <Text style={styles.actionLabel}>{t('Practice words')}</Text>
+            {stats ? <Text style={styles.actionCount}>{t('{{count}} due', { count: stats.dueNow })}</Text> : null}
+          </Card>
+          <Card
+            style={[styles.actionCard, stats?.dueCloze === 0 && styles.actionCardDisabled]}
+            {...(stats?.dueCloze !== 0 && {
+              onPress: () =>
+                router.push({
+                  pathname: '/review/[deckId]',
+                  params: { deckId: ALL_DECKS_ID, mode: 'cloze' },
+                }),
+            })}
+          >
+            <Ionicons name="create-outline" size={22} color={colors.primary} />
+            <Text style={styles.actionLabel}>{t('Practice cloze')}</Text>
+            {stats ? <Text style={styles.actionCount}>{t('{{count}} due', { count: stats.dueCloze })}</Text> : null}
+          </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/search')}>
             <Ionicons name="search" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Look up a word')}</Text>
@@ -130,18 +182,6 @@ export default function HomeScreen(): JSX.Element {
           <Card style={styles.actionCard} onPress={() => router.push('/mine')}>
             <Ionicons name="download" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Mining queue')}</Text>
-          </Card>
-          <Card
-            style={styles.actionCard}
-            onPress={() =>
-              router.push({
-                pathname: '/review/[deckId]',
-                params: { deckId: DEFAULT_DECK_ID, mode: 'cloze' },
-              })
-            }
-          >
-            <Ionicons name="create-outline" size={22} color={colors.primary} />
-            <Text style={styles.actionLabel}>{t('Practice cloze')}</Text>
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/stats')}>
             <Ionicons name="stats-chart" size={22} color={colors.primary} />
@@ -237,7 +277,9 @@ const createStyles = (colors: ThemeColors) =>
     gap: spacing.sm,
     paddingVertical: spacing.lg,
   },
+  actionCardDisabled: { opacity: 0.4 },
   actionLabel: { fontSize: type.caption, fontWeight: '600', color: colors.text },
+  actionCount: { fontSize: type.micro, color: colors.textSecondary },
   wordRow: {
     flexDirection: 'row',
     alignItems: 'center',

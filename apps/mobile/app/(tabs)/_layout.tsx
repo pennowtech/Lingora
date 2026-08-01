@@ -25,7 +25,7 @@ export default function TabsLayout(): JSX.Element {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="search" options={{ title: t('Search') }} />
       <Stack.Screen name="decks" options={{ title: t('Decks') }} />
-      <Stack.Screen name="mine" options={{ title: t('Mine') }} />
+      <Stack.Screen name="mine" options={{ title: t('Queue') }} />
       <Stack.Screen name="settings" options={{ title: t('Settings') }} />
     </Stack>
   )

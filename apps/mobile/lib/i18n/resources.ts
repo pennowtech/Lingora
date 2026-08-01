@@ -303,6 +303,14 @@ const ENGLISH_PHRASES = [
   "gpt-4o-mini-tts. For the most natural voice, pick Marin or Cedar below.", "eleven_multilingual_v2. Paste a voice ID from your ElevenLabs voice library.", "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).",
   "Bug / Issue", "Feature request", "General feedback",
   "Vietnamese",
+
+
+  // Newly added — Queue rename (formerly Mine)
+  "Queue", "Queue help", "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.",
+
+
+  // Newly added — Queue rename (formerly Mine)
+  "Generate {{count}} cards to…",
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -686,6 +694,11 @@ const de: Partial<Record<Phrase, string>> = {
   "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).": "Aura-2. Gib den genauen Modellnamen für die gewünschte Stimme/Sprache ein (siehe Deepgram-Dokumentation).", "Bug / Issue": "Fehler/Problem",
   "Feature request": "Funktionswunsch", "General feedback": "Allgemeines Feedback",
   Vietnamese: "Vietnamesisch",
+
+  Queue: "Warteschlange", "Queue help": "Warteschlange-Hilfe",
+  "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "Die Warteschlange ist ein Sammelplatz für Sätze, die du später in Vokabelkarten verwandeln möchtest — hier passiert nichts von selbst.",
+
+  "Generate {{count}} cards to…": "{{count}} Karten erzeugen in…",
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -1060,6 +1073,11 @@ const fr: Partial<Record<Phrase, string>> = {
   "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).": "Aura-2. Saisis le nom exact du modèle pour la voix/langue souhaitée (voir la documentation Deepgram).", "Bug / Issue": "Bug / Problème",
   "Feature request": "Demande de fonctionnalité", "General feedback": "Retour général",
   Vietnamese: "Vietnamien",
+
+  Queue: "File", "Queue help": "Aide de la file",
+  "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "La file est un espace d'attente pour les phrases que tu veux transformer en cartes de vocabulaire plus tard — rien ne se passe ici automatiquement.",
+
+  "Generate {{count}} cards to…": "Générer {{count}} cartes dans…",
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -1434,6 +1452,11 @@ const es: Partial<Record<Phrase, string>> = {
   "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).": "Aura-2. Ingresa el nombre exacto del modelo para la voz/idioma que deseas (consulta la documentación de Deepgram).", "Bug / Issue": "Error / Problema",
   "Feature request": "Solicitud de función", "General feedback": "Comentario general",
   Vietnamese: "Vietnamita",
+
+  Queue: "Cola", "Queue help": "Ayuda de la cola",
+  "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "La cola es un espacio de espera para las frases que quieres convertir en tarjetas de vocabulario más tarde — aquí no pasa nada automáticamente.",
+
+  "Generate {{count}} cards to…": "Generar {{count}} tarjetas en…",
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -1808,6 +1831,11 @@ const hi: Partial<Record<Phrase, string>> = {
   "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).": "Aura-2. जिस आवाज़/भाषा का आप उपयोग करना चाहते हैं, उसका सटीक मॉडल नाम डालें (Deepgram के दस्तावेज़ देखें)।", "Bug / Issue": "बग / समस्या",
   "Feature request": "फ़ीचर रिक्वेस्ट", "General feedback": "सामान्य फ़ीडबैक",
   Vietnamese: "वियतनामी",
+
+  Queue: "कतार", "Queue help": "कतार सहायता",
+  "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "कतार उन वाक्यों को रखने की जगह है जिन्हें आप बाद में शब्दावली कार्ड में बदलना चाहते हैं — यहाँ अपने आप कुछ नहीं होता।",
+
+  "Generate {{count}} cards to…": "{{count}} कार्ड यहाँ बनाएं…",
 }
 
 
@@ -2183,6 +2211,11 @@ const vi: Partial<Record<Phrase, string>> = {
   "Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).": "Aura-2. Nhập chính xác tên mô hình cho giọng nói/ngôn ngữ bạn muốn (xem tài liệu của Deepgram).", "Bug / Issue": "Lỗi / Sự cố",
   "Feature request": "Yêu cầu tính năng", "General feedback": "Phản hồi chung",
   Vietnamese: "Tiếng Việt",
+
+  Queue: "Hàng đợi", "Queue help": "Trợ giúp Hàng đợi",
+  "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "Hàng đợi là nơi lưu tạm các câu bạn muốn biến thành thẻ từ vựng sau này — không có gì ở đây tự động xảy ra cả.",
+
+  "Generate {{count}} cards to…": "Tạo {{count}} thẻ vào…",
 }
 
 export const resources = {

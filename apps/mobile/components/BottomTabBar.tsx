@@ -48,7 +48,7 @@ export function BottomTabBar(): JSX.Element {
     { route: '/decks', label: t('Decks'), icon: 'albums', testID: 'tab-decks' },
     {
       route: '/mine',
-      label: t('Mine'),
+      label: t('Queue'),
       icon: 'download',
       testID: 'tab-mine',
       ...(pendingCount > 0 && { badge: pendingCount }),

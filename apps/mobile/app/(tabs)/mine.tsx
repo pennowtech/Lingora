@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CaptureSource } from '@lingora/types'
 import {
+  createDeck,
   createMineEntry,
   deleteMineEntry,
   getPendingMineEntries,
@@ -14,11 +15,12 @@ import { router, Stack } from 'expo-router'
 import { useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
-import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -43,7 +45,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'What this screen is for',
     icon: 'download-outline',
     paragraphs: [
-      'Mine is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.',
+      'Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.',
       'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
     ],
   },
@@ -91,6 +93,7 @@ export default function MiningQueueScreen(): JSX.Element {
   const [captureOpen, setCaptureOpen] = useState(false)
   const [captureText, setCaptureText] = useState('')
   const [captureSource, setCaptureSource] = useState<CaptureSource>('manual')
+  const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const help = useHelpAccordion('what')
 
   const queueQuery = useQuery({
@@ -162,7 +165,7 @@ export default function MiningQueueScreen(): JSX.Element {
   // starting the next one instead of only discarding a result that already arrived.
   const generateCancelledRef = useRef(false)
   const generate = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (deckId: string) => {
       if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate cards.'))
       generateCancelledRef.current = false
       const chosen = entries.filter((e) => selectedIds.includes(e.id))
@@ -175,7 +178,7 @@ export default function MiningQueueScreen(): JSX.Element {
           await updateMineEntryStatus(db, entry.id, 'processing')
           const outcome = await pipeline.lookupOrGenerate(entry.rawText.trim(), {
             cefrLevel: defaultCefr,
-            deckId: DEFAULT_DECK_ID,
+            deckId,
           })
           if (outcome.kind === 'generated') {
             await updateMineEntryProcessed(db, entry.id, outcome.cardId)
@@ -204,6 +207,25 @@ export default function MiningQueueScreen(): JSX.Element {
     generateCancelledRef.current = true
   }
 
+  // "Generate cards" used to add every card to one hardcoded deck with no say in the matter — the
+  // same silent-default-deck problem already fixed on Search and word/[form] earlier. Reuses the
+  // same DeckPickerModal so all three "which deck?" moments in the app look and behave alike.
+  const createDeckAndGenerate = useMutation({
+    mutationFn: async (name: string) => {
+      const now = Date.now()
+      const deckId = crypto.randomUUID()
+      await createDeck(db, { id: deckId, name, createdAt: now, updatedAt: now })
+      return deckId
+    },
+    onSuccess: (deckId) => {
+      setDeckPickerOpen(false)
+      generate.mutate(deckId)
+    },
+    onError: (error: unknown) => {
+      log.error('mining.create_deck_failed', error, { message: 'Creating a deck from the mining queue failed' })
+    },
+  })
+
   const toggle = (id: string): void => {
     setSelected(
       selectedIds.includes(id) ? selectedIds.filter((s) => s !== id) : [...selectedIds, id],
@@ -222,7 +244,7 @@ export default function MiningQueueScreen(): JSX.Element {
     </View>
   )
 
-  // Help lives in the native header, next to the "Mine" title, not an in-body overlay — see the
+  // Help lives in the native header, next to the "Queue" title, not an in-body overlay — see the
   // header-right pattern shared with Search, word/[form], and the Settings screens that have a
   // help sheet.
   const helpButton = (
@@ -239,7 +261,7 @@ export default function MiningQueueScreen(): JSX.Element {
     <HelpAccordionSheet
       visible={help.visible}
       onClose={help.close}
-      title={t('Mine help')}
+      title={t('Queue help')}
       sections={HELP_SECTIONS}
       activeSectionId={help.sectionId}
       onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
@@ -383,7 +405,7 @@ export default function MiningQueueScreen(): JSX.Element {
           <Button
             label={progress ?? t('Generate {{count}} cards with AI', { count: selectedIds.length })}
             icon="sparkles"
-            onPress={() => generate.mutate()}
+            onPress={() => setDeckPickerOpen(true)}
             disabled={selectedIds.length === 0 || generate.isPending}
           />
         ) : (
@@ -400,6 +422,19 @@ export default function MiningQueueScreen(): JSX.Element {
       {helpButton}
       {helpSheet}
       {progressOverlay}
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerOpen}
+        onClose={() => setDeckPickerOpen(false)}
+        title={t('Generate {{count}} cards to…', { count: selectedIds.length })}
+        onSelectDeck={(deck) => {
+          setDeckPickerOpen(false)
+          generate.mutate(deck.id)
+        }}
+        selecting={generate.isPending}
+        onCreateDeck={(name) => createDeckAndGenerate.mutate(name)}
+        creating={createDeckAndGenerate.isPending}
+      />
     </View>
   )
 }

@@ -1,7 +1,9 @@
 import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import * as Speech from 'expo-speech'
+import { getDefaultCloudVoice } from './audioProviderMeta'
 import { playCloudSpeech, stopCloudSpeech } from './cloudTts'
+import { CloudTtsError } from './cloudTtsProviders'
 import { getAudioProvider, getAvailableVoices, getCloudAudioConfig, getTtsSettings } from './ttsSettings'
 
 const log = logger.child({ feature: 'app', component: 'speech' })
@@ -85,7 +87,7 @@ export function speak(text: string, language: LanguageCode): void {
         speakOnDevice(trimmed, language)
         return
       }
-      const { apiKey, voice } = await getCloudAudioConfig(provider)
+      const { apiKey, voice, speed } = await getCloudAudioConfig(provider)
       if (apiKey === '') {
         // No key configured for the chosen cloud provider yet — fall back to device TTS
         // rather than a silent no-op on speaker-button tap.
@@ -93,11 +95,15 @@ export function speak(text: string, language: LanguageCode): void {
         return
       }
       try {
-        await playCloudSpeech(provider, trimmed, apiKey, voice)
+        const effectiveVoice = getDefaultCloudVoice(provider, language, voice)
+        await playCloudSpeech(provider, trimmed, apiKey, effectiveVoice, speed)
       } catch (error) {
         log.warn('app.cloud_speech_failed', {
           message: 'Cloud text-to-speech failed, falling back to device voice',
-          metadata: { provider },
+          metadata: {
+            provider,
+            ...(error instanceof CloudTtsError ? { statusCode: error.status } : {}),
+          },
         })
         speakOnDevice(trimmed, language)
       }

@@ -5,6 +5,7 @@ import {
   AUDIO_PROVIDER_STORE_KEY,
   AUDIO_PROVIDERS,
   AUDIO_STORE_KEYS,
+  DEFAULT_AUDIO_SPEED,
   type AudioProviderName,
   type CloudAudioProviderName,
 } from './audioProviderMeta'
@@ -98,12 +99,17 @@ export async function setAudioProvider(provider: AudioProviderName): Promise<voi
   await SecureStore.setItemAsync(AUDIO_PROVIDER_STORE_KEY, provider)
 }
 
-/** A cloud provider's stored API key + chosen voice/model — one of each per provider, not per
- * language (a cloud voice is generally multilingual, unlike device voices). */
-export async function getCloudAudioConfig(provider: CloudAudioProviderName): Promise<{ apiKey: string; voice: string }> {
+/** A cloud provider's stored API key + chosen voice/model + speaking speed — one of each per
+ * provider, not per language (a cloud voice is generally multilingual, unlike device voices). */
+export async function getCloudAudioConfig(provider: CloudAudioProviderName): Promise<{ apiKey: string; voice: string; speed: number }> {
   const keys = AUDIO_STORE_KEYS[provider]
-  const [apiKey, voice] = await Promise.all([SecureStore.getItemAsync(keys.key), SecureStore.getItemAsync(keys.voice)])
-  return { apiKey: apiKey ?? '', voice: voice ?? '' }
+  const [apiKey, voice, speedRaw] = await Promise.all([
+    SecureStore.getItemAsync(keys.key),
+    SecureStore.getItemAsync(keys.voice),
+    SecureStore.getItemAsync(keys.speed),
+  ])
+  const speed = speedRaw !== null ? Number(speedRaw) : DEFAULT_AUDIO_SPEED
+  return { apiKey: apiKey ?? '', voice: voice ?? '', speed: Number.isFinite(speed) ? speed : DEFAULT_AUDIO_SPEED }
 }
 
 export async function setCloudAudioKey(provider: CloudAudioProviderName, apiKey: string): Promise<void> {
@@ -112,4 +118,8 @@ export async function setCloudAudioKey(provider: CloudAudioProviderName, apiKey:
 
 export async function setCloudAudioVoice(provider: CloudAudioProviderName, voice: string): Promise<void> {
   await SecureStore.setItemAsync(AUDIO_STORE_KEYS[provider].voice, voice)
+}
+
+export async function setCloudAudioSpeed(provider: CloudAudioProviderName, speed: number): Promise<void> {
+  await SecureStore.setItemAsync(AUDIO_STORE_KEYS[provider].speed, String(speed))
 }

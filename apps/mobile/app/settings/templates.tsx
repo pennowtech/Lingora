@@ -5,8 +5,9 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { CardRenderer } from '../../components/CardRenderer'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Button, Card, Chip, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
 import {
   CLOZE_BACK_TEMPLATE,
@@ -75,18 +76,6 @@ type Side = 'front' | 'back'
  * "HTML & CSS" deep-dive. Kept as data (not JSX) so each section's body is a
  * plain list of paragraphs/code lines the accordion renders uniformly.
  */
-interface HelpParagraph {
-  text: string
-  /** Renders in the monospace code style instead of body text. */
-  code?: boolean
-}
-interface HelpSection {
-  id: string
-  title: string
-  icon: keyof typeof Ionicons.glyphMap
-  paragraphs: HelpParagraph[]
-}
-
 const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'fields',
@@ -216,8 +205,7 @@ export default function TemplatesScreen(): JSX.Element {
   const [styles_, setStyles_] = useState('')
   const [tab, setTab] = useState<Tab>('fields')
   const [previewSide, setPreviewSide] = useState<Side>('front')
-  const [helpOpen, setHelpOpen] = useState(false)
-  const [helpSection, setHelpSection] = useState<string | null>('fields')
+  const help = useHelpAccordion('fields')
 
   const allTemplates = templatesQuery.data ?? []
   const templates = allTemplates.filter((t) => t.type === templateType)
@@ -331,15 +319,7 @@ export default function TemplatesScreen(): JSX.Element {
             <Chip key={tabName} label={tabName[0]!.toUpperCase() + tabName.slice(1)} selected={tab === tabName} onPress={() => setTab(tabName)} />
           ))}
         </View>
-        <IconButton
-          icon="help-circle-outline"
-          onPress={() => {
-            setHelpSection(tab)
-            setHelpOpen(true)
-          }}
-          color={colors.primary}
-          size={24}
-        />
+        <IconButton icon="help-circle-outline" onPress={() => help.openSection(tab)} color={colors.primary} size={24} />
       </View>
 
       {tab === 'preview' ? (
@@ -509,43 +489,15 @@ export default function TemplatesScreen(): JSX.Element {
         />
       </View>
 
-      {/* Help sheet */}
-      <Modal visible={helpOpen} animationType="slide" transparent onRequestClose={() => setHelpOpen(false)}>
-        <View style={styles.helpBackdrop}>
-          <View style={styles.helpSheet}>
-            <View style={styles.helpHeader}>
-              <Text style={styles.helpTitle}>{t('Template editor help')}</Text>
-              <IconButton icon="close" onPress={() => setHelpOpen(false)} />
-            </View>
-            <ScrollView>
-              {HELP_SECTIONS.map((section) => {
-                const isOpen = helpSection === section.id
-                return (
-                  <View key={section.id} style={styles.helpAccordionItem}>
-                    <Card onPress={() => setHelpSection(isOpen ? null : section.id)} style={styles.helpAccordionHeader}>
-                      <View style={styles.helpAccordionHeaderRow}>
-                        <Ionicons name={section.icon} size={18} color={colors.primary} />
-                        <Text style={styles.helpSectionTitle}>{t(section.title)}</Text>
-                        <View style={styles.helpAccordionSpacer} />
-                        <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-                      </View>
-                    </Card>
-                    {isOpen ? (
-                      <View style={styles.helpAccordionBody}>
-                        {section.paragraphs.map((p, i) => (
-                          <Text key={i} style={p.code ? styles.helpCode : styles.helpBody}>
-                            {p.text}
-                          </Text>
-                        ))}
-                      </View>
-                    ) : null}
-                  </View>
-                )
-              })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Template editor help')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
     </View>
   )
 }
@@ -619,32 +571,5 @@ const createStyles = (colors: ThemeColors) =>
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surface,
-  },
-  helpBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
-  helpSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    maxHeight: '80%',
-  },
-  helpHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  helpTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  helpAccordionItem: { marginBottom: spacing.sm },
-  helpAccordionHeader: { paddingVertical: spacing.sm },
-  helpAccordionHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  helpAccordionSpacer: { flex: 1 },
-  helpAccordionBody: { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm },
-  helpSectionTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  helpBody: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: spacing.sm },
-  helpCode: {
-    fontFamily: 'monospace',
-    fontSize: type.micro,
-    color: colors.primary,
-    lineHeight: 18,
-    marginTop: spacing.sm,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
   },
 })

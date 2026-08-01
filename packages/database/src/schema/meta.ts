@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { cards } from './vocabulary'
 
 /**
@@ -151,4 +151,31 @@ export const syncQueue = sqliteTable(
     syncedAt: integer('synced_at'), // null = pending sync, timestamp = means successfully synced with the server
   },
   (table) => [index('sync_queue_synced_at_idx').on(table.syncedAt)],
+)
+
+/**
+ * Sync Snapshots
+ *
+ * One row per (table, record) as of the last successful cloud sync — see
+ * packages/database/src/sync/ for how this is used. Unlike syncQueue (an outbox of pending
+ * mutations, still unused/reserved), this is the actual mechanism the sync engine uses: a snapshot
+ * is the "base" for a 3-way compare against current-local and current-remote state, computed fresh
+ * at sync time by re-reading whichever tables are in scope rather than instrumenting every write
+ * path with queue-appending.
+ *
+ * data: the synced row as JSON (same column shape as packages/database/src/backup.ts's TABLE_COLUMNS)
+ * syncedAt: when this snapshot was captured, i.e. the last time this record was confirmed in sync
+ */
+export const syncSnapshots = sqliteTable(
+  'sync_snapshots',
+  {
+    tableName: text('table_name').notNull(),
+    recordId: text('record_id').notNull(),
+    data: text('data').notNull(),
+    syncedAt: integer('synced_at').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tableName, table.recordId] }),
+    index('sync_snapshots_table_idx').on(table.tableName),
+  ],
 )

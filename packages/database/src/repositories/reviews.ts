@@ -91,6 +91,78 @@ export async function getCardState(db: DatabaseAdapter, cardId: string): Promise
 }
 
 /**
+ * Cloze practice's own FSRS state — see recordClozeReview and migration 0013. Same shape and
+ * same "state='new' is always due" rule as getCardState/card_states, just a different table so
+ * cloze practice is scheduled entirely independently of the card's word-meaning review.
+ */
+export async function getClozeState(db: DatabaseAdapter, cardId: string): Promise<CardState | null> {
+  const row = await db.querySingle<Omit<CardState, 'lastReviewAt'> & { lastReviewAt: number | null }>(
+    `SELECT
+       card_id AS cardId,
+       state,
+       stability,
+       difficulty,
+       retrievability,
+       lapses,
+       last_reviewed_at AS lastReviewAt,
+       next_review_date AS nextReviewAt,
+       reps,
+       learning_steps AS learningSteps
+     FROM cloze_states
+     WHERE card_id = ?`,
+    [cardId],
+  )
+  if (!row) return null
+  const { lastReviewAt, ...rest } = row
+  return { ...rest, ...(lastReviewAt !== null && { lastReviewAt }) }
+}
+
+/**
+ * Cloze practice's own recordReview — writes to the same immutable review_events log (a cloze
+ * review is still a real review for streak/today-count/retention purposes) but updates
+ * cloze_states instead of card_states, so it never touches the card's word-meaning schedule.
+ */
+export async function recordClozeReview(
+  db: DatabaseAdapter,
+  event: ReviewEvent,
+  newState: CardState,
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms)
+       VALUES (?, ?, ?, ?, ?)`,
+      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs],
+    )
+
+    await tx.execute(
+      `UPDATE cloze_states SET
+         stability        = ?,
+         difficulty       = ?,
+         retrievability   = ?,
+         next_review_date = ?,
+         lapses           = ?,
+         state            = ?,
+         last_reviewed_at = ?,
+         reps             = ?,
+         learning_steps   = ?
+       WHERE card_id = ?`,
+      [
+        newState.stability,
+        newState.difficulty,
+        newState.retrievability,
+        newState.nextReviewAt,
+        newState.lapses,
+        newState.state,
+        newState.lastReviewAt ?? null,
+        newState.reps,
+        newState.learningSteps,
+        newState.cardId,
+      ],
+    )
+  })
+}
+
+/**
  * Get the full review history for a card.
  * Ordered newest first. Used on the card detail screen and debugging.
  * @param db The database adapter to use for the query.

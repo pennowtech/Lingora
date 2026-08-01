@@ -136,6 +136,15 @@ export interface PersistedWordGeneration {
  * delegated to createCardWithState, because that helper opens its own
  * transaction and SQLite transactions don't nest.
  *
+ * @param deckId The card's "home" deck (`cards.deck_id`) — not itself a foreign key and not what
+ *        drives visibility (see `deck_cards` in the database package's architecture notes); a
+ *        value is always required here, but whether this generation actually shows up in that
+ *        deck's list/due counts is controlled separately by `options.addToDeck`.
+ * @param options.addToDeck Defaults to true. False skips the `deck_cards` membership row — the
+ *        card and all its content (meanings/examples/etc.) are still fully generated and
+ *        persisted, just not yet visible in any deck's list or due count, until a later explicit
+ *        `addCardToDeck` call (e.g. the word detail screen's own "Add to deck" picker). Used by a
+ *        plain search generation, which shouldn't silently add a new word to "My Vocabulary".
  * @throws If the lemma already exists — callers check findLemmaBySurfaceForm
  *         first; regeneration of existing words is a separate flow.
  */
@@ -144,7 +153,9 @@ export async function persistWordGeneration(
   payload: WordGenerationPayload,
   usage: GenerationUsage,
   deckId: string,
+  options?: { addToDeck?: boolean },
 ): Promise<PersistedWordGeneration> {
+  const addToDeck = options?.addToDeck ?? true
   return db.transaction(async (tx) => {
     const now = Date.now()
 
@@ -191,10 +202,12 @@ export async function persistWordGeneration(
        VALUES (?, 'new', 0, 0, 0, 0, NULL, ?)`,
       [card.id, now],
     )
-    await tx.execute(
-      `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
-      [crypto.randomUUID(), deckId, card.id, now],
-    )
+    if (addToDeck) {
+      await tx.execute(
+        `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
+        [crypto.randomUUID(), deckId, card.id, now],
+      )
+    }
 
     const generationMetadataId = crypto.randomUUID()
     await createGenerationMetadata(tx, {
@@ -231,6 +244,7 @@ export async function persistWordGeneration(
           clusterId,
           translation: meaning.translation,
           explanation: meaning.explanation,
+          ...(meaning.usage !== null && { usage: meaning.usage }),
           cefrLevel: meaning.cefrLevel,
           isPrimary,
           orderIndex: meaningIndex,
@@ -301,5 +315,180 @@ export async function persistWordGeneration(
     ])
 
     return { lemma, cardId: card.id, generationMetadataId }
+  })
+}
+
+/** What regenerateWordPackage hands back. */
+export interface RegeneratedWordGeneration {
+  cardId: string
+  generationMetadataId: string
+}
+
+/**
+ * Replace an AI card's entire generated content — every meaning cluster (and with it, its
+ * meanings/examples/synonyms), phrases, and cloze variants — with a freshly generated
+ * WordGenerationPayload for the *same* word, in one transaction.
+ *
+ * Unlike persistWordGeneration, this never creates a new lemma or card: `lemmaId`/`cardId` are
+ * reused as-is, so the card's FSRS review state (`card_states`, `review_events`), deck
+ * membership(s), and id-based references from templates/other screens all survive untouched —
+ * regenerating content is a refresh, not a re-add. The lemma's own grammar fields
+ * (partOfSpeech/gender/plural) and inflections are refreshed too, in case the new generation
+ * corrected them.
+ *
+ * @param lemmaId The existing lemma to update in place.
+ * @param cardId The existing card whose generated content is being replaced.
+ * @throws If the new payload's lemma.form doesn't match the existing lemma's form — regeneration
+ *         must produce the same headword; a genuinely different word is a new lookup, not a
+ *         regeneration of this one.
+ */
+export async function regenerateWordPackage(
+  db: DatabaseAdapter,
+  lemmaId: string,
+  cardId: string,
+  payload: WordGenerationPayload,
+  usage: GenerationUsage,
+): Promise<RegeneratedWordGeneration> {
+  return db.transaction(async (tx) => {
+    const now = Date.now()
+
+    const existing = await tx.querySingle<{ form: string }>(`SELECT form FROM lemmas WHERE id = ?`, [
+      lemmaId,
+    ])
+    if (!existing) {
+      throw new Error(`Lemma '${lemmaId}' not found — nothing to regenerate`)
+    }
+    if (existing.form !== payload.lemma.form) {
+      throw new Error(
+        `Regenerated payload's headword '${payload.lemma.form}' doesn't match the existing ` +
+          `lemma '${existing.form}' — a different word needs a new lookup, not a regeneration`,
+      )
+    }
+
+    await tx.execute(
+      `UPDATE lemmas SET part_of_speech = ?, gender = ?, plural = ?, updated_at = ? WHERE id = ?`,
+      [payload.lemma.partOfSpeech, payload.lemma.gender, payload.lemma.plural, now, lemmaId],
+    )
+
+    // Inflections aren't scoped by lemma_id alone when re-inserting (form is globally UNIQUE, and
+    // createInflections is INSERT OR IGNORE) — clear this lemma's old set first so a form the new
+    // generation dropped doesn't linger and misroute a future surface-form lookup.
+    await tx.execute(`DELETE FROM inflections WHERE lemma_id = ?`, [lemmaId])
+    await createInflections(tx, lemmaId, [payload.lemma.form, ...payload.inflections])
+
+    // Clear the FK-less primary_meaning_id before the meanings it points to are cascade-deleted
+    // with their cluster, then wipe every cluster (cascades meanings/examples/synonyms) and the
+    // card-scoped phrases/cloze variants.
+    await tx.execute(`UPDATE cards SET primary_meaning_id = NULL WHERE id = ?`, [cardId])
+    await tx.execute(`DELETE FROM meaning_clusters WHERE lemma_id = ?`, [lemmaId])
+    await tx.execute(`DELETE FROM phrases WHERE card_id = ?`, [cardId])
+    await tx.execute(`DELETE FROM cloze_cards WHERE card_id = ?`, [cardId])
+
+    const generationMetadataId = crypto.randomUUID()
+    await createGenerationMetadata(tx, {
+      id: generationMetadataId,
+      cardId,
+      provider: usage.provider,
+      model: usage.model,
+      promptVersion: usage.promptVersionId,
+      generatedAt: usage.generatedAt,
+      tokensUsed: usage.tokensUsed,
+      latencyMs: usage.latencyMs,
+    })
+
+    let primaryMeaningId: string | null = null
+
+    for (const [clusterIndex, generated] of payload.clusters.entries()) {
+      const clusterId = crypto.randomUUID()
+      await createCluster(tx, {
+        id: clusterId,
+        lemmaId,
+        label: generated.label,
+        description: generated.description,
+        cefrLevel: generated.cefrLevel,
+        orderIndex: clusterIndex,
+      })
+
+      for (const [meaningIndex, meaning] of generated.meanings.entries()) {
+        const meaningId = crypto.randomUUID()
+        const isPrimary = clusterIndex === 0 && meaningIndex === 0
+        if (isPrimary) primaryMeaningId = meaningId
+        await createMeaning(tx, {
+          id: meaningId,
+          cardId,
+          clusterId,
+          translation: meaning.translation,
+          explanation: meaning.explanation,
+          ...(meaning.usage !== null && { usage: meaning.usage }),
+          cefrLevel: meaning.cefrLevel,
+          isPrimary,
+          orderIndex: meaningIndex,
+        })
+      }
+
+      for (const [exampleIndex, example] of generated.examples.entries()) {
+        await createExample(tx, {
+          id: crypto.randomUUID(),
+          cardId,
+          clusterId,
+          sentence: example.sentence,
+          translation: example.translation,
+          context: example.context,
+          cefrLevel: example.cefrLevel,
+          isSelected: clusterIndex === 0 && exampleIndex === 0,
+          generationMetadataId,
+          ...(example.grammarTags !== null && { grammarTags: example.grammarTags }),
+        })
+      }
+
+      for (const synonym of generated.synonyms) {
+        await createSynonym(tx, {
+          id: crypto.randomUUID(),
+          cardId,
+          clusterId,
+          word: synonym.word,
+          cefrLevel: synonym.cefrLevel,
+          formality: synonym.formality,
+          ...(synonym.nuance !== null && { nuance: synonym.nuance }),
+        })
+      }
+    }
+
+    for (const phrase of payload.phrases) {
+      await createPhrase(tx, {
+        id: crypto.randomUUID(),
+        cardId,
+        expression: phrase.expression,
+        meaning: phrase.meaning,
+        exampleSentence: phrase.exampleSentence,
+        exampleTranslation: phrase.exampleTranslation,
+        cefrLevel: phrase.cefrLevel,
+      })
+    }
+
+    for (const cloze of payload.clozes) {
+      await createCloze(tx, {
+        id: crypto.randomUUID(),
+        cardId,
+        sentence: cloze.sentence,
+        answer: cloze.answer,
+        translation: cloze.translation,
+        difficulty: cloze.difficulty,
+        cefrLevel: cloze.cefrLevel,
+      })
+    }
+
+    // Same corruption guard as persistWordGeneration — the payload schema guarantees ≥1 cluster
+    // with ≥1 meaning.
+    if (primaryMeaningId === null) {
+      throw new Error('WordGenerationPayload had no meanings — nothing to make primary')
+    }
+    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [
+      primaryMeaningId,
+      now,
+      cardId,
+    ])
+
+    return { cardId, generationMetadataId }
   })
 }

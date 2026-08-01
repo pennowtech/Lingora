@@ -14,6 +14,9 @@ export type PartOfSpeech =
   | 'pronoun'
   | 'article'
   | 'phrase'
+  // Manually-added cards with no part of speech provided by the user — never produced by AI
+  // generation (packages/ai's partOfSpeechSchema deliberately excludes it).
+  | 'unknown'
 
 export type GrammaticalGender = 'masculine' | 'feminine' | 'neuter'
 
@@ -72,8 +75,8 @@ export type CardType = 'basic' | 'reverse' | 'cloze' | 'phrase' | 'image'
 
 /** How a card was created — drives the small source icon in Search and word detail. Unset
  * (undefined) for cards from before this existed, and for paths that don't set it (CSV/Anki
- * import, manual entry) — the UI treats that as "no icon", not an error. */
-export type CardSource = AIProviderName | 'google' | 'deepl' | 'word_guide'
+ * import) — the UI treats that as "no icon", not an error. */
+export type CardSource = AIProviderName | 'google' | 'deepl' | 'word_guide' | 'manual'
 
 export interface Card {
   id: string
@@ -95,6 +98,7 @@ export interface Meaning {
   clusterId: string
   translation: string // 'to go out'
   explanation: string // 'to leave home for a social activity'
+  usage?: string // short notes on register/context/typical collocations
   cefrLevel: CefrLevel
   isPrimary: boolean
   orderIndex: number
@@ -322,6 +326,9 @@ export interface PromptVersion {
 export interface GeneratedMeaning {
   translation: string
   explanation: string
+  /** Short notes on how/when this meaning is actually used — register, common contexts, typical
+   * collocations. null when the model has nothing notable to add. */
+  usage: string | null
   cefrLevel: CefrLevel
 }
 

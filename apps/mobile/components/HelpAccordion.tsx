@@ -26,6 +26,9 @@ export interface HelpParagraph {
   /** Renders in a monospace/code style instead of body text — for a literal snippet inside an
    * explanation (e.g. a CSS custom property, a config key). */
   code?: boolean
+  /** Renders the whole paragraph bold — for a short lead-in sentence worth calling out before the
+   * plain-text detail that follows it. Whole-paragraph only, not an inline/partial bold. */
+  bold?: boolean
 }
 
 export interface HelpSection {
@@ -100,7 +103,7 @@ export function HelpAccordionSheet(props: {
                       {section.paragraphs.map((paragraph, index) => {
                         const p = typeof paragraph === 'string' ? { text: paragraph } : paragraph
                         return (
-                          <Text key={index} style={p.code ? styles.code : styles.body}>
+                          <Text key={index} style={[p.code ? styles.code : styles.body, p.bold && styles.bold]}>
                             {t(p.text)}
                           </Text>
                         )
@@ -136,6 +139,7 @@ const createStyles = (colors: ThemeColors) =>
     accordionBody: { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm },
     sectionTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
     body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: spacing.sm },
+    bold: { fontWeight: '700', color: colors.text },
     code: {
       fontFamily: 'monospace',
       fontSize: type.micro,

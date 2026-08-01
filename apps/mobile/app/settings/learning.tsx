@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Card, Chip, SectionHeader } from '../../components/ui'
+import { Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
@@ -140,28 +140,20 @@ export default function LearningScreen(): JSX.Element {
       <Card>
         <Text style={styles.fieldLabel}>{t('I speak')}</Text>
         <Text style={styles.fieldHint}>{t('Explanations and the "More info" follow-up use this language.')}</Text>
-        <View style={styles.chipRow}>
-          {SUPPORTED_LANGUAGES.map((language) => (
-            <Chip
-              key={language}
-              label={t(VOCAB_LANGUAGE_LABELS[language])}
-              selected={language === nativeLanguage}
-              onPress={() => setNativeLanguage(language)}
-            />
-          ))}
-        </View>
+        <Dropdown
+          label={t('I speak')}
+          value={nativeLanguage}
+          onChange={(value) => value && setNativeLanguage(value as LanguageCode)}
+          options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
+        />
         <Text style={[styles.fieldLabel, styles.languageFieldSpacing]}>{t("I'm learning")}</Text>
         <Text style={styles.fieldHint}>{t('New words are looked up and generated in this language.')}</Text>
-        <View style={styles.chipRow}>
-          {SUPPORTED_LANGUAGES.map((language) => (
-            <Chip
-              key={language}
-              label={t(VOCAB_LANGUAGE_LABELS[language])}
-              selected={language === targetLanguage}
-              onPress={() => setTargetLanguage(language)}
-            />
-          ))}
-        </View>
+        <Dropdown
+          label={t("I'm learning")}
+          value={targetLanguage}
+          onChange={(value) => value && setTargetLanguage(value as LanguageCode)}
+          options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
+        />
       </Card>
     </ScrollView>
   )

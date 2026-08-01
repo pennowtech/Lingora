@@ -8,7 +8,7 @@ import {
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router } from 'expo-router'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
@@ -55,6 +55,16 @@ const HELP_SECTIONS: HelpSection[] = [
       'A green checkmark means the word is already in one of your decks.',
     ],
   },
+  {
+    id: 'from-outside',
+    title: 'Search from anywhere',
+    icon: 'share-outline',
+    paragraphs: [
+      'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.',
+      'You can also share text to Lingora, the same way you\'d share a link or a photo to any other app.',
+      'Want it to work a bit differently? There\'s a setting for that in Settings, under "Share & Search."',
+    ],
+  },
 ]
 
 /** Module-level, not component state — this screen sits behind a plain Stack (see
@@ -85,7 +95,12 @@ export default function SearchScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const [query, setQueryState] = useState(lastSearchQuery)
+  // `q` — an incoming word/phrase from outside the app (Android's Process Text toolbar entry or
+  // the share sheet, see components/CaptureIntentHandler.tsx) routed here as a route param. Wins
+  // over the remembered lastSearchQuery on the render that carries it; a plain tab-to-tab-and-back
+  // remount (no `q` param) still falls back to lastSearchQuery as before.
+  const params = useLocalSearchParams<{ q?: string }>()
+  const [query, setQueryState] = useState(params.q ?? lastSearchQuery)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   // Which "Add to deck" button opened the picker — decides which persist call the picker's
   // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
@@ -97,6 +112,13 @@ export default function SearchScreen(): JSX.Element {
     lastSearchQuery = value
     setQueryState(value)
   }
+
+  // Keeps lastSearchQuery in sync with an incoming `q` too — otherwise navigating away and back
+  // without a fresh capture would revert to whatever was remembered before this one.
+  useEffect(() => {
+    if (params.q) setQuery(params.q)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setQuery is a plain function recreated every render; only params.q should re-trigger this
+  }, [params.q])
 
   const search = useQuery({
     queryKey: ['search', term],
@@ -384,6 +406,16 @@ export default function SearchScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      {/* Help lives in the native header, next to the "Search" title, not inline in the body —
+          see the header-right pattern shared with Mine, word/[form], and the Settings screens
+          that have a help sheet. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('lookup')} />
+          ),
+        }}
+      />
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
           <Ionicons name="search" size={18} color={colors.textMuted} />
@@ -410,7 +442,6 @@ export default function SearchScreen(): JSX.Element {
             <Ionicons name="close-circle" size={18} color={colors.textMuted} onPress={() => setQuery('')} />
           ) : null}
         </View>
-        <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('lookup')} />
       </View>
 
       {term === '' ? (
@@ -427,11 +458,6 @@ export default function SearchScreen(): JSX.Element {
         <ErrorState message={String(search.error)} onRetry={() => void search.refetch()} />
       ) : results.length === 0 ? (
         <View>
-          <EmptyState
-            icon="search-outline"
-            title={t('"{{term}}" is new', { term })}
-            message={t("This word isn't in your library yet. Generate meanings, examples, and synonyms with AI.")}
-          />
           <View style={styles.newWordCards}>
           {wordGuide.data ? (
             // Same visual language as the quick-translate card below (centered meta row + source
@@ -607,7 +633,10 @@ const createStyles = (colors: ThemeColors) =>
   form: { fontSize: type.body, fontWeight: '700', color: colors.text },
   meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  newWordCards: { marginTop: -spacing.xl },
+  // Was a negative offset that pulled these cards up into the old "is new" EmptyState's own
+  // bottom padding — now that block is gone (see the `results.length === 0` branch above), so
+  // this is the top of the whole panel and needs real breathing room under the search bar instead.
+  newWordCards: { marginTop: spacing.lg },
   translateCard: {
     marginTop: spacing.md,
     marginBottom: spacing.md,

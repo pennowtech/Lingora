@@ -751,7 +751,17 @@ export default function WordDetailScreen(): JSX.Element {
 
   return (
     <>
-      <Stack.Screen options={{ title: languageDirectionTitle }} />
+      {/* Help lives in the native header, next to the language-direction title, not inline next
+          to the word itself — see the header-right pattern shared with Search, Mine, and the
+          Settings screens that have a help sheet. */}
+      <Stack.Screen
+        options={{
+          title: languageDirectionTitle,
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" size={22} onPress={() => help.openSection('meaning')} />
+          ),
+        }}
+      />
       <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
         {/* ── Word header ── */}
         <View style={styles.headerRow}>
@@ -766,7 +776,6 @@ export default function WordDetailScreen(): JSX.Element {
             </Text>
           </View>
           <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
-          <IconButton icon="help-circle-outline" size={22} onPress={() => help.openSection('meaning')} />
         </View>
 
         {/* ── Cluster tabs (one per semantic context) ── */}

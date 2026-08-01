@@ -264,6 +264,7 @@ export type CaptureSource =
   | 'manual'
   | 'clipboard'
   | 'share_sheet'
+  | 'process_text'
   | 'extension'
   | 'youtube'
   | 'netflix'

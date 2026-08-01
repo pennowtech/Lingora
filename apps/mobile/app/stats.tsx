@@ -16,7 +16,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, EmptyState, ErrorState, SectionHeader, Spinner } from '../components/ui'
 import { useServices } from '../lib/services'
 import { buildHeatmap, streakFromDayIndexes } from '../lib/stats'
-import { colors, radius, spacing, type } from '../lib/theme'
+import { radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 const HEAT_COLORS = ['#EFEDF6', '#D8D3F0', '#B4ABE3', '#8C7FD3', '#534AB7']
 
@@ -56,6 +58,7 @@ async function loadStats(db: DatabaseAdapter): Promise<StatsData> {
 export default function StatsScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const styles = useThemedStyles(createStyles)
   const statsQuery = useQuery({ queryKey: ['learning-stats'], queryFn: () => loadStats(db) })
 
   if (statsQuery.isPending) {
@@ -164,7 +167,8 @@ export default function StatsScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -203,4 +207,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   lapsesLabel: { fontSize: type.micro, fontWeight: '700', color: colors.danger },
-})
+  })

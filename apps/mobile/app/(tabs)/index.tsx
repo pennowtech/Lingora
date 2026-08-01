@@ -17,7 +17,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { streakFromDayIndexes } from '../../lib/stats'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 interface HomeStats {
   dueNow: number
@@ -44,6 +46,8 @@ async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
 export default function HomeScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
   const recentQuery = useQuery({
@@ -178,7 +182,8 @@ export default function HomeScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   header: {
@@ -252,4 +257,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: spacing.sm,
   },
-})
+  })

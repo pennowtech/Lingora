@@ -3,7 +3,9 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { colors, radius, spacing, type } from '../lib/theme'
+import { radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 const MAX_LENGTH = 100
 
@@ -15,6 +17,8 @@ const MAX_LENGTH = 100
  */
 export function FollowUpComposer(props: { loading: boolean; onAsk: (question: string) => void }): JSX.Element {
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const [text, setText] = useState('')
   const atLimit = text.length >= MAX_LENGTH
   const canAsk = text.trim() !== '' && !props.loading
@@ -86,27 +90,28 @@ export function FollowUpComposer(props: { loading: boolean; onAsk: (question: st
   )
 }
 
-const styles = StyleSheet.create({
-  wrap: { gap: spacing.xs, marginTop: spacing.md },
-  input: {
-    height: 44,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceMuted,
-    color: colors.text,
-    fontSize: type.caption,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  inputAtLimit: { borderColor: colors.danger },
-  footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counter: { fontSize: type.micro, color: colors.textMuted },
-  thinkingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  thinkingLabel: { fontSize: type.micro, color: colors.textMuted },
-  counterAtLimit: { color: colors.danger, fontWeight: '700' },
-  askButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  askButtonDisabled: { opacity: 0.5 },
-  askLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textMuted },
-  askLabelActive: { color: colors.primary },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    wrap: { gap: spacing.xs, marginTop: spacing.md },
+    input: {
+      height: 44,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      backgroundColor: colors.surfaceMuted,
+      color: colors.text,
+      fontSize: type.caption,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    inputAtLimit: { borderColor: colors.danger },
+    footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    counter: { fontSize: type.micro, color: colors.textMuted },
+    thinkingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    thinkingLabel: { fontSize: type.micro, color: colors.textMuted },
+    counterAtLimit: { color: colors.danger, fontWeight: '700' },
+    askButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    askButtonDisabled: { opacity: 0.5 },
+    askLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textMuted },
+    askLabelActive: { color: colors.primary },
+  })

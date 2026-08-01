@@ -17,7 +17,9 @@ import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 import { getWordGuideManifest } from '../../lib/wordGuides'
 
 const WORD_GUIDE_LANGUAGE = getWordGuideManifest().language
@@ -39,6 +41,8 @@ function useDebounced(value: string, delayMs: number): string {
 export default function SearchScreen(): JSX.Element {
   const { db, dictionary, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [guideModalOpen, setGuideModalOpen] = useState(false)
@@ -455,7 +459,8 @@ export default function SearchScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
   searchBox: {
     flexDirection: 'row',
@@ -549,4 +554,4 @@ const styles = StyleSheet.create({
   partialTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
   partialBody: { fontSize: type.caption, color: colors.textSecondary },
   partialHint: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },
-})
+  })

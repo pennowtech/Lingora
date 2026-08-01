@@ -2,8 +2,8 @@ import { logger } from '@lingora/observability'
 import { router } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Card, Chip, LinkRow, SectionHeader } from '../../components/ui'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Card, Chip, Dropdown, LinkRow, SectionHeader } from '../../components/ui'
 import {
   APP_LANGUAGES,
   getStoredLanguagePreference,
@@ -12,10 +12,10 @@ import {
   type AppLanguage,
   type AppLanguagePreference,
 } from '../../lib/i18n'
-import { radius, spacing, type } from '../../lib/theme'
-import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
+import { spacing, type } from '../../lib/theme'
+import { useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import { THEMES, THEME_ORDER } from '../../lib/themes'
-import type { ThemeColors } from '../../lib/themes'
+import type { ThemeColors, ThemeKey } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'GeneralSettingsScreen' })
 
@@ -33,7 +33,6 @@ const APP_LANGUAGE_LABELS: Record<AppLanguage, string> = {
  * one — a Hindi-UI user can still be learning German). */
 export default function GeneralSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
-  const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const { themeKey, setThemeKey } = useTheme()
   const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
@@ -60,34 +59,13 @@ export default function GeneralSettingsScreen(): JSX.Element {
       <SectionHeader title={t('Appearance')} />
       <Card>
         <Text style={styles.fieldLabel}>{t('Theme')}</Text>
-        <View style={styles.themeRow}>
-          {THEME_ORDER.map((key) => {
-            const candidate = THEMES[key]
-            const active = key === themeKey
-            return (
-              <Pressable
-                key={key}
-                testID={`theme-option-${key}`}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                onPress={() => setThemeKey(key)}
-                style={[
-                  styles.themePill,
-                  {
-                    backgroundColor: active ? candidate.colors.primary : colors.surfaceMuted,
-                    borderColor: active ? candidate.colors.primary : colors.border,
-                  },
-                ]}
-              >
-                <Text style={styles.themePillIcon}>{candidate.icon}</Text>
-                <Text style={[styles.themePillLabel, { color: active ? candidate.colors.textOnPrimary : colors.textSecondary }]}>
-                  {t(candidate.name)}
-                </Text>
-              </Pressable>
-            )
-          })}
-        </View>
-        <Text style={styles.hint}>{t('Applies across the app. More screens are being converted to follow it — some may still use the default look for now.')}</Text>
+        <Dropdown
+          label={t('Theme')}
+          value={themeKey}
+          onChange={(value) => value && setThemeKey(value as ThemeKey)}
+          options={THEME_ORDER.map((key) => ({ label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`, value: key }))}
+        />
+        <Text style={styles.hint}>{t('Applies across the app.')}</Text>
       </Card>
 
       <SectionHeader title={t('General')} />
@@ -124,17 +102,5 @@ const createStyles = (colors: ThemeColors) =>
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-    themeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
-    themePill: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderRadius: radius.full,
-      borderWidth: 1,
-    },
-    themePillIcon: { fontSize: 14 },
-    themePillLabel: { fontSize: type.caption, fontWeight: '600' },
     hint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
   })

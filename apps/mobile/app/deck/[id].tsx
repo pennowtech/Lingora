@@ -37,7 +37,9 @@ import {
 import { collectDescendantIds } from '../../lib/deckTree'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DeckDetailScreen' })
 
@@ -69,6 +71,8 @@ export default function DeckDetailScreen(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
   const [importSheetOpen, setImportSheetOpen] = useState(false)
@@ -583,100 +587,101 @@ export default function DeckDetailScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg },
-  fab: {
-    position: 'absolute',
-    right: spacing.xl,
-    bottom: spacing.xl,
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-  },
-  statsRow: { flexDirection: 'row', gap: spacing.sm },
-  statCard: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
-  statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
-  reviewButton: { marginTop: spacing.lg },
-  clozeButton: { marginTop: spacing.sm },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  cardRowText: { flex: 1, marginRight: spacing.md },
-  cardForm: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  cardMeaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  cardRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  clozeBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: radius.full,
-    backgroundColor: colors.warningSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footnote: { fontSize: type.micro, color: colors.textMuted, textAlign: 'center', marginTop: spacing.md },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.full,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
-  selectionBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.lg,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  selectionCancel: { fontSize: type.body, fontWeight: '700', color: colors.textSecondary },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  inputField: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-  },
-  errorLabel: { fontSize: type.caption, color: colors.danger },
-  deckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  deckRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-  deckEmoji: { fontSize: 20 },
-  hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg },
+    fab: {
+      position: 'absolute',
+      right: spacing.xl,
+      bottom: spacing.xl,
+      width: 56,
+      height: 56,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+    },
+    statsRow: { flexDirection: 'row', gap: spacing.sm },
+    statCard: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
+    statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
+    statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
+    reviewButton: { marginTop: spacing.lg },
+    clozeButton: { marginTop: spacing.sm },
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    cardRowText: { flex: 1, marginRight: spacing.md },
+    cardForm: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    cardMeaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    cardRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    clozeBadge: {
+      width: 20,
+      height: 20,
+      borderRadius: radius.full,
+      backgroundColor: colors.warningSoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    footnote: { fontSize: type.micro, color: colors.textMuted, textAlign: 'center', marginTop: spacing.md },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: radius.full,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
+    selectionBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: spacing.lg,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    selectionCancel: { fontSize: type.body, fontWeight: '700', color: colors.textSecondary },
+    modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    modalSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.md,
+    },
+    modalHandle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.border,
+    },
+    modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    inputField: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      fontSize: type.body,
+      color: colors.text,
+    },
+    errorLabel: { fontSize: type.caption, color: colors.danger },
+    deckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    deckRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+    deckEmoji: { fontSize: 20 },
+    hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
+  })

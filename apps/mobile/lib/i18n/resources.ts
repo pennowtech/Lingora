@@ -27,13 +27,13 @@ const ENGLISH_PHRASES = [
   'Import & export', 'Anki, CSV, JSON backup',
   'Card templates', 'Customize card layouts',
   'Pronunciation', 'Voice, rate, pitch',
-  'Word guides', 'Free starter dictionary — no AI key needed',
+  'Local Dictionaries', 'Free starter dictionary — no AI key needed',
   'Delete all API keys',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.',
   'English', 'German', 'French', 'Spanish', 'Hindi',
 
   // Home
-  "Ready for today's session?", '{{count}} days', "Some data on this screen couldn't load.",
+  'Nice to see you back.', '{{count}} days', "Some data on this screen couldn't load.",
   'cards due for review', 'Start review', 'reviewed today', 'retention', 'total cards →',
   'Quick actions', 'Look up a word', 'Mining queue', 'Practice cloze', 'Statistics',
   'Recently added', 'See all', 'No words yet', 'Look up a word to add your first card.',
@@ -167,15 +167,13 @@ const ENGLISH_PHRASES = [
   "Voices come from the device's own text-to-speech engine — install more from your phone's system settings if you don't see the one you want.",
   'Playing…', 'Test',
 
-  // Word guides
-  'Could not install this chunk', 'Could not remove this chunk', 'Word guides installed',
-  'Installed {{count}} new chunks.', 'Could not install word guides', 'German word guides',
-  'A free, pre-written dictionary — install to get instant word explanations without an AI key.',
-  '{{words}} words planned, {{chunks}} chunks of ~100.',
-  '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet',
-  'Install all available', 'Chunks', 'Words {{start}}–{{end}}', '{{count}} words', 'Not generated yet',
-  'Uninstall all', 'Uninstalling…', 'Word guides uninstalled', 'Removed {{count}} chunks.',
-  'Could not uninstall word guides', 'Uninstall all word guides?',
+  // Local Dictionaries
+  'Could not install this chunk', 'Could not remove this chunk', 'Local Dictionaries installed',
+  'Installed {{count}} new chunks.', 'Could not install local dictionaries', 'German-English Dictionary',
+  '{{installed}} installed · {{available}} available to install',
+  'Install all available', 'Chunks', 'Words {{start}}–{{end}}', '{{count}} words',
+  'Uninstall all', 'Uninstalling…', 'Local Dictionaries uninstalled', 'Removed {{count}} chunks.',
+  'Could not uninstall local dictionaries', 'Uninstall all local dictionaries?',
   'Removes every installed chunk from this device. Cards you already added to your deck are not affected.',
   'No translation to add.', 'No dictionary entry to add.', 'Details', 'More info', 'Hide details',
   'Understanding the German {{wordClass}} "{{headword}}"', 'Usage', 'Examples of Usage',
@@ -222,13 +220,13 @@ const de: Partial<Record<Phrase, string>> = {
   'Import & export': 'Import & Export', 'Anki, CSV, JSON backup': 'Anki, CSV, JSON-Sicherung',
   'Card templates': 'Kartenvorlagen', 'Customize card layouts': 'Kartenlayouts anpassen',
   Pronunciation: 'Aussprache', 'Voice, rate, pitch': 'Stimme, Geschwindigkeit, Tonhöhe',
-  'Word guides': 'Wortführer', 'Free starter dictionary — no AI key needed': 'Kostenloses Starter-Wörterbuch — kein KI-Schlüssel nötig',
+  'Local Dictionaries': 'Lokale Wörterbücher', 'Free starter dictionary — no AI key needed': 'Kostenloses Starter-Wörterbuch — kein KI-Schlüssel nötig',
   'Delete all API keys': 'Alle API-Schlüssel löschen',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.':
     'API-Schlüssel verbleiben auf diesem Gerät (Expo SecureStore) und werden nie in Exporte oder Sicherungen aufgenommen.',
   English: 'Englisch', German: 'Deutsch', French: 'Französisch', Spanish: 'Spanisch', Hindi: 'Hindi',
 
-  "Ready for today's session?": 'Bereit für die heutige Sitzung?', '{{count}} days': '{{count}} Tage',
+  'Nice to see you back.': 'Schön, dass du wieder da bist.', '{{count}} days': '{{count}} Tage',
   "Some data on this screen couldn't load.": 'Einige Daten auf diesem Bildschirm konnten nicht geladen werden.',
   'cards due for review': 'Karten zur Wiederholung fällig', 'Start review': 'Wiederholung starten',
   'reviewed today': 'heute wiederholt', retention: 'Behaltensrate', 'total cards →': 'Karten insgesamt →',
@@ -455,19 +453,16 @@ const de: Partial<Record<Phrase, string>> = {
   'Playing…': 'Wird abgespielt…', Test: 'Testen',
 
   'Could not install this chunk': 'Dieser Abschnitt konnte nicht installiert werden', 'Could not remove this chunk': 'Dieser Abschnitt konnte nicht entfernt werden',
-  'Word guides installed': 'Wortführer installiert', 'Installed {{count}} new chunks.': '{{count}} neue Abschnitte installiert.',
-  'Could not install word guides': 'Wortführer konnten nicht installiert werden', 'German word guides': 'Deutsche Wortführer',
-  'A free, pre-written dictionary — install to get instant word explanations without an AI key.':
-    'Ein kostenloses, vorgefertigtes Wörterbuch — installiere es für sofortige Worterklärungen ohne KI-Schlüssel.',
-  '{{words}} words planned, {{chunks}} chunks of ~100.': '{{words}} Wörter geplant, {{chunks}} Abschnitte à ~100.',
-  '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet':
-    '{{installed}} installiert · {{available}} verfügbar zum Installieren · {{pending}} noch nicht erzeugt',
+  'Local Dictionaries installed': 'Lokale Wörterbücher installiert', 'Installed {{count}} new chunks.': '{{count}} neue Abschnitte installiert.',
+  'Could not install local dictionaries': 'Lokale Wörterbücher konnten nicht installiert werden', 'German-English Dictionary': 'Deutsch-Englisch-Wörterbuch',
+  '{{installed}} installed · {{available}} available to install':
+    '{{installed}} installiert · {{available}} verfügbar zum Installieren',
   'Install all available': 'Alle verfügbaren installieren', Chunks: 'Abschnitte',
-  'Words {{start}}–{{end}}': 'Wörter {{start}}–{{end}}', '{{count}} words': '{{count}} Wörter', 'Not generated yet': 'Noch nicht erzeugt',
+  'Words {{start}}–{{end}}': 'Wörter {{start}}–{{end}}', '{{count}} words': '{{count}} Wörter',
   'Uninstall all': 'Alle deinstallieren', 'Uninstalling…': 'Wird deinstalliert…',
-  'Word guides uninstalled': 'Wortführer deinstalliert', 'Removed {{count}} chunks.': '{{count}} Abschnitte entfernt.',
-  'Could not uninstall word guides': 'Wortführer konnten nicht deinstalliert werden',
-  'Uninstall all word guides?': 'Alle Wortführer deinstallieren?',
+  'Local Dictionaries uninstalled': 'Lokale Wörterbücher deinstalliert', 'Removed {{count}} chunks.': '{{count}} Abschnitte entfernt.',
+  'Could not uninstall local dictionaries': 'Lokale Wörterbücher konnten nicht deinstalliert werden',
+  'Uninstall all local dictionaries?': 'Alle lokalen Wörterbücher deinstallieren?',
   'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
     'Entfernt jeden installierten Abschnitt von diesem Gerät. Bereits zu deinem Stapel hinzugefügte Karten sind davon nicht betroffen.',
   'No translation to add.': 'Keine Übersetzung zum Hinzufügen.', 'No dictionary entry to add.': 'Kein Wörterbucheintrag zum Hinzufügen.',
@@ -518,13 +513,13 @@ const fr: Partial<Record<Phrase, string>> = {
   'Import & export': 'Importer et exporter', 'Anki, CSV, JSON backup': 'Anki, CSV, sauvegarde JSON',
   'Card templates': 'Modèles de cartes', 'Customize card layouts': 'Personnaliser la mise en page des cartes',
   Pronunciation: 'Prononciation', 'Voice, rate, pitch': 'Voix, débit, tonalité',
-  'Word guides': 'Guides de mots', 'Free starter dictionary — no AI key needed': "Dictionnaire de démarrage gratuit — aucune clé IA requise",
+  'Local Dictionaries': 'Dictionnaires locaux', 'Free starter dictionary — no AI key needed': "Dictionnaire de démarrage gratuit — aucune clé IA requise",
   'Delete all API keys': 'Supprimer toutes les clés API',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.':
     "Les clés API restent sur cet appareil (Expo SecureStore) et ne sont jamais incluses dans les exports ou sauvegardes.",
   English: 'Anglais', German: 'Allemand', French: 'Français', Spanish: 'Espagnol', Hindi: 'Hindi',
 
-  "Ready for today's session?": "Prêt pour la session du jour ?", '{{count}} days': '{{count}} jours',
+  "Nice to see you back.": "Content de te revoir !", '{{count}} days': '{{count}} jours',
   "Some data on this screen couldn't load.": "Certaines données de cet écran n'ont pas pu être chargées.",
   'cards due for review': 'cartes à réviser', 'Start review': 'Commencer la révision',
   'reviewed today': "révisées aujourd'hui", retention: 'rétention', 'total cards →': 'total des cartes →',
@@ -751,19 +746,16 @@ const fr: Partial<Record<Phrase, string>> = {
   'Playing…': 'Lecture…', Test: 'Tester',
 
   'Could not install this chunk': 'Impossible d\'installer ce segment', 'Could not remove this chunk': 'Impossible de supprimer ce segment',
-  'Word guides installed': 'Guides de mots installés', 'Installed {{count}} new chunks.': '{{count}} nouveaux segments installés.',
-  'Could not install word guides': "Impossible d'installer les guides de mots", 'German word guides': 'Guides de mots allemands',
-  'A free, pre-written dictionary — install to get instant word explanations without an AI key.':
-    "Un dictionnaire gratuit pré-rédigé — installez-le pour obtenir des explications de mots instantanées sans clé IA.",
-  '{{words}} words planned, {{chunks}} chunks of ~100.': '{{words}} mots prévus, {{chunks}} segments d\'environ 100.',
-  '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet':
-    '{{installed}} installés · {{available}} disponibles à installer · {{pending}} pas encore générés',
+  'Local Dictionaries installed': 'Dictionnaires locaux installés', 'Installed {{count}} new chunks.': '{{count}} nouveaux segments installés.',
+  'Could not install local dictionaries': "Impossible d'installer les dictionnaires locaux", 'German-English Dictionary': 'Dictionnaire allemand-anglais',
+  '{{installed}} installed · {{available}} available to install':
+    '{{installed}} installés · {{available}} disponibles à installer',
   'Install all available': 'Installer tout ce qui est disponible', Chunks: 'Segments',
-  'Words {{start}}–{{end}}': 'Mots {{start}}–{{end}}', '{{count}} words': '{{count}} mots', 'Not generated yet': 'Pas encore généré',
+  'Words {{start}}–{{end}}': 'Mots {{start}}–{{end}}', '{{count}} words': '{{count}} mots',
   'Uninstall all': 'Tout désinstaller', 'Uninstalling…': 'Désinstallation…',
-  'Word guides uninstalled': 'Guides de mots désinstallés', 'Removed {{count}} chunks.': '{{count}} segments supprimés.',
-  'Could not uninstall word guides': "Impossible de désinstaller les guides de mots",
-  'Uninstall all word guides?': 'Désinstaller tous les guides de mots ?',
+  'Local Dictionaries uninstalled': 'Dictionnaires locaux désinstallés', 'Removed {{count}} chunks.': '{{count}} segments supprimés.',
+  'Could not uninstall local dictionaries': "Impossible de désinstaller les dictionnaires locaux",
+  'Uninstall all local dictionaries?': 'Désinstaller tous les dictionnaires locaux ?',
   'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
     "Supprime chaque segment installé de cet appareil. Les cartes déjà ajoutées à votre paquet ne sont pas affectées.",
   'No translation to add.': 'Aucune traduction à ajouter.', 'No dictionary entry to add.': 'Aucune entrée de dictionnaire à ajouter.',
@@ -814,13 +806,13 @@ const es: Partial<Record<Phrase, string>> = {
   'Import & export': 'Importar y exportar', 'Anki, CSV, JSON backup': 'Anki, CSV, copia de seguridad JSON',
   'Card templates': 'Plantillas de tarjetas', 'Customize card layouts': 'Personalizar el diseño de las tarjetas',
   Pronunciation: 'Pronunciación', 'Voice, rate, pitch': 'Voz, velocidad, tono',
-  'Word guides': 'Guías de palabras', 'Free starter dictionary — no AI key needed': 'Diccionario inicial gratuito — no requiere clave de IA',
+  'Local Dictionaries': 'Diccionarios locales', 'Free starter dictionary — no AI key needed': 'Diccionario inicial gratuito — no requiere clave de IA',
   'Delete all API keys': 'Eliminar todas las claves API',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.':
     'Las claves API permanecen en este dispositivo (Expo SecureStore) y nunca se incluyen en exportaciones o copias de seguridad.',
   English: 'Inglés', German: 'Alemán', French: 'Francés', Spanish: 'Español', Hindi: 'Hindi',
 
-  "Ready for today's session?": '¿Listo para la sesión de hoy?', '{{count}} days': '{{count}} días',
+  'Nice to see you back.': '¡Qué bueno verte de nuevo!', '{{count}} days': '{{count}} días',
   "Some data on this screen couldn't load.": 'Algunos datos de esta pantalla no se pudieron cargar.',
   'cards due for review': 'tarjetas pendientes de repaso', 'Start review': 'Iniciar repaso',
   'reviewed today': 'repasadas hoy', retention: 'retención', 'total cards →': 'tarjetas totales →',
@@ -1047,19 +1039,16 @@ const es: Partial<Record<Phrase, string>> = {
   'Playing…': 'Reproduciendo…', Test: 'Probar',
 
   'Could not install this chunk': 'No se pudo instalar este fragmento', 'Could not remove this chunk': 'No se pudo eliminar este fragmento',
-  'Word guides installed': 'Guías de palabras instaladas', 'Installed {{count}} new chunks.': '{{count}} fragmentos nuevos instalados.',
-  'Could not install word guides': 'No se pudieron instalar las guías de palabras', 'German word guides': 'Guías de palabras en alemán',
-  'A free, pre-written dictionary — install to get instant word explanations without an AI key.':
-    'Un diccionario gratuito ya escrito — instálalo para obtener explicaciones de palabras al instante sin clave de IA.',
-  '{{words}} words planned, {{chunks}} chunks of ~100.': '{{words}} palabras planificadas, {{chunks}} fragmentos de ~100.',
-  '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet':
-    '{{installed}} instalados · {{available}} disponibles para instalar · {{pending}} aún no generados',
+  'Local Dictionaries installed': 'Diccionarios locales instalados', 'Installed {{count}} new chunks.': '{{count}} fragmentos nuevos instalados.',
+  'Could not install local dictionaries': 'No se pudieron instalar los diccionarios locales', 'German-English Dictionary': 'Diccionario alemán-inglés',
+  '{{installed}} installed · {{available}} available to install':
+    '{{installed}} instalados · {{available}} disponibles para instalar',
   'Install all available': 'Instalar todo lo disponible', Chunks: 'Fragmentos',
-  'Words {{start}}–{{end}}': 'Palabras {{start}}–{{end}}', '{{count}} words': '{{count}} palabras', 'Not generated yet': 'Aún no generado',
+  'Words {{start}}–{{end}}': 'Palabras {{start}}–{{end}}', '{{count}} words': '{{count}} palabras',
   'Uninstall all': 'Desinstalar todo', 'Uninstalling…': 'Desinstalando…',
-  'Word guides uninstalled': 'Guías de palabras desinstaladas', 'Removed {{count}} chunks.': '{{count}} fragmentos eliminados.',
-  'Could not uninstall word guides': 'No se pudieron desinstalar las guías de palabras',
-  'Uninstall all word guides?': '¿Desinstalar todas las guías de palabras?',
+  'Local Dictionaries uninstalled': 'Diccionarios locales desinstalados', 'Removed {{count}} chunks.': '{{count}} fragmentos eliminados.',
+  'Could not uninstall local dictionaries': 'No se pudieron desinstalar los diccionarios locales',
+  'Uninstall all local dictionaries?': '¿Desinstalar todos los diccionarios locales?',
   'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
     'Elimina cada fragmento instalado de este dispositivo. Las tarjetas que ya añadiste a tu mazo no se ven afectadas.',
   'No translation to add.': 'No hay traducción para añadir.', 'No dictionary entry to add.': 'No hay entrada de diccionario para añadir.',
@@ -1110,13 +1099,13 @@ const hi: Partial<Record<Phrase, string>> = {
   'Import & export': 'आयात और निर्यात', 'Anki, CSV, JSON backup': 'Anki, CSV, JSON बैकअप',
   'Card templates': 'कार्ड टेम्पलेट', 'Customize card layouts': 'कार्ड लेआउट अनुकूलित करें',
   Pronunciation: 'उच्चारण', 'Voice, rate, pitch': 'आवाज़, गति, पिच',
-  'Word guides': 'शब्द गाइड', 'Free starter dictionary — no AI key needed': 'मुफ़्त स्टार्टर शब्दकोश — AI कुंजी की आवश्यकता नहीं',
+  'Local Dictionaries': 'स्थानीय शब्दकोश', 'Free starter dictionary — no AI key needed': 'मुफ़्त स्टार्टर शब्दकोश — AI कुंजी की आवश्यकता नहीं',
   'Delete all API keys': 'सभी API कुंजियाँ हटाएं',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.':
     'API कुंजियाँ इसी डिवाइस पर रहती हैं (Expo SecureStore) और निर्यात या बैकअप में कभी शामिल नहीं होतीं।',
   English: 'अंग्रेज़ी', German: 'जर्मन', French: 'फ़्रेंच', Spanish: 'स्पेनिश', Hindi: 'हिन्दी',
 
-  "Ready for today's session?": 'आज के सत्र के लिए तैयार हैं?', '{{count}} days': '{{count}} दिन',
+  'Nice to see you back.': 'आपको वापस देखकर अच्छा लगा।', '{{count}} days': '{{count}} दिन',
   "Some data on this screen couldn't load.": 'इस स्क्रीन का कुछ डेटा लोड नहीं हो सका।',
   'cards due for review': 'दोहराने के लिए कार्ड बाकी', 'Start review': 'दोहराव शुरू करें',
   'reviewed today': 'आज दोहराए गए', retention: 'अवधारण दर', 'total cards →': 'कुल कार्ड →',
@@ -1343,19 +1332,16 @@ const hi: Partial<Record<Phrase, string>> = {
   'Playing…': 'चलाया जा रहा है…', Test: 'परीक्षण',
 
   'Could not install this chunk': 'यह हिस्सा इंस्टॉल नहीं हो सका', 'Could not remove this chunk': 'यह हिस्सा हटाया नहीं जा सका',
-  'Word guides installed': 'शब्द गाइड इंस्टॉल हो गए', 'Installed {{count}} new chunks.': '{{count}} नए हिस्से इंस्टॉल किए गए।',
-  'Could not install word guides': 'शब्द गाइड इंस्टॉल नहीं हो सके', 'German word guides': 'जर्मन शब्द गाइड',
-  'A free, pre-written dictionary — install to get instant word explanations without an AI key.':
-    'एक मुफ़्त, पहले से लिखा गया शब्दकोश — बिना AI कुंजी के तुरंत शब्द स्पष्टीकरण पाने के लिए इंस्टॉल करें।',
-  '{{words}} words planned, {{chunks}} chunks of ~100.': '{{words}} शब्दों की योजना, ~100 के {{chunks}} हिस्से।',
-  '{{installed}} installed · {{available}} available to install · {{pending}} not generated yet':
-    '{{installed}} इंस्टॉल किए गए · {{available}} इंस्टॉल के लिए उपलब्ध · {{pending}} अभी तक नहीं बने',
+  'Local Dictionaries installed': 'स्थानीय शब्दकोश इंस्टॉल हो गए', 'Installed {{count}} new chunks.': '{{count}} नए हिस्से इंस्टॉल किए गए।',
+  'Could not install local dictionaries': 'स्थानीय शब्दकोश इंस्टॉल नहीं हो सके', 'German-English Dictionary': 'जर्मन-अंग्रेज़ी शब्दकोश',
+  '{{installed}} installed · {{available}} available to install':
+    '{{installed}} इंस्टॉल किए गए · {{available}} इंस्टॉल के लिए उपलब्ध',
   'Install all available': 'सभी उपलब्ध इंस्टॉल करें', Chunks: 'हिस्से',
-  'Words {{start}}–{{end}}': 'शब्द {{start}}–{{end}}', '{{count}} words': '{{count}} शब्द', 'Not generated yet': 'अभी तक नहीं बना',
+  'Words {{start}}–{{end}}': 'शब्द {{start}}–{{end}}', '{{count}} words': '{{count}} शब्द',
   'Uninstall all': 'सभी अनइंस्टॉल करें', 'Uninstalling…': 'अनइंस्टॉल हो रहा है…',
-  'Word guides uninstalled': 'शब्द गाइड अनइंस्टॉल हो गए', 'Removed {{count}} chunks.': '{{count}} हिस्से हटा दिए गए।',
-  'Could not uninstall word guides': 'शब्द गाइड अनइंस्टॉल नहीं हो सके',
-  'Uninstall all word guides?': 'सभी शब्द गाइड अनइंस्टॉल करें?',
+  'Local Dictionaries uninstalled': 'स्थानीय शब्दकोश अनइंस्टॉल हो गए', 'Removed {{count}} chunks.': '{{count}} हिस्से हटा दिए गए।',
+  'Could not uninstall local dictionaries': 'स्थानीय शब्दकोश अनइंस्टॉल नहीं हो सके',
+  'Uninstall all local dictionaries?': 'सभी स्थानीय शब्दकोश अनइंस्टॉल करें?',
   'Removes every installed chunk from this device. Cards you already added to your deck are not affected.':
     'यह इस डिवाइस से हर इंस्टॉल किया हुआ हिस्सा हटा देता है। आपके डेक में पहले से जोड़े गए कार्ड प्रभावित नहीं होते।',
   'No translation to add.': 'जोड़ने के लिए कोई अनुवाद नहीं।', 'No dictionary entry to add.': 'जोड़ने के लिए कोई शब्दकोश प्रविष्टि नहीं।',

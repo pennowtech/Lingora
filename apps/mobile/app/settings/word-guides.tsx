@@ -74,11 +74,11 @@ export default function WordGuidesScreen(): JSX.Element {
     mutationFn: () => installAllAvailable(db, manifest.language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
-      Alert.alert(t('Word guides installed'), t('Installed {{count}} new chunks.', { count: count.toLocaleString() }))
+      Alert.alert(t('Local Dictionaries installed'), t('Installed {{count}} new chunks.', { count: count.toLocaleString() }))
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_install_all_failed', error, { message: 'Word guide "install all" failed' })
-      Alert.alert(t('Could not install word guides'), String(error))
+      Alert.alert(t('Could not install local dictionaries'), String(error))
     },
   })
 
@@ -86,17 +86,17 @@ export default function WordGuidesScreen(): JSX.Element {
     mutationFn: () => uninstallAllInstalled(db, manifest.language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
-      Alert.alert(t('Word guides uninstalled'), t('Removed {{count}} chunks.', { count: count.toLocaleString() }))
+      Alert.alert(t('Local Dictionaries uninstalled'), t('Removed {{count}} chunks.', { count: count.toLocaleString() }))
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_uninstall_all_failed', error, { message: 'Word guide "uninstall all" failed' })
-      Alert.alert(t('Could not uninstall word guides'), String(error))
+      Alert.alert(t('Could not uninstall local dictionaries'), String(error))
     },
   })
 
   const confirmUninstallAll = (): void => {
     Alert.alert(
-      t('Uninstall all word guides?'),
+      t('Uninstall all local dictionaries?'),
       t('Removes every installed chunk from this device. Cards you already added to your deck are not affected.'),
       [
         { text: t('Cancel'), style: 'cancel' },
@@ -106,29 +106,25 @@ export default function WordGuidesScreen(): JSX.Element {
   }
 
   const installedSet = new Set(installedQuery.data ?? [])
-  const rows: ChunkRow[] = manifest.chunks.map((chunk) => ({
-    ...chunk,
-    status: installedSet.has(chunk.index)
-      ? 'installed'
-      : bundledChunkIndexes.has(chunk.index)
-        ? 'available'
-        : 'pending',
-  }))
+  // Chunks that are neither installed nor actually bundled into this app build never show up —
+  // there's nothing a user could do with a "not generated yet" row besides be confused by it.
+  const rows: ChunkRow[] = manifest.chunks
+    .map((chunk) => ({
+      ...chunk,
+      status: installedSet.has(chunk.index)
+        ? 'installed'
+        : bundledChunkIndexes.has(chunk.index)
+          ? 'available'
+          : ('pending' as const),
+    }))
+    .filter((row): row is ChunkRow & { status: 'installed' | 'available' } => row.status !== 'pending')
   const installedCount = rows.filter((r) => r.status === 'installed').length
   const availableCount = rows.filter((r) => r.status === 'available').length
 
   return (
     <View style={styles.container}>
       <Card style={styles.summaryCard}>
-        <Text style={styles.title}>{t('German word guides')}</Text>
-        <Text style={styles.body}>
-          {t('A free, pre-written dictionary — install to get instant word explanations without an AI key.')}
-          {' '}
-          {t('{{words}} words planned, {{chunks}} chunks of ~100.', {
-            words: manifest.totalWords.toLocaleString(),
-            chunks: manifest.totalChunks,
-          })}
-        </Text>
+        <Text style={styles.title}>{t('German-English Dictionary')}</Text>
         {installedQuery.isPending ? (
           <Spinner />
         ) : installedQuery.isError ? (
@@ -136,10 +132,9 @@ export default function WordGuidesScreen(): JSX.Element {
         ) : (
           <>
             <Text style={styles.progress}>
-              {t('{{installed}} installed · {{available}} available to install · {{pending}} not generated yet', {
+              {t('{{installed}} installed · {{available}} available to install', {
                 installed: installedCount,
                 available: availableCount,
-                pending: manifest.totalChunks - installedCount - availableCount,
               })}
             </Text>
             <Button
@@ -170,7 +165,7 @@ export default function WordGuidesScreen(): JSX.Element {
         keyExtractor={(row) => String(row.index)}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <Card style={[styles.chunkRow, item.status === 'pending' && styles.chunkRowPending]}>
+          <Card style={styles.chunkRow}>
             <View style={styles.chunkText}>
               <Text style={styles.chunkTitle}>
                 {t('Words {{start}}–{{end}}', { start: item.rankStart.toLocaleString(), end: item.rankEnd.toLocaleString() })}
@@ -188,7 +183,7 @@ export default function WordGuidesScreen(): JSX.Element {
                 <Ionicons name="trash-outline" size={15} color={colors.danger} />
                 <Text style={styles.uninstallLabel}>{t('Uninstall')}</Text>
               </Pressable>
-            ) : item.status === 'available' ? (
+            ) : (
               <Pressable
                 style={styles.installButton}
                 onPress={() => install.mutate(item.index)}
@@ -196,8 +191,6 @@ export default function WordGuidesScreen(): JSX.Element {
               >
                 <Text style={styles.installLabel}>{t('Install')}</Text>
               </Pressable>
-            ) : (
-              <Text style={styles.pendingLabel}>{t('Not generated yet')}</Text>
             )}
           </Card>
         )}
@@ -211,7 +204,6 @@ const createStyles = (colors: ThemeColors) =>
     container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
     summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
     title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-    body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
     progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
     installAllButton: { marginTop: spacing.sm },
     listContent: { paddingBottom: spacing.xxl },
@@ -222,7 +214,6 @@ const createStyles = (colors: ThemeColors) =>
       marginBottom: spacing.sm,
       paddingVertical: spacing.md,
     },
-    chunkRowPending: { opacity: 0.5 },
     chunkText: { flex: 1 },
     chunkTitle: { fontSize: type.body, fontWeight: '600', color: colors.text },
     chunkMeta: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
@@ -243,5 +234,4 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.full,
     },
     uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
-    pendingLabel: { fontSize: type.micro, color: colors.textMuted },
   })

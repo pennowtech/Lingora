@@ -85,7 +85,7 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'data', label: 'Data', group: 'Data', keywords: ['import', 'export'], route: '/settings/data', icon: 'swap-vertical' },
   { key: 'import-export', label: 'Import & export', group: 'Data', keywords: ['anki', 'csv', 'json', 'backup', 'restore'], route: '/settings/import-export', icon: 'swap-vertical' },
   { key: 'templates', label: 'Card templates', group: 'Data', keywords: ['layout', 'design', 'liquid'], route: '/settings/templates', icon: 'color-palette' },
-  { key: 'word-guides', label: 'Word guides', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
+  { key: 'word-guides', label: 'Local Dictionaries', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
   { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync' },
   { key: 'about', label: 'About', group: 'About', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
   { key: 'feedback', label: 'Send Feedback', group: 'About', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/feedback', icon: 'chatbox-ellipses-outline' },
@@ -258,7 +258,7 @@ export default function SettingsScreen(): JSX.Element {
               testID="settings-menu-data"
               icon="swap-vertical"
               label={t('Data')}
-              detail={t('Import & export, templates, word guides')}
+              detail={t('Import & export, templates, local dictionaries')}
               onPress={() => router.push('/settings/data')}
               divider
             />

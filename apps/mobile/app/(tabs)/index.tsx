@@ -86,7 +86,7 @@ export default function HomeScreen(): JSX.Element {
             <Text style={styles.subGreeting}>
               {stats && stats.dueNow === 0
                 ? t('All caught up — nothing due right now.')
-                : t('Ready for today\'s session?')}
+                : t('Nice to see you back.')}
             </Text>
           </View>
           <View style={styles.streakPill}>

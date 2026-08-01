@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useServices } from '../lib/services'
-import { colors } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 interface TabEntry {
   route: '/' | '/search' | '/decks' | '/mine' | '/settings'
@@ -36,6 +37,8 @@ export function BottomTabBar(): JSX.Element {
   const { t } = useTranslation()
   const pathname = usePathname()
   const insets = useSafeAreaInsets()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const mineQuery = useQuery({ queryKey: ['mine-queue'], queryFn: () => getPendingMineEntries(db) })
   const pendingCount = mineQuery.data?.length ?? 0
 
@@ -83,27 +86,28 @@ export function BottomTabBar(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  bar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 8,
-  },
-  button: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  label: { fontSize: 11, fontWeight: '600' },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -8,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    paddingHorizontal: 3,
-    backgroundColor: colors.danger,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeLabel: { fontSize: 10, fontWeight: '700', color: '#fff' },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    bar: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: 8,
+    },
+    button: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
+    label: { fontSize: 11, fontWeight: '600' },
+    badge: {
+      position: 'absolute',
+      top: -4,
+      right: -8,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
+      paddingHorizontal: 3,
+      backgroundColor: colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badgeLabel: { fontSize: 10, fontWeight: '700', color: '#fff' },
+  })

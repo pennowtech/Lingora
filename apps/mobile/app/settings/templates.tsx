@@ -26,7 +26,9 @@ import {
   type CardTemplateContext,
 } from '../../lib/templates'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'srs', screen: 'TemplatesScreen' })
 
@@ -201,6 +203,8 @@ function withField(template: string, variable: string, enabled: boolean): string
 export default function TemplatesScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const [previewCardSize, setPreviewCardSize] = useState<{ width: number; height: number } | null>(null)
   const queryClient = useQueryClient()
 
@@ -546,7 +550,8 @@ export default function TemplatesScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   typeRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
   tabBar: {

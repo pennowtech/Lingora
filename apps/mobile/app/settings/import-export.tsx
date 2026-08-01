@@ -10,7 +10,9 @@ import { Card, SectionHeader } from '../../components/ui'
 import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile } from '../../lib/backup'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
 
@@ -35,6 +37,8 @@ function OptionAccordion(props: {
   onToggle: () => void
   children: ReactNode
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Card style={styles.optionCard}>
       <Pressable style={styles.optionHeader} onPress={props.onToggle}>
@@ -73,6 +77,8 @@ function OptionAccordion(props: {
 export default function ImportExportScreen(): JSX.Element {
   const { db, reloadServices } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const [exporting, setExporting] = useState(false)
   const [restoring, setRestoring] = useState(false)
@@ -309,7 +315,8 @@ export default function ImportExportScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   optionCard: { padding: 0, overflow: 'hidden', marginBottom: spacing.sm },

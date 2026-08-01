@@ -14,7 +14,9 @@ import {
   useCloudSync,
 } from '../../lib/cloudSync'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 function formatInterval(minutes: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
   if (minutes < 60) return t('{{count}}m', { count: minutes })
@@ -30,6 +32,8 @@ function formatInterval(minutes: number, t: (key: string, opts?: Record<string, 
 export default function SyncScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const sync = useCloudSync()
   const [signingIn, setSigningIn] = useState(false)
 
@@ -145,29 +149,30 @@ export default function SyncScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
-  fieldHint: { fontSize: type.micro, color: colors.textMuted, lineHeight: 18 },
-  fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  accountRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  accountAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  optionText: { flex: 1 },
-  optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
-  optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  signOutLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
-  statusBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.sm, padding: spacing.md, gap: 4 },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  statusText: { fontSize: type.caption, color: colors.textSecondary },
-  statusDetail: { fontSize: type.micro, color: colors.textMuted },
-  errorText: { fontSize: type.caption, color: colors.danger },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
+    fieldHint: { fontSize: type.micro, color: colors.textMuted, lineHeight: 18 },
+    fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    accountRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    accountAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    optionText: { flex: 1 },
+    optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
+    optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    signOutLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+    statusBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.sm, padding: spacing.md, gap: 4 },
+    statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    statusText: { fontSize: type.caption, color: colors.textSecondary },
+    statusDetail: { fontSize: type.micro, color: colors.textMuted },
+    errorText: { fontSize: type.caption, color: colors.danger },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  })

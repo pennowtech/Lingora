@@ -15,7 +15,9 @@ import {
 } from 'react-native'
 import type { ExportFormat } from '../lib/export'
 import { speak } from '../lib/speech'
-import { cefrColors, colors, radius, spacing, type } from '../lib/theme'
+import { cefrColors, radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 /**
  * Shared UI primitives used across every screen.
@@ -34,6 +36,7 @@ export function Card(props: {
   onLayout?: (event: LayoutChangeEvent) => void
 }): JSX.Element {
   const { children, style, onPress, onLongPress, onLayout } = props
+  const styles = useThemedStyles(createStyles)
   if (onPress) {
     return (
       <Pressable
@@ -56,6 +59,7 @@ export function Card(props: {
 // ─── Section header ───────────────────────────────────────────────────────────
 
 export function SectionHeader(props: { title: string; action?: string; onAction?: () => void }): JSX.Element {
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{props.title}</Text>
@@ -80,6 +84,8 @@ export function Button(props: {
   style?: StyleProp<ViewStyle>
 }): JSX.Element {
   const { label, onPress, variant = 'primary', icon, small, disabled, style } = props
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const bg =
     variant === 'primary'
       ? colors.primary
@@ -124,6 +130,7 @@ export function IconButton(props: {
   disabled?: boolean
   testID?: string
 }): JSX.Element {
+  const colors = useColors()
   return (
     <Pressable
       testID={props.testID}
@@ -144,6 +151,7 @@ export function SpeakerButton(props: {
   size?: number
   color?: string
 }): JSX.Element {
+  const colors = useColors()
   return (
     <IconButton
       icon="volume-medium-outline"
@@ -179,6 +187,7 @@ export function CardActionBar(props: {
   onRegenerate?: () => void
   regenerateLoading?: boolean
 }): JSX.Element {
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.cardActionBar}>
       <CardActionButton
@@ -212,6 +221,8 @@ function CardActionButton(props: {
   loading?: boolean
   onPress: () => void
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Pressable style={styles.cardActionButton} onPress={props.onPress} disabled={props.loading} hitSlop={4}>
       {props.loading ? (
@@ -234,6 +245,8 @@ export function Chip(props: {
   testID?: string
 }): JSX.Element {
   const { label, selected = false, onPress, color } = props
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const bg = selected ? (color?.fg ?? colors.primary) : (color?.bg ?? colors.surfaceMuted)
   const fg = selected ? colors.textOnPrimary : (color?.fg ?? colors.textSecondary)
   return (
@@ -271,6 +284,8 @@ export function Dropdown(props: {
   clearable?: boolean
 }): JSX.Element {
   const [open, setOpen] = useState(false)
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const selected = props.options.find((o) => o.value === props.value)
 
   const choose = (value: string | null): void => {
@@ -341,6 +356,8 @@ export function ExportFormatSheet(props: {
   onSelect: (format: ExportFormat) => void
   title?: string
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
@@ -388,6 +405,8 @@ export function ImportFormatSheet(props: {
   onSelect: (format: ImportFormat) => void
   title?: string
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
@@ -412,6 +431,7 @@ export function ImportFormatSheet(props: {
 }
 
 export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
+  const styles = useThemedStyles(createStyles)
   const c = cefrColors[props.level]
   return (
     <View style={[styles.cefrBadge, { backgroundColor: c.bg }]}>
@@ -431,6 +451,8 @@ export function LinkRow(props: {
   divider?: boolean
   testID?: string
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Pressable
       testID={props.testID}
@@ -461,6 +483,8 @@ export function EvalBar(props: {
   onReport?: () => void
   onRegen?: () => void
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const noop = (): void => undefined
   return (
     <View style={styles.evalBar}>
@@ -489,6 +513,8 @@ export function EmptyState(props: {
   title: string
   message: string
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
@@ -503,6 +529,7 @@ export function EmptyState(props: {
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
 export function ProgressBar(props: { progress: number }): JSX.Element {
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.progressTrack}>
       <View style={[styles.progressFill, { width: `${Math.round(props.progress * 100)}%` }]} />
@@ -514,6 +541,8 @@ export function ProgressBar(props: { progress: number }): JSX.Element {
 
 /** Centered loading indicator for query-backed screens. */
 export function Spinner(props: { message?: string }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.spinner}>
       <ActivityIndicator size="large" color={colors.primary} />
@@ -524,6 +553,8 @@ export function Spinner(props: { message?: string }): JSX.Element {
 
 /** Query/mutation failure with an optional retry. */
 export function ErrorState(props: { message: string; onRetry?: () => void }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.empty}>
       <View style={[styles.emptyIcon, { backgroundColor: colors.dangerSoft }]}>
@@ -542,198 +573,199 @@ export function ErrorState(props: { message: string; onRetry?: () => void }): JS
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  linkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
-  optionText: { flex: 1 },
-  optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
-  optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-  },
-  cardPressed: {
-    opacity: 0.85,
-  },
-  cardActionBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
-  cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: type.subheading,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  sectionAction: {
-    fontSize: type.caption,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.md,
-  },
-  buttonSmall: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-  },
-  buttonLabel: {
-    fontSize: type.body,
-    fontWeight: '600',
-  },
-  buttonLabelSmall: {
-    fontSize: type.caption,
-  },
-  chip: {
-    paddingVertical: 6,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-  },
-  chipLabel: {
-    fontSize: type.caption,
-    fontWeight: '600',
-  },
-  dropdownField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  dropdownValue: { fontSize: type.body, fontWeight: '600', color: colors.text, flex: 1, marginRight: spacing.sm },
-  dropdownPlaceholder: { color: colors.textMuted, fontWeight: '400' },
-  dropdownBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  dropdownSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    maxHeight: '70%',
-  },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  dropdownSheetTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.md },
-  dropdownList: { flexGrow: 0 },
-  dropdownOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  dropdownOptionLabel: { fontSize: type.body, color: colors.text, flex: 1, marginRight: spacing.sm },
-  exportOptionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  exportOptionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  exportOptionText: { flex: 1 },
-  exportOptionLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  exportOptionDescription: { fontSize: type.micro, color: colors.textSecondary, marginTop: 1 },
-  cefrBadge: {
-    paddingVertical: 2,
-    paddingHorizontal: 7,
-    borderRadius: radius.sm,
-  },
-  cefrBadgeLabel: {
-    fontSize: type.micro,
-    fontWeight: '700',
-  },
-  evalBar: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    alignItems: 'center',
-  },
-  empty: {
-    alignItems: 'center',
-    paddingVertical: spacing.xxl * 2,
-    paddingHorizontal: spacing.xl,
-  },
-  emptyIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.full,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: type.subheading,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  emptyMessage: {
-    fontSize: type.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 21,
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-  },
-  spinner: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl * 2,
-    gap: spacing.md,
-  },
-  spinnerMessage: {
-    fontSize: type.body,
-    color: colors.textSecondary,
-  },
-  errorRetry: {
-    marginTop: spacing.lg,
-  },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    linkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+    optionText: { flex: 1 },
+    optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
+    optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.lg,
+    },
+    cardPressed: {
+      opacity: 0.85,
+    },
+    cardActionBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.xl,
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    sectionAction: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: 14,
+      paddingHorizontal: spacing.xl,
+      borderRadius: radius.md,
+    },
+    buttonSmall: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+    },
+    buttonLabel: {
+      fontSize: type.body,
+      fontWeight: '600',
+    },
+    buttonLabelSmall: {
+      fontSize: type.caption,
+    },
+    chip: {
+      paddingVertical: 6,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+    },
+    chipLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+    },
+    dropdownField: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    dropdownValue: { fontSize: type.body, fontWeight: '600', color: colors.text, flex: 1, marginRight: spacing.sm },
+    dropdownPlaceholder: { color: colors.textMuted, fontWeight: '400' },
+    dropdownBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    dropdownSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      maxHeight: '70%',
+    },
+    modalHandle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.border,
+      marginBottom: spacing.md,
+    },
+    dropdownSheetTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.md },
+    dropdownList: { flexGrow: 0 },
+    dropdownOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    dropdownOptionLabel: { fontSize: type.body, color: colors.text, flex: 1, marginRight: spacing.sm },
+    exportOptionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    exportOptionIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    exportOptionText: { flex: 1 },
+    exportOptionLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    exportOptionDescription: { fontSize: type.micro, color: colors.textSecondary, marginTop: 1 },
+    cefrBadge: {
+      paddingVertical: 2,
+      paddingHorizontal: 7,
+      borderRadius: radius.sm,
+    },
+    cefrBadgeLabel: {
+      fontSize: type.micro,
+      fontWeight: '700',
+    },
+    evalBar: {
+      flexDirection: 'row',
+      gap: spacing.lg,
+      alignItems: 'center',
+    },
+    empty: {
+      alignItems: 'center',
+      paddingVertical: spacing.xxl * 2,
+      paddingHorizontal: spacing.xl,
+    },
+    emptyIcon: {
+      width: 64,
+      height: 64,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.lg,
+    },
+    emptyTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    emptyMessage: {
+      fontSize: type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 21,
+    },
+    progressTrack: {
+      height: 6,
+      borderRadius: radius.full,
+      backgroundColor: colors.surfaceMuted,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+    },
+    spinner: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xxl * 2,
+      gap: spacing.md,
+    },
+    spinnerMessage: {
+      fontSize: type.body,
+      color: colors.textSecondary,
+    },
+    errorRetry: {
+      marginTop: spacing.lg,
+    },
+  })

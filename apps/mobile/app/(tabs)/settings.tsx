@@ -19,7 +19,9 @@ import {
   type GenerationProviderName,
   type TranslationProviderName,
 } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'SettingsScreen' })
 
@@ -97,6 +99,8 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
 export default function SettingsScreen(): JSX.Element {
   const { tier } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   const [query, setQuery] = useState('')
   const [loaded, setLoaded] = useState(false)
@@ -296,7 +300,8 @@ export default function SettingsScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   searchBox: {

@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { colors } from '../../lib/theme'
+import { useColors } from '../../lib/ThemeContext'
 
 /**
  * The 5 former "tab" screens now render through a plain header-only Stack — the actual tab bar
@@ -12,6 +12,7 @@ import { colors } from '../../lib/theme'
  */
 export default function TabsLayout(): JSX.Element {
   const { t } = useTranslation()
+  const colors = useColors()
 
   return (
     <Stack

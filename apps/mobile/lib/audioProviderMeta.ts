@@ -87,10 +87,35 @@ export const ELEVENLABS_DEFAULT_MODEL = 'eleven_multilingual_v2'
  * hint, not a broken feature. */
 export const DEEPGRAM_EXAMPLE_MODEL = 'aura-2-thalia-en'
 
-export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string }> = {
-  openai: { key: `${APP_KEY_PREFIX}.tts_openai_key`, voice: `${APP_KEY_PREFIX}.tts_openai_voice` },
-  elevenlabs: { key: `${APP_KEY_PREFIX}.tts_elevenlabs_key`, voice: `${APP_KEY_PREFIX}.tts_elevenlabs_voice` },
-  deepgram: { key: `${APP_KEY_PREFIX}.tts_deepgram_key`, voice: `${APP_KEY_PREFIX}.tts_deepgram_model` },
+/** Providers whose synthesis API accepts a speaking-speed parameter (see cloudTtsProviders.ts) —
+ * Deepgram's Aura-2 /v1/speak endpoint has no documented equivalent, so it's left out rather than
+ * sending a parameter it would silently ignore or reject. */
+export const SPEED_CAPABLE_PROVIDERS = ['openai', 'elevenlabs'] as const
+export type SpeedCapableProviderName = (typeof SPEED_CAPABLE_PROVIDERS)[number]
+
+export const DEFAULT_AUDIO_SPEED = 1.0
+
+/** OpenAI's documented range is 0.25–4.0; ElevenLabs' voice_settings.speed is documented 0.7–1.2 —
+ * these chip options stay inside both, and cloudTtsProviders.ts clamps defensively per provider
+ * regardless of what's stored. */
+export const AUDIO_SPEED_OPTIONS = [0.8, 1.0, 1.2] as const
+
+export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string; speed: string }> = {
+  openai: {
+    key: `${APP_KEY_PREFIX}.tts_openai_key`,
+    voice: `${APP_KEY_PREFIX}.tts_openai_voice`,
+    speed: `${APP_KEY_PREFIX}.tts_openai_speed`,
+  },
+  elevenlabs: {
+    key: `${APP_KEY_PREFIX}.tts_elevenlabs_key`,
+    voice: `${APP_KEY_PREFIX}.tts_elevenlabs_voice`,
+    speed: `${APP_KEY_PREFIX}.tts_elevenlabs_speed`,
+  },
+  deepgram: {
+    key: `${APP_KEY_PREFIX}.tts_deepgram_key`,
+    voice: `${APP_KEY_PREFIX}.tts_deepgram_model`,
+    speed: `${APP_KEY_PREFIX}.tts_deepgram_speed`,
+  },
 }
 
 export const AUDIO_PROVIDER_STORE_KEY = `${APP_KEY_PREFIX}.tts_provider`

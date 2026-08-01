@@ -85,7 +85,7 @@ export function speak(text: string, language: LanguageCode): void {
         speakOnDevice(trimmed, language)
         return
       }
-      const { apiKey, voice } = await getCloudAudioConfig(provider)
+      const { apiKey, voice, speed } = await getCloudAudioConfig(provider)
       if (apiKey === '') {
         // No key configured for the chosen cloud provider yet — fall back to device TTS
         // rather than a silent no-op on speaker-button tap.
@@ -93,7 +93,7 @@ export function speak(text: string, language: LanguageCode): void {
         return
       }
       try {
-        await playCloudSpeech(provider, trimmed, apiKey, voice)
+        await playCloudSpeech(provider, trimmed, apiKey, voice, speed)
       } catch (error) {
         log.warn('app.cloud_speech_failed', {
           message: 'Cloud text-to-speech failed, falling back to device voice',

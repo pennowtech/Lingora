@@ -30,9 +30,10 @@ export async function playCloudSpeech(
   text: string,
   apiKey: string,
   voice: string,
+  speed?: number,
 ): Promise<void> {
   cleanupActive()
-  const bytes = await synthesizeSpeech(provider, { text, apiKey, voice })
+  const bytes = await synthesizeSpeech(provider, { text, apiKey, voice, ...(speed !== undefined && { speed }) })
   const file = new File(Paths.cache, `lingora-tts-${Date.now()}.mp3`)
   file.create()
   file.write(new Uint8Array(bytes))

@@ -1,5 +1,6 @@
 import {
   DEEPGRAM_EXAMPLE_MODEL,
+  DEFAULT_AUDIO_SPEED,
   ELEVENLABS_DEFAULT_MODEL,
   OPENAI_DEFAULT_MODEL,
   type CloudAudioProviderName,
@@ -17,6 +18,14 @@ export interface CloudTtsRequest {
   /** The stored voice/model choice for this provider — provider-specific meaning (an OpenAI voice
    * name, an ElevenLabs voice ID, a Deepgram model string). Empty falls back to a sane default. */
   voice: string
+  /** Speaking speed, 1.0 = normal. Only OpenAI and ElevenLabs support this (see
+   * audioProviderMeta.ts#SPEED_CAPABLE_PROVIDERS) — synthesizeDeepgram ignores it, Aura-2's
+   * /v1/speak endpoint has no documented equivalent. */
+  speed?: number
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
 }
 
 async function readErrorBody(response: Response): Promise<string> {
@@ -39,6 +48,7 @@ async function synthesizeOpenAI(req: CloudTtsRequest): Promise<ArrayBuffer> {
       input: req.text,
       voice: req.voice.trim() || 'marin',
       response_format: 'mp3',
+      speed: clamp(req.speed ?? DEFAULT_AUDIO_SPEED, 0.25, 4.0),
     }),
   })
   if (!response.ok) {
@@ -57,7 +67,11 @@ async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> 
       'Content-Type': 'application/json',
       Accept: 'audio/mpeg',
     },
-    body: JSON.stringify({ text: req.text, model_id: ELEVENLABS_DEFAULT_MODEL }),
+    body: JSON.stringify({
+      text: req.text,
+      model_id: ELEVENLABS_DEFAULT_MODEL,
+      voice_settings: { speed: clamp(req.speed ?? DEFAULT_AUDIO_SPEED, 0.7, 1.2) },
+    }),
   })
   if (!response.ok) {
     throw new Error(`ElevenLabs text-to-speech request failed (${response.status}): ${await readErrorBody(response)}`)

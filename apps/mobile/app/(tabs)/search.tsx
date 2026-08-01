@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import {
-  getDecksForLemma,
+  createDeck,
   getWordGuide,
   persistTranslationAsCard,
   persistWordGuideAsCard,
@@ -9,10 +9,13 @@ import {
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Button, Card, Chip, EmptyState, ErrorState } from '../../components/ui'
+import { Button, Card, Chip, EmptyState, ErrorState, IconButton } from '../../components/ui'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
@@ -23,6 +26,44 @@ import type { ThemeColors } from '../../lib/themes'
 import { getWordGuideManifest } from '../../lib/wordGuides'
 
 const WORD_GUIDE_LANGUAGE = getWordGuideManifest().language
+
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'lookup',
+    title: 'Instant lookup',
+    icon: 'search-outline',
+    paragraphs: [
+      'Type a word in either language you\'ve set up under Learning — your own vocabulary is searched instantly as you type.',
+      'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
+    ],
+  },
+  {
+    id: 'new-word',
+    title: 'When a word is new to you',
+    icon: 'sparkles-outline',
+    paragraphs: [
+      'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview — both are read-only until you choose to add one to a deck.',
+      '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
+    ],
+  },
+  {
+    id: 'add',
+    title: 'Adding to a deck',
+    icon: 'albums-outline',
+    paragraphs: [
+      'Tapping "Add to deck" always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
+      'A green checkmark means the word is already in one of your decks.',
+    ],
+  },
+]
+
+/** Module-level, not component state — this screen sits behind a plain Stack (see
+ * (tabs)/_layout.tsx's doc comment), not a persistent Tabs navigator, so navigating to a search
+ * result and back unmounts and remounts SearchScreen from scratch. Without this, the query (and
+ * with it the whole results list, since search.data is keyed off `term`) would reset to blank
+ * every time — this survives remounts for the rest of the app session, resetting only on a full
+ * app restart, which is the expected "last search" lifetime. */
+let lastSearchQuery = ''
 
 /** Debounce the raw input so FTS5 runs per pause, not per keystroke. */
 function useDebounced(value: string, delayMs: number): string {
@@ -44,9 +85,18 @@ export default function SearchScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const [query, setQuery] = useState('')
+  const [query, setQueryState] = useState(lastSearchQuery)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
+  // Which "Add to deck" button opened the picker — decides which persist call the picker's
+  // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
+  const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
+  const help = useHelpAccordion('lookup')
   const term = useDebounced(query.trim(), 250)
+
+  const setQuery = (value: string): void => {
+    lastSearchQuery = value
+    setQueryState(value)
+  }
 
   const search = useQuery({
     queryKey: ['search', term],
@@ -67,11 +117,12 @@ export default function SearchScreen(): JSX.Element {
   })
 
   const addFromGuide = useMutation({
-    mutationFn: () => {
+    mutationFn: (deckId: string) => {
       if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      return persistWordGuideAsCard(db, wordGuide.data, DEFAULT_DECK_ID)
+      return persistWordGuideAsCard(db, wordGuide.data, deckId)
     },
     onSuccess: async ({ lemma }) => {
+      setDeckPickerFor(null)
       setGuideModalOpen(false)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
@@ -130,7 +181,7 @@ export default function SearchScreen(): JSX.Element {
   // ambiguously map to more than one target-language word, so there's no single correct
   // lemma.form to create in that direction (that's what "Generate with AI" below is for).
   const addFromTranslation = useMutation({
-    mutationFn: () => {
+    mutationFn: (deckId: string) => {
       if (!quickTranslate.data || quickTranslate.data.source !== targetLanguage) {
         throw new Error(t('No translation to add.'))
       }
@@ -142,11 +193,50 @@ export default function SearchScreen(): JSX.Element {
           translation: quickTranslate.data.text,
           provider: dictionaryNameToCardSource(dictionary.name),
         },
-        DEFAULT_DECK_ID,
+        deckId,
         defaultCefr,
       )
     },
     onSuccess: async ({ lemma }) => {
+      setDeckPickerFor(null)
+      await queryClient.invalidateQueries()
+      router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
+    },
+  })
+
+  // Creating a brand-new deck from this screen has no existing card to attach yet — creates the
+  // deck, then runs whichever of the two persist calls above `deckPickerFor` points at with the
+  // new deck's id.
+  const createDeckAndAdd = useMutation({
+    mutationFn: async (name: string) => {
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      if (deckPickerFor === 'guide') {
+        if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
+        return persistWordGuideAsCard(db, wordGuide.data, id)
+      }
+      if (deckPickerFor === 'translation') {
+        if (!quickTranslate.data || quickTranslate.data.source !== targetLanguage) {
+          throw new Error(t('No translation to add.'))
+        }
+        return persistTranslationAsCard(
+          db,
+          {
+            form: term,
+            language: targetLanguage,
+            translation: quickTranslate.data.text,
+            provider: dictionaryNameToCardSource(dictionary.name),
+          },
+          id,
+          defaultCefr,
+        )
+      }
+      throw new Error(t('Nothing to add.'))
+    },
+    onSuccess: async ({ lemma }) => {
+      setDeckPickerFor(null)
+      setGuideModalOpen(false)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -169,9 +259,16 @@ export default function SearchScreen(): JSX.Element {
   // everything works immediately on the word page, exactly as before), it's just not added to "My
   // Vocabulary" (or any deck) yet. That's the word detail screen's own "Add to deck" picker's job
   // — the same explicit-confirm shape as a plain dictionary lookup's "Add to deck" button.
+  // Bumped on every generate.mutate() call and on Cancel — onSuccess only acts on a result whose
+  // id still matches the current one, so a cancelled (or superseded) generation's eventual
+  // response is silently dropped instead of navigating the user somewhere they didn't ask for.
+  // There's no network-level abort here (see ProgressOverlay's doc comment) — this just stops the
+  // app from acting on the response once it arrives.
+  const generateRequestId = useRef(0)
   const generate = useMutation({
     mutationFn: async () => {
       if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate words.'))
+      const myRequestId = ++generateRequestId.current
       // Captured at mutation start, not in onSuccess — term could have moved on by the time
       // generation finishes if the user kept typing.
       const requestTerm = term
@@ -186,7 +283,7 @@ export default function SearchScreen(): JSX.Element {
         language: targetLanguage,
         addToDeck: false,
       })
-      return { outcome, nativeTerm: reverseDirection ? requestTerm : undefined, requestTerm }
+      return { outcome, nativeTerm: reverseDirection ? requestTerm : undefined, requestTerm, myRequestId }
     },
     // `term` here is read fresh when onSuccess actually fires, not when mutate() was called — a
     // React Query mutation isn't cancelled by generate.reset() (that only clears the UI-visible
@@ -194,7 +291,8 @@ export default function SearchScreen(): JSX.Element {
     // and fired a second generate() before a slow first one resolved, the first one's onSuccess
     // could still land later and silently navigate the user away from the word they're now
     // actually looking at. Comparing requestTerm to the live term drops that stale result instead.
-    onSuccess: async ({ outcome, nativeTerm, requestTerm }) => {
+    onSuccess: async ({ outcome, nativeTerm, requestTerm, myRequestId }) => {
+      if (myRequestId !== generateRequestId.current) return
       if (requestTerm !== term) return
       if (outcome.kind === 'existing' || outcome.kind === 'generated') {
         await queryClient.invalidateQueries()
@@ -206,6 +304,11 @@ export default function SearchScreen(): JSX.Element {
     },
   })
 
+  const cancelGenerate = (): void => {
+    generateRequestId.current += 1
+    generate.reset()
+  }
+
   const results = search.data ?? []
   const partial = generate.data?.outcome.kind === 'partial' ? generate.data.outcome : null
 
@@ -213,12 +316,9 @@ export default function SearchScreen(): JSX.Element {
   // results — the "Add to deck" button there would otherwise offer to add a word that's already
   // in the library. `addFromTranslation` creates the new lemma as `term` itself (not the
   // translated text — see its mutationFn below), so that's what has to match here too.
+  // Deliberately just a yes/no flag, not which deck(s) — that breakdown belongs on the word detail
+  // screen once a card is actually open, not in this preview card.
   const existingResult = results.find((r) => r.lemma.form.toLowerCase() === term.trim().toLowerCase())
-  const existingDecksQuery = useQuery({
-    queryKey: ['lemma-decks', existingResult?.lemma.id],
-    queryFn: () => getDecksForLemma(db, existingResult!.lemma.id),
-    enabled: !!existingResult?.inDeck,
-  })
 
   // Shared between the "new word" empty state and, when alwaysShowTranslation, the results list
   // above the FlatList — same card either way.
@@ -249,21 +349,15 @@ export default function SearchScreen(): JSX.Element {
       </Text>
       {existingResult?.inDeck ? (
         <View style={styles.inDeckRow}>
-          <Ionicons name="checkmark-circle" size={14} color={colors.success} />
-          <Text style={styles.inDeckLabel} numberOfLines={1}>
-            {existingDecksQuery.data && existingDecksQuery.data.length > 0
-              ? existingDecksQuery.data.map((d) => d.name).join(' • ')
-              : t('Already in your library')}
-          </Text>
+          <Ionicons name="checkmark-circle" size={18} color={colors.success} />
         </View>
       ) : quickTranslate.data.source === targetLanguage ? (
         <Button
-          label={addFromTranslation.isPending ? t('Adding…') : t('Add to deck')}
+          label={t('Add to deck')}
           icon="add-circle"
           variant="secondary"
           small
-          onPress={() => addFromTranslation.mutate()}
-          disabled={addFromTranslation.isPending}
+          onPress={() => setDeckPickerFor('translation')}
         />
       ) : null}
       {addFromTranslation.isError ? (
@@ -290,28 +384,33 @@ export default function SearchScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBox}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
-        <TextInput
-          testID="search-input"
-          style={styles.input}
-          placeholder={t('Type a German or English word…')}
-          placeholderTextColor={colors.textMuted}
-          value={query}
-          onChangeText={(text) => {
-            setQuery(text)
-            generate.reset()
-            addFromGuide.reset()
-            addFromTranslation.reset()
-            setGuideModalOpen(false)
-          }}
-          autoCorrect={false}
-          autoCapitalize="none"
-          autoFocus
-        />
-        {query !== '' ? (
-          <Ionicons name="close-circle" size={18} color={colors.textMuted} onPress={() => setQuery('')} />
-        ) : null}
+      <View style={styles.searchRow}>
+        <View style={styles.searchBox}>
+          <Ionicons name="search" size={18} color={colors.textMuted} />
+          <TextInput
+            testID="search-input"
+            style={styles.input}
+            placeholder={t('Type a German or English word…')}
+            placeholderTextColor={colors.textMuted}
+            value={query}
+            onChangeText={(text) => {
+              setQuery(text)
+              generate.reset()
+              addFromGuide.reset()
+              addFromTranslation.reset()
+              createDeckAndAdd.reset()
+              setGuideModalOpen(false)
+              setDeckPickerFor(null)
+            }}
+            autoCorrect={false}
+            autoCapitalize="none"
+            autoFocus
+          />
+          {query !== '' ? (
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} onPress={() => setQuery('')} />
+          ) : null}
+        </View>
+        <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('lookup')} />
       </View>
 
       {term === '' ? (
@@ -356,16 +455,12 @@ export default function SearchScreen(): JSX.Element {
                 <Chip label={t('More info')} onPress={() => setGuideModalOpen(true)} />
               </View>
               <Button
-                label={addFromGuide.isPending ? t('Adding…') : t('Add to deck')}
+                label={t('Add to deck')}
                 icon="add-circle"
                 variant="secondary"
                 small
-                onPress={() => addFromGuide.mutate()}
-                disabled={addFromGuide.isPending}
+                onPress={() => setDeckPickerFor('guide')}
               />
-              {addFromGuide.isError ? (
-                <Text style={styles.generateError}>{String(addFromGuide.error)}</Text>
-              ) : null}
             </Card>
           ) : null}
 
@@ -375,17 +470,7 @@ export default function SearchScreen(): JSX.Element {
             guide={wordGuide.data ?? null}
             onClose={() => setGuideModalOpen(false)}
             footer={
-              <>
-                <Button
-                  label={addFromGuide.isPending ? t('Adding…') : t('Add to deck')}
-                  icon="add-circle"
-                  onPress={() => addFromGuide.mutate()}
-                  disabled={addFromGuide.isPending}
-                />
-                {addFromGuide.isError ? (
-                  <Text style={styles.generateError}>{String(addFromGuide.error)}</Text>
-                ) : null}
-              </>
+              <Button label={t('Add to deck')} icon="add-circle" onPress={() => setDeckPickerFor('guide')} />
             }
           />
           {quickTranslatePreview}
@@ -455,6 +540,39 @@ export default function SearchScreen(): JSX.Element {
           }}
         />
       )}
+
+      {/* ── Deck picker — shared by the dictionary-preview and translation-preview "Add to deck"
+          buttons above, whichever last set deckPickerFor. Neither preview has a real card yet, so
+          picking (or creating) a deck here is what actually creates it. ── */}
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerFor !== null}
+        onClose={() => setDeckPickerFor(null)}
+        title={t('Add "{{term}}" to…', { term })}
+        onSelectDeck={(deck) => {
+          if (deckPickerFor === 'guide') addFromGuide.mutate(deck.id)
+          else if (deckPickerFor === 'translation') addFromTranslation.mutate(deck.id)
+        }}
+        selecting={addFromGuide.isPending || addFromTranslation.isPending}
+        onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
+        creating={createDeckAndAdd.isPending}
+        {...((addFromGuide.isError || addFromTranslation.isError) && {
+          selectError: String(addFromGuide.error ?? addFromTranslation.error),
+        })}
+        {...(createDeckAndAdd.isError && { createError: String(createDeckAndAdd.error) })}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Search help')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
+
+      <ProgressOverlay visible={generate.isPending} message={t('Generating your card…')} onCancel={cancelGenerate} />
     </View>
   )
 }
@@ -462,7 +580,9 @@ export default function SearchScreen(): JSX.Element {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   searchBox: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
@@ -510,7 +630,6 @@ const createStyles = (colors: ThemeColors) =>
   translateErrorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   translateErrorText: { flex: 1, fontSize: type.caption, color: colors.textMuted },
   inDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  inDeckLabel: { flex: 1, fontSize: type.caption, color: colors.textSecondary },
   translationsLine: { flexShrink: 1, fontSize: type.body, fontWeight: '400', color: colors.textSecondary },
   translationPrimary: { fontWeight: '700', color: colors.text },
   guideTranslationRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },

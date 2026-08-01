@@ -45,6 +45,7 @@ export function AIExplanationSheet(props: {
   followUps: FollowUpEntry[]
   askLoading: boolean
   onAsk: (question: string) => void
+  onAskCancel?: () => void
 }): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
@@ -113,7 +114,7 @@ export function AIExplanationSheet(props: {
               </>
             )}
           </ScrollView>
-          <FollowUpComposer loading={props.askLoading} onAsk={props.onAsk} />
+          <FollowUpComposer loading={props.askLoading} onAsk={props.onAsk} {...(props.onAskCancel && { onCancel: props.onAskCancel })} />
         </View>
       </View>
     </Modal>

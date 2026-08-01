@@ -11,9 +11,11 @@ import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as Clipboard from 'expo-clipboard'
 import { router } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
@@ -34,6 +36,36 @@ const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
   pdf: 'document',
 }
 
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'what',
+    title: 'What this screen is for',
+    icon: 'download-outline',
+    paragraphs: [
+      'Mine is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.',
+      'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
+    ],
+  },
+  {
+    id: 'curate',
+    title: 'Choosing what to keep',
+    icon: 'checkbox-outline',
+    paragraphs: [
+      'Everything in the queue is selected by default. Tap a card to include or leave it out, or use the trash icon to remove it for good.',
+      'Only bother with this if you want to be selective — otherwise everything gets turned into cards together.',
+    ],
+  },
+  {
+    id: 'generate',
+    title: 'Turning captures into cards',
+    icon: 'sparkles-outline',
+    paragraphs: [
+      'The button at the bottom turns your selected sentences into real vocabulary cards, one at a time.',
+      'This is the one step that actually does the work — nothing before it does anything with your captured text.',
+    ],
+  },
+]
+
 /**
  * Sentence mining queue: captured text waits here BEFORE any AI call —
  * the user discards what they don't want, then generates the rest in one go.
@@ -49,6 +81,7 @@ export default function MiningQueueScreen(): JSX.Element {
   const [captureOpen, setCaptureOpen] = useState(false)
   const [captureText, setCaptureText] = useState('')
   const [captureSource, setCaptureSource] = useState<CaptureSource>('manual')
+  const help = useHelpAccordion('what')
 
   const queueQuery = useQuery({
     queryKey: ['mine-queue'],
@@ -114,13 +147,19 @@ export default function MiningQueueScreen(): JSX.Element {
     setCaptureSource('manual')
   }
 
+  // Unlike the AI generation calls in search.tsx/word/[form].tsx, this one really can be stopped
+  // mid-flight — it's a loop over individually-awaited items, so Cancel just stops it from
+  // starting the next one instead of only discarding a result that already arrived.
+  const generateCancelledRef = useRef(false)
   const generate = useMutation({
     mutationFn: async () => {
       if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate cards.'))
+      generateCancelledRef.current = false
       const chosen = entries.filter((e) => selectedIds.includes(e.id))
       let failures = 0
 
       for (const [index, entry] of chosen.entries()) {
+        if (generateCancelledRef.current) break
         setProgress(`Generating ${index + 1} of ${chosen.length}…`)
         try {
           await updateMineEntryStatus(db, entry.id, 'processing')
@@ -151,6 +190,10 @@ export default function MiningQueueScreen(): JSX.Element {
     },
   })
 
+  const cancelGenerate = (): void => {
+    generateCancelledRef.current = true
+  }
+
   const toggle = (id: string): void => {
     setSelected(
       selectedIds.includes(id) ? selectedIds.filter((s) => s !== id) : [...selectedIds, id],
@@ -167,6 +210,28 @@ export default function MiningQueueScreen(): JSX.Element {
         onPress={() => setCaptureOpen(true)}
       />
     </View>
+  )
+
+  const helpButton = (
+    <View style={styles.helpButtonWrap}>
+      <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
+    </View>
+  )
+
+  const helpSheet = (
+    <HelpAccordionSheet
+      visible={help.visible}
+      onClose={help.close}
+      title={t('Mine help')}
+      sections={HELP_SECTIONS}
+      activeSectionId={help.sectionId}
+      onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+      translate={t}
+    />
+  )
+
+  const progressOverlay = (
+    <ProgressOverlay visible={generate.isPending} message={progress ?? t('Generating…')} onCancel={cancelGenerate} />
   )
 
   const captureModal = (
@@ -250,6 +315,9 @@ export default function MiningQueueScreen(): JSX.Element {
         ) : null}
         {captureFab}
         {captureModal}
+        {helpButton}
+        {helpSheet}
+        {progressOverlay}
       </View>
     )
   }
@@ -258,7 +326,7 @@ export default function MiningQueueScreen(): JSX.Element {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.intro}>
-          {t("Review your captures. Discard what you don't need, then generate cards for the rest — no API call is wasted on text you didn't ask for.")}
+          {t("Review your captures. Discard what you don't need, then generate cards for the rest.")}
         </Text>
 
         {entries.map((entry) => {
@@ -312,6 +380,9 @@ export default function MiningQueueScreen(): JSX.Element {
       </View>
       {captureFab}
       {captureModal}
+      {helpButton}
+      {helpSheet}
+      {progressOverlay}
     </View>
   )
 }
@@ -347,6 +418,7 @@ const createStyles = (colors: ThemeColors) =>
     borderTopColor: colors.border,
     borderRadius: radius.sm,
   },
+  helpButtonWrap: { position: 'absolute', top: spacing.md, right: spacing.md },
   fab: {
     position: 'absolute',
     right: spacing.lg,

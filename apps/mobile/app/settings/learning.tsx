@@ -25,11 +25,12 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
-/** Japanese/Spanish/French show up in the language pickers (SUPPORTED_LANGUAGES) but nothing in
- * the generation/dictionary pipeline has real content for them yet — only German and English are
- * actually usable today. Selecting one of the others warns instead of silently switching to a
- * language pair that won't work. */
-const FULLY_SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de']
+/** Japanese/Spanish/Vietnamese show up in the language pickers (SUPPORTED_LANGUAGES) but nothing
+ * in the generation/dictionary pipeline has real content for them yet — only English, German, and
+ * French are actually usable today (in either direction — French speaker learning German or
+ * English, or an English/German speaker learning French all work). Selecting one of the others
+ * warns instead of silently switching to a language pair that won't work. */
+const FULLY_SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de', 'fr']
 
 /** The "Learning" sub-screen: default CEFR level and the native/target vocabulary language pair.
  * The app's own UI language lives in Settings > General now, alongside Audio Settings — it's an

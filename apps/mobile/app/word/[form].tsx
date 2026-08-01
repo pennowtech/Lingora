@@ -883,13 +883,6 @@ export default function WordDetailScreen(): JSX.Element {
                   <View style={styles.exampleSentenceRow}>
                     <Text style={styles.exampleSentence}>{ex.sentence}</Text>
                     <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
-                    {isAiCard ? (
-                      <IconButton
-                        icon="help-circle-outline"
-                        size={16}
-                        onPress={() => setAiSheetOpen(true)}
-                      />
-                    ) : null}
                   </View>
                   <Text style={styles.exampleTranslation}>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>

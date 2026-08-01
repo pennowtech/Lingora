@@ -80,11 +80,11 @@ export function CaptureIntentHandler(): JSX.Element | null {
         capturedAt: Date.now(),
         processed: false,
       })
-      // The bottom tab bar's Mine badge and the Mine screen itself both read this same query key
+      // The bottom tab bar's Queue badge and the Queue screen itself both read this same query key
       // (see BottomTabBar.tsx / app/(tabs)/mine.tsx) — without invalidating it, a query mounted
       // earlier (the badge, always present) keeps serving its pre-capture snapshot for the rest of
       // its staleTime, and the freshly-written entry doesn't show up even on a brand-new mount of
-      // the Mine screen itself, since it reads the same cached result rather than the database.
+      // the Queue screen itself, since it reads the same cached result rather than the database.
       await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
       if (isMountedRef.current) openInApp('/mine', {})
     },

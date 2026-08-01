@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lingora — Privacy Policy &amp; Data Deletion</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    line-height: 1.6;
+    color: #1a1a2e;
+    background: #f6f5fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #eceaf7; background: #16142a; }
+    .card { background: #1f1c3a !important; border-color: #322d5c !important; }
+    a { color: #b7aeff !important; }
+  }
+  h1 { color: #534AB7; margin-bottom: 4px; }
+  .subtitle { color: #6b6584; margin-top: 0; }
+  h2 { margin-top: 40px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e3e0f3;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  a { color: #534AB7; font-weight: 600; }
+  .steps { padding-left: 20px; }
+  code { background: rgba(83,74,183,0.1); padding: 2px 6px; border-radius: 4px; }
+  .placeholder { color: #b34700; font-weight: 700; }
+  footer { margin-top: 56px; font-size: 0.85em; color: #8a8399; }
+</style>
+</head>
+<body>
+  <h1>Lingora</h1>
+  <p class="subtitle">Privacy Policy &amp; Account Data Deletion</p>
+
+  <h2>What Lingora stores</h2>
+  <p>
+    Lingora is offline-first: your vocabulary decks, cards, and review history live on your
+    device. AI provider API keys you enter (OpenAI, Mistral, Gemini, Anthropic, DeepL) are stored
+    only in your device's secure keychain and are never sent anywhere except directly to the
+    provider you configured.
+  </p>
+  <p>
+    If you choose to sign in with Google to sync your decks and review progress across devices,
+    that data (decks, cards, review history — never your API keys) is stored in a Google Firestore
+    database, scoped to your account and readable only by you.
+  </p>
+
+  <h2>Deleting your account &amp; synced data</h2>
+  <p>You can permanently delete everything Lingora has synced to the cloud in either of two ways:</p>
+
+  <div class="card">
+    <h3>1. In the app</h3>
+    <ol class="steps">
+      <li>Open Lingora and go to <strong>Settings → Sync</strong>.</li>
+      <li>Sign in with Google if you aren't already.</li>
+      <li>Scroll to <strong>Danger zone</strong> and tap <strong>Delete account &amp; sync data</strong>.</li>
+      <li>Confirm. This immediately erases every synced record from the cloud and signs you out.
+        Your local decks and cards on this device are unaffected.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>2. From the web, without the app</h3>
+    <p>
+      If you no longer have the app installed, or would rather not sign back in, submit a deletion
+      request here and we'll erase your synced data manually:
+    </p>
+    <p>
+      <a href="REPLACE_WITH_GOOGLE_FORM_URL" target="_blank" rel="noopener">
+        Request account &amp; data deletion →
+      </a>
+    </p>
+    <p style="font-size:0.85em;">
+      <span class="placeholder">⚠ Maintainer note:</span> replace the link above with a real,
+      published Google Form URL (Google Account → recover email or account identifier → optional
+      reason) before publishing this page or submitting the Play Store listing. See the form
+      builder at <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a>.
+    </p>
+  </div>
+
+  <h2>What happens after a request</h2>
+  <p>
+    Whichever method you use, all documents under your account's synced data are deleted from
+    Firestore outright (not just hidden), your Google sign-in session is revoked on this device, and
+    no further sync can happen until you sign in again — which starts a new, empty synced state.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy or a deletion request that hasn't been honored within a reasonable
+    time: <span class="placeholder">REPLACE_WITH_SUPPORT_EMAIL</span>.
+  </p>
+
+  <footer>Last updated: 2026-08-01</footer>
+</body>
+</html>

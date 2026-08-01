@@ -311,6 +311,15 @@ const ENGLISH_PHRASES = [
 
   // Newly added — Queue rename (formerly Mine)
   "Generate {{count}} cards to…",
+
+  // Newly added — Account & Data Deletion (Google Play 2026 mandate)
+  "Delete account & sync data?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.",
+  "Delete everything",
+  "Deletion failed",
+  "Danger zone",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.",
+  "Delete account & sync data",
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -699,6 +708,15 @@ const de: Partial<Record<Phrase, string>> = {
   "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "Die Warteschlange ist ein Sammelplatz für Sätze, die du später in Vokabelkarten verwandeln möchtest — hier passiert nichts von selbst.",
 
   "Generate {{count}} cards to…": "{{count}} Karten erzeugen in…",
+  "Delete account & sync data?": "Konto & Sync-Daten löschen?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.":
+    "Dies löscht dauerhaft alles, was du in die Cloud synchronisiert hast, und meldet dich ab. Deine Decks und Karten auf diesem Gerät sind davon nicht betroffen. Das kann nicht rückgängig gemacht werden.",
+  "Delete everything": "Alles löschen",
+  "Deletion failed": "Löschen fehlgeschlagen",
+  "Danger zone": "Gefahrenzone",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
+    "Lösche dauerhaft alles, was mit diesem Konto synchronisiert wurde, und melde dich ab. Deine Daten auf diesem Gerät bleiben erhalten.",
+  "Delete account & sync data": "Konto & Sync-Daten löschen",
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -1078,6 +1096,15 @@ const fr: Partial<Record<Phrase, string>> = {
   "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "La file est un espace d'attente pour les phrases que tu veux transformer en cartes de vocabulaire plus tard — rien ne se passe ici automatiquement.",
 
   "Generate {{count}} cards to…": "Générer {{count}} cartes dans…",
+  "Delete account & sync data?": "Supprimer le compte et les données synchronisées ?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.":
+    "Cela efface définitivement tout ce que tu as synchronisé dans le cloud et te déconnecte. Tes paquets et cartes sur cet appareil ne sont pas affectés. Cette action est irréversible.",
+  "Delete everything": "Tout supprimer",
+  "Deletion failed": "Échec de la suppression",
+  "Danger zone": "Zone de danger",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
+    "Efface définitivement tout ce qui a été synchronisé avec ce compte et déconnecte-toi. Tes données sur cet appareil restent intactes.",
+  "Delete account & sync data": "Supprimer le compte et les données synchronisées",
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -1457,6 +1484,15 @@ const es: Partial<Record<Phrase, string>> = {
   "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "La cola es un espacio de espera para las frases que quieres convertir en tarjetas de vocabulario más tarde — aquí no pasa nada automáticamente.",
 
   "Generate {{count}} cards to…": "Generar {{count}} tarjetas en…",
+  "Delete account & sync data?": "¿Eliminar la cuenta y los datos sincronizados?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.":
+    "Esto borra permanentemente todo lo que has sincronizado con la nube y cierra tu sesión. Tus mazos y tarjetas en este dispositivo no se ven afectados. Esta acción no se puede deshacer.",
+  "Delete everything": "Eliminar todo",
+  "Deletion failed": "Error al eliminar",
+  "Danger zone": "Zona de peligro",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
+    "Borra permanentemente todo lo sincronizado con esta cuenta y cierra sesión. Tus datos en este dispositivo permanecen intactos.",
+  "Delete account & sync data": "Eliminar cuenta y datos sincronizados",
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -1836,6 +1872,15 @@ const hi: Partial<Record<Phrase, string>> = {
   "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "कतार उन वाक्यों को रखने की जगह है जिन्हें आप बाद में शब्दावली कार्ड में बदलना चाहते हैं — यहाँ अपने आप कुछ नहीं होता।",
 
   "Generate {{count}} cards to…": "{{count}} कार्ड यहाँ बनाएं…",
+  "Delete account & sync data?": "खाता और सिंक डेटा हटाएं?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.":
+    "इससे आपने क्लाउड पर जो कुछ भी सिंक किया है वह स्थायी रूप से मिट जाएगा और आप साइन आउट हो जाएंगे। इस डिवाइस पर आपके डेक और कार्ड प्रभावित नहीं होंगे। इसे वापस नहीं किया जा सकता।",
+  "Delete everything": "सब कुछ हटाएं",
+  "Deletion failed": "हटाना विफल रहा",
+  "Danger zone": "खतरे का क्षेत्र",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
+    "इस खाते से सिंक किया गया सब कुछ स्थायी रूप से मिटाएं और साइन आउट करें। इस डिवाइस पर आपका डेटा सुरक्षित रहेगा।",
+  "Delete account & sync data": "खाता और सिंक डेटा हटाएं",
 }
 
 
@@ -2216,6 +2261,15 @@ const vi: Partial<Record<Phrase, string>> = {
   "Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.": "Hàng đợi là nơi lưu tạm các câu bạn muốn biến thành thẻ từ vựng sau này — không có gì ở đây tự động xảy ra cả.",
 
   "Generate {{count}} cards to…": "Tạo {{count}} thẻ vào…",
+  "Delete account & sync data?": "Xóa tài khoản & dữ liệu đồng bộ?",
+  "This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.":
+    "Thao tác này sẽ xóa vĩnh viễn mọi thứ bạn đã đồng bộ lên đám mây và đăng xuất bạn. Bộ thẻ và thẻ trên thiết bị này không bị ảnh hưởng. Không thể hoàn tác.",
+  "Delete everything": "Xóa tất cả",
+  "Deletion failed": "Xóa thất bại",
+  "Danger zone": "Khu vực nguy hiểm",
+  "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
+    "Xóa vĩnh viễn mọi thứ đã đồng bộ với tài khoản này và đăng xuất. Dữ liệu của bạn trên thiết bị này vẫn được giữ nguyên.",
+  "Delete account & sync data": "Xóa tài khoản & dữ liệu đồng bộ",
 }
 
 export const resources = {

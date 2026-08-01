@@ -1,11 +1,11 @@
-import { syncAllTables, type CloudSyncBackend, type DatabaseAdapter } from '@lingora/database'
+import { clearSyncSnapshots, syncAllTables, type CloudSyncBackend, type DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import { useSyncExternalStore } from 'react'
 import { AppState, type AppStateStatus } from 'react-native'
 import { CloudSyncNotConfiguredError, type CloudAccount, type CloudAuthService } from './cloudSyncTypes'
 import { FirebaseCloudAuthService, observeCloudAccount } from './firebaseAuth'
-import { FirestoreSyncBackend } from './firestoreSyncBackend'
+import { deleteAllCloudData, FirestoreSyncBackend } from './firestoreSyncBackend'
 import { notifySyncFailed, notifySyncSucceeded } from './syncNotifications'
 
 const log = logger.child({ feature: 'sync', screen: 'CloudSync' })
@@ -134,6 +134,46 @@ export async function signOutOfCloudSync(): Promise<void> {
   await getCloudAuthService().signOut()
   setState({ phase: 'signed-out', account: null })
   log.info('sync.signed_out', { message: 'Signed out of cloud sync' })
+}
+
+/**
+ * The Google Play "Account & Data Deletion" flow (2026 mandate): permanently erases every document
+ * this account ever synced to Firestore, clears this device's local sync bookkeeping (last-synced
+ * timestamp/error, automatic-sync preference, the merge engine's own snapshot table — but NOT the
+ * user's local decks/cards, which remain fully usable offline), then signs out of both Firebase and
+ * Google Sign-In so the account is fully disconnected. Irreversible — the caller (the Sync settings
+ * screen) is responsible for confirming with the user first.
+ */
+export async function deleteCloudAccountAndData(db: DatabaseAdapter): Promise<void> {
+  await ensureLoaded()
+  const account = state.account
+  if (!account) throw new CloudSyncNotConfiguredError()
+
+  log.info('sync.account_deletion_started', { message: 'Cloud account & data deletion started' })
+  try {
+    await deleteAllCloudData(account.uid)
+    await clearSyncSnapshots(db)
+    await Promise.all([
+      SecureStore.deleteItemAsync(SYNC_KEYS.lastSuccessAt),
+      SecureStore.deleteItemAsync(SYNC_KEYS.lastError),
+      SecureStore.deleteItemAsync(SYNC_KEYS.automatic),
+      SecureStore.deleteItemAsync(SYNC_KEYS.minimumIntervalMinutes),
+    ])
+    await getCloudAuthService().signOut()
+    setState({
+      phase: 'signed-out',
+      account: null,
+      lastSyncedAt: null,
+      lastError: null,
+      lastSummary: null,
+      automatic: false,
+      minimumIntervalMinutes: DEFAULT_MINIMUM_INTERVAL_MINUTES,
+    })
+    log.info('sync.account_deletion_completed', { message: 'Cloud account & data deletion completed' })
+  } catch (error) {
+    log.error('sync.account_deletion_failed', error, { message: 'Cloud account & data deletion failed' })
+    throw error
+  }
 }
 
 export async function setCloudSyncAutomatic(value: boolean): Promise<void> {

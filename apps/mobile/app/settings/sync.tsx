@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import { Button, Card, Chip, SectionHeader } from '../../components/ui'
 import {
+  deleteCloudAccountAndData,
   initCloudSync,
   requestCloudSync,
   setCloudSyncAutomatic,
@@ -36,6 +37,7 @@ export default function SyncScreen(): JSX.Element {
   const styles = useThemedStyles(createStyles)
   const sync = useCloudSync()
   const [signingIn, setSigningIn] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     void initCloudSync()
@@ -54,6 +56,28 @@ export default function SyncScreen(): JSX.Element {
 
   const handleSyncNow = (): void => {
     requestCloudSync(db).catch((error: unknown) => Alert.alert(t('Sync failed'), String(error)))
+  }
+
+  const handleDeleteAccount = (): void => {
+    Alert.alert(
+      t('Delete account & sync data?'),
+      t(
+        'This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.',
+      ),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        {
+          text: t('Delete everything'),
+          style: 'destructive',
+          onPress: () => {
+            setDeleting(true)
+            deleteCloudAccountAndData(db)
+              .catch((error: unknown) => Alert.alert(t('Deletion failed'), String(error)))
+              .finally(() => setDeleting(false))
+          },
+        },
+      ],
+    )
   }
 
   const lastSyncedLabel = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).toLocaleString() : t('Never')
@@ -145,6 +169,22 @@ export default function SyncScreen(): JSX.Element {
           </View>
         ) : null}
       </Card>
+
+      {sync.account ? (
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={styles.fieldLabel}>{t('Danger zone')}</Text>
+          <Text style={styles.fieldHint}>
+            {t('Permanently erase everything synced to this account and sign out. Your data on this device stays put.')}
+          </Text>
+          <Button
+            label={deleting ? t('Deleting…') : t('Delete account & sync data')}
+            icon="trash"
+            variant="danger"
+            onPress={handleDeleteAccount}
+            disabled={deleting}
+          />
+        </Card>
+      ) : null}
     </ScrollView>
   )
 }

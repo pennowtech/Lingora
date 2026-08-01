@@ -152,3 +152,11 @@ export async function syncAllTables(db: DatabaseAdapter, backend: CloudSyncBacke
 
   return { tableCounts, startedAt, finishedAt }
 }
+
+/** Wipes local sync bookkeeping (last-known-synced snapshot of every record) so a fresh sign-in —
+ * by the same or a different account — starts from a clean slate instead of comparing against a
+ * stale remote state. Local vocabulary data (decks/cards/etc.) is untouched; this only clears the
+ * merge engine's own memory of what it last pushed/pulled. */
+export async function clearSyncSnapshots(db: DatabaseAdapter): Promise<void> {
+  await db.execute(`DELETE FROM sync_snapshots`)
+}

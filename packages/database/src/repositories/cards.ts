@@ -46,8 +46,12 @@ export async function getCardsByLemma(db: DatabaseAdapter, lemmaId: string): Pro
 export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string): Promise<Card[]> {
   const params: unknown[] = [Date.now()]
 
+  // INNER JOIN decks (not just deck_cards) so a deck_cards row surviving its deck's own deletion —
+  // orphaned membership, seen in practice when a deletion path didn't cascade — can never resurrect
+  // a card as "due" once every real deck it belonged to is gone.
   let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
     INNER JOIN deck_cards dc ON c.id = dc.card_id
+    INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN card_states cs ON c.id = cs.card_id
     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
@@ -76,8 +80,10 @@ export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string)
 export async function getClozeCardsDueForReview(db: DatabaseAdapter, deckId?: string): Promise<Card[]> {
   const params: unknown[] = [Date.now()]
 
+  // Same orphaned-membership guard as getCardsDueForReview above.
   let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
     INNER JOIN deck_cards dc ON c.id = dc.card_id
+    INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN cloze_states cs ON c.id = cs.card_id
     INNER JOIN cloze_cards cc ON c.id = cc.card_id
     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
@@ -348,8 +354,10 @@ export async function getVocabularyGrowth(db: DatabaseAdapter, weeks = 7): Promi
  */
 export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
   const params: unknown[] = [Date.now()]
+  // Same orphaned-membership guard as getCardsDueForReview — see its comment.
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
+     INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN card_states cs ON c.id = cs.card_id
      WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
@@ -369,8 +377,10 @@ export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Pr
  */
 export async function getDueClozeCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
   const params: unknown[] = [Date.now()]
+  // Same orphaned-membership guard as getCardsDueForReview — see its comment.
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
+     INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN cloze_states cs ON c.id = cs.card_id
      INNER JOIN cloze_cards cc ON c.id = cc.card_id
      WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`

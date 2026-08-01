@@ -54,7 +54,7 @@ import {
   type CardTemplateContext,
 } from '../../lib/templates'
 import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
-import { useServices } from '../../lib/services'
+import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -360,7 +360,12 @@ async function loadReviewQueue(
     return [{ ...view, hasVocabVariant, hasClozeVariant }]
   }
 
-  const cards = clozeOnly ? await getClozeCardsDueForReview(db, deckId) : await getCardsDueForReview(db, deckId)
+  // ALL_DECKS_ID means "everywhere", not a real deck — the due-card queries treat an omitted
+  // deckId as unfiltered, so translate the sentinel to undefined right at the query boundary.
+  const scopeDeckId = deckId === ALL_DECKS_ID ? undefined : deckId
+  const cards = clozeOnly
+    ? await getClozeCardsDueForReview(db, scopeDeckId)
+    : await getCardsDueForReview(db, scopeDeckId)
   const views: ReviewCard[] = []
   for (const card of cards) {
     const view = await loadCardView(db, card, clozeOnly)

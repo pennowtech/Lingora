@@ -39,7 +39,6 @@ Cargo.lock
 *.log
 
 # IDE / Editors
-.vscode/
 .idea/
 .zed/
 

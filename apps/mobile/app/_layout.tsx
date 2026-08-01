@@ -66,6 +66,7 @@ function AppStack(): JSX.Element {
             <Stack.Screen name="settings/csv-import" options={{ title: t('Import CSV') }} />
             <Stack.Screen name="settings/apkg-import" options={{ title: t('Import Anki deck') }} />
             <Stack.Screen name="settings/templates" options={{ title: t('Card Templates') }} />
+            <Stack.Screen name="settings/feedback" options={{ title: t('Send Feedback') }} />
           </Stack>
           {isReviewScreen ? null : <BottomTabBar />}
         </View>

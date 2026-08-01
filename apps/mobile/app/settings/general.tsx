@@ -56,7 +56,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      <SectionHeader title={t('Appearance')} />
       <Card>
         <Text style={styles.fieldLabel}>{t('Theme')}</Text>
         <Dropdown
@@ -68,7 +67,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
         <Text style={styles.hint}>{t('Applies across the app.')}</Text>
       </Card>
 
-      <SectionHeader title={t('General')} />
       <Card>
         <LinkRow
           icon="volume-high"

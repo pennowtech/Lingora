@@ -1,11 +1,11 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, Chip, SectionHeader } from '../../components/ui'
-import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES } from '../../lib/services'
+import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -29,11 +29,19 @@ const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
  * interface preference, not a learning preference. */
 export default function LearningScreen(): JSX.Element {
   const { t } = useTranslation()
+  const { reloadServices } = useServices()
   const styles = useThemedStyles(createStyles)
 
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
+  const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    }
+  }, [])
 
   useEffect(() => {
     const load = async (): Promise<void> => {
@@ -63,6 +71,18 @@ export default function LearningScreen(): JSX.Element {
     void SecureStore.setItemAsync(storeKey, value)
   }
 
+  /** Native/target language feed useServices()'s `nativeLanguage`/`targetLanguage` (loaded once at
+   * app bootstrap) — every consumer reading those (Audio Settings' device voice list and cloud
+   * provider defaults, the AI pipeline's generation language, dictionary lookups) would otherwise
+   * keep using a stale value until the app restarted, even though this screen's own chips already
+   * show the new choice. Debounced like ai-providers.tsx/translation.tsx's `persist` so flipping
+   * through a few chips quickly isn't N pipeline rebuilds. */
+  const persistLanguage = (storeKey: string, value: string): void => {
+    persist(storeKey, value)
+    if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    reloadTimer.current = setTimeout(() => void reloadServices(), 600)
+  }
+
   const setCefr = (level: CefrLevel): void => {
     setCefrState(level)
     persist(STORE_KEYS.defaultCefr, level)
@@ -73,11 +93,11 @@ export default function LearningScreen(): JSX.Element {
   // other language out of the way rather than allowing that state.
   const setNativeLanguage = (language: LanguageCode): void => {
     setNativeLanguageState(language)
-    persist(STORE_KEYS.nativeLanguage, language)
+    persistLanguage(STORE_KEYS.nativeLanguage, language)
     if (language === targetLanguage) {
       const fallback = SUPPORTED_LANGUAGES.find((l) => l !== language) ?? targetLanguage
       setTargetLanguageState(fallback)
-      persist(STORE_KEYS.targetLanguage, fallback)
+      persistLanguage(STORE_KEYS.targetLanguage, fallback)
     }
     log.info('settings.language_pair_changed', {
       message: 'Native language changed',
@@ -86,11 +106,11 @@ export default function LearningScreen(): JSX.Element {
   }
   const setTargetLanguage = (language: LanguageCode): void => {
     setTargetLanguageState(language)
-    persist(STORE_KEYS.targetLanguage, language)
+    persistLanguage(STORE_KEYS.targetLanguage, language)
     if (language === nativeLanguage) {
       const fallback = SUPPORTED_LANGUAGES.find((l) => l !== language) ?? nativeLanguage
       setNativeLanguageState(fallback)
-      persist(STORE_KEYS.nativeLanguage, fallback)
+      persistLanguage(STORE_KEYS.nativeLanguage, fallback)
     }
     log.info('settings.language_pair_changed', {
       message: 'Target (learning) language changed',

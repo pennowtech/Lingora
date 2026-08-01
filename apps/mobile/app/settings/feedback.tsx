@@ -1,5 +1,6 @@
 import { logger } from '@lingora/observability'
 import Constants from 'expo-constants'
+import { Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
@@ -121,10 +122,17 @@ export default function FeedbackScreen(): JSX.Element {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      <View style={styles.headerRow}>
-        <Text style={styles.fieldLabel}>{t('What kind of feedback?')}</Text>
-        <IconButton icon="help-circle-outline" onPress={() => help.openSection('public')} color={colors.primary} size={22} />
-      </View>
+      {/* Help lives in the native header, next to the "Send Feedback" title (set by
+          app/_layout.tsx), not inline in the body — see the header-right pattern shared with
+          Search, Mine, word/[form], and the other Settings screens that have a help sheet. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection('public')} color={colors.primary} size={22} />
+          ),
+        }}
+      />
+      <Text style={styles.fieldLabel}>{t('What kind of feedback?')}</Text>
       <Card>
         <View style={styles.categoryRow}>
           {CATEGORIES.map((key) => {
@@ -225,7 +233,6 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
-    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
     fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.xs, lineHeight: 16 },
     fieldSpacing: { marginTop: spacing.md },

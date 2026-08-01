@@ -5,7 +5,9 @@ import type { JSX } from 'react'
 import { I18nextProvider, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { ShareIntentProvider } from 'expo-share-intent'
 import { BottomTabBar } from '../components/BottomTabBar'
+import { CaptureIntentHandler } from '../components/CaptureIntentHandler'
 import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
 import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
@@ -37,6 +39,7 @@ function AppStack(): JSX.Element {
     >
       <QueryClientProvider client={queryClient}>
         <CloudSyncLifecycle />
+        <CaptureIntentHandler />
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>
           <Stack
@@ -77,12 +80,16 @@ function AppStack(): JSX.Element {
 
 export default function RootLayout(): JSX.Element {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <I18nextProvider i18n={i18n}>
-          <AppStack />
-        </I18nextProvider>
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    // Must wrap everything else, per expo-share-intent's own requirement — the native module it
+    // bridges has to be read before any other provider has a chance to render.
+    <ShareIntentProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ThemeProvider>
+          <I18nextProvider i18n={i18n}>
+            <AppStack />
+          </I18nextProvider>
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </ShareIntentProvider>
   )
 }

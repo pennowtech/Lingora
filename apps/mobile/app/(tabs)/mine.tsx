@@ -10,7 +10,7 @@ import {
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as Clipboard from 'expo-clipboard'
-import { router } from 'expo-router'
+import { router, Stack } from 'expo-router'
 import { useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
@@ -32,6 +32,7 @@ const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
   clipboard: 'clipboard',
   manual: 'pencil',
   share_sheet: 'share-social',
+  process_text: 'text',
   extension: 'extension-puzzle',
   pdf: 'document',
 }
@@ -62,6 +63,15 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       'The button at the bottom turns your selected sentences into real vocabulary cards, one at a time.',
       'This is the one step that actually does the work — nothing before it does anything with your captured text.',
+    ],
+  },
+  {
+    id: 'from-outside',
+    title: 'Adding from other apps',
+    icon: 'share-outline',
+    paragraphs: [
+      'Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you\'d share it to any other app.',
+      'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.',
     ],
   },
 ]
@@ -212,10 +222,17 @@ export default function MiningQueueScreen(): JSX.Element {
     </View>
   )
 
+  // Help lives in the native header, next to the "Mine" title, not an in-body overlay — see the
+  // header-right pattern shared with Search, word/[form], and the Settings screens that have a
+  // help sheet.
   const helpButton = (
-    <View style={styles.helpButtonWrap}>
-      <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
-    </View>
+    <Stack.Screen
+      options={{
+        headerRight: () => (
+          <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
+        ),
+      }}
+    />
   )
 
   const helpSheet = (
@@ -418,7 +435,6 @@ const createStyles = (colors: ThemeColors) =>
     borderTopColor: colors.border,
     borderRadius: radius.sm,
   },
-  helpButtonWrap: { position: 'absolute', top: spacing.md, right: spacing.md },
   fab: {
     position: 'absolute',
     right: spacing.lg,

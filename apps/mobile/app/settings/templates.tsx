@@ -3,6 +3,7 @@ import type { Template, TemplateType } from '@lingora/types'
 import { createTemplate, getAllTemplates, updateTemplate } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Stack } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
@@ -312,14 +313,21 @@ export default function TemplatesScreen(): JSX.Element {
         <Chip label={t('Cloze')} selected={templateType === 'cloze'} onPress={() => setTemplateType('cloze')} />
       </View>
 
-      {/* Tabs + help */}
-      <View style={styles.tabBar}>
-        <View style={styles.tabRow}>
-          {(['fields', 'style', 'preview', 'code'] as Tab[]).map((tabName) => (
-            <Chip key={tabName} label={tabName[0]!.toUpperCase() + tabName.slice(1)} selected={tab === tabName} onPress={() => setTab(tabName)} />
-          ))}
-        </View>
-        <IconButton icon="help-circle-outline" onPress={() => help.openSection(tab)} color={colors.primary} size={24} />
+      {/* Help lives in the native header, next to the "Card Templates" title (set by
+          app/_layout.tsx), not inline next to the tab row — see the header-right pattern shared
+          with Search, Mine, word/[form], and the other Settings screens that have a help sheet.
+          Still opens whichever section matches the active tab, same as before. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection(tab)} color={colors.primary} size={24} />
+          ),
+        }}
+      />
+      <View style={styles.tabRow}>
+        {(['fields', 'style', 'preview', 'code'] as Tab[]).map((tabName) => (
+          <Chip key={tabName} label={tabName[0]!.toUpperCase() + tabName.slice(1)} selected={tab === tabName} onPress={() => setTab(tabName)} />
+        ))}
       </View>
 
       {tab === 'preview' ? (
@@ -506,14 +514,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   typeRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
-  tabBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  tabRow: { flexDirection: 'row', gap: spacing.sm },
+  tabRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.md },
   scroll: { flex: 1 },
   scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl },
   fieldsHint: { fontSize: type.micro, color: colors.textMuted, marginBottom: spacing.sm, lineHeight: 16 },

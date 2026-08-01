@@ -3,13 +3,16 @@ import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet } from 'react-native'
 import { Card, LinkRow } from '../../components/ui'
-import { colors, spacing } from '../../lib/theme'
+import { spacing } from '../../lib/theme'
+import { useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 /** The "Data" sub-screen — import/export, card templates, word guides. Each row is just a link to
  * its own existing screen; this one has no state of its own. Audio settings (formerly listed here
  * as "Pronunciation") moved to General Settings, alongside App Language. */
 export default function DataScreen(): JSX.Element {
   const { t } = useTranslation()
+  const styles = useThemedStyles(createStyles)
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
@@ -22,7 +25,8 @@ export default function DataScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  })

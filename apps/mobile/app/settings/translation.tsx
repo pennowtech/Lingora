@@ -18,7 +18,9 @@ import {
   type GenerationProviderName,
   type TranslationProviderName,
 } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'TranslationScreen' })
 
@@ -30,6 +32,7 @@ const log = logger.child({ feature: 'settings', screen: 'TranslationScreen' })
 export default function TranslationScreen(): JSX.Element {
   const { reloadServices } = useServices()
   const { t } = useTranslation()
+  const styles = useThemedStyles(createStyles)
 
   const [translationProvider, setTranslationProviderState] = useState<TranslationProviderName>('google')
   const [deeplKey, setDeeplKey] = useState('')
@@ -209,6 +212,8 @@ function DeepLRow(props: {
 }): JSX.Element {
   const hasKey = props.apiKey.trim() !== ''
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   return (
     <View style={styles.providerBlock}>
@@ -314,6 +319,7 @@ function DeepLRow(props: {
 }
 
 function Row(props: { children: ReactNode }): JSX.Element {
+  const styles = useThemedStyles(createStyles)
   return <View style={styles.row}>{props.children}</View>
 }
 
@@ -325,6 +331,8 @@ function ProviderOption(props: {
   disabled?: boolean
   onPress: () => void
 }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <Pressable style={[styles.option, props.disabled && styles.optionDisabled]} onPress={props.onPress} disabled={props.disabled}>
       <Ionicons
@@ -341,7 +349,8 @@ function ProviderOption(props: {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   providerCard: { gap: 0 },

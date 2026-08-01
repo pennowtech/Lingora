@@ -16,7 +16,9 @@ import {
   type WordGuideManifestChunk,
 } from '../../lib/wordGuides'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'WordGuidesScreen' })
 
@@ -35,6 +37,8 @@ interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
 export default function WordGuidesScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const manifest = getWordGuideManifest()
   const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes()), [])
@@ -202,41 +206,42 @@ export default function WordGuidesScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
-  summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
-  title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
-  progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
-  installAllButton: { marginTop: spacing.sm },
-  listContent: { paddingBottom: spacing.xxl },
-  chunkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  chunkRowPending: { opacity: 0.5 },
-  chunkText: { flex: 1 },
-  chunkTitle: { fontSize: type.body, fontWeight: '600', color: colors.text },
-  chunkMeta: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  installButton: {
-    backgroundColor: colors.primarySoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-  },
-  installLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  uninstallButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.dangerSoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-  },
-  uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
-  pendingLabel: { fontSize: type.micro, color: colors.textMuted },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
+    summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
+    title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+    body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+    progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
+    installAllButton: { marginTop: spacing.sm },
+    listContent: { paddingBottom: spacing.xxl },
+    chunkRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    chunkRowPending: { opacity: 0.5 },
+    chunkText: { flex: 1 },
+    chunkTitle: { fontSize: type.body, fontWeight: '600', color: colors.text },
+    chunkMeta: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    installButton: {
+      backgroundColor: colors.primarySoft,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+    },
+    installLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    uninstallButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.dangerSoft,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+    },
+    uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+    pendingLabel: { fontSize: type.micro, color: colors.textMuted },
+  })

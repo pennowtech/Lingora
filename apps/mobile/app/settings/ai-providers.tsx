@@ -16,7 +16,9 @@ import {
 } from '../../lib/aiProviderMeta'
 import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
 import { DEFAULT_MODELS, GENERATION_PROVIDERS, STORE_KEYS, useServices, type GenerationProviderName } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'AiProvidersScreen' })
 
@@ -28,6 +30,8 @@ const log = logger.child({ feature: 'settings', screen: 'AiProvidersScreen' })
 export default function AiProvidersScreen(): JSX.Element {
   const { reloadServices } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -291,6 +295,8 @@ function ProviderCard(props: {
   const { name, meta, state, active, expanded, showKey, validating, validated, usage } = props
   const hasKey = state.apiKey.trim() !== ''
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   return (
     <View style={styles.providerBlock}>
@@ -409,7 +415,8 @@ function ProviderCard(props: {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   banner: {
@@ -482,4 +489,4 @@ const styles = StyleSheet.create({
   fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
   fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-})
+  })

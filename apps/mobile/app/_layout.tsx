@@ -10,7 +10,7 @@ import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
 import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
-import { colors } from '../lib/theme'
+import { ThemeProvider, useTheme } from '../lib/ThemeContext'
 
 // One client for the app; queries read on-device SQLite, so data is never
 // stale in the HTTP sense — invalidation happens explicitly after mutations.
@@ -23,6 +23,8 @@ const queryClient = new QueryClient({
 function AppStack(): JSX.Element {
   const { t } = useTranslation()
   const pathname = usePathname()
+  const { theme } = useTheme()
+  const colors = theme.colors
   // The one screen the bottom bar deliberately never shows on — a review session is a focused,
   // full-screen task (it already hides its own header too, see the review/[deckId] Stack.Screen
   // below), not somewhere you're expected to jump to another tab mid-card.
@@ -35,7 +37,7 @@ function AppStack(): JSX.Element {
     >
       <QueryClientProvider client={queryClient}>
         <CloudSyncLifecycle />
-        <StatusBar style="dark" />
+        <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>
           <Stack
             screenOptions={{
@@ -75,9 +77,11 @@ function AppStack(): JSX.Element {
 export default function RootLayout(): JSX.Element {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <I18nextProvider i18n={i18n}>
-        <AppStack />
-      </I18nextProvider>
+      <ThemeProvider>
+        <I18nextProvider i18n={i18n}>
+          <AppStack />
+        </I18nextProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   )
 }

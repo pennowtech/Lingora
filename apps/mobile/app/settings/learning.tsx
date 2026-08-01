@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Card, Chip, SectionHeader } from '../../components/ui'
 import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES } from '../../lib/services'
-import { cefrColors, colors, spacing, type } from '../../lib/theme'
+import { cefrColors, spacing, type } from '../../lib/theme'
+import { useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'LearningScreen' })
 
@@ -27,6 +29,7 @@ const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
  * interface preference, not a learning preference. */
 export default function LearningScreen(): JSX.Element {
   const { t } = useTranslation()
+  const styles = useThemedStyles(createStyles)
 
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
@@ -144,11 +147,12 @@ export default function LearningScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
-  fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
-  languageFieldSpacing: { marginTop: spacing.md },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
+    fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
+    languageFieldSpacing: { marginTop: spacing.md },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  })

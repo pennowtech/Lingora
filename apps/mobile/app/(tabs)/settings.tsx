@@ -239,19 +239,11 @@ export default function SettingsScreen(): JSX.Element {
 
           <Card style={styles.menuCard}>
             <LinkRow
-              testID="settings-menu-ai-providers"
-              icon="sparkles-outline"
-              label={t('AI Providers')}
-              detail={aiProvidersDetail}
-              onPress={() => router.push('/settings/ai-providers')}
-            />
-            <LinkRow
-              testID="settings-menu-translation"
-              icon="language-outline"
-              label={t('Translation')}
-              detail={summary.translationLabel}
-              onPress={() => router.push('/settings/translation')}
-              divider
+              testID="settings-menu-general"
+              icon="options-outline"
+              label={t('General')}
+              detail={t('Audio settings, app language')}
+              onPress={() => router.push('/settings/general')}
             />
             <LinkRow
               testID="settings-menu-learning"
@@ -262,19 +254,27 @@ export default function SettingsScreen(): JSX.Element {
               divider
             />
             <LinkRow
-              testID="settings-menu-general"
-              icon="options-outline"
-              label={t('General')}
-              detail={t('Audio settings, app language')}
-              onPress={() => router.push('/settings/general')}
-              divider
-            />
-            <LinkRow
               testID="settings-menu-data"
               icon="swap-vertical"
               label={t('Data')}
               detail={t('Import & export, templates, word guides')}
               onPress={() => router.push('/settings/data')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-ai-providers"
+              icon="sparkles-outline"
+              label={t('AI Providers')}
+              detail={aiProvidersDetail}
+              onPress={() => router.push('/settings/ai-providers')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-translation"
+              icon="language-outline"
+              label={t('Translation')}
+              detail={summary.translationLabel}
+              onPress={() => router.push('/settings/translation')}
               divider
             />
             <LinkRow

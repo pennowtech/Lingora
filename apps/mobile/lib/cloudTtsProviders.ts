@@ -2,6 +2,7 @@ import {
   DEEPGRAM_EXAMPLE_MODEL,
   DEFAULT_AUDIO_SPEED,
   ELEVENLABS_DEFAULT_MODEL,
+  ELEVENLABS_DEFAULT_VOICE_ID,
   OPENAI_DEFAULT_MODEL,
   type CloudAudioProviderName,
 } from './audioProviderMeta'
@@ -28,6 +29,21 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
+/** Carries the HTTP status + response body separately from the message, so callers (Audio
+ * Settings' Validate button) can show the provider's own error text to the user in an Alert —
+ * that's fine (a modal dialog, not a structured log line) — while lib/speech.ts's log call can
+ * still report just the numeric statusCode, keeping free text out of the observability pipeline. */
+export class CloudTtsError extends Error {
+  readonly status: number
+  readonly body: string
+  constructor(message: string, status: number, body: string) {
+    super(message)
+    this.name = 'CloudTtsError'
+    this.status = status
+    this.body = body
+  }
+}
+
 async function readErrorBody(response: Response): Promise<string> {
   try {
     return (await response.text()).slice(0, 200)
@@ -52,14 +68,16 @@ async function synthesizeOpenAI(req: CloudTtsRequest): Promise<ArrayBuffer> {
     }),
   })
   if (!response.ok) {
-    throw new Error(`OpenAI text-to-speech request failed (${response.status}): ${await readErrorBody(response)}`)
+    const body = await readErrorBody(response)
+    throw new CloudTtsError(`OpenAI text-to-speech request failed (${response.status}): ${body}`, response.status, body)
   }
   return response.arrayBuffer()
 }
 
 async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> {
-  const voiceId = req.voice.trim()
-  if (!voiceId) throw new Error('No ElevenLabs voice ID set — paste one from your ElevenLabs voice library in Audio Settings.')
+  // Callers resolve a language-aware default before reaching here (see
+  // audioProviderMeta.ts#getDefaultCloudVoice) — this fallback is just a safety net.
+  const voiceId = req.voice.trim() || ELEVENLABS_DEFAULT_VOICE_ID
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
     method: 'POST',
     headers: {
@@ -74,12 +92,15 @@ async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> 
     }),
   })
   if (!response.ok) {
-    throw new Error(`ElevenLabs text-to-speech request failed (${response.status}): ${await readErrorBody(response)}`)
+    const body = await readErrorBody(response)
+    throw new CloudTtsError(`ElevenLabs text-to-speech request failed (${response.status}): ${body}`, response.status, body)
   }
   return response.arrayBuffer()
 }
 
 async function synthesizeDeepgram(req: CloudTtsRequest): Promise<ArrayBuffer> {
+  // Callers resolve a per-target-language default before reaching here (see
+  // audioProviderMeta.ts#getDefaultCloudVoice) — DEEPGRAM_EXAMPLE_MODEL here is just a safety net.
   const model = req.voice.trim() || DEEPGRAM_EXAMPLE_MODEL
   const response = await fetch(`https://api.deepgram.com/v1/speak?model=${encodeURIComponent(model)}`, {
     method: 'POST',
@@ -90,7 +111,8 @@ async function synthesizeDeepgram(req: CloudTtsRequest): Promise<ArrayBuffer> {
     body: JSON.stringify({ text: req.text }),
   })
   if (!response.ok) {
-    throw new Error(`Deepgram text-to-speech request failed (${response.status}): ${await readErrorBody(response)}`)
+    const body = await readErrorBody(response)
+    throw new CloudTtsError(`Deepgram text-to-speech request failed (${response.status}): ${body}`, response.status, body)
   }
   return response.arrayBuffer()
 }

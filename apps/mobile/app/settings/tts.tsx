@@ -5,13 +5,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
-import { Button, Card, Chip, Dropdown, Spinner } from '../../components/ui'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
 import {
   AUDIO_PROVIDERS,
   AUDIO_PROVIDER_META,
   AUDIO_SPEED_OPTIONS,
   CLOUD_AUDIO_PROVIDERS,
   DEFAULT_AUDIO_SPEED,
+  getDefaultCloudVoice,
   OPENAI_RECOMMENDED_VOICES,
   OPENAI_TTS_VOICES,
   SPEED_CAPABLE_PROVIDERS,
@@ -19,7 +21,11 @@ import {
   type CloudAudioProviderName,
 } from '../../lib/audioProviderMeta'
 import { validateAudioProviderKey } from '../../lib/audioProviderValidation'
+import { fetchProviderVoices, type ProviderVoiceOption } from '../../lib/audioProviderVoices'
+import { playCloudSpeech, stopCloudSpeech } from '../../lib/cloudTts'
+import { CloudTtsError } from '../../lib/cloudTtsProviders'
 import { speak } from '../../lib/speech'
+import { useServices } from '../../lib/services'
 import {
   DEFAULT_TTS_PITCH,
   DEFAULT_TTS_RATE,
@@ -42,9 +48,88 @@ import type { ThemeColors } from '../../lib/themes'
 const RATE_OPTIONS = [0.75, 1.0, 1.25, 1.5]
 const PITCH_OPTIONS = [0.75, 1.0, 1.25, 1.5]
 
-/** German is the target language everything is actually pronounced in — the one voice/rate/pitch setting worth exposing per v1. */
-const LANGUAGE: LanguageCode = 'de'
-const SAMPLE_TEXT = 'Ich habe viel über die Kultur erfahren.'
+const LANGUAGE_LABELS: Record<LanguageCode, string> = {
+  en: 'English',
+  de: 'German',
+  ja: 'Japanese',
+  es: 'Spanish',
+  fr: 'French',
+}
+
+/** Default "Test phrase" per learning language — same sentence in each supported language, so the
+ * Test phrase reflects what's set under Settings > Learning > "I'm learning" by default rather
+ * than always defaulting to German regardless of what the user is actually learning. */
+const DEFAULT_SAMPLE_TEXTS: Record<LanguageCode, string> = {
+  de: 'Ich habe viel über die Kultur erfahren.',
+  en: 'I learned a lot about the culture.',
+  es: 'Aprendí mucho sobre la cultura.',
+  fr: "J'ai beaucoup appris sur la culture.",
+  ja: '文化についてたくさん学びました。',
+}
+
+/** Help content — one accordion section per engine, plus overview/testing — same shape and
+ * pattern as templates.tsx's HELP_SECTIONS, kept as data so every section renders uniformly
+ * behind one "?" button instead of scattering explanatory paragraphs across the screen. */
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'overview',
+    title: 'How Audio Settings works',
+    icon: 'information-circle',
+    paragraphs: [
+      'Every speaker button in the app uses whichever engine is marked Active below.',
+      'Cloud providers are bring-your-own-key — nothing is sent to them until you tap a speaker icon or press Test.',
+      'If a cloud key is invalid, the provider is unreachable, or a request fails, playback falls back to the device voice automatically — you’re never left with silence.',
+    ],
+  },
+  {
+    id: 'test',
+    title: 'Testing a voice',
+    icon: 'volume-high',
+    paragraphs: [
+      '"Test active engine" plays the Test phrase through whichever engine is marked Active — the same thing any real speaker button in the app does.',
+      'Each provider’s own "Test this provider" button plays through that card’s current key/voice/speed directly, regardless of which engine is Active — use it to check a setup before switching to it.',
+    ],
+  },
+  {
+    id: 'device',
+    title: 'Device (built-in)',
+    icon: 'phone-portrait',
+    paragraphs: [
+      'Uses your phone’s own text-to-speech engine — offline, free, no API key.',
+      'The voice list follows whatever language is set under Settings > Learning > "I’m learning".',
+      'Install more voices from your phone’s system settings if the one you want isn’t listed.',
+    ],
+  },
+  {
+    id: 'openai',
+    title: 'OpenAI',
+    icon: 'sparkles',
+    paragraphs: [
+      'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI’s newest, most natural-sounding voices.',
+      'If Validate says a project doesn’t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn’t enabled it.',
+      'Go to platform.openai.com → Settings → Projects → select the project this key belongs to → Models → enable gpt-4o-mini-tts for that project.',
+      'Alternatively, generate a new key from a project that already has it enabled (or the "Default project" if you have one).',
+    ],
+  },
+  {
+    id: 'elevenlabs',
+    title: 'ElevenLabs',
+    icon: 'mic',
+    paragraphs: [
+      'eleven_multilingual_v2. Once your key is entered, choose from your own ElevenLabs voice library, or switch to manual entry to paste a voice ID directly.',
+      'If no voice is picked, a known-good multilingual default voice is used automatically.',
+    ],
+  },
+  {
+    id: 'deepgram',
+    title: 'Deepgram',
+    icon: 'radio',
+    paragraphs: [
+      'Aura-2. Once your key is entered, choose from Deepgram’s available models, or switch to manual entry to enter a model name directly (see Deepgram’s docs for exact names).',
+      'If no model is picked, a default is chosen to match whatever language is set under Settings > Learning > "I’m learning" (English, German, Spanish, or French) — other languages fall back to an English voice until you pick one manually.',
+    ],
+  },
+]
 
 interface CloudProviderFormState {
   apiKey: string
@@ -64,7 +149,9 @@ const EMPTY_CLOUD_PROVIDER: CloudProviderFormState = { apiKey: '', voice: '', sp
  */
 export default function AudioSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
+  const { targetLanguage } = useServices()
   const queryClient = useQueryClient()
+  const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const [testing, setTesting] = useState(false)
 
@@ -74,11 +161,18 @@ export default function AudioSettingsScreen(): JSX.Element {
   const [showKey, setShowKey] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
   const [validating, setValidating] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
   const [validated, setValidated] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
+  const [testingCloud, setTestingCloud] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
+  const [sampleText, setSampleText] = useState(() => DEFAULT_SAMPLE_TEXTS[targetLanguage])
+  /** 'manual' forces the free-text field even when a fetched voice list is available — lets a
+   * user paste an ID the picker didn't return (e.g. a cloned ElevenLabs voice on another list
+   * page). Undefined means "let the picker take over automatically once voices load". */
+  const [voiceEntryMode, setVoiceEntryMode] = useState<Partial<Record<CloudAudioProviderName, 'picker' | 'manual'>>>({})
   const [cloudProviders, setCloudProviders] = useState<Record<CloudAudioProviderName, CloudProviderFormState>>({
     openai: EMPTY_CLOUD_PROVIDER,
     elevenlabs: EMPTY_CLOUD_PROVIDER,
     deepgram: EMPTY_CLOUD_PROVIDER,
   })
+  const help = useHelpAccordion('overview')
 
   useEffect(() => {
     const load = async (): Promise<void> => {
@@ -86,31 +180,52 @@ export default function AudioSettingsScreen(): JSX.Element {
         getAudioProvider(),
         Promise.all(CLOUD_AUDIO_PROVIDERS.map(async (name) => [name, await getCloudAudioConfig(name)] as const)),
       ])
-      setActiveProviderState(provider)
       setCloudProviders((prev) => {
         const next = { ...prev }
         for (const [name, config] of entries) next[name] = config
         return next
       })
+      // A cloud provider can only be active if it still has a key — guards against a stale
+      // stored provider whose key was cleared elsewhere (or never set), so Device is always the
+      // one actually speaking when nothing else is configured, not just visually implied.
+      const activeConfig = entries.find(([name]) => name === provider)?.[1]
+      const stillConfigured = provider === 'device' || (activeConfig?.apiKey.trim() ?? '') !== ''
+      const resolvedProvider = stillConfigured ? provider : 'device'
+      setActiveProviderState(resolvedProvider)
+      if (resolvedProvider !== provider) void setAudioProvider(resolvedProvider)
       setLoaded(true)
     }
     void load()
   }, [])
 
   const settingsQuery = useQuery({
-    queryKey: ['tts-settings', LANGUAGE],
-    queryFn: () => getTtsSettings(LANGUAGE),
+    queryKey: ['tts-settings', targetLanguage],
+    queryFn: () => getTtsSettings(targetLanguage),
   })
   const voicesQuery = useQuery({
-    queryKey: ['tts-voices', LANGUAGE],
-    queryFn: () => getAvailableVoices(LANGUAGE),
+    queryKey: ['tts-voices', targetLanguage],
+    queryFn: () => getAvailableVoices(targetLanguage),
   })
+  // One query per fetchable-voice-list cloud provider (OpenAI's list is static, see
+  // audioProviderMeta.ts#OPENAI_TTS_VOICES, so it has none) — only runs once that provider's card
+  // is expanded and has a key, and re-runs if the key changes.
+  const elevenLabsVoicesQuery = useQuery({
+    queryKey: ['provider-voices', 'elevenlabs', cloudProviders.elevenlabs.apiKey],
+    queryFn: () => fetchProviderVoices('elevenlabs', cloudProviders.elevenlabs.apiKey),
+    enabled: expandedProvider === 'elevenlabs' && cloudProviders.elevenlabs.apiKey.trim() !== '',
+  })
+  const deepgramVoicesQuery = useQuery({
+    queryKey: ['provider-voices', 'deepgram', cloudProviders.deepgram.apiKey],
+    queryFn: () => fetchProviderVoices('deepgram', cloudProviders.deepgram.apiKey),
+    enabled: expandedProvider === 'deepgram' && cloudProviders.deepgram.apiKey.trim() !== '',
+  })
+  const voiceOptionsQueries = { elevenlabs: elevenLabsVoicesQuery, deepgram: deepgramVoicesQuery }
 
   const deviceSettings = settingsQuery.data ?? { rate: DEFAULT_TTS_RATE, pitch: DEFAULT_TTS_PITCH, voice: null }
   const voices: Voice[] = voicesQuery.data ?? []
 
   const refreshDeviceSettings = (): void => {
-    void queryClient.invalidateQueries({ queryKey: ['tts-settings', LANGUAGE] })
+    void queryClient.invalidateQueries({ queryKey: ['tts-settings', targetLanguage] })
   }
   const handleRate = (rate: number): void => {
     setTtsRate(rate).then(refreshDeviceSettings).catch(() => undefined)
@@ -119,7 +234,7 @@ export default function AudioSettingsScreen(): JSX.Element {
     setTtsPitch(pitch).then(refreshDeviceSettings).catch(() => undefined)
   }
   const handleVoice = (voiceId: string | null): void => {
-    setTtsVoice(LANGUAGE, voiceId).then(refreshDeviceSettings).catch(() => undefined)
+    setTtsVoice(targetLanguage, voiceId).then(refreshDeviceSettings).catch(() => undefined)
   }
 
   const changeActiveProvider = (name: AudioProviderName): void => {
@@ -144,10 +259,10 @@ export default function AudioSettingsScreen(): JSX.Element {
     void setCloudAudioSpeed(name, value)
   }
   const validate = (name: CloudAudioProviderName): void => {
-    const apiKey = cloudProviders[name].apiKey
+    const { apiKey, voice, speed } = cloudProviders[name]
     if (!apiKey.trim()) return
     setValidating((prev) => ({ ...prev, [name]: true }))
-    void validateAudioProviderKey(name, apiKey)
+    void validateAudioProviderKey(name, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
       .then((result) => {
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
         Alert.alert(
@@ -161,25 +276,48 @@ export default function AudioSettingsScreen(): JSX.Element {
       })
       .finally(() => setValidating((prev) => ({ ...prev, [name]: false })))
   }
+  /** Tests exactly this card's current key/voice/speed by playing real audio through it —
+   * bypasses getAudioProvider()/getCloudAudioConfig() entirely, so it always tests what's on
+   * screen right now regardless of which engine is actually "Active". The global Test button
+   * below tests the active engine specifically (matching what a real speaker-button tap does,
+   * including its silent fallback-to-device) — this one is for checking a provider's own
+   * configuration directly, and surfaces the real error instead of silently falling back. */
+  const testCloudProvider = (name: CloudAudioProviderName): void => {
+    const { apiKey, voice, speed } = cloudProviders[name]
+    if (!apiKey.trim()) return
+    stopCloudSpeech()
+    setTestingCloud((prev) => ({ ...prev, [name]: true }))
+    void playCloudSpeech(name, sampleText, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
+      .catch((error: unknown) => {
+        Alert.alert(
+          t('{{provider}} playback failed', { provider: t(AUDIO_PROVIDER_META[name].label) }),
+          error instanceof CloudTtsError || error instanceof Error ? error.message : t('Unknown error'),
+        )
+      })
+      .finally(() => setTestingCloud((prev) => ({ ...prev, [name]: false })))
+  }
+
   const clearKey = (name: CloudAudioProviderName): void => {
     updateCloudProvider(name, { apiKey: '' })
     void setCloudAudioKey(name, '')
     setValidated((prev) => ({ ...prev, [name]: false }))
+    // Can't leave the active engine without a key — Device is always the fallback.
+    if (activeProvider === name) changeActiveProvider('device')
   }
 
   const handleTest = (): void => {
     setTesting(true)
-    speak(SAMPLE_TEXT, LANGUAGE)
+    speak(sampleText, targetLanguage)
     setTimeout(() => setTesting(false), 2000)
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+      <View style={styles.headerRow}>
+        <Text style={styles.fieldLabel}>{t('Speech engine')}</Text>
+        <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+      </View>
       <Card style={styles.providerCard}>
-        <Text style={styles.fieldHint}>
-          {t('Every speaker button in the app uses whichever engine is active below. Cloud providers are bring-your-own-key — nothing is sent until you tap a speaker icon.')}
-        </Text>
-
         {AUDIO_PROVIDERS.map((name) => (
           <AudioProviderCard
             key={name}
@@ -187,8 +325,10 @@ export default function AudioSettingsScreen(): JSX.Element {
             active={activeProvider === name}
             loaded={loaded}
             expanded={expandedProvider === name}
+            targetLanguage={targetLanguage}
             onToggleExpanded={() => setExpandedProvider((prev) => (prev === name ? null : name))}
             onActivate={() => changeActiveProvider(name)}
+            onOpenHelp={() => help.openSection(name)}
             device={
               name === 'device'
                 ? {
@@ -208,6 +348,7 @@ export default function AudioSettingsScreen(): JSX.Element {
                     showKey: showKey[name as CloudAudioProviderName] ?? false,
                     validating: validating[name as CloudAudioProviderName] ?? false,
                     validated: validated[name as CloudAudioProviderName] ?? false,
+                    testing: testingCloud[name as CloudAudioProviderName] ?? false,
                     onToggleShowKey: () =>
                       setShowKey((prev) => ({ ...prev, [name]: !prev[name as CloudAudioProviderName] })),
                     onChangeApiKey: (value) => changeApiKey(name as CloudAudioProviderName, value),
@@ -215,6 +356,17 @@ export default function AudioSettingsScreen(): JSX.Element {
                     onChangeSpeed: (value) => changeSpeed(name as CloudAudioProviderName, value),
                     onValidate: () => validate(name as CloudAudioProviderName),
                     onClearKey: () => clearKey(name as CloudAudioProviderName),
+                    onTest: () => testCloudProvider(name as CloudAudioProviderName),
+                    ...(name in voiceOptionsQueries && {
+                      voiceOptions: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].data ?? [],
+                      voiceOptionsLoading: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].isFetching,
+                      voiceEntryMode: voiceEntryMode[name as CloudAudioProviderName],
+                      onToggleVoiceEntryMode: () =>
+                        setVoiceEntryMode((prev) => ({
+                          ...prev,
+                          [name]: prev[name as CloudAudioProviderName] === 'manual' ? 'picker' : 'manual',
+                        })),
+                    }),
                   }
                 : undefined
             }
@@ -222,13 +374,35 @@ export default function AudioSettingsScreen(): JSX.Element {
         ))}
       </Card>
 
+      <Card>
+        <Text style={styles.fieldLabel}>{t('Test phrase')}</Text>
+        <TextInput
+          style={styles.keyInputWithIcon}
+          value={sampleText}
+          onChangeText={setSampleText}
+          multiline
+          placeholder={t('Text to speak when testing')}
+          placeholderTextColor={colors.textMuted}
+        />
+      </Card>
+
       <Button
-        label={testing ? t('Playing…') : t('Test')}
+        label={testing ? t('Playing…') : t('Test active engine')}
         icon="volume-high"
         variant="secondary"
         onPress={handleTest}
         disabled={testing}
         style={styles.testButton}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Audio Settings help')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
       />
     </ScrollView>
   )
@@ -239,8 +413,10 @@ function AudioProviderCard(props: {
   active: boolean
   loaded: boolean
   expanded: boolean
+  targetLanguage: LanguageCode
   onToggleExpanded: () => void
   onActivate: () => void
+  onOpenHelp: () => void
   device?:
     | {
         settings: { rate: number; pitch: number; voice: string | null }
@@ -257,12 +433,18 @@ function AudioProviderCard(props: {
         showKey: boolean
         validating: boolean
         validated: boolean
+        testing: boolean
         onToggleShowKey: () => void
         onChangeApiKey: (value: string) => void
         onChangeVoice: (value: string) => void
         onChangeSpeed: (value: number) => void
         onValidate: () => void
         onClearKey: () => void
+        onTest: () => void
+        voiceOptions?: ProviderVoiceOption[]
+        voiceOptionsLoading?: boolean
+        voiceEntryMode?: 'picker' | 'manual'
+        onToggleVoiceEntryMode?: () => void
       }
     | undefined
 }): JSX.Element {
@@ -296,6 +478,12 @@ function AudioProviderCard(props: {
             <Text style={styles.optionDetail}>{t(meta.description)}</Text>
           </View>
         </Pressable>
+        <IconButton
+          testID={`audio-provider-help-${name}`}
+          icon="help-circle-outline"
+          size={20}
+          onPress={props.onOpenHelp}
+        />
         <Switch
           testID={`audio-provider-toggle-${name}`}
           value={active}
@@ -330,11 +518,15 @@ function AudioProviderCard(props: {
             ))}
           </View>
 
-          <Text style={[styles.fieldLabel, styles.fieldSpacing]}>{t('Voice (German)')}</Text>
+          <Text style={[styles.fieldLabel, styles.fieldSpacing]}>
+            {t('Voice ({{language}})', { language: t(LANGUAGE_LABELS[props.targetLanguage]) })}
+          </Text>
           {props.device.voicesLoading ? (
             <Spinner />
           ) : props.device.voices.length === 0 ? (
-            <Text style={styles.hint}>{t('No German voices are installed on this device.')}</Text>
+            <Text style={styles.hint}>
+              {t('No {{language}} voices are installed on this device.', { language: t(LANGUAGE_LABELS[props.targetLanguage]) })}
+            </Text>
           ) : (
             <Dropdown
               placeholder={t('Device default')}
@@ -347,9 +539,6 @@ function AudioProviderCard(props: {
               }))}
             />
           )}
-          <Text style={styles.hint}>
-            {t("Voices come from the device's own text-to-speech engine — install more from your phone's system settings if you don't see the one you want.")}
-          </Text>
         </View>
       ) : null}
 
@@ -379,7 +568,7 @@ function AudioProviderCard(props: {
           </View>
 
           <Text style={[styles.fieldLabel, styles.fieldSpacing]}>
-            {name === 'openai' ? t('Voice') : name === 'elevenlabs' ? t('Voice ID') : t('Model')}
+            {name === 'openai' ? t('Voice') : name === 'elevenlabs' ? t('Voice') : t('Model')}
           </Text>
           {name === 'openai' ? (
             <View style={styles.chipRow}>
@@ -393,15 +582,53 @@ function AudioProviderCard(props: {
               ))}
             </View>
           ) : (
-            <TextInput
-              style={styles.keyInputWithIcon}
-              placeholder={name === 'elevenlabs' ? t('e.g. 21m00Tcm4TlvDq8ikWAM') : t('e.g. aura-2-thalia-en')}
-              placeholderTextColor={colors.textMuted}
-              value={props.cloud.state.voice}
-              onChangeText={props.cloud.onChangeVoice}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+            (() => {
+              const fetched = props.cloud?.voiceOptions ?? []
+              const mode = props.cloud?.voiceEntryMode ?? (fetched.length > 0 ? 'picker' : 'manual')
+              if (props.cloud?.voiceOptionsLoading && fetched.length === 0) {
+                return <Spinner />
+              }
+              if (mode === 'picker' && fetched.length > 0) {
+                const effectiveDefault = getDefaultCloudVoice(name as CloudAudioProviderName, props.targetLanguage, '')
+                const displayValue = props.cloud?.state.voice || (fetched.some((v) => v.id === effectiveDefault) ? effectiveDefault : null)
+                return (
+                  <>
+                    <Dropdown
+                      placeholder={t('Choose a voice…')}
+                      value={displayValue}
+                      onChange={(value) => props.cloud?.onChangeVoice(value ?? '')}
+                      options={fetched.map((v) => ({
+                        label: v.description ? `${v.label} — ${v.description}` : v.label,
+                        value: v.id,
+                      }))}
+                    />
+                    <Pressable onPress={props.cloud?.onToggleVoiceEntryMode} hitSlop={4}>
+                      <Text style={styles.linkText}>{t('Or enter an ID manually')}</Text>
+                    </Pressable>
+                  </>
+                )
+              }
+              return (
+                <>
+                  <TextInput
+                    style={styles.keyInputWithIcon}
+                    placeholder={t('Default: {{voice}}', {
+                      voice: getDefaultCloudVoice(name as CloudAudioProviderName, props.targetLanguage, ''),
+                    })}
+                    placeholderTextColor={colors.textMuted}
+                    value={props.cloud?.state.voice}
+                    onChangeText={props.cloud?.onChangeVoice}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  {fetched.length > 0 ? (
+                    <Pressable onPress={props.cloud?.onToggleVoiceEntryMode} hitSlop={4}>
+                      <Text style={styles.linkText}>{t('Choose from your {{provider}} voices instead', { provider: t(meta.label) })}</Text>
+                    </Pressable>
+                  ) : null}
+                </>
+              )
+            })()
           )}
 
           {speedCapable ? (
@@ -448,6 +675,20 @@ function AudioProviderCard(props: {
               <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
             </Pressable>
           </View>
+          <View style={styles.providerActionsRow}>
+            <Pressable
+              testID={`audio-provider-test-${name}`}
+              style={[styles.secondaryButton, (props.cloud.testing || !hasKey) && styles.secondaryButtonDisabled]}
+              onPress={props.cloud.onTest}
+              disabled={props.cloud.testing || !hasKey}
+            >
+              {props.cloud.testing ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Text style={styles.secondaryButtonLabel}>{t('Test this provider')}</Text>
+              )}
+            </Pressable>
+          </View>
         </View>
       ) : null}
     </View>
@@ -457,9 +698,9 @@ function AudioProviderCard(props: {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     providerCard: { gap: 0 },
-    fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
     providerBlock: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.md, paddingTop: spacing.md },
     providerHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     providerHeaderMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
@@ -483,6 +724,7 @@ const createStyles = (colors: ThemeColors) =>
     fieldSpacing: { marginTop: spacing.md },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
     hint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
+    linkText: { fontSize: type.micro, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
     keyInputWrap: { position: 'relative' },
     keyInputWithIcon: {
       borderWidth: 1,

@@ -75,7 +75,9 @@ import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 /** Cards created by one of the AI providers — as opposed to a dictionary quick-translate, the
  * installed word-guides dictionary, or manual/import entry (see packages/types CardSource). */
@@ -165,6 +167,8 @@ export default function WordDetailScreen(): JSX.Element {
   const { form, nativeTerm } = useLocalSearchParams<{ form: string; nativeTerm?: string }>()
   const { db, ai, tier, defaultCefr, nativeLanguage } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
 
   const [clusterId, setClusterId] = useState<string | null>(null)
@@ -1110,7 +1114,8 @@ export default function WordDetailScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -1263,4 +1268,4 @@ const styles = StyleSheet.create({
   deckRowDisabled: { opacity: 0.5 },
   deckEmoji: { fontSize: 20 },
   deckName: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-})
+  })

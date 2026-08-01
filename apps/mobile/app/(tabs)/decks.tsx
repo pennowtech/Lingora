@@ -32,7 +32,9 @@ import { requestCloudSync, useCloudSync } from '../../lib/cloudSync'
 import { collectDescendantIds } from '../../lib/deckTree'
 import { runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
 
@@ -71,6 +73,8 @@ async function loadDeckTree(db: DatabaseAdapter): Promise<DeckNode[]> {
 export default function DecksScreen(): JSX.Element {
   const { db } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const sync = useCloudSync()
   const [createOpen, setCreateOpen] = useState(false)
@@ -510,6 +514,8 @@ export default function DecksScreen(): JSX.Element {
 function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck) => void }): JSX.Element {
   const { node, depth, onOpenMenu } = props
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <>
       <Card
@@ -544,7 +550,8 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: spacing.lg, paddingBottom: 96 },
@@ -612,4 +619,4 @@ const styles = StyleSheet.create({
   pickerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
   pickerRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
   hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
-})
+  })

@@ -4,7 +4,9 @@ import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { FollowUpComposer } from './FollowUpComposer'
-import { colors, radius, spacing, type } from '../lib/theme'
+import { radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 /** A tidy title fragment ("Verb", "Noun", ...) from a free-text part of speech — same mapping
  * WordGuideModal uses, duplicated rather than shared since it's a 12-line pure function. */
@@ -45,6 +47,8 @@ export function AIExplanationSheet(props: {
   onAsk: (question: string) => void
 }): JSX.Element {
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   return (
     <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
@@ -116,50 +120,51 @@ export function AIExplanationSheet(props: {
   )
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: '#00000066',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  dismissArea: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  card: {
-    width: '100%',
-    maxHeight: '85%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-  },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
-  title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text, lineHeight: 26 },
-  scroll: { marginTop: spacing.md, flexGrow: 0 },
-  loadingRow: { alignItems: 'center', paddingVertical: spacing.xl, gap: spacing.sm },
-  loadingLabel: { fontSize: type.body, color: colors.textSecondary },
-  intro: { fontSize: type.body, color: colors.text, lineHeight: 22 },
-  sectionTitle: {
-    fontSize: type.body,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  synonym: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
-  synonymWord: { fontWeight: '700', color: colors.text },
-  usage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
-  followUpEntry: {
-    marginTop: spacing.lg,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  followUpQuestionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.xs },
-  followUpQuestion: { flex: 1, fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  followUpAnswer: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: 4 },
-  footnote: {
-    fontSize: type.micro,
-    color: colors.textMuted,
-    marginTop: spacing.lg,
-  },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: '#00000066',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+    },
+    dismissArea: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+    card: {
+      width: '100%',
+      maxHeight: '85%',
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      padding: spacing.xl,
+    },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
+    title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text, lineHeight: 26 },
+    scroll: { marginTop: spacing.md, flexGrow: 0 },
+    loadingRow: { alignItems: 'center', paddingVertical: spacing.xl, gap: spacing.sm },
+    loadingLabel: { fontSize: type.body, color: colors.textSecondary },
+    intro: { fontSize: type.body, color: colors.text, lineHeight: 22 },
+    sectionTitle: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    synonym: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
+    synonymWord: { fontWeight: '700', color: colors.text },
+    usage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
+    followUpEntry: {
+      marginTop: spacing.lg,
+      paddingTop: spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    followUpQuestionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.xs },
+    followUpQuestion: { flex: 1, fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    followUpAnswer: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: 4 },
+    footnote: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+      marginTop: spacing.lg,
+    },
+  })

@@ -9,7 +9,9 @@ import { FormattableTextInput } from '../../components/FormattableTextInput'
 import { Button, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { hasTemplateField } from '../../lib/templates'
 import { useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 type CardKind = 'word' | 'cloze'
 
@@ -38,6 +40,8 @@ export default function AddCardScreen(): JSX.Element {
   const { db, ai, tier, defaultCefr, targetLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   const [kind, setKind] = useState<CardKind>('word')
 
@@ -317,23 +321,24 @@ export default function AddCardScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  kindRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
-  card: { gap: spacing.sm, marginBottom: spacing.lg },
-  label: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
-  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceMuted,
-    color: colors.text,
-    fontSize: type.body,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  errorText: { fontSize: type.caption, color: colors.danger, marginBottom: spacing.md },
-  submitButton: { marginBottom: spacing.xl },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    kindRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+    card: { gap: spacing.sm, marginBottom: spacing.lg },
+    label: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+    labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      backgroundColor: colors.surfaceMuted,
+      color: colors.text,
+      fontSize: type.body,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    errorText: { fontSize: type.caption, color: colors.danger, marginBottom: spacing.md },
+    submitButton: { marginBottom: spacing.xl },
+  })

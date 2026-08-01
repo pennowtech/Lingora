@@ -55,7 +55,9 @@ import {
 } from '../../lib/templates'
 import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { useServices } from '../../lib/services'
-import { colors, radius, ratingColors, spacing, type } from '../../lib/theme'
+import { radius, ratingColors, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'srs', screen: 'ReviewSessionScreen' })
 
@@ -104,6 +106,7 @@ function SwipeableCard(props: {
   children: ReactNode
 }): JSX.Element {
   const { t } = useTranslation()
+  const styles = useThemedStyles(createStyles)
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
 
@@ -394,6 +397,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   const params = useLocalSearchParams<{ deckId: string; mode?: string; cardId?: string }>()
   const { db, ai, tier, defaultCefr } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const clozeOnly = params.mode === 'cloze'
   // Reverse practice shares the exact same due queue/FSRS schedule as normal word-meaning review
@@ -1023,111 +1028,112 @@ export default function ReviewSessionScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  progressWrap: { flex: 1 },
-  counter: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary, minWidth: 36, textAlign: 'right' },
-  modePill: {
-    backgroundColor: colors.warningSoft,
-    paddingVertical: 3,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.full,
-  },
-  modePillLabel: { fontSize: type.micro, fontWeight: '700', color: colors.warning },
-  timeRemaining: {
-    fontSize: type.micro,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: -spacing.xs,
-  },
-  card: {
-    flex: 1,
-    margin: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  // Overrides `card`'s centering for the flipped state, which stacks
-  // several native rows (speakers, WebView content, action bar) top to
-  // bottom inside the same bordered box instead of centering one child.
-  cardFlippedContent: { alignItems: 'stretch', justifyContent: 'flex-start', padding: spacing.md },
-  swipeBadge: {
-    position: 'absolute',
-    fontSize: type.subheading,
-    fontWeight: '800',
-    letterSpacing: 1,
-    borderWidth: 2,
-    borderRadius: radius.sm,
-    paddingVertical: 4,
-    paddingHorizontal: spacing.md,
-  },
-  templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
-  swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
-  swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
-  swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
-  swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
-  tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
-  explanationText: {
-    fontSize: type.caption,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    paddingBottom: spacing.sm,
-    lineHeight: 18,
-  },
-  ratingRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingTop: 0 },
-  ratingPlaceholder: { height: 76 },
-  ratingButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-  },
-  ratingLabel: { fontSize: type.body, fontWeight: '700' },
-  ratingInterval: { fontSize: type.micro, marginTop: 2, opacity: 0.8 },
-  errorLabel: { fontSize: type.caption, color: colors.danger, textAlign: 'center', paddingBottom: spacing.md },
-  editBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
-  editSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.sm,
-  },
-  editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
-  editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
-  editInput: {
-    fontSize: type.body,
-    color: colors.text,
-    minHeight: 44,
-    textAlignVertical: 'top',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
-  },
-  editHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
-  editActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.lg },
-  doneWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl },
-  doneButton: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: -spacing.xl,
-  },
-  doneButtonLabel: { color: colors.textOnPrimary, fontSize: type.body, fontWeight: '700' },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+    },
+    progressWrap: { flex: 1 },
+    counter: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary, minWidth: 36, textAlign: 'right' },
+    modePill: {
+      backgroundColor: colors.warningSoft,
+      paddingVertical: 3,
+      paddingHorizontal: spacing.sm,
+      borderRadius: radius.full,
+    },
+    modePillLabel: { fontSize: type.micro, fontWeight: '700', color: colors.warning },
+    timeRemaining: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: -spacing.xs,
+    },
+    card: {
+      flex: 1,
+      margin: spacing.lg,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+    },
+    // Overrides `card`'s centering for the flipped state, which stacks
+    // several native rows (speakers, WebView content, action bar) top to
+    // bottom inside the same bordered box instead of centering one child.
+    cardFlippedContent: { alignItems: 'stretch', justifyContent: 'flex-start', padding: spacing.md },
+    swipeBadge: {
+      position: 'absolute',
+      fontSize: type.subheading,
+      fontWeight: '800',
+      letterSpacing: 1,
+      borderWidth: 2,
+      borderRadius: radius.sm,
+      paddingVertical: 4,
+      paddingHorizontal: spacing.md,
+    },
+    templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
+    swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
+    swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
+    swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
+    swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
+    tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
+    explanationText: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      paddingBottom: spacing.sm,
+      lineHeight: 18,
+    },
+    ratingRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingTop: 0 },
+    ratingPlaceholder: { height: 76 },
+    ratingButton: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+    },
+    ratingLabel: { fontSize: type.body, fontWeight: '700' },
+    ratingInterval: { fontSize: type.micro, marginTop: 2, opacity: 0.8 },
+    errorLabel: { fontSize: type.caption, color: colors.danger, textAlign: 'center', paddingBottom: spacing.md },
+    editBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
+    editSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.sm,
+    },
+    editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+    editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+    editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    editInput: {
+      fontSize: type.body,
+      color: colors.text,
+      minHeight: 44,
+      textAlignVertical: 'top',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.sm,
+      padding: spacing.sm,
+    },
+    editHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
+    editActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.lg },
+    doneWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl },
+    doneButton: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: -spacing.xl,
+    },
+    doneButtonLabel: { color: colors.textOnPrimary, fontSize: type.body, fontWeight: '700' },
+  })

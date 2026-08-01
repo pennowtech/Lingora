@@ -1,7 +1,8 @@
 import type { JSX } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import WebView from 'react-native-webview'
-import { colors } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 /**
  * Renders one rendered card side (already-built HTML string from
@@ -11,6 +12,8 @@ import { colors } from '../lib/theme'
  * what the review session renders.
  */
 export function CardRenderer(props: { html: string; style?: object }): JSX.Element {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={[styles.container, props.style]}>
       <WebView
@@ -29,8 +32,9 @@ export function CardRenderer(props: { html: string; style?: object }): JSX.Eleme
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'transparent' },
-  webview: { flex: 1, backgroundColor: 'transparent' },
-  loading: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: 'transparent' },
+    webview: { flex: 1, backgroundColor: 'transparent' },
+    loading: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
+  })

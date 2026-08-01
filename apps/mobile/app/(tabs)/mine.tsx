@@ -17,7 +17,9 @@ import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'rea
 import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
-import { colors, radius, spacing, type } from '../../lib/theme'
+import { radius, spacing, type } from '../../lib/theme'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'mining', screen: 'MiningQueueScreen' })
 
@@ -39,6 +41,8 @@ const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
 export default function MiningQueueScreen(): JSX.Element {
   const { db, pipeline, tier, defaultCefr } = useServices()
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<string[] | null>(null)
   const [progress, setProgress] = useState<string | null>(null)
@@ -312,7 +316,8 @@ export default function MiningQueueScreen(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: 96 },
   intro: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19, marginBottom: spacing.lg },
@@ -383,4 +388,4 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
-})
+  })

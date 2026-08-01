@@ -9,7 +9,9 @@ import {
   type NativeSyntheticEvent,
   type TextInputSelectionChangeEventData,
 } from 'react-native'
-import { colors, radius, spacing, type } from '../lib/theme'
+import { radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 
 const COLORS = ['#D64545', '#2E7D32', '#1565C0', '#6A1B9A']
 
@@ -32,6 +34,8 @@ export function FormattableTextInput(props: {
   testID?: string
 }): JSX.Element {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   const wrapSelection = (before: string, after: string): void => {
     const { start, end } = selection
@@ -93,33 +97,34 @@ export function FormattableTextInput(props: {
   )
 }
 
-const styles = StyleSheet.create({
-  // Spans the full width of the field, with buttons spread across it (not bunched at one end) —
-  // that spare width goes straight into bigger touch targets, easier to hit accurately than a
-  // tight row of small icons.
-  toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm },
-  toolButton: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceMuted,
-  },
-  boldGlyph: { fontWeight: '800', fontSize: 20, color: colors.text },
-  italicGlyph: { fontStyle: 'italic', fontSize: 20, color: colors.text },
-  normalGlyph: { fontSize: 15, fontWeight: '600', color: colors.textSecondary },
-  colorSwatch: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.border },
-  input: {
-    minHeight: 70,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceMuted,
-    color: colors.text,
-    fontSize: type.body,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    textAlignVertical: 'top',
-  },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    // Spans the full width of the field, with buttons spread across it (not bunched at one end) —
+    // that spare width goes straight into bigger touch targets, easier to hit accurately than a
+    // tight row of small icons.
+    toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm },
+    toolButton: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceMuted,
+    },
+    boldGlyph: { fontWeight: '800', fontSize: 20, color: colors.text },
+    italicGlyph: { fontStyle: 'italic', fontSize: 20, color: colors.text },
+    normalGlyph: { fontSize: 15, fontWeight: '600', color: colors.textSecondary },
+    colorSwatch: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.border },
+    input: {
+      minHeight: 70,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      backgroundColor: colors.surfaceMuted,
+      color: colors.text,
+      fontSize: type.body,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      textAlignVertical: 'top',
+    },
+  })

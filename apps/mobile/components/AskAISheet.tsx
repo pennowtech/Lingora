@@ -3,7 +3,9 @@ import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { FollowUpComposer } from './FollowUpComposer'
-import { colors, radius, spacing, type } from '../lib/theme'
+import { radius, spacing, type } from '../lib/theme'
+import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import type { ThemeColors } from '../lib/themes'
 import type { FollowUpEntry } from './AIExplanationSheet'
 
 /**
@@ -20,6 +22,8 @@ export function AskAISheet(props: {
   onAsk: (question: string) => void
 }): JSX.Element {
   const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
 
   return (
     <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
@@ -50,31 +54,32 @@ export function AskAISheet(props: {
   )
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: '#00000066',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  dismissArea: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  card: {
-    width: '100%',
-    maxHeight: '70%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-  },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.md },
-  title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  scroll: { marginTop: spacing.md, flexGrow: 0 },
-  followUpEntry: {
-    marginTop: spacing.md,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  followUpQuestion: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  followUpAnswer: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: 4 },
-})
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: '#00000066',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+    },
+    dismissArea: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+    card: {
+      width: '100%',
+      maxHeight: '70%',
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      padding: spacing.xl,
+    },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.md },
+    title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    scroll: { marginTop: spacing.md, flexGrow: 0 },
+    followUpEntry: {
+      marginTop: spacing.md,
+      paddingTop: spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    followUpQuestion: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    followUpAnswer: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginTop: 4 },
+  })

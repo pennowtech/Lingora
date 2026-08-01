@@ -9,11 +9,15 @@ export {
   createDeckBackup,
   parseBackup,
   restoreBackup,
+  TABLE_COLUMNS,
+  TABLE_ORDER,
   type BackupPayload,
   type BackupSettings,
   type BackupTableName,
   type RestoreResult,
 } from './backup'
+
+export * from './sync'
 
 export {
   buildCsvImportPreview,
@@ -32,6 +36,13 @@ export {
 } from './csv-import'
 
 export { parseListField, type DuplicatePolicy, type ImportableRow } from './import-shared'
+export {
+  createManualClozeCard,
+  createManualWordCard,
+  type ManualCardResult,
+  type ManualClozeCardInput,
+  type ManualWordCardInput,
+} from './manual-card'
 export { buildClozeMarkup, CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
 export { getExportableCards, mergeCardsByWord, type ExportableCard } from './export-shared'
 export { buildCsvExport } from './csv-export'

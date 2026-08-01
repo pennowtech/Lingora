@@ -10,6 +10,9 @@ import { dedupeClustersAndOrphans } from './0008_dedupe_clusters_and_orphans'
 import { wordGuides } from './0009_word_guides'
 import { wordGuideTranslation } from './0010_word_guide_translation'
 import { cardSource } from './0011_card_source'
+import { meaningUsage } from './0012_meaning_usage'
+import { clozeStates } from './0013_cloze_states'
+import { syncSnapshots } from './0014_sync_snapshots'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -30,6 +33,9 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   wordGuides,
   wordGuideTranslation,
   cardSource,
+  meaningUsage,
+  clozeStates,
+  syncSnapshots,
 ]
 
 /**

@@ -29,7 +29,7 @@ export const BACKUP_FORMAT_VERSION = 1
  * sync_queue (Phase 7 internal) are deliberately excluded — neither is user
  * data.
  */
-const TABLE_COLUMNS = {
+export const TABLE_COLUMNS = {
   lemmas: ['id', 'form', 'language', 'gender', 'plural', 'part_of_speech', 'created_at', 'updated_at'],
   inflections: ['id', 'form', 'lemma_id', 'features', 'created_at', 'updated_at'],
   decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji'],
@@ -41,6 +41,7 @@ const TABLE_COLUMNS = {
     'meaning_cluster_id',
     'translation',
     'explanation',
+    'usage',
     'is_primary',
     'cefr_level',
     'order_index',
@@ -98,6 +99,18 @@ const TABLE_COLUMNS = {
     'reps',
     'learning_steps',
   ],
+  cloze_states: [
+    'card_id',
+    'state',
+    'stability',
+    'difficulty',
+    'retrievability',
+    'lapses',
+    'last_reviewed_at',
+    'next_review_date',
+    'reps',
+    'learning_steps',
+  ],
   review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms'],
   sentence_mining_queue: [
     'id',
@@ -116,7 +129,7 @@ const TABLE_COLUMNS = {
 export type BackupTableName = keyof typeof TABLE_COLUMNS
 
 /** Insert order (FK-safe: parents before children); restore deletes in the reverse order. */
-const TABLE_ORDER: readonly BackupTableName[] = [
+export const TABLE_ORDER: readonly BackupTableName[] = [
   'lemmas',
   'inflections',
   'decks',
@@ -135,6 +148,7 @@ const TABLE_ORDER: readonly BackupTableName[] = [
   'prompt_versions',
   'generation_metadata',
   'card_states',
+  'cloze_states',
   'review_events',
   'sentence_mining_queue',
   'evaluations',
@@ -291,6 +305,13 @@ function inClause(values: readonly string[]): { sql: string; params: string[] } 
  * entirely (neither is deck-scoped data — mining queue entries predate
  * having a card at all, and evaluation history isn't essential to a shared
  * deck).
+ *
+ * Every card in the deck exports with its full content regardless of `cards.source` — an earlier
+ * version of this function stripped meanings/examples/synonyms/phrases down to a bare reference
+ * for word-guide-sourced cards (the idea being that dictionary content installed locally shouldn't
+ * be redistributed), but for a deck built mostly or entirely from word-guide lookups that produced
+ * a `.lin` file with empty content tables — a badly broken result for the file's actual purpose
+ * (sharing/inspection). Reverted; full content export is simpler and actually useful.
  */
 export async function createDeckBackup(
   db: DatabaseAdapter,
@@ -334,6 +355,7 @@ export async function createDeckBackup(
     card_tags: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
     generation_metadata: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
     card_states: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
+    cloze_states: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
     review_events: { where: `card_id IN ${cardIn.sql}`, params: cardIn.params },
   }
   // Included in full, not filtered — see the doc comment above.

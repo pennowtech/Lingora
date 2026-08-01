@@ -88,6 +88,7 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'word-guides', label: 'Word guides', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
   { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync' },
   { key: 'about', label: 'About', group: 'About', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
+  { key: 'feedback', label: 'Send Feedback', group: 'About', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/feedback', icon: 'chatbox-ellipses-outline' },
 ]
 
 /**
@@ -283,6 +284,14 @@ export default function SettingsScreen(): JSX.Element {
               label={t('Sync')}
               detail={t('Sync decks, cards, and progress to a Google account')}
               onPress={() => router.push('/settings/sync')}
+              divider
+            />
+            <LinkRow
+              testID="settings-menu-feedback"
+              icon="chatbox-ellipses-outline"
+              label={t('Send Feedback')}
+              detail={t('Report an issue or request a feature')}
+              onPress={() => router.push('/settings/feedback')}
               divider
             />
             <LinkRow

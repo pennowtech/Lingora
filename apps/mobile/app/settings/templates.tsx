@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { Template, TemplateType } from '@lingora/types'
-import { createTemplate, deleteTemplate, getAllTemplates, updateTemplate } from '@lingora/database'
+import { createTemplate, getAllTemplates, updateTemplate } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
@@ -207,8 +207,6 @@ export default function TemplatesScreen(): JSX.Element {
   const templatesQuery = useQuery({ queryKey: ['templates'], queryFn: () => getAllTemplates(db) })
 
   const [templateType, setTemplateType] = useState<TemplateType>('vocab')
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [name, setName] = useState('')
   const [frontTemplate, setFrontTemplate] = useState('')
   const [backTemplate, setBackTemplate] = useState('')
   const [styles_, setStyles_] = useState('')
@@ -219,63 +217,58 @@ export default function TemplatesScreen(): JSX.Element {
 
   const allTemplates = templatesQuery.data ?? []
   const templates = allTemplates.filter((t) => t.type === templateType)
-  const active = templates.find((t) => t.id === activeId) ?? templates[0]
+  // Exactly one template per type — no multi-template management, so the first (and only) row
+  // for this type, ordered is_default DESC by getAllTemplates, is simply "the" template.
+  const active = templates[0]
   const templateVariables = templateType === 'cloze' ? CLOZE_TEMPLATE_VARIABLES : TEMPLATE_VARIABLES
   const sampleContext = templateType === 'cloze' ? CLOZE_SAMPLE_CONTEXT : SAMPLE_CONTEXT
   const defaultFront = templateType === 'cloze' ? CLOZE_FRONT_TEMPLATE : DEFAULT_FRONT_TEMPLATE
   const defaultBack = templateType === 'cloze' ? CLOZE_BACK_TEMPLATE : DEFAULT_BACK_TEMPLATE
   const defaultStyles = templateType === 'cloze' ? CLOZE_STYLES : DEFAULT_STYLES
+  // Never shown/edited (no naming UI any more) — just needs some value for the DB's NOT NULL column.
+  const templateName = templateType === 'cloze' ? 'Cloze' : 'Vocabulary'
 
-  // Load the selected template's fields into the editor whenever the
-  // selection changes (or the list first loads) — not on every keystroke.
+  // Load the template's fields into the editor whenever the underlying row changes (a different
+  // type's template, or the very first save turning "no row yet" into a real one) — not on every
+  // keystroke.
   useEffect(() => {
     if (!active) return
-    setActiveId(active.id)
-    setName(active.name)
     setFrontTemplate(active.frontTemplate)
     setBackTemplate(active.backTemplate)
     setStyles_(active.styles ?? '')
-    // Only re-sync editor fields from the template row when a different
-    // template is selected (by id), not on every local edit or background refetch.
   }, [active?.id])
-
-  // Switching Vocabulary/Cloze always lands on that type's own selection
-  // (its default template, or a blank "+ New" state if it has none yet).
-  useEffect(() => {
-    setActiveId(null)
-  }, [templateType])
 
   const isDirty =
     !!active &&
-    (name !== active.name ||
-      frontTemplate !== active.frontTemplate ||
-      backTemplate !== active.backTemplate ||
-      styles_ !== (active.styles ?? ''))
+    (frontTemplate !== active.frontTemplate || backTemplate !== active.backTemplate || styles_ !== (active.styles ?? ''))
 
-  const save = useMutation({
-    mutationFn: async () => {
+  /** Creates (first time) or updates (every time after) this type's one template. Takes explicit
+   * values rather than reading frontTemplate/backTemplate/styles_ from closure state, so a caller
+   * that just called setFrontTemplate/etc. (e.g. resetToDefault) doesn't race React's async state
+   * update — the values it persists are exactly the values it was given, not last render's. */
+  const persistTemplate = useMutation({
+    mutationFn: async (values: { front: string; back: string; styles: string }) => {
       const now = Date.now()
       if (active) {
-        const updated: Template = { ...active, name, frontTemplate, backTemplate, styles: styles_, updatedAt: now }
+        const updated: Template = { ...active, name: templateName, frontTemplate: values.front, backTemplate: values.back, styles: values.styles, updatedAt: now }
         await updateTemplate(db, updated)
         return updated
       }
       const created: Template = {
         id: crypto.randomUUID(),
-        name: name || 'New template',
+        name: templateName,
         type: templateType,
-        frontTemplate,
-        backTemplate,
-        styles: styles_,
-        isDefault: templates.length === 0,
+        frontTemplate: values.front,
+        backTemplate: values.back,
+        styles: values.styles,
+        isDefault: true,
         createdAt: now,
         updatedAt: now,
       }
       await createTemplate(db, created)
       return created
     },
-    onSuccess: async (saved) => {
-      setActiveId(saved.id)
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
     onError: (error: unknown) => {
@@ -284,37 +277,8 @@ export default function TemplatesScreen(): JSX.Element {
     },
   })
 
-  const setDefault = useMutation({
-    mutationFn: async () => {
-      if (!active) return
-      await updateTemplate(db, { ...active, isDefault: true })
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
-    onError: (error: unknown) => Alert.alert(t('Could not set default template'), String(error)),
-  })
-
-  const remove = useMutation({
-    mutationFn: async () => {
-      if (!active) return
-      await deleteTemplate(db, active.id)
-    },
-    onSuccess: async () => {
-      setActiveId(null)
-      await queryClient.invalidateQueries({ queryKey: ['templates'] })
-    },
-    onError: (error: unknown) => Alert.alert(t('Could not delete template'), String(error)),
-  })
-
-  const startNewTemplate = (): void => {
-    setActiveId(null)
-    setName(t('New template'))
-    setFrontTemplate(defaultFront)
-    setBackTemplate(defaultBack)
-    setStyles_(defaultStyles)
-  }
-
   const resetToDefault = (): void => {
-    Alert.alert(t('Reset to default layout & style?'), t('This replaces the front, back, and CSS in the editor — tap "Save changes" to keep it. Unsaved edits are lost.'), [
+    Alert.alert(t('Reset to default?'), t('This replaces the fields, layout, and style with the built-in default, and saves immediately. This cannot be undone.'), [
       { text: t('Cancel'), style: 'cancel' },
       {
         text: t('Reset'),
@@ -323,6 +287,7 @@ export default function TemplatesScreen(): JSX.Element {
           setFrontTemplate(defaultFront)
           setBackTemplate(defaultBack)
           setStyles_(defaultStyles)
+          persistTemplate.mutate({ front: defaultFront, back: defaultBack, styles: defaultStyles })
         },
       },
     ])
@@ -349,18 +314,10 @@ export default function TemplatesScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
-      {/* Vocabulary/Cloze type toggle — each has its own template list and default */}
+      {/* Vocabulary/Cloze type toggle — each has exactly one template */}
       <View style={styles.typeRow}>
         <Chip label={t('Vocabulary')} selected={templateType === 'vocab'} onPress={() => setTemplateType('vocab')} />
         <Chip label={t('Cloze')} selected={templateType === 'cloze'} onPress={() => setTemplateType('cloze')} />
-      </View>
-
-      {/* Template picker */}
-      <View style={styles.pickerRow}>
-        {templates.map((tpl) => (
-          <Chip key={tpl.id} label={tpl.isDefault ? `★ ${tpl.name}` : tpl.name} selected={tpl.id === activeId} onPress={() => setActiveId(tpl.id)} />
-        ))}
-        <Chip label={t('+ New')} onPress={startNewTemplate} />
       </View>
 
       {/* Tabs + help */}
@@ -412,11 +369,6 @@ export default function TemplatesScreen(): JSX.Element {
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           {tab === 'fields' ? (
           <>
-            <SectionHeader title={t('Template name')} />
-            <Card>
-              <TextInput style={styles.nameInput} value={name} onChangeText={setName} placeholder={t('Template name')} />
-            </Card>
-
             <SectionHeader title={t('Fields')} />
             <Text style={styles.fieldsHint}>
               {t('Tap "Front" or "Back" to show a field on that side — a field can appear on both, or neither.')}
@@ -455,7 +407,6 @@ export default function TemplatesScreen(): JSX.Element {
 
         {tab === 'style' ? (
           <>
-            <SectionHeader title={t('Layout & style')} action={t('Reset to default')} onAction={resetToDefault} />
             <SectionHeader title={t('Accent color')} />
             <Card>
               <View style={styles.chipRow}>
@@ -492,7 +443,7 @@ export default function TemplatesScreen(): JSX.Element {
 
         {tab === 'code' ? (
           <>
-            <SectionHeader title={t('Front (Liquid)')} />
+            <SectionHeader title={t('Front')} />
             <Card>
               <TextInput
                 style={styles.editor}
@@ -504,7 +455,7 @@ export default function TemplatesScreen(): JSX.Element {
               />
             </Card>
 
-            <SectionHeader title={t('Back (Liquid)')} />
+            <SectionHeader title={t('Back')} />
             <Card>
               <TextInput
                 style={styles.editor}
@@ -538,29 +489,19 @@ export default function TemplatesScreen(): JSX.Element {
       )}
 
       <View style={styles.actions}>
-        {active && !active.isDefault ? (
-          <Button label={t('Set default')} variant="ghost" small onPress={() => setDefault.mutate()} disabled={setDefault.isPending} />
-        ) : null}
-        {active ? (
-          <Button
-            label={remove.isPending ? t('Deleting…') : t('Delete')}
-            variant="danger"
-            small
-            onPress={() =>
-              Alert.alert(t('Delete this template?'), t('"{{name}}" will be removed.', { name: active.name }), [
-                { text: t('Cancel'), style: 'cancel' },
-                { text: t('Delete'), style: 'destructive', onPress: () => remove.mutate() },
-              ])
-            }
-            disabled={remove.isPending || active.isDefault}
-          />
-        ) : null}
         <Button
-          label={save.isPending ? t('Saving…') : active ? t('Save changes') : t('Create template')}
+          label={t('Reset to default')}
+          variant="ghost"
+          small
+          onPress={resetToDefault}
+          disabled={persistTemplate.isPending}
+        />
+        <Button
+          label={persistTemplate.isPending ? t('Saving…') : t('Save changes')}
           icon="save"
           small
-          onPress={() => save.mutate()}
-          disabled={save.isPending || (!!active && !isDirty)}
+          onPress={() => persistTemplate.mutate({ front: frontTemplate, back: backTemplate, styles: styles_ })}
+          disabled={persistTemplate.isPending || (!!active && !isDirty)}
         />
       </View>
 
@@ -608,7 +549,6 @@ export default function TemplatesScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   typeRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
-  pickerRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, padding: spacing.lg, paddingBottom: 0 },
   tabBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -619,7 +559,6 @@ const styles = StyleSheet.create({
   tabRow: { flexDirection: 'row', gap: spacing.sm },
   scroll: { flex: 1 },
   scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  nameInput: { fontSize: type.body, fontWeight: '700', color: colors.text },
   fieldsHint: { fontSize: type.micro, color: colors.textMuted, marginBottom: spacing.sm, lineHeight: 16 },
   fieldList: { gap: 0 },
   fieldRow: {

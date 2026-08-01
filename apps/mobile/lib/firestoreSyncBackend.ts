@@ -1,4 +1,4 @@
-import type { BackupTableName, CloudSyncBackend, PushChange, RemoteRecord } from '@lingora/database'
+import { TABLE_ORDER, type BackupTableName, type CloudSyncBackend, type PushChange, type RemoteRecord } from '@lingora/database'
 import { collection, doc, getFirestore, writeBatch } from '@react-native-firebase/firestore'
 
 /** Firestore can't literally forget a document mid-sync (another device might not have seen the
@@ -53,6 +53,27 @@ export class FirestoreSyncBackend implements CloudSyncBackend {
         const ref = doc(col, change.recordId)
         batch.set(ref, change.data === null ? TOMBSTONE_MARKER : change.data)
       }
+      await batch.commit()
+    }
+  }
+}
+
+/**
+ * Full wipe of a user's cloud data — every document in every synced collection under
+ * `users/{uid}/`, deleted outright (not tombstoned; there's nothing left to converge with once the
+ * account is gone). Used only by account deletion (see lib/cloudSync.ts#deleteCloudAccountAndData),
+ * satisfying Google Play's 2026 requirement that signing in with Google to sync must come with a
+ * way to completely erase that synced data, not just sign out of it.
+ */
+export async function deleteAllCloudData(uid: string): Promise<void> {
+  const db = getFirestore()
+  for (const tableName of TABLE_ORDER) {
+    const col = collection(db, 'users', uid, tableName)
+    const snapshot = await col.get({ source: 'server' })
+    if (snapshot.docs.length === 0) continue
+    for (const group of chunk(snapshot.docs, BATCH_CHUNK_SIZE)) {
+      const batch = writeBatch(db)
+      for (const docSnapshot of group) batch.delete(docSnapshot.ref)
       await batch.commit()
     }
   }

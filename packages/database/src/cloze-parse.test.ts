@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup, revealClozeMarkup } from './cloze-parse'
+import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup, revealClozeMarkup, revealClozeSentence } from './cloze-parse'
 
 describe('hasClozeMarkup', () => {
   it('detects real Anki cloze syntax', () => {
@@ -80,5 +80,23 @@ describe('revealClozeMarkup', () => {
 
   it('returns plain text unchanged', () => {
     expect(revealClozeMarkup('Wir gehen heute Abend aus.')).toBe('Wir gehen heute Abend aus.')
+  })
+})
+
+describe('revealClozeSentence', () => {
+  it('fills a single blank from the stored answer', () => {
+    expect(revealClozeSentence('Wir gehen heute Abend [...].', 'aus')).toBe('Wir gehen heute Abend aus.')
+  })
+
+  it('fills multiple blanks in order from the "; "-joined answers', () => {
+    expect(revealClozeSentence('Der [...] und der [...] sind ähnlich.', 'Wettbewerb; Wettstreit')).toBe(
+      'Der Wettbewerb und der Wettstreit sind ähnlich.',
+    )
+  })
+
+  it('round-trips a real Cloze row (sentence = blanked, answer = joined) the same way buildClozeMarkup does', () => {
+    const original = 'Wir gehen heute Abend {{c1::aus}}.'
+    const parsed = parseClozeMarkup(original)!
+    expect(revealClozeSentence(parsed.blanked, parsed.answers.join('; '))).toBe('Wir gehen heute Abend aus.')
   })
 })

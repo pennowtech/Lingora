@@ -17,6 +17,7 @@ import {
   getWordGuide,
   recordClozeReview,
   recordReview,
+  revealClozeSentence,
   updateExampleText,
   updateMeaningText,
   type DatabaseAdapter,
@@ -43,6 +44,7 @@ import {
   ErrorState,
   IconButton,
   ProgressBar,
+  SpeakerButton,
   Spinner,
 } from '../../components/ui'
 import {
@@ -766,6 +768,16 @@ export default function ReviewSessionScreen(): JSX.Element {
   // `clozeOnly` alone tells us which template/layout applies.
   const isCloze = clozeOnly
 
+  // What the speaker button (below) reads aloud — the example sentence for a vocab card, or the
+  // complete cloze sentence (blank filled back in with its answer, not the "[...]" placeholder)
+  // for a cloze card. Null when there's nothing to speak, which is also what hides the button —
+  // no example/cloze sentence on this card means no speaker, same as word/[form].tsx.
+  const speakableSentence = !view
+    ? null
+    : isCloze
+      ? (view.clozeSentence && revealClozeSentence(view.clozeSentence, view.clozeAnswer ?? '')) || null
+      : view.example
+
   const renderedContext = view
     ? isReverse
       ? { ...view.templateContext, word: view.templateContext.meaning, meaning: view.templateContext.word }
@@ -863,6 +875,12 @@ export default function ReviewSessionScreen(): JSX.Element {
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
               <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
+
+              {speakableSentence ? (
+                <View style={styles.speakerRow}>
+                  <SpeakerButton text={speakableSentence} language={view.language} size={20} />
+                </View>
+              ) : null}
 
               {!isCloze ? (
                 <>
@@ -1084,6 +1102,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
     },
     templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
+    speakerRow: { alignItems: 'center', paddingBottom: spacing.xs },
     swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
     swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
     swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },

@@ -73,3 +73,18 @@ export function buildClozeMarkup(blankedSentence: string, answerJoined: string):
 export function revealClozeMarkup(text: string): string {
   return text.replace(new RegExp(CLOZE_TOKEN.source, 'g'), (_full, answer: string) => answer.trim())
 }
+
+/**
+ * The equivalent of `revealClozeMarkup`, but starting from an already-persisted `Cloze` row
+ * (`sentence` = blanked with `CLOZE_BLANK`, `answer` = every answer joined with "; ", the same
+ * shape `buildClozeMarkup` reads) instead of raw `{{cN::answer}}` markup — reconstructs the
+ * complete, natural sentence a cloze card is testing, e.g. for text-to-speech.
+ */
+export function revealClozeSentence(blankedSentence: string, answerJoined: string): string {
+  const answers = answerJoined
+    .split(';')
+    .map((a) => a.trim())
+    .filter((a) => a.length > 0)
+  const parts = blankedSentence.split(CLOZE_BLANK)
+  return parts.reduce((result, part, i) => (i === 0 ? part : `${result}${answers[i - 1] ?? ''}${part}`), '')
+}

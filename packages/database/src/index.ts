@@ -43,7 +43,14 @@ export {
   type ManualClozeCardInput,
   type ManualWordCardInput,
 } from './manual-card'
-export { buildClozeMarkup, CLOZE_BLANK, hasClozeMarkup, parseClozeMarkup, type ParsedCloze } from './cloze-parse'
+export {
+  buildClozeMarkup,
+  CLOZE_BLANK,
+  hasClozeMarkup,
+  parseClozeMarkup,
+  revealClozeSentence,
+  type ParsedCloze,
+} from './cloze-parse'
 export { getExportableCards, mergeCardsByWord, type ExportableCard } from './export-shared'
 export { buildCsvExport } from './csv-export'
 export { buildMarkdownExport } from './markdown-export'

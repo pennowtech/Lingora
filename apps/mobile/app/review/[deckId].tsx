@@ -17,6 +17,7 @@ import {
   getWordGuide,
   recordClozeReview,
   recordReview,
+  revealClozeSentence,
   updateExampleText,
   updateMeaningText,
   type DatabaseAdapter,
@@ -45,6 +46,7 @@ import {
   ProgressBar,
   Spinner,
 } from '../../components/ui'
+import { speak } from '../../lib/speech'
 import {
   buildCardContext,
   CLOZE_BACK_TEMPLATE,
@@ -766,6 +768,18 @@ export default function ReviewSessionScreen(): JSX.Element {
   // `clozeOnly` alone tells us which template/layout applies.
   const isCloze = clozeOnly
 
+  // What the speaker button (below) reads aloud — the example sentence for a vocab card, or the
+  // complete cloze sentence (blank filled back in with its answer, not the "[...]" placeholder)
+  // for a cloze card. Null when there's nothing to speak, which is also what hides the button —
+  // no example/cloze sentence on this card means no speaker, same as word/[form].tsx.
+  const speakableSentence = !view
+    ? null
+    : isCloze
+      ? view.clozeSentence
+        ? revealClozeSentence(view.clozeSentence, view.clozeAnswer ?? '')
+        : null
+      : view.example
+
   const renderedContext = view
     ? isReverse
       ? { ...view.templateContext, word: view.templateContext.meaning, meaning: view.templateContext.word }
@@ -862,7 +876,15 @@ export default function ReviewSessionScreen(): JSX.Element {
               resetKey={view.card.id}
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
-              <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
+              <CardRenderer
+                html={backHtml}
+                style={styles.templateFrontWrap}
+                {...(speakableSentence && {
+                  onMessage: (data: string) => {
+                    if (data === 'speak') speak(speakableSentence, view.language)
+                  },
+                })}
+              />
 
               {!isCloze ? (
                 <>

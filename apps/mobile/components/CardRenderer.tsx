@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import WebView from 'react-native-webview'
+import WebView, { type WebViewMessageEvent } from 'react-native-webview'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
 
@@ -10,8 +10,20 @@ import type { ThemeColors } from '../lib/themes'
  * CSS actually applies — used by both the review session and the template
  * editor's live preview, so what an editor sees while editing is exactly
  * what the review session renders.
+ *
+ * `onMessage` is the bridge back out of the WebView for template-embedded
+ * interactive elements (currently just the speaker button baked into
+ * DEFAULT_BACK_TEMPLATE/CLOZE_BACK_TEMPLATE, which calls
+ * `window.ReactNativeWebView.postMessage('speak')` on tap) — a plain
+ * string payload, not JSON, since there's only ever been one message kind
+ * so far. The template editor's own preview doesn't pass this prop, so
+ * tapping the speaker there is a harmless no-op.
  */
-export function CardRenderer(props: { html: string; style?: object }): JSX.Element {
+export function CardRenderer(props: {
+  html: string
+  style?: object
+  onMessage?: (data: string) => void
+}): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   return (
@@ -22,6 +34,7 @@ export function CardRenderer(props: { html: string; style?: object }): JSX.Eleme
         scrollEnabled={false}
         originWhitelist={['*']}
         startInLoadingState
+        {...(props.onMessage && { onMessage: (e: WebViewMessageEvent) => props.onMessage?.(e.nativeEvent.data) })}
         renderLoading={() => (
           <View style={styles.loading}>
             <ActivityIndicator color={colors.primary} />

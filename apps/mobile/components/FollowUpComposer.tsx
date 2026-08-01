@@ -15,7 +15,11 @@ const MAX_LENGTH = 100
  * "N/100" counter, and an "Ask" action. The icon-button entry point that makes this discoverable
  * lives on the caller (word/[form].tsx / review/[deckId].tsx's "More info" sheet header).
  */
-export function FollowUpComposer(props: { loading: boolean; onAsk: (question: string) => void }): JSX.Element {
+export function FollowUpComposer(props: {
+  loading: boolean
+  onAsk: (question: string) => void
+  onCancel?: () => void
+}): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -64,6 +68,11 @@ export function FollowUpComposer(props: { loading: boolean; onAsk: (question: st
           <View style={styles.thinkingRow}>
             <ActivityIndicator size="small" color={colors.primary} />
             <Text style={styles.thinkingLabel}>{t('Thinking…')}</Text>
+            {props.onCancel ? (
+              <Pressable onPress={props.onCancel} hitSlop={8}>
+                <Text style={styles.cancelLabel}>{t('Cancel')}</Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : (
           <Text style={[styles.counter, atLimit && styles.counterAtLimit]}>
@@ -109,6 +118,7 @@ const createStyles = (colors: ThemeColors) =>
     counter: { fontSize: type.micro, color: colors.textMuted },
     thinkingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     thinkingLabel: { fontSize: type.micro, color: colors.textMuted },
+    cancelLabel: { fontSize: type.micro, color: colors.danger, fontWeight: '700' },
     counterAtLimit: { color: colors.danger, fontWeight: '700' },
     askButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     askButtonDisabled: { opacity: 0.5 },

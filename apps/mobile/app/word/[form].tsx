@@ -15,8 +15,8 @@ import type {
 } from '@lingora/types'
 import {
   addCardToDeck,
+  createDeck,
   findLemmaBySurfaceForm,
-  getAllDecks,
   getActivePromptVersion,
   getCardsByLemma,
   getClozesForCard,
@@ -41,7 +41,7 @@ import {
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -71,6 +71,8 @@ import {
 } from '../../components/ui'
 import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
 import { AskAISheet } from '../../components/AskAISheet'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
@@ -100,6 +102,75 @@ const CONTEXT_TABS = [
   'daily_life',
   'slang',
 ] as const
+
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'meaning',
+    title: 'Meaning',
+    icon: 'book-outline',
+    paragraphs: [
+      'The translation at the top is what actually appears on your flashcard.',
+      'If this word has more than one distinct sense — say, a casual meaning and a business one — you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
+    ],
+  },
+  {
+    id: 'examples',
+    title: 'Example sentences',
+    icon: 'chatbubble-outline',
+    paragraphs: [
+      'Example sentences show the word used in context, with a translation underneath.',
+      'Tap the star on any example to choose which one appears on your flashcard — only one shows at a time.',
+      'The dropdown above the examples ("all", "travel", "business", and so on) filters them down to a particular tone or situation, if you only want to see those.',
+      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense.',
+    ],
+  },
+  {
+    id: 'grammar',
+    title: 'Advanced grammar options',
+    icon: 'options-outline',
+    paragraphs: [
+      'This collapsible panel below the examples lets you pick a specific grammar pattern — a tense, a sentence structure, a particular conjunction — that you want the next batch of examples to practice, instead of leaving it to chance.',
+      'Examples generated from a selected option get a highlighted background, so you can tell which ones came from your request.',
+    ],
+  },
+  {
+    id: 'actions',
+    title: 'Explain, Ask AI & more',
+    icon: 'chatbubble-ellipses-outline',
+    paragraphs: [
+      'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
+      '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.',
+      '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
+      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh — useful if the current version isn\'t working for you. This can\'t be undone.',
+      'The pencil icon lets you edit the meaning or example text directly. The last icon opens a quick web search for the word, for a second opinion outside the app.',
+    ],
+  },
+  {
+    id: 'synonyms-phrases',
+    title: 'Synonyms & phrases',
+    icon: 'swap-horizontal-outline',
+    paragraphs: [
+      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.',
+      'Phrases show this word used in common expressions or word combinations.',
+    ],
+  },
+  {
+    id: 'cloze',
+    title: 'Cloze cards',
+    icon: 'create-outline',
+    paragraphs: ['A cloze card blanks out part of a sentence for you to fill in — a different way of practicing the same word.'],
+  },
+  {
+    id: 'deck',
+    title: 'Adding to a deck',
+    icon: 'albums-outline',
+    paragraphs: [
+      '"Add to deck" at the bottom is how you start reviewing this word — you can add it to more than one deck, or create a new one on the spot.',
+      'Whatever translation at this moment is selected/shown will be added to deck along with its relevant example.',
+      'You can add your cards to multiple decks even if it is added before.'
+    ],
+  },
+]
 
 /** Grammar options panel groups, straight from the roadmap's Phase 4 spec. */
 const GRAMMAR_GROUPS: Array<{ title: string; options: string[] }> = [
@@ -179,6 +250,7 @@ export default function WordDetailScreen(): JSX.Element {
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
+  const help = useHelpAccordion('meaning')
 
   // Card action bar state — explanation visibility/generation (dictionary-sourced cards only; AI
   // cards always show their explanation inline, see isAiCard below), the "More info" follow-up
@@ -198,12 +270,6 @@ export default function WordDetailScreen(): JSX.Element {
     queryKey: ['word', form],
     queryFn: () => loadWord(db, form ?? ''),
     enabled: (form ?? '') !== '',
-  })
-
-  const decksQuery = useQuery({
-    queryKey: ['decks'],
-    queryFn: () => getAllDecks(db),
-    enabled: deckPickerOpen,
   })
 
   const word = wordQuery.data
@@ -316,25 +382,52 @@ export default function WordDetailScreen(): JSX.Element {
   // tabs are purely a viewing choice otherwise (switching tabs alone never touches
   // primary_meaning_id or is_selected); this is the one moment that choice gets committed,
   // matching "whatever translation was selected during Add to Deck should be used on deck cards."
+  const commitCardSelection = async (): Promise<void> => {
+    if (!word?.card) throw new Error(t('This word has no card yet.'))
+    if (headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId) {
+      await updatePrimaryMeaning(db, word.card.id, headlineMeaning.id)
+    }
+    if (selectedExample && !selectedExample.isSelected) {
+      await updateSelectedExample(db, word.card.id, selectedExample.id)
+    }
+  }
+
+  const invalidateAfterDeckChange = async (): Promise<void> => {
+    await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    await queryClient.invalidateQueries({ queryKey: ['lemma-decks', word?.lemma.id] })
+    await queryClient.invalidateQueries({ queryKey: ['decks'] })
+    await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
+  }
+
   const addToDeck = useMutation({
     mutationFn: async (deckId: string) => {
-      if (!word?.card) throw new Error(t('This word has no card yet.'))
-      if (headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId) {
-        await updatePrimaryMeaning(db, word.card.id, headlineMeaning.id)
-      }
-      if (selectedExample && !selectedExample.isSelected) {
-        await updateSelectedExample(db, word.card.id, selectedExample.id)
-      }
-      await addCardToDeck(db, deckId, word.card.id)
+      await commitCardSelection()
+      await addCardToDeck(db, deckId, word!.card!.id)
       return deckId
     },
     onSuccess: async () => {
       setDeckPickerOpen(false)
-      await queryClient.invalidateQueries({ queryKey: ['word', form] })
-      await queryClient.invalidateQueries({ queryKey: ['lemma-decks', word?.lemma.id] })
-      await queryClient.invalidateQueries({ queryKey: ['decks'] })
-      await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
+      await invalidateAfterDeckChange()
     },
+  })
+
+  // Lets a user add a word straight to a brand-new deck without leaving this screen and
+  // round-tripping through the Decks tab's own FAB — same card-selection commit as addToDeck
+  // above, just with a deck-creation step first.
+  const createDeckAndAdd = useMutation({
+    mutationFn: async (name: string) => {
+      await commitCardSelection()
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      await addCardToDeck(db, id, word!.card!.id)
+      return id
+    },
+    onSuccess: async () => {
+      setDeckPickerOpen(false)
+      await invalidateAfterDeckChange()
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not create deck'), String(error)),
   })
 
   const toggleGrammar = (option: string): void => {
@@ -427,10 +520,15 @@ export default function WordDetailScreen(): JSX.Element {
   // to the card's own explanation/usage — an ephemeral, session-only thread (see the "More info"
   // design decision this session): the base explanation stays the one stored, reusable answer,
   // and follow-ups just accumulate in `followUps` for as long as this sheet stays open.
+  // Same soft-cancel shape as search.tsx's "Generate with AI": there's no network-level abort
+  // (see ProgressOverlay's doc comment), so Cancel just bumps this id — the eventual response,
+  // if it still arrives, is dropped in onSuccess instead of being added to the thread.
+  const askFollowUpRequestId = useRef(0)
   const askFollowUp = useMutation({
     mutationFn: async (question: string) => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
       if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      const myRequestId = ++askFollowUpRequestId.current
       const result = await ai.generateMeaning(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
@@ -438,11 +536,19 @@ export default function WordDetailScreen(): JSX.Element {
         question,
       )
       const generated = result.data[0]
-      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null }
+      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null, myRequestId }
     },
-    onSuccess: (entry) => setFollowUps((prev) => [...prev, entry]),
+    onSuccess: ({ myRequestId, ...entry }) => {
+      if (myRequestId !== askFollowUpRequestId.current) return
+      setFollowUps((prev) => [...prev, entry])
+    },
     onError: (error: unknown) => Alert.alert(t('Could not get an answer'), String(error)),
   })
+
+  const cancelAskFollowUp = (): void => {
+    askFollowUpRequestId.current += 1
+    askFollowUp.reset()
+  }
 
   // AI cards show their explanation inline as soon as it exists — no tap required (see the
   // "explanation always visible" decision) — and generate it the very first time a card with
@@ -660,6 +766,7 @@ export default function WordDetailScreen(): JSX.Element {
             </Text>
           </View>
           <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
+          <IconButton icon="help-circle-outline" size={22} onPress={() => help.openSection('meaning')} />
         </View>
 
         {/* ── Cluster tabs (one per semantic context) ── */}
@@ -750,17 +857,18 @@ export default function WordDetailScreen(): JSX.Element {
                 >
                   {ex.isSelected ? (
                     <View style={styles.selectedBanner}>
-                      <Ionicons name="star" size={11} color={colors.primary} />
-                      <Text style={styles.selectedBannerLabel}>{t('shown on flashcard')}</Text>
+                      <Ionicons name="star" size={14} color={colors.primary} />
+                      <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
                     </View>
                   ) : (
                     <Pressable
                       style={styles.selectedBanner}
                       onPress={() => selectExample.mutate(ex.id)}
                       disabled={selectExample.isPending}
+                      hitSlop={10}
                     >
-                      <Ionicons name="star-outline" size={11} color={colors.textMuted} />
-                      <Text style={styles.useOnFlashcardLabel}>{t('use on flashcard')}</Text>
+                      <Ionicons name="star-outline" size={14} color={colors.textMuted} />
+                      <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
                     </Pressable>
                   )}
                   <View style={styles.exampleSentenceRow}>
@@ -914,56 +1022,40 @@ export default function WordDetailScreen(): JSX.Element {
           deck. ── */}
       {word.card ? (
         <View style={styles.bottomBar}>
-          {existingDecksQuery.data && existingDecksQuery.data.length > 0 ? (
-            <Pressable style={styles.inDeckBar} onPress={() => setDeckPickerOpen(true)}>
-              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-              <Text style={styles.inDeckBarLabel} numberOfLines={1}>
-                {existingDecksQuery.data.map((d) => d.name).join(' • ')}
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-            </Pressable>
-          ) : (
-            <Button
-              label={t('Add to deck')}
-              icon="add-circle"
-              onPress={() => setDeckPickerOpen(true)}
-              style={styles.addButton}
-            />
-          )}
+          <Button
+            label={t('Add to deck')}
+            icon="add-circle"
+            onPress={() => setDeckPickerOpen(true)}
+            style={styles.addButton}
+          />
         </View>
       ) : null}
 
-      {/* ── Deck picker modal ── */}
-      <Modal visible={deckPickerOpen} animationType="slide" transparent onRequestClose={() => setDeckPickerOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setDeckPickerOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('Add "{{form}}" to…', { form: word.lemma.form })}</Text>
-          {decksQuery.isPending ? (
-            <Spinner />
-          ) : decksQuery.isError ? (
-            <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-          ) : (
-            (decksQuery.data ?? []).map((deck) => (
-              <Pressable
-                key={deck.id}
-                style={[styles.deckRow, addToDeck.isPending && styles.deckRowDisabled]}
-                onPress={() => addToDeck.mutate(deck.id)}
-                disabled={addToDeck.isPending}
-              >
-                <Text style={styles.deckEmoji}>{deck.emoji ?? '📚'}</Text>
-                <Text style={styles.deckName}>{deck.name}</Text>
-                {existingDecksQuery.data?.some((d) => d.id === deck.id) ? (
-                  <Ionicons name="checkmark-circle" size={18} color={colors.success} />
-                ) : null}
-              </Pressable>
-            ))
-          )}
-          {addToDeck.isError ? (
-            <Text style={styles.generateError}>{String(addToDeck.error)}</Text>
-          ) : null}
-        </View>
-      </Modal>
+      {/* ── Deck picker — which decks the card is already in shows as a checkmark inside the
+          picker itself, so the button below is always the same one action. ── */}
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerOpen}
+        onClose={() => setDeckPickerOpen(false)}
+        title={t('Add "{{form}}" to…', { form: word.lemma.form })}
+        existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
+        onSelectDeck={(deck) => addToDeck.mutate(deck.id)}
+        selecting={addToDeck.isPending}
+        onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
+        creating={createDeckAndAdd.isPending}
+        {...(addToDeck.isError && { selectError: String(addToDeck.error) })}
+        {...(createDeckAndAdd.isError && { createError: String(createDeckAndAdd.error) })}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('This card, explained')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
 
       {/* ── Edit this card — the CardActionBar's pencil icon ── */}
       <Modal visible={editOpen} animationType="slide" transparent onRequestClose={() => setEditOpen(false)}>
@@ -1099,6 +1191,7 @@ export default function WordDetailScreen(): JSX.Element {
           followUps={followUps}
           askLoading={askFollowUp.isPending}
           onAsk={(question) => askFollowUp.mutate(question)}
+          onAskCancel={cancelAskFollowUp}
         />
       ) : null}
 
@@ -1109,6 +1202,7 @@ export default function WordDetailScreen(): JSX.Element {
         followUps={followUps}
         askLoading={askFollowUp.isPending}
         onAsk={(question) => askFollowUp.mutate(question)}
+        onAskCancel={cancelAskFollowUp}
       />
     </>
   )
@@ -1118,7 +1212,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   headerText: { flex: 1, marginRight: spacing.md },
   wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
@@ -1151,9 +1245,15 @@ const createStyles = (colors: ThemeColors) =>
   examplesFilterDropdown: { width: 150 },
   exampleCard: { marginBottom: spacing.sm },
   exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: spacing.sm },
-  selectedBannerLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
-  useOnFlashcardLabel: { fontSize: type.micro, fontWeight: '600', color: colors.textMuted },
+  selectedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+  useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
   reportNoteInput: {
     minHeight: 72,
     borderWidth: 1,
@@ -1240,13 +1340,6 @@ const createStyles = (colors: ThemeColors) =>
     borderTopColor: colors.border,
   },
   addButton: {},
-  inDeckBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  inDeckBarLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {
     backgroundColor: colors.surface,
@@ -1254,6 +1347,7 @@ const createStyles = (colors: ThemeColors) =>
     borderTopRightRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.sm,
+    maxHeight: '80%',
   },
   modalHandle: {
     alignSelf: 'center',
@@ -1264,8 +1358,4 @@ const createStyles = (colors: ThemeColors) =>
     marginBottom: spacing.sm,
   },
   modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
-  deckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  deckRowDisabled: { opacity: 0.5 },
-  deckEmoji: { fontSize: 20 },
-  deckName: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
   })

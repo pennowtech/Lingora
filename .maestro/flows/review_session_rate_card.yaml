@@ -18,7 +18,7 @@ tags:
     id: "tab-decks"
 - tapOn: "My Vocabulary"
 - tapOn:
-    text: "Review.*due cards"
+    text: "Review.*words"
 - assertVisible: "tap to reveal"
 - tapOn: "tap to reveal"
 - assertVisible: "Good"

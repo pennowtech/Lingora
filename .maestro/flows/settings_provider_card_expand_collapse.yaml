@@ -1,0 +1,47 @@
+# LINGORA-E2E-013 — every generation provider card (OpenAI/Mistral/Gemini/Claude) expands to show
+# its model chips + key field, and collapses again. No live calls, no key typed.
+appId: com.lingora.mobile
+name: settings_provider_card_expand_collapse
+tags:
+  - settings
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element:
+      id: "provider-header-openai"
+    direction: DOWN
+
+- tapOn:
+    id: "provider-header-openai"
+- assertVisible: "Model"
+- tapOn:
+    id: "provider-header-openai"
+- assertNotVisible: "Model"
+
+- tapOn:
+    id: "provider-header-mistral"
+- assertVisible: "Model"
+- tapOn:
+    id: "provider-header-mistral"
+- assertNotVisible: "Model"
+
+- tapOn:
+    id: "provider-header-gemini"
+- assertVisible: "Model"
+- tapOn:
+    id: "provider-header-gemini"
+- assertNotVisible: "Model"
+
+- tapOn:
+    id: "provider-header-anthropic"
+- assertVisible: "Model"
+- tapOn:
+    id: "provider-header-anthropic"
+- assertNotVisible: "Model"

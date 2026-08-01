@@ -1,0 +1,30 @@
+# LINGORA-E2E-015 — translation provider selection: Google Translate is the keyless default;
+# DeepL's row expands to show its own key field; a generation-provider row disables until that
+# provider has a key. No live calls.
+appId: com.lingora.mobile
+name: settings_translation_provider_selection
+tags:
+  - settings
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element: "Translation"
+    direction: DOWN
+- assertVisible: "Free tier, no key needed"
+- assertVisible: "Add a key above to enable"
+
+- tapOn:
+    id: "deepl-expand-toggle"
+- assertVisible:
+    id: "provider-key-input-deepl"
+- tapOn:
+    id: "deepl-expand-toggle"
+- assertNotVisible:
+    id: "provider-key-input-deepl"

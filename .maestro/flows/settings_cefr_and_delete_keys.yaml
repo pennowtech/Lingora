@@ -1,0 +1,56 @@
+# LINGORA-E2E-016 — CEFR level chips selectable; "Delete all API keys" clears every provider back
+# to Limited mode. Configures a dummy (non-live) OpenAI key first so there's something to delete —
+# this flow is self-contained, doesn't depend on settings_generation_provider_toggle.yaml having
+# run first.
+appId: com.lingora.mobile
+name: settings_cefr_and_delete_keys
+tags:
+  - settings
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+
+- scrollUntilVisible:
+    element: "Default CEFR level"
+    direction: DOWN
+- tapOn: "B2"
+- tapOn: "A1"
+
+- scrollUntilVisible:
+    element:
+      id: "provider-header-openai"
+    direction: UP
+- tapOn:
+    id: "provider-header-openai"
+- tapOn:
+    id: "provider-key-input-openai"
+- eraseText
+- inputText: "sk-maestro-dummy-not-a-real-key"
+# See settings_generation_provider_toggle.yaml for why this reveal-and-assert step exists — it's
+# the only reliable wait for the Switch to actually be enabled before tapping it.
+- tapOn:
+    id: "provider-show-key-openai"
+- assertVisible: "sk-maestro-dummy-not-a-real-key"
+- tapOn:
+    id: "provider-toggle-openai"
+- assertNotVisible: "Limited mode"
+
+- scrollUntilVisible:
+    element: "Delete all API keys"
+    direction: DOWN
+- tapOn: "Delete all API keys"
+# Wait for the confirm Alert's own title before tapping "Delete" — tapping the confirm button
+# immediately after the action that opens it can race the dialog's animate-in (see
+# create_rename_delete_deck.yaml for the same fix + full explanation).
+- assertVisible: "Delete all API keys?"
+- tapOn: "Delete"
+- scrollUntilVisible:
+    element: "Limited mode"
+    direction: UP
+- assertVisible: "Limited mode"

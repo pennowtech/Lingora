@@ -1,0 +1,75 @@
+# LINGORA-E2E-LIVE-001 — real end-to-end generation via Mistral: configure a real key in Settings,
+# make Mistral the active generation provider, search a brand-new (non-seeded) word, confirm the
+# app actually gets AI-generated content back and renders it.
+#
+# NOT part of the routine suite — real API cost/latency/non-determinism, same reasoning
+# packages/ai/*.live.test.ts stays opt-in for. Run explicitly:
+#
+#   maestro test -e MISTRAL_KEY=$MISTRAL_API_KEY .maestro/flows/live/generate_word_mistral.yaml
+#
+# The key is passed via Maestro's -e flag and referenced below as ${MISTRAL_KEY} — never written
+# into this committed file. Source the key from packages/ai/.env (gitignored) into your shell
+# first, e.g. `export $(grep MISTRAL_API_KEY packages/ai/.env)`.
+appId: com.lingora.mobile
+name: generate_word_mistral
+tags:
+  - live
+---
+- launchApp
+- openLink: "lingora://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 90000
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    element:
+      id: "provider-header-mistral"
+    direction: DOWN
+- tapOn:
+    id: "provider-header-mistral"
+- tapOn:
+    id: "provider-key-input-mistral"
+- eraseText
+- inputText: "${MISTRAL_KEY}"
+- tapOn: "Generation"
+
+# See settings_generation_provider_toggle.yaml for why this conditional-retry shape, not a plain
+# tap or a plain retry, is what reliably toggles a provider Switch on this app/AVD combo.
+- retry:
+    maxRetries: 5
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Active"
+          commands:
+            - tapOn:
+                id: "provider-toggle-mistral"
+      - assertVisible: "Active"
+
+# Another provider (OpenAI, from settings_generation_provider_toggle.yaml) may already be
+# configured and would otherwise stay the default "active" one (first in provider order) — make
+# Mistral explicit so generation actually routes through it.
+- runFlow:
+    when:
+      visible:
+        id: "active-provider-mistral"
+    commands:
+      - tapOn:
+          id: "active-provider-mistral"
+
+- tapOn:
+    id: "tab-search"
+- tapOn:
+    id: "search-input"
+- inputText: "verschwinden"
+- assertVisible: ".*is new.*"
+- tapOn: "Generate with AI"
+# Real network call — generous timeout. Success navigates to word/[form] and shows the headword;
+# a provider/validation failure would leave the search screen showing an error instead, which this
+# assertion also correctly fails on (that's the point of a live test).
+- extendedWaitUntil:
+    visible: "verschwinden"
+    timeout: 60000
+- assertVisible: "Examples"

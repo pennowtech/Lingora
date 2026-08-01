@@ -44,9 +44,9 @@ import {
   ErrorState,
   IconButton,
   ProgressBar,
-  SpeakerButton,
   Spinner,
 } from '../../components/ui'
+import { speak } from '../../lib/speech'
 import {
   buildCardContext,
   CLOZE_BACK_TEMPLATE,
@@ -775,7 +775,9 @@ export default function ReviewSessionScreen(): JSX.Element {
   const speakableSentence = !view
     ? null
     : isCloze
-      ? (view.clozeSentence && revealClozeSentence(view.clozeSentence, view.clozeAnswer ?? '')) || null
+      ? view.clozeSentence
+        ? revealClozeSentence(view.clozeSentence, view.clozeAnswer ?? '')
+        : null
       : view.example
 
   const renderedContext = view
@@ -874,13 +876,15 @@ export default function ReviewSessionScreen(): JSX.Element {
               resetKey={view.card.id}
               onSwipeRating={(rating) => rate.mutate(rating)}
             >
-              <CardRenderer html={backHtml} style={styles.templateFrontWrap} />
-
-              {speakableSentence ? (
-                <View style={styles.speakerRow}>
-                  <SpeakerButton text={speakableSentence} language={view.language} size={20} />
-                </View>
-              ) : null}
+              <CardRenderer
+                html={backHtml}
+                style={styles.templateFrontWrap}
+                {...(speakableSentence && {
+                  onMessage: (data: string) => {
+                    if (data === 'speak') speak(speakableSentence, view.language)
+                  },
+                })}
+              />
 
               {!isCloze ? (
                 <>
@@ -1102,7 +1106,6 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
     },
     templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
-    speakerRow: { alignItems: 'center', paddingBottom: spacing.xs },
     swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
     swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
     swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },

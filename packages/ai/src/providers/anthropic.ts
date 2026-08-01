@@ -144,12 +144,16 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
     word: string,
     cluster: ClusterRef,
     ctx: GenerationContext,
+    question?: string,
   ): Promise<AIResult<GeneratedMeaning[]>> {
     const prompt = renderPrompt(PROMPTS.meanings.template, {
       word,
       cefrLevel: ctx.cefrLevel,
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
+      followUpSection: question
+        ? `\nThe learner also asked: "${question}" — address this directly within the explanation or usage notes.\n`
+        : '',
     })
     const result = await this.generateStrict(prompt, 'meanings', meaningsResponseSchema)
     return { data: result.data.meanings, usage: result.usage }

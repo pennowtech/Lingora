@@ -20,7 +20,7 @@ export function validPayload(): WordGenerationPayload {
         description: 'going out for social activities',
         cefrLevel: 'A2',
         meanings: [
-          { translation: 'to go out', explanation: 'to leave home for fun', cefrLevel: 'A2' },
+          { translation: 'to go out', explanation: 'to leave home for fun', usage: null, cefrLevel: 'A2' },
         ],
         examples: [
           {

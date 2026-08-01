@@ -23,6 +23,7 @@ import {
 export const generatedMeaningSchema = z.object({
   translation: z.string().min(1),
   explanation: z.string().min(1),
+  usage: z.string().min(1).nullable(),
   cefrLevel: cefrLevelSchema,
 })
 

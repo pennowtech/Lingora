@@ -94,14 +94,14 @@ Return strict JSON only: {"clusters": [{"label": "...", "description": "...", "c
   /** Meanings for one existing cluster. */
   meanings: {
     name: 'meanings',
-    version: 1,
+    version: 2, // v2: usage notes field + optional learner follow-up question
     template: `For the German word "{{word}}", give 1–3 meanings that belong strictly to this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
-Learner level: {{cefrLevel}}. Each meaning: a concise English translation, a one-line English explanation, and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
-
-Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "cefrLevel": "..."}]}`,
+Learner level: {{cefrLevel}}. Each meaning: a concise English translation, a one-line English explanation, 1–2 sentences of usage notes (register, common contexts, typical collocations — how this meaning is actually used day to day), and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
+{{followUpSection}}
+Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "usage": "...", "cefrLevel": "..."}]}`,
   },
   /** Examples for one existing cluster — the regenerate/grammar-panel button. */
   examples: {

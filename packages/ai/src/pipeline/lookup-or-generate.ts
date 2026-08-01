@@ -30,9 +30,14 @@ export type LookupOutcome =
 
 export interface LookupOptions {
   cefrLevel: CefrLevel
-  /** The deck the new card lands in. */
+  /** The card's "home" deck (`cards.deck_id`) — required, but see `addToDeck` for whether this
+   * generation actually becomes visible/due in that deck. */
   deckId: string
   language?: LanguageCode
+  /** Defaults to true. False skips the `deck_cards` membership row so a plain search generates
+   * (and fully persists) the word without silently adding it to a deck — see
+   * persistWordGeneration's `options.addToDeck` for the underlying mechanics. */
+  addToDeck?: boolean
 }
 
 interface PipelineDeps {
@@ -98,6 +103,7 @@ export async function lookupOrGenerate(
         latencyMs: 0,
       },
       opts.deckId,
+      { addToDeck: opts.addToDeck ?? true },
     )
     log.info('ai.generation_completed', {
       message: 'Word package served from cache and persisted',
@@ -162,6 +168,7 @@ export async function lookupOrGenerate(
       latencyMs: result.usage.latencyMs,
     },
     opts.deckId,
+    { addToDeck: opts.addToDeck ?? true },
   )
 
   log.info('ai.generation_completed', {

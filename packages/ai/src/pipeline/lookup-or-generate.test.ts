@@ -206,3 +206,49 @@ describe('lookupOrGenerate', () => {
     ).rejects.toMatchObject({ code: 'provider', status: 429 })
   })
 })
+
+describe('lookupOrGenerate with addToDeck: false', () => {
+  let db: NodeSqliteAdapter
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+    await db.execute(`INSERT INTO decks (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)`, [
+      DECK_ID,
+      'Test deck',
+      Date.now(),
+      Date.now(),
+    ])
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  it('fully generates and persists the word, but skips the deck_cards membership row', async () => {
+    const ai = mockProvider([complete()])
+    const pipeline = await createAIPipeline({ db, ai })
+
+    const outcome = await pipeline.lookupOrGenerate('ausgehen', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      addToDeck: false,
+    })
+
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+
+    // The card exists, with everything generated, and still carries the deckId as its "home"...
+    const card = await db.querySingle<{ deck_id: string }>(`SELECT deck_id FROM cards WHERE id = ?`, [
+      outcome.cardId,
+    ])
+    expect(card?.deck_id).toBe(DECK_ID)
+    const meanings = await db.query(`SELECT id FROM meanings`)
+    expect(meanings.length).toBeGreaterThan(0)
+
+    // ...but it's not actually a member of that deck (or any deck) yet — no due count, no
+    // showing up in the deck's card list — until a later explicit addCardToDeck.
+    const membership = await db.query(`SELECT id FROM deck_cards WHERE card_id = ?`, [outcome.cardId])
+    expect(membership).toHaveLength(0)
+  })
+})

@@ -27,6 +27,7 @@ const APP_LANGUAGE_LABELS: Record<AppLanguage, string> = {
   fr: 'French',
   es: 'Spanish',
   hi: 'Hindi',
+  vi: 'Vietnamese',
 }
 
 const CAPTURE_DESTINATION_LABELS: Record<CaptureDestination, string> = {

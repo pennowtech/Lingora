@@ -1,6 +1,6 @@
 // ─── Languages ────────────────────────────────────────────────────────────────
 
-export type LanguageCode = 'de' | 'en' | 'ja' | 'es' | 'fr'
+export type LanguageCode = 'de' | 'en' | 'ja' | 'es' | 'fr' | 'vi'
 
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 

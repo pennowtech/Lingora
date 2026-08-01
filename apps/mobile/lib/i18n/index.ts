@@ -17,7 +17,7 @@ import { resources } from './resources'
  * (buttons, labels, screen titles).
  */
 
-export const APP_LANGUAGES = ['en', 'de', 'fr', 'es', 'hi'] as const
+export const APP_LANGUAGES = ['en', 'de', 'fr', 'es', 'hi', 'vi'] as const
 export type AppLanguage = (typeof APP_LANGUAGES)[number]
 export type AppLanguagePreference = AppLanguage | 'system'
 

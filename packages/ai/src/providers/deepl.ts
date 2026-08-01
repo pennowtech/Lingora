@@ -30,8 +30,12 @@ interface DeepLTranslateResponse {
   message?: string
 }
 
-const SOURCE_LANG: Record<LanguageCode, string> = { de: 'DE', en: 'EN', ja: 'JA', es: 'ES', fr: 'FR' }
-const TARGET_LANG: Record<LanguageCode, string> = { de: 'DE', en: 'EN-US', ja: 'JA', es: 'ES', fr: 'FR' }
+// Partial, not a full Record<LanguageCode, string> — DeepL genuinely doesn't support every
+// language Lingora's own pickers list (Vietnamese, notably), so a missing entry here is real and
+// has to fail loudly (see translate() below) rather than silently sending an "undefined" language
+// code to DeepL's API.
+const SOURCE_LANG: Partial<Record<LanguageCode, string>> = { de: 'DE', en: 'EN', ja: 'JA', es: 'ES', fr: 'FR' }
+const TARGET_LANG: Partial<Record<LanguageCode, string>> = { de: 'DE', en: 'EN-US', ja: 'JA', es: 'ES', fr: 'FR' }
 const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr']
 
 /** DeepL's detected_source_language comes back as a plain ISO-ish code (e.g. "DE", "EN"). */
@@ -56,7 +60,12 @@ export class DeepLProvider implements DictionaryProvider {
   }
 
   async translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>> {
-    const { payload, latencyMs } = await this.request(text, SOURCE_LANG[source], TARGET_LANG[target])
+    const sourceCode = SOURCE_LANG[source]
+    const targetCode = TARGET_LANG[target]
+    if (!sourceCode || !targetCode) {
+      throw new AIProviderError(`DeepL doesn't support this language pair yet`, this.name, false)
+    }
+    const { payload, latencyMs } = await this.request(text, sourceCode, targetCode)
     const translation = payload.translations?.[0]?.text?.trim()
     if (!translation) {
       throw new AIProviderError('DeepL returned no translation', this.name, false)
@@ -68,7 +77,7 @@ export class DeepLProvider implements DictionaryProvider {
     // DeepL has no dedicated detection endpoint; a translate call with no
     // source_lang returns detected_source_language. Target is arbitrary —
     // English is the safest default for widest language-pair support.
-    const { payload, latencyMs } = await this.request(text, undefined, TARGET_LANG.en)
+    const { payload, latencyMs } = await this.request(text, undefined, TARGET_LANG.en ?? 'EN-US')
     const detected = payload.translations?.[0]?.detected_source_language
     const language = detected ? fromDeepLLanguage(detected) : undefined
     if (!language) {

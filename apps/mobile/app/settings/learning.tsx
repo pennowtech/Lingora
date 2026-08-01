@@ -20,6 +20,7 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
   ja: 'Japanese',
   es: 'Spanish',
   fr: 'French',
+  vi: 'Vietnamese',
 }
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']

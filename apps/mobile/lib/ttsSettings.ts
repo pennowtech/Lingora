@@ -74,6 +74,7 @@ const LOCALE_PREFIXES: Record<LanguageCode, string> = {
   ja: 'ja',
   es: 'es',
   fr: 'fr',
+  vi: 'vi',
 }
 
 /** The device's installed TTS voices for `language`, for a voice picker in Settings. */

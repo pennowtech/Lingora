@@ -30,13 +30,15 @@ export function Card(props: {
   children: ReactNode
   style?: StyleProp<ViewStyle>
   onPress?: () => void
+  onLongPress?: () => void
   onLayout?: (event: LayoutChangeEvent) => void
 }): JSX.Element {
-  const { children, style, onPress, onLayout } = props
+  const { children, style, onPress, onLongPress, onLayout } = props
   if (onPress) {
     return (
       <Pressable
         onPress={onPress}
+        onLongPress={onLongPress}
         onLayout={onLayout}
         style={({ pressed }) => [styles.card, pressed && styles.cardPressed, style]}
       >
@@ -162,26 +164,41 @@ export function CardActionBar(props: {
   onExplain: () => void
   explainVisible: boolean
   explainLoading?: boolean
-  onToggleTranslation: () => void
-  translationHidden: boolean
+  /** "Explain" for a dictionary/word-guide card's toggle-a-lookup behavior (the default); "More
+   * info" for an AI card, where the explanation already shows inline and this opens the
+   * follow-up sheet instead. */
+  explainLabel?: string
+  explainIcon?: keyof typeof Ionicons.glyphMap
   onEdit: () => void
   onLookup: () => void
+  /** "Ask AI" — a follow-up question popup, separate from Explain/More info. Optional because not
+   * every card-rendering context (e.g. a bare preview) wants it. */
+  onAskAI?: () => void
+  /** "Regenerate" — replaces the whole card's AI-generated content from scratch. Optional and
+   * AI-cards-only; the caller is responsible for confirming before calling this (destructive). */
+  onRegenerate?: () => void
+  regenerateLoading?: boolean
 }): JSX.Element {
   return (
     <View style={styles.cardActionBar}>
       <CardActionButton
-        icon={props.explainVisible ? 'book' : 'book-outline'}
-        label="Explain"
+        icon={props.explainIcon ?? (props.explainVisible ? 'book' : 'book-outline')}
+        label={props.explainLabel ?? 'Explain'}
         active={props.explainVisible}
         onPress={props.onExplain}
         {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
       />
-      <CardActionButton
-        icon={props.translationHidden ? 'eye-off-outline' : 'language-outline'}
-        label="Translation"
-        active={!props.translationHidden}
-        onPress={props.onToggleTranslation}
-      />
+      {props.onAskAI ? (
+        <CardActionButton icon="chatbubble-ellipses-outline" label="Ask AI" onPress={props.onAskAI} />
+      ) : null}
+      {props.onRegenerate ? (
+        <CardActionButton
+          icon="refresh-circle-outline"
+          label="Regenerate"
+          onPress={props.onRegenerate}
+          {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
+        />
+      ) : null}
       <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
       <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
     </View>
@@ -214,12 +231,14 @@ export function Chip(props: {
   selected?: boolean
   onPress?: () => void
   color?: { fg: string; bg: string }
+  testID?: string
 }): JSX.Element {
   const { label, selected = false, onPress, color } = props
   const bg = selected ? (color?.fg ?? colors.primary) : (color?.bg ?? colors.surfaceMuted)
   const fg = selected ? colors.textOnPrimary : (color?.fg ?? colors.textSecondary)
   return (
     <Pressable
+      testID={props.testID}
       onPress={onPress}
       disabled={!onPress}
       style={({ pressed }) => [styles.chip, { backgroundColor: bg }, pressed && { opacity: 0.7 }]}
@@ -401,6 +420,33 @@ export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
   )
 }
 
+/** A tappable icon + label/detail + chevron row — the standard shape for a settings menu entry
+ * that navigates elsewhere (a screen, an external link). `detail` doubles as a one-line summary
+ * of the destination's current state (e.g. "2 of 4 configured") when the caller has one handy. */
+export function LinkRow(props: {
+  icon: keyof typeof Ionicons.glyphMap
+  label: string
+  detail?: string
+  onPress: () => void
+  divider?: boolean
+  testID?: string
+}): JSX.Element {
+  return (
+    <Pressable
+      testID={props.testID}
+      style={[styles.linkRow, props.divider && styles.rowDivider]}
+      onPress={props.onPress}
+    >
+      <Ionicons name={props.icon} size={20} color={colors.primary} />
+      <View style={styles.optionText}>
+        <Text style={styles.optionLabel}>{props.label}</Text>
+        {props.detail ? <Text style={styles.optionDetail}>{props.detail}</Text> : null}
+      </View>
+      <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+    </Pressable>
+  )
+}
+
 // ─── Feedback / evaluation controls ───────────────────────────────────────────
 
 /**
@@ -497,6 +543,11 @@ export function ErrorState(props: { message: string; onRetry?: () => void }): JS
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+  rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+  optionText: { flex: 1 },
+  optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
+  optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

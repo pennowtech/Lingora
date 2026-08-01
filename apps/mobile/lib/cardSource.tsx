@@ -31,6 +31,13 @@ const SOURCE_LABELS: Record<CardSource, string> = {
   google: 'Google Translate',
   deepl: 'DeepL',
   word_guide: 'From your installed dictionary',
+  manual: 'Added manually',
+}
+
+/** Ionicons fallback for every CardSource with no brand logo to match. */
+const SOURCE_FALLBACK_ICONS: Partial<Record<CardSource, keyof typeof Ionicons.glyphMap>> = {
+  word_guide: 'book-outline',
+  manual: 'create-outline',
 }
 
 /** Maps a `DictionaryProvider`/`AIProvider`'s own `.name` (e.g. `dictionary.name` from
@@ -42,7 +49,8 @@ export function dictionaryNameToCardSource(name: string): Exclude<CardSource, 'w
 
 /** Small icon indicating how a card/result was created — Search results and word detail only,
  * per the app's own scope for this: not shown on deck card lists, imports, etc. Official brand
- * logos where one exists; `word_guide` (no logo to match) gets a plain Ionicons glyph instead. */
+ * logos where one exists; anything else (word_guide, manual, and `local`, a hypothetical
+ * on-device AI provider not yet built) gets a plain Ionicons glyph instead. */
 export function CardSourceIcon(props: { source: CardSource | null | undefined; size?: number }): JSX.Element | null {
   if (!props.source) return null
   const size = props.size ?? 16
@@ -59,7 +67,7 @@ export function CardSourceIcon(props: { source: CardSource | null | undefined; s
   }
   return (
     <Ionicons
-      name="library-outline"
+      name={SOURCE_FALLBACK_ICONS[props.source] ?? 'hardware-chip-outline'}
       size={size}
       color={colors.primary}
       accessibilityLabel={SOURCE_LABELS[props.source]}

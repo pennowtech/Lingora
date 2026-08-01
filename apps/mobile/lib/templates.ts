@@ -82,7 +82,6 @@ export const DEFAULT_FRONT_TEMPLATE = `<div class="dc-front">
 </div>`
 
 export const DEFAULT_BACK_TEMPLATE = `<div class="dc-back">
-  <div class="dc-word-small">{{ word }}</div>
   <div class="dc-meaning">{{ meaning }}</div>
   {% if example %}
   <div class="dc-example">
@@ -103,7 +102,6 @@ export const DEFAULT_STYLES = `:root{--accent:#534AB7;}
 .dc-tag { font-size: 0.85rem; font-weight: 600; color: #6B7280; background: #F1F0FB; padding: 4px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
 
 .dc-back { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
-.dc-word-small { font-size: 1rem; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; }
 .dc-meaning { font-size: 1.8rem; font-weight: 800; color: #1C1B22; text-align: center; }
 .dc-synonyms { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .dc-syn-pill { font-size: 0.78rem; font-weight: 500; color: #7C7A8C; background: #F1F0FB; padding: 3px 11px; border-radius: 999px; }
@@ -123,21 +121,52 @@ export const CONDITIONAL_EXAMPLE = `{% if gender %}
   {{ s.word }}
 {% endfor %}`
 
-/** The render context one card produces — the shape every template's placeholders resolve against. */
+/** List-typed fields need a real {% for %} loop to render at all (a bare {{ synonyms }} would
+ * print "[object Object]" for a list of objects) — hasTemplateField checks for the loop, not the
+ * bare variable, for these. Shared with settings/templates.tsx's Fields tab, whose toggles use
+ * this same heuristic to decide on/off. */
+export const LOOP_TEMPLATE_FIELDS = new Set(['other_meanings', 'synonyms', 'phrases'])
+
+function escapeRegExpForField(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Does this template's raw Liquid text reference `variable`? The Fields tab's toggles (and the
+ * manual-add-card form's dynamic field list) both use this same heuristic instead of a stored
+ * "selected fields" list — there isn't one; a template is just Liquid text, and whether a field
+ * shows up is entirely about whether `{{ variable }}` (or, for a list field, `{% for x in
+ * variable %}`) appears in it.
+ */
+export function hasTemplateField(template: string, variable: string): boolean {
+  if (LOOP_TEMPLATE_FIELDS.has(variable)) {
+    return new RegExp(`\\{%\\s*for\\s+\\w+\\s+in\\s+${escapeRegExpForField(variable)}\\b`).test(template)
+  }
+  return new RegExp(`\\{\\{\\s*${escapeRegExpForField(variable)}\\s*\\}\\}`).test(template)
+}
+
+/** The render context one card produces — the shape every template's placeholders resolve against.
+ *
+ * `example`/`example_highlighted`/`translation`/`gender`/`context_hint` are `string | null`, not
+ * `string` — Liquid's `{% if %}` only treats `nil`/`false` as falsy (an empty string is truthy,
+ * same as an empty array; the shipped templates already know this for `synonyms`/`phrases`,
+ * checking `.size > 0` rather than a bare `{% if synonyms %}`). An empty string here would make
+ * `{% if example %}` render its block anyway — an empty "Example" row with nothing in it — so
+ * buildCardContext hands back `null` instead whenever there's genuinely nothing to show. */
 export interface CardTemplateContext {
   word: string
-  gender: string
+  gender: string | null
   meaning: string
   other_meanings: string[]
-  example: string
+  example: string | null
   /**
    * `example` with the target word's occurrences wrapped in `<mark class="dc-hl">`
    * — already-escaped HTML, not plain text (see `highlightWord`). A separate
    * field rather than mutating `example` itself, so a hand-written template
    * that wants plain text still gets it via `{{ example }}`.
    */
-  example_highlighted: string
-  translation: string
+  example_highlighted: string | null
+  translation: string | null
   synonyms: Array<{ word: string; nuance: string; formality: string }>
   phrases: Array<{ expression: string; meaning: string }>
   audio: string
@@ -147,7 +176,7 @@ export interface CardTemplateContext {
   cloze_blanked: string
   /** The cloze sentence with every blank revealed and highlighted — the review back. See CLOZE_BACK_TEMPLATE. */
   cloze_revealed: string
-  context_hint: string
+  context_hint: string | null
 }
 
 /**
@@ -155,6 +184,15 @@ export interface CardTemplateContext {
  * Every field the review session or the template preview needs is passed
  * in directly rather than re-querying — this module has no `DatabaseAdapter`
  * dependency, matching `packages/srs`'s "pure, no DB awareness" shape.
+ *
+ * @param args.mode Which template `translation` is being resolved for — vocab and cloze templates
+ *        both expose a `{{ translation }}` placeholder (see TEMPLATE_VARIABLES/
+ *        CLOZE_TEMPLATE_VARIABLES), but they mean two different things: the selected example's
+ *        translation for a vocab card, the cloze sentence's own translation for a cloze card.
+ *        Previously this always preferred the example's translation and the cloze branch was
+ *        unreachable (a card almost always has an example too), so a cloze card silently showed
+ *        an unrelated example's translation instead of its own. Defaults to 'vocab' since that's
+ *        every caller predating cloze-mode review.
  */
 export function buildCardContext(args: {
   lemma: Lemma
@@ -163,34 +201,60 @@ export function buildCardContext(args: {
   synonyms: Synonym[]
   phrases: Phrase[]
   cloze?: Cloze | null | undefined
+  mode?: 'vocab' | 'cloze'
 }): CardTemplateContext {
   const primary = args.meanings.find((m) => m.isPrimary) ?? args.meanings[0]
   const selectedExample = args.examples.find((e) => e.isSelected) ?? args.examples[0]
-  const genderLabel = [args.lemma.partOfSpeech, args.lemma.gender].filter(Boolean).join(' · ')
-  const example = selectedExample?.sentence ?? ''
+  // 'unknown' means a manually-added card whose part of speech was never provided (see
+  // app/deck/add-card.tsx) — omit it from the pill rather than showing a fabricated "unknown".
+  const genderLabel = [args.lemma.partOfSpeech === 'unknown' ? null : args.lemma.partOfSpeech, args.lemma.gender]
+    .filter(Boolean)
+    .join(' · ')
+  const example = selectedExample?.sentence || null
+  const translation =
+    (args.mode === 'cloze' ? args.cloze?.translation : selectedExample?.translation) || null
 
   return {
     word: args.lemma.form,
-    gender: genderLabel,
+    gender: genderLabel || null,
     meaning: primary?.translation ?? '',
     other_meanings: args.meanings.filter((m) => m.id !== primary?.id).map((m) => m.translation),
     example,
-    example_highlighted: highlightWord(example, args.lemma.form),
-    translation: selectedExample?.translation ?? args.cloze?.translation ?? '',
-    synonyms: args.synonyms.map((s) => ({ word: s.word, nuance: s.nuance ?? '', formality: s.formality })),
+    example_highlighted: example ? highlightWord(example, args.lemma.form) : null,
+    translation,
+    // Only the two closest — a card back is a quick recall check, not the full curated list the
+    // word detail screen's own Synonyms section (with its evaluate/report controls) shows.
+    // Synonyms come back in the order the AI generated them (most relevant first, no separate
+    // ranking column), so first-two is closest-two.
+    synonyms: args.synonyms.slice(0, 2).map((s) => ({ word: s.word, nuance: s.nuance ?? '', formality: s.formality })),
     phrases: args.phrases.map((p) => ({ expression: p.expression, meaning: p.meaning })),
     audio: '',
     image: '',
     cloze: args.cloze ? `${args.cloze.sentence} → ${args.cloze.answer}` : '',
     cloze_blanked: args.cloze ? renderClozeBlanked(args.cloze.sentence) : '',
     cloze_revealed: args.cloze ? renderClozeRevealed(args.cloze.sentence, args.cloze.answer) : '',
-    context_hint: genderLabel,
+    context_hint: genderLabel || null,
   }
 }
 
 const HTML_ESCAPE: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
+
+/** The exact tag shapes FormattableTextInput's toolbar inserts (bold/italic/color) -- the only
+ * HTML a manually-typed example sentence is ever allowed to carry. escapeHtmlShell (below) skips
+ * escaping these exact matches so highlightWord's target-word mark-wrapping doesn't mangle them
+ * into visible escaped text; anything else typed still gets escaped normally. */
+const FORMATTING_TAG_PATTERN = /<\/?(?:b|i|span style="color:#[0-9a-fA-F]{6}")>/g
+
 function escapeHtmlShell(value: string): string {
-  return value.replace(/[&<>]/g, (ch) => HTML_ESCAPE[ch] ?? ch)
+  // Split on the whitelisted tags, escape only the plain-text chunks between them, then stitch
+  // the raw tag matches back in untouched -- avoids needing any placeholder token that could
+  // collide with real typed content.
+  const segments = value.split(FORMATTING_TAG_PATTERN)
+  const tags = value.match(FORMATTING_TAG_PATTERN) ?? []
+  return segments.reduce((result, segment, i) => {
+    const escapedSegment = segment.replace(/[&<>]/g, (ch) => HTML_ESCAPE[ch] ?? ch)
+    return result + escapedSegment + (tags[i] ?? '')
+  }, '')
 }
 
 /**

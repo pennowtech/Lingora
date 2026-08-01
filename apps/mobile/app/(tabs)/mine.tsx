@@ -112,7 +112,7 @@ export default function MiningQueueScreen(): JSX.Element {
 
   const generate = useMutation({
     mutationFn: async () => {
-      if (!pipeline) throw new Error(t('Add your OpenAI key in Settings to generate cards.'))
+      if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate cards.'))
       const chosen = entries.filter((e) => selectedIds.includes(e.id))
       let failures = 0
 
@@ -299,7 +299,7 @@ export default function MiningQueueScreen(): JSX.Element {
           />
         ) : (
           <Button
-            label={t('Add your OpenAI key to generate cards')}
+            label={t('No AI provider active — open Settings')}
             icon="key"
             variant="secondary"
             onPress={() => router.push('/settings')}

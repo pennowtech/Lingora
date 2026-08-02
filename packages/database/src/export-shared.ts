@@ -167,10 +167,19 @@ export async function getExportableCards(
  * `import-shared.ts#importRow`) into one row — for CSV/Markdown, where a
  * word showing up as two rows (one plain, one its cloze variant) reads as
  * an accidental duplicate rather than two study modes of the same word.
- * `lemmas.form` is globally UNIQUE, so grouping by `word` is exactly
- * grouping by lemma. Prefers the non-cloze card's own fields (word/
- * meaning matter more for display than a cloze sentence) and folds in the
- * other card's `cloze`/`exampleTranslation`.
+ * Prefers the non-cloze card's own fields (word/meaning matter more for
+ * display than a cloze sentence) and folds in the cloze sibling's
+ * `cloze`/`exampleTranslation`.
+ *
+ * Deliberately does **not** merge two DIFFERENT basic (non-cloze) cards
+ * for the same word — a sense change (see `createCardForSense` in
+ * manual-card.ts) can create a second, genuinely distinct basic card for
+ * one lemma, and collapsing those together silently dropped the second
+ * one's meaning entirely. Two passes (all basic cards first, then folding
+ * cloze cards onto their basic sibling) rather than one keyed-by-word pass
+ * is also what makes this order-independent — see `collapseByLemma` in
+ * `repositories/cards.ts` for the identical fix to the same bug shape in
+ * the deck list view.
  *
  * Deliberately **not** applied to Anki `.apkg` export: real Anki's own
  * data model wants a separate Basic note and Cloze note for a word studied
@@ -178,21 +187,29 @@ export async function getExportableCards(
  * unmerged, one-row-per-card output directly.
  */
 export function mergeCardsByWord(cards: ExportableCard[]): ExportableCard[] {
-  const byWord = new Map<string, ExportableCard>()
+  const result: ExportableCard[] = []
+  const basicIndexByWord = new Map<string, number>()
+
   for (const card of cards) {
-    const existing = byWord.get(card.word)
-    if (!existing) {
-      byWord.set(card.word, card)
+    if (card.isCloze) continue
+    result.push(card)
+    if (!basicIndexByWord.has(card.word)) basicIndexByWord.set(card.word, result.length - 1)
+  }
+
+  for (const card of cards) {
+    if (!card.isCloze) continue
+    const basicIndex = basicIndexByWord.get(card.word)
+    if (basicIndex === undefined) {
+      result.push(card)
       continue
     }
-    const basic = existing.isCloze ? card : existing
-    const other = existing.isCloze ? existing : card
-    byWord.set(card.word, {
+    const basic = result[basicIndex]!
+    result[basicIndex] = {
       ...basic,
-      cloze: basic.cloze ?? other.cloze,
-      exampleTranslation: basic.exampleTranslation ?? other.exampleTranslation,
-      isCloze: false,
-    })
+      cloze: basic.cloze ?? card.cloze,
+      exampleTranslation: basic.exampleTranslation ?? card.exampleTranslation,
+    }
   }
-  return Array.from(byWord.values())
+
+  return result
 }

@@ -5,6 +5,7 @@ import { buildCsvExport } from './csv-export'
 import { buildMarkdownExport } from './markdown-export'
 import { getExportableCards, mergeCardsByWord } from './export-shared'
 import { migrate } from './migrations'
+import { createCardForSense, createManualWordCard } from './manual-card'
 import { createCloze } from './repositories/cloze'
 import { createDeck } from './repositories/decks'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
@@ -21,15 +22,26 @@ describe('export formats', () => {
     await createDeck(db, { id: deckId, name: 'Export test deck', createdAt: now, updatedAt: now })
 
     const { rows } = parseCsv(
-      'word,meaning,example,exampleTranslation,synonyms\n' +
-        'Haus,house,Das ist mein Haus.,This is my house.,Gebäude\n' +
-        'ausgehen,to go out,Wir gehen heute Abend {{c1::aus}}.,We are going out tonight.,\n',
+      'word,meaning,example,exampleTranslation,synonyms\n' + 'Haus,house,Das ist mein Haus.,This is my house.,Gebäude\n',
     )
     const previews = await buildCsvImportPreview(db, rows, {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, synonyms: 4 },
       language: 'de',
     })
     await importCsvRows(db, previews, deckId, 'de')
+
+    // A cloze card needs its own import pass with cardType: 'cloze' and a dedicated `cloze`
+    // column now — cardType is fully authoritative (see import-shared.ts's importRow), there's no
+    // more implicit "scan the example field for {{c1::...}} markup" fallback.
+    const { rows: clozeRows } = parseCsv(
+      'word,cloze,exampleTranslation\nausgehen,Wir gehen heute Abend {{c1::aus}}.,We are going out tonight.\n',
+    )
+    const clozePreviews = await buildCsvImportPreview(db, clozeRows, {
+      mapping: { word: 0, cloze: 1, exampleTranslation: 2 },
+      language: 'de',
+      cardType: 'cloze',
+    })
+    await importCsvRows(db, clozePreviews, deckId, 'de', 'skip', 'cloze')
   })
 
   afterEach(() => {
@@ -78,10 +90,14 @@ describe('export formats', () => {
       // that fallback value back out under "Meaning" would just repeat
       // "Example translation" verbatim in every format.
       const { rows } = parseCsv(
-        'example,exampleTranslation\nDer Dieb wollte ins Haus {{c1::einbrechen}}.,The thief wanted to break into the house.\n',
+        'cloze,exampleTranslation\nDer Dieb wollte ins Haus {{c1::einbrechen}}.,The thief wanted to break into the house.\n',
       )
-      const previews = await buildCsvImportPreview(db, rows, { mapping: { example: 0, exampleTranslation: 1 }, language: 'de' })
-      await importCsvRows(db, previews, deckId, 'de')
+      const previews = await buildCsvImportPreview(db, rows, {
+        mapping: { cloze: 0, exampleTranslation: 1 },
+        language: 'de',
+        cardType: 'cloze',
+      })
+      await importCsvRows(db, previews, deckId, 'de', 'skip', 'cloze')
 
       const cards = await getExportableCards(db, { deckId })
       const card = cards.find((c) => c.word === 'einbrechen')
@@ -176,6 +192,34 @@ describe('export formats', () => {
   })
 
   describe('mergeCardsByWord', () => {
+    it('keeps two distinct basic cards for the same lemma as two separate rows, not merged into one', async () => {
+      // A sense change (createCardForSense) can create a second, genuinely distinct basic card
+      // for one lemma — collapsing those together (the bug: keying purely by word, one entry per
+      // word, last-write-wins) silently dropped the second meaning from CSV/Markdown export.
+      const first = await createManualWordCard(db, deckId, 'de', {
+        word: 'Schloss',
+        partOfSpeech: 'noun',
+        gender: null,
+        meaning: 'castle',
+        cefrLevel: 'A1',
+      })
+      const cluster = await db.querySingle<{ id: string }>(
+        'SELECT id FROM meaning_clusters WHERE lemma_id = ?',
+        [first.lemma.id],
+      )
+      await createCardForSense(db, deckId, {
+        lemmaId: first.lemma.id,
+        clusterId: cluster!.id,
+        meaning: { translation: 'lock', explanation: '', cefrLevel: 'A1' },
+      })
+
+      const raw = await getExportableCards(db, { deckId })
+      const merged = mergeCardsByWord(raw)
+      const schlossRows = merged.filter((c) => c.word === 'Schloss')
+      expect(schlossRows).toHaveLength(2)
+      expect(schlossRows.map((c) => c.meaning).sort()).toEqual(['castle', 'lock'])
+    })
+
     it('merges a word with both a basic and cloze card into one row, but leaves the raw Anki export list untouched', async () => {
       const { rows } = parseCsv(
         'word,meaning,example,exampleTranslation,cloze\n' +

@@ -247,26 +247,32 @@ const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
  */
 function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
   const items: CardListItem[] = []
-  const firstBasicIndexByLemma = new Map<string, number>()
+  const basicIndexByLemma = new Map<string, number>()
+
+  // Two passes rather than one interleaved one deliberately: the caller's query orders by
+  // recency (newest first), and a cloze card is normally added *after* its basic sibling — so
+  // the cloze row routinely comes first in that ordering. A single pass that only merges a cloze
+  // row onto an *already-seen* basic row would silently fail to merge in exactly that common
+  // case. Collecting every basic row first makes the merge independent of row order.
+  for (const row of rows) {
+    if (row.cardType === 'cloze') continue
+    items.push({
+      cardId: row.cardId,
+      lemmaId: row.lemmaId,
+      form: row.form,
+      translation: row.translation,
+      cefrLevel: row.cefrLevel,
+      createdAt: row.createdAt,
+      hasCloze: row.hasOwnCloze === 1,
+    })
+    if (!basicIndexByLemma.has(row.lemmaId)) {
+      basicIndexByLemma.set(row.lemmaId, items.length - 1)
+    }
+  }
 
   for (const row of rows) {
-    const hasCloze = row.cardType === 'cloze' || row.hasOwnCloze === 1
-    if (row.cardType !== 'cloze') {
-      items.push({
-        cardId: row.cardId,
-        lemmaId: row.lemmaId,
-        form: row.form,
-        translation: row.translation,
-        cefrLevel: row.cefrLevel,
-        createdAt: row.createdAt,
-        hasCloze,
-      })
-      if (!firstBasicIndexByLemma.has(row.lemmaId)) {
-        firstBasicIndexByLemma.set(row.lemmaId, items.length - 1)
-      }
-      continue
-    }
-    const basicIndex = firstBasicIndexByLemma.get(row.lemmaId)
+    if (row.cardType !== 'cloze') continue
+    const basicIndex = basicIndexByLemma.get(row.lemmaId)
     if (basicIndex !== undefined) {
       items[basicIndex]!.hasCloze = true
       continue
@@ -281,6 +287,7 @@ function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
       hasCloze: true,
     })
   }
+
   return items.sort((a, b) => b.createdAt - a.createdAt)
 }
 

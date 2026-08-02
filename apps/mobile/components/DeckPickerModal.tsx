@@ -4,7 +4,7 @@ import { getAllDecks, type DatabaseAdapter } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, ErrorState, IconButton, Spinner } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -67,74 +67,77 @@ export function DeckPickerModal(props: {
 
   return (
     <Modal visible={props.visible} animationType="slide" transparent onRequestClose={close}>
-      <Pressable style={styles.backdrop} onPress={close} />
-      <View style={styles.sheet}>
-        <View style={styles.handle} />
-        <Text style={styles.title}>{props.title}</Text>
+      <KeyboardAvoidingView style={styles.keyboardAvoider} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Pressable style={styles.backdrop} onPress={close} />
+        <View style={styles.sheet}>
+          <View style={styles.handle} />
+          <Text style={styles.title}>{props.title}</Text>
 
-        {newDeckMode ? (
-          <View style={styles.newDeckRow}>
-            <TextInput
-              testID="deck-picker-new-name-input"
-              style={styles.newDeckInput}
-              placeholder={t('New deck name')}
-              placeholderTextColor={colors.textMuted}
-              value={newDeckName}
-              onChangeText={setNewDeckName}
-              autoFocus
-              onSubmitEditing={submitNewDeck}
-            />
-            <Button
-              label={creating ? t('Creating…') : t('Create')}
-              small
-              onPress={submitNewDeck}
-              disabled={creating || newDeckName.trim() === ''}
-            />
-            <IconButton icon="close" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
-          </View>
-        ) : (
-          <Pressable testID="deck-picker-new-toggle" style={styles.newDeckButton} onPress={() => setNewDeckMode(true)}>
-            <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
-            <Text style={styles.newDeckButtonLabel}>{t('Create new deck')}</Text>
-          </Pressable>
-        )}
-        {props.createError ? <Text style={styles.errorText}>{props.createError}</Text> : null}
+          {newDeckMode ? (
+            <View style={styles.newDeckRow}>
+              <TextInput
+                testID="deck-picker-new-name-input"
+                style={styles.newDeckInput}
+                placeholder={t('New deck name')}
+                placeholderTextColor={colors.textMuted}
+                value={newDeckName}
+                onChangeText={setNewDeckName}
+                autoFocus
+                onSubmitEditing={submitNewDeck}
+              />
+              <Button
+                label={creating ? t('Creating…') : t('Create')}
+                small
+                onPress={submitNewDeck}
+                disabled={creating || newDeckName.trim() === ''}
+              />
+              <IconButton icon="close" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
+            </View>
+          ) : (
+            <Pressable testID="deck-picker-new-toggle" style={styles.newDeckButton} onPress={() => setNewDeckMode(true)}>
+              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+              <Text style={styles.newDeckButtonLabel}>{t('Create new deck')}</Text>
+            </Pressable>
+          )}
+          {props.createError ? <Text style={styles.errorText}>{props.createError}</Text> : null}
 
-        {decksQuery.isPending ? (
-          <Spinner />
-        ) : decksQuery.isError ? (
-          <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-        ) : decksQuery.data && decksQuery.data.length > 0 ? (
-          <ScrollView style={styles.list}>
-            {decksQuery.data.map((deck) => {
-              const already = existingDeckIds.includes(deck.id)
-              return (
-                <Pressable
-                  key={deck.id}
-                  testID={`deck-picker-row-${deck.id}`}
-                  style={[styles.row, selecting && styles.rowDisabled]}
-                  onPress={() => props.onSelectDeck(deck)}
-                  disabled={selecting || already}
-                >
-                  <Text style={styles.emoji}>{deck.emoji ?? '📚'}</Text>
-                  <Text style={styles.name}>{deck.name}</Text>
-                  {already ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
-                </Pressable>
-              )
-            })}
-          </ScrollView>
-        ) : (
-          <Text style={styles.hint}>{t('No decks yet — create one above.')}</Text>
-        )}
-        {props.selectError ? <Text style={styles.errorText}>{props.selectError}</Text> : null}
-      </View>
+          {decksQuery.isPending ? (
+            <Spinner />
+          ) : decksQuery.isError ? (
+            <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
+          ) : decksQuery.data && decksQuery.data.length > 0 ? (
+            <ScrollView style={styles.list}>
+              {decksQuery.data.map((deck) => {
+                const already = existingDeckIds.includes(deck.id)
+                return (
+                  <Pressable
+                    key={deck.id}
+                    testID={`deck-picker-row-${deck.id}`}
+                    style={[styles.row, selecting && styles.rowDisabled]}
+                    onPress={() => props.onSelectDeck(deck)}
+                    disabled={selecting || already}
+                  >
+                    <Text style={styles.emoji}>{deck.emoji ?? '📚'}</Text>
+                    <Text style={styles.name}>{deck.name}</Text>
+                    {already ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
+                  </Pressable>
+                )
+              })}
+            </ScrollView>
+          ) : (
+            <Text style={styles.hint}>{t('No decks yet — create one above.')}</Text>
+          )}
+          {props.selectError ? <Text style={styles.errorText}>{props.selectError}</Text> : null}
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    backdrop: { flex: 1, backgroundColor: '#00000066' },
+    keyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
+    backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
     sheet: {
       backgroundColor: colors.surface,
       borderTopLeftRadius: radius.xl,

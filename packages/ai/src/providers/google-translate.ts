@@ -159,6 +159,8 @@ export class GoogleTranslateProvider implements DictionaryProvider {
           : `Google Translate request failed: ${String(error)}`,
         this.name,
         true,
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

@@ -3,8 +3,8 @@ import { buildLinImportPreview, createDeck, getAllDecks, getDecksInPayload, impo
 import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useLocalSearchParams } from 'expo-router'
-import { useMemo, useState, type JSX } from 'react'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
 import { Button, Card, Chip, EmptyState, ErrorState, Spinner } from '../../components/ui'
@@ -27,6 +27,9 @@ interface TableColumn {
 const TABLE_COLUMNS: TableColumn[] = [
   { label: 'Word', width: 160, cell: (p) => p.form },
   { label: 'Meaning', width: 200, cell: (p) => p.cards[0]?.translation ?? '—' },
+  { label: 'Example', width: 260, cell: (p) => p.cards[0]?.example ?? '—' },
+  { label: 'Example translation', width: 220, cell: (p) => p.cards[0]?.exampleTranslation ?? '—' },
+  { label: 'Synonyms', width: 200, cell: (p) => p.cards[0]?.synonyms.join(', ') || '—' },
   { label: 'Cards', width: 160, cell: (p) => p.cards.map((c) => c.type).join(', ') || '—' },
   { label: 'Status', width: 110, cell: (p) => p.status },
 ]
@@ -45,7 +48,7 @@ type Step = 'pick' | 'source-deck' | 'target' | 'preview' | 'importing' | 'done'
  * over with fresh IDs.
  */
 export default function LinImportScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
@@ -93,7 +96,12 @@ export default function LinImportScreen(): JSX.Element {
     log.info('import.lin_file_picker_opened', { message: 'User opened the .lin file picker' })
     pickAndParseBackupFile()
       .then((picked) => {
-        if (!picked) return
+        if (!picked) {
+          // Nothing to show for this screen without a file — go back rather than leaving the user
+          // stranded on a near-empty "pick" step they never meant to see in the first place.
+          router.back()
+          return
+        }
         const decks = getDecksInPayload(picked.payload)
         if (decks.length === 0) {
           setPickError(t('This file has no decks to import.'))
@@ -116,11 +124,22 @@ export default function LinImportScreen(): JSX.Element {
       })
   }
 
+  // Opens the file browser immediately on landing here — same reasoning as csv-import.tsx/
+  // apkg-import.tsx's identical effect: the Settings screen's .lin option should feel like it goes
+  // straight to the file browser rather than requiring a second "Choose .lin file" tap.
+  const autoPicked = useRef(false)
+  useEffect(() => {
+    if (autoPicked.current) return
+    autoPicked.current = true
+    handlePickFile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleBuildPreview = (): void => {
     if (!payload || !sourceDeckId || !targetDeckId) return
     setPreviewLoading(true)
     log.info('import.lin_preview_started', { message: 'Building .lin import preview' })
-    buildLinImportPreview(db, payload, sourceDeckId, 'de')
+    buildLinImportPreview(db, payload, sourceDeckId, targetLanguage)
       .then((built) => {
         setPreviews(built)
         setCheckedIds(new Set(built.map((p) => p.sourceLemmaId)))
@@ -173,7 +192,7 @@ export default function LinImportScreen(): JSX.Element {
       message: 'User confirmed .lin import',
       metadata: { itemCount: toImport.length },
     })
-    importLinDeck(db, payload, sourceDeckId, targetDeckId, 'de', toImport, duplicatePolicy)
+    importLinDeck(db, payload, sourceDeckId, targetDeckId, targetLanguage, toImport, duplicatePolicy)
       .then(async (outcome) => {
         setResult(outcome)
         setStep('done')

@@ -49,11 +49,16 @@ export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string)
   // INNER JOIN decks (not just deck_cards) so a deck_cards row surviving its deck's own deletion —
   // orphaned membership, seen in practice when a deletion path didn't cascade — can never resurrect
   // a card as "due" once every real deck it belonged to is gone.
+  //
+  // c.type = 'basic': every card gets a card_states row at creation regardless of type (see
+  // upsertCard in import-shared.ts), so without this filter a cloze card would show up here too —
+  // with no example/translation to show, since that content lives in cloze_cards instead. Cloze
+  // cards have their own dedicated queue, getClozeCardsDueForReview, via cloze_states.
   let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
     INNER JOIN deck_cards dc ON c.id = dc.card_id
     INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN card_states cs ON c.id = cs.card_id
-    WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+    WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
@@ -209,7 +214,9 @@ export interface CardListItem {
   translation: string | null
   cefrLevel: CefrLevel | null
   createdAt: number
-  /** True when this lemma also has a separate cloze-practice card (see import-shared.ts#importRow) — shown as a small badge rather than a second list row. */
+  /** True when this card has a cloze variant — either a standalone `type: 'cloze'` card, or a
+   * `type: 'basic'` card the word-detail screen's manual cloze editor attached one to (see
+   * setCloze in repositories/cloze.ts) — shown as a small badge. */
   hasCloze: boolean
 }
 
@@ -221,49 +228,60 @@ interface RawCardListRow {
   cefrLevel: CefrLevel | null
   createdAt: number
   cardType: string
+  /** 0/1 from EXISTS() — SQLite has no real boolean column type. */
+  hasOwnCloze: number
 }
 
 const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
-    m.translation, m.cefr_level AS cefrLevel, c.type AS cardType`
+    m.translation, m.cefr_level AS cefrLevel, c.type AS cardType,
+    EXISTS(SELECT 1 FROM cloze_cards cz WHERE cz.card_id = c.id) AS hasOwnCloze`
 
 /**
- * Collapses one row per lemma — a lemma can have both a 'basic' and a
- * 'cloze' card (the same word imported/generated with both a regular
- * meaning and a cloze-practice sentence, see import-shared.ts#importRow);
- * listing both as separate rows reads as an accidental duplicate rather
- * than two study modes of the same word. Prefers the 'basic' card's own
- * fields for display (word/meaning matter more here than a cloze
- * sentence); a lemma with only a cloze card keeps that card's fields.
+ * Folds a standalone `type: 'cloze'` card onto an existing `type: 'basic'` row for the same
+ * lemma — e.g. from a two-pass CSV import (once as basic, once as cloze; see cardType in
+ * apps/mobile/app/settings/csv-import.tsx) or "Add card manually" → Cloze — so it reads as one
+ * word with a cloze badge rather than an accidental duplicate. Deliberately does **not** merge two
+ * DIFFERENT `type: 'basic'` cards for the same lemma: those are always genuinely separate content
+ * now (one card per sense, see createCardForSense in manual-card.ts; or a deliberate
+ * `DuplicatePolicy: 'duplicate'` re-import), so they stay as separate rows.
  */
 function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
-  const byLemma = new Map<string, CardListItem & { isBasic: boolean }>()
+  const items: CardListItem[] = []
+  const firstBasicIndexByLemma = new Map<string, number>()
+
   for (const row of rows) {
-    const isBasic = row.cardType !== 'cloze'
-    const existing = byLemma.get(row.lemmaId)
-    if (!existing) {
-      byLemma.set(row.lemmaId, {
+    const hasCloze = row.cardType === 'cloze' || row.hasOwnCloze === 1
+    if (row.cardType !== 'cloze') {
+      items.push({
         cardId: row.cardId,
         lemmaId: row.lemmaId,
         form: row.form,
         translation: row.translation,
         cefrLevel: row.cefrLevel,
         createdAt: row.createdAt,
-        hasCloze: row.cardType === 'cloze',
-        isBasic,
+        hasCloze,
       })
+      if (!firstBasicIndexByLemma.has(row.lemmaId)) {
+        firstBasicIndexByLemma.set(row.lemmaId, items.length - 1)
+      }
       continue
     }
-    if (row.cardType === 'cloze') existing.hasCloze = true
-    if (isBasic && !existing.isBasic) {
-      existing.cardId = row.cardId
-      existing.translation = row.translation
-      existing.cefrLevel = row.cefrLevel
-      existing.isBasic = true
+    const basicIndex = firstBasicIndexByLemma.get(row.lemmaId)
+    if (basicIndex !== undefined) {
+      items[basicIndex]!.hasCloze = true
+      continue
     }
+    items.push({
+      cardId: row.cardId,
+      lemmaId: row.lemmaId,
+      form: row.form,
+      translation: row.translation,
+      cefrLevel: row.cefrLevel,
+      createdAt: row.createdAt,
+      hasCloze: true,
+    })
   }
-  return Array.from(byLemma.values())
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .map(({ isBasic: _isBasic, ...item }) => item)
+  return items.sort((a, b) => b.createdAt - a.createdAt)
 }
 
 /**
@@ -354,12 +372,13 @@ export async function getVocabularyGrowth(db: DatabaseAdapter, weeks = 7): Promi
  */
 export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
   const params: unknown[] = [Date.now()]
-  // Same orphaned-membership guard as getCardsDueForReview — see its comment.
+  // Same orphaned-membership guard, and same c.type = 'basic' filter, as getCardsDueForReview —
+  // see its comment.
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
      INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN card_states cs ON c.id = cs.card_id
-     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+     WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
@@ -389,5 +408,25 @@ export async function getDueClozeCount(db: DatabaseAdapter, deckId?: string): Pr
     params.push(deckId)
   }
   const result = await db.querySingle<{ count: number }>(query, params)
+  return result?.count ?? 0
+}
+
+/**
+ * Total count of cards in a deck that have a cloze variant at all, regardless of due state — unlike
+ * `getDueClozeCount`, which only counts what's due *right now*. Used to decide whether the "Practice
+ * cloze" action should be offered at all (a deck with zero cloze cards has nothing to practice,
+ * today or ever, until one is imported/generated) rather than just how urgent it is.
+ * @param db The database adapter to use for the query.
+ * @param deckId The ID of the deck to count cloze cards for.
+ * @returns The number of cards in the deck that have a cloze variant.
+ */
+export async function getClozeCardCountForDeck(db: DatabaseAdapter, deckId: string): Promise<number> {
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(DISTINCT c.id) as count FROM cards c
+     INNER JOIN deck_cards dc ON c.id = dc.card_id
+     INNER JOIN cloze_cards cc ON c.id = cc.card_id
+     WHERE dc.deck_id = ?`,
+    [deckId],
+  )
   return result?.count ?? 0
 }

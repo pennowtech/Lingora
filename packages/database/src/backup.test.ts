@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
 import { migrate } from './migrations'
 import { createDeck } from './repositories/decks'
+import { persistWordGuideAsCard } from './repositories/word-guides'
 import { seedDatabase } from './seed_dummy_data'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 import {
@@ -179,6 +180,30 @@ describe('backup / restore', () => {
       expect(otherDeckBackup.tables.lemmas?.map((l) => l.form)).toEqual(['Hund'])
       expect(otherDeckBackup.tables.lemmas?.map((l) => l.form)).not.toContain('ausgehen')
       expect(otherDeckBackup.tables.cards).toHaveLength(1)
+    })
+
+    it('exports full content for a word-guide-sourced card too, same as any other source', async () => {
+      const { cardId } = await persistWordGuideAsCard(
+        db,
+        {
+          headword: 'Beispiel',
+          language: 'de',
+          chunkId: 0,
+          translation: 'example',
+          intro: 'A sample word.',
+          synonyms: [{ word: 'Muster', gloss: '' }],
+          examples: [{ sentence: 'Das ist ein Beispiel.', translation: 'This is an example.' }],
+        },
+        'deck-default',
+      )
+
+      const backup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')
+
+      expect(backup.tables.cards?.some((c) => c.id === cardId)).toBe(true)
+      expect(backup.tables.lemmas?.some((l) => l.form === 'Beispiel')).toBe(true)
+      expect(backup.tables.meanings?.some((m) => m.card_id === cardId)).toBe(true)
+      expect(backup.tables.examples?.some((e) => e.card_id === cardId)).toBe(true)
+      expect(backup.tables.synonyms?.some((s) => s.card_id === cardId)).toBe(true)
     })
 
     it('returns empty card-scoped tables for a deck with no cards', async () => {

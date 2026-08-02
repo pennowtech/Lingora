@@ -320,6 +320,23 @@ const ENGLISH_PHRASES = [
   "Danger zone",
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.",
   "Delete account & sync data",
+
+  // Newly added — explicit either/or card type for CSV/Anki import
+  "Card type for this import",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.",
+  "Regular (word/meaning)",
+  "Cloze (fill-in-the-blank)",
+
+  // Newly added — deck table view
+  "View all cards (table)",
+  "{{name}} — all cards",
+  "All cards",
+  "No cards yet",
+  "Add words from Search or import a file to see them here.",
+  "Type",
+  "Part of speech",
+  "CEFR",
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -717,6 +734,21 @@ const de: Partial<Record<Phrase, string>> = {
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
     "Lösche dauerhaft alles, was mit diesem Konto synchronisiert wurde, und melde dich ab. Deine Daten auf diesem Gerät bleiben erhalten.",
   "Delete account & sync data": "Konto & Sync-Daten löschen",
+  "Card type for this import": "Kartentyp für diesen Import",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Eine Zeile mit Wort/Bedeutung UND Lückensatz wird zu EINER Karte, nie zu zwei. Beide gewünscht? Importiere die Datei danach erneut mit dem jeweils anderen Kartentyp.",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Eine Notiz mit Wort/Bedeutung UND Lückensatz wird zu EINER Karte, nie zu zwei. Beide gewünscht? Importiere die Datei danach erneut mit dem jeweils anderen Kartentyp.",
+  "Regular (word/meaning)": "Normal (Wort/Bedeutung)",
+  "Cloze (fill-in-the-blank)": "Lückentext",
+  "View all cards (table)": "Alle Karten anzeigen (Tabelle)",
+  "{{name}} — all cards": "{{name}} — alle Karten",
+  "All cards": "Alle Karten",
+  "No cards yet": "Noch keine Karten",
+  "Add words from Search or import a file to see them here.": "Füge Wörter über die Suche hinzu oder importiere eine Datei, um sie hier zu sehen.",
+  Type: "Typ",
+  "Part of speech": "Wortart",
+  CEFR: "GER-Niveau",
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -1105,6 +1137,21 @@ const fr: Partial<Record<Phrase, string>> = {
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
     "Efface définitivement tout ce qui a été synchronisé avec ce compte et déconnecte-toi. Tes données sur cet appareil restent intactes.",
   "Delete account & sync data": "Supprimer le compte et les données synchronisées",
+  "Card type for this import": "Type de carte pour cet import",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Une ligne avec à la fois un mot/sens ET une phrase à trous devient UNE carte, jamais deux. Tu veux les deux ? Importe à nouveau le fichier ensuite avec l'autre type de carte.",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Une note avec à la fois un mot/sens ET une phrase à trous devient UNE carte, jamais deux. Tu veux les deux ? Importe à nouveau le fichier ensuite avec l'autre type de carte.",
+  "Regular (word/meaning)": "Normale (mot/sens)",
+  "Cloze (fill-in-the-blank)": "À trous",
+  "View all cards (table)": "Voir toutes les cartes (tableau)",
+  "{{name}} — all cards": "{{name}} — toutes les cartes",
+  "All cards": "Toutes les cartes",
+  "No cards yet": "Pas encore de cartes",
+  "Add words from Search or import a file to see them here.": "Ajoute des mots depuis la recherche ou importe un fichier pour les voir ici.",
+  Type: "Type",
+  "Part of speech": "Nature grammaticale",
+  CEFR: "Niveau CECRL",
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -1493,6 +1540,21 @@ const es: Partial<Record<Phrase, string>> = {
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
     "Borra permanentemente todo lo sincronizado con esta cuenta y cierra sesión. Tus datos en este dispositivo permanecen intactos.",
   "Delete account & sync data": "Eliminar cuenta y datos sincronizados",
+  "Card type for this import": "Tipo de tarjeta para esta importación",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Una fila con palabra/significado Y frase con hueco se convierte en UNA tarjeta, nunca dos. ¿Quieres ambas? Importa el archivo de nuevo después con el otro tipo de tarjeta.",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Una nota con palabra/significado Y frase con hueco se convierte en UNA tarjeta, nunca dos. ¿Quieres ambas? Importa el archivo de nuevo después con el otro tipo de tarjeta.",
+  "Regular (word/meaning)": "Normal (palabra/significado)",
+  "Cloze (fill-in-the-blank)": "Huecos",
+  "View all cards (table)": "Ver todas las tarjetas (tabla)",
+  "{{name}} — all cards": "{{name}} — todas las tarjetas",
+  "All cards": "Todas las tarjetas",
+  "No cards yet": "Aún no hay tarjetas",
+  "Add words from Search or import a file to see them here.": "Añade palabras desde Buscar o importa un archivo para verlas aquí.",
+  Type: "Tipo",
+  "Part of speech": "Categoría gramatical",
+  CEFR: "Nivel MCER",
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -1881,6 +1943,21 @@ const hi: Partial<Record<Phrase, string>> = {
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
     "इस खाते से सिंक किया गया सब कुछ स्थायी रूप से मिटाएं और साइन आउट करें। इस डिवाइस पर आपका डेटा सुरक्षित रहेगा।",
   "Delete account & sync data": "खाता और सिंक डेटा हटाएं",
+  "Card type for this import": "इस आयात के लिए कार्ड प्रकार",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "शब्द/अर्थ और रिक्त-स्थान वाक्य दोनों वाली पंक्ति एक ही कार्ड बनती है, कभी दो नहीं। दोनों चाहिए? फ़ाइल को बाद में दूसरे कार्ड प्रकार के साथ फिर से आयात करें।",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "शब्द/अर्थ और रिक्त-स्थान वाक्य दोनों वाला नोट एक ही कार्ड बनता है, कभी दो नहीं। दोनों चाहिए? फ़ाइल को बाद में दूसरे कार्ड प्रकार के साथ फिर से आयात करें।",
+  "Regular (word/meaning)": "सामान्य (शब्द/अर्थ)",
+  "Cloze (fill-in-the-blank)": "रिक्त-स्थान",
+  "View all cards (table)": "सभी कार्ड देखें (तालिका)",
+  "{{name}} — all cards": "{{name}} — सभी कार्ड",
+  "All cards": "सभी कार्ड",
+  "No cards yet": "अभी तक कोई कार्ड नहीं",
+  "Add words from Search or import a file to see them here.": "यहां देखने के लिए खोज से शब्द जोड़ें या कोई फ़ाइल आयात करें।",
+  Type: "प्रकार",
+  "Part of speech": "शब्द भेद",
+  CEFR: "CEFR स्तर",
 }
 
 
@@ -2270,6 +2347,21 @@ const vi: Partial<Record<Phrase, string>> = {
   "Permanently erase everything synced to this account and sign out. Your data on this device stays put.":
     "Xóa vĩnh viễn mọi thứ đã đồng bộ với tài khoản này và đăng xuất. Dữ liệu của bạn trên thiết bị này vẫn được giữ nguyên.",
   "Delete account & sync data": "Xóa tài khoản & dữ liệu đồng bộ",
+  "Card type for this import": "Loại thẻ cho lần nhập này",
+  "A row with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Một hàng có cả từ/nghĩa và câu điền khuyết sẽ trở thành MỘT thẻ, không bao giờ là hai. Muốn cả hai? Hãy nhập lại tệp sau đó với loại thẻ còn lại.",
+  "A note with both a word/meaning and a cloze sentence becomes ONE card, never two. Want both? Import the file again afterward with the other card type selected.":
+    "Một ghi chú có cả từ/nghĩa và câu điền khuyết sẽ trở thành MỘT thẻ, không bao giờ là hai. Muốn cả hai? Hãy nhập lại tệp sau đó với loại thẻ còn lại.",
+  "Regular (word/meaning)": "Thông thường (từ/nghĩa)",
+  "Cloze (fill-in-the-blank)": "Điền khuyết",
+  "View all cards (table)": "Xem tất cả thẻ (dạng bảng)",
+  "{{name}} — all cards": "{{name}} — tất cả thẻ",
+  "All cards": "Tất cả thẻ",
+  "No cards yet": "Chưa có thẻ nào",
+  "Add words from Search or import a file to see them here.": "Thêm từ từ Tìm kiếm hoặc nhập một tệp để xem chúng ở đây.",
+  Type: "Loại",
+  "Part of speech": "Từ loại",
+  CEFR: "Cấp độ CEFR",
 }
 
 export const resources = {

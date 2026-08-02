@@ -341,6 +341,8 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
           : `OpenAI request failed: ${String(error)}`,
         this.name,
         true, // network errors and timeouts are worth retrying
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

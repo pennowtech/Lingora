@@ -63,6 +63,10 @@ export class FirebaseCloudAuthService implements CloudAuthService {
     await GoogleOneTapSignIn.signOut()
     await signOut(getAuth())
   }
+
+  async revokeAccess(email: string): Promise<void> {
+    await GoogleOneTapSignIn.revokeAccess(email)
+  }
 }
 
 /** Fires `listener` immediately with the current account, then again on every auth state change —

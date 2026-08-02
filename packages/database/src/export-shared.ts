@@ -21,7 +21,11 @@ export interface ExportableCard {
   cardId: string
   word: string
   meaning: string
-  /** `{{c1::answer}}` markup, set only for a cloze card — `example` is null when this is set, and vice versa. */
+  /** `{{c1::answer}}` markup, set only for a `type: 'cloze'` card (export-format shaping — `example`
+   * is null when this is set, and vice versa, so CSV/Anki/Markdown export never show both). A
+   * `type: 'basic'` card that ALSO has a cloze variant (the AI-generation pipeline can attach one to
+   * an ordinary card — see persistWordGeneration) has this as null even though it has cloze content;
+   * see `hasClozeVariant`/`clozeMarkup` below for that case. */
   cloze: string | null
   example: string | null
   exampleTranslation: string | null
@@ -30,6 +34,20 @@ export interface ExportableCard {
   partOfSpeech: PartOfSpeech
   cefrLevel: CefrLevel
   isCloze: boolean
+  /** True whenever this card has ANY cloze variant, regardless of `cards.type` — unlike `isCloze`
+   * (which only reflects `type: 'cloze'` cards, for export-format shaping), this also catches a
+   * `type: 'basic'` card the AI pipeline gave a cloze variant alongside its regular example. Drives
+   * which cards belong in a "cloze" view (e.g. the deck table's Cloze tab) — that's a different
+   * question from "should this card's example be suppressed for export," which is what `isCloze`
+   * answers. */
+  hasClozeVariant: boolean
+  /** `{{c1::answer}}` markup whenever `hasClozeVariant` is true, independent of card type — unlike
+   * `cloze` above, never null just because this happens to be a `type: 'basic'` card. */
+  clozeMarkup: string | null
+  /** The cloze variant's own translation, independent of card type — unlike `exampleTranslation`
+   * (which is the *example's* translation for a `type: 'basic'` card, even one that also has a
+   * cloze variant with its own, possibly different, translation). */
+  clozeVariantTranslation: string | null
 }
 
 interface CardRow {
@@ -73,9 +91,24 @@ export async function getExportableCards(
       cz.translation AS clozeTranslation
     FROM cards c
     JOIN lemmas l ON l.id = c.lemma_id
-    LEFT JOIN meanings m ON m.card_id = c.id AND m.is_primary = 1
-    LEFT JOIN examples e ON e.card_id = c.id AND e.is_selected = 1
-    LEFT JOIN cloze_cards cz ON cz.card_id = c.id
+    -- "Exactly one primary meaning / one selected example per card" is an app-level invariant
+    -- (see the repositories that write these tables), not a database constraint — a bug anywhere
+    -- along the way (an old import path, a partial failure, ...) that leaves two rows flagged
+    -- is_primary/is_selected for the same card would otherwise fan this query out into two result
+    -- rows for what's still one card (the "duplicate key" symptom in any list keyed by cardId).
+    -- Pinning to one row (the first-created, by rowid) makes this query robust to that regardless
+    -- of whether the invariant actually held when the data was written.
+    LEFT JOIN meanings m ON m.rowid = (
+      SELECT MIN(m2.rowid) FROM meanings m2 WHERE m2.card_id = c.id AND m2.is_primary = 1
+    )
+    LEFT JOIN examples e ON e.rowid = (
+      SELECT MIN(e2.rowid) FROM examples e2 WHERE e2.card_id = c.id AND e2.is_selected = 1
+    )
+    -- A card can have more than one cloze_cards row (createCloze's own doc comment: "a card's
+    -- second, third, ... cloze variant") — same reasoning as above, pinned the same way.
+    LEFT JOIN cloze_cards cz ON cz.rowid = (
+      SELECT MIN(cz2.rowid) FROM cloze_cards cz2 WHERE cz2.card_id = c.id
+    )
   `
   if (options.deckId) {
     query += ` WHERE c.id IN (SELECT card_id FROM deck_cards WHERE deck_id = ?)`
@@ -87,8 +120,15 @@ export async function getExportableCards(
   const cards: ExportableCard[] = []
 
   for (const row of rows) {
-    if (!row.meaning) continue
     const isCloze = row.cardType === 'cloze' && row.clozeSentence !== null && row.clozeAnswer !== null
+    const hasClozeVariant = row.clozeSentence !== null && row.clozeAnswer !== null
+    const clozeMarkup = hasClozeVariant ? buildClozeMarkup(row.clozeSentence!, row.clozeAnswer!) : null
+    // A manually-added cloze card (createManualClozeCard) deliberately has no meaning row at all —
+    // sentence/answer stand in for word/meaning the same way a real Anki Cloze note does (see
+    // AddCardScreen's doc comment). Skipping every card with no meaning used to also skip these
+    // legitimate cloze cards outright; only skip when there's neither a meaning NOR cloze content,
+    // since that's the only case with nothing exportable at all.
+    if (!row.meaning && !hasClozeVariant) continue
     const exampleTranslation = isCloze ? row.clozeTranslation : row.exampleTranslation
     // Any imported card's stored "meaning" can equal its example
     // translation verbatim — not just cloze cards: import-shared.ts#resolveWordAndMeaning
@@ -98,14 +138,14 @@ export async function getExportableCards(
     // "Example translation" in every export format. Blank it instead: a
     // fresh import with no meaning mapped produces the exact same result,
     // so this doesn't change what a re-import derives.
-    const meaning = row.meaning === exampleTranslation ? '' : row.meaning
+    const meaning = !row.meaning || row.meaning === exampleTranslation ? '' : row.meaning
     const [synonyms, tags] = await Promise.all([getSynonymsForCard(db, row.cardId), getTagsForCard(db, row.cardId)])
 
     cards.push({
       cardId: row.cardId,
       word: row.word,
       meaning,
-      cloze: isCloze ? buildClozeMarkup(row.clozeSentence!, row.clozeAnswer!) : null,
+      cloze: isCloze ? clozeMarkup : null,
       example: isCloze ? null : row.exampleSentence,
       exampleTranslation,
       synonyms: synonyms.map((s) => s.word),
@@ -113,6 +153,9 @@ export async function getExportableCards(
       partOfSpeech: row.partOfSpeech,
       cefrLevel: row.cefrLevel ?? 'A1',
       isCloze,
+      hasClozeVariant,
+      clozeMarkup,
+      clozeVariantTranslation: hasClozeVariant ? row.clozeTranslation : null,
     })
   }
 

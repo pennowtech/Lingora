@@ -75,6 +75,27 @@ export function revealClozeMarkup(text: string): string {
 }
 
 /**
+ * Wraps the substring `text[start:end]` in the next `{{cN::...}}` cloze marker — the building block
+ * for a manual cloze editor (select a word/phrase, tap "Mark as cloze"). `N` auto-increments from
+ * however many `{{cN::...}}` markers are already in `text`, matching Anki's own numbering.
+ *
+ * Deliberately manual rather than auto-detecting the target word in the sentence: an earlier
+ * attempt at that (matching the lemma's own form or a known inflection as a literal substring)
+ * fails for German separable verbs, where the prefix splits from the stem across the sentence in
+ * normal word order ("Der Laden verkauft alles aus.") — there's no reliable way to find "the word"
+ * automatically, so the user marks it instead.
+ *
+ * Returns `text` unchanged if `start >= end` (nothing selected).
+ */
+export function markSelectionAsCloze(text: string, start: number, end: number): string {
+  if (start >= end) return text
+  const existingCount = (text.match(/\{\{\s*c\d*\s*:{1,2}/gi) ?? []).length
+  const nextNumber = existingCount + 1
+  const selected = text.slice(start, end)
+  return `${text.slice(0, start)}{{c${nextNumber}::${selected}}}${text.slice(end)}`
+}
+
+/**
  * The equivalent of `revealClozeMarkup`, but starting from an already-persisted `Cloze` row
  * (`sentence` = blanked with `CLOZE_BLANK`, `answer` = every answer joined with "; ", the same
  * shape `buildClozeMarkup` reads) instead of raw `{{cN::answer}}` markup — reconstructs the

@@ -88,6 +88,57 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     expect(second[0]?.status).toBe('duplicate')
   })
 
+  it('imports the same word appearing twice in one file without a UNIQUE constraint failure', async () => {
+    // Both rows preview as 'ok' — neither exists in the DB yet when the preview runs — so
+    // importRow has to notice, mid-batch, that the first row already created this lemma.
+    const { rows } = parseCsv('word,meaning\nHaus,house\nHaus,building\n')
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1 },
+      language: 'de',
+    })
+    expect(previews.map((p) => p.status)).toEqual(['ok', 'ok'])
+
+    const result = await importCsvRows(db, previews, deckId, 'de', 'duplicate')
+
+    expect(result.failed).toBe(0)
+    expect(result.imported).toBe(2)
+    const lemma = await getLemmaByForm(db, 'Haus', 'de')
+    expect(lemma).not.toBeNull()
+    const allLemmas = await db.query('SELECT id FROM lemmas WHERE form = ?', ['Haus'])
+    expect(allLemmas).toHaveLength(1)
+  })
+
+  it('creates a second card with its own example/translation for a same-word row, even under the default "skip" policy', async () => {
+    // The default UI policy only skips rows the DB already had a lemma for at preview time
+    // (preview.status === 'duplicate') — an in-file repeat previews as 'ok' on both rows, so it
+    // must still get its own card, not be silently dropped by the UNIQUE constraint.
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation\n' +
+        'Haus,house,"Das Haus ist groß.","The house is big."\n' +
+        'Haus,building,"Das Haus wurde 1990 gebaut.","The building was built in 1990."\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3 },
+      language: 'de',
+    })
+    expect(previews.map((p) => p.status)).toEqual(['ok', 'ok'])
+
+    const result = await importCsvRows(db, previews, deckId, 'de', 'skip')
+
+    expect(result).toEqual({ imported: 2, skipped: 0, failed: 0 })
+    const cards = await db.query<{ id: string }>('SELECT id FROM cards')
+    expect(cards).toHaveLength(2)
+    const meanings = await db.query<{ translation: string }>('SELECT translation FROM meanings ORDER BY translation')
+    expect(meanings.map((m) => m.translation)).toEqual(['building', 'house'])
+    const examples = await db.query<{ sentence: string; translation: string }>(
+      'SELECT sentence, translation FROM examples ORDER BY sentence',
+    )
+    expect(examples).toEqual([
+      { sentence: 'Das Haus ist groß.', translation: 'The house is big.' },
+      { sentence: 'Das Haus wurde 1990 gebaut.', translation: 'The building was built in 1990.' },
+    ])
+  })
+
   it('imports ok rows transactionally, creating a lemma, card, meaning, and example', async () => {
     const { rows } = parseCsv('word,meaning,example\nHaus,house,"Das Haus ist groß."\n')
     const previews = await buildCsvImportPreview(db, rows, {
@@ -198,7 +249,9 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     expect(examples).toHaveLength(0)
   })
 
-  it('creates BOTH a basic card and a cloze card when word/meaning/example and a dedicated cloze column are all mapped', async () => {
+  it('creates a single BASIC card by default when word/meaning/example and a dedicated cloze column are all mapped', async () => {
+    // cardType defaults to 'basic' — a row that maps a cloze column always produces exactly one
+    // card either way, never two. See import-shared.ts's importRow.
     const { rows } = parseCsv(
       'word,meaning,example,exampleTranslation,cloze\n' +
         'ausgehen,to go out,Wir gehen heute Abend aus.,We are going out tonight.,Wir gehen heute Abend {{c1::aus}}.\n',
@@ -213,19 +266,87 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
       lemma?.id,
     ])
-    expect(cards.map((c) => c.type)).toEqual(['basic', 'cloze'])
+    expect(cards.map((c) => c.type)).toEqual(['basic'])
+  })
 
+  it('creates a single CLOZE card when cardType is explicitly "cloze"', async () => {
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation,cloze\n' +
+        'ausgehen,to go out,Wir gehen heute Abend aus.,We are going out tonight.,Wir gehen heute Abend {{c1::aus}}.\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, previews, deckId, 'de', 'skip', 'cloze')
+
+    const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
+    const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
+      lemma?.id,
+    ])
+    expect(cards.map((c) => c.type)).toEqual(['cloze'])
+
+    const clozeCard = cards[0]!
+    const cloze = await db.querySingle<{ sentence: string }>('SELECT sentence FROM cloze_cards WHERE card_id = ?', [
+      clozeCard.id,
+    ])
+    expect(cloze?.sentence).toBe('Wir gehen heute Abend [...].')
+  })
+
+  it('importing twice with different cardType adds a second card under the same lemma, not a second lemma', async () => {
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation,cloze\n' +
+        'ausgehen,to go out,Wir gehen heute Abend aus.,We are going out tonight.,Wir gehen heute Abend {{c1::aus}}.\n',
+    )
+
+    const basicPreviews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, basicPreviews, deckId, 'de', 'skip', 'basic')
+
+    // Second pass: the word now exists, so the preview flags it 'duplicate' — 'duplicate' policy
+    // adds a new card under the SAME lemma rather than colliding on lemmas.form's UNIQUE constraint.
+    const clozePreviews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    expect(clozePreviews[0]?.status).toBe('duplicate')
+    await importCsvRows(db, clozePreviews, deckId, 'de', 'duplicate', 'cloze')
+
+    const allLemmas = await db.query('SELECT id FROM lemmas WHERE form = ?', ['ausgehen'])
+    expect(allLemmas).toHaveLength(1)
+
+    const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
+    const cards = await db.query<{ type: string }>('SELECT type FROM cards WHERE lemma_id = ? ORDER BY type', [lemma?.id])
+    expect(cards.map((c) => c.type)).toEqual(['basic', 'cloze'])
+  })
+
+  it('BOTH basic and cloze cards carry their own meaning row (opted-in dual import, cluster reused)', async () => {
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation,cloze\n' +
+        'ausgehen,to go out,Wir gehen heute Abend aus.,We are going out tonight.,Wir gehen heute Abend {{c1::aus}}.\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+    const dupPreviews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
+
+    const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
+    const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
+      lemma?.id,
+    ])
     const basicCard = cards.find((c) => c.type === 'basic')!
     const examples = await db.query<{ sentence: string }>('SELECT sentence FROM examples WHERE card_id = ?', [basicCard.id])
     expect(examples).toEqual([{ sentence: 'Wir gehen heute Abend aus.' }])
 
     const clozeCard = cards.find((c) => c.type === 'cloze')!
-    const cloze = await db.querySingle<{ sentence: string }>('SELECT sentence FROM cloze_cards WHERE card_id = ?', [
-      clozeCard.id,
-    ])
-    expect(cloze?.sentence).toBe('Wir gehen heute Abend [...].')
-
-    // Both cards carry their own meaning row.
     const meanings = await db.query<{ translation: string }>(
       'SELECT translation FROM meanings WHERE card_id IN (?, ?)',
       [basicCard.id, clozeCard.id],
@@ -326,7 +447,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     expect(clusters).toHaveLength(1)
   })
 
-  it('reuses a single cluster for a row that creates both a basic and a cloze card', async () => {
+  it('reuses a single cluster across two import passes that add a basic and a cloze card to the same lemma', async () => {
     const { rows } = parseCsv(
       'word,meaning,example,exampleTranslation,cloze\n' +
         'einbrechen,to break in,Der Dieb wollte ins Haus einbrechen.,The thief wanted to break into the house.,Der Dieb wollte ins Haus {{c1::einbrechen}}.\n',
@@ -335,7 +456,12 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de')
+    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+    const dupPreviews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
 
     const lemma = await getLemmaByForm(db, 'einbrechen', 'de')
     const cards = await db.query<{ id: string }>('SELECT id FROM cards WHERE lemma_id = ?', [lemma?.id])

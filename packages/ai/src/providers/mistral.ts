@@ -322,6 +322,8 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
           : `Mistral request failed: ${String(error)}`,
         this.name,
         true,
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

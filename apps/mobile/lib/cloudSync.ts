@@ -137,12 +137,16 @@ export async function signOutOfCloudSync(): Promise<void> {
 }
 
 /**
- * The Google Play "Account & Data Deletion" flow (2026 mandate): permanently erases every document
- * this account ever synced to Firestore, clears this device's local sync bookkeeping (last-synced
- * timestamp/error, automatic-sync preference, the merge engine's own snapshot table — but NOT the
- * user's local decks/cards, which remain fully usable offline), then signs out of both Firebase and
- * Google Sign-In so the account is fully disconnected. Irreversible — the caller (the Sync settings
- * screen) is responsible for confirming with the user first.
+ * The Google Play "Account & Data Deletion" flow (2026 mandate) has three required parts, all
+ * covered here: permanently erases every document this account ever synced to Firestore (the
+ * "sandboxed" app data), revokes the app's OAuth grant for the Google account (breaking the link —
+ * see CloudAuthService#revokeAccess; signing out alone leaves the account still "linked" and able
+ * to silently re-authenticate), and signs out locally. Also clears this device's local sync
+ * bookkeeping (last-synced timestamp/error, automatic-sync preference, the merge engine's own
+ * snapshot table — but NOT the user's local decks/cards, which remain fully usable offline).
+ * Irreversible — the caller (the Sync settings screen) is responsible for confirming with the user
+ * first. Revocation is best-effort: a failure there (e.g. a network hiccup) is logged but doesn't
+ * block the data deletion or local sign-out, which are the parts that must not be left half-done.
  */
 export async function deleteCloudAccountAndData(db: DatabaseAdapter): Promise<void> {
   await ensureLoaded()
@@ -159,6 +163,13 @@ export async function deleteCloudAccountAndData(db: DatabaseAdapter): Promise<vo
       SecureStore.deleteItemAsync(SYNC_KEYS.automatic),
       SecureStore.deleteItemAsync(SYNC_KEYS.minimumIntervalMinutes),
     ])
+    try {
+      await getCloudAuthService().revokeAccess(account.email)
+    } catch {
+      log.warn('sync.account_revoke_failed', {
+        message: 'Revoking the Google OAuth grant failed — data was deleted and the local session will still be signed out',
+      })
+    }
     await getCloudAuthService().signOut()
     setState({
       phase: 'signed-out',

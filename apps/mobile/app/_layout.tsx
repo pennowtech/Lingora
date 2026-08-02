@@ -55,6 +55,7 @@ function AppStack(): JSX.Element {
             <Stack.Screen name="word/[form]" options={{ title: '' }} />
             <Stack.Screen name="deck/[id]" options={{ title: t('Deck') }} />
             <Stack.Screen name="deck/add-card" options={{ title: t('Add card') }} />
+            <Stack.Screen name="deck/table" options={{ title: t('All cards') }} />
             <Stack.Screen name="review/[deckId]" options={{ headerShown: false }} />
             <Stack.Screen name="stats" options={{ title: t('Statistics') }} />
             <Stack.Screen name="settings/ai-providers" options={{ title: t('AI Providers') }} />

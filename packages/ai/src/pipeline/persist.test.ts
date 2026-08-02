@@ -57,7 +57,9 @@ describe('persistWordGeneration', () => {
     expect(await count('examples')).toBe(1)
     expect(await count('synonyms')).toBe(1)
     expect(await count('phrases')).toBe(1)
-    expect(await count('cloze_cards')).toBe(1)
+    // Cloze cards are always user-authored now (see ClozeMarkupEditor) — persistWordGeneration
+    // never derives one automatically from the generated example.
+    expect(await count('cloze_cards')).toBe(0)
   })
 
   it('sets the primary meaning and selected example invariants', async () => {

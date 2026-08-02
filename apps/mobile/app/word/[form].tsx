@@ -38,7 +38,6 @@ import {
   setEvaluation,
   updateExampleText,
   updateMeaningText,
-  updatePrimaryMeaning,
   updateSelectedExample,
   type DatabaseAdapter,
 } from '@lingora/database'

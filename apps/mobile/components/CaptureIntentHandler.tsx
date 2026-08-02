@@ -133,7 +133,6 @@ export function CaptureIntentHandler(): JSX.Element | null {
       cancelled = true
       unsubscribe()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCapture's identity is stable enough (deps: addToMining -> db) for a mount-once listener
   }, [])
 
   // Share sheet: expo-share-intent already handles cold-start vs. already-running internally.
@@ -143,7 +142,6 @@ export function CaptureIntentHandler(): JSX.Element | null {
       void handleCapture(shareIntent.text, 'share_sheet')
       resetShareIntent()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resetShareIntent/handleCapture are re-created per render by their own hooks; only hasShareIntent/shareIntent.text should re-trigger this
   }, [hasShareIntent, shareIntent.text])
 
   if (!chooser) return null

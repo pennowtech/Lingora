@@ -52,7 +52,6 @@ export function ClozeMarkupEditor(props: {
         ? { sentence: parsed.blanked, answer: parsed.answers.join('; '), translation: translation.trim() }
         : null,
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only text/translation should re-notify the parent
   }, [text, translation])
 
   const handleMark = (): void => {

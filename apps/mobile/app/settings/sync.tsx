@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import type { TFunction } from 'i18next'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
@@ -19,7 +20,7 @@ import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
-function formatInterval(minutes: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatInterval(minutes: number, t: TFunction): string {
   if (minutes < 60) return t('{{count}}m', { count: minutes })
   return t('{{count}}h', { count: minutes / 60 })
 }
@@ -132,7 +133,7 @@ export default function SyncScreen(): JSX.Element {
           )}
           {sync.lastSummary ? (
             <Text style={styles.statusDetail}>
-              {t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', sync.lastSummary)}
+              {t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', { ...sync.lastSummary })}
             </Text>
           ) : null}
           {sync.lastError ? <Text style={styles.errorText}>{sync.lastError}</Text> : null}

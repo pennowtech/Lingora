@@ -51,7 +51,7 @@ export class FirestoreSyncBackend implements CloudSyncBackend {
       const batch = writeBatch(db)
       for (const change of group) {
         const ref = doc(col, change.recordId)
-        batch.set(ref, change.data === null ? TOMBSTONE_MARKER : change.data)
+        batch.set(ref, change.data ?? TOMBSTONE_MARKER)
       }
       await batch.commit()
     }

@@ -4,7 +4,7 @@ import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Card, Chip, Dropdown, IconButton, LinkRow, SectionHeader } from '../../components/ui'
+import { Card, Chip, Dropdown, IconButton, LinkRow } from '../../components/ui'
 import { getCaptureDestination, setCaptureDestination, type CaptureDestination } from '../../lib/captureIntent'
 import {
   APP_LANGUAGES,

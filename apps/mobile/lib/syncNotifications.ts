@@ -5,12 +5,13 @@ import type { CloudSyncSummary } from './cloudSync'
 const log = logger.child({ feature: 'sync', component: 'SyncNotifications' })
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: () =>
+    Promise.resolve({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
 })
 
 let permissionRequested = false
@@ -39,7 +40,7 @@ export async function notifySyncSucceeded(summary: CloudSyncSummary): Promise<vo
       trigger: null,
     })
   } catch (error) {
-    log.warn('sync.notification_failed', { message: 'Could not show sync-success notification', metadata: { errorMessage: String(error) } })
+    log.error('sync.notification_failed', error, { message: 'Could not show sync-success notification' })
   }
 }
 
@@ -51,6 +52,6 @@ export async function notifySyncFailed(message: string): Promise<void> {
       trigger: null,
     })
   } catch (error) {
-    log.warn('sync.notification_failed', { message: 'Could not show sync-failure notification', metadata: { errorMessage: String(error) } })
+    log.error('sync.notification_failed', error, { message: 'Could not show sync-failure notification' })
   }
 }

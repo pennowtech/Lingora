@@ -11,12 +11,12 @@ import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
 
 /**
- * The "which deck?" bottom sheet — a list of every deck (checkmarked where the card already is,
- * and disabled there so a re-tap can't no-op-add it again) plus an inline "Create new deck" row
- * so a brand-new deck doesn't require leaving the current screen. Used everywhere a card needs a
- * deck decision: the word detail screen's "Add to deck" button, and the search screen's "Add to
- * deck" on a dictionary/translation preview (where the card doesn't exist yet — the deck choice
- * happens before creation, not after).
+ * The "which deck?" centered dialog — a list of every deck (checkmarked where the card already
+ * is, and disabled there so a re-tap can't no-op-add it again) plus an inline "Create new deck"
+ * row so a brand-new deck doesn't require leaving the current screen. Used everywhere a card
+ * needs a deck decision: the word detail screen's "Add to deck" button, the search screen's "Add
+ * to deck" on a dictionary/translation preview (where the card doesn't exist yet — the deck
+ * choice happens before creation, not after), AI-generated cards, and the Decks screen's "+" menu.
  *
  * Deliberately owns only the picker UI and its own decks query, not the add/create logic itself —
  * `onSelectDeck`/`onCreateDeck` do the actual work (adding an existing card, or creating a new
@@ -66,11 +66,10 @@ export function DeckPickerModal(props: {
   }
 
   return (
-    <Modal visible={props.visible} animationType="slide" transparent onRequestClose={close}>
-      <KeyboardAvoidingView style={styles.keyboardAvoider} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={close}>
+      <KeyboardAvoidingView style={styles.keyboardAvoider} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={styles.backdrop} onPress={close} />
         <View style={styles.sheet}>
-          <View style={styles.handle} />
           <Text style={styles.title}>{props.title}</Text>
 
           {newDeckMode ? (
@@ -136,17 +135,17 @@ export function DeckPickerModal(props: {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    keyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
+    keyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
     backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
     sheet: {
+      width: '100%',
+      maxWidth: 400,
+      maxHeight: '80%',
       backgroundColor: colors.surface,
-      borderTopLeftRadius: radius.xl,
-      borderTopRightRadius: radius.xl,
+      borderRadius: radius.xl,
       padding: spacing.xl,
       gap: spacing.sm,
-      maxHeight: '80%',
     },
-    handle: { alignSelf: 'center', width: 40, height: 4, borderRadius: radius.full, backgroundColor: colors.border, marginBottom: spacing.sm },
     title: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
     list: { maxHeight: 280 },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },

@@ -5,6 +5,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ClozeMarkupEditor, type ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { FormattableTextInput } from '../../components/FormattableTextInput'
 import { Button, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { hasTemplateField } from '../../lib/templates'
@@ -55,10 +56,10 @@ export default function AddCardScreen(): JSX.Element {
   const [phraseExpression, setPhraseExpression] = useState('')
   const [phraseMeaning, setPhraseMeaning] = useState('')
 
-  // Cloze card fields
-  const [clozeSentence, setClozeSentence] = useState('')
-  const [clozeAnswer, setClozeAnswer] = useState('')
-  const [clozeTranslation, setClozeTranslation] = useState('')
+  // Cloze card fields — composed via the same mark-and-blank editor as the word-detail screen's
+  // standalone "+ Add cloze card" (see ClozeMarkupEditor's doc comment), not raw "[...]" typing.
+  // Embedded inline here (no button/overlay) since this whole screen is already a compose form.
+  const [clozeResult, setClozeResult] = useState<ClozeEditorResult | null>(null)
 
   const vocabTemplateQuery = useQuery({
     queryKey: ['default-template', 'vocab'],
@@ -78,7 +79,7 @@ export default function AddCardScreen(): JSX.Element {
   const showPhrases = hasTemplateField(templateText, 'phrases')
 
   const wordValid = word.trim() !== '' && meaning.trim() !== ''
-  const clozeValid = clozeSentence.includes('[...]') && clozeAnswer.trim() !== ''
+  const clozeValid = clozeResult !== null
 
   // Fills the example fields from a fresh AI generation — doesn't create the card itself, "Add
   // card" below still does that. No real cluster exists yet (the word isn't saved), so this
@@ -119,13 +120,13 @@ export default function AddCardScreen(): JSX.Element {
           cefrLevel: defaultCefr,
         })
       }
-      if (!clozeValid) {
-        throw new Error(t('The sentence must contain "[...]" for the gap, and an answer is required.'))
+      if (!clozeResult) {
+        throw new Error(t('Compose the cloze sentence first.'))
       }
       return createManualClozeCard(db, deckId, targetLanguage, {
-        sentence: clozeSentence.trim(),
-        answer: clozeAnswer.trim(),
-        translation: showTranslation ? clozeTranslation : undefined,
+        sentence: clozeResult.sentence,
+        answer: clozeResult.answer,
+        translation: clozeResult.translation,
         cefrLevel: defaultCefr,
       })
     },
@@ -268,42 +269,7 @@ export default function AddCardScreen(): JSX.Element {
           </>
         ) : (
           <Card style={styles.card}>
-            <Text style={styles.label}>{t('Sentence (use [...] for the gap)')} *</Text>
-            <TextInput
-              testID="add-card-cloze-sentence"
-              style={styles.input}
-              value={clozeSentence}
-              onChangeText={setClozeSentence}
-              placeholder={t('e.g. Wir gehen heute Abend [...].')}
-              placeholderTextColor={colors.textMuted}
-              multiline
-            />
-
-            <Text style={styles.label}>{t('Answer')} *</Text>
-            <TextInput
-              testID="add-card-cloze-answer"
-              style={styles.input}
-              value={clozeAnswer}
-              onChangeText={setClozeAnswer}
-              placeholder={t('e.g. aus')}
-              placeholderTextColor={colors.textMuted}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            {showTranslation ? (
-              <>
-                <Text style={styles.label}>{t('Sentence translation')}</Text>
-                <TextInput
-                  testID="add-card-cloze-translation"
-                  style={styles.input}
-                  value={clozeTranslation}
-                  onChangeText={setClozeTranslation}
-                  placeholder={t('e.g. We are going out tonight.')}
-                  placeholderTextColor={colors.textMuted}
-                />
-              </>
-            ) : null}
+            <ClozeMarkupEditor initialSentence="" initialTranslation="" onChange={setClozeResult} />
           </Card>
         )}
 

@@ -165,6 +165,10 @@ const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 export interface CsvImportOptions {
   mapping: CsvColumnMapping
   language: LanguageCode
+  /** 'basic' by default — must match whatever's passed to `importCsvRows`, so the preview flags
+   * exactly the rows that would actually fail (e.g. no cloze markup found) instead of a mismatched
+   * guess. See `importRow` in import-shared.ts. */
+  cardType?: 'basic' | 'cloze'
 }
 
 export interface CsvRowPreview {
@@ -202,7 +206,7 @@ export async function buildCsvImportPreview(
   rows: string[][],
   options: CsvImportOptions,
 ): Promise<CsvRowPreview[]> {
-  const { mapping } = options
+  const { mapping, cardType = 'basic' } = options
   const previews: CsvRowPreview[] = []
 
   for (const [rowIndex, row] of rows.entries()) {
@@ -225,6 +229,7 @@ export async function buildCsvImportPreview(
       cloze,
       example,
       exampleTranslation,
+      cardType,
     })
 
     const partOfSpeech = FALLBACK_PART_OF_SPEECH
@@ -284,10 +289,16 @@ export interface CsvImportResult {
  * caller is expected to have already filtered `previews` down to whichever
  * rows the user checked/wants imported.
  *
- * Each imported row becomes: lemma + its own surface-form inflection, a card
- * with initial FSRS state in the target deck, one 'General' cluster holding
- * one meaning (+ a selected example, if the row had one, + any mapped
- * synonyms), and any mapped tags.
+ * Each imported row becomes exactly ONE card: lemma + its own surface-form
+ * inflection, a card with initial FSRS state in the target deck, one
+ * 'General' cluster holding one meaning (+ a selected example, if the row
+ * had one, + any mapped synonyms), and any mapped tags. `cardType` ('basic'
+ * by default) picks basic vs. cloze for a row that maps both real vocab
+ * content and a Cloze sentence column — see `importRow` in import-shared.ts
+ * for exactly how it applies (a row with no cloze markup at all is
+ * unaffected either way). To get both card types for the same rich source,
+ * import the file twice with `cardType: 'cloze'` on the second pass and
+ * `duplicatePolicy: 'duplicate'` (or 'merge').
  */
 export async function importCsvRows(
   db: DatabaseAdapter,
@@ -295,6 +306,7 @@ export async function importCsvRows(
   deckId: string,
   language: LanguageCode,
   duplicatePolicy: DuplicatePolicy = 'skip',
+  cardType: 'basic' | 'cloze' = 'basic',
 ): Promise<CsvImportResult> {
   const startedAt = Date.now()
   importLog.info('import.csv_import_started', {
@@ -326,6 +338,7 @@ export async function importCsvRows(
           preview.status === 'duplicate' ? preview.existingLemmaId : null,
           duplicatePolicy,
           'Imported from CSV',
+          cardType,
         )
         imported += 1
       } catch (error) {

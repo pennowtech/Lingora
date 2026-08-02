@@ -229,6 +229,10 @@ const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 export interface ApkgImportOptions {
   mapping: ApkgFieldMapping
   language: LanguageCode
+  /** 'basic' by default — must match whatever's passed to `importApkgNotes`, so the preview flags
+   * exactly the notes that would actually fail (e.g. no cloze markup found) instead of a mismatched
+   * guess. See `importRow` in import-shared.ts. */
+  cardType?: 'basic' | 'cloze'
 }
 
 export interface ApkgRowPreview {
@@ -266,7 +270,7 @@ export async function buildApkgImportPreview(
   notes: AnkiNote[],
   options: ApkgImportOptions,
 ): Promise<ApkgRowPreview[]> {
-  const { mapping } = options
+  const { mapping, cardType = 'basic' } = options
   const previews: ApkgRowPreview[] = []
 
   for (const note of notes) {
@@ -289,6 +293,7 @@ export async function buildApkgImportPreview(
       cloze,
       example,
       exampleTranslation,
+      cardType,
     })
 
     const partOfSpeech = FALLBACK_PART_OF_SPEECH
@@ -359,6 +364,8 @@ export async function importApkgNotes(
     onProgress?: (done: number, total: number) => void
     shouldCancel?: () => boolean
     duplicatePolicy?: DuplicatePolicy
+    /** 'basic' by default — see `importRow` in import-shared.ts. */
+    cardType?: 'basic' | 'cloze'
   },
 ): Promise<ApkgImportResult> {
   const startedAt = Date.now()
@@ -368,6 +375,7 @@ export async function importApkgNotes(
   })
 
   const duplicatePolicy = options?.duplicatePolicy ?? 'skip'
+  const cardType = options?.cardType ?? 'basic'
   let imported = 0
   let skipped = 0
   let failed = 0
@@ -394,6 +402,7 @@ export async function importApkgNotes(
             preview.status === 'duplicate' ? preview.existingLemmaId : null,
             duplicatePolicy,
             'Imported from Anki',
+            cardType,
           ),
         )
         imported += 1

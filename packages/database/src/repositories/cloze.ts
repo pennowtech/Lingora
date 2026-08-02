@@ -49,3 +49,27 @@ export async function createCloze(db: DatabaseAdapter, cloze: Cloze): Promise<vo
 export async function deleteCloze(db: DatabaseAdapter, clozeId: string): Promise<void> {
   await db.execute(`DELETE FROM cloze_cards WHERE id = ?`, [clozeId])
 }
+
+/**
+ * Replaces every one of a card's existing cloze variants with exactly one, user-authored one — the
+ * word-detail screen's manual cloze editor (components/ClozeEditorSheet.tsx) always produces a
+ * single sentence/answer/translation, so "replace" (not "add another") matches what the user
+ * actually did: re-marked up the cloze for whatever example/sense they're currently looking at.
+ * Deletes first, so a stale cloze from a previous sense/example never lingers alongside the new one.
+ */
+export async function setCloze(
+  db: DatabaseAdapter,
+  cardId: string,
+  cloze: { sentence: string; answer: string; translation: string; difficulty: Cloze['difficulty']; cefrLevel: Cloze['cefrLevel'] },
+): Promise<void> {
+  await db.execute(`DELETE FROM cloze_cards WHERE card_id = ?`, [cardId])
+  await createCloze(db, {
+    id: crypto.randomUUID(),
+    cardId,
+    sentence: cloze.sentence,
+    answer: cloze.answer,
+    translation: cloze.translation,
+    difficulty: cloze.difficulty,
+    cefrLevel: cloze.cefrLevel,
+  })
+}

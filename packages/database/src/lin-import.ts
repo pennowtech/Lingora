@@ -84,6 +84,9 @@ export function getDecksInPayload(payload: BackupPayload): LinDeckOption[] {
 export interface LinCardPreview {
   type: string
   translation: string | null
+  example: string | null
+  exampleTranslation: string | null
+  synonyms: string[]
 }
 
 export interface LinLemmaPreview {
@@ -114,6 +117,8 @@ export async function buildLinImportPreview(
   )
   const cards = (payload.tables.cards ?? []).filter((c) => cardIdsInDeck.has(String(c.id)))
   const meanings = payload.tables.meanings ?? []
+  const examples = payload.tables.examples ?? []
+  const synonymRows = payload.tables.synonyms ?? []
   const lemmaIds = new Set(cards.map((c) => String(c.lemma_id)))
   const lemmas = (payload.tables.lemmas ?? []).filter((l) => lemmaIds.has(String(l.id)))
 
@@ -123,9 +128,15 @@ export async function buildLinImportPreview(
     const lemmaCards = cards.filter((c) => String(c.lemma_id) === sourceLemmaId)
     const cardPreviews: LinCardPreview[] = lemmaCards.map((c) => {
       const primaryMeaning = meanings.find((m) => m.id === c.primary_meaning_id)
+      const cardExamples = examples.filter((e) => e.card_id === c.id)
+      const selectedExample = cardExamples.find((e) => Boolean(e.is_selected)) ?? cardExamples[0]
+      const cardSynonyms = synonymRows.filter((s) => s.card_id === c.id)
       return {
         type: String(c.type),
         translation: primaryMeaning ? String(primaryMeaning.translation) : null,
+        example: selectedExample ? String(selectedExample.sentence) : null,
+        exampleTranslation: selectedExample ? String(selectedExample.translation) : null,
+        synonyms: cardSynonyms.map((s) => String(s.synonym)),
       }
     })
     const existing = await getLemmaByForm(db, String(lemma.form), language)

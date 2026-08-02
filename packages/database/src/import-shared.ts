@@ -5,7 +5,7 @@ import { getCardsByLemma } from './repositories/cards'
 import { createCloze } from './repositories/cloze'
 import { createCluster, createMeaning, getClustersForLemma } from './repositories/clusters'
 import { createExample } from './repositories/examples'
-import { createInflections, createLemma } from './repositories/lemmas'
+import { createInflections, createLemma, getLemmaByForm } from './repositories/lemmas'
 import { createSynonym } from './repositories/synonyms'
 import { addTagToCard, getOrCreateTag } from './repositories/tags'
 
@@ -43,12 +43,15 @@ export function parseListField(raw: string): string[] {
  * of always hard-requiring both. An Anki Cloze note has no standalone "word"
  * field the way a Basic note does — the fill-in-the-blank sentence itself
  * *is* the card, and the word being tested is whatever's inside `{{c1::…}}`.
- * When the cloze field (or, absent a dedicated mapping, the example field)
- * carries cloze markup: an empty word falls back to the cloze answer(s)
+ * When importing as cloze cards (`cardType: 'cloze'`) and the cloze field
+ * carries valid markup: an empty word falls back to the cloze answer(s)
  * (the actual target word/phrase), and an empty meaning falls back to the
  * example's translation (there's no separate word-level meaning to give).
- * Only turns into a real "empty" error when there's nothing sensible to
- * fall back to.
+ * Importing as cloze cards with NO valid markup on a row is a hard error —
+ * see the doc comment on `importRow` for why silently falling back to a
+ * basic card here would be wrong. Importing as basic cards never looks at
+ * `cloze` at all, matching the field-mapping UI, which doesn't offer that
+ * column in basic mode.
  */
 export function resolveWordAndMeaning(fields: {
   word: string
@@ -56,10 +59,15 @@ export function resolveWordAndMeaning(fields: {
   cloze: string | null
   example: string | null
   exampleTranslation: string | null
+  cardType: 'basic' | 'cloze'
 }): { word: string; meaning: string; errors: string[] } {
   const errors: string[] = []
-  const clozeSource = fields.cloze ?? fields.example
+  const clozeSource = fields.cardType === 'cloze' ? fields.cloze : null
   const clozeParsed = clozeSource ? parseClozeMarkup(clozeSource) : null
+
+  if (fields.cardType === 'cloze' && !clozeParsed) {
+    errors.push('No cloze markup found — map a column with {{c1::word}} syntax to Cloze sentence.')
+  }
 
   let word = fields.word
   if (!word) {
@@ -108,23 +116,26 @@ export interface ImportableRow {
 }
 
 /**
- * Writes one row's card content inside the caller's transaction.
+ * Writes one row's card content inside the caller's transaction — always
+ * exactly one card, never two, and always the type the caller asked for.
  *
- * A row with genuine word/meaning content *and* cloze markup in the
- * dedicated `cloze` field (e.g. a rich CSV with word, meaning, example,
- * translation, *and* a separate cloze-sentence column) creates **two**
- * cards under the same lemma — a regular basic card for ordinary review,
- * and a separate cloze card for Practice Cloze — instead of the row's
- * cloze-ness hiding it from regular review entirely. Cloze markup merely
- * *detected* inside `example` (no dedicated field mapped — the older,
- * single-field behavior) still creates exactly one, cloze-only card, since
- * `example` in that case *is* the raw markup with nothing clean to show on
- * a separate basic card. A row with only one or the other (a real Anki
- * Cloze note has no standalone word field; a plain vocab row has no cloze
- * markup at all) also still creates exactly one card, as before.
+ * `cardType` is the sole decider: 'basic' always creates a basic card from
+ * `example` and never looks at `cloze`; 'cloze' always creates a cloze card
+ * from `cloze` and never looks at `example` — this row's mapped fields
+ * already reflect that choice (see FIELDS_BY_CARD_TYPE in
+ * apps/mobile/app/settings/csv-import.tsx), so there's nothing to silently
+ * fall back to either way. A 'cloze' row with no valid `{{c1::word}}`
+ * markup throws rather than quietly becoming a basic card — the caller
+ * (`buildCsvImportPreview`/`buildApkgImportPreview` via
+ * `resolveWordAndMeaning`) is expected to have already flagged that row as
+ * an error at preview time, so this is defense-in-depth, not the normal
+ * path. To get both a basic AND a cloze card for the same rich source,
+ * import the file twice with different `cardType` values and
+ * `duplicatePolicy: 'duplicate'` (or 'merge') on the second pass — see
+ * `DuplicatePolicy`.
  *
  * `existingLemmaId` is null for a genuinely new word (the common case):
- * creates a new lemma + inflection, then each applicable card + state +
+ * creates a new lemma + inflection, then the one applicable card + state +
  * deck membership. When it's set (a 'merge' or 'duplicate' row), the lemma
  * isn't recreated — 'merge' reuses the lemma's existing card of the same
  * type if one exists (falling back to any existing card if not — a lemma
@@ -140,15 +151,23 @@ export async function importRow(
   existingLemmaId: string | null,
   duplicatePolicy: DuplicatePolicy,
   clusterDescription: string,
+  cardType: 'basic' | 'cloze' = 'basic',
 ): Promise<void> {
   const now = Date.now()
-  // A dedicated cloze-sentence field takes priority; falling back to
-  // scanning `example` for {{c1::word}} markup keeps working for a mapping
-  // that puts cloze text there instead (the only option before the
-  // separate "Cloze sentence" field mapping existed).
-  const clozeSource = row.cloze ?? row.example
+  const clozeSource = cardType === 'cloze' ? row.cloze : null
   const clozeParsed = clozeSource ? parseClozeMarkup(clozeSource) : null
-  let lemmaId = existingLemmaId
+  if (cardType === 'cloze' && !clozeParsed) {
+    throw new Error(`"${row.word}" has no cloze markup to build a cloze card from.`)
+  }
+
+  // `existingLemmaId` reflects the DB as of preview time. A whole file imports inside one
+  // transaction (see importCsvRows/importApkgNotes), so a lemma an EARLIER row in this same batch
+  // just created (e.g. the file has the same word on two rows) isn't reflected in a preview that
+  // ran before any of this batch's own inserts happened. Re-checking live, in-transaction state
+  // here — instead of trusting the caller's possibly-stale null — is what makes the second row
+  // attach to that lemma as a duplicate/merge instead of hitting lemmas.form's UNIQUE constraint.
+  let lemmaId = existingLemmaId ?? (await getLemmaByForm(tx, row.word, language))?.id ?? null
+  const lemmaAlreadyExisted = lemmaId !== null
 
   if (!lemmaId) {
     lemmaId = crypto.randomUUID()
@@ -171,7 +190,12 @@ export async function importRow(
   // dual-card row before this fix, and once per merge/duplicate import
   // before that. `getClustersForLemma` returns clusters in `orderIndex`
   // order, so `[0]` is the first/default one.
-  const existingClusters = existingLemmaId ? await getClustersForLemma(tx, lemmaId) : []
+  const existingClusters = lemmaAlreadyExisted ? await getClustersForLemma(tx, lemmaId) : []
+  // Downstream card upsert logic (below) needs to know whether the LEMMA existed before this row
+  // ran — not just what the caller originally passed in, now that a within-batch duplicate is
+  // resolved above — or it would still try to create a second card instead of merging/duplicating
+  // onto the one this same batch just created.
+  const resolvedExistingLemmaId = lemmaAlreadyExisted ? lemmaId : null
   let clusterId = existingClusters[0]?.id
   if (!clusterId) {
     clusterId = crypto.randomUUID()
@@ -185,42 +209,30 @@ export async function importRow(
     })
   }
 
-  // Both cards only when cloze markup came from the *dedicated* `cloze`
-  // field — if it was only detected by scanning `example` (no separate
-  // field mapped, the pre-existing single-field behavior), `row.example`
-  // *is* the raw markup and has nothing clean to show on a basic card, so
-  // that case stays cloze-only, same as before the dedicated field existed.
-  const clozeFromDedicatedField = row.cloze !== null && clozeParsed !== null
-  const wantsCloze = clozeParsed !== null
-  // No cloze at all: always a basic card (the plain, unchanged case).
-  // Cloze present: only ALSO create a basic card when it came from the
-  // dedicated field and there's genuine vocab content to put on it.
-  const wantsBasic = !wantsCloze || (clozeFromDedicatedField && row.hasOwnVocab)
-
-  if (wantsBasic) {
-    await upsertCard(tx, {
-      type: 'basic',
-      lemmaId,
-      clusterId,
-      deckId,
-      row,
-      existingLemmaId,
-      duplicatePolicy,
-      now,
-      content: { kind: 'example', text: row.example },
-    })
-  }
-  if (wantsCloze) {
+  if (cardType === 'cloze') {
     await upsertCard(tx, {
       type: 'cloze',
       lemmaId,
       clusterId,
       deckId,
       row,
-      existingLemmaId,
+      existingLemmaId: resolvedExistingLemmaId,
       duplicatePolicy,
       now,
-      content: { kind: 'cloze', parsed: clozeParsed },
+      // Non-null: the cardType === 'cloze' && !clozeParsed case threw above.
+      content: { kind: 'cloze', parsed: clozeParsed! },
+    })
+  } else {
+    await upsertCard(tx, {
+      type: 'basic',
+      lemmaId,
+      clusterId,
+      deckId,
+      row,
+      existingLemmaId: resolvedExistingLemmaId,
+      duplicatePolicy,
+      now,
+      content: { kind: 'example', text: row.example },
     })
   }
 }

@@ -5,6 +5,7 @@ import { buildCsvExport } from './csv-export'
 import { buildMarkdownExport } from './markdown-export'
 import { getExportableCards, mergeCardsByWord } from './export-shared'
 import { migrate } from './migrations'
+import { createCloze } from './repositories/cloze'
 import { createDeck } from './repositories/decks'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
 
@@ -47,6 +48,27 @@ describe('export formats', () => {
       expect(ausgehen?.cloze).toBe('Wir gehen heute Abend {{c1::aus}}.')
       expect(ausgehen?.example).toBeNull()
       expect(ausgehen?.exampleTranslation).toBe('We are going out tonight.')
+    })
+
+    it('still returns exactly one row for a card with more than one cloze variant', async () => {
+      // A card can legitimately have several cloze_cards rows (createCloze's own doc comment: "a
+      // card's second, third, ... cloze variant") — the query must pin to one of them, or a card
+      // with N variants fans out into N rows for what's still one card.
+      const cards = await getExportableCards(db, { deckId })
+      const ausgehen = cards.find((c) => c.isCloze)!
+
+      await createCloze(db, {
+        id: crypto.randomUUID(),
+        cardId: ausgehen.cardId,
+        sentence: 'Ich gehe morgen [...].',
+        answer: 'aus',
+        translation: 'I am going out tomorrow.',
+        difficulty: 'contextual',
+        cefrLevel: 'A1',
+      })
+
+      const after = await getExportableCards(db, { deckId })
+      expect(after.filter((c) => c.cardId === ausgehen.cardId)).toHaveLength(1)
     })
 
     it("blanks a cloze card's meaning instead of duplicating the example translation", async () => {
@@ -163,7 +185,12 @@ describe('export formats', () => {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, previews, deckId, 'de')
+      await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+      const dupPreviews = await buildCsvImportPreview(db, rows, {
+        mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+        language: 'de',
+      })
+      await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
 
       const raw = await getExportableCards(db, { deckId })
       // 2 from beforeEach (Haus, ausgehen) + 2 for einbrechen (basic + cloze) = 4 raw cards.
@@ -190,7 +217,12 @@ describe('export formats', () => {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, previews, deckId, 'de')
+      await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+      const dupPreviews = await buildCsvImportPreview(db, rows, {
+        mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+        language: 'de',
+      })
+      await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
 
       const csv = await buildCsvExport(db, { deckId })
       const einbrechenRows = csv.split('\r\n').filter((line) => line.startsWith('einbrechen,'))

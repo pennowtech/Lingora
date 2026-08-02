@@ -1,14 +1,15 @@
 import type { CsvColumnMapping, CsvField, CsvRowPreview, DuplicatePolicy } from '@lingora/database'
-import { buildCsvImportPreview, createDeck, getAllDecks, importCsvRows, parseCsv } from '@lingora/database'
+import { buildCsvImportPreview, createDeck, getDeckById, getDecksForLemma, importCsvRows, parseCsv } from '@lingora/database'
 import { logger } from '@lingora/observability'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { File } from 'expo-file-system'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { DataTable, type DataTableColumn } from '../../components/DataTable'
-import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, Spinner } from '../../components/ui'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { Button, Card, Chip, Dropdown, EmptyState, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -39,10 +40,21 @@ const FIELDS_BY_CARD_TYPE: Record<'basic' | 'cloze', CsvField[]> = {
   basic: ['word', 'meaning', 'example', 'exampleTranslation', 'synonyms'],
   cloze: ['word', 'meaning', 'cloze', 'exampleTranslation', 'synonyms'],
 }
+// A Regular row has nothing to fall back to for word/meaning; a Cloze row derives them from the
+// cloze markup/translation if left unmapped (see resolveWordAndMeaning in import-shared.ts), but
+// still needs the markup itself mapped somewhere. Drives both canBuildPreview and the "*" marker
+// on the field mapping list below.
+const REQUIRED_FIELDS_BY_CARD_TYPE: Record<'basic' | 'cloze', CsvField[]> = {
+  basic: ['word', 'meaning'],
+  cloze: ['cloze'],
+}
 
+// 'merge' is still a supported DuplicatePolicy value in the database layer, but not offered here
+// — each preview row already has its own checkbox, so unchecking a same-word row (see the
+// "matching word" row highlight below) is the merge-equivalent decision, made per-row instead of
+// as one blanket policy for the whole file.
 const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
-  { value: 'merge', label: 'Merge', hint: 'Add this as another meaning on the existing card.' },
   { value: 'duplicate', label: 'Keep both', hint: 'Add a second, separate card for the same word.' },
 ]
 
@@ -52,29 +64,59 @@ const STATUS_COLOR: Record<CsvRowPreview['status'], string> = {
   error: colors.danger,
 }
 
-const TABLE_COLUMNS: DataTableColumn<CsvRowPreview>[] = [
-  { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
-  { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
-  { label: 'Cloze', width: 220, cell: (p) => p.cloze ?? '—' },
-  { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
-  { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
-  { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
-  {
-    label: 'Status',
-    width: 100,
-    cell: (p) => p.status,
-    cellStyle: (p) => ({ color: STATUS_COLOR[p.status], fontWeight: '700' }),
-  },
-  {
-    label: 'Issues',
-    width: 260,
-    cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
-    cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
-  },
-]
+// Word/Meaning always show (every row ends up with real content there, mapped directly or
+// derived from cloze markup — see resolveWordAndMeaning). A column for a field that was never
+// mapped at all would just be "—" on every single row — dead weight — so Cloze/Example/Example
+// translation/Synonyms only appear when their column was actually mapped. "Existing deck" (needs
+// the existingDeckNames lookup — see handleBuildPreview) and Status/Issues aren't field-mapping
+// columns at all (computed/diagnostic), so they're unconditional.
+function buildTableColumns(
+  existingDeckNames: Map<string, string[]>,
+  mapping: CsvColumnMapping,
+): DataTableColumn<CsvRowPreview>[] {
+  return [
+    { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
+    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+    ...(mapping.cloze !== undefined
+      ? [{ label: 'Cloze', width: 220, cell: (p: CsvRowPreview) => p.cloze ?? '—' }]
+      : []),
+    ...(mapping.example !== undefined
+      ? [{ label: 'Example', width: 220, cell: (p: CsvRowPreview) => p.example ?? '—' }]
+      : []),
+    ...(mapping.exampleTranslation !== undefined
+      ? [{ label: 'Example translation', width: 220, cell: (p: CsvRowPreview) => p.exampleTranslation ?? '—' }]
+      : []),
+    ...(mapping.synonyms !== undefined
+      ? [
+          {
+            label: 'Synonyms',
+            width: 160,
+            cell: (p: CsvRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—'),
+          },
+        ]
+      : []),
+    {
+      label: 'Existing deck',
+      width: 160,
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+    },
+    {
+      label: 'Status',
+      width: 100,
+      cell: (p) => p.status,
+      cellStyle: (p) => ({ color: STATUS_COLOR[p.status], fontWeight: '700' }),
+    },
+    {
+      label: 'Issues',
+      width: 260,
+      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
+      cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
+    },
+  ]
+}
 const SAMPLE_COLUMN_WIDTH = 160
 
-type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
+type Step = 'pick' | 'map' | 'preview'
 
 /**
  * CSV import with interactive column mapping. Parsing, validation, and the
@@ -93,17 +135,17 @@ export default function CsvImportScreen(): JSX.Element {
   const [rows, setRows] = useState<string[][]>([])
   const [mapping, setMapping] = useState<CsvColumnMapping>({})
   const [deckId, setDeckId] = useState<string | null>(params.deckId ?? null)
-  const [newDeckOpen, setNewDeckOpen] = useState(false)
-  const [newDeckName, setNewDeckName] = useState('')
+  const [deckName, setDeckName] = useState<string | null>(null)
+  const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [duplicatePolicy, setDuplicatePolicy] = useState<DuplicatePolicy>('skip')
   const [cardType, setCardType] = useState<'basic' | 'cloze'>('basic')
   const [previews, setPreviews] = useState<CsvRowPreview[]>([])
+  const [existingDeckNames, setExistingDeckNames] = useState<Map<string, string[]>>(new Map())
   const [checkedIndexes, setCheckedIndexes] = useState<Set<number>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [result, setResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null)
-
-  const decksQuery = useQuery({ queryKey: ['decks'], queryFn: () => getAllDecks(db) })
+  const [importing, setImporting] = useState(false)
 
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
@@ -112,22 +154,26 @@ export default function CsvImportScreen(): JSX.Element {
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
-      return id
+      return { id, name: trimmed }
     },
-    onSuccess: async (id) => {
+    onSuccess: async ({ id, name }) => {
       setDeckId(id)
-      setNewDeckOpen(false)
-      setNewDeckName('')
+      setDeckName(name)
+      setDeckPickerOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
   })
 
-  // A word column is no longer strictly required — a Cloze-style import can
-  // map only Example, and the word/meaning get derived from the cloze
-  // markup. But *something* has to be mapped, or every row is empty.
+  // Required fields depend on which card type is being imported — a Regular import needs a real
+  // Word and Meaning column (there's nothing to derive them from), while a Cloze import needs the
+  // Cloze sentence column instead (word/meaning are optionally derived from its markup/
+  // translation — see resolveWordAndMeaning in import-shared.ts).
   const canBuildPreview =
-    deckId !== null && (mapping.word !== undefined || mapping.example !== undefined || mapping.cloze !== undefined)
+    deckId !== null &&
+    (cardType === 'basic'
+      ? mapping.word !== undefined && mapping.meaning !== undefined
+      : mapping.cloze !== undefined)
 
   const handlePickFile = (): void => {
     setPickError(null)
@@ -172,8 +218,38 @@ export default function CsvImportScreen(): JSX.Element {
     if (autoPicked.current) return
     autoPicked.current = true
     handlePickFile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Reached with a deckId already in the route params (the deck detail screen's "Import into
+  // this deck" menu) — the id alone isn't enough to show a deck name, so fetch it once.
+  useEffect(() => {
+    if (!params.deckId) return
+    void getDeckById(db, params.deckId).then((deck) => {
+      if (deck) setDeckName(deck.name)
+    })
+  }, [params.deckId, db])
+
+  // The header's native back button otherwise pops this whole screen off the stack regardless of
+  // wizard step — jarring from 'preview' (loses the mapping/preview work, not just one step). Stepping
+  // the wizard backward here instead makes it behave like the (now-removed) in-screen "Back"
+  // buttons used to: one step at a time, only really leaving on 'pick'. Blocked outright during
+  // 'importing' so a mid-write navigation can't happen. Once `result` is set (the import-complete
+  // popup's "OK" button also just calls router.back()), this has to get out of the way and let the
+  // navigation through — otherwise "OK" would bounce the user back to 'map' instead of leaving.
+  const navigation = useNavigation()
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (importing) {
+        e.preventDefault()
+        return
+      }
+      if (step === 'pick' || result !== null) return
+      e.preventDefault()
+      if (step === 'preview') setStep('map')
+      else if (step === 'map') handleStartOver()
+    })
+    return unsubscribe
+  }, [navigation, step, result, importing])
 
   const setField = (field: CsvField, columnIndex: number | null): void => {
     setMapping((prev) => {
@@ -200,7 +276,7 @@ export default function CsvImportScreen(): JSX.Element {
     setPreviewLoading(true)
     log.info('import.csv_preview_started', { message: 'Building CSV import preview' })
     buildCsvImportPreview(db, rows, { mapping, language: targetLanguage, cardType })
-      .then((built) => {
+      .then(async (built) => {
         setPreviews(built)
         // Checked by default: importable rows, and duplicates too (the
         // chosen duplicate-handling policy decides what happens to them —
@@ -208,6 +284,13 @@ export default function CsvImportScreen(): JSX.Element {
         // errors (missing word/meaning) start unchecked since there's
         // nothing valid to import yet.
         setCheckedIndexes(new Set(built.filter((p) => p.status !== 'error').map((p) => p.rowIndex)))
+
+        // Which deck(s) already have a duplicate row's word — shown as its own preview column so
+        // skip vs. keep-both is an informed choice, not a guess.
+        const lemmaIds = [...new Set(built.map((p) => p.existingLemmaId).filter((id) => id !== null))]
+        const decksByLemma = await Promise.all(lemmaIds.map((id) => getDecksForLemma(db, id)))
+        setExistingDeckNames(new Map(lemmaIds.map((id, i) => [id, decksByLemma[i]!.map((d) => d.name)])))
+
         setStep('preview')
       })
       .catch((error: unknown) => {
@@ -222,6 +305,29 @@ export default function CsvImportScreen(): JSX.Element {
     const error = previews.filter((p) => p.status === 'error').length
     return { duplicate, error }
   }, [previews])
+
+  // Rows sharing a word with another row in THIS file, not just a word already in the library —
+  // buildCsvImportPreview only checks each row against the database, so two same-word rows
+  // within one file both come back status 'ok' with nothing visually distinguishing them, even
+  // though only the first actually lands as a plain new card (importRow re-checks live,
+  // in-transaction state — see its doc comment — so the second follows duplicatePolicy same as
+  // a real pre-existing duplicate would). Highlighting them here is what makes that visible
+  // before import, not after.
+  const sameWordRowIndexes = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of previews) {
+      if (!p.word) continue
+      const key = p.word.toLowerCase()
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    const indexes = new Set<number>()
+    for (const p of previews) {
+      if (p.word && (counts.get(p.word.toLowerCase()) ?? 0) > 1) indexes.add(p.rowIndex)
+    }
+    return indexes
+  }, [previews])
+
+  const tableColumns = useMemo(() => buildTableColumns(existingDeckNames, mapping), [existingDeckNames, mapping])
 
   // "Will import" has to reflect what pressing Import actually does: every
   // *checked* row that isn't a hard error, since a checked 'duplicate' row
@@ -259,7 +365,7 @@ export default function CsvImportScreen(): JSX.Element {
   const handleConfirmImport = (): void => {
     if (!deckId) return
     const toImport = previews.filter((p) => checkedIndexes.has(p.rowIndex))
-    setStep('importing')
+    setImporting(true)
     log.info('import.csv_import_confirmed', {
       message: 'User confirmed CSV import',
       metadata: { itemCount: toImport.length },
@@ -267,14 +373,13 @@ export default function CsvImportScreen(): JSX.Element {
     importCsvRows(db, toImport, deckId, targetLanguage, duplicatePolicy, cardType)
       .then(async (outcome) => {
         setResult(outcome)
-        setStep('done')
         await queryClient.invalidateQueries()
       })
       .catch((error: unknown) => {
         log.error('import.csv_import_failed', error, { message: 'CSV import failed' })
         Alert.alert(t('Import failed'), String(error))
-        setStep('preview')
       })
+      .finally(() => setImporting(false))
   }
 
   const handleStartOver = (): void => {
@@ -284,6 +389,7 @@ export default function CsvImportScreen(): JSX.Element {
     setRows([])
     setMapping({})
     setPreviews([])
+    setExistingDeckNames(new Map())
     setCheckedIndexes(new Set())
     setResult(null)
     setPickError(null)
@@ -302,13 +408,30 @@ export default function CsvImportScreen(): JSX.Element {
               <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
+
+          <Card style={styles.card}>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
+            <View style={styles.chipRow}>
+              {DUPLICATE_POLICIES.map((policy) => (
+                <Chip
+                  key={policy.value}
+                  label={t(policy.label)}
+                  selected={duplicatePolicy === policy.value}
+                  onPress={() => setDuplicatePolicy(policy.value)}
+                />
+              ))}
+            </View>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+          </Card>
         </View>
 
         <DataTable
-          columns={TABLE_COLUMNS}
+          columns={tableColumns}
           data={previews}
           keyExtractor={(preview) => String(preview.rowIndex)}
           showRowNumber
+          rowStyle={(preview) => (sameWordRowIndexes.has(preview.rowIndex) ? styles.sameWordRow : undefined)}
           selection={{
             isSelected: (preview) => checkedIndexes.has(preview.rowIndex),
             onToggle: (preview) => toggleChecked(preview.rowIndex),
@@ -318,13 +441,43 @@ export default function CsvImportScreen(): JSX.Element {
         />
 
         <View style={styles.actions}>
-          <Button label={t('Back')} variant="ghost" onPress={() => setStep('map')} />
           <Button
-            label={t('Import {{count}} rows', { count: checkedCount.toLocaleString() })}
+            label={t('Import {{count}} rows', { count: willImportCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
         </View>
+
+        {/* ── One popup covers both "importing" and "done" — no second modal/screen, just this
+            one's content swapping from progress to result once `result` is set ── */}
+        <Modal
+          visible={importing || result !== null}
+          animationType="fade"
+          transparent
+          onRequestClose={() => (result !== null ? router.back() : undefined)}
+        >
+          <View style={styles.centerModalContainer}>
+            <View style={styles.centerModalCard}>
+              {result === null ? (
+                <Spinner message={t('Importing…')} />
+              ) : (
+                <>
+                  <EmptyState
+                    icon="checkmark-circle"
+                    title={t('Import complete')}
+                    message={t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}
+                  />
+                  <View style={styles.summaryRow}>
+                    <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+                    <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+                    <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
+                  </View>
+                  <Button label={t('OK')} onPress={() => router.back()} />
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }
@@ -392,11 +545,16 @@ export default function CsvImportScreen(): JSX.Element {
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('Field mapping')}</Text>
             <Text style={styles.hint}>
-              {t("Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes — they're derived from the example's cloze markup and its translation.")}
+              {cardType === 'basic'
+                ? t('Word and Meaning are required. Everything else is optional.')
+                : t('Cloze sentence is required — it must contain {{c1::word}} markup. Everything else is optional.')}
             </Text>
             {FIELDS_BY_CARD_TYPE[cardType].map((field) => (
               <View key={field} style={styles.mappingRow}>
-                <Text style={styles.mappingLabel}>{field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}</Text>
+                <Text style={styles.mappingLabel}>
+                  {field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}
+                  {REQUIRED_FIELDS_BY_CARD_TYPE[cardType].includes(field) ? ' *' : ''}
+                </Text>
                 <Dropdown
                   label={field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}
                   placeholder={t('None')}
@@ -413,39 +571,16 @@ export default function CsvImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
-            {decksQuery.isPending ? (
-              <Spinner />
-            ) : decksQuery.isError ? (
-              <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-            ) : (
-              <View style={styles.chipRow}>
-                {(decksQuery.data ?? []).map((deck) => (
-                  <Chip key={deck.id} label={deck.name} selected={deckId === deck.id} onPress={() => setDeckId(deck.id)} />
-                ))}
-                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
-              </View>
-            )}
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
-            <View style={styles.chipRow}>
-              {DUPLICATE_POLICIES.map((policy) => (
-                <Chip
-                  key={policy.value}
-                  label={t(policy.label)}
-                  selected={duplicatePolicy === policy.value}
-                  onPress={() => setDuplicatePolicy(policy.value)}
-                />
-              ))}
-            </View>
-            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+            <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
+            <Button
+              label={deckName ?? t('Choose a deck')}
+              icon="albums-outline"
+              variant="secondary"
+              onPress={() => setDeckPickerOpen(true)}
+            />
           </Card>
 
           <View style={styles.actions}>
-            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
               label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
@@ -455,43 +590,20 @@ export default function CsvImportScreen(): JSX.Element {
         </>
       ) : null}
 
-      {step === 'importing' ? <Spinner message={t('Importing…')} /> : null}
-
-      {step === 'done' && result ? (
-        <Card style={styles.card}>
-          <EmptyState icon="checkmark-circle" title={t('Import complete')} message={t('Imported {{count}} words.', { count: result.imported.toLocaleString() })} />
-          <View style={styles.summaryRow}>
-            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
-            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
-            <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
-          </View>
-          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
-        </Card>
-      ) : null}
-
-      {/* ── New deck modal ── */}
-      <Modal visible={newDeckOpen} animationType="slide" transparent onRequestClose={() => setNewDeckOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('New deck')}</Text>
-          <TextInput
-            style={styles.inputField}
-            placeholder={t('Deck name')}
-            placeholderTextColor={colors.textMuted}
-            value={newDeckName}
-            onChangeText={setNewDeckName}
-            autoFocus
-          />
-          {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
-          <Button
-            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
-            icon="add"
-            disabled={createNewDeck.isPending}
-            onPress={() => createNewDeck.mutate(newDeckName)}
-          />
-        </View>
-      </Modal>
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerOpen}
+        onClose={() => setDeckPickerOpen(false)}
+        title={t('Add to deck')}
+        onSelectDeck={(deck) => {
+          setDeckId(deck.id)
+          setDeckName(deck.name)
+          setDeckPickerOpen(false)
+        }}
+        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        creating={createNewDeck.isPending}
+        {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
     </ScrollView>
   )
 }
@@ -529,6 +641,7 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: type.subheading, fontWeight: '700' },
   summaryLabel: { fontSize: type.micro, color: colors.textMuted },
   previewHeaderArea: { padding: spacing.lg, paddingBottom: 0 },
+  sameWordRow: { backgroundColor: colors.warningSoft },
   tableHeaderRow: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceMuted,
@@ -551,31 +664,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
+  centerModalContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, backgroundColor: '#00000066' },
+  centerModalCard: {
+    width: '100%',
+    maxWidth: 400,
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    borderRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
   },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  inputField: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-  },
-  errorLabel: { fontSize: type.caption, color: colors.danger },
 })

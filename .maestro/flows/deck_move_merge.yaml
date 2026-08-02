@@ -17,6 +17,8 @@ tags:
 - tapOn:
     id: "create-deck-fab"
 - tapOn:
+    id: "action-menu-add-deck"
+- tapOn:
     id: "new-deck-name-input"
 - inputText: "Maestro Parent Deck"
 - tapOn: "Create deck"
@@ -24,6 +26,8 @@ tags:
 
 - tapOn:
     id: "create-deck-fab"
+- tapOn:
+    id: "action-menu-add-deck"
 - tapOn:
     id: "new-deck-name-input"
 - inputText: "Maestro Child Deck"

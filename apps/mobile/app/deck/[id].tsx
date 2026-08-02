@@ -22,12 +22,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   AlertModal,
   Button,
   Card,
   CefrBadge,
+  ConfirmModal,
   ErrorState,
   ExportFormatSheet,
   IconButton,
@@ -92,6 +93,11 @@ export default function DeckDetailScreen(): JSX.Element {
   const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedCardIds, setSelectedCardIds] = useState<Set<string>>(new Set())
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
+  const [removeSelectedConfirmOpen, setRemoveSelectedConfirmOpen] = useState(false)
+  const [mergeConfirmTarget, setMergeConfirmTarget] = useState<Deck | null>(null)
+  const showError = (title: string, error: unknown): void => setExportNotice({ title, message: String(error) })
 
   const deckQuery = useQuery({
     queryKey: ['deck', id],
@@ -124,19 +130,12 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.back()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not delete deck'), String(error)),
+    onError: (error: unknown) => showError(t('Could not delete deck'), error),
   })
 
   const confirmDelete = (): void => {
     setMenuOpen(false)
-    Alert.alert(
-      t('Delete deck?'),
-      t('Cards that are only in this deck are deleted with it. Cards in other decks stay there.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        { text: t('Delete'), style: 'destructive', onPress: () => remove.mutate() },
-      ],
-    )
+    setDeleteConfirmOpen(true)
   }
 
   const move = useMutation({
@@ -146,7 +145,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['deck', id] })
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not move deck'), String(error)),
+    onError: (error: unknown) => showError(t('Could not move deck'), error),
   })
 
   const merge = useMutation({
@@ -156,7 +155,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.back()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not merge deck'), String(error)),
+    onError: (error: unknown) => showError(t('Could not merge deck'), error),
   })
 
   const resetProgress = useMutation({
@@ -164,7 +163,7 @@ export default function DeckDetailScreen(): JSX.Element {
     onSuccess: async () => {
       await queryClient.invalidateQueries()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not reset progress'), String(error)),
+    onError: (error: unknown) => showError(t('Could not reset progress'), error),
   })
 
   const removeCards = useMutation({
@@ -179,7 +178,7 @@ export default function DeckDetailScreen(): JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['deck', id] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not remove card'), String(error)),
+    onError: (error: unknown) => showError(t('Could not remove card'), error),
   })
 
   const toggleCardSelected = (cardId: string): void => {
@@ -201,31 +200,12 @@ export default function DeckDetailScreen(): JSX.Element {
   }
 
   const confirmRemoveSelected = (): void => {
-    const count = selectedCardIds.size
-    Alert.alert(
-      t('Remove {{count}} cards from this deck?', { count }),
-      t('This only removes them from this deck — cards that live in other decks too stay there.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Remove'),
-          style: 'destructive',
-          onPress: () => removeCards.mutate(Array.from(selectedCardIds)),
-        },
-      ],
-    )
+    setRemoveSelectedConfirmOpen(true)
   }
 
   const confirmResetProgress = (): void => {
     setMenuOpen(false)
-    Alert.alert(
-      t('Reset progress?'),
-      t('Every card in this deck goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        { text: t('Reset'), style: 'destructive', onPress: () => resetProgress.mutate() },
-      ],
-    )
+    setResetConfirmOpen(true)
   }
 
   const showMove = (): void => {
@@ -244,17 +224,7 @@ export default function DeckDetailScreen(): JSX.Element {
       return
     }
     if (pickerMode === 'merge') {
-      Alert.alert(
-        t('Merge into "{{name}}"?', { name: target.name }),
-        t('This deletes "{{source}}" and moves all its cards into "{{target}}". This cannot be undone.', {
-          source: deckQuery.data?.deck.name ?? t('this deck'),
-          target: target.name,
-        }),
-        [
-          { text: t('Cancel'), style: 'cancel' },
-          { text: t('Merge'), style: 'destructive', onPress: () => merge.mutate(target.id) },
-        ],
-      )
+      setMergeConfirmTarget(target)
     }
   }
 
@@ -626,6 +596,66 @@ export default function DeckDetailScreen(): JSX.Element {
         title={exportNotice?.title ?? ''}
         message={exportNotice?.message ?? ''}
         onClose={() => setExportNotice(null)}
+      />
+
+      <ConfirmModal
+        visible={deleteConfirmOpen}
+        title={t('Delete deck?')}
+        message={t('Cards that are only in this deck are deleted with it. Cards in other decks stay there.')}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false)
+          remove.mutate()
+        }}
+        confirmLabel={t('Delete')}
+        destructive
+      />
+
+      <ConfirmModal
+        visible={resetConfirmOpen}
+        title={t('Reset progress?')}
+        message={t('Every card in this deck goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.')}
+        onCancel={() => setResetConfirmOpen(false)}
+        onConfirm={() => {
+          setResetConfirmOpen(false)
+          resetProgress.mutate()
+        }}
+        confirmLabel={t('Reset')}
+        destructive
+      />
+
+      <ConfirmModal
+        visible={removeSelectedConfirmOpen}
+        title={t('Remove {{count}} cards from this deck?', { count: selectedCardIds.size })}
+        message={t('This only removes them from this deck — cards that live in other decks too stay there.')}
+        onCancel={() => setRemoveSelectedConfirmOpen(false)}
+        onConfirm={() => {
+          setRemoveSelectedConfirmOpen(false)
+          removeCards.mutate(Array.from(selectedCardIds))
+        }}
+        confirmLabel={t('Remove')}
+        destructive
+      />
+
+      <ConfirmModal
+        visible={mergeConfirmTarget !== null}
+        title={mergeConfirmTarget ? t('Merge into "{{name}}"?', { name: mergeConfirmTarget.name }) : ''}
+        message={
+          mergeConfirmTarget
+            ? t('This deletes "{{source}}" and moves all its cards into "{{target}}". This cannot be undone.', {
+                source: deckQuery.data?.deck.name ?? t('this deck'),
+                target: mergeConfirmTarget.name,
+              })
+            : ''
+        }
+        onCancel={() => setMergeConfirmTarget(null)}
+        onConfirm={() => {
+          const target = mergeConfirmTarget
+          setMergeConfirmTarget(null)
+          if (target) merge.mutate(target.id)
+        }}
+        confirmLabel={t('Merge')}
+        destructive
       />
     </>
   )

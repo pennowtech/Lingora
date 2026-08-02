@@ -47,7 +47,6 @@ import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Modal,
   Pressable,
@@ -58,11 +57,13 @@ import {
   View,
 } from 'react-native'
 import {
+  AlertModal,
   Button,
   Card,
   CardActionBar,
   CefrBadge,
   Chip,
+  ConfirmModal,
   Dropdown,
   ErrorState,
   EvalBar,
@@ -78,7 +79,7 @@ import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
-import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
+import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -244,6 +245,10 @@ export default function WordDetailScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
+  const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings'))
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const [clusterId, setClusterId] = useState<string | null>(null)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
@@ -348,7 +353,7 @@ export default function WordDetailScreen(): JSX.Element {
     mutationFn: (args: { targetType: EvaluationTarget; targetId: string; rating: 'up' | 'down' }) =>
       setEvaluation(db, args),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evaluations', form] }),
-    onError: (error: unknown) => Alert.alert(t('Could not save your feedback'), String(error)),
+    onError: (error: unknown) => showError(t('Could not save your feedback'), error),
   })
 
   const report = useMutation({
@@ -366,7 +371,7 @@ export default function WordDetailScreen(): JSX.Element {
       setReportNote('')
       await queryClient.invalidateQueries({ queryKey: ['evaluations', form] })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not save your report'), String(error)),
+    onError: (error: unknown) => showError(t('Could not save your report'), error),
   })
 
   const selectExample = useMutation({
@@ -375,7 +380,7 @@ export default function WordDetailScreen(): JSX.Element {
       return updateSelectedExample(db, word.card.id, exampleId)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert(t('Could not update the flashcard example'), String(error)),
+    onError: (error: unknown) => showError(t('Could not update the flashcard example'), error),
   })
 
   // Whichever cluster is on screen when "Add to deck" is tapped decides what gets added.
@@ -471,7 +476,7 @@ export default function WordDetailScreen(): JSX.Element {
       await invalidateAfterDeckChange()
       offerClozeEditor(cardId)
     },
-    onError: (error: unknown) => Alert.alert(t('Could not create deck'), String(error)),
+    onError: (error: unknown) => showError(t('Could not create deck'), error),
   })
 
   const saveCloze = useMutation({
@@ -489,7 +494,7 @@ export default function WordDetailScreen(): JSX.Element {
       setClozeEditor(null)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not save the cloze card'), String(error)),
+    onError: (error: unknown) => showError(t('Could not save the cloze card'), error),
   })
 
   const toggleGrammar = (option: string): void => {
@@ -521,7 +526,7 @@ export default function WordDetailScreen(): JSX.Element {
       )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
+    onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
   // Regenerate — replaces every meaning cluster (meanings/examples/synonyms), phrase, and cloze
@@ -560,22 +565,15 @@ export default function WordDetailScreen(): JSX.Element {
       setClusterId(null)
       await queryClient.invalidateQueries()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not regenerate this card'), String(error)),
+    onError: (error: unknown) => showError(t('Could not regenerate this card'), error),
   })
 
   const handleRegenerate = (): void => {
     if (!ai) {
-      showAIProviderRequiredAlert(t, t('regenerate this card'), () => router.push('/settings'))
+      aiRequiredAlert.show(t('regenerate this card'))
       return
     }
-    Alert.alert(
-      t('Regenerate this card?'),
-      t('This replaces the meanings, examples, synonyms, phrases, and cloze cards with a fresh AI generation. This cannot be undone.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        { text: t('Regenerate'), style: 'destructive', onPress: () => regenerateCard.mutate() },
-      ],
-    )
+    setRegenerateConfirmOpen(true)
   }
 
   // A follow-up question typed into the "More info" sheet's composer. Deliberately NOT persisted
@@ -604,7 +602,7 @@ export default function WordDetailScreen(): JSX.Element {
       if (myRequestId !== askFollowUpRequestId.current) return
       setFollowUps((prev) => [...prev, entry])
     },
-    onError: (error: unknown) => Alert.alert(t('Could not get an answer'), String(error)),
+    onError: (error: unknown) => showError(t('Could not get an answer'), error),
   })
 
   const cancelAskFollowUp = (): void => {
@@ -654,13 +652,13 @@ export default function WordDetailScreen(): JSX.Element {
       }
       if (tier !== 'full') {
         setExplainVisible(false)
-        showAIProviderRequiredAlert(t, t('generate an explanation for this meaning'), () => router.push('/settings'))
+        aiRequiredAlert.show(t('generate an explanation for this meaning'))
         return
       }
       setExplainVisible(true)
       generateExplanation.mutate()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
+    onError: (error: unknown) => showError(t('Could not look up an explanation'), error),
   })
 
   // "More info" on an AI card opens the follow-up sheet (its explanation is already showing
@@ -713,7 +711,7 @@ export default function WordDetailScreen(): JSX.Element {
   // only needs the active cluster's label/description, which every card has).
   const handleAskAI = (): void => {
     if (!ai) {
-      showAIProviderRequiredAlert(t, t('ask a follow-up question'), () => router.push('/settings'))
+      aiRequiredAlert.show(t('ask a follow-up question'))
       return
     }
     setAskAiOpen(true)
@@ -739,7 +737,7 @@ export default function WordDetailScreen(): JSX.Element {
       setEditOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not save your changes'), String(error)),
+    onError: (error: unknown) => showError(t('Could not save your changes'), error),
   })
 
   // Fills the edit modal's example fields from a fresh AI generation — doesn't persist anything
@@ -760,7 +758,7 @@ export default function WordDetailScreen(): JSX.Element {
       setEditExample(generated.sentence)
       setEditTranslation(generated.translation)
     },
-    onError: (error: unknown) => Alert.alert(t('Could not generate an example'), String(error)),
+    onError: (error: unknown) => showError(t('Could not generate an example'), error),
   })
 
   const handleLookup = (): void => {
@@ -1296,6 +1294,28 @@ export default function WordDetailScreen(): JSX.Element {
         askLoading={askFollowUp.isPending}
         onAsk={(question) => askFollowUp.mutate(question)}
         onAskCancel={cancelAskFollowUp}
+      />
+
+      {aiRequiredAlert.modal}
+
+      <ConfirmModal
+        visible={regenerateConfirmOpen}
+        title={t('Regenerate this card?')}
+        message={t('This replaces the meanings, examples, synonyms, phrases, and cloze cards with a fresh AI generation. This cannot be undone.')}
+        onCancel={() => setRegenerateConfirmOpen(false)}
+        onConfirm={() => {
+          setRegenerateConfirmOpen(false)
+          regenerateCard.mutate()
+        }}
+        confirmLabel={t('Regenerate')}
+        destructive
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </>
   )

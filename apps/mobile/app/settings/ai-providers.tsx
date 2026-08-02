@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
-import { Card, Chip } from '../../components/ui'
+import { AlertModal, Card, Chip, ConfirmModal } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
 import {
   emptyProviderState,
@@ -40,6 +40,8 @@ export default function AiProvidersScreen(): JSX.Element {
   const [showKey, setShowKey] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
   const [validating, setValidating] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
   const [validated, setValidated] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
 
   const [providers, setProviders] = useState<Record<GenerationProviderName, ProviderFormState>>({
     openai: emptyProviderState('openai'),
@@ -145,10 +147,10 @@ export default function AiProvidersScreen(): JSX.Element {
     void VALIDATORS[name](apiKey, model)
       .then((result) => {
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
-        Alert.alert(
-          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
-          result.message,
-        )
+        setNotice({
+          title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
+          message: result.message,
+        })
       })
       .finally(() => {
         setValidating((prev) => ({ ...prev, [name]: false }))
@@ -168,31 +170,18 @@ export default function AiProvidersScreen(): JSX.Element {
   }
 
   const deleteAllProviderKeys = (): void => {
-    Alert.alert(
-      t('Delete all AI provider keys?'),
-      t('This removes every OpenAI/Mistral/Gemini/Claude key from this device. Vocabulary and progress are unaffected.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: () => {
-            for (const name of GENERATION_PROVIDERS) {
-              updateProvider(name, { apiKey: '' })
-              void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].key, '')
-              void clearUsage(name)
-            }
-            setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })
-            setValidated({})
-            void reloadServices()
-            log.info('settings.all_provider_keys_deleted', {
-              message: 'User deleted every AI provider API key from this device',
-              metadata: { itemCount: GENERATION_PROVIDERS.length },
-            })
-          },
-        },
-      ],
-    )
+    for (const name of GENERATION_PROVIDERS) {
+      updateProvider(name, { apiKey: '' })
+      void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].key, '')
+      void clearUsage(name)
+    }
+    setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })
+    setValidated({})
+    void reloadServices()
+    log.info('settings.all_provider_keys_deleted', {
+      message: 'User deleted every AI provider API key from this device',
+      metadata: { itemCount: GENERATION_PROVIDERS.length },
+    })
   }
 
   const configuredProviders = GENERATION_PROVIDERS.filter(
@@ -263,13 +252,33 @@ export default function AiProvidersScreen(): JSX.Element {
         <Pressable
           testID="delete-all-provider-keys"
           style={[styles.dangerButton, !anyKeyPresent && styles.secondaryButtonDisabled]}
-          onPress={deleteAllProviderKeys}
+          onPress={() => setDeleteAllConfirmOpen(true)}
           disabled={!anyKeyPresent}
         >
           <Ionicons name="trash-outline" size={16} color={colors.danger} />
           <Text style={styles.dangerButtonLabel}>{t('Delete All AI Providers Keys')}</Text>
         </Pressable>
       </Card>
+
+      <ConfirmModal
+        visible={deleteAllConfirmOpen}
+        title={t('Delete all AI provider keys?')}
+        message={t('This removes every OpenAI/Mistral/Gemini/Claude key from this device. Vocabulary and progress are unaffected.')}
+        onCancel={() => setDeleteAllConfirmOpen(false)}
+        onConfirm={() => {
+          setDeleteAllConfirmOpen(false)
+          deleteAllProviderKeys()
+        }}
+        confirmLabel={t('Delete')}
+        destructive
+      />
+
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
+      />
     </ScrollView>
   )
 }

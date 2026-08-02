@@ -2,10 +2,10 @@ import { Ionicons } from '@expo/vector-icons'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
 import type { CardSource } from '@lingora/types'
-import { Card, SectionHeader } from '../../components/ui'
+import { AlertModal, Card, SectionHeader } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { DEEPL_USAGE_URL, PROVIDER_META, PROVIDER_STORE_KEYS, ZERO_USAGE } from '../../lib/aiProviderMeta'
 import { validateDeepLKey } from '../../lib/providerValidation'
@@ -43,6 +43,7 @@ export default function TranslationScreen(): JSX.Element {
   const [deeplValidated, setDeeplValidated] = useState(false)
   const [deeplUsage, setDeeplUsage] = useState<UsageSnapshot>(ZERO_USAGE)
   const [configuredProviders, setConfiguredProviders] = useState<GenerationProviderName[]>([])
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
 
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -112,10 +113,10 @@ export default function TranslationScreen(): JSX.Element {
     void validateDeepLKey(deeplKey)
       .then((result) => {
         setDeeplValidated(result.ok)
-        Alert.alert(
-          result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('DeepL validation failed'),
-          result.message,
-        )
+        setNotice({
+          title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('DeepL validation failed'),
+          message: result.message,
+        })
       })
       .finally(() => {
         setDeeplValidating(false)
@@ -182,6 +183,13 @@ export default function TranslationScreen(): JSX.Element {
           )
         })}
       </Card>
+
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
+      />
     </ScrollView>
   )
 }

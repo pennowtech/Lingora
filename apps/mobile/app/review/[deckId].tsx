@@ -28,7 +28,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -38,6 +38,7 @@ import { AskAISheet } from '../../components/AskAISheet'
 import { CardRenderer } from '../../components/CardRenderer'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import {
+  AlertModal,
   Button,
   CardActionBar,
   EmptyState,
@@ -55,7 +56,7 @@ import {
   renderCardHtml,
   type CardTemplateContext,
 } from '../../lib/templates'
-import { showAIProviderRequiredAlert } from '../../lib/aiMessages'
+import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -407,6 +408,9 @@ export default function ReviewSessionScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
+  const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings'))
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
   const clozeOnly = params.mode === 'cloze'
   // Reverse practice shares the exact same due queue/FSRS schedule as normal word-meaning review
   // (getCardsDueForReview/card_states, unchanged below) — it's the same fact, just prompted in
@@ -542,7 +546,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.rating_failed', error, { message: 'Recording a review rating failed' })
-      Alert.alert(t('Could not save your rating'), String(error))
+      showError(t('Could not save your rating'), error)
     },
   })
 
@@ -568,7 +572,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.card_edit_failed', error, { message: 'Saving a manual card edit failed' })
-      Alert.alert(t('Could not save your changes'), String(error))
+      showError(t('Could not save your changes'), error)
     },
   })
 
@@ -589,7 +593,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       setEditExample(generated.sentence)
       setEditTranslation(generated.translation)
     },
-    onError: (error: unknown) => Alert.alert(t('Could not generate an example'), String(error)),
+    onError: (error: unknown) => showError(t('Could not generate an example'), error),
   })
 
   const isAiCard = !!view?.card.source && AI_SOURCES.includes(view.card.source)
@@ -615,7 +619,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
-    onError: (error: unknown) => Alert.alert(t('Could not generate an explanation'), String(error)),
+    onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
   // A follow-up question from the "More info" sheet's composer — ephemeral, not persisted (same
@@ -634,7 +638,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null }
     },
     onSuccess: (entry) => setFollowUps((prev) => [...prev, entry]),
-    onError: (error: unknown) => Alert.alert(t('Could not get an answer'), String(error)),
+    onError: (error: unknown) => showError(t('Could not get an answer'), error),
   })
 
   // Same auto-generate-once-on-open behavior as word/[form].tsx, scoped to the currently flipped
@@ -677,13 +681,13 @@ export default function ReviewSessionScreen(): JSX.Element {
       }
       if (tier !== 'full') {
         setExplainVisible(false)
-        showAIProviderRequiredAlert(t, t('generate an explanation for this meaning'), () => router.push('/settings'))
+        aiRequiredAlert.show(t('generate an explanation for this meaning'))
         return
       }
       setExplainVisible(true)
       generateExplanation.mutate()
     },
-    onError: (error: unknown) => Alert.alert(t('Could not look up an explanation'), String(error)),
+    onError: (error: unknown) => showError(t('Could not look up an explanation'), error),
   })
 
   // Same AI-vs-dictionary branch as word/[form].tsx's handleExplain.
@@ -732,7 +736,7 @@ export default function ReviewSessionScreen(): JSX.Element {
   // available on every card.
   const handleAskAI = (): void => {
     if (!ai) {
-      showAIProviderRequiredAlert(t, t('ask a follow-up question'), () => router.push('/settings'))
+      aiRequiredAlert.show(t('ask a follow-up question'))
       return
     }
     setAskAiOpen(true)
@@ -1050,6 +1054,15 @@ export default function ReviewSessionScreen(): JSX.Element {
         followUps={followUps}
         askLoading={askFollowUp.isPending}
         onAsk={(question) => askFollowUp.mutate(question)}
+      />
+
+      {aiRequiredAlert.modal}
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </SafeAreaView>
   )

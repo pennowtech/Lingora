@@ -4,10 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { ClozeMarkupEditor, type ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { FormattableTextInput } from '../../components/FormattableTextInput'
-import { Button, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { hasTemplateField } from '../../lib/templates'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -60,6 +60,8 @@ export default function AddCardScreen(): JSX.Element {
   // standalone "+ Add cloze card" (see ClozeMarkupEditor's doc comment), not raw "[...]" typing.
   // Embedded inline here (no button/overlay) since this whole screen is already a compose form.
   const [clozeResult, setClozeResult] = useState<ClozeEditorResult | null>(null)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const vocabTemplateQuery = useQuery({
     queryKey: ['default-template', 'vocab'],
@@ -100,7 +102,7 @@ export default function AddCardScreen(): JSX.Element {
       setExample(generated.sentence)
       setExampleTranslation(generated.translation)
     },
-    onError: (error: unknown) => Alert.alert(t('Could not generate an example'), String(error)),
+    onError: (error: unknown) => showError(t('Could not generate an example'), error),
   })
 
   const create = useMutation({
@@ -135,7 +137,7 @@ export default function AddCardScreen(): JSX.Element {
       await queryClient.invalidateQueries()
       router.replace({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
-    onError: (error: unknown) => Alert.alert(t('Could not add card'), String(error)),
+    onError: (error: unknown) => showError(t('Could not add card'), error),
   })
 
   const canSubmit = kind === 'word' ? wordValid : clozeValid
@@ -280,6 +282,13 @@ export default function AddCardScreen(): JSX.Element {
           onPress={() => create.mutate()}
           disabled={!canSubmit || create.isPending}
           style={styles.submitButton}
+        />
+
+        <AlertModal
+          visible={errorNotice !== null}
+          title={errorNotice?.title ?? ''}
+          message={errorNotice?.message ?? ''}
+          onClose={() => setErrorNotice(null)}
         />
       </ScrollView>
     </>

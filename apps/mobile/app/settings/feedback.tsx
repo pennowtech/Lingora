@@ -3,9 +3,9 @@ import Constants from 'expo-constants'
 import { Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Button, Card, Chip, IconButton } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, IconButton } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -92,6 +92,7 @@ export default function FeedbackScreen(): JSX.Element {
   const [includeDiagnostics, setIncludeDiagnostics] = useState(true)
   const [contactEmail, setContactEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
 
   const appVersion = Constants.expoConfig?.version ?? 'unknown'
   const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android'
@@ -109,10 +110,10 @@ export default function FeedbackScreen(): JSX.Element {
     // LingoraDocs/10_feedback_to_github_issue.md's Cloud Function exists.
     setTimeout(() => {
       setSubmitting(false)
-      Alert.alert(
-        t('Thanks for the feedback'),
-        t("This is a preview of the feedback form — sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
-      )
+      setNotice({
+        title: t('Thanks for the feedback'),
+        message: t("This is a preview of the feedback form — sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
+      })
       setCategory('bug')
       setTitle('')
       setMessage('')
@@ -224,6 +225,12 @@ export default function FeedbackScreen(): JSX.Element {
         activeSectionId={help.sectionId}
         onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
         translate={t}
+      />
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
       />
     </ScrollView>
   )

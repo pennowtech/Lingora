@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { TFunction } from 'i18next'
+import { Stack } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
-import { Button, Card, Chip, SectionHeader } from '../../components/ui'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AlertModal, Button, Card, Chip, ConfirmModal, IconButton, SectionHeader } from '../../components/ui'
 import {
   deleteCloudAccountAndData,
   initCloudSync,
@@ -25,6 +27,43 @@ function formatInterval(minutes: number, t: TFunction): string {
   return t('{{count}}h', { count: minutes / 60 })
 }
 
+/** Help content — same accordion-behind-one-"?"-button shape as tts.tsx/templates.tsx, so the
+ * "how does this actually work" and "what does delete really do" explanations live in one place
+ * instead of turning this screen into a wall of gray hint text. */
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'overview',
+    title: 'How sync works',
+    icon: 'sync-circle',
+    paragraphs: [
+      'Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you\'re not starting from zero on the second one.',
+      'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.',
+      'Your AI provider API keys are never synced. They live only in this device\'s secure storage, so you\'ll need to re-enter them if you set up a new device.',
+    ],
+  },
+  {
+    id: 'automatic',
+    title: 'Automatic sync',
+    icon: 'time',
+    paragraphs: [
+      'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.',
+      '"At most every" is a cooldown, not a schedule — it won\'t sync more often than that, but it also won\'t force a sync if you haven\'t opened the app in the meantime.',
+      'It runs over whatever connection you\'ve got, Wi-Fi or mobile data — there\'s no Wi-Fi-only toggle.',
+    ],
+  },
+  {
+    id: 'delete',
+    title: 'Deleting your account & data',
+    icon: 'trash',
+    paragraphs: [
+      { text: 'This is the one action here you genuinely can\'t undo — read this before you tap it.', bold: true },
+      'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.',
+      'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.',
+      'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.',
+    ],
+  },
+]
+
 /**
  * The "Sync" sub-screen: sign in with Google, trigger a manual sync, see when it last ran, and
  * (optionally) let automatic background sync run on app-backgrounding — see lib/cloudSync.ts's
@@ -39,6 +78,10 @@ export default function SyncScreen(): JSX.Element {
   const sync = useCloudSync()
   const [signingIn, setSigningIn] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
+  const help = useHelpAccordion('overview')
 
   useEffect(() => {
     void initCloudSync()
@@ -47,7 +90,7 @@ export default function SyncScreen(): JSX.Element {
   const handleSignIn = (): void => {
     setSigningIn(true)
     signInToCloudSync()
-      .catch((error: unknown) => Alert.alert(t('Could not sign in'), String(error)))
+      .catch((error: unknown) => showError(t('Could not sign in'), error))
       .finally(() => setSigningIn(false))
   }
 
@@ -56,35 +99,30 @@ export default function SyncScreen(): JSX.Element {
   }
 
   const handleSyncNow = (): void => {
-    requestCloudSync(db).catch((error: unknown) => Alert.alert(t('Sync failed'), String(error)))
+    requestCloudSync(db).catch((error: unknown) => showError(t('Sync failed'), error))
   }
 
   const handleDeleteAccount = (): void => {
-    Alert.alert(
-      t('Delete account & sync data?'),
-      t(
-        'This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.',
-      ),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete everything'),
-          style: 'destructive',
-          onPress: () => {
-            setDeleting(true)
-            deleteCloudAccountAndData(db)
-              .catch((error: unknown) => Alert.alert(t('Deletion failed'), String(error)))
-              .finally(() => setDeleting(false))
-          },
-        },
-      ],
-    )
+    setDeleting(true)
+    deleteCloudAccountAndData(db)
+      .catch((error: unknown) => showError(t('Deletion failed'), error))
+      .finally(() => setDeleting(false))
   }
 
   const lastSyncedLabel = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).toLocaleString() : t('Never')
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+      {/* Help lives in the native header, next to the "Sync" title, not inline in the body — see
+          the header-right pattern shared with Audio Settings and the other Settings screens that
+          have a help sheet. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+          ),
+        }}
+      />
       <SectionHeader title={t('Sync')} />
       <Card style={{ gap: spacing.md }}>
         <Text style={styles.fieldHint}>
@@ -177,15 +215,50 @@ export default function SyncScreen(): JSX.Element {
           <Text style={styles.fieldHint}>
             {t('Permanently erase everything synced to this account and sign out. Your data on this device stays put.')}
           </Text>
+          <Pressable onPress={() => help.openSection('delete')} hitSlop={8}>
+            <Text style={styles.helpLink}>{t('What does this actually delete?')}</Text>
+          </Pressable>
           <Button
             label={deleting ? t('Deleting…') : t('Delete account & sync data')}
             icon="trash"
             variant="danger"
-            onPress={handleDeleteAccount}
+            onPress={() => setDeleteConfirmOpen(true)}
             disabled={deleting}
           />
         </Card>
       ) : null}
+
+      <ConfirmModal
+        visible={deleteConfirmOpen}
+        title={t('Delete account & sync data?')}
+        message={t(
+          'This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.',
+        )}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false)
+          handleDeleteAccount()
+        }}
+        confirmLabel={t('Delete everything')}
+        destructive
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Sync help')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
     </ScrollView>
   )
 }
@@ -216,4 +289,5 @@ const createStyles = (colors: ThemeColors) =>
     statusDetail: { fontSize: type.micro, color: colors.textMuted },
     errorText: { fontSize: type.caption, color: colors.danger },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+    helpLink: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
   })

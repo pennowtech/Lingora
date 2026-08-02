@@ -3,8 +3,8 @@ import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { AlertModal, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
 import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
@@ -43,6 +43,7 @@ export default function LearningScreen(): JSX.Element {
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -97,12 +98,12 @@ export default function LearningScreen(): JSX.Element {
   }
 
   const warnUnsupportedLanguage = (language: LanguageCode): void => {
-    Alert.alert(
-      t('Not supported yet'),
-      t('{{language}} isn\'t ready yet — English and German are the only languages Lingora fully supports right now.', {
+    setNotice({
+      title: t('Not supported yet'),
+      message: t('{{language}} isn\'t ready yet — English and German are the only languages Lingora fully supports right now.', {
         language: t(VOCAB_LANGUAGE_LABELS[language]),
       }),
-    )
+    })
   }
 
   // Swapping native/target to the same language would make every reverse-direction check
@@ -180,6 +181,13 @@ export default function LearningScreen(): JSX.Element {
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
       </Card>
+
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
+      />
     </ScrollView>
   )
 }

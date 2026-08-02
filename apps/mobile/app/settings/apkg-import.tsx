@@ -14,10 +14,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { DataTable, type DataTableColumn } from '../../components/DataTable'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
-import { Button, Card, Chip, Dropdown, EmptyState, ProgressBar } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, Dropdown, EmptyState, ProgressBar } from '../../components/ui'
 import { pickAndParseApkgFile } from '../../lib/apkg'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -160,6 +160,8 @@ export default function ApkgImportScreen(): JSX.Element {
     null,
   )
   const cancelRequested = useRef(false)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
@@ -321,7 +323,7 @@ export default function ApkgImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.apkg_preview_failed', error, { message: 'Building Anki import preview failed' })
-        Alert.alert(t('Could not read this collection'), String(error))
+        showError(t('Could not read this collection'), error)
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -404,7 +406,7 @@ export default function ApkgImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.apkg_import_failed', error, { message: 'Anki import failed' })
-        Alert.alert(t('Import failed'), String(error))
+        showError(t('Import failed'), error)
         // Reset progress (not just leave it stale) — `importing` derives from progress !== null &&
         // result === null, and result stays null on failure, so without this the popup would
         // stay stuck showing "Importing…" forever instead of closing back to the preview table.
@@ -526,6 +528,13 @@ export default function ApkgImportScreen(): JSX.Element {
             </View>
           </View>
         </Modal>
+
+        <AlertModal
+          visible={errorNotice !== null}
+          title={errorNotice?.title ?? ''}
+          message={errorNotice?.message ?? ''}
+          onClose={() => setErrorNotice(null)}
+        />
       </View>
     )
   }
@@ -653,6 +662,13 @@ export default function ApkgImportScreen(): JSX.Element {
         onCreateDeck={(name) => createNewDeck.mutate(name)}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </ScrollView>
   )

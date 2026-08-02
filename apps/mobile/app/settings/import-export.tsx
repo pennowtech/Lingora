@@ -5,10 +5,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { AlertModal, Card, SectionHeader } from '../../components/ui'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { AlertModal, Card, ConfirmModal, SectionHeader } from '../../components/ui'
 import { ExportNameModal } from '../../components/ExportNameModal'
-import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile } from '../../lib/backup'
+import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile, type PickedBackup } from '../../lib/backup'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -89,6 +89,7 @@ export default function ImportExportScreen(): JSX.Element {
     null,
   )
   const [exportNotice, setExportNotice] = useState<{ title: string; message: string } | null>(null)
+  const [restoreConfirm, setRestoreConfirm] = useState<PickedBackup | null>(null)
 
   const toggle = (id: OptionId): void => {
     setExpanded((prev) => {
@@ -142,38 +143,7 @@ export default function ImportExportScreen(): JSX.Element {
     pickAndParseBackupFile()
       .then((picked) => {
         if (!picked) return // user canceled the file picker
-        Alert.alert(
-          t('Restore from backup?'),
-          t(
-            'This replaces everything currently on this device with the contents of "{{fileName}}" (exported {{date}}). This cannot be undone.',
-            { fileName: picked.fileName, date: new Date(picked.payload.exportedAt).toLocaleDateString() },
-          ),
-          [
-            { text: t('Cancel'), style: 'cancel' },
-            {
-              text: t('Restore'),
-              style: 'destructive',
-              onPress: () => {
-                setRestoring(true)
-                applyBackupRestore(db, picked.payload)
-                  .then(async ({ result }) => {
-                    const totalRows = Object.values(result.tableCounts).reduce(
-                      (sum, count) => sum + (count ?? 0),
-                      0,
-                    )
-                    await queryClient.invalidateQueries()
-                    await reloadServices()
-                    Alert.alert(t('Restore complete'), t('Restored {{count}} rows.', { count: totalRows.toLocaleString() }))
-                  })
-                  .catch((error: unknown) => {
-                    log.error('import.restore_failed', error, { message: 'Backup restore failed' })
-                    Alert.alert(t('Restore failed'), String(error))
-                  })
-                  .finally(() => setRestoring(false))
-              },
-            },
-          ],
-        )
+        setRestoreConfirm(picked)
       })
       .catch((error: unknown) => {
         if (error instanceof BackupValidationError) {
@@ -181,12 +151,28 @@ export default function ImportExportScreen(): JSX.Element {
             message: 'Picked file failed backup validation',
             metadata: { itemCount: error.issues.length },
           })
-          Alert.alert(t('Invalid backup file'), [error.message, ...error.issues.slice(0, 5)].join('\n'))
+          setExportNotice({ title: t('Invalid backup file'), message: [error.message, ...error.issues.slice(0, 5)].join('\n') })
           return
         }
         log.error('import.restore_failed', error, { message: 'Backup file picking failed' })
-        Alert.alert(t('Could not read file'), String(error))
+        setExportNotice({ title: t('Could not read file'), message: String(error) })
       })
+  }
+
+  const runRestore = (picked: PickedBackup): void => {
+    setRestoring(true)
+    applyBackupRestore(db, picked.payload)
+      .then(async ({ result }) => {
+        const totalRows = Object.values(result.tableCounts).reduce((sum, count) => sum + (count ?? 0), 0)
+        await queryClient.invalidateQueries()
+        await reloadServices()
+        setExportNotice({ title: t('Restore complete'), message: t('Restored {{count}} rows.', { count: totalRows.toLocaleString() }) })
+      })
+      .catch((error: unknown) => {
+        log.error('import.restore_failed', error, { message: 'Backup restore failed' })
+        setExportNotice({ title: t('Restore failed'), message: String(error) })
+      })
+      .finally(() => setRestoring(false))
   }
 
   return (
@@ -339,6 +325,27 @@ export default function ImportExportScreen(): JSX.Element {
         title={exportNotice?.title ?? ''}
         message={exportNotice?.message ?? ''}
         onClose={() => setExportNotice(null)}
+      />
+
+      <ConfirmModal
+        visible={restoreConfirm !== null}
+        title={t('Restore from backup?')}
+        message={
+          restoreConfirm
+            ? t(
+                'This replaces everything currently on this device with the contents of "{{fileName}}" (exported {{date}}). This cannot be undone.',
+                { fileName: restoreConfirm.fileName, date: new Date(restoreConfirm.payload.exportedAt).toLocaleDateString() },
+              )
+            : ''
+        }
+        onCancel={() => setRestoreConfirm(null)}
+        onConfirm={() => {
+          const picked = restoreConfirm
+          setRestoreConfirm(null)
+          if (picked) runRestore(picked)
+        }}
+        confirmLabel={t('Restore')}
+        destructive
       />
     </ScrollView>
   )

@@ -6,10 +6,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { CardRenderer } from '../../components/CardRenderer'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Button, Card, Chip, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, ConfirmModal, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
 import {
   CLOZE_BACK_TEMPLATE,
   CLOZE_FRONT_TEMPLATE,
@@ -206,6 +206,8 @@ export default function TemplatesScreen(): JSX.Element {
   const [styles_, setStyles_] = useState('')
   const [tab, setTab] = useState<Tab>('fields')
   const [previewSide, setPreviewSide] = useState<Side>('front')
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const help = useHelpAccordion('fields')
 
   const allTemplates = templatesQuery.data ?? []
@@ -266,24 +268,15 @@ export default function TemplatesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('srs.template_save_failed', error, { message: 'Saving a card template failed' })
-      Alert.alert(t('Could not save template'), String(error))
+      setErrorNotice({ title: t('Could not save template'), message: String(error) })
     },
   })
 
   const resetToDefault = (): void => {
-    Alert.alert(t('Reset to default?'), t('This replaces the fields, layout, and style with the built-in default, and saves immediately. This cannot be undone.'), [
-      { text: t('Cancel'), style: 'cancel' },
-      {
-        text: t('Reset'),
-        style: 'destructive',
-        onPress: () => {
-          setFrontTemplate(defaultFront)
-          setBackTemplate(defaultBack)
-          setStyles_(defaultStyles)
-          persistTemplate.mutate({ front: defaultFront, back: defaultBack, styles: defaultStyles })
-        },
-      },
-    ])
+    setFrontTemplate(defaultFront)
+    setBackTemplate(defaultBack)
+    setStyles_(defaultStyles)
+    persistTemplate.mutate({ front: defaultFront, back: defaultBack, styles: defaultStyles })
   }
 
   const accentColor = readAccentColor(styles_)
@@ -485,7 +478,7 @@ export default function TemplatesScreen(): JSX.Element {
           label={t('Reset to default')}
           variant="ghost"
           small
-          onPress={resetToDefault}
+          onPress={() => setResetConfirmOpen(true)}
           disabled={persistTemplate.isPending}
         />
         <Button
@@ -505,6 +498,26 @@ export default function TemplatesScreen(): JSX.Element {
         activeSectionId={help.sectionId}
         onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
         translate={t}
+      />
+
+      <ConfirmModal
+        visible={resetConfirmOpen}
+        title={t('Reset to default?')}
+        message={t('This replaces the fields, layout, and style with the built-in default, and saves immediately. This cannot be undone.')}
+        onCancel={() => setResetConfirmOpen(false)}
+        onConfirm={() => {
+          setResetConfirmOpen(false)
+          resetToDefault()
+        }}
+        confirmLabel={t('Reset')}
+        destructive
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </View>
   )

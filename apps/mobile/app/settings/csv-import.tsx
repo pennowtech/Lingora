@@ -6,10 +6,10 @@ import { File } from 'expo-file-system'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { DataTable, type DataTableColumn } from '../../components/DataTable'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
-import { Button, Card, Chip, Dropdown, EmptyState, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, Dropdown, EmptyState, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
@@ -146,6 +146,8 @@ export default function CsvImportScreen(): JSX.Element {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [result, setResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null)
   const [importing, setImporting] = useState(false)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
@@ -295,7 +297,7 @@ export default function CsvImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.csv_preview_failed', error, { message: 'Building CSV import preview failed' })
-        Alert.alert(t('Could not read this file'), String(error))
+        showError(t('Could not read this file'), error)
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -377,7 +379,7 @@ export default function CsvImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.csv_import_failed', error, { message: 'CSV import failed' })
-        Alert.alert(t('Import failed'), String(error))
+        showError(t('Import failed'), error)
       })
       .finally(() => setImporting(false))
   }
@@ -478,6 +480,13 @@ export default function CsvImportScreen(): JSX.Element {
             </View>
           </View>
         </Modal>
+
+        <AlertModal
+          visible={errorNotice !== null}
+          title={errorNotice?.title ?? ''}
+          message={errorNotice?.message ?? ''}
+          onClose={() => setErrorNotice(null)}
+        />
       </View>
     )
   }
@@ -603,6 +612,13 @@ export default function CsvImportScreen(): JSX.Element {
         onCreateDeck={(name) => createNewDeck.mutate(name)}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </ScrollView>
   )

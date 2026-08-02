@@ -14,11 +14,11 @@ import * as Clipboard from 'expo-clipboard'
 import { router, Stack } from 'expo-router'
 import { useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
-import { Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
 import { timeAgo } from '../../lib/format'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -94,6 +94,8 @@ export default function MiningQueueScreen(): JSX.Element {
   const [captureText, setCaptureText] = useState('')
   const [captureSource, setCaptureSource] = useState<CaptureSource>('manual')
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
   const help = useHelpAccordion('what')
 
   const queueQuery = useQuery({
@@ -108,7 +110,7 @@ export default function MiningQueueScreen(): JSX.Element {
   const discard = useMutation({
     mutationFn: (entryId: string) => deleteMineEntry(db, entryId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
-    onError: (error: unknown) => Alert.alert(t('Could not discard capture'), String(error)),
+    onError: (error: unknown) => showError(t('Could not discard capture'), error),
   })
 
   const capture = useMutation({
@@ -134,7 +136,7 @@ export default function MiningQueueScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('mining.capture_failed', error, { message: 'Manual capture failed to save' })
-      Alert.alert(t('Could not save capture'), String(error))
+      showError(t('Could not save capture'), error)
     },
   })
 
@@ -142,7 +144,7 @@ export default function MiningQueueScreen(): JSX.Element {
     Clipboard.getStringAsync()
       .then((text) => {
         if (!text.trim()) {
-          Alert.alert(t('Clipboard is empty'), t('Copy some text first, then paste it here.'))
+          setErrorNotice({ title: t('Clipboard is empty'), message: t('Copy some text first, then paste it here.') })
           return
         }
         setCaptureText(text.trim())
@@ -150,7 +152,7 @@ export default function MiningQueueScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('mining.clipboard_read_failed', error, { message: 'Reading the clipboard failed' })
-        Alert.alert(t('Could not read clipboard'), String(error))
+        showError(t('Could not read clipboard'), error)
       })
   }
 
@@ -313,12 +315,22 @@ export default function MiningQueueScreen(): JSX.Element {
     </Modal>
   )
 
+  const alertModal = (
+    <AlertModal
+      visible={errorNotice !== null}
+      title={errorNotice?.title ?? ''}
+      message={errorNotice?.message ?? ''}
+      onClose={() => setErrorNotice(null)}
+    />
+  )
+
   if (queueQuery.isPending) {
     return (
       <View style={styles.container}>
         <Spinner />
         {captureFab}
         {captureModal}
+        {alertModal}
       </View>
     )
   }
@@ -329,6 +341,7 @@ export default function MiningQueueScreen(): JSX.Element {
         <ErrorState message={String(queueQuery.error)} onRetry={() => void queueQuery.refetch()} />
         {captureFab}
         {captureModal}
+        {alertModal}
       </View>
     )
   }
@@ -357,6 +370,7 @@ export default function MiningQueueScreen(): JSX.Element {
         {helpButton}
         {helpSheet}
         {progressOverlay}
+        {alertModal}
       </View>
     )
   }
@@ -422,6 +436,7 @@ export default function MiningQueueScreen(): JSX.Element {
       {helpButton}
       {helpSheet}
       {progressOverlay}
+      {alertModal}
       <DeckPickerModal
         db={db}
         visible={deckPickerOpen}

@@ -5,9 +5,9 @@ import { Stack } from 'expo-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
 import {
   AUDIO_PROVIDERS,
   AUDIO_PROVIDER_META,
@@ -166,6 +166,7 @@ export default function AudioSettingsScreen(): JSX.Element {
   const [validated, setValidated] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
   const [testingCloud, setTestingCloud] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
   const [sampleText, setSampleText] = useState(() => DEFAULT_SAMPLE_TEXTS[targetLanguage])
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   /** 'manual' forces the free-text field even when a fetched voice list is available — lets a
    * user paste an ID the picker didn't return (e.g. a cloned ElevenLabs voice on another list
    * page). Undefined means "let the picker take over automatically once voices load". */
@@ -268,14 +269,14 @@ export default function AudioSettingsScreen(): JSX.Element {
     void validateAudioProviderKey(name, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
       .then((result) => {
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
-        Alert.alert(
-          result.ok
+        setNotice({
+          title: result.ok
             ? t('Connected')
             : result.networkUnavailable
               ? t('No internet connection')
               : t('{{provider}} validation failed', { provider: AUDIO_PROVIDER_META[name].label }),
-          result.message,
-        )
+          message: result.message,
+        })
       })
       .finally(() => setValidating((prev) => ({ ...prev, [name]: false })))
   }
@@ -292,10 +293,10 @@ export default function AudioSettingsScreen(): JSX.Element {
     setTestingCloud((prev) => ({ ...prev, [name]: true }))
     void playCloudSpeech(name, sampleText, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
       .catch((error: unknown) => {
-        Alert.alert(
-          t('{{provider}} playback failed', { provider: t(AUDIO_PROVIDER_META[name].label) }),
-          error instanceof CloudTtsError || error instanceof Error ? error.message : t('Unknown error'),
-        )
+        setNotice({
+          title: t('{{provider}} playback failed', { provider: t(AUDIO_PROVIDER_META[name].label) }),
+          message: error instanceof CloudTtsError || error instanceof Error ? error.message : t('Unknown error'),
+        })
       })
       .finally(() => setTestingCloud((prev) => ({ ...prev, [name]: false })))
   }
@@ -412,6 +413,13 @@ export default function AudioSettingsScreen(): JSX.Element {
         activeSectionId={help.sectionId}
         onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
         translate={t}
+      />
+
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
       />
     </ScrollView>
   )

@@ -567,6 +567,49 @@ export function AlertModal(props: {
   )
 }
 
+/**
+ * The two-button (Cancel + Confirm) counterpart to `AlertModal` — the in-app replacement for
+ * `Alert.alert(title, message, [{cancel}, {confirm, style: 'destructive'}])`, for a real yes/no
+ * decision before an action (delete/merge/restore/etc.), not just a result notification. Still
+ * just one confirm action — a caller needing more than Cancel + one confirm button should keep
+ * using `Alert.alert` directly (or pass its own custom body via `AlertModal`-style composition;
+ * none of this app's ~80 Alert.alert call sites need more than two buttons as of this writing).
+ */
+export function ConfirmModal(props: {
+  visible: boolean
+  title: string
+  message: string
+  onCancel: () => void
+  onConfirm: () => void
+  /** Defaults to "Cancel"/"Confirm" — pass translated labels; see AlertModal's `closeLabel` doc. */
+  cancelLabel?: string
+  confirmLabel?: string
+  /** Red "danger" button styling for a destructive action (delete/reset/replace) — defaults to
+   * the normal primary button for a non-destructive confirm (e.g. "Sign in?"). */
+  destructive?: boolean
+}): JSX.Element {
+  const styles = useThemedStyles(createStyles)
+  return (
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onCancel}>
+      <View style={styles.alertModalContainer}>
+        <Pressable style={styles.alertModalBackdrop} onPress={props.onCancel} />
+        <View style={styles.alertModalCard}>
+          <Text style={styles.alertModalTitle}>{props.title}</Text>
+          <Text style={styles.alertModalMessage}>{props.message}</Text>
+          <View style={styles.confirmModalActions}>
+            <Button label={props.cancelLabel ?? 'Cancel'} variant="ghost" onPress={props.onCancel} />
+            <Button
+              label={props.confirmLabel ?? 'Confirm'}
+              variant={props.destructive ? 'danger' : 'primary'}
+              onPress={props.onConfirm}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
 export function ProgressBar(props: { progress: number }): JSX.Element {
@@ -821,4 +864,5 @@ const createStyles = (colors: ThemeColors) =>
     },
     alertModalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     alertModalMessage: { fontSize: type.body, color: colors.textSecondary, lineHeight: 20 },
+    confirmModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
   })

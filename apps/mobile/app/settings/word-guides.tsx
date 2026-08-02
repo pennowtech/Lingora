@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, type JSX } from 'react'
+import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import { Button, Card, ErrorState, SectionHeader, Spinner } from '../../components/ui'
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { AlertModal, Button, Card, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
 import {
   getBundledChunkIndexes,
   getInstalledChunkIndexes,
@@ -42,6 +42,9 @@ export default function WordGuidesScreen(): JSX.Element {
   const queryClient = useQueryClient()
   const manifest = getWordGuideManifest()
   const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes()), [])
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
+  const [uninstallAllConfirmOpen, setUninstallAllConfirmOpen] = useState(false)
+  const showError = (title: string, error: unknown): void => setNotice({ title, message: String(error) })
 
   const installedQuery = useQuery({
     queryKey: ['word-guide-installed-chunks', manifest.language],
@@ -55,7 +58,7 @@ export default function WordGuidesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_chunk_install_failed', error, { message: 'Word guide chunk install failed' })
-      Alert.alert(t('Could not install this chunk'), String(error))
+      showError(t('Could not install this chunk'), error)
     },
   })
 
@@ -66,7 +69,7 @@ export default function WordGuidesScreen(): JSX.Element {
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_chunk_uninstall_failed', error, { message: 'Word guide chunk uninstall failed' })
-      Alert.alert(t('Could not remove this chunk'), String(error))
+      showError(t('Could not remove this chunk'), error)
     },
   })
 
@@ -74,11 +77,11 @@ export default function WordGuidesScreen(): JSX.Element {
     mutationFn: () => installAllAvailable(db, manifest.language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
-      Alert.alert(t('Local Dictionaries installed'), t('Installed {{count}} new chunks.', { count: count.toLocaleString() }))
+      setNotice({ title: t('Local Dictionaries installed'), message: t('Installed {{count}} new chunks.', { count: count.toLocaleString() }) })
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_install_all_failed', error, { message: 'Word guide "install all" failed' })
-      Alert.alert(t('Could not install local dictionaries'), String(error))
+      showError(t('Could not install local dictionaries'), error)
     },
   })
 
@@ -86,23 +89,16 @@ export default function WordGuidesScreen(): JSX.Element {
     mutationFn: () => uninstallAllInstalled(db, manifest.language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
-      Alert.alert(t('Local Dictionaries uninstalled'), t('Removed {{count}} chunks.', { count: count.toLocaleString() }))
+      setNotice({ title: t('Local Dictionaries uninstalled'), message: t('Removed {{count}} chunks.', { count: count.toLocaleString() }) })
     },
     onError: (error: unknown) => {
       log.error('settings.word_guide_uninstall_all_failed', error, { message: 'Word guide "uninstall all" failed' })
-      Alert.alert(t('Could not uninstall local dictionaries'), String(error))
+      showError(t('Could not uninstall local dictionaries'), error)
     },
   })
 
   const confirmUninstallAll = (): void => {
-    Alert.alert(
-      t('Uninstall all local dictionaries?'),
-      t('Removes every installed chunk from this device. Cards you already added to your deck are not affected.'),
-      [
-        { text: t('Cancel'), style: 'cancel' },
-        { text: t('Uninstall'), style: 'destructive', onPress: () => uninstallAll.mutate() },
-      ],
-    )
+    setUninstallAllConfirmOpen(true)
   }
 
   const installedSet = new Set(installedQuery.data ?? [])
@@ -194,6 +190,26 @@ export default function WordGuidesScreen(): JSX.Element {
             )}
           </Card>
         )}
+      />
+
+      <ConfirmModal
+        visible={uninstallAllConfirmOpen}
+        title={t('Uninstall all local dictionaries?')}
+        message={t('Removes every installed chunk from this device. Cards you already added to your deck are not affected.')}
+        onCancel={() => setUninstallAllConfirmOpen(false)}
+        onConfirm={() => {
+          setUninstallAllConfirmOpen(false)
+          uninstallAll.mutate()
+        }}
+        confirmLabel={t('Uninstall')}
+        destructive
+      />
+
+      <AlertModal
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        onClose={() => setNotice(null)}
       />
     </View>
   )

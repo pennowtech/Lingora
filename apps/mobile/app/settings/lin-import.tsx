@@ -6,9 +6,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native'
+import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
-import { Button, Card, Chip, EmptyState, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, EmptyState, Spinner } from '../../components/ui'
 import { pickAndParseBackupFile } from '../../lib/backup'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -86,6 +86,8 @@ export default function LinImportScreen(): JSX.Element {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [result, setResult] = useState<{ imported: number; skipped: number; cardsImported: number } | null>(null)
   const [importing, setImporting] = useState(false)
+  const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
@@ -196,7 +198,7 @@ export default function LinImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.lin_preview_failed', error, { message: 'Building .lin import preview failed' })
-        Alert.alert(t('Could not read this file'), String(error))
+        showError(t('Could not read this file'), error)
       })
       .finally(() => setPreviewLoading(false))
   }
@@ -264,7 +266,7 @@ export default function LinImportScreen(): JSX.Element {
       })
       .catch((error: unknown) => {
         log.error('import.lin_import_failed', error, { message: '.lin import failed' })
-        Alert.alert(t('Import failed'), String(error))
+        showError(t('Import failed'), error)
       })
       .finally(() => setImporting(false))
   }
@@ -415,6 +417,13 @@ export default function LinImportScreen(): JSX.Element {
             </View>
           </View>
         </Modal>
+
+        <AlertModal
+          visible={errorNotice !== null}
+          title={errorNotice?.title ?? ''}
+          message={errorNotice?.message ?? ''}
+          onClose={() => setErrorNotice(null)}
+        />
       </View>
     )
   }
@@ -497,6 +506,13 @@ export default function LinImportScreen(): JSX.Element {
         onCreateDeck={(name) => createNewDeck.mutate(name)}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
+
+      <AlertModal
+        visible={errorNotice !== null}
+        title={errorNotice?.title ?? ''}
+        message={errorNotice?.message ?? ''}
+        onClose={() => setErrorNotice(null)}
       />
     </ScrollView>
   )

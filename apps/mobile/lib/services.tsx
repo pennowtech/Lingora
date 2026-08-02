@@ -109,7 +109,6 @@ export const STORE_KEYS = {
   defaultCefr: 'lingora.default_cefr',
   nativeLanguage: 'lingora.native_language',
   targetLanguage: 'lingora.target_language',
-  exportDirectoryUri: 'lingora.export_directory_uri',
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
   hasSeeded: 'lingora.has_seeded',

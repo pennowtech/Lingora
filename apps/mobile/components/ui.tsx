@@ -82,8 +82,9 @@ export function Button(props: {
   small?: boolean
   disabled?: boolean
   style?: StyleProp<ViewStyle>
+  testID?: string
 }): JSX.Element {
-  const { label, onPress, variant = 'primary', icon, small, disabled, style } = props
+  const { label, onPress, variant = 'primary', icon, small, disabled, style, testID } = props
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const bg =
@@ -103,6 +104,7 @@ export function Button(props: {
 
   return (
     <Pressable
+      testID={testID}
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
@@ -526,6 +528,45 @@ export function EmptyState(props: {
   )
 }
 
+// ─── Alert modal ──────────────────────────────────────────────────────────────
+
+/**
+ * A centered popup for one-shot result notifications ("Export ready", "Import failed", "Could
+ * not save your changes") — the in-app replacement for `Alert.alert`, which renders as an OS
+ * native dialog on Android, visually inconsistent with the rest of the app's own modal styling
+ * (see the import-complete popup this mirrors). Deliberately single-button (`OK`/`onClose`) — for
+ * a real yes/no decision before a destructive action (delete/merge/etc.), the native `Alert.alert`
+ * confirm dialog is still the right tool, not this.
+ */
+export function AlertModal(props: {
+  visible: boolean
+  title: string
+  message: string
+  onClose: () => void
+  icon?: keyof typeof Ionicons.glyphMap
+  /** Defaults to "OK" — pass a translated label from the caller (ui.tsx components don't call
+   * `t()` themselves; see ExportFormatSheet's `title` prop for the same convention). */
+  closeLabel?: string
+}): JSX.Element {
+  const styles = useThemedStyles(createStyles)
+  return (
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onClose}>
+      <View style={styles.alertModalContainer}>
+        <Pressable style={styles.alertModalBackdrop} onPress={props.onClose} />
+        <View style={styles.alertModalCard}>
+          {props.icon ? <EmptyState icon={props.icon} title={props.title} message={props.message} /> : (
+            <>
+              <Text style={styles.alertModalTitle}>{props.title}</Text>
+              <Text style={styles.alertModalMessage}>{props.message}</Text>
+            </>
+          )}
+          <Button label={props.closeLabel ?? 'OK'} onPress={props.onClose} />
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
 export function ProgressBar(props: { progress: number }): JSX.Element {
@@ -768,4 +809,16 @@ const createStyles = (colors: ThemeColors) =>
     errorRetry: {
       marginTop: spacing.lg,
     },
+    alertModalContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    alertModalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
+    alertModalCard: {
+      width: '100%',
+      maxWidth: 400,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.md,
+    },
+    alertModalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    alertModalMessage: { fontSize: type.body, color: colors.textSecondary, lineHeight: 20 },
   })

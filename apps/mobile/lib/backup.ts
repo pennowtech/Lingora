@@ -12,7 +12,7 @@ import { logger } from '@lingora/observability'
 import Constants from 'expo-constants'
 import { File } from 'expo-file-system'
 import * as SecureStore from 'expo-secure-store'
-import { saveExportFile, type SaveOutcome } from './save-file'
+import { defaultExportFileName, saveExportFile, type SaveOutcome } from './save-file'
 import { STORE_KEYS } from './services'
 
 const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
@@ -44,29 +44,20 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
 }
 
 /**
- * `.lin` — the Lingora backup format's own extension. The content is still
- * plain JSON (`BackupPayload`, unchanged) — this is a naming/branding
- * decision (a backup is "a Lingora file", not "a JSON file" to the user),
- * not a new serialization. `.lin` has no registered system MIME type, so
- * the share sheet and file picker below use `application/octet-stream`
- * rather than `application/json`.
- */
-function backupFileName(exportedAt: number, deckName?: string): string {
-  const date = new Date(exportedAt).toISOString().slice(0, 10)
-  const slug = deckName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-  return slug ? `${slug}-${date}.lin` : `lingora-backup-${date}.lin`
-}
-
-/**
  * Builds the backup — the whole library, or (with `deckId`) just one deck's
  * own cards via `createDeckBackup`, export-only (a deck `.lin` has no
  * matching restore path, see `createDeckBackup`'s doc comment) — and saves
  * it (`saveExportFile` — a real folder picker on Android, the share sheet
- * elsewhere).
+ * elsewhere). `.lin` — the Lingora backup format's own extension. The
+ * content is still plain JSON (`BackupPayload`, unchanged) — this is a
+ * naming/branding decision (a backup is "a Lingora file", not "a JSON
+ * file" to the user), not a new serialization. `.lin` has no registered
+ * system MIME type, so the share sheet and file picker below use
+ * `application/octet-stream` rather than `application/json`.
  */
 export async function exportBackupToFile(
   db: DatabaseAdapter,
-  options: { deckId?: string; deckName?: string } = {},
+  options: { deckId?: string; deckName?: string; fileName?: string } = {},
 ): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const settings = await readBackupSettings()
   const appVersion = Constants.expoConfig?.version ?? 'unknown'
@@ -83,7 +74,7 @@ export async function exportBackupToFile(
   const itemCount = backup.tables.cards?.length ?? 0
 
   const outcome = await saveExportFile({
-    fileName: backupFileName(backup.exportedAt, options.deckName),
+    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lin`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
     dialogTitle: 'Save Lingora backup',

@@ -12,7 +12,9 @@ import { File, Paths } from 'expo-file-system'
 import { openDatabaseAsync } from 'expo-sqlite'
 import JSZip from 'jszip'
 import { exportBackupToFile } from './backup'
-import { saveExportFile, type SaveOutcome } from './save-file'
+import { defaultExportFileName, saveExportFile, type SaveOutcome } from './save-file'
+
+export { defaultExportFileName } from './save-file'
 
 const log = logger.child({ feature: 'export', component: 'export' })
 
@@ -21,15 +23,12 @@ export type ExportFormat = 'csv' | 'markdown' | 'apkg' | 'lin'
 export interface ExportOptions {
   /** Narrows to one deck's cards; omit for the whole library. */
   deckId?: string
-  /** Used for the file name and (apkg/markdown) the deck/title label. */
+  /** Used for the file name (when `fileName` isn't given) and (apkg/markdown) the deck/title label. */
   deckName?: string
-}
-
-function slug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'lingora'
+  /** Base file name (no extension) — from the export-name prompt the caller shows before running
+   * the export. Falls back to `defaultExportFileName(deckName)` when omitted (e.g. a caller that
+   * hasn't been wired up to the prompt yet). */
+  fileName?: string
 }
 
 /** Exports to CSV — the same columns `csv-import.ts` reads, so the file re-imports with zero remapping. */
@@ -38,7 +37,7 @@ export async function exportCsvToFile(db: DatabaseAdapter, options: ExportOption
   const itemCount = csv.trim().split('\r\n').length - 1
 
   const outcome = await saveExportFile({
-    fileName: `${slug(options.deckName ?? 'lingora')}-${Date.now()}.csv`,
+    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.csv`,
     mimeType: 'text/csv',
     content: { kind: 'utf8', text: csv },
     dialogTitle: 'Save CSV export',
@@ -56,7 +55,7 @@ export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportO
   const itemCount = (markdown.match(/^### /gm) ?? []).length
 
   const outcome = await saveExportFile({
-    fileName: `${slug(options.deckName ?? 'lingora')}-${Date.now()}.md`,
+    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.md`,
     mimeType: 'text/markdown',
     content: { kind: 'utf8', text: markdown },
     dialogTitle: 'Save Markdown export',
@@ -102,7 +101,7 @@ export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptio
     const zipBytes = await zip.generateAsync({ type: 'uint8array' })
 
     const outcome = await saveExportFile({
-      fileName: `${slug(deckName)}-${Date.now()}.apkg`,
+      fileName: `${options.fileName ?? defaultExportFileName(deckName)}.apkg`,
       mimeType: 'application/octet-stream',
       content: { kind: 'bytes', data: zipBytes },
       dialogTitle: 'Save Anki export',

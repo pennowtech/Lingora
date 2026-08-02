@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { migrate } from './migrations'
 import { createManualClozeCard, createManualWordCard } from './manual-card'
-import { createDeck } from './repositories/decks'
 import { getMeaningsForCard } from './repositories/clusters'
 import { getClozesForCard } from './repositories/cloze'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'

@@ -354,27 +354,26 @@ export default function AudioSettingsScreen(): JSX.Element {
             cloud={
               name !== 'device'
                 ? {
-                    state: cloudProviders[name as CloudAudioProviderName],
-                    showKey: showKey[name as CloudAudioProviderName] ?? false,
-                    validating: validating[name as CloudAudioProviderName] ?? false,
-                    validated: validated[name as CloudAudioProviderName] ?? false,
-                    testing: testingCloud[name as CloudAudioProviderName] ?? false,
-                    onToggleShowKey: () =>
-                      setShowKey((prev) => ({ ...prev, [name]: !prev[name as CloudAudioProviderName] })),
-                    onChangeApiKey: (value) => changeApiKey(name as CloudAudioProviderName, value),
-                    onChangeVoice: (value) => changeVoice(name as CloudAudioProviderName, value),
-                    onChangeSpeed: (value) => changeSpeed(name as CloudAudioProviderName, value),
-                    onValidate: () => validate(name as CloudAudioProviderName),
-                    onClearKey: () => clearKey(name as CloudAudioProviderName),
-                    onTest: () => testCloudProvider(name as CloudAudioProviderName),
+                    state: cloudProviders[name],
+                    showKey: showKey[name] ?? false,
+                    validating: validating[name] ?? false,
+                    validated: validated[name] ?? false,
+                    testing: testingCloud[name] ?? false,
+                    onToggleShowKey: () => setShowKey((prev) => ({ ...prev, [name]: !prev[name] })),
+                    onChangeApiKey: (value) => changeApiKey(name, value),
+                    onChangeVoice: (value) => changeVoice(name, value),
+                    onChangeSpeed: (value) => changeSpeed(name, value),
+                    onValidate: () => validate(name),
+                    onClearKey: () => clearKey(name),
+                    onTest: () => testCloudProvider(name),
                     ...(name in voiceOptionsQueries && {
                       voiceOptions: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].data ?? [],
                       voiceOptionsLoading: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].isFetching,
-                      voiceEntryMode: voiceEntryMode[name as CloudAudioProviderName],
+                      voiceEntryMode: voiceEntryMode[name],
                       onToggleVoiceEntryMode: () =>
                         setVoiceEntryMode((prev) => ({
                           ...prev,
-                          [name]: prev[name as CloudAudioProviderName] === 'manual' ? 'picker' : 'manual',
+                          [name]: prev[name] === 'manual' ? 'picker' : 'manual',
                         })),
                     }),
                   }
@@ -586,7 +585,7 @@ function AudioProviderCard(props: {
                 <Chip
                   key={voice}
                   label={OPENAI_RECOMMENDED_VOICES.includes(voice) ? `${voice} ★` : voice}
-                  selected={(props.cloud?.state.voice || 'marin') === voice}
+                  selected={(props.cloud?.state.voice ?? 'marin') === voice}
                   onPress={() => props.cloud?.onChangeVoice(voice)}
                 />
               ))}

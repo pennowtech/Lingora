@@ -113,9 +113,10 @@ export default function AddCardScreen(): JSX.Element {
           partOfSpeech: MANUAL_PART_OF_SPEECH,
           gender,
           meaning: meaning.trim(),
-          example: showExample ? example : undefined,
-          exampleTranslation: showExample ? exampleTranslation : undefined,
-          synonyms: showSynonyms ? synonymsText.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          ...(showExample && { example, exampleTranslation }),
+          ...(showSynonyms && {
+            synonyms: synonymsText.split(',').map((s) => s.trim()).filter(Boolean),
+          }),
           ...(showPhrases && { phraseExpression, phraseMeaning }),
           cefrLevel: defaultCefr,
         })
@@ -188,7 +189,6 @@ export default function AddCardScreen(): JSX.Element {
 
             {showExample ? (
               <>
-                <SectionHeader title={t('Example')} />
                 <Card style={styles.card}>
                   <View style={styles.labelRow}>
                     <Text style={styles.label}>{t('Example sentence')}</Text>
@@ -228,9 +228,8 @@ export default function AddCardScreen(): JSX.Element {
 
             {showSynonyms ? (
               <>
-                <SectionHeader title={t('Synonyms')} />
                 <Card style={styles.card}>
-                  <Text style={styles.label}>{t('Comma-separated')}</Text>
+                  <Text style={styles.label}>{t('Synonyms(Comma-separated)')}</Text>
                   <TextInput
                     testID="add-card-synonyms"
                     style={styles.input}

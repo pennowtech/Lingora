@@ -21,16 +21,16 @@ class FakeBackend implements CloudSyncBackend {
     return this.tables.get(tableName)?.get(recordId)
   }
 
-  async pullTable(tableName: BackupTableName): Promise<Record<string, RemoteRecord>> {
+  pullTable(tableName: BackupTableName): Promise<Record<string, RemoteRecord>> {
     const table = this.tables.get(tableName)
-    if (!table) return {}
-    return Object.fromEntries(table.entries())
+    return Promise.resolve(table ? Object.fromEntries(table.entries()) : {})
   }
 
-  async pushTable(tableName: BackupTableName, changes: readonly PushChange[]): Promise<void> {
+  pushTable(tableName: BackupTableName, changes: readonly PushChange[]): Promise<void> {
     const table = this.tables.get(tableName) ?? new Map<string, RemoteRecord>()
     for (const change of changes) table.set(change.recordId, { data: change.data })
     this.tables.set(tableName, table)
+    return Promise.resolve()
   }
 }
 

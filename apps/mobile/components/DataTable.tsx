@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native'
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -29,6 +29,9 @@ interface DataTableProps<T> {
   selection?: DataTableSelection<T>
   /** Adds a leading "#" column with the row's 1-based position. */
   showRowNumber?: boolean
+  /** Per-row background/border override, layered under the alternating-row tint — e.g.
+   * highlighting rows that share a word/lemma with another row in the same import preview. */
+  rowStyle?: (row: T) => ViewStyle | undefined
 }
 
 const SELECT_COLUMN_WIDTH = 48
@@ -42,7 +45,7 @@ const ROW_NUMBER_COLUMN_WIDTH = 40
  * is opt-in via `selection`, since the deck table is read-only and has none.
  */
 export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
-  const { columns, data, keyExtractor, selection, showRowNumber } = props
+  const { columns, data, keyExtractor, selection, showRowNumber, rowStyle } = props
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -76,7 +79,7 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
           initialNumToRender={20}
           removeClippedSubviews
           renderItem={({ item: row, index: rowIndex }) => (
-            <View style={[styles.row, rowIndex % 2 === 1 ? styles.rowAlt : null]}>
+            <View style={[styles.row, rowIndex % 2 === 1 ? styles.rowAlt : null, rowStyle?.(row)]}>
               {selection ? (
                 <Pressable
                   style={[styles.checkboxCell, { width: SELECT_COLUMN_WIDTH }]}

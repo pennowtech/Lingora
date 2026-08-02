@@ -29,7 +29,10 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { ExportNameModal } from '../../components/ExportNameModal'
 import {
+  AlertModal,
   Button,
   Card,
   EmptyState,
@@ -42,7 +45,7 @@ import {
 } from '../../components/ui'
 import { requestCloudSync, useCloudSync } from '../../lib/cloudSync'
 import { collectDescendantIds } from '../../lib/deckTree'
-import { runExport, type ExportFormat } from '../../lib/export'
+import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -95,10 +98,15 @@ export default function DecksScreen(): JSX.Element {
   const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
   const [importDeck, setImportDeck] = useState<Deck | null>(null)
   const [exportDeck, setExportDeck] = useState<Deck | null>(null)
+  const [exportPending, setExportPending] = useState<{ deck: Deck; format: ExportFormat } | null>(null)
+  const [exportNotice, setExportNotice] = useState<{ title: string; message: string } | null>(null)
   const [renameDeckTarget, setRenameDeckTarget] = useState<Deck | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [pickerDeck, setPickerDeck] = useState<Deck | null>(null)
   const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
+  const [actionMenuOpen, setActionMenuOpen] = useState(false)
+  const [addCardPickerOpen, setAddCardPickerOpen] = useState(false)
+  const [importPickerOpen, setImportPickerOpen] = useState(false)
 
   const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTree(db) })
   const allDecksQuery = useQuery({
@@ -130,6 +138,41 @@ export default function DecksScreen(): JSX.Element {
       setNewName('')
       setNewEmoji('')
       await invalidateDecks()
+    },
+  })
+
+  // Backs the "Add card" menu item's deck picker — creating a deck here (rather than reusing
+  // `create` above, which is wired to the "New deck" modal's own open/close state) goes straight
+  // on to the add-card screen instead of just closing the picker, since the whole point of this
+  // flow is getting a card written, not just having a deck to put it in later.
+  const createDeckForAddCard = useMutation({
+    mutationFn: async (name: string) => {
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      return id
+    },
+    onSuccess: async (id) => {
+      setAddCardPickerOpen(false)
+      await invalidateDecks()
+      router.push({ pathname: '/deck/add-card', params: { deckId: id } })
+    },
+  })
+
+  // Same shape as createDeckForAddCard, but for the "Import" menu item's deck picker — hands off
+  // to the existing showImport/ImportFormatSheet flow instead of the add-card screen.
+  const createDeckForImport = useMutation({
+    mutationFn: async (name: string) => {
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      const deck: Deck = { id, name, createdAt: now, updatedAt: now }
+      await createDeck(db, deck)
+      return deck
+    },
+    onSuccess: async (deck) => {
+      setImportPickerOpen(false)
+      await invalidateDecks()
+      showImport(deck)
     },
   })
 
@@ -262,17 +305,17 @@ export default function DecksScreen(): JSX.Element {
     })
   }
 
-  const runDeckExport = (deck: Deck, format: ExportFormat): void => {
-    runExport(db, format, { deckId: deck.id, deckName: deck.name })
+  const runDeckExport = (deck: Deck, format: ExportFormat, fileName: string): void => {
+    runExport(db, format, { deckId: deck.id, deckName: deck.name, fileName })
       .then(({ itemCount, outcome }) =>
-        Alert.alert(
-          t('Export ready'),
-          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
-        ),
+        setExportNotice({
+          title: t('Export ready'),
+          message: `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
+        }),
       )
       .catch((error: unknown) => {
         log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
-        Alert.alert(t('Export failed'), String(error))
+        setExportNotice({ title: t('Export failed'), message: String(error) })
       })
   }
 
@@ -281,10 +324,13 @@ export default function DecksScreen(): JSX.Element {
     setExportDeck(deck)
   }
 
+  // Picking a format opens the file-name prompt next, not the export itself — see
+  // ExportNameModal's doc comment for why that's a separate step from the native folder picker
+  // saveExportFile triggers once a name is confirmed.
   const handleExportSelect = (format: ExportFormat): void => {
     if (!exportDeck) return
+    setExportPending({ deck: exportDeck, format })
     setExportDeck(null)
-    runDeckExport(exportDeck, format)
   }
 
   const handleSyncNow = (): void => {
@@ -293,7 +339,7 @@ export default function DecksScreen(): JSX.Element {
         await invalidateDecks()
         Alert.alert(
           t('Synced'),
-          t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', summary),
+          t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', { ...summary }),
         )
       })
       .catch((error: unknown) => Alert.alert(t('Sync failed'), String(error)))
@@ -340,19 +386,85 @@ export default function DecksScreen(): JSX.Element {
         </ScrollView>
       )}
 
-      <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setCreateOpen(true)}>
+      <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setActionMenuOpen(true)}>
         <Ionicons name="add" size={28} color={colors.textOnPrimary} />
       </Pressable>
 
-      {/* ── New deck modal ── */}
-      <Modal visible={createOpen} animationType="slide" transparent onRequestClose={() => setCreateOpen(false)}>
+      {/* ── "+" action menu — add deck, add card, or import a file ── */}
+      <Modal visible={actionMenuOpen} animationType="fade" transparent onRequestClose={() => setActionMenuOpen(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setActionMenuOpen(false)} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <Button
+            testID="action-menu-add-deck"
+            label={t('Add deck')}
+            icon="albums-outline"
+            variant="secondary"
+            onPress={() => {
+              setActionMenuOpen(false)
+              setCreateOpen(true)
+            }}
+          />
+          <Button
+            testID="action-menu-add-card"
+            label={t('Add card')}
+            icon="add-circle-outline"
+            variant="secondary"
+            onPress={() => {
+              setActionMenuOpen(false)
+              setAddCardPickerOpen(true)
+            }}
+          />
+          <Button
+            testID="action-menu-import"
+            label={t('Import file')}
+            icon="download-outline"
+            variant="secondary"
+            onPress={() => {
+              setActionMenuOpen(false)
+              setImportPickerOpen(true)
+            }}
+          />
+        </View>
+      </Modal>
+
+      <DeckPickerModal
+        db={db}
+        visible={addCardPickerOpen}
+        onClose={() => setAddCardPickerOpen(false)}
+        title={t('Add card to which deck?')}
+        onSelectDeck={(deck) => {
+          setAddCardPickerOpen(false)
+          router.push({ pathname: '/deck/add-card', params: { deckId: deck.id } })
+        }}
+        onCreateDeck={(name) => createDeckForAddCard.mutate(name)}
+        creating={createDeckForAddCard.isPending}
+        {...(createDeckForAddCard.isError && { createError: String(createDeckForAddCard.error) })}
+      />
+
+      <DeckPickerModal
+        db={db}
+        visible={importPickerOpen}
+        onClose={() => setImportPickerOpen(false)}
+        title={t('Import into which deck?')}
+        onSelectDeck={(deck) => {
+          setImportPickerOpen(false)
+          showImport(deck)
+        }}
+        onCreateDeck={(name) => createDeckForImport.mutate(name)}
+        creating={createDeckForImport.isPending}
+        {...(createDeckForImport.isError && { createError: String(createDeckForImport.error) })}
+      />
+
+      {/* ── New deck modal — a centered dialog, not a bottom sheet, since it's reached from the
+          "+" action menu rather than a specific deck's own context ── */}
+      <Modal visible={createOpen} animationType="fade" transparent onRequestClose={() => setCreateOpen(false)}>
         <KeyboardAvoidingView
-          style={styles.modalKeyboardAvoider}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.centerModalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <Pressable style={styles.modalBackdropAbsolute} onPress={() => setCreateOpen(false)} />
-          <View style={styles.modalSheet}>
-            <View style={styles.modalHandle} />
+          <View style={styles.centerModalCard}>
             <Text style={styles.modalTitle}>{t('New deck')}</Text>
             <TextInput
               testID="new-deck-name-input"
@@ -372,12 +484,15 @@ export default function DecksScreen(): JSX.Element {
               maxLength={4}
             />
             {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
-            <Button
-              label={create.isPending ? t('Creating…') : t('Create deck')}
-              icon="add"
-              disabled={create.isPending}
-              onPress={() => create.mutate()}
-            />
+            <View style={styles.centerModalActions}>
+              <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
+              <Button
+                label={create.isPending ? t('Creating…') : t('Create deck')}
+                icon="add"
+                disabled={create.isPending}
+                onPress={() => create.mutate()}
+              />
+            </View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -435,7 +550,7 @@ export default function DecksScreen(): JSX.Element {
       >
         <KeyboardAvoidingView
           style={styles.modalKeyboardAvoider}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <Pressable style={styles.modalBackdropAbsolute} onPress={() => setRenameDeckTarget(null)} />
           <View style={styles.modalSheet}>
@@ -529,6 +644,24 @@ export default function DecksScreen(): JSX.Element {
         onSelect={handleExportSelect}
         {...(exportDeck && { title: t('Export "{{name}}"', { name: exportDeck.name }) })}
       />
+
+      <ExportNameModal
+        visible={exportPending !== null}
+        defaultName={defaultExportFileName(exportPending?.deck.name)}
+        onCancel={() => setExportPending(null)}
+        onConfirm={(fileName) => {
+          const pending = exportPending
+          setExportPending(null)
+          if (pending) runDeckExport(pending.deck, pending.format, fileName)
+        }}
+      />
+
+      <AlertModal
+        visible={exportNotice !== null}
+        title={exportNotice?.title ?? ''}
+        message={exportNotice?.message ?? ''}
+        onClose={() => setExportNotice(null)}
+      />
     </View>
   )
 }
@@ -612,6 +745,16 @@ const createStyles = (colors: ThemeColors) =>
     shadowOffset: { width: 0, height: 4 },
   },
   modalKeyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
+  centerModalKeyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+  centerModalCard: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    gap: spacing.md,
+  },
+  centerModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
   // Absolutely positioned (rather than flex: 1, like the plain `modalBackdrop` other modals in
   // this file use) because it now sits inside a KeyboardAvoidingView laid out with
   // justifyContent: 'flex-end' — the backdrop needs to fill behind the sheet, not push it, so the

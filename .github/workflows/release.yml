@@ -1,0 +1,49 @@
+name: Release
+
+# Deliberately tag-only: this repo has no CI on every push/PR yet, so the first version of this
+# pipeline runs only for an explicit release moment (`git tag vX.Y.Z && git push --tags`), not on
+# every commit. Versioning starts at v0.1.0 — see package.json/app.json across the repo.
+#
+# The actual Android build isn't here — it runs natively on Expo's own infrastructure via
+# .eas/workflows/build.yml (the repo is linked through the Expo GitHub App), triggered by the same
+# tag push, no EXPO_TOKEN required. This workflow is just the lint/typecheck/test gate.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  verify:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - name: Typecheck packages
+        run: |
+          ./node_modules/.bin/tsc -p packages/types/tsconfig.json --noEmit
+          ./node_modules/.bin/tsc -p packages/database/tsconfig.json --noEmit
+          ./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit
+          ./node_modules/.bin/tsc -p packages/observability/tsconfig.json --noEmit
+          ./node_modules/.bin/tsc -p packages/srs/tsconfig.json --noEmit
+
+      - name: Typecheck mobile app
+        run: pnpm --filter @lingora/mobile run typecheck
+
+      - name: Test packages
+        run: |
+          pnpm --filter @lingora/ai run test
+          pnpm --filter @lingora/database run test
+          pnpm --filter @lingora/observability run test
+          pnpm --filter @lingora/srs run test

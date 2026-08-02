@@ -6,9 +6,10 @@ import { router } from 'expo-router'
 import { useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Card, SectionHeader } from '../../components/ui'
+import { AlertModal, Card, SectionHeader } from '../../components/ui'
+import { ExportNameModal } from '../../components/ExportNameModal'
 import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile } from '../../lib/backup'
-import { runExport, type ExportFormat } from '../../lib/export'
+import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -84,6 +85,10 @@ export default function ImportExportScreen(): JSX.Element {
   const [restoring, setRestoring] = useState(false)
   const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(null)
   const [expanded, setExpanded] = useState<Set<OptionId>>(new Set())
+  const [exportPending, setExportPending] = useState<{ kind: 'format'; format: ExportFormat } | { kind: 'backup' } | null>(
+    null,
+  )
+  const [exportNotice, setExportNotice] = useState<{ title: string; message: string } | null>(null)
 
   const toggle = (id: OptionId): void => {
     setExpanded((prev) => {
@@ -94,39 +99,43 @@ export default function ImportExportScreen(): JSX.Element {
     })
   }
 
-  const handleFormatExport = (format: ExportFormat): void => {
+  const runFormatExport = (format: ExportFormat, fileName: string): void => {
     setExportingFormat(format)
     log.info('export.format_export_pressed', { message: 'User pressed a whole-library format export button' })
-    runExport(db, format, { deckName: 'Lingora vocabulary' })
+    runExport(db, format, { deckName: 'Lingora vocabulary', fileName })
       .then(({ itemCount, outcome }) => {
-        Alert.alert(
-          t('Export ready'),
-          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
-        )
+        setExportNotice({
+          title: t('Export ready'),
+          message: `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
+        })
       })
       .catch((error: unknown) => {
         log.error('export.format_export_failed', error, { message: 'Whole-library format export failed' })
-        Alert.alert(t('Export failed'), String(error))
+        setExportNotice({ title: t('Export failed'), message: String(error) })
       })
       .finally(() => setExportingFormat(null))
   }
 
-  const handleExport = (): void => {
+  const runBackupExport = (fileName: string): void => {
     setExporting(true)
     log.info('export.backup_button_pressed', { message: 'User pressed "Export everything"' })
-    exportBackupToFile(db)
+    exportBackupToFile(db, { fileName })
       .then(({ itemCount, outcome }) => {
-        Alert.alert(
-          t('Backup ready'),
-          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
-        )
+        setExportNotice({
+          title: t('Backup ready'),
+          message: `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
+        })
       })
       .catch((error: unknown) => {
         log.error('export.backup_failed', error, { message: 'Backup export failed' })
-        Alert.alert(t('Export failed'), String(error))
+        setExportNotice({ title: t('Export failed'), message: String(error) })
       })
       .finally(() => setExporting(false))
   }
+
+  // Both export paths open the file-name prompt first — see decks.tsx's identical pattern.
+  const handleFormatExport = (format: ExportFormat): void => setExportPending({ kind: 'format', format })
+  const handleExport = (): void => setExportPending({ kind: 'backup' })
 
   const handleRestore = (): void => {
     log.info('import.restore_button_pressed', { message: 'User pressed "Restore from backup"' })
@@ -311,6 +320,26 @@ export default function ImportExportScreen(): JSX.Element {
           <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? t('Exporting…') : t('Export as Markdown')}</Text>
         </Pressable>
       </OptionAccordion>
+
+      <ExportNameModal
+        visible={exportPending !== null}
+        defaultName={defaultExportFileName('Lingora vocabulary')}
+        onCancel={() => setExportPending(null)}
+        onConfirm={(fileName) => {
+          const pending = exportPending
+          setExportPending(null)
+          if (!pending) return
+          if (pending.kind === 'backup') runBackupExport(fileName)
+          else runFormatExport(pending.format, fileName)
+        }}
+      />
+
+      <AlertModal
+        visible={exportNotice !== null}
+        title={exportNotice?.title ?? ''}
+        message={exportNotice?.message ?? ''}
+        onClose={() => setExportNotice(null)}
+      />
     </ScrollView>
   )
 }

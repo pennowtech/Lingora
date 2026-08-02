@@ -2,10 +2,8 @@ import { logger } from '@lingora/observability'
 import { fromByteArray } from 'base64-js'
 import { File, Paths } from 'expo-file-system'
 import { EncodingType, StorageAccessFramework } from 'expo-file-system/legacy'
-import * as SecureStore from 'expo-secure-store'
 import * as Sharing from 'expo-sharing'
 import { Platform } from 'react-native'
-import { STORE_KEYS } from './services'
 
 const log = logger.child({ feature: 'export', component: 'save-file' })
 
@@ -21,24 +19,26 @@ export interface SaveFileOptions {
 
 export type SaveOutcome = 'device' | 'share'
 
-/**
- * Gets a directory the app can write into via Android's Storage Access
- * Framework, prompting the user to pick one (a real native folder browser —
- * "Save As", not a share sheet) the first time and reusing the granted URI
- * afterward. `forcePrompt` re-asks even if a URI is already stored, for
- * when a previously granted directory's permission has been revoked (e.g.
- * the user uninstalled/reinstalled, or manually revoked it in Android
- * settings) and a write against the stale URI just failed.
- */
-async function getExportDirectoryUri(forcePrompt: boolean): Promise<string | null> {
-  if (!forcePrompt) {
-    const stored = await SecureStore.getItemAsync(STORE_KEYS.exportDirectoryUri)
-    if (stored) return stored
-  }
-  const result = await StorageAccessFramework.requestDirectoryPermissionsAsync()
-  if (!result.granted) return null
-  await SecureStore.setItemAsync(STORE_KEYS.exportDirectoryUri, result.directoryUri)
-  return result.directoryUri
+function slug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'lingora'
+}
+
+/** `YYYY-MM-DD_HHmm` in local time — filesystem-safe (no colons) and sorts chronologically. */
+function timestampForFileName(date: Date = new Date()): string {
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `_${pad(date.getHours())}${pad(date.getMinutes())}`
+  )
+}
+
+/** `deckname_YYYY-MM-DD_HHmm` — the default name offered in the export-name prompt (see
+ * ExportNameModal), editable before the export actually runs. */
+export function defaultExportFileName(deckName?: string): string {
+  return `${slug(deckName ?? 'lingora')}_${timestampForFileName()}`
 }
 
 /** SAF's writeAsStringAsync only takes a string — bytes go through base64 (no Hermes atob/btoa dependency). */
@@ -69,38 +69,27 @@ async function saveViaShareSheet(options: SaveFileOptions): Promise<SaveOutcome>
 }
 
 /**
- * Saves an export directly to a user-chosen folder via Android's Storage
- * Access Framework (a real native "browse and pick a folder" dialog — what
- * "export this deck" is expected to feel like, not a share-to-an-app
- * picker), falling back to the OS share sheet on iOS (no SAF there — the
- * share sheet's own "Save to Files" is the iOS equivalent) or if the user
- * declines the one-time Android folder permission prompt.
+ * Saves an export directly to a user-chosen folder via Android's Storage Access Framework (a real
+ * native "browse and pick a folder" dialog — what "export this deck" is expected to feel like,
+ * not a share-to-an-app picker), falling back to the OS share sheet on iOS (no SAF there — the
+ * share sheet's own "Save to Files" is the iOS equivalent) or if the user declines the folder
+ * permission prompt. Deliberately re-prompts for a folder on every single export rather than
+ * reusing a previously granted one — the file name is already chosen fresh per export (see
+ * ExportNameModal/defaultExportFileName), and the location should be too.
  */
 export async function saveExportFile(options: SaveFileOptions): Promise<SaveOutcome> {
   if (Platform.OS !== 'android') {
     return saveViaShareSheet(options)
   }
 
-  let directoryUri = await getExportDirectoryUri(false)
-  if (!directoryUri) {
+  const result = await StorageAccessFramework.requestDirectoryPermissionsAsync()
+  if (!result.granted) {
     log.info('export.save_folder_declined', { message: 'User did not grant a save folder — falling back to the share sheet' })
     return saveViaShareSheet(options)
   }
 
-  try {
-    const fileUri = await StorageAccessFramework.createFileAsync(directoryUri, options.fileName, options.mimeType)
-    await writeContent(fileUri, options.content)
-    log.info('export.saved_to_device', { message: 'Export saved directly to a user-chosen folder' })
-    return 'device'
-  } catch (error) {
-    log.warn('export.save_retry_with_new_folder', {
-      message: 'Writing to the previously granted folder failed — re-prompting for a folder',
-    })
-    void error
-    directoryUri = await getExportDirectoryUri(true)
-    if (!directoryUri) return saveViaShareSheet(options)
-    const fileUri = await StorageAccessFramework.createFileAsync(directoryUri, options.fileName, options.mimeType)
-    await writeContent(fileUri, options.content)
-    return 'device'
-  }
+  const fileUri = await StorageAccessFramework.createFileAsync(result.directoryUri, options.fileName, options.mimeType)
+  await writeContent(fileUri, options.content)
+  log.info('export.saved_to_device', { message: 'Export saved directly to a user-chosen folder' })
+  return 'device'
 }

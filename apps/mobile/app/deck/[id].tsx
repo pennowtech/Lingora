@@ -24,6 +24,7 @@ import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
+  AlertModal,
   Button,
   Card,
   CefrBadge,
@@ -35,8 +36,9 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
+import { ExportNameModal } from '../../components/ExportNameModal'
 import { collectDescendantIds } from '../../lib/deckTree'
-import { runExport, type ExportFormat } from '../../lib/export'
+import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -80,6 +82,8 @@ export default function DeckDetailScreen(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
   const [importSheetOpen, setImportSheetOpen] = useState(false)
   const [exportSheetOpen, setExportSheetOpen] = useState(false)
+  const [exportPending, setExportPending] = useState<ExportFormat | null>(null)
+  const [exportNotice, setExportNotice] = useState<{ title: string; message: string } | null>(null)
   const [renameOpen, setRenameOpen] = useState(false)
   const [renameValue, setRenameValue] = useState('')
   // 'move' re-parents this deck (nesting); 'merge' folds this deck's cards
@@ -267,18 +271,18 @@ export default function DeckDetailScreen(): JSX.Element {
     })
   }
 
-  const runDeckExport = (format: ExportFormat): void => {
+  const runDeckExport = (format: ExportFormat, fileName: string): void => {
     if (!deckQuery.data) return
-    runExport(db, format, { deckId: id, deckName: deckQuery.data.deck.name })
+    runExport(db, format, { deckId: id, deckName: deckQuery.data.deck.name, fileName })
       .then(({ itemCount, outcome }) =>
-        Alert.alert(
-          t('Export ready'),
-          `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
-        ),
+        setExportNotice({
+          title: t('Export ready'),
+          message: `${t('Exported {{count}} cards.', { count: itemCount.toLocaleString() })}${outcome === 'device' ? ` ${t('Saved to the folder you chose.')}` : ` ${t('Choose where to save it.')}`}`,
+        }),
       )
       .catch((error: unknown) => {
         log.error('export.deck_export_failed', error, { message: 'Deck export failed' })
-        Alert.alert(t('Export failed'), String(error))
+        setExportNotice({ title: t('Export failed'), message: String(error) })
       })
   }
 
@@ -287,9 +291,10 @@ export default function DeckDetailScreen(): JSX.Element {
     setExportSheetOpen(true)
   }
 
+  // Picking a format opens the file-name prompt next — see decks.tsx's identical handler.
   const handleExportSelect = (format: ExportFormat): void => {
     setExportSheetOpen(false)
-    runDeckExport(format)
+    setExportPending(format)
   }
 
   if (deckQuery.isPending) {
@@ -603,6 +608,24 @@ export default function DeckDetailScreen(): JSX.Element {
         onClose={() => setExportSheetOpen(false)}
         onSelect={handleExportSelect}
         title={t('Export "{{name}}"', { name: deck.name })}
+      />
+
+      <ExportNameModal
+        visible={exportPending !== null}
+        defaultName={defaultExportFileName(deck.name)}
+        onCancel={() => setExportPending(null)}
+        onConfirm={(fileName) => {
+          const format = exportPending
+          setExportPending(null)
+          if (format) runDeckExport(format, fileName)
+        }}
+      />
+
+      <AlertModal
+        visible={exportNotice !== null}
+        title={exportNotice?.title ?? ''}
+        message={exportNotice?.message ?? ''}
+        onClose={() => setExportNotice(null)}
       />
     </>
   )

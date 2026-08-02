@@ -3,19 +3,21 @@ import {
   buildApkgImportPreview,
   createDeck,
   dominantNoteType,
-  getAllDecks,
+  getDeckById,
+  getDecksForLemma,
   importApkgNotes,
   stripAnkiHtml,
 } from '@lingora/database'
 import type { AnkiDeckInfo, AnkiNote, AnkiNoteType } from '@lingora/database'
 import { logger } from '@lingora/observability'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { DataTable, type DataTableColumn } from '../../components/DataTable'
-import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, ProgressBar, Spinner } from '../../components/ui'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { Button, Card, Chip, Dropdown, EmptyState, ProgressBar } from '../../components/ui'
 import { pickAndParseApkgFile } from '../../lib/apkg'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -51,10 +53,16 @@ const FIELDS_BY_CARD_TYPE: Record<'basic' | 'cloze', ApkgField[]> = {
   basic: ['word', 'meaning', 'example', 'exampleTranslation', 'synonyms'],
   cloze: ['word', 'meaning', 'cloze', 'exampleTranslation', 'synonyms'],
 }
+// See REQUIRED_FIELDS_BY_CARD_TYPE's doc comment in csv-import.tsx, the same reasoning applies here.
+const REQUIRED_FIELDS_BY_CARD_TYPE: Record<'basic' | 'cloze', ApkgField[]> = {
+  basic: ['word', 'meaning'],
+  cloze: ['cloze'],
+}
 
+// 'merge' is still a supported DuplicatePolicy value in the database layer, but not offered here
+// — see the same note in csv-import.tsx's DUPLICATE_POLICIES.
 const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
-  { value: 'merge', label: 'Merge', hint: 'Add this as another meaning on the existing card.' },
   { value: 'duplicate', label: 'Keep both', hint: 'Add a second, separate card for the same word.' },
 ]
 
@@ -64,31 +72,57 @@ const STATUS_COLOR: Record<ApkgRowPreview['status'], string> = {
   error: colors.danger,
 }
 
-const TABLE_COLUMNS: DataTableColumn<ApkgRowPreview>[] = [
-  { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
-  { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
-  { label: 'Cloze', width: 220, cell: (p) => p.cloze ?? '—' },
-  { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
-  { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
-  { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
-  // Tags aren't mappable (no dropdown for them) but come free from the Anki note's own tags — still worth showing.
-  { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
-  {
-    label: 'Status',
-    width: 100,
-    cell: (p) => p.status,
-    cellStyle: (p) => ({ color: STATUS_COLOR[p.status], fontWeight: '700' }),
-  },
-  {
-    label: 'Issues',
-    width: 260,
-    cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
-    cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
-  },
-]
+// See buildTableColumns's doc comment in csv-import.tsx for the always-shown-vs-mapped-only
+// reasoning. Tags aren't mappable (no dropdown for them) but come free from the Anki note's own
+// tags — like Existing deck/Status/Issues, not a field-mapping column, so unconditional too.
+function buildTableColumns(
+  existingDeckNames: Map<string, string[]>,
+  mapping: ApkgFieldMapping,
+): DataTableColumn<ApkgRowPreview>[] {
+  return [
+    { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
+    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+    ...(mapping.cloze !== undefined
+      ? [{ label: 'Cloze', width: 220, cell: (p: ApkgRowPreview) => p.cloze ?? '—' }]
+      : []),
+    ...(mapping.example !== undefined
+      ? [{ label: 'Example', width: 220, cell: (p: ApkgRowPreview) => p.example ?? '—' }]
+      : []),
+    ...(mapping.exampleTranslation !== undefined
+      ? [{ label: 'Example translation', width: 220, cell: (p: ApkgRowPreview) => p.exampleTranslation ?? '—' }]
+      : []),
+    ...(mapping.synonyms !== undefined
+      ? [
+          {
+            label: 'Synonyms',
+            width: 160,
+            cell: (p: ApkgRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—'),
+          },
+        ]
+      : []),
+    { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
+    {
+      label: 'Existing deck',
+      width: 160,
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+    },
+    {
+      label: 'Status',
+      width: 100,
+      cell: (p) => p.status,
+      cellStyle: (p) => ({ color: STATUS_COLOR[p.status], fontWeight: '700' }),
+    },
+    {
+      label: 'Issues',
+      width: 260,
+      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
+      cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
+    },
+  ]
+}
 const SAMPLE_COLUMN_WIDTH = 160
 
-type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
+type Step = 'pick' | 'map' | 'preview'
 
 /**
  * Anki `.apkg` import. Field mapping is positional and shared across every
@@ -112,11 +146,12 @@ export default function ApkgImportScreen(): JSX.Element {
   const [noteTypes, setNoteTypes] = useState<AnkiNoteType[]>([])
   const [mapping, setMapping] = useState<ApkgFieldMapping>({})
   const [deckId, setDeckId] = useState<string | null>(params.deckId ?? null)
-  const [newDeckOpen, setNewDeckOpen] = useState(false)
-  const [newDeckName, setNewDeckName] = useState('')
+  const [deckName, setDeckName] = useState<string | null>(null)
+  const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [duplicatePolicy, setDuplicatePolicy] = useState<DuplicatePolicy>('skip')
   const [cardType, setCardType] = useState<'basic' | 'cloze'>('basic')
   const [previews, setPreviews] = useState<ApkgRowPreview[]>([])
+  const [existingDeckNames, setExistingDeckNames] = useState<Map<string, string[]>>(new Map())
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -126,8 +161,6 @@ export default function ApkgImportScreen(): JSX.Element {
   )
   const cancelRequested = useRef(false)
 
-  const decksQuery = useQuery({ queryKey: ['decks'], queryFn: () => getAllDecks(db) })
-
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
       const trimmed = name.trim()
@@ -135,12 +168,12 @@ export default function ApkgImportScreen(): JSX.Element {
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
-      return id
+      return { id, name: trimmed }
     },
-    onSuccess: async (id) => {
+    onSuccess: async ({ id, name }) => {
       setDeckId(id)
-      setNewDeckOpen(false)
-      setNewDeckName('')
+      setDeckName(name)
+      setDeckPickerOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
@@ -166,11 +199,12 @@ export default function ApkgImportScreen(): JSX.Element {
     return name && name.length > 0 ? name : t('Field {{n}}', { n: index + 1 })
   }
 
-  // A word field is no longer strictly required — a Cloze note can map only
-  // Example, and word/meaning get derived from the cloze markup. But
-  // *something* has to be mapped, or every row is empty.
+  // See csv-import.tsx's identical canBuildPreview for why the required field depends on cardType.
   const canBuildPreview =
-    deckId !== null && (mapping.word !== undefined || mapping.example !== undefined || mapping.cloze !== undefined)
+    deckId !== null &&
+    (cardType === 'basic'
+      ? mapping.word !== undefined && mapping.meaning !== undefined
+      : mapping.cloze !== undefined)
 
   const handlePickFile = (): void => {
     setPickError(null)
@@ -209,8 +243,40 @@ export default function ApkgImportScreen(): JSX.Element {
     if (autoPicked.current) return
     autoPicked.current = true
     handlePickFile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Reached with a deckId already in the route params (the deck detail screen's "Import into
+  // this deck" menu) — the id alone isn't enough to show a deck name, so fetch it once.
+  useEffect(() => {
+    if (!params.deckId) return
+    void getDeckById(db, params.deckId).then((deck) => {
+      if (deck) setDeckName(deck.name)
+    })
+  }, [params.deckId, db])
+
+  // True for exactly as long as an import is in flight — progress is set at the start of
+  // handleConfirmImport and result at the end, so this window is what drives both the popup's
+  // progress-vs-result content and the back-navigation block below.
+  const importing = progress !== null && result === null
+
+  // See csv-import.tsx's identical effect for why: the native header back button otherwise pops
+  // this whole screen regardless of wizard step. Blocked outright while `importing` so a mid-write
+  // navigation can't happen; let through once `result` is set so the import-complete popup's "OK"
+  // button (which also just calls router.back()) can actually leave.
+  const navigation = useNavigation()
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (importing) {
+        e.preventDefault()
+        return
+      }
+      if (step === 'pick' || result !== null) return
+      e.preventDefault()
+      if (step === 'preview') setStep('map')
+      else if (step === 'map') handleStartOver()
+    })
+    return unsubscribe
+  }, [navigation, step, result, importing])
 
   const setField = (fieldName: ApkgField, index: number | null): void => {
     setMapping((prev) => {
@@ -237,7 +303,7 @@ export default function ApkgImportScreen(): JSX.Element {
     setPreviewLoading(true)
     log.info('import.apkg_preview_started', { message: 'Building Anki import preview' })
     buildApkgImportPreview(db, notes, { mapping, language: targetLanguage, cardType })
-      .then((built) => {
+      .then(async (built) => {
         setPreviews(built)
         // Checked by default: importable rows, and duplicates too (the
         // chosen duplicate-handling policy decides what happens to them —
@@ -245,6 +311,12 @@ export default function ApkgImportScreen(): JSX.Element {
         // errors (missing word/meaning) start unchecked since there's
         // nothing valid to import yet.
         setCheckedIds(new Set(built.filter((p) => p.status !== 'error').map((p) => p.noteId)))
+
+        // Which deck(s) already have a duplicate row's word — see csv-import.tsx's identical block.
+        const lemmaIds = [...new Set(built.map((p) => p.existingLemmaId).filter((id) => id !== null))]
+        const decksByLemma = await Promise.all(lemmaIds.map((id) => getDecksForLemma(db, id)))
+        setExistingDeckNames(new Map(lemmaIds.map((id, i) => [id, decksByLemma[i]!.map((d) => d.name)])))
+
         setStep('preview')
       })
       .catch((error: unknown) => {
@@ -259,6 +331,25 @@ export default function ApkgImportScreen(): JSX.Element {
     const error = previews.filter((p) => p.status === 'error').length
     return { duplicate, error }
   }, [previews])
+
+  // Rows sharing a word with another row in THIS collection, not just a word already in the
+  // library — see csv-import.tsx's sameWordRowIndexes for why this needs its own pass instead of
+  // relying on `status`.
+  const sameWordNoteIds = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of previews) {
+      if (!p.word) continue
+      const key = p.word.toLowerCase()
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    const ids = new Set<number>()
+    for (const p of previews) {
+      if (p.word && (counts.get(p.word.toLowerCase()) ?? 0) > 1) ids.add(p.noteId)
+    }
+    return ids
+  }, [previews])
+
+  const tableColumns = useMemo(() => buildTableColumns(existingDeckNames, mapping), [existingDeckNames, mapping])
 
   // "Will import" has to reflect what pressing Import actually does: every
   // *checked* row that isn't a hard error, since a checked 'duplicate' row
@@ -297,7 +388,6 @@ export default function ApkgImportScreen(): JSX.Element {
     const toImport = previews.filter((p) => checkedIds.has(p.noteId))
     cancelRequested.current = false
     setProgress({ done: 0, total: toImport.length })
-    setStep('importing')
     log.info('import.apkg_import_confirmed', {
       message: 'User confirmed Anki import',
       metadata: { itemCount: toImport.length },
@@ -310,13 +400,15 @@ export default function ApkgImportScreen(): JSX.Element {
     })
       .then(async (outcome) => {
         setResult(outcome)
-        setStep('done')
         await queryClient.invalidateQueries()
       })
       .catch((error: unknown) => {
         log.error('import.apkg_import_failed', error, { message: 'Anki import failed' })
         Alert.alert(t('Import failed'), String(error))
-        setStep('preview')
+        // Reset progress (not just leave it stale) — `importing` derives from progress !== null &&
+        // result === null, and result stays null on failure, so without this the popup would
+        // stay stuck showing "Importing…" forever instead of closing back to the preview table.
+        setProgress(null)
       })
   }
 
@@ -328,6 +420,7 @@ export default function ApkgImportScreen(): JSX.Element {
     setNoteTypes([])
     setMapping({})
     setPreviews([])
+    setExistingDeckNames(new Map())
     setCheckedIds(new Set())
     setResult(null)
     setProgress(null)
@@ -347,13 +440,30 @@ export default function ApkgImportScreen(): JSX.Element {
               <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
+
+          <Card style={styles.card}>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
+            <View style={styles.chipRow}>
+              {DUPLICATE_POLICIES.map((policy) => (
+                <Chip
+                  key={policy.value}
+                  label={t(policy.label)}
+                  selected={duplicatePolicy === policy.value}
+                  onPress={() => setDuplicatePolicy(policy.value)}
+                />
+              ))}
+            </View>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+          </Card>
         </View>
 
         <DataTable
-          columns={TABLE_COLUMNS}
+          columns={tableColumns}
           data={previews}
           keyExtractor={(preview) => String(preview.noteId)}
           showRowNumber
+          rowStyle={(preview) => (sameWordNoteIds.has(preview.noteId) ? styles.sameWordRow : undefined)}
           selection={{
             isSelected: (preview) => checkedIds.has(preview.noteId),
             onToggle: (preview) => toggleChecked(preview.noteId),
@@ -363,13 +473,59 @@ export default function ApkgImportScreen(): JSX.Element {
         />
 
         <View style={styles.actions}>
-          <Button label={t('Back')} variant="ghost" onPress={() => setStep('map')} />
           <Button
-            label={t('Import {{count}} rows', { count: checkedCount.toLocaleString() })}
+            label={t('Import {{count}} rows', { count: willImportCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
         </View>
+
+        {/* ── One popup covers both "importing" and "done" — no second modal/screen, just this
+            one's content swapping from progress to result once `result` is set ── */}
+        <Modal
+          visible={importing || result !== null}
+          animationType="fade"
+          transparent
+          onRequestClose={() => (result !== null ? router.back() : undefined)}
+        >
+          <View style={styles.centerModalContainer}>
+            <View style={styles.centerModalCard}>
+              {result === null ? (
+                <>
+                  <Text style={styles.title}>{t('Importing…')}</Text>
+                  <Text style={styles.body}>
+                    {t('{{done}} of {{total}} notes', {
+                      done: (progress?.done ?? 0).toLocaleString(),
+                      total: (progress?.total ?? 0).toLocaleString(),
+                    })}
+                  </Text>
+                  <ProgressBar progress={progress && progress.total > 0 ? progress.done / progress.total : 0} />
+                  <Button
+                    label={t('Cancel')}
+                    variant="ghost"
+                    onPress={() => {
+                      cancelRequested.current = true
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <EmptyState
+                    icon="checkmark-circle"
+                    title={result.cancelled ? t('Import canceled') : t('Import complete')}
+                    message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
+                  />
+                  <View style={styles.summaryRow}>
+                    <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+                    <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+                    <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
+                  </View>
+                  <Button label={t('OK')} onPress={() => router.back()} />
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }
@@ -442,11 +598,16 @@ export default function ApkgImportScreen(): JSX.Element {
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('Field mapping')}</Text>
             <Text style={styles.hint}>
-              {t("Everything is optional. Leave Word/Meaning unmapped for Cloze notes — they're derived from the example's cloze markup and its translation.")}
+              {cardType === 'basic'
+                ? t('Word and Meaning are required. Everything else is optional.')
+                : t('Cloze sentence is required — it must contain {{c1::word}} markup. Everything else is optional.')}
             </Text>
             {FIELDS_BY_CARD_TYPE[cardType].map((fieldName) => (
               <View key={fieldName} style={styles.mappingRow}>
-                <Text style={styles.mappingLabel}>{fieldName === 'cloze' ? FIELD_LABELS[fieldName] : t(FIELD_LABELS[fieldName])}</Text>
+                <Text style={styles.mappingLabel}>
+                  {fieldName === 'cloze' ? FIELD_LABELS[fieldName] : t(FIELD_LABELS[fieldName])}
+                  {REQUIRED_FIELDS_BY_CARD_TYPE[cardType].includes(fieldName) ? ' *' : ''}
+                </Text>
                 <Dropdown
                   label={fieldName === 'cloze' ? FIELD_LABELS[fieldName] : t(FIELD_LABELS[fieldName])}
                   placeholder={t('None')}
@@ -460,39 +621,16 @@ export default function ApkgImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
-            {decksQuery.isPending ? (
-              <Spinner />
-            ) : decksQuery.isError ? (
-              <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-            ) : (
-              <View style={styles.chipRow}>
-                {(decksQuery.data ?? []).map((deck) => (
-                  <Chip key={deck.id} label={deck.name} selected={deckId === deck.id} onPress={() => setDeckId(deck.id)} />
-                ))}
-                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
-              </View>
-            )}
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
-            <View style={styles.chipRow}>
-              {DUPLICATE_POLICIES.map((policy) => (
-                <Chip
-                  key={policy.value}
-                  label={t(policy.label)}
-                  selected={duplicatePolicy === policy.value}
-                  onPress={() => setDuplicatePolicy(policy.value)}
-                />
-              ))}
-            </View>
-            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+            <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
+            <Button
+              label={deckName ?? t('Choose a deck')}
+              icon="albums-outline"
+              variant="secondary"
+              onPress={() => setDeckPickerOpen(true)}
+            />
           </Card>
 
           <View style={styles.actions}>
-            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
               label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
@@ -502,62 +640,20 @@ export default function ApkgImportScreen(): JSX.Element {
         </>
       ) : null}
 
-      {step === 'importing' && progress ? (
-        <Card style={styles.card}>
-          <Text style={styles.title}>{t('Importing…')}</Text>
-          <Text style={styles.body}>
-            {t('{{done}} of {{total}} notes', { done: progress.done.toLocaleString(), total: progress.total.toLocaleString() })}
-          </Text>
-          <ProgressBar progress={progress.total > 0 ? progress.done / progress.total : 0} />
-          <Button
-            label={t('Cancel')}
-            variant="ghost"
-            onPress={() => {
-              cancelRequested.current = true
-            }}
-          />
-        </Card>
-      ) : null}
-
-      {step === 'done' && result ? (
-        <Card style={styles.card}>
-          <EmptyState
-            icon="checkmark-circle"
-            title={result.cancelled ? t('Import canceled') : t('Import complete')}
-            message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
-          />
-          <View style={styles.summaryRow}>
-            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
-            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
-            <SummaryStat label={t('Failed')} value={result.failed} color={colors.danger} />
-          </View>
-          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
-        </Card>
-      ) : null}
-
-      {/* ── New deck modal ── */}
-      <Modal visible={newDeckOpen} animationType="slide" transparent onRequestClose={() => setNewDeckOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('New deck')}</Text>
-          <TextInput
-            style={styles.inputField}
-            placeholder={t('Deck name')}
-            placeholderTextColor={colors.textMuted}
-            value={newDeckName}
-            onChangeText={setNewDeckName}
-            autoFocus
-          />
-          {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
-          <Button
-            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
-            icon="add"
-            disabled={createNewDeck.isPending}
-            onPress={() => createNewDeck.mutate(newDeckName)}
-          />
-        </View>
-      </Modal>
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerOpen}
+        onClose={() => setDeckPickerOpen(false)}
+        title={t('Add to deck')}
+        onSelectDeck={(deck) => {
+          setDeckId(deck.id)
+          setDeckName(deck.name)
+          setDeckPickerOpen(false)
+        }}
+        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        creating={createNewDeck.isPending}
+        {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
     </ScrollView>
   )
 }
@@ -596,6 +692,7 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: type.subheading, fontWeight: '700' },
   summaryLabel: { fontSize: type.micro, color: colors.textMuted },
   previewHeaderArea: { padding: spacing.lg, paddingBottom: 0 },
+  sameWordRow: { backgroundColor: colors.warningSoft },
   tableHeaderRow: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceMuted,
@@ -618,31 +715,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
+  centerModalContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, backgroundColor: '#00000066' },
+  centerModalCard: {
+    width: '100%',
+    maxWidth: 400,
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    borderRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
   },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  inputField: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-  },
-  errorLabel: { fontSize: type.caption, color: colors.danger },
 })

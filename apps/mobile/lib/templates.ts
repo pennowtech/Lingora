@@ -212,9 +212,9 @@ export function buildCardContext(args: {
   const genderLabel = [args.lemma.partOfSpeech === 'unknown' ? null : args.lemma.partOfSpeech, args.lemma.gender]
     .filter(Boolean)
     .join(' · ')
-  const example = selectedExample?.sentence || null
+  const example = selectedExample?.sentence ?? null
   const translation =
-    (args.mode === 'cloze' ? args.cloze?.translation : selectedExample?.translation) || null
+    (args.mode === 'cloze' ? args.cloze?.translation : selectedExample?.translation) ?? null
 
   return {
     word: args.lemma.form,

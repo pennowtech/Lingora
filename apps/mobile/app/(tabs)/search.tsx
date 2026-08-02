@@ -118,7 +118,6 @@ export default function SearchScreen(): JSX.Element {
   // without a fresh capture would revert to whatever was remembered before this one.
   useEffect(() => {
     if (params.q) setQuery(params.q)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- setQuery is a plain function recreated every render; only params.q should re-trigger this
   }, [params.q])
 
   const search = useQuery({

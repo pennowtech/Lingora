@@ -1,13 +1,14 @@
 import type { BackupPayload, LinDeckOption, LinDuplicatePolicy, LinLemmaPreview } from '@lingora/database'
-import { buildLinImportPreview, createDeck, getAllDecks, getDecksInPayload, importLinDeck } from '@lingora/database'
+import { buildLinImportPreview, createDeck, getDeckById, getDecksForLemma, getDecksInPayload, importLinDeck } from '@lingora/database'
 import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
-import { Button, Card, Chip, EmptyState, ErrorState, Spinner } from '../../components/ui'
+import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { Button, Card, Chip, EmptyState, Spinner } from '../../components/ui'
 import { pickAndParseBackupFile } from '../../lib/backup'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -24,18 +25,31 @@ interface TableColumn {
   width: number
   cell: (preview: LinLemmaPreview) => string
 }
-const TABLE_COLUMNS: TableColumn[] = [
-  { label: 'Word', width: 160, cell: (p) => p.form },
-  { label: 'Meaning', width: 200, cell: (p) => p.cards[0]?.translation ?? '—' },
-  { label: 'Example', width: 260, cell: (p) => p.cards[0]?.example ?? '—' },
-  { label: 'Example translation', width: 220, cell: (p) => p.cards[0]?.exampleTranslation ?? '—' },
-  { label: 'Synonyms', width: 200, cell: (p) => p.cards[0]?.synonyms.join(', ') || '—' },
-  { label: 'Cards', width: 160, cell: (p) => p.cards.map((c) => c.type).join(', ') || '—' },
-  { label: 'Status', width: 110, cell: (p) => p.status },
-]
+// Built inside the component — "Existing deck" needs the existingDeckNames lookup, same shape as
+// csv-import.tsx/apkg-import.tsx's buildTableColumns.
+function buildTableColumns(existingDeckNames: Map<string, string[]>): TableColumn[] {
+  return [
+    { label: 'Word', width: 160, cell: (p) => p.form },
+    { label: 'Meaning', width: 200, cell: (p) => p.cards[0]?.translation ?? '—' },
+    { label: 'Example', width: 260, cell: (p) => p.cards[0]?.example ?? '—' },
+    { label: 'Example translation', width: 220, cell: (p) => p.cards[0]?.exampleTranslation ?? '—' },
+    // `join(', ')` always returns a string (never null/undefined) — `??` would never fall through
+    // to the placeholder for an empty list, so `||` (empty string counts too) is deliberate here.
+    /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+    { label: 'Synonyms', width: 200, cell: (p) => p.cards[0]?.synonyms.join(', ') || '—' },
+    { label: 'Cards', width: 160, cell: (p) => p.cards.map((c) => c.type).join(', ') || '—' },
+    /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+    {
+      label: 'Existing deck',
+      width: 160,
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+    },
+    { label: 'Status', width: 110, cell: (p) => p.status },
+  ]
+}
 const SELECT_COLUMN_WIDTH = 48
 
-type Step = 'pick' | 'source-deck' | 'target' | 'preview' | 'importing' | 'done'
+type Step = 'pick' | 'source-deck' | 'target' | 'preview'
 
 /**
  * Deck-scoped `.lin` **import** — the counterpart to `createDeckBackup`'s
@@ -62,16 +76,16 @@ export default function LinImportScreen(): JSX.Element {
   // (`deck/[id].tsx`/`decks.tsx`, same param the CSV/Anki importers take);
   // still changeable on the target-deck step for Settings-launched imports.
   const [targetDeckId, setTargetDeckId] = useState<string | null>(params.deckId ?? null)
-  const [newDeckOpen, setNewDeckOpen] = useState(false)
-  const [newDeckName, setNewDeckName] = useState('')
+  const [targetDeckName, setTargetDeckName] = useState<string | null>(null)
+  const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [duplicatePolicy, setDuplicatePolicy] = useState<LinDuplicatePolicy>('skip')
   const [previews, setPreviews] = useState<LinLemmaPreview[]>([])
+  const [existingDeckNames, setExistingDeckNames] = useState<Map<string, string[]>>(new Map())
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [result, setResult] = useState<{ imported: number; skipped: number; cardsImported: number } | null>(null)
-
-  const decksQuery = useQuery({ queryKey: ['decks'], queryFn: () => getAllDecks(db) })
+  const [importing, setImporting] = useState(false)
 
   const createNewDeck = useMutation({
     mutationFn: async (name: string) => {
@@ -80,12 +94,12 @@ export default function LinImportScreen(): JSX.Element {
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
-      return id
+      return { id, name: trimmed }
     },
-    onSuccess: async (id) => {
+    onSuccess: async ({ id, name }) => {
       setTargetDeckId(id)
-      setNewDeckOpen(false)
-      setNewDeckName('')
+      setTargetDeckName(name)
+      setDeckPickerOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
@@ -132,17 +146,52 @@ export default function LinImportScreen(): JSX.Element {
     if (autoPicked.current) return
     autoPicked.current = true
     handlePickFile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Reached with a deckId already in the route params (the deck detail screen's "Import into
+  // this deck" menu) — the id alone isn't enough to show a deck name, so fetch it once.
+  useEffect(() => {
+    if (!params.deckId) return
+    void getDeckById(db, params.deckId).then((deck) => {
+      if (deck) setTargetDeckName(deck.name)
+    })
+  }, [params.deckId, db])
+
+  // See csv-import.tsx's identical effect for why: the native header back button otherwise pops
+  // this whole screen regardless of wizard step. 'source-deck' and 'target' both fall back to
+  // handleStartOver — matching what their own (now-removed) in-screen "Back" buttons already did,
+  // since 'target' can be reached from either 'pick' or 'source-deck' and there's no record of
+  // which. Let through once `result` is set so the import-complete popup's "OK" (router.back())
+  // can actually leave.
+  const navigation = useNavigation()
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (importing) {
+        e.preventDefault()
+        return
+      }
+      if (step === 'pick' || result !== null) return
+      e.preventDefault()
+      if (step === 'preview') setStep('target')
+      else if (step === 'target' || step === 'source-deck') handleStartOver()
+    })
+    return unsubscribe
+  }, [navigation, step, result, importing])
 
   const handleBuildPreview = (): void => {
     if (!payload || !sourceDeckId || !targetDeckId) return
     setPreviewLoading(true)
     log.info('import.lin_preview_started', { message: 'Building .lin import preview' })
     buildLinImportPreview(db, payload, sourceDeckId, targetLanguage)
-      .then((built) => {
+      .then(async (built) => {
         setPreviews(built)
         setCheckedIds(new Set(built.map((p) => p.sourceLemmaId)))
+
+        // Which deck(s) already have a duplicate row's word — see csv-import.tsx's identical block.
+        const lemmaIds = [...new Set(built.map((p) => p.existingLemmaId).filter((id) => id !== null))]
+        const decksByLemma = await Promise.all(lemmaIds.map((id) => getDecksForLemma(db, id)))
+        setExistingDeckNames(new Map(lemmaIds.map((id, i) => [id, decksByLemma[i]!.map((d) => d.name)])))
+
         setStep('preview')
       })
       .catch((error: unknown) => {
@@ -156,6 +205,22 @@ export default function LinImportScreen(): JSX.Element {
     const duplicate = previews.filter((p) => p.status === 'duplicate').length
     return { duplicate }
   }, [previews])
+
+  // Rows sharing a form with another row in this file — see csv-import.tsx's
+  // sameWordRowIndexes for why. Each .lin preview row is already one lemma (with every one of
+  // its cards nested under it, see LinLemmaPreview), so this is mostly defensive: a well-formed
+  // export shouldn't have two rows for the same form, but nothing enforces that on the way in.
+  const sameFormIds = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of previews) counts.set(p.form.toLowerCase(), (counts.get(p.form.toLowerCase()) ?? 0) + 1)
+    const ids = new Set<string>()
+    for (const p of previews) {
+      if ((counts.get(p.form.toLowerCase()) ?? 0) > 1) ids.add(p.sourceLemmaId)
+    }
+    return ids
+  }, [previews])
+
+  const tableColumns = useMemo(() => buildTableColumns(existingDeckNames), [existingDeckNames])
 
   const willImportCount = useMemo(
     () =>
@@ -187,7 +252,7 @@ export default function LinImportScreen(): JSX.Element {
   const handleConfirmImport = (): void => {
     if (!payload || !sourceDeckId || !targetDeckId) return
     const toImport = previews.filter((p) => checkedIds.has(p.sourceLemmaId))
-    setStep('importing')
+    setImporting(true)
     log.info('import.lin_import_confirmed', {
       message: 'User confirmed .lin import',
       metadata: { itemCount: toImport.length },
@@ -195,14 +260,13 @@ export default function LinImportScreen(): JSX.Element {
     importLinDeck(db, payload, sourceDeckId, targetDeckId, targetLanguage, toImport, duplicatePolicy)
       .then(async (outcome) => {
         setResult(outcome)
-        setStep('done')
         await queryClient.invalidateQueries()
       })
       .catch((error: unknown) => {
         log.error('import.lin_import_failed', error, { message: '.lin import failed' })
         Alert.alert(t('Import failed'), String(error))
-        setStep('preview')
       })
+      .finally(() => setImporting(false))
   }
 
   const handleStartOver = (): void => {
@@ -213,6 +277,7 @@ export default function LinImportScreen(): JSX.Element {
     setSourceDeckId(null)
     setTargetDeckId(null)
     setPreviews([])
+    setExistingDeckNames(new Map())
     setCheckedIds(new Set())
     setResult(null)
     setPickError(null)
@@ -230,6 +295,22 @@ export default function LinImportScreen(): JSX.Element {
               <SummaryStat label={t('Selected')} value={checkedCount} color={colors.primary} />
             </View>
           </Card>
+
+          <Card style={styles.card}>
+            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
+            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
+            <View style={styles.chipRow}>
+              {DUPLICATE_POLICIES.map((policy) => (
+                <Chip
+                  key={policy.value}
+                  label={t(policy.label)}
+                  selected={duplicatePolicy === policy.value}
+                  onPress={() => setDuplicatePolicy(policy.value)}
+                />
+              ))}
+            </View>
+            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+          </Card>
         </View>
 
         <ScrollView horizontal style={styles.tableOuterScroll} showsHorizontalScrollIndicator>
@@ -242,7 +323,7 @@ export default function LinImportScreen(): JSX.Element {
                   color={allVisibleChecked ? colors.primary : colors.textMuted}
                 />
               </Pressable>
-              {TABLE_COLUMNS.map((col) => (
+              {tableColumns.map((col) => (
                 <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
                   {t(col.label)}
                 </Text>
@@ -258,8 +339,15 @@ export default function LinImportScreen(): JSX.Element {
               removeClippedSubviews
               renderItem={({ item: preview, index: rowIndex }) => {
                 const checked = checkedIds.has(preview.sourceLemmaId)
+                const sameForm = sameFormIds.has(preview.sourceLemmaId)
                 return (
-                  <View style={[styles.tableRow, rowIndex % 2 === 1 ? styles.tableRowAlt : null]}>
+                  <View
+                    style={[
+                      styles.tableRow,
+                      rowIndex % 2 === 1 ? styles.tableRowAlt : null,
+                      sameForm ? styles.sameWordRow : null,
+                    ]}
+                  >
                     <Pressable
                       style={[styles.tableCheckboxCell, { width: SELECT_COLUMN_WIDTH }]}
                       onPress={() => toggleChecked(preview.sourceLemmaId)}
@@ -270,7 +358,7 @@ export default function LinImportScreen(): JSX.Element {
                         color={checked ? colors.primary : colors.textMuted}
                       />
                     </Pressable>
-                    {TABLE_COLUMNS.map((col) => (
+                    {tableColumns.map((col) => (
                       <Text
                         key={col.label}
                         style={[styles.tableCell, { width: col.width }, statusCellStyle(preview, col.label)]}
@@ -287,13 +375,46 @@ export default function LinImportScreen(): JSX.Element {
         </ScrollView>
 
         <View style={styles.actions}>
-          <Button label={t('Back')} variant="ghost" onPress={() => setStep('target')} />
           <Button
-            label={t('Import {{count}} words', { count: checkedCount.toLocaleString() })}
+            label={t('Import {{count}} words', { count: willImportCount.toLocaleString() })}
             onPress={handleConfirmImport}
             disabled={checkedCount === 0}
           />
         </View>
+
+        {/* ── One popup covers both "importing" and "done" — no second modal/screen, just this
+            one's content swapping from progress to result once `result` is set ── */}
+        <Modal
+          visible={importing || result !== null}
+          animationType="fade"
+          transparent
+          onRequestClose={() => (result !== null ? router.back() : undefined)}
+        >
+          <View style={styles.centerModalContainer}>
+            <View style={styles.centerModalCard}>
+              {result === null ? (
+                <Spinner message={t('Importing…')} />
+              ) : (
+                <>
+                  <EmptyState
+                    icon="checkmark-circle"
+                    title={t('Import complete')}
+                    message={t('Imported {{words}} words ({{cards}} cards).', {
+                      words: result.imported.toLocaleString(),
+                      cards: result.cardsImported.toLocaleString(),
+                    })}
+                  />
+                  <View style={styles.summaryRow}>
+                    <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
+                    <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
+                    <SummaryStat label={t('Cards')} value={result.cardsImported} color={colors.primary} />
+                  </View>
+                  <Button label={t('OK')} onPress={() => router.back()} />
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }
@@ -326,7 +447,6 @@ export default function LinImportScreen(): JSX.Element {
             ))}
           </View>
           <View style={styles.actions}>
-            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button label={t('Continue')} onPress={() => setStep('target')} disabled={!sourceDeckId} />
           </View>
         </Card>
@@ -345,44 +465,16 @@ export default function LinImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('Import into deck')}</Text>
-            {decksQuery.isPending ? (
-              <Spinner />
-            ) : decksQuery.isError ? (
-              <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-            ) : (
-              <View style={styles.chipRow}>
-                {(decksQuery.data ?? []).map((deck) => (
-                  <Chip
-                    key={deck.id}
-                    label={deck.name}
-                    selected={targetDeckId === deck.id}
-                    onPress={() => setTargetDeckId(deck.id)}
-                  />
-                ))}
-                <Chip label={t('+ New deck')} onPress={() => setNewDeckOpen(true)} />
-              </View>
-            )}
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked in the next step.')}</Text>
-            <View style={styles.chipRow}>
-              {DUPLICATE_POLICIES.map((policy) => (
-                <Chip
-                  key={policy.value}
-                  label={t(policy.label)}
-                  selected={duplicatePolicy === policy.value}
-                  onPress={() => setDuplicatePolicy(policy.value)}
-                />
-              ))}
-            </View>
-            <Text style={styles.hint}>{t(DUPLICATE_POLICIES.find((p) => p.value === duplicatePolicy)?.hint ?? '')}</Text>
+            <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
+            <Button
+              label={targetDeckName ?? t('Choose a deck')}
+              icon="albums-outline"
+              variant="secondary"
+              onPress={() => setDeckPickerOpen(true)}
+            />
           </Card>
 
           <View style={styles.actions}>
-            <Button label={t('Back')} variant="ghost" onPress={handleStartOver} />
             <Button
               label={previewLoading ? t('Checking…') : t('Preview import')}
               onPress={handleBuildPreview}
@@ -392,55 +484,20 @@ export default function LinImportScreen(): JSX.Element {
         </>
       ) : null}
 
-      {step === 'importing' ? (
-        <Card style={styles.card}>
-          <Text style={styles.title}>{t('Importing…')}</Text>
-          <Spinner />
-        </Card>
-      ) : null}
-
-      {step === 'done' && result ? (
-        <Card style={styles.card}>
-          <EmptyState
-            icon="checkmark-circle"
-            title={t('Import complete')}
-            message={t('Imported {{words}} words ({{cards}} cards).', {
-              words: result.imported.toLocaleString(),
-              cards: result.cardsImported.toLocaleString(),
-            })}
-          />
-          <View style={styles.summaryRow}>
-            <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
-            <SummaryStat label={t('Skipped')} value={result.skipped} color={colors.warning} />
-            <SummaryStat label={t('Cards')} value={result.cardsImported} color={colors.primary} />
-          </View>
-          <Button label={t('Import another file')} variant="secondary" onPress={handleStartOver} />
-        </Card>
-      ) : null}
-
-      {/* ── New deck modal ── */}
-      <Modal visible={newDeckOpen} animationType="slide" transparent onRequestClose={() => setNewDeckOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setNewDeckOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('New deck')}</Text>
-          <TextInput
-            style={styles.inputField}
-            placeholder={t('Deck name')}
-            placeholderTextColor={colors.textMuted}
-            value={newDeckName}
-            onChangeText={setNewDeckName}
-            autoFocus
-          />
-          {createNewDeck.isError ? <Text style={styles.errorLabel}>{String(createNewDeck.error)}</Text> : null}
-          <Button
-            label={createNewDeck.isPending ? t('Creating…') : t('Create & select')}
-            icon="add"
-            disabled={createNewDeck.isPending}
-            onPress={() => createNewDeck.mutate(newDeckName)}
-          />
-        </View>
-      </Modal>
+      <DeckPickerModal
+        db={db}
+        visible={deckPickerOpen}
+        onClose={() => setDeckPickerOpen(false)}
+        title={t('Add to deck')}
+        onSelectDeck={(deck) => {
+          setTargetDeckId(deck.id)
+          setTargetDeckName(deck.name)
+          setDeckPickerOpen(false)
+        }}
+        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        creating={createNewDeck.isPending}
+        {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
+      />
     </ScrollView>
   )
 }
@@ -505,6 +562,7 @@ const styles = StyleSheet.create({
   },
   tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, alignItems: 'center' },
   tableRowAlt: { backgroundColor: colors.surfaceMuted },
+  sameWordRow: { backgroundColor: colors.warningSoft },
   tableCheckboxCell: { alignItems: 'center', justifyContent: 'center', paddingVertical: 2 },
   tableCell: {
     fontSize: type.caption,
@@ -512,31 +570,13 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     paddingHorizontal: spacing.sm,
   },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
+  centerModalContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, backgroundColor: '#00000066' },
+  centerModalCard: {
+    width: '100%',
+    maxWidth: 400,
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    borderRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
   },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  inputField: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-  },
-  errorLabel: { fontSize: type.caption, color: colors.danger },
 })

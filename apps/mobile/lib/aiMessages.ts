@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { Alert } from 'react-native'
 
 /**
@@ -10,11 +11,7 @@ import { Alert } from 'react-native'
  * @param action What the user was trying to do, already translated and lower-case, e.g.
  *        `t('regenerate this card')` — slotted into "...to {{action}}."
  */
-export function showAIProviderRequiredAlert(
-  t: (key: string, options?: Record<string, unknown>) => string,
-  action: string,
-  openSettings: () => void,
-): void {
+export function showAIProviderRequiredAlert(t: TFunction, action: string, openSettings: () => void): void {
   Alert.alert(
     t('AI not configured'),
     t(

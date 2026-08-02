@@ -1,0 +1,21 @@
+name: Production Build on Tag
+
+# Runs natively on Expo's own infrastructure (the repo is linked via the Expo GitHub App), not
+# GitHub Actions — no EXPO_TOKEN to manage, and this stays completely idle on every normal push,
+# firing only for a tag matching vX.Y.Z (`git tag v0.1.0 && git push origin v0.1.0`). See
+# .github/workflows/release.yml for the lint/typecheck/test gate that runs on the same tag push,
+# and eas.json for the `production` build profile referenced below (cli.appVersionSource: "local",
+# so the build reads apps/mobile/app.json's committed `expo.version` as-is — bump that by hand
+# alongside every package.json when cutting a release, same as this repo's other version bumps).
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  production_build:
+    name: EAS build (Android, production)
+    type: build
+    params:
+      platform: android
+      profile: production

@@ -45,7 +45,7 @@ export function CardRenderer(props: {
   )
 }
 
-const createStyles = (colors: ThemeColors) =>
+const createStyles = (_colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: 'transparent' },
     webview: { flex: 1, backgroundColor: 'transparent' },

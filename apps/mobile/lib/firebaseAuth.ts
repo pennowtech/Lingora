@@ -24,9 +24,9 @@ function toAccount(user: User): CloudAccount {
  * lives in Firestore (see firestoreSyncBackend.ts), authorized by each user's own uid.
  */
 export class FirebaseCloudAuthService implements CloudAuthService {
-  async getCurrentAccount(): Promise<CloudAccount | null> {
+  getCurrentAccount(): Promise<CloudAccount | null> {
     const user = getAuth().currentUser
-    return user ? toAccount(user) : null
+    return Promise.resolve(user ? toAccount(user) : null)
   }
 
   async signIn(): Promise<CloudAccount> {

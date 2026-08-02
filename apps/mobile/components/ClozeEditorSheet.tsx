@@ -1,6 +1,6 @@
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { ClozeMarkupEditor, type ClozeEditorResult } from './ClozeMarkupEditor'
 import { Button } from './ui'
 import { radius, spacing, type } from '../lib/theme'
@@ -37,54 +37,49 @@ export function ClozeEditorSheet(props: {
   }
 
   return (
-    <Modal visible={props.visible} animationType="slide" transparent onRequestClose={props.onCancel}>
-      <Pressable style={styles.backdrop} onPress={props.onCancel} />
-      <View style={styles.sheet}>
-        <View style={styles.handle} />
-        <ScrollView keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>{t('Mark cloze')}</Text>
+    <Modal visible={props.visible} animationType="fade" transparent onRequestClose={props.onCancel}>
+      <KeyboardAvoidingView style={styles.keyboardAvoider} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={props.onCancel} />
+        <View style={styles.sheet}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            <Text style={styles.title}>{t('Add cloze card')}</Text>
 
-          {props.visible ? (
-            <ClozeMarkupEditor
-              initialSentence={props.initialSentence}
-              initialTranslation={props.initialTranslation}
-              onChange={setResult}
-            />
-          ) : null}
+            {props.visible ? (
+              <ClozeMarkupEditor
+                initialSentence={props.initialSentence}
+                initialTranslation={props.initialTranslation}
+                onChange={setResult}
+              />
+            ) : null}
 
-          {props.saveError ? <Text style={styles.errorText}>{props.saveError}</Text> : null}
+            {props.saveError ? <Text style={styles.errorText}>{props.saveError}</Text> : null}
 
-          <View style={styles.actions}>
-            <Button label={t('Cancel')} variant="ghost" onPress={props.onCancel} disabled={props.saving ?? false} />
-            <Button
-              label={props.saving ? t('Saving…') : t('Save cloze card')}
-              onPress={handleSave}
-              disabled={!result || (props.saving ?? false)}
-            />
-          </View>
-        </ScrollView>
-      </View>
+            <View style={styles.actions}>
+              <Button label={t('Cancel')} variant="ghost" onPress={props.onCancel} disabled={props.saving ?? false} />
+              <Button
+                label={props.saving ? t('Saving…') : t('Save cloze card')}
+                onPress={handleSave}
+                disabled={!result || (props.saving ?? false)}
+              />
+            </View>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    backdrop: { flex: 1, backgroundColor: '#00000066' },
+    keyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
     sheet: {
-      backgroundColor: colors.surface,
-      borderTopLeftRadius: radius.xl,
-      borderTopRightRadius: radius.xl,
-      padding: spacing.xl,
+      width: '100%',
+      maxWidth: 400,
       maxHeight: '85%',
-    },
-    handle: {
-      alignSelf: 'center',
-      width: 40,
-      height: 4,
-      borderRadius: radius.full,
-      backgroundColor: colors.border,
-      marginBottom: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      padding: spacing.xl,
     },
     title: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     errorText: { fontSize: type.caption, color: colors.danger, marginTop: spacing.sm },

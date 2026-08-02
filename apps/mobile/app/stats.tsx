@@ -17,7 +17,7 @@ import { Card, EmptyState, ErrorState, SectionHeader, Spinner } from '../compone
 import { useServices } from '../lib/services'
 import { buildHeatmap, streakFromDayIndexes } from '../lib/stats'
 import { radius, spacing, type } from '../lib/theme'
-import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import { useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
 
 const HEAT_COLORS = ['#EFEDF6', '#D8D3F0', '#B4ABE3', '#8C7FD3', '#534AB7']

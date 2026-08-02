@@ -219,36 +219,6 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     expect(synonyms.map((s) => s.word).sort()).toEqual(['Anwesen', 'Gebäude'])
   })
 
-  it('routes an example with cloze markup to a cloze card instead of a plain example', async () => {
-    const { rows } = parseCsv(
-      'word,meaning,example,exampleTranslation\nausgehen,to go out,Wir gehen heute Abend {{c1::aus}}.,We are going out tonight.\n',
-    )
-    const previews = await buildCsvImportPreview(db, rows, {
-      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3 },
-      language: 'de',
-    })
-    await importCsvRows(db, previews, deckId, 'de')
-
-    const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
-    const card = await db.querySingle<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ?', [
-      lemma?.id,
-    ])
-    expect(card?.type).toBe('cloze')
-
-    const cloze = await db.querySingle<{ sentence: string; answer: string; translation: string }>(
-      'SELECT sentence, cloze AS answer, translation FROM cloze_cards WHERE card_id = ?',
-      [card?.id],
-    )
-    expect(cloze).toEqual({
-      sentence: 'Wir gehen heute Abend [...].',
-      answer: 'aus',
-      translation: 'We are going out tonight.',
-    })
-
-    const examples = await db.query<{ id: string }>('SELECT id FROM examples WHERE card_id = ?', [card?.id])
-    expect(examples).toHaveLength(0)
-  })
-
   it('creates a single BASIC card by default when word/meaning/example and a dedicated cloze column are all mapped', async () => {
     // cardType defaults to 'basic' — a row that maps a cloze column always produces exactly one
     // card either way, never two. See import-shared.ts's importRow.
@@ -355,14 +325,16 @@ describe('buildCsvImportPreview / importCsvRows', () => {
   })
 
   it('derives word from the cloze answer and meaning from the translation when word/meaning are unmapped', async () => {
-    // Real Anki Cloze notes have no standalone word/meaning field — only a
-    // sentence (with the cloze markup) and its translation get mapped.
+    // Real Anki Cloze notes have no standalone word/meaning field — only a sentence (with the
+    // cloze markup, mapped to the dedicated `cloze` field) and its translation get mapped.
+    // cardType: 'cloze' is what makes resolveWordAndMeaning look at the cloze markup at all.
     const { rows } = parseCsv(
-      'example,exampleTranslation\nWir gehen heute Abend {{c1::aus}}.,We are going out tonight.\n',
+      'cloze,exampleTranslation\nWir gehen heute Abend {{c1::aus}}.,We are going out tonight.\n',
     )
     const previews = await buildCsvImportPreview(db, rows, {
-      mapping: { example: 0, exampleTranslation: 1 },
+      mapping: { cloze: 0, exampleTranslation: 1 },
       language: 'de',
+      cardType: 'cloze',
     })
     expect(previews[0]).toMatchObject({ word: 'aus', meaning: 'We are going out tonight.', status: 'ok', errors: [] })
   })

@@ -192,7 +192,7 @@ describe('backup / restore', () => {
           translation: 'example',
           intro: 'A sample word.',
           synonyms: [{ word: 'Muster', gloss: '' }],
-          examples: [{ sentence: 'Das ist ein Beispiel.', translation: 'This is an example.' }],
+          examples: [{ sentence: 'Das ist ein Beispiel.', translation: 'This is an example.', type: 'indicative' }],
         },
         'deck-default',
       )

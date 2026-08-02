@@ -103,7 +103,7 @@ async function ensureLoaded(): Promise<void> {
         phase: account ? 'ready' : 'signed-out',
         account,
         lastSyncedAt: lastSuccessRaw ? Number(lastSuccessRaw) : null,
-        lastError: lastError || null,
+        lastError: lastError ?? null,
         automatic: automaticRaw === 'true',
         minimumIntervalMinutes: intervalRaw ? Number(intervalRaw) : DEFAULT_MINIMUM_INTERVAL_MINUTES,
       })
@@ -272,7 +272,7 @@ function handleAppStateChange(next: AppStateStatus): void {
   if (next !== 'background' || !db) return
   if (!dueForAutomaticSync()) return
   requestCloudSync(db, { notify: true }).catch((error: unknown) => {
-    log.warn('sync.automatic_sync_failed', { message: 'Automatic background sync failed', metadata: { errorMessage: String(error) } })
+    log.error('sync.automatic_sync_failed', error, { message: 'Automatic background sync failed' })
   })
 }
 

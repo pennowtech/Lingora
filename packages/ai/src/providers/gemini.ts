@@ -314,6 +314,8 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
           : `Gemini request failed: ${String(error)}`,
         this.name,
         true,
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

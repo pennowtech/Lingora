@@ -153,6 +153,8 @@ export class DeepLProvider implements DictionaryProvider {
           : `DeepL request failed: ${String(error)}`,
         this.name,
         true,
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

@@ -18,6 +18,7 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
+import { detectSearchLanguage } from '../../lib/languageDetection'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -167,8 +168,7 @@ export default function SearchScreen(): JSX.Element {
   const quickTranslate = useQuery({
     queryKey: ['quick-translate', term, dictionary.name, nativeLanguage, targetLanguage],
     queryFn: async () => {
-      const detected = await dictionary.detectLanguage(term)
-      const source = detected.data
+      const source = await detectSearchLanguage(dictionary, term, nativeLanguage, targetLanguage)
       const target = source === targetLanguage ? nativeLanguage : targetLanguage
       const translated = await dictionary.translate(term, source, target)
       return { source, target, text: translated.data }
@@ -184,8 +184,7 @@ export default function SearchScreen(): JSX.Element {
   const translateAlternatives = useQuery({
     queryKey: ['quick-translate-alternatives', term, dictionary.name, nativeLanguage, targetLanguage],
     queryFn: async () => {
-      const detected = await dictionary.detectLanguage(term)
-      const source = detected.data
+      const source = await detectSearchLanguage(dictionary, term, nativeLanguage, targetLanguage)
       const target = source === targetLanguage ? nativeLanguage : targetLanguage
       const result = await dictionary.translateAlternatives!(term, source, target)
       return result.data
@@ -294,10 +293,10 @@ export default function SearchScreen(): JSX.Element {
       // Captured at mutation start, not in onSuccess — term could have moved on by the time
       // generation finishes if the user kept typing.
       const requestTerm = term
-      const detected = await dictionary.detectLanguage(requestTerm)
-      const reverseDirection = detected.data === nativeLanguage
+      const detectedSource = await detectSearchLanguage(dictionary, requestTerm, nativeLanguage, targetLanguage)
+      const reverseDirection = detectedSource === nativeLanguage
       const word = reverseDirection
-        ? (await dictionary.translate(requestTerm, detected.data, targetLanguage)).data
+        ? (await dictionary.translate(requestTerm, detectedSource, targetLanguage)).data
         : requestTerm
       const outcome = await pipeline.lookupOrGenerate(word, {
         cefrLevel: defaultCefr,

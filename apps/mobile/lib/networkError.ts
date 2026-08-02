@@ -2,12 +2,16 @@ import { AIProviderError } from '@lingora/ai'
 
 /**
  * True for a provider call that never got a response at all — DNS/connection failure or a
- * timeout (AIProviderError with no `status`) — as opposed to one that reached the server and got
- * back an error response (401/429/500..., which does carry a `status`). Lets callers show "check
- * your internet connection" specifically for the former, not for e.g. a bad API key.
+ * timeout — as opposed to one that reached the server (an error response like 401/429/500, or a
+ * response that parsed fine but failed some other check, e.g. Google Translate detecting an
+ * unsupported language). Both of those latter cases can also carry no `status`, so this checks
+ * the provider's own `isConnectivity` flag rather than inferring it from `status === undefined`
+ * — a status-less business-logic error was previously mislabeled as "check your internet
+ * connection" and stayed stuck on that message even after a successful retry, since the retry
+ * hit the same non-network condition every time.
  */
 export function isNetworkError(error: unknown): boolean {
-  return error instanceof AIProviderError && error.status === undefined
+  return error instanceof AIProviderError && error.isConnectivity
 }
 
 export function networkErrorMessage(t: (key: string) => string): string {

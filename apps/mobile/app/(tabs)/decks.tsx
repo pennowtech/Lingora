@@ -16,7 +16,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import { DeckPickerModal } from '../../components/DeckPickerModal'
 import {
   Button,
   Card,
@@ -87,6 +100,7 @@ export default function DecksScreen(): JSX.Element {
   const [renameValue, setRenameValue] = useState('')
   const [pickerDeck, setPickerDeck] = useState<Deck | null>(null)
   const [pickerMode, setPickerMode] = useState<'move' | 'merge' | null>(null)
+  const [addCardPickerOpen, setAddCardPickerOpen] = useState(false)
 
   const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTree(db) })
   const allDecksQuery = useQuery({
@@ -118,6 +132,24 @@ export default function DecksScreen(): JSX.Element {
       setNewName('')
       setNewEmoji('')
       await invalidateDecks()
+    },
+  })
+
+  // Backs the "Add card" FAB's deck picker — creating a deck here (rather than reusing `create`
+  // above, which is wired to the "New deck" modal's own open/close state) goes straight on to the
+  // add-card screen instead of just closing the picker, since the whole point of this flow is
+  // getting a card written, not just having a deck to put it in later.
+  const createDeckForAddCard = useMutation({
+    mutationFn: async (name: string) => {
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      return id
+    },
+    onSuccess: async (id) => {
+      setAddCardPickerOpen(false)
+      await invalidateDecks()
+      router.push({ pathname: '/deck/add-card', params: { deckId: id } })
     },
   })
 
@@ -281,7 +313,7 @@ export default function DecksScreen(): JSX.Element {
         await invalidateDecks()
         Alert.alert(
           t('Synced'),
-          t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', summary),
+          t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', { ...summary }),
         )
       })
       .catch((error: unknown) => Alert.alert(t('Sync failed'), String(error)))
@@ -328,41 +360,65 @@ export default function DecksScreen(): JSX.Element {
         </ScrollView>
       )}
 
+      <Pressable testID="add-card-fab" style={styles.fabSecondary} onPress={() => setAddCardPickerOpen(true)}>
+        <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
+        <Text style={styles.fabSecondaryLabel}>{t('Add card')}</Text>
+      </Pressable>
+
       <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setCreateOpen(true)}>
         <Ionicons name="add" size={28} color={colors.textOnPrimary} />
       </Pressable>
 
+      <DeckPickerModal
+        db={db}
+        visible={addCardPickerOpen}
+        onClose={() => setAddCardPickerOpen(false)}
+        title={t('Add card to which deck?')}
+        onSelectDeck={(deck) => {
+          setAddCardPickerOpen(false)
+          router.push({ pathname: '/deck/add-card', params: { deckId: deck.id } })
+        }}
+        onCreateDeck={(name) => createDeckForAddCard.mutate(name)}
+        creating={createDeckForAddCard.isPending}
+        {...(createDeckForAddCard.isError && { createError: String(createDeckForAddCard.error) })}
+      />
+
       {/* ── New deck modal ── */}
       <Modal visible={createOpen} animationType="slide" transparent onRequestClose={() => setCreateOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setCreateOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('New deck')}</Text>
-          <TextInput
-            testID="new-deck-name-input"
-            style={styles.inputField}
-            placeholder={t('Deck name')}
-            placeholderTextColor={colors.textMuted}
-            value={newName}
-            onChangeText={setNewName}
-            autoFocus
-          />
-          <TextInput
-            style={styles.inputField}
-            placeholder={t('Emoji (optional)')}
-            placeholderTextColor={colors.textMuted}
-            value={newEmoji}
-            onChangeText={setNewEmoji}
-            maxLength={4}
-          />
-          {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
-          <Button
-            label={create.isPending ? t('Creating…') : t('Create deck')}
-            icon="add"
-            disabled={create.isPending}
-            onPress={() => create.mutate()}
-          />
-        </View>
+        <KeyboardAvoidingView
+          style={styles.modalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <Pressable style={styles.modalBackdropAbsolute} onPress={() => setCreateOpen(false)} />
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>{t('New deck')}</Text>
+            <TextInput
+              testID="new-deck-name-input"
+              style={styles.inputField}
+              placeholder={t('Deck name')}
+              placeholderTextColor={colors.textMuted}
+              value={newName}
+              onChangeText={setNewName}
+              autoFocus
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder={t('Emoji (optional)')}
+              placeholderTextColor={colors.textMuted}
+              value={newEmoji}
+              onChangeText={setNewEmoji}
+              maxLength={4}
+            />
+            {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
+            <Button
+              label={create.isPending ? t('Creating…') : t('Create deck')}
+              icon="add"
+              disabled={create.isPending}
+              onPress={() => create.mutate()}
+            />
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ── Per-deck actions menu ── */}
@@ -416,18 +472,23 @@ export default function DecksScreen(): JSX.Element {
         transparent
         onRequestClose={() => setRenameDeckTarget(null)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setRenameDeckTarget(null)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
-          <TextInput style={styles.inputField} value={renameValue} onChangeText={setRenameValue} autoFocus />
-          {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
-          <Button
-            label={rename.isPending ? t('Saving…') : t('Save')}
-            disabled={rename.isPending}
-            onPress={() => rename.mutate()}
-          />
-        </View>
+        <KeyboardAvoidingView
+          style={styles.modalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <Pressable style={styles.modalBackdropAbsolute} onPress={() => setRenameDeckTarget(null)} />
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
+            <TextInput style={styles.inputField} value={renameValue} onChangeText={setRenameValue} autoFocus />
+            {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
+            <Button
+              label={rename.isPending ? t('Saving…') : t('Save')}
+              disabled={rename.isPending}
+              onPress={() => rename.mutate()}
+            />
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ── Move/merge deck picker — shared between both actions, see pickerMode ── */}
@@ -573,6 +634,26 @@ const createStyles = (colors: ThemeColors) =>
     borderRadius: radius.full,
   },
   dueBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+  fabSecondary: {
+    position: 'absolute',
+    right: spacing.xl,
+    bottom: spacing.xl + 56 + spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  fabSecondaryLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
   fab: {
     position: 'absolute',
     right: spacing.xl,
@@ -589,6 +670,12 @@ const createStyles = (colors: ThemeColors) =>
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },
+  modalKeyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
+  // Absolutely positioned (rather than flex: 1, like the plain `modalBackdrop` other modals in
+  // this file use) because it now sits inside a KeyboardAvoidingView laid out with
+  // justifyContent: 'flex-end' — the backdrop needs to fill behind the sheet, not push it, so the
+  // sheet stays pinned above a shrinking keyboard-avoider instead of getting shoved off-screen.
+  modalBackdropAbsolute: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {
     backgroundColor: colors.surface,

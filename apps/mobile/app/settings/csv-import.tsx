@@ -1,13 +1,13 @@
 import type { CsvColumnMapping, CsvField, CsvRowPreview, DuplicatePolicy } from '@lingora/database'
 import { buildCsvImportPreview, createDeck, getAllDecks, importCsvRows, parseCsv } from '@lingora/database'
-import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { File } from 'expo-file-system'
-import { useLocalSearchParams } from 'expo-router'
-import { useMemo, useState, type JSX } from 'react'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { DataTable, type DataTableColumn } from '../../components/DataTable'
 import { Button, Card, Chip, Dropdown, EmptyState, ErrorState, Spinner } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -26,16 +26,19 @@ const FIELD_LABELS: Record<CsvField, string> = {
 // sentence (+ Example translation) and leaves Word/Meaning unmapped;
 // buildCsvImportPreview derives them from the cloze answer/translation.
 // See resolveWordAndMeaning in packages/database/src/import-shared.ts.
-// Cloze and Example are separate mappings: map the fill-in-the-blank
-// sentence to Cloze sentence, not Example — a plain Example sentence is
-// for non-cloze cards. (If Cloze is left unmapped but Example contains
-// {{c1::...}} markup, that's still auto-detected for backward
-// compatibility, but the exported file will look cleaner if you map Cloze
-// directly.)
 // Part of speech, CEFR level, and tags are deliberately not mappable —
 // every import gets the same fallback part of speech/CEFR level and no
 // tags (see FALLBACK_PART_OF_SPEECH/FALLBACK_CEFR_LEVEL in csv-import.ts).
-const ALL_FIELDS: CsvField[] = ['word', 'meaning', 'cloze', 'example', 'exampleTranslation', 'synonyms']
+//
+// Which fields show up depends on the card-type choice above the mapping list: a "Regular" import
+// has no use for a Cloze sentence column (that row's cloze markup, if any, is ignored — see
+// importRow's cardType handling), and a "Cloze" import has no use for a plain Example column (its
+// example content, if any, is ignored the same way) — so only the fields that choice actually
+// consumes are offered, instead of a fixed list where half the rows silently do nothing.
+const FIELDS_BY_CARD_TYPE: Record<'basic' | 'cloze', CsvField[]> = {
+  basic: ['word', 'meaning', 'example', 'exampleTranslation', 'synonyms'],
+  cloze: ['word', 'meaning', 'cloze', 'exampleTranslation', 'synonyms'],
+}
 
 const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the existing word." },
@@ -43,22 +46,32 @@ const DUPLICATE_POLICIES: { value: DuplicatePolicy; label: string; hint: string 
   { value: 'duplicate', label: 'Keep both', hint: 'Add a second, separate card for the same word.' },
 ]
 
-interface TableColumn {
-  label: string
-  width: number
-  cell: (preview: CsvRowPreview) => string
+const STATUS_COLOR: Record<CsvRowPreview['status'], string> = {
+  ok: colors.success,
+  duplicate: colors.warning,
+  error: colors.danger,
 }
-const TABLE_COLUMNS: TableColumn[] = [
+
+const TABLE_COLUMNS: DataTableColumn<CsvRowPreview>[] = [
   { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
   { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
   { label: 'Cloze', width: 220, cell: (p) => p.cloze ?? '—' },
   { label: 'Example', width: 220, cell: (p) => p.example ?? '—' },
   { label: 'Example translation', width: 220, cell: (p) => p.exampleTranslation ?? '—' },
   { label: 'Synonyms', width: 160, cell: (p) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—') },
-  { label: 'Status', width: 100, cell: (p) => p.status },
-  { label: 'Issues', width: 260, cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—') },
+  {
+    label: 'Status',
+    width: 100,
+    cell: (p) => p.status,
+    cellStyle: (p) => ({ color: STATUS_COLOR[p.status], fontWeight: '700' }),
+  },
+  {
+    label: 'Issues',
+    width: 260,
+    cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
+    cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
+  },
 ]
-const SELECT_COLUMN_WIDTH = 48
 const SAMPLE_COLUMN_WIDTH = 160
 
 type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
@@ -69,7 +82,7 @@ type Step = 'pick' | 'map' | 'preview' | 'importing' | 'done'
  * screen is just the picker → map → preview → confirm wizard around it.
  */
 export default function CsvImportScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
@@ -83,6 +96,7 @@ export default function CsvImportScreen(): JSX.Element {
   const [newDeckOpen, setNewDeckOpen] = useState(false)
   const [newDeckName, setNewDeckName] = useState('')
   const [duplicatePolicy, setDuplicatePolicy] = useState<DuplicatePolicy>('skip')
+  const [cardType, setCardType] = useState<'basic' | 'cloze'>('basic')
   const [previews, setPreviews] = useState<CsvRowPreview[]>([])
   const [checkedIndexes, setCheckedIndexes] = useState<Set<number>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
@@ -112,14 +126,20 @@ export default function CsvImportScreen(): JSX.Element {
   // A word column is no longer strictly required — a Cloze-style import can
   // map only Example, and the word/meaning get derived from the cloze
   // markup. But *something* has to be mapped, or every row is empty.
-  const canBuildPreview = deckId !== null && (mapping.word !== undefined || mapping.example !== undefined)
+  const canBuildPreview =
+    deckId !== null && (mapping.word !== undefined || mapping.example !== undefined || mapping.cloze !== undefined)
 
   const handlePickFile = (): void => {
     setPickError(null)
     log.info('import.csv_file_picker_opened', { message: 'User opened the CSV file picker' })
     File.pickFileAsync({ mimeTypes: ['text/csv', 'text/comma-separated-values', 'text/plain', 'text/tab-separated-values'] })
       .then(async (picked) => {
-        if (picked.canceled) return
+        if (picked.canceled) {
+          // Nothing to show for this screen without a file — go back rather than leaving the user
+          // stranded on a near-empty "pick" step they never meant to see in the first place.
+          router.back()
+          return
+        }
         const text = await picked.result.text()
         const parsed = parseCsv(text)
         if (parsed.headers.length === 0 || parsed.rows.length === 0) {
@@ -142,6 +162,19 @@ export default function CsvImportScreen(): JSX.Element {
       })
   }
 
+  // Opens the file browser immediately on landing here, instead of making the user tap a second
+  // "Choose CSV file" button first — the Settings screen's own .csv option should feel like it
+  // goes straight to the file browser. The button stays visible as a manual retry if the picker
+  // is dismissed/canceled. Guarded by a ref (not state) so React's dev-mode double-invoke of
+  // effects can't open the picker twice.
+  const autoPicked = useRef(false)
+  useEffect(() => {
+    if (autoPicked.current) return
+    autoPicked.current = true
+    handlePickFile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const setField = (field: CsvField, columnIndex: number | null): void => {
     setMapping((prev) => {
       const next = { ...prev }
@@ -151,11 +184,22 @@ export default function CsvImportScreen(): JSX.Element {
     })
   }
 
+  // Switching card type changes which fields are offered (see FIELDS_BY_CARD_TYPE) — drop whatever
+  // mapping the newly-hidden field had, so a stale mapping from the other mode can't linger unseen.
+  const handleSetCardType = (next: 'basic' | 'cloze'): void => {
+    setCardType(next)
+    setMapping((prev) => {
+      const nextMapping = { ...prev }
+      delete nextMapping[next === 'basic' ? 'cloze' : 'example']
+      return nextMapping
+    })
+  }
+
   const handleBuildPreview = (): void => {
     if (!deckId) return
     setPreviewLoading(true)
     log.info('import.csv_preview_started', { message: 'Building CSV import preview' })
-    buildCsvImportPreview(db, rows, { mapping, language: 'de' })
+    buildCsvImportPreview(db, rows, { mapping, language: targetLanguage, cardType })
       .then((built) => {
         setPreviews(built)
         // Checked by default: importable rows, and duplicates too (the
@@ -220,7 +264,7 @@ export default function CsvImportScreen(): JSX.Element {
       message: 'User confirmed CSV import',
       metadata: { itemCount: toImport.length },
     })
-    importCsvRows(db, toImport, deckId, 'de', duplicatePolicy)
+    importCsvRows(db, toImport, deckId, targetLanguage, duplicatePolicy, cardType)
       .then(async (outcome) => {
         setResult(outcome)
         setStep('done')
@@ -260,63 +304,18 @@ export default function CsvImportScreen(): JSX.Element {
           </Card>
         </View>
 
-        {/* Table region fills remaining space; the header row lives outside
-            the vertical ScrollView below so it stays pinned on screen while
-            rows scroll — both share one horizontal ScrollView so columns
-            still line up when scrolling sideways. */}
-        <ScrollView horizontal style={styles.tableOuterScroll} showsHorizontalScrollIndicator>
-          <View style={styles.tableFlexColumn}>
-            <View style={styles.tableHeaderRow}>
-              <Pressable style={[styles.tableHeaderCheckboxCell, { width: SELECT_COLUMN_WIDTH }]} onPress={toggleSelectAll}>
-                <Ionicons
-                  name={allVisibleChecked ? 'checkbox' : 'square-outline'}
-                  size={18}
-                  color={allVisibleChecked ? colors.primary : colors.textMuted}
-                />
-              </Pressable>
-              {TABLE_COLUMNS.map((col) => (
-                <Text key={col.label} style={[styles.tableHeaderCell, { width: col.width }]}>
-                  {t(col.label)}
-                </Text>
-              ))}
-            </View>
-            <FlatList
-              style={styles.tableBodyScroll}
-              data={previews}
-              keyExtractor={(preview) => String(preview.rowIndex)}
-              windowSize={7}
-              maxToRenderPerBatch={20}
-              initialNumToRender={20}
-              removeClippedSubviews
-              renderItem={({ item: preview, index: i }) => {
-                const checked = checkedIndexes.has(preview.rowIndex)
-                return (
-                  <View style={[styles.tableRow, i % 2 === 1 ? styles.tableRowAlt : null]}>
-                    <Pressable
-                      style={[styles.tableCheckboxCell, { width: SELECT_COLUMN_WIDTH }]}
-                      onPress={() => toggleChecked(preview.rowIndex)}
-                    >
-                      <Ionicons
-                        name={checked ? 'checkbox' : 'square-outline'}
-                        size={18}
-                        color={checked ? colors.primary : colors.textMuted}
-                      />
-                    </Pressable>
-                    {TABLE_COLUMNS.map((col) => (
-                      <Text
-                        key={col.label}
-                        style={[styles.tableCell, { width: col.width }, statusCellStyle(preview, col.label)]}
-                        numberOfLines={4}
-                      >
-                        {col.cell(preview)}
-                      </Text>
-                    ))}
-                  </View>
-                )
-              }}
-            />
-          </View>
-        </ScrollView>
+        <DataTable
+          columns={TABLE_COLUMNS}
+          data={previews}
+          keyExtractor={(preview) => String(preview.rowIndex)}
+          showRowNumber
+          selection={{
+            isSelected: (preview) => checkedIndexes.has(preview.rowIndex),
+            onToggle: (preview) => toggleChecked(preview.rowIndex),
+            allSelected: allVisibleChecked,
+            onToggleAll: toggleSelectAll,
+          }}
+        />
 
         <View style={styles.actions}>
           <Button label={t('Back')} variant="ghost" onPress={() => setStep('map')} />
@@ -380,11 +379,22 @@ export default function CsvImportScreen(): JSX.Element {
           </Card>
 
           <Card style={styles.card}>
+            <Text style={styles.fieldLabel}>{t('What are you importing?')}</Text>
+            <Text style={styles.hint}>
+              {t('Each row becomes ONE card, never two. Want both a regular and a cloze card from the same file? Import it again afterward with the other option selected.')}
+            </Text>
+            <View style={styles.chipRow}>
+              <Chip label={t('Regular (word/meaning)')} selected={cardType === 'basic'} onPress={() => handleSetCardType('basic')} />
+              <Chip label={t('Cloze (fill-in-the-blank)')} selected={cardType === 'cloze'} onPress={() => handleSetCardType('cloze')} />
+            </View>
+          </Card>
+
+          <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('Field mapping')}</Text>
             <Text style={styles.hint}>
               {t("Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes — they're derived from the example's cloze markup and its translation.")}
             </Text>
-            {ALL_FIELDS.map((field) => (
+            {FIELDS_BY_CARD_TYPE[cardType].map((field) => (
               <View key={field} style={styles.mappingRow}>
                 <Text style={styles.mappingLabel}>{field === 'cloze' ? FIELD_LABELS[field] : t(FIELD_LABELS[field])}</Text>
                 <Dropdown
@@ -495,19 +505,6 @@ function SummaryStat(props: { label: string; value: number; color: string }): JS
   )
 }
 
-const STATUS_COLOR: Record<CsvRowPreview['status'], string> = {
-  ok: colors.success,
-  duplicate: colors.warning,
-  error: colors.danger,
-}
-
-/** Colors the Status cell by row status, and the Issues cell red when non-empty. */
-function statusCellStyle(preview: CsvRowPreview, columnLabel: string): TextStyle | undefined {
-  if (columnLabel === 'Status') return { color: STATUS_COLOR[preview.status], fontWeight: '700' }
-  if (columnLabel === 'Issues' && preview.errors.length > 0) return { color: colors.danger }
-  return undefined
-}
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
@@ -532,32 +529,14 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: type.subheading, fontWeight: '700' },
   summaryLabel: { fontSize: type.micro, color: colors.textMuted },
   previewHeaderArea: { padding: spacing.lg, paddingBottom: 0 },
-  tableOuterScroll: { flex: 1, marginHorizontal: spacing.lg },
-  tableFlexColumn: { flex: 1 },
-  tableBodyScroll: { flex: 1 },
   tableHeaderRow: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceMuted,
     borderTopLeftRadius: radius.sm,
     borderTopRightRadius: radius.sm,
   },
-  tableHeaderCheckboxCell: { alignItems: 'center', justifyContent: 'center', paddingVertical: 2 },
-  tableHeaderCell: {
-    fontSize: type.caption,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    paddingVertical: 2,
-    paddingHorizontal: spacing.sm,
-  },
   tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, alignItems: 'center' },
   tableRowAlt: { backgroundColor: colors.surfaceMuted },
-  tableCheckboxCell: { alignItems: 'center', justifyContent: 'center', paddingVertical: 2 },
-  tableCell: {
-    fontSize: type.caption,
-    color: colors.text,
-    paddingVertical: 2,
-    paddingHorizontal: spacing.sm,
-  },
   samplePreviewCard: { padding: spacing.md },
   sampleHeaderCell: {
     fontSize: type.caption,

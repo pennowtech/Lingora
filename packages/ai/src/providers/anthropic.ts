@@ -335,6 +335,8 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
           : `Claude request failed: ${String(error)}`,
         this.name,
         true,
+        undefined,
+        true,
       )
     } finally {
       timeout.clear()

@@ -4,6 +4,7 @@ import {
   createCardWithState,
   getCardsDueForReview,
   getCardsForDeck,
+  getClozeCardCountForDeck,
   getDueCardsCount,
   getRecentlyAddedWords,
 } from './repositories/cards'
@@ -32,7 +33,17 @@ describe('card list de-duplication (basic + cloze cards of the same word)', () =
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de')
+    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+
+    // 'einbrechen' needs both a basic and a cloze card for this describe block's de-duplication
+    // scenario — cardType only produces one card per row, so a second pass (now flagged
+    // 'duplicate' since the lemma exists) adds the cloze card under the same lemma.
+    const dupPreviews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
+      language: 'de',
+    })
+    const einbrechenDup = dupPreviews.filter((p) => p.word === 'einbrechen' && p.status === 'duplicate')
+    await importCsvRows(db, einbrechenDup, deckId, 'de', 'duplicate', 'cloze')
   })
 
   afterEach(() => {
@@ -54,6 +65,12 @@ describe('card list de-duplication (basic + cloze cards of the same word)', () =
     const words = await getRecentlyAddedWords(db, 10)
     expect(words).toHaveLength(2)
     expect(words.find((w) => w.form === 'einbrechen')).toMatchObject({ hasCloze: true })
+  })
+
+  it('getClozeCardCountForDeck counts only the cloze card, regardless of due state', async () => {
+    // Haus has a basic card only, einbrechen has a basic AND a cloze card — exactly 1 cloze card
+    // in the deck, used by the deck detail screen to decide whether "Practice cloze" is offered.
+    expect(await getClozeCardCountForDeck(db, deckId)).toBe(1)
   })
 })
 

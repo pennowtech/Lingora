@@ -8,7 +8,6 @@ import type {
 } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 import { createCluster, createMeaning } from './clusters'
-import { createCloze } from './cloze'
 import { createExample } from './examples'
 import { createInflections, createLemma, getLemmaByForm } from './lemmas'
 import { createPhrase } from './phrases'
@@ -291,17 +290,13 @@ export async function persistWordGeneration(
       })
     }
 
-    for (const cloze of payload.clozes) {
-      await createCloze(tx, {
-        id: crypto.randomUUID(),
-        cardId: card.id,
-        sentence: cloze.sentence,
-        answer: cloze.answer,
-        translation: cloze.translation,
-        difficulty: cloze.difficulty,
-        cefrLevel: cloze.cefrLevel,
-      })
-    }
+    // No cloze card is created automatically — payload.clozes (the AI's own attempt) goes unused
+    // by design. Neither an independently AI-generated cloze (stale the moment the user picks a
+    // different sense) nor one auto-derived by matching the lemma's surface forms in the example
+    // (unreliable for German separable verbs, whose prefix splits from the stem in normal word
+    // order) held up — cloze cards are created explicitly by the user instead, via the word-detail
+    // screen's manual cloze editor (see components/ClozeEditorSheet.tsx), which always matches
+    // whatever example/sense they're looking at because they're the one marking it.
 
     // The payload schema guarantees ≥1 cluster with ≥1 meaning, so this is
     // a genuine corruption guard, not a reachable branch.
@@ -466,17 +461,9 @@ export async function regenerateWordPackage(
       })
     }
 
-    for (const cloze of payload.clozes) {
-      await createCloze(tx, {
-        id: crypto.randomUUID(),
-        cardId,
-        sentence: cloze.sentence,
-        answer: cloze.answer,
-        translation: cloze.translation,
-        difficulty: cloze.difficulty,
-        cefrLevel: cloze.cefrLevel,
-      })
-    }
+    // No cloze card is created automatically — see persistWordGeneration's identical comment for
+    // why. Regenerating wipes this card's previous cloze variants (the DELETE above) and doesn't
+    // replace them; the user re-adds one manually afterward if they still want it.
 
     // Same corruption guard as persistWordGeneration — the payload schema guarantees ≥1 cluster
     // with ≥1 meaning.

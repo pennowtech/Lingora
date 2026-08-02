@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import type {
   Card as CardRow,
+  CefrLevel,
   Cloze,
   EvaluationReportReason,
   EvaluationTarget,
@@ -15,6 +16,7 @@ import type {
 } from '@lingora/types'
 import {
   addCardToDeck,
+  createCardForSense,
   createDeck,
   findLemmaBySurfaceForm,
   getActivePromptVersion,
@@ -32,6 +34,7 @@ import {
   getWordGuide,
   persistRegeneratedExamples,
   regenerateWordPackage,
+  setCloze,
   setEvaluation,
   updateExampleText,
   updateMeaningText,
@@ -71,6 +74,7 @@ import {
 } from '../../components/ui'
 import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
 import { AskAISheet } from '../../components/AskAISheet'
+import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { WordGuideModal } from '../../components/WordGuideModal'
@@ -375,21 +379,34 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => Alert.alert(t('Could not update the flashcard example'), String(error)),
   })
 
-  // Whichever cluster is on screen when "Add to deck" is tapped becomes the card's primary
-  // meaning AND its selected example — what word-meaning cards actually show (cloze cards are
-  // generated independently of any meaning/cluster, so they're unaffected — see buildCardContext
-  // in lib/templates.ts for the separate translation-mismatch bug that affected those). Cluster
-  // tabs are purely a viewing choice otherwise (switching tabs alone never touches
-  // primary_meaning_id or is_selected); this is the one moment that choice gets committed,
-  // matching "whatever translation was selected during Add to Deck should be used on deck cards."
-  const commitCardSelection = async (): Promise<void> => {
-    if (!word?.card) throw new Error(t('This word has no card yet.'))
-    if (headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId) {
-      await updatePrimaryMeaning(db, word.card.id, headlineMeaning.id)
+  // Whichever cluster is on screen when "Add to deck" is tapped decides what gets added.
+  // Unchanged from whatever's already primary on the lemma's existing card: reuse that card as-is,
+  // just syncing the selected example if it changed within the same sense. A DIFFERENT sense:
+  // rather than overwriting that existing card's meaning/example — which would silently change
+  // what a card already sitting in some other deck shows — this creates a genuinely new card for
+  // the lemma (createCardForSense). Cloze content is never touched here — see offerClozeEditor,
+  // called after the card is resolved, which asks the user rather than guessing.
+  const resolveTargetCardId = async (deckId: string): Promise<string> => {
+    if (!word?.card || !active) throw new Error(t('This word has no card yet.'))
+    const senseChanged = headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId
+    if (!senseChanged) {
+      if (selectedExample && !selectedExample.isSelected) {
+        await updateSelectedExample(db, word.card.id, selectedExample.id)
+      }
+      return word.card.id
     }
-    if (selectedExample && !selectedExample.isSelected) {
-      await updateSelectedExample(db, word.card.id, selectedExample.id)
-    }
+    return createCardForSense(db, deckId, {
+      lemmaId: word.lemma.id,
+      clusterId: active.cluster.id,
+      meaning: {
+        translation: headlineMeaning.translation,
+        explanation: headlineMeaning.explanation,
+        cefrLevel: headlineMeaning.cefrLevel,
+      },
+      example: selectedExample
+        ? { sentence: selectedExample.sentence, translation: selectedExample.translation, cefrLevel: selectedExample.cefrLevel }
+        : null,
+    })
   }
 
   const invalidateAfterDeckChange = async (): Promise<void> => {
@@ -399,35 +416,81 @@ export default function WordDetailScreen(): JSX.Element {
     await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
   }
 
+  // The manual cloze editor's target — set to open it, either from "Add to deck" (offerClozeEditor
+  // below) or the Cloze section's standalone button. Holding the target card id here (rather than
+  // always assuming word.card.id) is what lets the same sheet serve both a brand-new card from a
+  // sense change and the current one.
+  const [clozeEditor, setClozeEditor] = useState<{
+    cardId: string
+    sentence: string
+    translation: string
+    cefrLevel: CefrLevel
+  } | null>(null)
+
+  // Opens the cloze editor straight from "Add to deck", pre-filled with whatever example was just
+  // selected — cloze content is always opt-in and user-authored (see ClozeEditorSheet's doc
+  // comment for why automatic derivation didn't hold up), and the sheet's own Cancel button is
+  // already the "skip" affordance, so a confirm-first Alert here was just one extra tap with no
+  // extra information in it.
+  const offerClozeEditor = (cardId: string): void => {
+    if (!selectedExample || !active) return
+    setClozeEditor({
+      cardId,
+      sentence: selectedExample.sentence,
+      translation: selectedExample.translation,
+      cefrLevel: active.cluster.cefrLevel,
+    })
+  }
+
   const addToDeck = useMutation({
     mutationFn: async (deckId: string) => {
-      await commitCardSelection()
-      await addCardToDeck(db, deckId, word!.card!.id)
-      return deckId
+      const cardId = await resolveTargetCardId(deckId)
+      await addCardToDeck(db, deckId, cardId)
+      return cardId
     },
-    onSuccess: async () => {
+    onSuccess: async (cardId) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
+      offerClozeEditor(cardId)
     },
   })
 
   // Lets a user add a word straight to a brand-new deck without leaving this screen and
-  // round-tripping through the Decks tab's own FAB — same card-selection commit as addToDeck
-  // above, just with a deck-creation step first.
+  // round-tripping through the Decks tab's own FAB — same card resolution as addToDeck above,
+  // just with a deck-creation step first.
   const createDeckAndAdd = useMutation({
     mutationFn: async (name: string) => {
-      await commitCardSelection()
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name, createdAt: now, updatedAt: now })
-      await addCardToDeck(db, id, word!.card!.id)
-      return id
+      const cardId = await resolveTargetCardId(id)
+      await addCardToDeck(db, id, cardId)
+      return cardId
     },
-    onSuccess: async () => {
+    onSuccess: async (cardId) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
+      offerClozeEditor(cardId)
     },
     onError: (error: unknown) => Alert.alert(t('Could not create deck'), String(error)),
+  })
+
+  const saveCloze = useMutation({
+    mutationFn: async (result: ClozeEditorResult) => {
+      if (!clozeEditor) throw new Error('No cloze target selected.')
+      await setCloze(db, clozeEditor.cardId, {
+        sentence: result.sentence,
+        answer: result.answer,
+        translation: result.translation,
+        difficulty: 'contextual',
+        cefrLevel: clozeEditor.cefrLevel,
+      })
+    },
+    onSuccess: async () => {
+      setClozeEditor(null)
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    },
+    onError: (error: unknown) => Alert.alert(t('Could not save the cloze card'), String(error)),
   })
 
   const toggleGrammar = (option: string): void => {
@@ -1015,6 +1078,25 @@ export default function WordDetailScreen(): JSX.Element {
             ))}
           </>
         ) : null}
+        {/* Always available, not just when this word has no cloze yet — setCloze replaces rather
+            than adds, so this doubles as "edit the cloze card" for the currently-selected sense. */}
+        {word.card ? (
+          <Button
+            label={word.clozes.length > 0 ? t('Edit cloze card') : t('+ Add cloze card')}
+            icon="create-outline"
+            variant="secondary"
+            small
+            onPress={() =>
+              setClozeEditor({
+                cardId: word.card!.id,
+                sentence: selectedExample?.sentence ?? '',
+                translation: selectedExample?.translation ?? '',
+                cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
+              })
+            }
+            style={styles.addClozeButton}
+          />
+        ) : null}
 
         <View style={{ height: 96 }} />
       </ScrollView>
@@ -1047,6 +1129,16 @@ export default function WordDetailScreen(): JSX.Element {
         creating={createDeckAndAdd.isPending}
         {...(addToDeck.isError && { selectError: String(addToDeck.error) })}
         {...(createDeckAndAdd.isError && { createError: String(createDeckAndAdd.error) })}
+      />
+
+      <ClozeEditorSheet
+        visible={clozeEditor !== null}
+        initialSentence={clozeEditor?.sentence ?? ''}
+        initialTranslation={clozeEditor?.translation ?? ''}
+        onCancel={() => setClozeEditor(null)}
+        onSave={(result) => saveCloze.mutate(result)}
+        saving={saveCloze.isPending}
+        {...(saveCloze.isError && { saveError: String(saveCloze.error) })}
       />
 
       <HelpAccordionSheet
@@ -1331,6 +1423,7 @@ const createStyles = (colors: ThemeColors) =>
     borderRadius: radius.full,
   },
   clozeAnswerLabel: { fontSize: type.body, fontWeight: '700', color: colors.success },
+  addClozeButton: { alignSelf: 'center', marginTop: spacing.sm },
   bottomBar: {
     position: 'absolute',
     left: 0,

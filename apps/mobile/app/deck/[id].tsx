@@ -5,6 +5,7 @@ import {
   getAllDecks,
   getCardCountForDeck,
   getCardsForDeck,
+  getClozeCardCountForDeck,
   getDeckById,
   getDueCardsCount,
   getDueClozeCount,
@@ -52,16 +53,18 @@ const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/ap
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
-  const [cardCount, dueCount, dueClozeCount, retention, cards] = await Promise.all([
+  const [cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards] = await Promise.all([
     getCardCountForDeck(db, deckId),
     getDueCardsCount(db, deckId),
     // Cloze practice has its own independent FSRS schedule (migration 0013) — separate due count,
     // separate from word-meaning review's dueCount above.
     getDueClozeCount(db, deckId),
+    // Total (not just due) — decides whether "Practice cloze" is offered at all.
+    getClozeCardCountForDeck(db, deckId),
     getRetentionRate(db, 30), // global for now — per-deck retention lands with Phase 5 stats
     getCardsForDeck(db, deckId),
   ])
-  return { deck, cardCount, dueCount, dueClozeCount, retention, cards }
+  return { deck, cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards }
 }
 
 /**
@@ -310,7 +313,7 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
-  const { deck, cardCount, dueCount, dueClozeCount, retention, cards } = deckQuery.data
+  const { deck, cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards } = deckQuery.data
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -345,32 +348,41 @@ export default function DeckDetailScreen(): JSX.Element {
           </Card>
         </View>
 
-        <Button
-          label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due — study ahead')}
-          icon="play"
-          onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
-          style={styles.reviewButton}
-        />
-        <Button
-          label={dueClozeCount > 0 ? t('Practice {{count}} cloze', { count: dueClozeCount }) : t('Practice cloze')}
-          icon="create-outline"
-          variant="secondary"
-          onPress={() =>
-            router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'cloze' } })
-          }
-          style={styles.clozeButton}
-        />
+        {/* All three actions pull from a deck that actually has the matching kind of card —
+            offering "Review"/"Practice reverse" on a deck with zero cards, or "Practice cloze" on
+            a deck with no cloze cards at all, would just open an empty review session. */}
+        {cardCount > 0 ? (
+          <Button
+            label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due — study ahead')}
+            icon="play"
+            onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
+            style={styles.reviewButton}
+          />
+        ) : null}
+        {clozeCardCount > 0 ? (
+          <Button
+            label={dueClozeCount > 0 ? t('Practice {{count}} cloze', { count: dueClozeCount }) : t('Practice cloze')}
+            icon="create-outline"
+            variant="secondary"
+            onPress={() =>
+              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'cloze' } })
+            }
+            style={styles.clozeButton}
+          />
+        ) : null}
         {/* Same due queue/schedule as "Review N words" above — reverse is a direction, not a
             separate skill the way cloze is, so there's no separate due count for it. */}
-        <Button
-          label={t('Practice reverse')}
-          icon="swap-horizontal"
-          variant="secondary"
-          onPress={() =>
-            router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'reverse' } })
-          }
-          style={styles.clozeButton}
-        />
+        {cardCount > 0 ? (
+          <Button
+            label={t('Practice reverse')}
+            icon="swap-horizontal"
+            variant="secondary"
+            onPress={() =>
+              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'reverse' } })
+            }
+            style={styles.clozeButton}
+          />
+        ) : null}
 
         <SectionHeader
           title={selectMode ? t('{{count}} selected', { count: selectedCardIds.size }) : t('Cards')}
@@ -467,6 +479,15 @@ export default function DeckDetailScreen(): JSX.Element {
             onPress={() => {
               setMenuOpen(false)
               setSelectMode(true)
+            }}
+          />
+          <Button
+            label={t('View all cards (table)')}
+            icon="grid-outline"
+            variant="secondary"
+            onPress={() => {
+              setMenuOpen(false)
+              router.push({ pathname: '/deck/table', params: { deckId: deck.id, deckName: deck.name } })
             }}
           />
           <Button label={t('Import into this deck')} icon="download" variant="secondary" onPress={showImport} />

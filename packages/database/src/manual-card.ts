@@ -158,6 +158,8 @@ export async function createManualWordCard(
         cardId,
         expression: input.phraseExpression.trim(),
         meaning: input.phraseMeaning.trim(),
+        exampleSentence: '',
+        exampleTranslation: '',
         cefrLevel: input.cefrLevel,
       })
     }
@@ -212,5 +214,87 @@ export async function createManualClozeCard(
     })
 
     return { lemma, cardId }
+  })
+}
+
+export interface CardForSenseInput {
+  lemmaId: string
+  /** An existing cluster on this lemma (clusters are shared across a lemma's cards, not owned by
+   * one — see meaning_clusters) — the sense the user picked via the word-detail screen's cluster
+   * tabs. */
+  clusterId: string
+  meaning: { translation: string; explanation: string; cefrLevel: CefrLevel }
+  example?: { sentence: string; translation: string; cefrLevel: CefrLevel } | null
+}
+
+/**
+ * Adds a genuinely new `basic` card to `deckId` for a lemma that already has at least one card —
+ * the word-detail screen's "Add to deck" flow uses this when the user picked a different sense
+ * (cluster) than whatever's already primary on the lemma's existing card, instead of overwriting
+ * that card's meaning/example (which would silently change what a card already sitting in some
+ * other deck shows). Reuses the existing, shared cluster rather than creating a new one — only the
+ * card + its own meaning/example rows are new, mirroring `DuplicatePolicy: 'duplicate'`'s "second
+ * card under the same lemma" pattern from CSV/Anki import (import-shared.ts). No cloze — see
+ * setCloze in repositories/cloze.ts, called separately once this card's id is known.
+ */
+export async function createCardForSense(
+  db: DatabaseAdapter,
+  deckId: string,
+  input: CardForSenseInput,
+): Promise<string> {
+  return db.transaction(async (tx) => {
+    const now = Date.now()
+    const cardId = crypto.randomUUID()
+    await tx.execute(
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
+       VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL, 'manual')`,
+      [cardId, input.lemmaId, deckId, now, now],
+    )
+    await tx.execute(
+      `INSERT INTO card_states (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)
+       VALUES (?, 'new', 0, 0, 0, 0, NULL, ?)`,
+      [cardId, now],
+    )
+    await tx.execute(`INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`, [
+      crypto.randomUUID(),
+      deckId,
+      cardId,
+      now,
+    ])
+
+    const meaningId = crypto.randomUUID()
+    await createMeaning(tx, {
+      id: meaningId,
+      cardId,
+      clusterId: input.clusterId,
+      translation: input.meaning.translation,
+      explanation: input.meaning.explanation,
+      cefrLevel: input.meaning.cefrLevel,
+      isPrimary: true,
+      orderIndex: 0,
+    })
+    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [
+      meaningId,
+      now,
+      cardId,
+    ])
+
+    if (input.example) {
+      await createExample(tx, {
+        id: crypto.randomUUID(),
+        cardId,
+        clusterId: input.clusterId,
+        sentence: input.example.sentence,
+        translation: input.example.translation,
+        context: 'casual',
+        cefrLevel: input.example.cefrLevel,
+        isSelected: true,
+      })
+    }
+
+    // No cloze is created here — the caller (word/[form].tsx) offers the manual cloze editor
+    // separately, after this card exists, so it can attach setCloze's result to the real cardId.
+
+    return cardId
   })
 }

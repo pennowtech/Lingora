@@ -37,8 +37,10 @@ export {
 
 export { parseListField, type DuplicatePolicy, type ImportableRow } from './import-shared'
 export {
+  createCardForSense,
   createManualClozeCard,
   createManualWordCard,
+  type CardForSenseInput,
   type ManualCardResult,
   type ManualClozeCardInput,
   type ManualWordCardInput,
@@ -47,6 +49,7 @@ export {
   buildClozeMarkup,
   CLOZE_BLANK,
   hasClozeMarkup,
+  markSelectionAsCloze,
   parseClozeMarkup,
   revealClozeSentence,
   type ParsedCloze,

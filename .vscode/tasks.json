@@ -227,6 +227,54 @@
       "problemMatcher": []
     },
 
+    // ── Firebase / Firestore ──────────────────────────────────────────────
+    // Project is pinned in .firebaserc (lingora-23dca) — every task below acts on that project.
+    // Requires the firebase-tools CLI (already installed globally on this machine) and being
+    // logged in (run "Firebase: Login" once; "Firebase: Whoami" checks the current session).
+    {
+      "label": "Firebase: Login",
+      "type": "shell",
+      "command": "firebase login",
+      "detail": "Opens a browser to authenticate the Firebase CLI. Needed once before any deploy task below works.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "firebase" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Whoami",
+      "type": "shell",
+      "command": "firebase login:list",
+      "detail": "Shows which Google account(s) the Firebase CLI is currently authenticated as.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "firebase" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Open console",
+      "type": "shell",
+      "command": "open 'https://console.firebase.google.com/project/lingora-23dca/overview'",
+      "windows": {
+        "command": "Start-Process 'https://console.firebase.google.com/project/lingora-23dca/overview'"
+      },
+      "detail": "Opens the Firebase console for this project — Project settings > your Android app > Add fingerprint is where the SHA-1 from 'Android: Print debug keystore SHA-1 / SHA-256' below goes.",
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Deploy Firestore rules",
+      "type": "shell",
+      "command": "firebase deploy --only firestore:rules",
+      "detail": "Validates and deploys firestore.rules (repo root) — the security rules gating cloud sync's Firestore access (see apps/mobile/lib/firestoreSyncBackend.ts). The deploy itself fails if the rules don't compile, so this doubles as a validation check.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "firebase" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Firebase: Deploy Hosting (privacy page)",
+      "type": "shell",
+      "command": "firebase deploy --only hosting",
+      "detail": "Publishes web/privacy (the account & data deletion page required by Google Play's 2026 mandate — see web/privacy/README.md) to Firebase Hosting.",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "firebase" },
+      "problemMatcher": []
+    },
+
     // ── Firebase / Google sign-in setup ──────────────────────────────────
     {
       "label": "Android: Print debug keystore SHA-1 / SHA-256",

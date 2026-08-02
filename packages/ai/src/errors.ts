@@ -24,6 +24,12 @@ export abstract class AIError extends Error {
 /**
  * The provider call itself failed: network error, timeout, bad key, rate
  * limit, 5xx. `retryable` tells the caller whether trying again can help.
+ * `isConnectivity` is true only for the request never reaching the server at
+ * all (DNS/connection failure, timeout) — as opposed to a reached-server
+ * failure (bad status, unexpected body shape, a rejected value like an
+ * unsupported detected language) that also happens to carry no `status`.
+ * Callers use this, not `status === undefined`, to decide whether to show a
+ * "check your internet connection" message.
  */
 export class AIProviderError extends AIError {
   readonly code = 'provider'
@@ -33,6 +39,7 @@ export class AIProviderError extends AIError {
     readonly providerName: string,
     readonly retryable: boolean,
     readonly status?: number,
+    readonly isConnectivity: boolean = false,
   ) {
     super(message)
   }

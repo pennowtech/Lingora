@@ -1,0 +1,1568 @@
+{
+  "generatedAt": "2026-08-03",
+  "totalWords": 312,
+  "chunksCovered": 3,
+  "duplicateCount": 0,
+  "words": [
+    {
+      "word": "aber",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "abermals",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "abgekriegt",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "abgemacht",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "abmachen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "Abschied",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Abspannung",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "abwärts",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "abwesend",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "all",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "alle",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "allemal",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "alles",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "allzu",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "als",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "also",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "alt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "an",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "andere",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "anderer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "anderes",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "anfertigen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Anker",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Anruf",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Anteil",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Arbeit",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "arretieren",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "artig",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "auch",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "auf",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Aufenthalt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Aufruf",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "aufwärts",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "aus",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ausgeschaltet",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "außerhalb",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "auswärts",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Bedarf",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bedauere",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bedeuten",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "bedeutend",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Bedürfnis",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bei",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bekam",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bekümmert",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "beliebig",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "benachrichtigen",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "berichten",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "berichtete",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "besage",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "besagte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "besser",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "betrübt",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bevor",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "bin",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bis",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bitte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Blick",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bringen",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "da",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dachte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "daher",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "damalig",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Dank",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "danke",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "dann",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "das",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dein",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "denken",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "denn",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dennoch",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "der",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "die",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "diese",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dieser",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dieses",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Ding",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Dinge",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "doch",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dort",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dorthin",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "du",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "eben",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ehe",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Eigenheim",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ein",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "eine",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "einer",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "einfach",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "eingeben",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "eingekehrt",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "eingeschaltet",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "einige",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "einnehmen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "eins",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "einzig",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "entfernt",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "er",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "erhalten",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "erledigen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "erledigt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "erst",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "erste",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "erstens",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "erzählen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "erzählte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "es",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "etwa",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "etwas",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "euch",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "euer",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "eventuell",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Fabrikat",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "falls",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ferner",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "fertigen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "funktionierend",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "für",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Gang",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ganz",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "geben",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "gedacht",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Gedanke",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gefertigt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gegen",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gehabt",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Gehen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Geld",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gemacht",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gemäß",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "genau",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gerade",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gernhaben",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gesagt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gesiegt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Gespräch",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gesund",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gewesen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "gewinnen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "gewiss",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "gewonnen",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gleich",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Gott",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "groß",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Gruppe",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "gut",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gutes",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "hat",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "hatte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Haufen",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Haus",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "he",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Heck",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Heim",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "herab",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "hergestellt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Herr",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "herstellen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "Herstellung",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "herüber",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "herum",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "herunter",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "hier",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Hilfe",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "hinauf",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "hinein",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "hinter",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "hinüber",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "holen",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ich",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ihm",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ihnen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ihr",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ihre",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "immer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "in",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "inwiefern",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "irgendein",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "irgendetwas",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "irgendwas",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ist",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ja",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "jawohl",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "je",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "jemals",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "jene",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "jener",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "jetzt",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "kann",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Kehrseite",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "kein",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "keine",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Kerl",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Kerle",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Klamotte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "klar",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "klein",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "komm",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "kommen",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "konnte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "könnte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lang",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "langwierig",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Leben",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Lebensdauer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "letzte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "letzter",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "letztes",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Leute",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Liebe",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lieben",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "machen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "man",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Mangel",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Mann",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Mannsbild",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mehr",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mein",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Menschen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mich",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mit",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Most",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "muss",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "müssen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "musst",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "nach",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Nacht",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Name",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "nehmen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "neu",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "nicht",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "nichts",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "nie",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "niemals",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "nochmals",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Not",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Null",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "nun",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "nur",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ob",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "oder",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Ort",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Plazierung",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "prinzipiell",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "retour",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ringsherum",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Ruf",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Sache",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "sagen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sagte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "schwer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "sehr",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "seid",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sein",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sicher",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sie",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "siegen",
+      "chunkIndex": 3,
+      "kind": "companion"
+    },
+    {
+      "word": "siegte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "siehe",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sind",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "so",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sobald",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sollte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sollten",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sondern",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sowohl",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Standzeit",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Stelle",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Straße",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Tag",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Takt",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tat",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "taten",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "Tempo",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tuend",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tun",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tut",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "und",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "uns",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "unser",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Urlaub",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Vater",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "vermieten",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "viel",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "vielleicht",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "Volk",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "von",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "vor",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "wann",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "war",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "waren",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "warum",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "was",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "wegen",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "weil",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "weit",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "weiter",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wenig",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wenn",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "wichtig",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "wie",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "wirklich",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wo",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wohin",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wollte",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "wurde",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "würde",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "Zeit",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "zu",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "zuverlässig",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "zwei",
+      "chunkIndex": 2,
+      "kind": "primary"
+    }
+  ]
+}

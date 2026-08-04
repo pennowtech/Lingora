@@ -1,5 +1,9 @@
 import type { DatabaseAdapter } from '@lingora/database'
-import { getInstalledWordGuideChunkIds, installWordGuideChunk, uninstallWordGuideChunk } from '@lingora/database'
+import {
+  getInstalledWordGuideChunkIds,
+  installWordGuideChunk,
+  uninstallWordGuideChunk,
+} from '@lingora/database'
 import type { LanguageCode, WordGuideEntry } from '@lingora/types'
 import manifestJson from '../assets/word-guides/manifest.json'
 
@@ -27,6 +31,10 @@ interface BundledChunkFile {
 const CHUNK_SOURCES: Record<number, () => BundledChunkFile> = {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   1: () => require('../assets/word-guides/chunks/chunk-0001.json') as BundledChunkFile,
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  2: () => require('../assets/word-guides/chunks/chunk-0002.json') as BundledChunkFile,
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  3: () => require('../assets/word-guides/chunks/chunk-0003.json') as BundledChunkFile,
 }
 
 export interface WordGuideManifestChunk {
@@ -53,7 +61,9 @@ export function getWordGuideManifest(): WordGuideManifest {
 
 /** Chunks whose content actually shipped with this build — a subset of the manifest's `'done'` chunks (upstream can generate faster than the app re-bundles). */
 export function getBundledChunkIndexes(): number[] {
-  return Object.keys(CHUNK_SOURCES).map(Number).sort((a, b) => a - b)
+  return Object.keys(CHUNK_SOURCES)
+    .map(Number)
+    .sort((a, b) => a - b)
 }
 
 /** Installs a bundled chunk into the on-device `word_guides` table. Throws if this build doesn't carry that chunk's content. */
@@ -64,16 +74,26 @@ export async function installBundledChunk(db: DatabaseAdapter, chunkIndex: numbe
   await installWordGuideChunk(db, chunkIndex, file.language, file.entries)
 }
 
-export async function uninstallChunk(db: DatabaseAdapter, chunkIndex: number, language: LanguageCode): Promise<void> {
+export async function uninstallChunk(
+  db: DatabaseAdapter,
+  chunkIndex: number,
+  language: LanguageCode,
+): Promise<void> {
   await uninstallWordGuideChunk(db, chunkIndex, language)
 }
 
-export async function getInstalledChunkIndexes(db: DatabaseAdapter, language: LanguageCode): Promise<number[]> {
+export async function getInstalledChunkIndexes(
+  db: DatabaseAdapter,
+  language: LanguageCode,
+): Promise<number[]> {
   return getInstalledWordGuideChunkIds(db, language)
 }
 
 /** Installs every bundled chunk not already installed. Returns how many were newly installed. */
-export async function installAllAvailable(db: DatabaseAdapter, language: LanguageCode): Promise<number> {
+export async function installAllAvailable(
+  db: DatabaseAdapter,
+  language: LanguageCode,
+): Promise<number> {
   const installed = new Set(await getInstalledChunkIndexes(db, language))
   const toInstall = getBundledChunkIndexes().filter((i) => !installed.has(i))
   for (const chunkIndex of toInstall) {
@@ -83,7 +103,10 @@ export async function installAllAvailable(db: DatabaseAdapter, language: Languag
 }
 
 /** Uninstalls every currently-installed chunk. Returns how many were removed. */
-export async function uninstallAllInstalled(db: DatabaseAdapter, language: LanguageCode): Promise<number> {
+export async function uninstallAllInstalled(
+  db: DatabaseAdapter,
+  language: LanguageCode,
+): Promise<number> {
   const installed = await getInstalledChunkIndexes(db, language)
   for (const chunkIndex of installed) {
     await uninstallChunk(db, chunkIndex, language)

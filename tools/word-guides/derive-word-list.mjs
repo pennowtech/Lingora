@@ -56,6 +56,30 @@ import { fileURLToPath } from 'node:url'
  *      below). Every new language starts with an empty list; populate it
  *      the same way German's was, by reviewing the derived top 100 twice.
  *   6. Sort by best rank.
+ *
+ * Chunk-authoring convention (as of chunk 3, German): because this list is
+ * derived from English-source translations rather than hand-picked lemmas
+ * (step 2 above), a meaningful fraction of ranked headwords in any chunk
+ * turn out to be a conjugated verb form or participle (e.g. "muss",
+ * "gesiegt", "dachte") rather than the dictionary/infinitive form. When
+ * authoring a chunk's content and a ranked headword is such a form, ALSO
+ * author a companion entry for its lemma/infinitive (e.g. "muss" → also add
+ * "müssen") and append it after that chunk's primary ranked entries — don't
+ * silently gloss over the missing base form. Before adding a companion,
+ * check `tools/word-guides/generated-words.json` (regenerate first via
+ * `node tools/word-guides/list-generated-words.mjs` if it might be stale)
+ * to confirm the lemma isn't already covered by an earlier or later chunk;
+ * skip the companion and just note the existing coverage in the inflected
+ * entry's `intro` instead if it's already there. Scope this to verb
+ * conjugations/participles specifically — a German infinitive is an
+ * unambiguous, universally-recognized lemma, which is what makes a
+ * companion entry well-defined. Adjective/pronoun case-and-gender
+ * inflections (e.g. "andere"/"anderer"/"anderes") don't have an equivalent
+ * single uninflected citation form, so don't manufacture one; if every
+ * sibling inflection already has its own ranked headword in the same
+ * chunk, just cross-reference them in each other's `intro` instead. See
+ * `chunks/chunk-0003.json`'s own `note` field for a worked example of both
+ * halves of this convention.
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

@@ -13,6 +13,7 @@ import { cardSource } from './0011_card_source'
 import { meaningUsage } from './0012_meaning_usage'
 import { clozeStates } from './0013_cloze_states'
 import { syncSnapshots } from './0014_sync_snapshots'
+import { updateDefaultTemplates } from './0015_update_default_templates'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -36,6 +37,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   meaningUsage,
   clozeStates,
   syncSnapshots,
+  updateDefaultTemplates,
 ]
 
 /**
@@ -81,7 +83,11 @@ export async function migrate(db: DatabaseAdapter): Promise<number[]> {
 
   for (const migration of pending) {
     await db.transaction(async (tx) => {
-      await tx.executeScript(migration.up)
+      if (typeof migration.up === 'function') {
+        await (migration.up as (db: DatabaseAdapter) => Promise<void>)(tx)
+      } else {
+        await tx.executeScript(migration.up)
+      }
       await tx.execute(
         `INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)`,
         [migration.version, migration.name, Date.now()],
@@ -112,7 +118,11 @@ export async function rollback(db: DatabaseAdapter, steps = 1): Promise<number[]
 
   for (const migration of toRollBack) {
     await db.transaction(async (tx) => {
-      await tx.executeScript(migration.down)
+      if (typeof migration.down === 'function') {
+        await (migration.down as (db: DatabaseAdapter) => Promise<void>)(tx)
+      } else if (migration.down) {
+        await tx.executeScript(migration.down)
+      }
       await tx.execute(`DELETE FROM schema_migrations WHERE version = ?`, [migration.version])
     })
     rolledBack.push(migration.version)

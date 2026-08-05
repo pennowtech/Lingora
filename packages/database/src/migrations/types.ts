@@ -13,6 +13,6 @@
 export interface Migration {
   version: number
   name: string
-  up: string
-  down: string
+  up: string | ((db: import('../adapter').DatabaseAdapter) => Promise<void>)
+  down: string | ((db: import('../adapter').DatabaseAdapter) => Promise<void>)
 }

@@ -53,6 +53,9 @@ import {
   CLOZE_BACK_TEMPLATE,
   CLOZE_FRONT_TEMPLATE,
   CLOZE_STYLES,
+  DEFAULT_BACK_TEMPLATE,
+  DEFAULT_FRONT_TEMPLATE,
+  DEFAULT_STYLES,
   renderCardHtml,
   type CardTemplateContext,
 } from '../../lib/templates'
@@ -495,9 +498,9 @@ export default function ReviewSessionScreen(): JSX.Element {
     queryFn: () => getDefaultTemplate(db, clozeOnly ? 'cloze' : 'vocab'),
   })
   const template: Pick<Template, 'frontTemplate' | 'backTemplate' | 'styles'> = templateQuery.data ?? {
-    frontTemplate: clozeOnly ? CLOZE_FRONT_TEMPLATE : '<div class="front">{{ word }}</div>',
-    backTemplate: clozeOnly ? CLOZE_BACK_TEMPLATE : '<div class="back">{{ meaning }}<hr>{{ example }}</div>',
-    styles: clozeOnly ? CLOZE_STYLES : '',
+    frontTemplate: clozeOnly ? CLOZE_FRONT_TEMPLATE : DEFAULT_FRONT_TEMPLATE,
+    backTemplate: clozeOnly ? CLOZE_BACK_TEMPLATE : DEFAULT_BACK_TEMPLATE,
+    styles: clozeOnly ? CLOZE_STYLES : DEFAULT_STYLES,
   }
 
   // Frozen order (sessionOrder), fresh content (queueQuery.data) — see the comment above sessionOrder.
@@ -798,19 +801,20 @@ export default function ReviewSessionScreen(): JSX.Element {
   const templateStyles = template.styles ?? ''
   const frontHtml = !view
     ? ''
-    : renderCardHtml(template.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front')
+    : renderCardHtml(template.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front', colors)
   // Vocab's back stacks front+back (word recap above the meaning); cloze's
   // back template is the complete revealed-sentence layout on its own — the
   // front's blanked sentence has no reason to repeat above it.
   const backHtml = !view
     ? ''
     : isCloze
-      ? renderCardHtml(template.backTemplate, templateStyles, view.templateContext, 'back')
+      ? renderCardHtml(template.backTemplate, templateStyles, view.templateContext, 'back', colors)
       : renderCardHtml(
           `${template.frontTemplate}<hr/>${template.backTemplate}`,
           templateStyles,
           backContext ?? view.templateContext,
           'back',
+          colors,
         )
 
   return (

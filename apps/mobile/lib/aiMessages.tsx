@@ -34,7 +34,7 @@ export function useAIProviderRequiredAlert(openSettings: () => void): {
         setAction(null)
         openSettings()
       }}
-      confirmLabel={t('Open Settings')}
+      confirmLabel={t('AI Settings')}
     />
   )
 

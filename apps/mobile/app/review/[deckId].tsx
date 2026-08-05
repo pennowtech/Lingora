@@ -927,7 +927,14 @@ export default function ReviewSessionScreen(): JSX.Element {
                 return (
                   <Pressable
                     key={rating}
-                    style={[styles.ratingButton, { backgroundColor: ratingColors[rating].bg }]}
+                    style={[
+                      styles.ratingButton,
+                      {
+                        backgroundColor: ratingColors[rating].bg,
+                        borderColor: ratingColors[rating].border,
+                        borderBottomColor: ratingColors[rating].shadow,
+                      },
+                    ]}
                     onPress={() => rate.mutate(rating)}
                     disabled={rate.isPending}
                   >
@@ -1131,16 +1138,25 @@ const createStyles = (colors: ThemeColors) =>
       paddingBottom: spacing.sm,
       lineHeight: 18,
     },
-    ratingRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, paddingTop: 0 },
+    ratingRow: { flexDirection: 'row', gap: spacing.xs, padding: spacing.md, paddingTop: 0 },
     ratingPlaceholder: { height: 76 },
     ratingButton: {
       flex: 1,
       alignItems: 'center',
+      justifyContent: 'center',
       paddingVertical: spacing.md,
-      borderRadius: radius.md,
+      paddingHorizontal: spacing.xs,
+      borderRadius: radius.full,
+      borderWidth: 1.5,
+      borderBottomWidth: 5,
+      elevation: 4,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
     },
-    ratingLabel: { fontSize: type.body, fontWeight: '700' },
-    ratingInterval: { fontSize: type.micro, marginTop: 2, opacity: 0.8 },
+    ratingLabel: { fontSize: type.subheading, fontWeight: '800' },
+    ratingInterval: { fontSize: type.micro, fontWeight: '600', marginTop: 1, opacity: 0.85 },
     errorLabel: { fontSize: type.caption, color: colors.danger, textAlign: 'center', paddingBottom: spacing.md },
     editBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
     editSheet: {

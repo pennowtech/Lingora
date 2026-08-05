@@ -38,12 +38,11 @@ export const colors = {
   infoSoft: '#E7F0FE',
 } as const
 
-/** Review rating → color, consistent everywhere ratings appear. */
-export const ratingColors: Record<ReviewRating, { fg: string; bg: string }> = {
-  again: { fg: '#D64545', bg: '#FBE9E9' },
-  hard: { fg: '#D97706', bg: '#FCF0DF' },
-  good: { fg: '#2E9E5B', bg: '#E3F5EA' },
-  easy: { fg: '#2D7FF9', bg: '#E7F0FE' },
+export const ratingColors: Record<ReviewRating, { fg: string; bg: string; shadow: string; border: string }> = {
+  again: { fg: '#D64545', bg: '#FBE9E9', shadow: '#E4B6B6', border: '#F0C7C7' },
+  hard: { fg: '#D97706', bg: '#FCF0DF', shadow: '#E4CA9E', border: '#F3DDBC' },
+  good: { fg: '#2E9E5B', bg: '#E3F5EA', shadow: '#A3DCB9', border: '#C0ECCF' },
+  easy: { fg: '#2D7FF9', bg: '#E7F0FE', shadow: '#AACBFD', border: '#C8DEFE' },
 }
 
 /** CEFR level → color. Green (beginner) → amber (intermediate) → purple (advanced). */

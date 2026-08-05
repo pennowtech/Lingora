@@ -12,7 +12,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Button, Card, Chip, EmptyState, ErrorState, IconButton } from '../../components/ui'
+import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
@@ -349,37 +349,45 @@ export default function SearchScreen(): JSX.Element {
     </Card>
   ) : quickTranslate.data ? (
     <Card style={styles.translateCard}>
-      {/* Centered direction indicator, generalized to whichever pair Settings → Learning
-          has configured, straight or reverse — not hardcoded to DE/EN. */}
-      <View style={styles.translateDirectionRow}>
-        <Text style={styles.translateDirection}>
-          {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()}
-        </Text>
-        <CardSourceIcon source={dictionaryNameToCardSource(dictionary.name)} size={14} />
+      <View style={styles.guideHeaderRow}>
+        <View style={styles.guideTitleGroup}>
+          <Text style={styles.guideHeadword}>{term}</Text>
+          <Text style={styles.guidePosText}>
+            {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()}
+          </Text>
+        </View>
+        <View style={styles.guideActionIcons}>
+          <SpeakerButton text={term} language={quickTranslate.data.source} size={18} />
+          <CardSourceIcon source={dictionaryNameToCardSource(dictionary.name)} size={16} />
+        </View>
       </View>
-      {/* No headword repeated here — the searched term is already visible in the search
-          box above, self-evident in this context. Just the translation(s). */}
-      <Text style={styles.translationsLine}>
-        <Text style={styles.translationPrimary}>{quickTranslate.data.text}</Text>
+
+      <Text style={styles.guideTranslationText}>
+        {quickTranslate.data.text}
         {(() => {
-          const primary = quickTranslate.data.text
-          const rest = translateAlternatives.data?.filter((alt) => alt !== primary) ?? []
+          const primaryNorm = quickTranslate.data.text.trim().toLowerCase()
+          const rest = translateAlternatives.data?.filter((alt) => alt.trim().toLowerCase() !== primaryNorm) ?? []
           return rest.length > 0 ? `, ${rest.join(', ')}` : ''
         })()}
       </Text>
+
       {existingResult?.inDeck ? (
-        <View style={styles.inDeckRow}>
-          <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+        <View style={styles.inDeckBadgeRow}>
+          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Text style={styles.inDeckBadgeText}>{t('Already in your library')}</Text>
         </View>
-      ) : quickTranslate.data.source === targetLanguage ? (
-        <Button
-          label={t('Add to deck')}
-          icon="add-circle"
-          variant="secondary"
-          small
-          onPress={() => setDeckPickerFor('translation')}
-        />
-      ) : null}
+      ) : (
+        <View style={styles.guideFooterRow}>
+          <Button
+            label={t('Add to deck')}
+            icon="add-circle"
+            variant="primary"
+            small
+            onPress={() => setDeckPickerFor('translation')}
+          />
+        </View>
+      )}
+
       {addFromTranslation.isError ? (
         <Text style={styles.generateError}>{String(addFromTranslation.error)}</Text>
       ) : null}
@@ -458,33 +466,45 @@ export default function SearchScreen(): JSX.Element {
         <View>
           <View style={styles.newWordCards}>
           {wordGuide.data ? (
-            // Same visual language as the quick-translate card below (centered meta row + source
-            // icon, translation as the one bold normal-size line) — previously this repeated the
-            // headword (already visible in the search box) at the same giant size as the
-            // translation, two competing headlines with no hierarchy between them.
-            <Card style={styles.translateCard}>
-              <View style={styles.translateDirectionRow}>
-                {wordGuide.data.partOfSpeech ? (
-                  <Text style={styles.translateDirection}>
-                    {wordGuide.data.partOfSpeech}
-                    {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
-                  </Text>
-                ) : null}
-                <CardSourceIcon source="word_guide" size={14} />
+            <Card style={styles.guideCard}>
+              <View style={styles.guideHeaderRow}>
+                <View style={styles.guideTitleGroup}>
+                  <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
+                  {wordGuide.data.partOfSpeech ? (
+                    <Text style={styles.guidePosText}>
+                      {wordGuide.data.partOfSpeech}
+                      {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
+                    </Text>
+                  ) : null}
+                </View>
+                <View style={styles.guideActionIcons}>
+                  <SpeakerButton text={wordGuide.data.headword} language={wordGuide.data.language} size={18} />
+                  <CardSourceIcon source="word_guide" size={16} />
+                </View>
               </View>
-              <View style={styles.guideTranslationRow}>
-                <Text style={styles.translationsLine}>
-                  <Text style={styles.translationPrimary}>{wordGuide.data.translation}</Text>
-                </Text>
-                <Chip label={t('More info')} onPress={() => setGuideModalOpen(true)} />
+
+              <Text style={styles.guideTranslationText}>{wordGuide.data.translation}</Text>
+
+              {wordGuide.data.intro ? (
+                <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
+              ) : null}
+
+              <View style={styles.guideFooterRow}>
+                <Button
+                  label={t('Add to deck')}
+                  icon="add-circle"
+                  variant="primary"
+                  small
+                  onPress={() => setDeckPickerFor('guide')}
+                />
+                <Button
+                  label={t('More info')}
+                  icon="book-outline"
+                  variant="secondary"
+                  small
+                  onPress={() => setGuideModalOpen(true)}
+                />
               </View>
-              <Button
-                label={t('Add to deck')}
-                icon="add-circle"
-                variant="secondary"
-                small
-                onPress={() => setDeckPickerFor('guide')}
-              />
             </Card>
           ) : null}
 
@@ -509,7 +529,7 @@ export default function SearchScreen(): JSX.Element {
               <Text style={styles.generateLabel}>{t('Generate with AI')}</Text>
             </Card>
           ) : (
-            <Pressable onPress={() => router.push('/settings')}>
+            <Pressable onPress={() => router.push('/settings/ai-providers')}>
               <Card style={styles.limitedCard}>
                 <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
                 <Text style={styles.limitedLabel}>
@@ -635,10 +655,74 @@ const createStyles = (colors: ThemeColors) =>
   // bottom padding — now that block is gone (see the `results.length === 0` branch above), so
   // this is the top of the whole panel and needs real breathing room under the search bar instead.
   newWordCards: { marginTop: spacing.lg },
+  guideCard: {
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  guideHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  guideTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing.sm,
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  guideActionIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  guideHeadword: {
+    fontSize: type.heading,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  guidePosText: {
+    fontSize: type.caption,
+    fontWeight: '600',
+    color: colors.textMuted,
+    fontStyle: 'italic',
+  },
+  guideTranslationText: {
+    fontSize: type.body,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  guideSnippet: {
+    fontSize: type.caption,
+    color: colors.textSecondary,
+    lineHeight: 18,
+  },
+  guideFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
   translateCard: {
     marginTop: spacing.md,
     marginBottom: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  inDeckBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  inDeckBadgeText: {
+    fontSize: type.caption,
+    fontWeight: '600',
+    color: colors.success,
   },
   translateDirectionRow: {
     flexDirection: 'row',

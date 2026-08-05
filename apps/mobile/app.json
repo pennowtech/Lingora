@@ -18,7 +18,8 @@
         "foregroundImage": "./assets/icon-lingora.png"
       },
       "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 6
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,7 +36,9 @@
       [
         "expo-share-intent",
         {
-          "androidIntentFilters": ["text/*"],
+          "androidIntentFilters": [
+            "text/*"
+          ],
           "disableIOS": true
         }
       ]

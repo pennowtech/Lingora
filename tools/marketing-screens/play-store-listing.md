@@ -1,7 +1,5 @@
 # Play Store Listing Copy
 
-Ready to copy-paste into Play Console. Play Store does **not** render markdown — the fields below are written as plain text on purpose. Don't paste `**`/`##` characters into Play Console; they'll show up literally.
-
 Companion screenshots: `tools/marketing-screens/final/` (20 device-framed images, already sized for a store listing).
 
 ---
@@ -23,31 +21,36 @@ AI-powered vocabulary lessons & smart flashcards for German, Spanish & more
 *Max 4000 characters — but only the first ~250 characters show before the user taps "Read more," so the hook has to land immediately, not eventually. Copy everything between the lines below exactly as-is (plain text, emoji included, no markdown).*
 
 ```
-Tired of flashcard apps that never explain WHY, and vocabulary you forget again by next week?
+Stop memorizing lists. Start speaking naturally with Lingora. 
 
-Lingora turns any German or Spanish word into a full AI-generated lesson the moment you search it, then makes sure it actually sticks — for good. This isn't another static flashcard deck someone built once and forgot about. It's a vocabulary system that gets smarter every single time you use it.
+Lingora is the AI-native vocabulary app that turns any word from real life—whether from Netflix, YouTube, or your clipboard—into a personalized, rich language lesson instantly. 
 
-🧠 AI THAT ACTUALLY TEACHES
+WHY LINGORA IS DIFFERENT:
+
 🔍 Instant lookup — search any word, get meaning, examples, synonyms & phrases in seconds
-⚡ Quick translate first — get a fast answer even before you decide to generate the full lesson
+
+💬 Ask AI when you're confused — Don't get Konjunktiv II? Wondering how "sprechen" differs from "reden" or anything? Just ask. Get a real, plain answer in your native language, right inside the card
+
+⚡ Quick translate first — get a fast preview even before you decide to generate the full lesson
+
 📖 Real grammar, explained — Konjunktiv II, Präteritum, passive voice, indirect speech & more, in plain English, not textbook jargon
-💬 Ask AI anything — confused mid-review? Get an instant, in-context answer to your exact question
-🎯 CEFR-tagged everything — always know if a word or sense is A1 beginner or C1 advanced
-🎛️ Multiple meanings, your call — pick which sense and which example actually shows on your flashcard
-🔗 Phrases & collocations — learn how words actually get used together, not just in isolation
-🎲 Regenerate or edit any card — don't like it? Reroll it, or write your own from scratch
 
-📚 STUDY SCIENCE, NOT GUESSWORK
-🔁 True spaced repetition (FSRS) — reviews adapt to YOUR memory, not a fixed, one-size-fits-all timer
-👆 Swipe & rate — Again, Hard, Good, Easy, done
-✍️ Fill-in-the-blank cloze mode — train recall, not just recognition
-🔄 Reverse practice — go English → target language too, not just one direction
-🔥 Streaks, live retention %, and an activity heatmap that shows your real progress at a glance
-📈 A growth chart that shows your whole vocabulary building up over time
+📖 Practice it every way that matters — Standard flashcards, fill-in-the-blank cloze cards, and reverse mode (English → target language). Recognizing a word and *producing* it are different skills — Lingora trains both.
 
-🎬 CAPTURE VOCAB FROM REAL LIFE
-📺 Grab words straight from Netflix, YouTube, articles, or your clipboard the second you hear them
-📥 They land in a Mining Queue — turn them all into full AI cards whenever you're ready, in one batch
+💬 Confused mid-review? — Get an instant, in-context answer to your exact question
+
+📚 CONTEXT OVER TRANSLATION — Unlike traditional apps, our semantic context clustering groups meanings so you learn words in the exact context they are actually used. Example: For "ausgehen", you will see "To go out" under Social Context and "To run out" under Empty context. 
+Hence, when you click the Social tab, everything you see—the synonyms, example sentences, and translations—is strictly filtered so you only learn things related to "going out with friends".
+
+🧠 MORPHOLOGICAL AWARENESS — No duplicate flashcards. Highly inflected languages like German produce dozens of surface variations (e.g., "ging aus," "läuft," "Häuser"). Lingora's morphology engine automatically maps inflections back to their root lemma (e.g., "ausgehen," "laufen," "Haus") before creating cards
+
+📺 Grab words straight from Netflix, YouTube, articles, or your clipboard the second you hear them. They land in a Mining Queue — turn them all into full AI cards whenever you're ready, in one batch
+
+🎯  TAILORED AI EXAMPLES — Every generation is CEFR-calibrated. Limit vocabulary complexity, tenses, and grammatical structures to your active level (A1 to C2) so you learn at a pace that matches your mind
+
+🔑 BRING YOUR OWN AI KEY (BYOK) OR STUDY FREE — Configure your own OpenAI key and pay only for what you use, or enjoy our keyless free offline dictionary tier. Your API keys stay secure on your device
+
+🗂️ Already using Anki? — Bring your existing Anki decks with you! Download Lingora today and start actually remembering what you learn
 
 🎨 MAKE IT YOURS
 🖌️ Six gorgeous themes, from bright & clean to a deep, distraction-free dark mode

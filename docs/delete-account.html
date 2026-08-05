@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delete Your Lingora Account</title>
+<meta name="description" content="How to permanently delete your Lingora account and synced data.">
+<style>
+  :root {
+    --bg: #fbfaff; --surface: #ffffff; --ink: #201c30; --ink-muted: #5b5570; --ink-faint: #8a83a0;
+    --accent: #534ab7; --accent-soft: #eeecfb; --rule: #e4e0f4;
+    --danger: #b3261e; --danger-soft: #fbebea;
+    --good: #1e7a52; --good-soft: #e6f5ee;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16131f; --surface: #1e1a2b; --ink: #ece9f7; --ink-muted: #a89fc2; --ink-faint: #766f8c;
+      --accent: #9c8fe8; --accent-soft: #292440; --rule: #322c47;
+      --danger: #ff8a80; --danger-soft: #3a1f1d;
+      --good: #6bd6a6; --good-soft: #163326;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font-body);
+    font-size: 16px; line-height: 1.62; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 640px; margin: 0 auto; padding: 56px 24px 80px; }
+
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.2rem); font-weight: 800; margin: 0 0 14px; text-wrap: balance; letter-spacing: -0.01em; }
+  p.lede { font-size: 17px; color: var(--ink-muted); margin: 0 0 36px; }
+  a { color: var(--accent); }
+
+  h2 { font-size: 1.05rem; font-weight: 800; margin: 0 0 14px; }
+  section { margin-bottom: 34px; }
+
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li { counter-increment: step; padding-left: 42px; position: relative; margin-bottom: 16px; font-size: 15px; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: -1px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ui-path { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13.5px; padding: 6px 13px; border-radius: 999px; margin: 2px 0 18px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 540px) { .split { grid-template-columns: 1fr; } }
+  .card { border-radius: 14px; padding: 18px 20px; border: 1px solid var(--rule); }
+  .card.deleted { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+  .card.kept { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
+  .card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 800; }
+  .card.deleted h3 { color: var(--danger); }
+  .card.kept h3 { color: var(--good); }
+  .card ul { margin: 0; padding-left: 18px; }
+  .card li { margin-bottom: 6px; font-size: 14px; }
+
+  .retention-note { font-size: 14.5px; color: var(--ink-muted); background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; margin-top: 16px; }
+
+  .email-box { background: var(--accent-soft); border-radius: 14px; padding: 20px 22px; }
+  .email-box p { margin: 0 0 8px; font-size: 14.5px; }
+  .email-box a { font-weight: 700; font-size: 16px; }
+
+  footer { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--rule); font-size: 13.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">Account Deletion</p>
+  <h1>Delete Your Lingora Account</h1>
+  <p class="lede">You can permanently delete your Lingora cloud account and all data synced to it at any time, directly from within the app — no need to contact support.</p>
+
+  <section>
+    <h2>How to delete your account</h2>
+    <p class="ui-path">Lingora app → Settings → Sync → Danger zone → "Delete account &amp; sync data"</p>
+    <ol class="steps">
+      <li>Open the <strong>Lingora</strong> app and go to <strong>Settings → Sync</strong>.</li>
+      <li>Scroll to the <strong>Danger zone</strong> section and tap <strong>"Delete account &amp; sync data."</strong></li>
+      <li>Confirm the action when prompted — Lingora will ask you to confirm once more since this cannot be undone.</li>
+      <li>Your account and all associated cloud data are deleted immediately.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What happens when you delete your account</h2>
+    <div class="split">
+      <div class="card deleted">
+        <h3>Permanently deleted</h3>
+        <ul>
+          <li>Every deck, card, and review-history record you've ever synced to Lingora's cloud storage (Firestore) — a hard, immediate delete</li>
+          <li>Lingora's authorization to your Google account is revoked</li>
+          <li>You're signed out of Cloud Sync</li>
+          <li>Local sync settings on this device (last-synced time, sync preferences)</li>
+        </ul>
+      </div>
+      <div class="card kept">
+        <h3>Not deleted</h3>
+        <ul>
+          <li>Your decks, cards, and review progress stored locally on your device — untouched and fully usable offline</li>
+        </ul>
+      </div>
+    </div>
+    <div class="retention-note">
+      <strong>Retention period:</strong> none. We do not keep backups of your account data beyond what's technically necessary to complete the deletion request itself — there is no additional grace period or archival copy retained after deletion.
+    </div>
+    <p style="margin-top:16px; font-size: 14.5px; color: var(--ink-muted);">If you'd also like to remove Lingora's local data from this device, uninstall the app or clear its data from your device's app settings — this is separate from the cloud account deletion above.</p>
+  </section>
+
+  <section>
+    <h2>Can't access the app?</h2>
+    <div class="email-box">
+      <p>If you no longer have access to the app but still want your synced account data deleted, email us and we'll process the request manually:</p>
+      <a href="mailto:singhbuildstech@gmail.com">singhbuildstech@gmail.com</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>This page describes account deletion specifically. For the full privacy policy, see <a href="./privacy-policy.html">Lingora's Privacy Policy</a>.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "1006945303584-7thnv9agfmvd57tiie56q7v23id5tulr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lingora.mobile",
+            "certificate_hash": "7ecca322e088d50047a9e841a354a06b4be97733"
+          }
+        },
+        {
           "client_id": "1006945303584-oo9p7p3fo29uerjaog2r0ir7uu0pg7ea.apps.googleusercontent.com",
           "client_type": 3
         }

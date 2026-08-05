@@ -14,6 +14,10 @@ import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
 import { ThemeProvider, useTheme } from '../lib/ThemeContext'
 
+import { isOnboardingCompleted } from '../lib/onboarding'
+import { StartupScreen } from '../components/StartupScreen'
+import { useEffect, useState } from 'react'
+
 // One client for the app; queries read on-device SQLite, so data is never
 // stale in the HTTP sense — invalidation happens explicitly after mutations.
 const queryClient = new QueryClient({
@@ -27,6 +31,15 @@ function AppStack(): JSX.Element {
   const pathname = usePathname()
   const { theme } = useTheme()
   const colors = theme.colors
+  const [showStartup, setShowStartup] = useState(false)
+
+  useEffect(() => {
+    isOnboardingCompleted().then((completed) => {
+      if (!completed) {
+        setShowStartup(true)
+      }
+    })
+  }, [])
   // The one screen the bottom bar deliberately never shows on — a review session is a focused,
   // full-screen task (it already hides its own header too, see the review/[deckId] Stack.Screen
   // below), not somewhere you're expected to jump to another tab mid-card.
@@ -42,6 +55,7 @@ function AppStack(): JSX.Element {
         <CaptureIntentHandler />
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>
+          <StartupScreen visible={showStartup} onComplete={() => setShowStartup(false)} />
           <Stack
             screenOptions={{
               headerShadowVisible: false,

@@ -56,6 +56,7 @@ const LANGUAGE_LABELS: Record<LanguageCode, string> = {
   es: 'Spanish',
   fr: 'French',
   vi: 'Vietnamese',
+  hi: 'Hindi',
 }
 
 /** Default "Test phrase" per learning language — same sentence in each supported language, so the
@@ -68,6 +69,7 @@ const DEFAULT_SAMPLE_TEXTS: Record<LanguageCode, string> = {
   fr: "J'ai beaucoup appris sur la culture.",
   ja: '文化についてたくさん学びました。',
   vi: 'Tôi đã học được nhiều điều về văn hóa.',
+  hi: 'मैंने संस्कृति के बारे में बहुत कुछ सीखा।',
 }
 
 /** Help content — one accordion section per engine, plus overview/testing — same shape and

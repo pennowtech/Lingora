@@ -123,7 +123,7 @@ export const DEFAULT_DECK_ID = 'deck-default'
 export const ALL_DECKS_ID = 'all'
 
 /** Every language the dictionary/generation providers know how to handle (see LanguageCode). */
-export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr', 'vi']
+export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr', 'vi', 'hi']
 
 /** Preserves today's hardcoded German→English behavior for users who never open the setting. */
 export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'

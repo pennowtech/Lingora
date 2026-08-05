@@ -245,7 +245,7 @@ export default function WordDetailScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings'))
+  const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings/ai-providers'))
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false)
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })

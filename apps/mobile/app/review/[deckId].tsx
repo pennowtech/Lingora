@@ -58,8 +58,8 @@ import {
 } from '../../lib/templates'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
-import { radius, ratingColors, spacing, type } from '../../lib/theme'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'srs', screen: 'ReviewSessionScreen' })
@@ -421,6 +421,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   // session — so loadReviewQueue builds a one-card "queue" for it regardless of due status.
   const singleCardId = params.cardId
 
+  const { theme } = useTheme()
+  const activeRatingColors = theme.mode === 'dark' ? darkRatingColors : ratingColors
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [durationsMs, setDurationsMs] = useState<number[]>([])
@@ -898,6 +900,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                     </Text>
                   ) : null}
                   <CardActionBar
+                    {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
                     onExplain={handleExplain}
                     explainVisible={isAiCard || explainVisible}
                     explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
@@ -930,16 +933,16 @@ export default function ReviewSessionScreen(): JSX.Element {
                     style={[
                       styles.ratingButton,
                       {
-                        backgroundColor: ratingColors[rating].bg,
-                        borderColor: ratingColors[rating].border,
-                        borderBottomColor: ratingColors[rating].shadow,
+                        backgroundColor: activeRatingColors[rating].bg,
+                        borderColor: activeRatingColors[rating].border,
+                        borderBottomColor: activeRatingColors[rating].shadow,
                       },
                     ]}
                     onPress={() => rate.mutate(rating)}
                     disabled={rate.isPending}
                   >
-                    <Text style={[styles.ratingLabel, { color: ratingColors[rating].fg }]}>{t(label)}</Text>
-                    <Text style={[styles.ratingInterval, { color: ratingColors[rating].fg }]}>
+                    <Text style={[styles.ratingLabel, { color: activeRatingColors[rating].fg }]}>{t(label)}</Text>
+                    <Text style={[styles.ratingInterval, { color: activeRatingColors[rating].fg }]}>
                       {formatInterval(Date.now(), preview.nextReviewAt)}
                     </Text>
                   </Pressable>

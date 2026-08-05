@@ -45,6 +45,13 @@ export const ratingColors: Record<ReviewRating, { fg: string; bg: string; shadow
   easy: { fg: '#2D7FF9', bg: '#E7F0FE', shadow: '#AACBFD', border: '#C8DEFE' },
 }
 
+export const darkRatingColors: Record<ReviewRating, { fg: string; bg: string; shadow: string; border: string }> = {
+  again: { fg: '#FF8A8A', bg: '#3D1C1C', shadow: '#281111', border: '#5C2929' },
+  hard: { fg: '#FFB854', bg: '#3D2A12', shadow: '#281B0A', border: '#5C3F1B' },
+  good: { fg: '#6CE49B', bg: '#133520', shadow: '#0B2214', border: '#1D4E30' },
+  easy: { fg: '#72ADFF', bg: '#122646', shadow: '#0B1930', border: '#1B3866' },
+}
+
 /** CEFR level → color. Green (beginner) → amber (intermediate) → purple (advanced). */
 export const cefrColors: Record<CefrLevel, { fg: string; bg: string }> = {
   A1: { fg: '#2E9E5B', bg: '#E3F5EA' },

@@ -85,10 +85,7 @@ export const DEFAULT_BACK_TEMPLATE = `<div class="dc-back">
   <div class="dc-meaning">{{ meaning }}</div>
   {% if example %}
   <div class="dc-example">
-    <div class="dc-example-de">
-      <button type="button" class="dc-speaker" aria-label="Play pronunciation" onclick="window.ReactNativeWebView && window.ReactNativeWebView.postMessage('speak')">&#128266;</button>
-      {{ example_highlighted }}
-    </div>
+    <div class="dc-example-de">{{ example_highlighted }}</div>
     {% if translation %}<div class="dc-example-en">{{ translation }}</div>{% endif %}
   </div>
   {% endif %}
@@ -109,10 +106,9 @@ export const DEFAULT_STYLES = `:root{--accent:#534AB7;}
 .dc-synonyms { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .dc-syn-pill { font-size: 0.78rem; font-weight: 500; color: #7C7A8C; background: #F1F0FB; padding: 3px 11px; border-radius: 999px; }
 .dc-example { position: relative; background: #F7F6FC; border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 18px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; }
-.dc-example-de { font-size: 1.05rem; font-style: italic; color: #1C1B22; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.dc-example-de { font-size: 1.05rem; font-style: italic; color: #1C1B22; }
 .dc-example-en { font-size: 0.9rem; color: #6B7280; margin-top: 6px; }
-.dc-example-de mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; font-style: normal; }
-.dc-speaker { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-right: 4px; padding: 0; border: none; border-radius: 999px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.18); font-size: 13px; line-height: 26px; text-align: center; cursor: pointer; }`
+.dc-example-de mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; font-style: normal; }`
 
 /** A worked example of Liquid's conditional syntax, shown in the editor's Code tab. */
 export const CONDITIONAL_EXAMPLE = `{% if gender %}

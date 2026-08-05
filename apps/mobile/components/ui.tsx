@@ -181,6 +181,8 @@ export function CardActionBar(props: {
   explainIcon?: keyof typeof Ionicons.glyphMap
   onEdit: () => void
   onLookup: () => void
+  /** "Listen" — speaks the example or word aloud via TTS. */
+  onListen?: () => void
   /** "Ask AI" — a follow-up question popup, separate from Explain/More info. Optional because not
    * every card-rendering context (e.g. a bare preview) wants it. */
   onAskAI?: () => void
@@ -192,6 +194,9 @@ export function CardActionBar(props: {
   const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.cardActionBar}>
+      {props.onListen ? (
+        <CardActionButton icon="volume-medium-outline" label="Listen" onPress={props.onListen} />
+      ) : null}
       <CardActionButton
         icon={props.explainIcon ?? (props.explainVisible ? 'book' : 'book-outline')}
         label={props.explainLabel ?? 'Explain'}

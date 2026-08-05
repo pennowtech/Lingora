@@ -91,24 +91,27 @@ export const DEFAULT_BACK_TEMPLATE = `<div class="dc-back">
   {% endif %}
   {% if synonyms.size > 0 %}
   <div class="dc-synonyms">
-    {% for s in synonyms %}<span class="dc-syn-pill">{{ s.word }}</span>{% endfor %}
+    <div class="dc-syn-list">
+      {% for s in synonyms %}<span class="dc-syn-pill">{{ s.word }}</span>{% endfor %}
+    </div>
   </div>
   {% endif %}
 </div>`
 
-export const DEFAULT_STYLES = `:root{--accent:#534AB7;}
-.dc-front { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.dc-word { font-size: 2.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
-.dc-tag { font-size: 0.85rem; font-weight: 600; color: #6B7280; background: #F1F0FB; padding: 4px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+export const DEFAULT_STYLES = `.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; }
+.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: 3.2rem; font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.1; }
+.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); }
 
-.dc-back { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
-.dc-meaning { font-size: 1.8rem; font-weight: 800; color: #1C1B22; text-align: center; }
-.dc-synonyms { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.dc-syn-pill { font-size: 0.78rem; font-weight: 500; color: #7C7A8C; background: #F1F0FB; padding: 3px 11px; border-radius: 999px; }
-.dc-example { position: relative; background: #F7F6FC; border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 18px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; }
-.dc-example-de { font-size: 1.05rem; font-style: italic; color: #1C1B22; }
-.dc-example-en { font-size: 0.9rem; color: #6B7280; margin-top: 6px; }
-.dc-example-de mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; font-style: normal; }`
+.dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+.dc-meaning { font-size: 2.1rem; font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; }
+.dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; }
+.dc-example-de { font-size: 1.1rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; }
+.dc-example-en { font-size: 0.92rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; }
+.dc-example-de mark.dc-hl { background: var(--theme-primary-soft, #F1F0FE); color: var(--theme-primary, #6C63FF); font-weight: 800; padding: 1px 5px; border-radius: 4px; font-style: normal; }
+
+.dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.dc-syn-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.dc-syn-pill { font-size: 0.82rem; font-weight: 600; color: var(--theme-text, #1C1B22); background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); padding: 4px 12px; border-radius: 999px; }`
 
 /** A worked example of Liquid's conditional syntax, shown in the editor's Code tab. */
 export const CONDITIONAL_EXAMPLE = `{% if gender %}
@@ -401,7 +404,13 @@ export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
  * single shared stylesheet can still target one side only (`.front { ... }`)
  * without requiring a hand-written wrapper element.
  */
-export function renderCardHtml(liquidTemplate: string, styles: string, context: CardTemplateContext, side: 'front' | 'back'): string {
+export function renderCardHtml(
+  liquidTemplate: string,
+  styles: string,
+  context: CardTemplateContext,
+  side: 'front' | 'back',
+  themeColors?: { primary: string; primarySoft: string; text: string; textSecondary: string; surfaceMuted: string; border: string },
+): string {
   let body: string
   try {
     body = engine.parseAndRenderSync(liquidTemplate, context) as string
@@ -412,6 +421,17 @@ export function renderCardHtml(liquidTemplate: string, styles: string, context: 
     body = `<p style="color:#D64545">Template error: ${escapeHtmlShell(String(error))}</p>`
   }
 
+  const themeCss = themeColors
+    ? `:root {
+        --theme-primary: ${themeColors.primary};
+        --theme-primary-soft: ${themeColors.primarySoft};
+        --theme-text: ${themeColors.text};
+        --theme-text-sec: ${themeColors.textSecondary};
+        --theme-surface-muted: ${themeColors.surfaceMuted};
+        --theme-border: ${themeColors.border};
+      }`
+    : ''
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -421,8 +441,8 @@ export function renderCardHtml(liquidTemplate: string, styles: string, context: 
   html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
   body {
     font-family: -apple-system, Roboto, sans-serif;
-    color: #1C1B22;
-    padding: 20px;
+    color: var(--theme-text, #1C1B22);
+    padding: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -432,8 +452,10 @@ export function renderCardHtml(liquidTemplate: string, styles: string, context: 
     text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    background: transparent;
   }
-  hr { width: 100%; border: none; border-top: 1px solid #E5E2F0; margin: 12px 0; }
+  hr { width: 100%; border: none; border-top: 1px solid var(--theme-border, #E5E2F0); margin: 12px 0; }
+  ${themeCss}
   ${styles}
 </style>
 </head>

@@ -81,6 +81,7 @@ import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { useServices } from '../../lib/services'
+import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -883,6 +884,7 @@ export default function WordDetailScreen(): JSX.Element {
                   ) : null}
                 </Card>
                 <CardActionBar
+                  onListen={() => speak(selectedExample?.sentence ?? word.lemma.form, word.lemma.language)}
                   onExplain={handleExplain}
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}

@@ -80,6 +80,12 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
     try {
       const data = JSON.parse(event.nativeEvent.data)
       switch (data.type) {
+        case 'init':
+          // WebView is ready, send the book base64 data
+          if (base64Data && webViewRef.current) {
+            webViewRef.current.postMessage(JSON.stringify({ type: 'loadBook', base64: base64Data }))
+          }
+          break
         case 'ready':
           setLoading(false)
           if (props.initialCfi && webViewRef.current) {
@@ -182,6 +188,10 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
         }
       }
 
+      window.onerror = function(msg, url, line) {
+        sendToRN({ type: 'error', message: 'Script error: ' + msg + ' (line ' + line + ')' });
+      };
+
       function base64ToArrayBuffer(base64) {
         var binary_string = window.atob(base64);
         var len = binary_string.length;
@@ -249,58 +259,79 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
         } catch(e) {}
       };
 
-      try {
-        var arrayBuffer = base64ToArrayBuffer("${base64Data ?? ''}");
-        book = ePub(arrayBuffer);
-        rendition = book.renderTo("viewer", {
-          width: "100%",
-          height: "100%",
-          spread: "none"
-        });
-
-        rendition.display();
-
-        book.loaded.navigation.then(function(nav) {
-          var toc = nav.toc.map(function(item) {
-            return { id: item.id, href: item.href, label: item.label.trim() };
+      function initBook(base64Data) {
+        try {
+          var arrayBuffer = base64ToArrayBuffer(base64Data);
+          book = ePub(arrayBuffer);
+          rendition = book.renderTo("viewer", {
+            width: "100%",
+            height: "100%",
+            spread: "none"
           });
-          sendToRN({ type: 'toc', toc: toc });
-        });
 
-        rendition.on("relocated", function(location) {
-          var cfi = location.start.cfi;
-          var percentage = book.locations ? Math.round(book.locations.percentageFromCfi(cfi) * 100) : 0;
-          var chapterName = location.start.href;
-          sendToRN({ type: 'relocated', cfi: cfi, percentage: percentage, chapterName: chapterName });
-        });
+          rendition.display();
 
-        rendition.on("selected", function(cfiRange, contents) {
-          book.getRange(cfiRange).then(function(range) {
-            if (range) {
-              var text = range.toString();
-              var para = range.startContainer ? (range.startContainer.parentNode ? range.startContainer.parentNode.textContent : '') : '';
-              sendToRN({ type: 'selected', text: text, context: para });
+          book.loaded.navigation.then(function(nav) {
+            var toc = nav.toc.map(function(item) {
+              return { id: item.id, href: item.href, label: item.label.trim() };
+            });
+            sendToRN({ type: 'toc', toc: toc });
+          });
+
+          rendition.on("relocated", function(location) {
+            var cfi = location.start.cfi;
+            var percentage = book.locations ? Math.round(book.locations.percentageFromCfi(cfi) * 100) : 0;
+            var chapterName = location.start.href;
+            sendToRN({ type: 'relocated', cfi: cfi, percentage: percentage, chapterName: chapterName });
+          });
+
+          rendition.on("selected", function(cfiRange, contents) {
+            book.getRange(cfiRange).then(function(range) {
+              if (range) {
+                var text = range.toString();
+                var para = range.startContainer ? (range.startContainer.parentNode ? range.startContainer.parentNode.textContent : '') : '';
+                sendToRN({ type: 'selected', text: text, context: para });
+              }
+            });
+          });
+
+          rendition.on("click", function(event) {
+            var target = event.target;
+            if (target && (target.tagName === 'P' || target.tagName === 'DIV')) {
+              sendToRN({ type: 'paragraphTap', text: target.textContent });
             }
           });
-        });
 
-        rendition.on("click", function(event) {
-          var target = event.target;
-          if (target && (target.tagName === 'P' || target.tagName === 'DIV')) {
-            sendToRN({ type: 'paragraphTap', text: target.textContent });
-          }
-        });
+          book.ready.then(function() {
+            sendToRN({ type: 'ready' });
+            window.setReaderTheme(currentTheme);
+            window.setReaderFontSize(currentFontSize);
+            return book.locations.generate(1000);
+          });
 
-        book.ready.then(function() {
-          sendToRN({ type: 'ready' });
-          window.setReaderTheme(currentTheme);
-          window.setReaderFontSize(currentFontSize);
-          return book.locations.generate(1000);
-        });
-
-      } catch(err) {
-        sendToRN({ type: 'error', message: err.message });
+        } catch(err) {
+          sendToRN({ type: 'error', message: err.message });
+        }
       }
+
+      function handleMessage(event) {
+        try {
+          var data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          if (data && data.type === 'loadBook' && data.base64) {
+            initBook(data.base64);
+          }
+        } catch(e) {
+          sendToRN({ type: 'error', message: 'Failed to process book message: ' + e.message });
+        }
+      }
+
+      document.addEventListener('message', handleMessage);
+      window.addEventListener('message', handleMessage);
+
+      // Signal React Native that WebView is ready to receive data
+      setTimeout(function() {
+        sendToRN({ type: 'init' });
+      }, 100);
     })();
   </script>
 </body>

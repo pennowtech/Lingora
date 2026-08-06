@@ -79,7 +79,9 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
   // Handle incoming postMessage from WebView
   const handleMessage = (event: WebViewMessageEvent): void => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
+      const raw = event.nativeEvent.data
+      if (typeof raw !== 'string' || !raw.startsWith('{')) return
+      const data = JSON.parse(raw)
       switch (data.type) {
         case 'init':
           // WebView is ready, send the book base64 data
@@ -317,12 +319,17 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
 
       function handleMessage(event) {
         try {
-          var data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-          if (data && data.type === 'loadBook' && data.base64) {
-            initBook(data.base64);
+          var raw = event.data;
+          if (!raw) return;
+          if (typeof raw === 'string') {
+            if (!raw.startsWith('{')) return;
+            var data = JSON.parse(raw);
+            if (data && data.type === 'loadBook' && data.base64) {
+              initBook(data.base64);
+            }
           }
         } catch(e) {
-          sendToRN({ type: 'error', message: 'Failed to process book message: ' + e.message });
+          // Ignore non-JSON internal devtools messages
         }
       }
 

@@ -18,6 +18,7 @@ import {
   addCardToDeck,
   createCardForSense,
   createDeck,
+  createPhrase,
   findLemmaBySurfaceForm,
   getActivePromptVersion,
   getCardsByLemma,
@@ -80,7 +81,7 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
-import { useServices } from '../../lib/services'
+import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -251,7 +252,7 @@ export default function WordDetailScreen(): JSX.Element {
   // of the unfamiliar target-language form. Absent for every other way of reaching this screen
   // (straight search, decks, review), which keeps their current headword-first display unchanged.
   const { form, nativeTerm } = useLocalSearchParams<{ form: string; nativeTerm?: string }>()
-  const { db, ai, tier, defaultCefr, nativeLanguage } = useServices()
+  const { db, ai, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -370,6 +371,49 @@ export default function WordDetailScreen(): JSX.Element {
       setGrammarHighlightMetadataId(grammarTargeted ? generationMetadataId : null)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
+  })
+
+  const generatePhrases = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate phrases.'))
+      if (!word?.card) throw new Error(t('This word has no card yet.'))
+      const result = await ai.generatePhrases(word.lemma.form, {
+        cefrLevel: defaultCefr,
+        language: word.lemma.language,
+      })
+      for (const phrase of result.data) {
+        await createPhrase(db, {
+          id: crypto.randomUUID(),
+          cardId: word.card.id,
+          expression: phrase.expression,
+          meaning: phrase.meaning,
+          exampleSentence: phrase.exampleSentence,
+          exampleTranslation: phrase.exampleTranslation,
+          cefrLevel: phrase.cefrLevel,
+        })
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    },
+    onError: (error: unknown) => showError(t('Could not generate phrases'), error),
+  })
+
+  const generateMissingWord = useMutation({
+    mutationFn: async () => {
+      if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate words.'))
+      if (!form) throw new Error(t('No word specified.'))
+      return pipeline.lookupOrGenerate(form, {
+        cefrLevel: defaultCefr,
+        deckId: DEFAULT_DECK_ID,
+        language: targetLanguage,
+        addToDeck: false,
+      })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word', form] })
+    },
+    onError: (error: unknown) => showError(t('Could not generate word card'), error),
   })
 
   const evaluate = useMutation({
@@ -802,14 +846,31 @@ export default function WordDetailScreen(): JSX.Element {
     return (
       <>
         <Stack.Screen options={{ title: form ?? '' }} />
-        <ErrorState
-          message={
-            wordQuery.isError
-              ? String(wordQuery.error)
-              : t('"{{form}}" isn\'t in your library yet. Look it up from the Search tab to generate it.', { form: form ?? '' })
-          }
-          {...(wordQuery.isError && { onRetry: () => void wordQuery.refetch() })}
-        />
+        <View style={styles.missingWordContainer}>
+          <ErrorState
+            message={
+              wordQuery.isError
+                ? String(wordQuery.error)
+                : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
+            }
+            {...(wordQuery.isError && { onRetry: () => void wordQuery.refetch() })}
+          />
+          {!wordQuery.isError ? (
+            <View style={styles.missingWordActions}>
+              <Button
+                label={generateMissingWord.isPending ? t('Generating with AI…') : t('Generate "{{form}}" with AI', { form: form ?? '' })}
+                onPress={() => {
+                  if (!pipeline) {
+                    aiRequiredAlert.show(t('generate word cards'))
+                    return
+                  }
+                  generateMissingWord.mutate()
+                }}
+                disabled={generateMissingWord.isPending}
+              />
+            </View>
+          ) : null}
+        </View>
       </>
     )
   }
@@ -1051,9 +1112,20 @@ export default function WordDetailScreen(): JSX.Element {
                 <SectionHeader title={t('Synonyms')} />
                 <Card>
                   {active.synonyms.map((syn, i) => (
-                    <View key={syn.id} style={[styles.synRow, i > 0 && styles.rowDivider]}>
+                    <Pressable
+                      key={syn.id}
+                      style={({ pressed }) => [
+                        styles.synRow,
+                        i > 0 && styles.rowDivider,
+                        pressed && styles.synRowPressed,
+                      ]}
+                      onPress={() => router.push(`/word/${encodeURIComponent(syn.word)}`)}
+                    >
                       <View style={styles.synText}>
-                        <Text style={styles.synWord}>{syn.word}</Text>
+                        <View style={styles.synWordRow}>
+                          <Text style={styles.synWord}>{syn.word}</Text>
+                          <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                        </View>
                         <Text style={styles.synNuance}>
                           {syn.formality}
                           {syn.nuance ? ` · ${syn.nuance}` : ''}
@@ -1066,7 +1138,7 @@ export default function WordDetailScreen(): JSX.Element {
                         onDown={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'down' })}
                         onReport={() => setReportTarget({ targetType: 'synonym', targetId: syn.id })}
                       />
-                    </View>
+                    </Pressable>
                   ))}
                 </Card>
               </>
@@ -1074,10 +1146,10 @@ export default function WordDetailScreen(): JSX.Element {
           </>
         ) : null}
 
-        {/* ── Phrases (card-scoped, shown for every cluster) ── */}
+        {/* ── Phrases & collocations (on demand) ── */}
+        <SectionHeader title={t('Phrases & collocations')} />
         {word.phrases.length > 0 ? (
           <>
-            <SectionHeader title={t('Phrases & collocations')} />
             {word.phrases.map((phrase) => (
               <Card key={phrase.id} style={styles.phraseCard}>
                 <View style={styles.phraseHeader}>
@@ -1089,8 +1161,54 @@ export default function WordDetailScreen(): JSX.Element {
                 <Text style={styles.phraseExampleTranslation}>{phrase.exampleTranslation}</Text>
               </Card>
             ))}
+            <Pressable
+              style={styles.loadMorePhrasesBtn}
+              onPress={() => {
+                if (!ai) {
+                  aiRequiredAlert.show(t('generate phrases for this word'))
+                  return
+                }
+                generatePhrases.mutate()
+              }}
+              disabled={generatePhrases.isPending}
+            >
+              {generatePhrases.isPending ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <>
+                  <Ionicons name="sparkles-outline" size={14} color={colors.primary} />
+                  <Text style={styles.loadMorePhrasesLabel}>{t('Load more phrases with AI')}</Text>
+                </>
+              )}
+            </Pressable>
           </>
-        ) : null}
+        ) : (
+          <Card style={styles.phrasesEmptyCard}>
+            <View style={styles.phrasesEmptyRow}>
+              <View style={styles.phrasesEmptyIcon}>
+                <Ionicons name="chatbubbles-outline" size={24} color={colors.primary} />
+              </View>
+              <View style={styles.phrasesEmptyTextGroup}>
+                <Text style={styles.phrasesEmptyTitle}>{t('Idioms & Collocations')}</Text>
+                <Text style={styles.phrasesEmptySubtitle}>
+                  {t('Explore common idioms, expressions, and collocations with AI.')}
+                </Text>
+              </View>
+            </View>
+            <Button
+              label={generatePhrases.isPending ? t('Generating phrases…') : t('Load Phrases & Collocations')}
+              variant="secondary"
+              onPress={() => {
+                if (!ai) {
+                  aiRequiredAlert.show(t('generate phrases for this word'))
+                  return
+                }
+                generatePhrases.mutate()
+              }}
+              disabled={generatePhrases.isPending}
+            />
+          </Card>
+        )}
 
         {/* ── Cloze preview ── */}
         {word.clozes.length > 0 ? (
@@ -1457,6 +1575,32 @@ const createStyles = (colors: ThemeColors) =>
   synText: { flex: 1, marginRight: spacing.md },
   synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
   synNuance: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1 },
+  synRowPressed: { opacity: 0.7 },
+  synWordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  loadMorePhrasesBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  loadMorePhrasesLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+  phrasesEmptyCard: { gap: spacing.md, paddingVertical: spacing.md },
+  phrasesEmptyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  phrasesEmptyIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  phrasesEmptyTextGroup: { flex: 1 },
+  phrasesEmptyTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
+  phrasesEmptySubtitle: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+  missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
+  missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
   phraseCard: { marginBottom: spacing.sm },
   phraseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   phraseExpression: { fontSize: type.body, fontWeight: '700', color: colors.primary },

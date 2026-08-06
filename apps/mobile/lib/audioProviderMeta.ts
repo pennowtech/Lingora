@@ -116,21 +116,24 @@ export const DEFAULT_AUDIO_SPEED = 1.0
  * regardless of what's stored. */
 export const AUDIO_SPEED_OPTIONS = [0.8, 1.0, 1.2] as const
 
-export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string; speed: string }> = {
+export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string; speed: string; validatedKey: string }> = {
   openai: {
     key: `${APP_KEY_PREFIX}.tts_openai_key`,
     voice: `${APP_KEY_PREFIX}.tts_openai_voice`,
     speed: `${APP_KEY_PREFIX}.tts_openai_speed`,
+    validatedKey: `${APP_KEY_PREFIX}.tts_openai_validated_key`,
   },
   elevenlabs: {
     key: `${APP_KEY_PREFIX}.tts_elevenlabs_key`,
     voice: `${APP_KEY_PREFIX}.tts_elevenlabs_voice`,
     speed: `${APP_KEY_PREFIX}.tts_elevenlabs_speed`,
+    validatedKey: `${APP_KEY_PREFIX}.tts_elevenlabs_validated_key`,
   },
   deepgram: {
     key: `${APP_KEY_PREFIX}.tts_deepgram_key`,
     voice: `${APP_KEY_PREFIX}.tts_deepgram_model`,
     speed: `${APP_KEY_PREFIX}.tts_deepgram_speed`,
+    validatedKey: `${APP_KEY_PREFIX}.tts_deepgram_validated_key`,
   },
 }
 

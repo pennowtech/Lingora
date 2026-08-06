@@ -326,14 +326,14 @@ export async function getReviewForecast(db: DatabaseAdapter, days = 7): Promise<
        FROM card_states cs
        JOIN cards c ON c.id = cs.card_id
        JOIN deck_cards dc ON dc.card_id = c.id
-       WHERE cs.is_suspended = 0 AND c.type = 'basic'`,
+       WHERE c.suspended_at IS NULL AND c.type = 'basic'`,
     ),
     db.query<{ state: string; nextReviewDate: number }>(
       `SELECT cls.state, cls.next_review_date AS nextReviewDate
        FROM cloze_states cls
        JOIN cards c ON c.id = cls.card_id
        JOIN deck_cards dc ON dc.card_id = c.id
-       WHERE cls.is_suspended = 0 AND c.type = 'cloze'`,
+       WHERE c.suspended_at IS NULL AND c.type = 'cloze'`,
     ),
   ])
 

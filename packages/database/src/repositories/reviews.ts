@@ -303,3 +303,69 @@ export async function getDifficultWords(db: DatabaseAdapter, limit = 10): Promis
     [limit],
   )
 }
+
+/** One day of the FSRS review forecast. */
+export interface ReviewForecastDay {
+  dayLabel: string
+  dateMs: number
+  dueCount: number
+}
+
+/**
+ * Calculates projected review workload for the upcoming N days (default 7 days).
+ * Combines basic cards and cloze cards from card_states and cloze_states.
+ */
+export async function getReviewForecast(db: DatabaseAdapter, days = 7): Promise<ReviewForecastDay[]> {
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const dayMs = 24 * 60 * 60 * 1000
+
+  const [basicRows, clozeRows] = await Promise.all([
+    db.query<{ state: string; nextReviewDate: number }>(
+      `SELECT cs.state, cs.next_review_date AS nextReviewDate
+       FROM card_states cs
+       JOIN cards c ON c.id = cs.card_id
+       JOIN deck_cards dc ON dc.card_id = c.id
+       WHERE cs.is_suspended = 0 AND c.type = 'basic'`,
+    ),
+    db.query<{ state: string; nextReviewDate: number }>(
+      `SELECT cls.state, cls.next_review_date AS nextReviewDate
+       FROM cloze_states cls
+       JOIN cards c ON c.id = cls.card_id
+       JOIN deck_cards dc ON dc.card_id = c.id
+       WHERE cls.is_suspended = 0 AND c.type = 'cloze'`,
+    ),
+  ])
+
+  const allCards = [...basicRows, ...clozeRows]
+  const forecast: ReviewForecastDay[] = []
+  const dayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' })
+
+  for (let i = 0; i < days; i++) {
+    const startOfForecastDay = todayStart + i * dayMs
+    const endOfForecastDay = startOfForecastDay + dayMs - 1
+    const forecastDate = new Date(startOfForecastDay)
+
+    let count = 0
+    for (const card of allCards) {
+      if (i === 0) {
+        if (card.state === 'new' || card.nextReviewDate <= endOfForecastDay) {
+          count++
+        }
+      } else {
+        if (card.state !== 'new' && card.nextReviewDate >= startOfForecastDay && card.nextReviewDate <= endOfForecastDay) {
+          count++
+        }
+      }
+    }
+
+    const label = i === 0 ? 'Today' : dayFormatter.format(forecastDate)
+    forecast.push({
+      dayLabel: label,
+      dateMs: startOfForecastDay,
+      dueCount: count,
+    })
+  }
+
+  return forecast
+}

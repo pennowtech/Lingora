@@ -22,7 +22,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
   AlertModal,
   Button,
@@ -543,74 +543,90 @@ export default function DeckDetailScreen(): JSX.Element {
         </View>
       </Modal>
 
-      {/* ── Rename modal ── */}
-      <Modal visible={renameOpen} animationType="slide" transparent onRequestClose={() => setRenameOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setRenameOpen(false)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
-          <TextInput
-            testID="rename-deck-input"
-            style={styles.inputField}
-            value={renameValue}
-            onChangeText={setRenameValue}
-            autoFocus
-          />
-          {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
-          <Button
-            label={rename.isPending ? t('Saving…') : t('Save')}
-            disabled={rename.isPending}
-            onPress={() => rename.mutate()}
-          />
-        </View>
+      {/* ── Rename centered dialog popup window ── */}
+      <Modal visible={renameOpen} animationType="fade" transparent onRequestClose={() => setRenameOpen(false)}>
+        <KeyboardAvoidingView
+          style={styles.centerModalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <Pressable style={styles.modalBackdropAbsolute} onPress={() => setRenameOpen(false)} />
+          <View style={styles.centerModalCard}>
+            <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
+            <TextInput
+              testID="rename-deck-input"
+              style={styles.inputField}
+              value={renameValue}
+              onChangeText={setRenameValue}
+              autoFocus
+            />
+            {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
+            <View style={styles.centerModalActions}>
+              <Button label={t('Cancel')} variant="ghost" onPress={() => setRenameOpen(false)} disabled={rename.isPending} />
+              <Button
+                label={rename.isPending ? t('Saving…') : t('Save')}
+                disabled={rename.isPending || renameValue.trim() === ''}
+                onPress={() => rename.mutate()}
+              />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
-      {/* ── Move/merge deck picker — shared between both actions, see pickerMode ── */}
-      <Modal visible={pickerMode !== null} animationType="slide" transparent onRequestClose={() => setPickerMode(null)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setPickerMode(null)} />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>
-            {pickerMode === 'move'
-              ? t('Move "{{name}}" to…', { name: deck.name })
-              : t('Merge "{{name}}" into…', { name: deck.name })}
-          </Text>
-          {pickerMode === 'move' ? (
-            <Pressable
-              style={styles.deckRow}
-              onPress={() => move.mutate(null)}
-              disabled={move.isPending || deck.parentId === undefined}
-            >
-              <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
-              <Text style={styles.deckRowLabel}>{t('Top level (no parent)')}</Text>
-            </Pressable>
-          ) : null}
-          {allDecksQuery.isPending ? (
-            <Spinner />
-          ) : allDecksQuery.isError ? (
-            <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
-          ) : pickerTargets.length === 0 ? (
-            <Text style={styles.hint}>
+      {/* ── Move/merge deck picker centered dialog popup window ── */}
+      <Modal visible={pickerMode !== null} animationType="fade" transparent onRequestClose={() => setPickerMode(null)}>
+        <KeyboardAvoidingView
+          style={styles.centerModalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <Pressable style={styles.modalBackdropAbsolute} onPress={() => setPickerMode(null)} />
+          <View style={styles.centerModalCard}>
+            <Text style={styles.modalTitle}>
               {pickerMode === 'move'
-                ? t('No other deck to nest this one under.')
-                : t('No other deck to merge into.')}
+                ? t('Move "{{name}}" to…', { name: deck.name })
+                : t('Merge "{{name}}" into…', { name: deck.name })}
             </Text>
-          ) : (
-            pickerTargets.map((target) => (
-              <Pressable
-                key={target.id}
-                style={styles.deckRow}
-                onPress={() => handlePickTarget(target)}
-                disabled={move.isPending || merge.isPending}
-              >
-                <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
-                <Text style={styles.deckRowLabel}>{target.name}</Text>
-              </Pressable>
-            ))
-          )}
-          {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
-          {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
-        </View>
+            <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
+              {pickerMode === 'move' ? (
+                <Pressable
+                  style={styles.deckRow}
+                  onPress={() => move.mutate(null)}
+                  disabled={move.isPending || deck.parentId === undefined}
+                >
+                  <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+                  <Text style={styles.deckRowLabel}>{t('Top level (no parent)')}</Text>
+                </Pressable>
+              ) : null}
+              {allDecksQuery.isPending ? (
+                <Spinner />
+              ) : allDecksQuery.isError ? (
+                <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
+              ) : pickerTargets.length === 0 ? (
+                <Text style={styles.hint}>
+                  {pickerMode === 'move'
+                    ? t('No other deck to nest this one under.')
+                    : t('No other deck to merge into.')}
+                </Text>
+              ) : (
+                pickerTargets.map((target) => (
+                  <Pressable
+                    key={target.id}
+                    style={styles.deckRow}
+                    onPress={() => handlePickTarget(target)}
+                    disabled={move.isPending || merge.isPending}
+                  >
+                    <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                    <Text style={styles.deckRowLabel}>{target.name}</Text>
+                  </Pressable>
+                ))
+              )}
+            </ScrollView>
+            {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
+            {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
+            <View style={styles.centerModalActions}>
+              <Button label={t('Cancel')} variant="ghost" onPress={() => setPickerMode(null)} />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <ImportFormatSheet
@@ -845,4 +861,16 @@ const createStyles = (colors: ThemeColors) =>
     },
     menuRowItemLast: { borderBottomWidth: 0 },
     menuRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+    centerModalKeyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    centerModalCard: {
+      width: '100%',
+      maxWidth: 400,
+      maxHeight: '80%',
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.md,
+    },
+    centerModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
+    modalBackdropAbsolute: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
   })

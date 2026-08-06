@@ -21,16 +21,17 @@ import {
   View,
 } from 'react-native'
 import { Button, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 export default function EbooksLibraryScreen(): JSX.Element {
+  const { db } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const db = {} as unknown as DatabaseAdapter
 
   const ebooksQuery = useQuery({
     queryKey: ['ebooks'],

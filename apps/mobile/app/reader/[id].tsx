@@ -19,19 +19,18 @@ import {
 } from 'react-native'
 import { EbookReader, type TocItem } from '../../components/EbookReader'
 import { Button, IconButton, Spinner, ErrorState } from '../../components/ui'
+import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 export default function ReaderScreen(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>()
+  const { db } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const db = {
-    // Standard Expo SQLite adapter handle from global context or parent
-  } as unknown as DatabaseAdapter
 
   const [toc, setToc] = useState<TocItem[]>([])
   const [tocOpen, setTocOpen] = useState(false)

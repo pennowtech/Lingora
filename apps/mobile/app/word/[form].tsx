@@ -108,14 +108,12 @@ const CONTEXT_TABS = [
   'slang',
 ] as const
 
-const CONTEXT_TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+const CONTEXT_TAB_ICONS: Record<(typeof CONTEXT_TABS)[number], keyof typeof Ionicons.glyphMap> = {
   all: 'layers-outline',
   casual: 'cafe-outline',
   formal: 'ribbon-outline',
   business: 'briefcase-outline',
   travel: 'airplane-outline',
-  dating: 'heart-outline',
-  social_media: 'share-social-outline',
   daily_life: 'home-outline',
   slang: 'sparkles-outline',
 }
@@ -265,7 +263,6 @@ export default function WordDetailScreen(): JSX.Element {
 
   const [clusterId, setClusterId] = useState<string | null>(null)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
-  const [showMoreExamples, setShowMoreExamples] = useState(false)
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
@@ -941,7 +938,7 @@ export default function WordDetailScreen(): JSX.Element {
                   options={CONTEXT_TABS.map((tab) => ({
                     value: tab,
                     label: tab === 'all' ? t('All Examples') : t(tab.replace('_', ' ')),
-                    ...(CONTEXT_TAB_ICONS[tab] ? { icon: CONTEXT_TAB_ICONS[tab] } : {}),
+                    icon: CONTEXT_TAB_ICONS[tab],
                     badgeCount: exampleCounts[tab] ?? 0,
                   }))}
                   onChange={(value) => setContextTab((value ?? 'all') as (typeof CONTEXT_TABS)[number])}
@@ -949,120 +946,48 @@ export default function WordDetailScreen(): JSX.Element {
               </View>
             </View>
 
-            {(() => {
-              const filteredExamples = active.examples.filter((ex) => contextTab === 'all' || ex.context === contextTab)
-              const featuredExample = filteredExamples.find((ex) => ex.isSelected) ?? filteredExamples[0]
-              const remainingExamples = filteredExamples.filter((ex) => ex.id !== featuredExample?.id)
-
-              if (!featuredExample) {
-                return (
-                  <Card>
-                    <Text style={styles.explanation}>{t('No examples in this context.')}</Text>
-                  </Card>
-                )
-              }
-
-              return (
-                <>
-                  <Card
-                    key={featuredExample.id}
-                    style={[
-                      styles.exampleCard,
-                      featuredExample.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
-                    ]}
-                  >
-                    <View style={styles.featuredHeaderRow}>
-                      <View style={styles.selectedBanner}>
-                        <Ionicons name="star" size={14} color={colors.primary} />
-                        <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
-                      </View>
-                      {featuredExample.context ? (
-                        <View style={styles.contextTagPill}>
-                          <Ionicons name={CONTEXT_TAB_ICONS[featuredExample.context] ?? 'chatbubble-outline'} size={11} color={colors.textSecondary} />
-                          <Text style={styles.contextTagText}>{t(featuredExample.context.replace('_', ' '))}</Text>
-                        </View>
-                      ) : null}
+            {active.examples
+              .filter((ex) => contextTab === 'all' || ex.context === contextTab)
+              .map((ex) => (
+                <Card
+                  key={ex.id}
+                  style={[
+                    styles.exampleCard,
+                    ex.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
+                  ]}
+                >
+                  {ex.isSelected ? (
+                    <View style={styles.selectedBanner}>
+                      <Ionicons name="star" size={14} color={colors.primary} />
+                      <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
                     </View>
-                    <View style={styles.exampleSentenceRow}>
-                      <Text style={styles.exampleSentence}>{featuredExample.sentence}</Text>
-                      <SpeakerButton text={featuredExample.sentence} language={word.lemma.language} size={16} />
-                    </View>
-                    <Text style={styles.exampleTranslation}>{featuredExample.translation}</Text>
-                    <View style={styles.exampleFooter}>
-                      <EvalBar
-                        activeRating={ratingFor(featuredExample.id)}
-                        onUp={() => evaluate.mutate({ targetType: 'example', targetId: featuredExample.id, rating: 'up' })}
-                        onDown={() => evaluate.mutate({ targetType: 'example', targetId: featuredExample.id, rating: 'down' })}
-                        onReport={() => setReportTarget({ targetType: 'example', targetId: featuredExample.id })}
-                        {...(tier === 'full' && { onRegen: () => generateExamples.mutate() })}
-                      />
-                    </View>
-                  </Card>
-
-                  {remainingExamples.length > 0 ? (
-                    <>
-                      <Pressable
-                        style={styles.moreExamplesToggle}
-                        onPress={() => setShowMoreExamples((v) => !v)}
-                        hitSlop={6}
-                      >
-                        <Ionicons
-                          name={showMoreExamples ? 'chevron-up' : 'chevron-down'}
-                          size={15}
-                          color={colors.primary}
-                        />
-                        <Text style={styles.moreExamplesToggleText}>
-                          {showMoreExamples
-                            ? t('Hide extra examples')
-                            : t('Show {{count}} more examples', { count: remainingExamples.length })}
-                        </Text>
-                      </Pressable>
-
-                      {showMoreExamples ? (
-                        <Card style={styles.remainingExamplesCard}>
-                          {remainingExamples.map((ex, i) => (
-                            <View key={ex.id} style={[styles.remainingExampleRow, i > 0 && styles.rowDivider]}>
-                              <View style={styles.remainingExampleHeader}>
-                                {ex.context ? (
-                                  <View style={styles.contextTagPill}>
-                                    <Ionicons name={CONTEXT_TAB_ICONS[ex.context] ?? 'chatbubble-outline'} size={11} color={colors.textSecondary} />
-                                    <Text style={styles.contextTagText}>{t(ex.context.replace('_', ' '))}</Text>
-                                  </View>
-                                ) : <View />}
-                                <Pressable
-                                  style={styles.setFlashcardButton}
-                                  onPress={() => selectExample.mutate(ex.id)}
-                                  disabled={selectExample.isPending}
-                                  hitSlop={10}
-                                >
-                                  <Ionicons name="star-outline" size={13} color={colors.textMuted} />
-                                  <Text style={styles.useOnFlashcardLabel}>{t('Set as flashcard')}</Text>
-                                </Pressable>
-                              </View>
-
-                              <View style={styles.exampleSentenceRow}>
-                                <Text style={styles.remainingExampleSentence}>{ex.sentence}</Text>
-                                <SpeakerButton text={ex.sentence} language={word.lemma.language} size={15} />
-                              </View>
-                              <Text style={styles.exampleTranslation}>{ex.translation}</Text>
-                              <View style={styles.exampleFooter}>
-                                <EvalBar
-                                  activeRating={ratingFor(ex.id)}
-                                  onUp={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })}
-                                  onDown={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'down' })}
-                                  onReport={() => setReportTarget({ targetType: 'example', targetId: ex.id })}
-                                  {...(tier === 'full' && { onRegen: () => generateExamples.mutate() })}
-                                />
-                              </View>
-                            </View>
-                          ))}
-                        </Card>
-                      ) : null}
-                    </>
-                  ) : null}
-                </>
-              )
-            })()}
+                  ) : (
+                    <Pressable
+                      style={styles.selectedBanner}
+                      onPress={() => selectExample.mutate(ex.id)}
+                      disabled={selectExample.isPending}
+                      hitSlop={10}
+                    >
+                      <Ionicons name="star-outline" size={14} color={colors.textMuted} />
+                      <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
+                    </Pressable>
+                  )}
+                  <View style={styles.exampleSentenceRow}>
+                    <Text style={styles.exampleSentence}>{ex.sentence}</Text>
+                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                  </View>
+                  <Text style={styles.exampleTranslation}>{ex.translation}</Text>
+                  <View style={styles.exampleFooter}>
+                    <EvalBar
+                      activeRating={ratingFor(ex.id)}
+                      onUp={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })}
+                      onDown={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'down' })}
+                      onReport={() => setReportTarget({ targetType: 'example', targetId: ex.id })}
+                      {...(tier === 'full' && { onRegen: () => generateExamples.mutate() })}
+                    />
+                  </View>
+                </Card>
+              ))}
 
             {/* ── Grammar controls panel (advanced, collapsible) ── */}
             <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen((v) => !v)}>
@@ -1465,66 +1390,6 @@ const createStyles = (colors: ThemeColors) =>
   examplesFilterDropdown: { width: 175 },
   exampleCard: { marginBottom: spacing.sm },
   exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  featuredHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xs,
-  },
-  contextTagPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.full,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  contextTagText: {
-    fontSize: type.micro,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'capitalize',
-  },
-  moreExamplesToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  moreExamplesToggleText: {
-    fontSize: type.caption,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  remainingExamplesCard: {
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  remainingExampleRow: {
-    paddingVertical: spacing.md,
-  },
-  remainingExampleHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xs,
-  },
-  setFlashcardButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  remainingExampleSentence: {
-    flex: 1,
-    fontSize: type.body,
-    fontWeight: '500',
-    color: colors.text,
-    lineHeight: 22,
-  },
   selectedBanner: {
     flexDirection: 'row',
     alignItems: 'center',

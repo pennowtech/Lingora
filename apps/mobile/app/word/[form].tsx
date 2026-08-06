@@ -43,7 +43,7 @@ import {
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -107,6 +107,16 @@ const CONTEXT_TABS = [
   'daily_life',
   'slang',
 ] as const
+
+const CONTEXT_TAB_ICONS: Record<(typeof CONTEXT_TABS)[number], keyof typeof Ionicons.glyphMap> = {
+  all: 'layers-outline',
+  casual: 'cafe-outline',
+  formal: 'ribbon-outline',
+  business: 'briefcase-outline',
+  travel: 'airplane-outline',
+  daily_life: 'home-outline',
+  slang: 'sparkles-outline',
+}
 
 const HELP_SECTIONS: HelpSection[] = [
   {
@@ -297,6 +307,18 @@ export default function WordDetailScreen(): JSX.Element {
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
   const isAiCard = !!word?.card?.source && AI_SOURCES.includes(word.card.source)
+
+  const exampleCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: active?.examples.length ?? 0 }
+    if (active?.examples) {
+      for (const ex of active.examples) {
+        if (ex.context) {
+          counts[ex.context] = (counts[ex.context] ?? 0) + 1
+        }
+      }
+    }
+    return counts
+  }, [active?.examples])
 
   const evaluationTargetIds = (word?.clusters ?? []).flatMap((c) => [
     ...c.examples.map((ex) => ex.id),
@@ -884,7 +906,9 @@ export default function WordDetailScreen(): JSX.Element {
                   ) : null}
                 </Card>
                 <CardActionBar
-                  onListen={() => speak(selectedExample?.sentence ?? word.lemma.form, word.lemma.language)}
+                  {...(!isAiCard && {
+                    onListen: () => speak(selectedExample?.sentence ?? word.lemma.form, word.lemma.language),
+                  })}
                   onExplain={handleExplain}
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
@@ -909,8 +933,14 @@ export default function WordDetailScreen(): JSX.Element {
               <Text style={styles.examplesTitle}>{t('Examples')}</Text>
               <View style={styles.examplesFilterDropdown}>
                 <Dropdown
+                  label={t('Filter examples by context')}
                   value={contextTab}
-                  options={CONTEXT_TABS.map((tab) => ({ value: tab, label: t(tab.replace('_', ' ')) }))}
+                  options={CONTEXT_TABS.map((tab) => ({
+                    value: tab,
+                    label: tab === 'all' ? t('All Examples') : t(tab.replace('_', ' ')),
+                    icon: CONTEXT_TAB_ICONS[tab],
+                    badgeCount: exampleCounts[tab] ?? 0,
+                  }))}
                   onChange={(value) => setContextTab((value ?? 'all') as (typeof CONTEXT_TABS)[number])}
                 />
               </View>
@@ -1357,7 +1387,7 @@ const createStyles = (colors: ThemeColors) =>
     marginBottom: spacing.md,
   },
   examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  examplesFilterDropdown: { width: 150 },
+  examplesFilterDropdown: { width: 175 },
   exampleCard: { marginBottom: spacing.sm },
   exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   selectedBanner: {

@@ -61,18 +61,25 @@ export default function AiProvidersScreen(): JSX.Element {
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
+        const validatedMap: Partial<Record<GenerationProviderName, boolean>> = {}
         const entries = await Promise.all(
           GENERATION_PROVIDERS.map(async (name) => {
             const keys = PROVIDER_STORE_KEYS[name]
-            const [apiKey, model, enabledRaw, providerUsage] = await Promise.all([
+            const [apiKey, model, enabledRaw, validatedKeyRaw, providerUsage] = await Promise.all([
               SecureStore.getItemAsync(keys.key),
               SecureStore.getItemAsync(keys.model),
               SecureStore.getItemAsync(keys.enabled),
+              SecureStore.getItemAsync(keys.validatedKey),
               getUsage(name),
             ])
+            const loadedKey = apiKey ?? ''
+            const loadedModel = model ?? DEFAULT_MODELS[name]
+            if (loadedKey.trim() !== '' && validatedKeyRaw === `${loadedKey.trim()}:::${loadedModel}`) {
+              validatedMap[name] = true
+            }
             return [
               name,
-              { apiKey: apiKey ?? '', model: model ?? DEFAULT_MODELS[name], enabled: enabledRaw !== 'false' },
+              { apiKey: loadedKey, model: loadedModel, enabled: enabledRaw !== 'false' },
               providerUsage,
             ] as const
           }),
@@ -89,6 +96,7 @@ export default function AiProvidersScreen(): JSX.Element {
           for (const [name, , providerUsage] of entries) next[name] = providerUsage
           return next
         })
+        setValidated(validatedMap)
         if ((GENERATION_PROVIDERS as readonly string[]).includes(storedGeneration ?? '')) {
           setGenerationProviderState(storedGeneration as GenerationProviderName)
         }
@@ -113,15 +121,20 @@ export default function AiProvidersScreen(): JSX.Element {
     setProviders((prev) => ({ ...prev, [name]: { ...prev[name], ...patch } }))
   }
 
+  const invalidateProviderKey = (name: GenerationProviderName): void => {
+    void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, '')
+    setValidated((prev) => ({ ...prev, [name]: false }))
+  }
+
   const changeApiKey = (name: GenerationProviderName, value: string): void => {
     updateProvider(name, { apiKey: value })
     persist(PROVIDER_STORE_KEYS[name].key, value.trim())
-    setValidated((prev) => ({ ...prev, [name]: false }))
+    invalidateProviderKey(name)
   }
   const changeModel = (name: GenerationProviderName, value: string): void => {
     updateProvider(name, { model: value })
     persist(PROVIDER_STORE_KEYS[name].model, value)
-    setValidated((prev) => ({ ...prev, [name]: false }))
+    invalidateProviderKey(name)
   }
   const changeEnabled = (name: GenerationProviderName, value: boolean): void => {
     updateProvider(name, { enabled: value })
@@ -146,6 +159,11 @@ export default function AiProvidersScreen(): JSX.Element {
     setValidating((prev) => ({ ...prev, [name]: true }))
     void VALIDATORS[name](apiKey, model)
       .then((result) => {
+        if (result.ok) {
+          void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${apiKey.trim()}:::${model}`)
+        } else {
+          void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, '')
+        }
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
         setNotice({
           title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
@@ -161,8 +179,8 @@ export default function AiProvidersScreen(): JSX.Element {
   const clearProviderKey = (name: GenerationProviderName): void => {
     updateProvider(name, { apiKey: '' })
     persist(PROVIDER_STORE_KEYS[name].key, '')
+    invalidateProviderKey(name)
     void clearUsage(name).then(() => setUsage((prev) => ({ ...prev, [name]: ZERO_USAGE })))
-    setValidated((prev) => ({ ...prev, [name]: false }))
     log.info('settings.provider_key_cleared', {
       message: 'Provider API key cleared',
       metadata: { provider: name },
@@ -173,6 +191,7 @@ export default function AiProvidersScreen(): JSX.Element {
     for (const name of GENERATION_PROVIDERS) {
       updateProvider(name, { apiKey: '' })
       void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].key, '')
+      void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, '')
       void clearUsage(name)
     }
     setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })

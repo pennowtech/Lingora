@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
-import { useEffect, useMemo, useState, type JSX } from 'react'
+import { useCallback, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Card, LinkRow } from '../../components/ui'
@@ -115,52 +115,56 @@ export default function SettingsScreen(): JSX.Element {
     targetLanguage: DEFAULT_TARGET_LANGUAGE,
   })
 
-  useEffect(() => {
-    const load = async (): Promise<void> => {
-      try {
-        const [keyPresence, storedTranslation, storedCefr, storedNativeLanguage, storedTargetLanguage] = await Promise.all([
-          Promise.all(
-            GENERATION_PROVIDERS.map(async (name: GenerationProviderName) => {
-              const [apiKey, enabledRaw] = await Promise.all([
-                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key),
-                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].enabled),
-              ])
-              return (apiKey ?? '').trim() !== '' && enabledRaw !== 'false'
-            }),
-          ),
-          SecureStore.getItemAsync(STORE_KEYS.translationProvider),
-          SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
-          SecureStore.getItemAsync(STORE_KEYS.nativeLanguage),
-          SecureStore.getItemAsync(STORE_KEYS.targetLanguage),
-        ])
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true
+      const load = async (): Promise<void> => {
+        try {
+          const [keyPresence, storedTranslation, storedCefr, storedNativeLanguage, storedTargetLanguage] = await Promise.all([
+            Promise.all(
+              GENERATION_PROVIDERS.map(async (name: GenerationProviderName) => {
+                const [apiKey, enabledRaw] = await Promise.all([
+                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key),
+                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].enabled),
+                ])
+                return (apiKey ?? '').trim() !== '' && enabledRaw !== 'false'
+              }),
+            ),
+            SecureStore.getItemAsync(STORE_KEYS.translationProvider),
+            SecureStore.getItemAsync(STORE_KEYS.defaultCefr),
+            SecureStore.getItemAsync(STORE_KEYS.nativeLanguage),
+            SecureStore.getItemAsync(STORE_KEYS.targetLanguage),
+          ])
 
-        const translationName = (TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')
-          ? (storedTranslation as TranslationProviderName)
-          : 'google'
+          const translationName = (TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')
+            ? (storedTranslation as TranslationProviderName)
+            : 'google'
 
-        setSummary({
-          configuredCount: keyPresence.filter(Boolean).length,
-          translationLabel: TRANSLATION_LABELS[translationName],
-          cefr: (CEFR_LEVELS as string[]).includes(storedCefr ?? '') ? (storedCefr as CefrLevel) : 'B1',
-          nativeLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedNativeLanguage ?? '')
-            ? (storedNativeLanguage as LanguageCode)
-            : DEFAULT_NATIVE_LANGUAGE,
-          targetLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedTargetLanguage ?? '')
-            ? (storedTargetLanguage as LanguageCode)
-            : DEFAULT_TARGET_LANGUAGE,
-        })
-      } catch (error) {
-        log.error('settings.menu_summary_load_failed', error, { message: 'Failed to load settings menu summary' })
-      } finally {
-        setLoaded(true)
+          if (isMounted) {
+            setSummary({
+              configuredCount: keyPresence.filter(Boolean).length,
+              translationLabel: TRANSLATION_LABELS[translationName],
+              cefr: (CEFR_LEVELS as string[]).includes(storedCefr ?? '') ? (storedCefr as CefrLevel) : 'B1',
+              nativeLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedNativeLanguage ?? '')
+                ? (storedNativeLanguage as LanguageCode)
+                : DEFAULT_NATIVE_LANGUAGE,
+              targetLanguage: (SUPPORTED_LANGUAGES as readonly string[]).includes(storedTargetLanguage ?? '')
+                ? (storedTargetLanguage as LanguageCode)
+                : DEFAULT_TARGET_LANGUAGE,
+            })
+          }
+        } catch (error) {
+          log.error('settings.menu_summary_load_failed', error, { message: 'Failed to load settings menu summary' })
+        } finally {
+          if (isMounted) setLoaded(true)
+        }
       }
-    }
-    void load()
-    // Re-read every time the tab regains focus isn't wired here (no useFocusEffect elsewhere in
-    // this app's settings screens either) — a sub-screen edit rebuilds the AI pipeline
-    // immediately (reloadServices), so `tier`/limitedMode above stays live; only this summary
-    // text catches up on next visit, which is fine for a subtitle.
-  }, [])
+      void load()
+      return () => {
+        isMounted = false
+      }
+    }, []),
+  )
 
   const trimmedQuery = query.trim().toLowerCase()
   const searchResults = useMemo(() => {

@@ -8,10 +8,12 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AlertModal, Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
+import * as SecureStore from 'expo-secure-store'
 import {
   AUDIO_PROVIDERS,
   AUDIO_PROVIDER_META,
   AUDIO_SPEED_OPTIONS,
+  AUDIO_STORE_KEYS,
   CLOUD_AUDIO_PROVIDERS,
   DEFAULT_AUDIO_SPEED,
   getDefaultCloudVoice,
@@ -182,15 +184,29 @@ export default function AudioSettingsScreen(): JSX.Element {
 
   useEffect(() => {
     const load = async (): Promise<void> => {
-      const [provider, entries] = await Promise.all([
+      const [provider, entries, validatedEntries] = await Promise.all([
         getAudioProvider(),
         Promise.all(CLOUD_AUDIO_PROVIDERS.map(async (name) => [name, await getCloudAudioConfig(name)] as const)),
+        Promise.all(
+          CLOUD_AUDIO_PROVIDERS.map(async (name) => {
+            const validatedKey = await SecureStore.getItemAsync(AUDIO_STORE_KEYS[name].validatedKey)
+            return [name, validatedKey] as const
+          }),
+        ),
       ])
       setCloudProviders((prev) => {
         const next = { ...prev }
         for (const [name, config] of entries) next[name] = config
         return next
       })
+      const validatedMap: Partial<Record<CloudAudioProviderName, boolean>> = {}
+      for (const [name, config] of entries) {
+        const validatedKey = validatedEntries.find(([n]) => n === name)?.[1]
+        if ((config.apiKey ?? '').trim() !== '' && validatedKey === config.apiKey.trim()) {
+          validatedMap[name] = true
+        }
+      }
+      setValidated(validatedMap)
       // A cloud provider can only be active if it still has a key — guards against a stale
       // stored provider whose key was cleared elsewhere (or never set), so Device is always the
       // one actually speaking when nothing else is configured, not just visually implied.
@@ -251,10 +267,14 @@ export default function AudioSettingsScreen(): JSX.Element {
   const updateCloudProvider = (name: CloudAudioProviderName, patch: Partial<CloudProviderFormState>): void => {
     setCloudProviders((prev) => ({ ...prev, [name]: { ...prev[name], ...patch } }))
   }
+  const invalidateCloudKey = (name: CloudAudioProviderName): void => {
+    void SecureStore.setItemAsync(AUDIO_STORE_KEYS[name].validatedKey, '')
+    setValidated((prev) => ({ ...prev, [name]: false }))
+  }
   const changeApiKey = (name: CloudAudioProviderName, value: string): void => {
     updateCloudProvider(name, { apiKey: value })
     void setCloudAudioKey(name, value.trim())
-    setValidated((prev) => ({ ...prev, [name]: false }))
+    invalidateCloudKey(name)
   }
   const changeVoice = (name: CloudAudioProviderName, value: string): void => {
     updateCloudProvider(name, { voice: value })
@@ -270,6 +290,11 @@ export default function AudioSettingsScreen(): JSX.Element {
     setValidating((prev) => ({ ...prev, [name]: true }))
     void validateAudioProviderKey(name, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
       .then((result) => {
+        if (result.ok) {
+          void SecureStore.setItemAsync(AUDIO_STORE_KEYS[name].validatedKey, apiKey.trim())
+        } else {
+          void SecureStore.setItemAsync(AUDIO_STORE_KEYS[name].validatedKey, '')
+        }
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
         setNotice({
           title: result.ok
@@ -306,7 +331,7 @@ export default function AudioSettingsScreen(): JSX.Element {
   const clearKey = (name: CloudAudioProviderName): void => {
     updateCloudProvider(name, { apiKey: '' })
     void setCloudAudioKey(name, '')
-    setValidated((prev) => ({ ...prev, [name]: false }))
+    invalidateCloudKey(name)
     // Can't leave the active engine without a key — Device is always the fallback.
     if (activeProvider === name) changeActiveProvider('device')
   }

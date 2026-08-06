@@ -60,11 +60,11 @@ export const PROVIDER_META: Record<GenerationProviderName, ProviderMeta> = {
   },
 }
 
-export const PROVIDER_STORE_KEYS: Record<GenerationProviderName, { key: string; enabled: string; model: string }> = {
-  openai: { key: STORE_KEYS.openaiKey, enabled: STORE_KEYS.openaiEnabled, model: STORE_KEYS.openaiModel },
-  mistral: { key: STORE_KEYS.mistralKey, enabled: STORE_KEYS.mistralEnabled, model: STORE_KEYS.mistralModel },
-  gemini: { key: STORE_KEYS.geminiKey, enabled: STORE_KEYS.geminiEnabled, model: STORE_KEYS.geminiModel },
-  anthropic: { key: STORE_KEYS.claudeKey, enabled: STORE_KEYS.claudeEnabled, model: STORE_KEYS.claudeModel },
+export const PROVIDER_STORE_KEYS: Record<GenerationProviderName, { key: string; enabled: string; model: string; validatedKey: string }> = {
+  openai: { key: STORE_KEYS.openaiKey, enabled: STORE_KEYS.openaiEnabled, model: STORE_KEYS.openaiModel, validatedKey: STORE_KEYS.openaiValidatedKey },
+  mistral: { key: STORE_KEYS.mistralKey, enabled: STORE_KEYS.mistralEnabled, model: STORE_KEYS.mistralModel, validatedKey: STORE_KEYS.mistralValidatedKey },
+  gemini: { key: STORE_KEYS.geminiKey, enabled: STORE_KEYS.geminiEnabled, model: STORE_KEYS.geminiModel, validatedKey: STORE_KEYS.geminiValidatedKey },
+  anthropic: { key: STORE_KEYS.claudeKey, enabled: STORE_KEYS.claudeEnabled, model: STORE_KEYS.claudeModel, validatedKey: STORE_KEYS.claudeValidatedKey },
 }
 
 export const VALIDATORS: Record<GenerationProviderName, (key: string, model: string) => Promise<ValidationResult>> = {

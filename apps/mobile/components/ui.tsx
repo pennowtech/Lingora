@@ -273,6 +273,8 @@ export function Chip(props: {
 export interface DropdownOption {
   label: string
   value: string
+  icon?: keyof typeof Ionicons.glyphMap
+  badgeCount?: number
 }
 
 /**
@@ -280,7 +282,7 @@ export interface DropdownOption {
  * list of options — for a single choice among many (e.g. "which column is
  * the word?"), where a `Chip` row would otherwise wrap across several lines.
  * `clearable` adds a "None" row at the top, calling `onChange(null)` — for
- * an optional field that can be left unmapped.
+ * an optional field that can be left unmapped. Supports icons and badges for options.
  */
 export function Dropdown(props: {
   label?: string
@@ -303,31 +305,77 @@ export function Dropdown(props: {
   return (
     <>
       <Pressable style={styles.dropdownField} onPress={() => setOpen(true)}>
-        <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
-          {selected?.label ?? props.placeholder ?? 'Select…'}
-        </Text>
-        <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
+        <View style={styles.dropdownValueRow}>
+          {selected?.icon ? (
+            <View style={styles.dropdownSelectedIconWrap}>
+              <Ionicons name={selected.icon} size={13} color={colors.primary} />
+            </View>
+          ) : null}
+          <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
+            {selected?.label ?? props.placeholder ?? 'Select…'}
+          </Text>
+          {selected?.badgeCount !== undefined ? (
+            <View style={styles.dropdownBadge}>
+              <Text style={styles.dropdownBadgeText}>{selected.badgeCount}</Text>
+            </View>
+          ) : null}
+        </View>
+        <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
       </Pressable>
       <Modal visible={open} animationType="fade" transparent onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.dropdownBackdrop} onPress={() => setOpen(false)} />
         <View style={styles.dropdownSheet}>
           <View style={styles.modalHandle} />
           {props.label ? <Text style={styles.dropdownSheetTitle}>{props.label}</Text> : null}
-          <ScrollView style={styles.dropdownList}>
+          <ScrollView style={styles.dropdownList} showsVerticalScrollIndicator={false}>
             {props.clearable ? (
-              <Pressable style={styles.dropdownOption} onPress={() => choose(null)}>
-                <Text style={styles.dropdownOptionLabel}>None</Text>
-                {props.value === null ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
+              <Pressable
+                style={[styles.dropdownOption, props.value === null && styles.dropdownOptionSelected]}
+                onPress={() => choose(null)}
+              >
+                <Text style={[styles.dropdownOptionLabel, props.value === null && styles.dropdownOptionLabelSelected]}>
+                  None
+                </Text>
+                {props.value === null ? (
+                  <View style={styles.dropdownCheckCircle}>
+                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                  </View>
+                ) : null}
               </Pressable>
             ) : null}
-            {props.options.map((opt) => (
-              <Pressable key={opt.value} style={styles.dropdownOption} onPress={() => choose(opt.value)}>
-                <Text style={styles.dropdownOptionLabel} numberOfLines={2}>
-                  {opt.label}
-                </Text>
-                {props.value === opt.value ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
-              </Pressable>
-            ))}
+            {props.options.map((opt) => {
+              const isSelected = props.value === opt.value
+              return (
+                <Pressable
+                  key={opt.value}
+                  style={[styles.dropdownOption, isSelected && styles.dropdownOptionSelected]}
+                  onPress={() => choose(opt.value)}
+                >
+                  <View style={styles.dropdownOptionLeft}>
+                    {opt.icon ? (
+                      <View style={[styles.dropdownOptionIconWrap, isSelected && styles.dropdownOptionIconWrapSelected]}>
+                        <Ionicons name={opt.icon} size={16} color={isSelected ? colors.primary : colors.textSecondary} />
+                      </View>
+                    ) : null}
+                    <Text style={[styles.dropdownOptionLabel, isSelected && styles.dropdownOptionLabelSelected]} numberOfLines={2}>
+                      {opt.label}
+                    </Text>
+                    {opt.badgeCount !== undefined ? (
+                      <View style={[styles.dropdownOptionBadge, isSelected && styles.dropdownOptionBadgeSelected]}>
+                        <Text style={[styles.dropdownOptionBadgeText, isSelected && styles.dropdownOptionBadgeTextSelected]}>
+                          {opt.badgeCount}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  {isSelected ? (
+                    <View style={styles.dropdownCheckCircle}>
+                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                    </View>
+                  ) : null}
+                </Pressable>
+              )
+            })}
           </ScrollView>
         </View>
       </Modal>
@@ -738,25 +786,49 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       backgroundColor: colors.surfaceMuted,
-      borderRadius: radius.md,
+      borderRadius: radius.full,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm + 2,
+      paddingVertical: spacing.xs + 2,
+      gap: spacing.xs,
     },
-    dropdownValue: { fontSize: type.body, fontWeight: '600', color: colors.text, flex: 1, marginRight: spacing.sm },
+    dropdownValueRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs + 2,
+      flex: 1,
+    },
+    dropdownSelectedIconWrap: {
+      width: 22,
+      height: 22,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dropdownValue: { fontSize: type.caption, fontWeight: '700', color: colors.text, flex: 1 },
     dropdownPlaceholder: { color: colors.textMuted, fontWeight: '400' },
-    dropdownBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    dropdownBadge: {
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.full,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+    },
+    dropdownBadgeText: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    dropdownBackdrop: { flex: 1, backgroundColor: '#00000077' },
     dropdownSheet: {
       backgroundColor: colors.surface,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      padding: spacing.xl,
-      maxHeight: '70%',
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.xxl,
+      maxHeight: '75%',
     },
     modalHandle: {
       alignSelf: 'center',
-      width: 40,
+      width: 36,
       height: 4,
       borderRadius: radius.full,
       backgroundColor: colors.border,
@@ -768,11 +840,53 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      paddingVertical: spacing.sm + 2,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.lg,
+      marginBottom: spacing.xs,
     },
-    dropdownOptionLabel: { fontSize: type.body, color: colors.text, flex: 1, marginRight: spacing.sm },
+    dropdownOptionSelected: {
+      backgroundColor: colors.primarySoft,
+    },
+    dropdownOptionLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      flex: 1,
+    },
+    dropdownOptionIconWrap: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.md,
+      backgroundColor: colors.surfaceMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dropdownOptionIconWrapSelected: {
+      backgroundColor: colors.surface,
+    },
+    dropdownOptionLabel: { fontSize: type.body, fontWeight: '500', color: colors.text, flex: 1 },
+    dropdownOptionLabelSelected: { fontWeight: '700', color: colors.primary },
+    dropdownOptionBadge: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.full,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+    },
+    dropdownOptionBadgeSelected: {
+      backgroundColor: colors.primary,
+    },
+    dropdownOptionBadgeText: { fontSize: type.micro, fontWeight: '600', color: colors.textSecondary },
+    dropdownOptionBadgeTextSelected: { color: '#FFFFFF', fontWeight: '700' },
+    dropdownCheckCircle: {
+      width: 20,
+      height: 20,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: spacing.sm,
+    },
     exportOptionRow: {
       flexDirection: 'row',
       alignItems: 'center',

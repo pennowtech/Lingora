@@ -50,10 +50,11 @@ export default function TranslationScreen(): JSX.Element {
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
-        const [storedTranslation, storedDeepl, storedDeeplEnabled, storedDeeplUsage, keyPresence] = await Promise.all([
+        const [storedTranslation, storedDeepl, storedDeeplEnabled, storedDeeplValidatedKey, storedDeeplUsage, keyPresence] = await Promise.all([
           SecureStore.getItemAsync(STORE_KEYS.translationProvider),
           SecureStore.getItemAsync(STORE_KEYS.deeplKey),
           SecureStore.getItemAsync(STORE_KEYS.deeplEnabled),
+          SecureStore.getItemAsync(STORE_KEYS.deeplValidatedKey),
           getUsage('deepl'),
           Promise.all(
             GENERATION_PROVIDERS.map(async (name) => {
@@ -68,8 +69,12 @@ export default function TranslationScreen(): JSX.Element {
         if ((TRANSLATION_PROVIDERS as readonly string[]).includes(storedTranslation ?? '')) {
           setTranslationProviderState(storedTranslation as TranslationProviderName)
         }
-        setDeeplKey(storedDeepl ?? '')
+        const loadedDeepl = storedDeepl ?? ''
+        setDeeplKey(loadedDeepl)
         setDeeplEnabledState(storedDeeplEnabled !== 'false')
+        if (loadedDeepl.trim() !== '' && storedDeeplValidatedKey === loadedDeepl.trim()) {
+          setDeeplValidated(true)
+        }
         setDeeplUsage(storedDeeplUsage)
         setConfiguredProviders(keyPresence.filter((p) => p.available).map((p) => p.name))
       } catch (error) {
@@ -94,10 +99,14 @@ export default function TranslationScreen(): JSX.Element {
       metadata: { provider: value },
     })
   }
+  const invalidateDeeplKey = (): void => {
+    void SecureStore.setItemAsync(STORE_KEYS.deeplValidatedKey, '')
+    setDeeplValidated(false)
+  }
   const changeDeeplKey = (value: string): void => {
     setDeeplKey(value)
     persist(STORE_KEYS.deeplKey, value.trim())
-    setDeeplValidated(false)
+    invalidateDeeplKey()
   }
   const changeDeeplEnabled = (value: boolean): void => {
     setDeeplEnabledState(value)
@@ -112,6 +121,11 @@ export default function TranslationScreen(): JSX.Element {
     setDeeplValidating(true)
     void validateDeepLKey(deeplKey)
       .then((result) => {
+        if (result.ok) {
+          void SecureStore.setItemAsync(STORE_KEYS.deeplValidatedKey, deeplKey.trim())
+        } else {
+          void SecureStore.setItemAsync(STORE_KEYS.deeplValidatedKey, '')
+        }
         setDeeplValidated(result.ok)
         setNotice({
           title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('DeepL validation failed'),
@@ -126,8 +140,8 @@ export default function TranslationScreen(): JSX.Element {
   const clearDeeplKey = (): void => {
     setDeeplKey('')
     persist(STORE_KEYS.deeplKey, '')
+    invalidateDeeplKey()
     void clearUsage('deepl').then(() => setDeeplUsage(ZERO_USAGE))
-    setDeeplValidated(false)
     log.info('settings.provider_key_cleared', {
       message: 'Provider API key cleared',
       metadata: { provider: 'deepl' },

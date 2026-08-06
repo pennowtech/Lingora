@@ -10,8 +10,8 @@ import {
   type DatabaseAdapter,
 } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
-import { router } from 'expo-router'
-import type { JSX } from 'react'
+import { router, useFocusEffect } from 'expo-router'
+import { useCallback, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -73,6 +73,13 @@ export default function HomeScreen(): JSX.Element {
     queryKey: ['recent-words'],
     queryFn: () => getRecentlyAddedWords(db, 3),
   })
+
+  useFocusEffect(
+    useCallback(() => {
+      void statsQuery.refetch()
+      void recentQuery.refetch()
+    }, []),
+  )
 
   const stats = statsQuery.data
   const recent = recentQuery.data ?? []
@@ -189,8 +196,8 @@ export default function HomeScreen(): JSX.Element {
           </Card>
         </View>
 
-        {/* Recently added */}
-        <SectionHeader title={t('Recently added')} action={t('See all')} onAction={() => router.push('/decks')} />
+        {/* Recently searched */}
+        <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/decks')} />
         {recent.length === 0 && recentQuery.isSuccess ? (
           <EmptyState
             icon="sparkles-outline"

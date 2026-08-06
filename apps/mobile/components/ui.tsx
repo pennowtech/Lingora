@@ -485,8 +485,9 @@ export function ImportFormatSheet(props: {
   )
 }
 
-export function CefrBadge(props: { level: CefrLevel }): JSX.Element {
+export function CefrBadge(props: { level?: CefrLevel | null | undefined }): JSX.Element | null {
   const styles = useThemedStyles(createStyles)
+  if (!props.level || props.level === 'unknown') return null
   const c = cefrColors[props.level]
   return (
     <View style={[styles.cefrBadge, { backgroundColor: c.bg }]}>

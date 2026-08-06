@@ -60,6 +60,43 @@ export function BottomTabBar(): JSX.Element {
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       {tabs.map((tab) => {
         const active = pathname === tab.route
+        const isDecks = tab.route === '/decks'
+
+        if (isDecks) {
+          return (
+            <Pressable
+              key={tab.route}
+              testID={tab.testID}
+              onPress={() => router.navigate(tab.route)}
+              style={styles.centerTabContainer}
+              hitSlop={4}
+            >
+              <View
+                style={[
+                  styles.centerFab,
+                  active ? styles.centerFabActive : styles.centerFabInactive,
+                ]}
+              >
+                <Ionicons
+                  name={tab.icon}
+                  size={24}
+                  color={active ? '#FFFFFF' : colors.primary}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.label,
+                  styles.centerLabel,
+                  { color: active ? colors.primary : colors.textMuted },
+                ]}
+                numberOfLines={1}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          )
+        }
+
         return (
           <Pressable
             key={tab.route}
@@ -94,8 +131,41 @@ const createStyles = (colors: ThemeColors) =>
       borderTopWidth: 1,
       borderTopColor: colors.border,
       paddingTop: 8,
+      alignItems: 'flex-end',
+      overflow: 'visible',
     },
     button: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
+    centerTabContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: -22,
+      gap: 2,
+    },
+    centerFab: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.35,
+      shadowRadius: 6,
+      elevation: 6,
+    },
+    centerFabActive: {
+      backgroundColor: colors.primary,
+    },
+    centerFabInactive: {
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+    centerLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+    },
     label: { fontSize: 11, fontWeight: '600' },
     badge: {
       position: 'absolute',

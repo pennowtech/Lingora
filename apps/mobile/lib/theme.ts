@@ -60,6 +60,7 @@ export const cefrColors: Record<CefrLevel, { fg: string; bg: string }> = {
   B2: { fg: '#C2410C', bg: '#FBE9DB' },
   C1: { fg: '#7C3AED', bg: '#F0E9FD' },
   C2: { fg: '#534AB7', bg: '#EDEBFA' },
+  unknown: { fg: '#6B7280', bg: '#F3F4F6' },
 }
 
 /** 4-based spacing scale. */

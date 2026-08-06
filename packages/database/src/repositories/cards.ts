@@ -233,7 +233,9 @@ interface RawCardListRow {
 }
 
 const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
-    m.translation, m.cefr_level AS cefrLevel, c.type AS cardType,
+    COALESCE(m.translation, (SELECT translation FROM meanings WHERE card_id = c.id LIMIT 1)) AS translation,
+    COALESCE(m.cefr_level, (SELECT cefr_level FROM meanings WHERE card_id = c.id LIMIT 1)) AS cefrLevel,
+    c.type AS cardType,
     EXISTS(SELECT 1 FROM cloze_cards cz WHERE cz.card_id = c.id) AS hasOwnCloze`
 
 /**

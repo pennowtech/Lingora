@@ -438,61 +438,108 @@ export default function DeckDetailScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Button
-            label={t('Add card manually')}
-            icon="add-circle-outline"
-            variant="secondary"
-            onPress={() => {
-              setMenuOpen(false)
-              router.push({ pathname: '/deck/add-card', params: { deckId: id } })
-            }}
-          />
-          <Button
-            label={t('Select cards')}
-            icon="checkmark-circle-outline"
-            variant="secondary"
-            onPress={() => {
-              setMenuOpen(false)
-              setSelectMode(true)
-            }}
-          />
-          <Button
-            label={t('View all cards (table)')}
-            icon="grid-outline"
-            variant="secondary"
-            onPress={() => {
-              setMenuOpen(false)
-              router.push({ pathname: '/deck/table', params: { deckId: deck.id, deckName: deck.name } })
-            }}
-          />
-          <Button label={t('Import into this deck')} icon="download" variant="secondary" onPress={showImport} />
-          <Button label={t('Export this deck')} icon="cloud-download" variant="secondary" onPress={showExport} />
-          <Button
-            label={t('Rename deck')}
-            icon="pencil"
-            variant="secondary"
-            onPress={() => {
-              setMenuOpen(false)
-              setRenameValue(deck.name)
-              setRenameOpen(true)
-            }}
-          />
-          <Button label={t('Move to…')} icon="folder-open-outline" variant="secondary" onPress={showMove} />
-          <Button label={t('Merge into…')} icon="git-merge-outline" variant="secondary" onPress={showMerge} />
-          <Button
-            label={resetProgress.isPending ? t('Resetting…') : t('Reset progress')}
-            icon="refresh-outline"
-            variant="secondary"
-            onPress={confirmResetProgress}
-            disabled={resetProgress.isPending}
-          />
-          <Button
-            label={remove.isPending ? t('Deleting…') : t('Delete deck')}
-            icon="trash"
-            variant="danger"
-            onPress={confirmDelete}
-            disabled={remove.isPending}
-          />
+          
+          <View style={styles.menuHeader}>
+            <Text style={styles.menuTitle}>{deck.emoji ?? '📚'} {deck.name}</Text>
+            <Text style={styles.menuSubtitle}>{t('{{count}} cards in deck', { count: cards.length })}</Text>
+          </View>
+
+          {/* Quick Action Grid (2x2) */}
+          <View style={styles.menuActionGrid}>
+            <Pressable
+              style={styles.gridActionTile}
+              onPress={() => {
+                setMenuOpen(false)
+                router.push({ pathname: '/deck/add-card', params: { deckId: id } })
+              }}
+            >
+              <View style={styles.gridActionIcon}>
+                <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.gridActionLabel}>{t('Add Card')}</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.gridActionTile}
+              onPress={() => {
+                setMenuOpen(false)
+                router.push({ pathname: '/deck/table', params: { deckId: deck.id, deckName: deck.name } })
+              }}
+            >
+              <View style={styles.gridActionIcon}>
+                <Ionicons name="grid-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.gridActionLabel}>{t('Table View')}</Text>
+            </Pressable>
+
+            <Pressable style={styles.gridActionTile} onPress={showImport}>
+              <View style={styles.gridActionIcon}>
+                <Ionicons name="download-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.gridActionLabel}>{t('Import')}</Text>
+            </Pressable>
+
+            <Pressable style={styles.gridActionTile} onPress={showExport}>
+              <View style={styles.gridActionIcon}>
+                <Ionicons name="cloud-download-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.gridActionLabel}>{t('Export')}</Text>
+            </Pressable>
+          </View>
+
+          {/* Sleek Row Menu Group */}
+          <View style={styles.menuListGroup}>
+            <Pressable
+              style={styles.menuRowItem}
+              onPress={() => {
+                setMenuOpen(false)
+                setSelectMode(true)
+              }}
+            >
+              <Ionicons name="checkmark-circle-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.menuRowLabel}>{t('Select cards')}</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable
+              style={styles.menuRowItem}
+              onPress={() => {
+                setMenuOpen(false)
+                setRenameValue(deck.name)
+                setRenameOpen(true)
+              }}
+            >
+              <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.menuRowLabel}>{t('Rename deck')}</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable style={styles.menuRowItem} onPress={showMove}>
+              <Ionicons name="folder-open-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.menuRowLabel}>{t('Move deck')}</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable style={styles.menuRowItem} onPress={showMerge}>
+              <Ionicons name="git-merge-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.menuRowLabel}>{t('Merge into another deck')}</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable style={styles.menuRowItem} onPress={confirmResetProgress} disabled={resetProgress.isPending}>
+              <Ionicons name="refresh-outline" size={18} color={colors.warning} />
+              <Text style={[styles.menuRowLabel, { color: colors.warning }]}>
+                {resetProgress.isPending ? t('Resetting…') : t('Reset progress')}
+              </Text>
+            </Pressable>
+
+            <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={confirmDelete} disabled={remove.isPending}>
+              <Ionicons name="trash-outline" size={18} color={colors.danger} />
+              <Text style={[styles.menuRowLabel, { color: colors.danger }]}>
+                {remove.isPending ? t('Deleting…') : t('Delete deck')}
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </Modal>
 
@@ -758,4 +805,44 @@ const createStyles = (colors: ThemeColors) =>
     deckRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
     deckEmoji: { fontSize: 20 },
     hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
+    menuHeader: { alignItems: 'center', marginBottom: spacing.xs },
+    menuTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, textAlign: 'center' },
+    menuSubtitle: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    menuActionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+    gridActionTile: {
+      flex: 1,
+      minWidth: '45%',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    gridActionIcon: {
+      width: 38,
+      height: 38,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    gridActionLabel: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+    menuListGroup: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      overflow: 'hidden',
+      marginTop: spacing.sm,
+    },
+    menuRowItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    menuRowItemLast: { borderBottomWidth: 0 },
+    menuRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
   })

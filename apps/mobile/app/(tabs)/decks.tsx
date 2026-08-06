@@ -574,94 +574,112 @@ export default function DecksScreen(): JSX.Element {
         </View>
       </Modal>
 
-      {/* ── Rename modal ── */}
+      {/* ── Rename centered dialog popup window ── */}
       <Modal
         visible={renameDeckTarget !== null}
-        animationType="slide"
+        animationType="fade"
         transparent
         onRequestClose={() => setRenameDeckTarget(null)}
       >
         <KeyboardAvoidingView
-          style={styles.modalKeyboardAvoider}
+          style={styles.centerModalKeyboardAvoider}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <Pressable style={styles.modalBackdropAbsolute} onPress={() => setRenameDeckTarget(null)} />
-          <View style={styles.modalSheet}>
-            <View style={styles.modalHandle} />
+          <View style={styles.centerModalCard}>
             <Text style={styles.modalTitle}>{t('Rename deck')}</Text>
             <TextInput style={styles.inputField} value={renameValue} onChangeText={setRenameValue} autoFocus />
             {rename.isError ? <Text style={styles.errorLabel}>{String(rename.error)}</Text> : null}
-            <Button
-              label={rename.isPending ? t('Saving…') : t('Save')}
-              disabled={rename.isPending}
-              onPress={() => rename.mutate()}
-            />
+            <View style={styles.centerModalActions}>
+              <Button label={t('Cancel')} variant="ghost" onPress={() => setRenameDeckTarget(null)} disabled={rename.isPending} />
+              <Button
+                label={rename.isPending ? t('Saving…') : t('Save')}
+                disabled={rename.isPending || renameValue.trim() === ''}
+                onPress={() => rename.mutate()}
+              />
+            </View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* ── Move/merge deck picker — shared between both actions, see pickerMode ── */}
+      {/* ── Move/merge deck picker centered dialog popup window ── */}
       <Modal
         visible={pickerDeck !== null}
-        animationType="slide"
+        animationType="fade"
         transparent
         onRequestClose={() => {
           setPickerDeck(null)
           setPickerMode(null)
         }}
       >
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => {
-            setPickerDeck(null)
-            setPickerMode(null)
-          }}
-        />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          {pickerDeck ? (
-            <>
-              <Text style={styles.modalTitle}>
-                {pickerMode === 'move'
-                  ? t('Move "{{name}}" to…', { name: pickerDeck.name })
-                  : t('Merge "{{name}}" into…', { name: pickerDeck.name })}
-              </Text>
-              {pickerMode === 'move' ? (
-                <Pressable
-                  style={styles.pickerRow}
-                  onPress={() => move.mutate(null)}
-                  disabled={move.isPending || pickerDeck.parentId === undefined}
-                >
-                  <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
-                  <Text style={styles.pickerRowLabel}>{t('Top level (no parent)')}</Text>
-                </Pressable>
-              ) : null}
-              {allDecksQuery.isPending ? (
-                <Spinner />
-              ) : allDecksQuery.isError ? (
-                <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
-              ) : pickerTargets.length === 0 ? (
-                <Text style={styles.hint}>
-                  {pickerMode === 'move' ? t('No other deck to nest this one under.') : t('No other deck to merge into.')}
+        <KeyboardAvoidingView
+          style={styles.centerModalKeyboardAvoider}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <Pressable
+            style={styles.modalBackdropAbsolute}
+            onPress={() => {
+              setPickerDeck(null)
+              setPickerMode(null)
+            }}
+          />
+          <View style={styles.centerModalCard}>
+            {pickerDeck ? (
+              <>
+                <Text style={styles.modalTitle}>
+                  {pickerMode === 'move'
+                    ? t('Move "{{name}}" to…', { name: pickerDeck.name })
+                    : t('Merge "{{name}}" into…', { name: pickerDeck.name })}
                 </Text>
-              ) : (
-                pickerTargets.map((target) => (
-                  <Pressable
-                    key={target.id}
-                    style={styles.pickerRow}
-                    onPress={() => handlePickTarget(target)}
-                    disabled={move.isPending || merge.isPending}
-                  >
-                    <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
-                    <Text style={styles.pickerRowLabel}>{target.name}</Text>
-                  </Pressable>
-                ))
-              )}
-              {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
-              {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
-            </>
-          ) : null}
-        </View>
+                <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
+                  {pickerMode === 'move' ? (
+                    <Pressable
+                      style={styles.pickerRow}
+                      onPress={() => move.mutate(null)}
+                      disabled={move.isPending || pickerDeck.parentId === undefined}
+                    >
+                      <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+                      <Text style={styles.pickerRowLabel}>{t('Top level (no parent)')}</Text>
+                    </Pressable>
+                  ) : null}
+                  {allDecksQuery.isPending ? (
+                    <Spinner />
+                  ) : allDecksQuery.isError ? (
+                    <ErrorState message={String(allDecksQuery.error)} onRetry={() => void allDecksQuery.refetch()} />
+                  ) : pickerTargets.length === 0 ? (
+                    <Text style={styles.hint}>
+                      {pickerMode === 'move' ? t('No other deck to nest this one under.') : t('No other deck to merge into.')}
+                    </Text>
+                  ) : (
+                    pickerTargets.map((target) => (
+                      <Pressable
+                        key={target.id}
+                        style={styles.pickerRow}
+                        onPress={() => handlePickTarget(target)}
+                        disabled={move.isPending || merge.isPending}
+                      >
+                        <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                        <Text style={styles.pickerRowLabel}>{target.name}</Text>
+                      </Pressable>
+                    ))
+                  )}
+                </ScrollView>
+                {move.isError ? <Text style={styles.errorLabel}>{String(move.error)}</Text> : null}
+                {merge.isError ? <Text style={styles.errorLabel}>{String(merge.error)}</Text> : null}
+                <View style={styles.centerModalActions}>
+                  <Button
+                    label={t('Cancel')}
+                    variant="ghost"
+                    onPress={() => {
+                      setPickerDeck(null)
+                      setPickerMode(null)
+                    }}
+                  />
+                </View>
+              </>
+            ) : null}
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <ImportFormatSheet

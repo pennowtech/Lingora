@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons'
-import { readAsStringAsync, EncodingType } from 'expo-file-system'
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { WebView, type WebViewMessageEvent } from 'react-native-webview'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -41,7 +41,8 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
       try {
         setLoading(true)
         setError(null)
-        const fileUri = props.filePath.startsWith('file://') ? props.filePath : `file://${props.filePath}`
+        const path = props.filePath
+        const fileUri = path.startsWith('content://') || path.startsWith('file://') ? path : `file://${path}`
         const content = await readAsStringAsync(fileUri, {
           encoding: EncodingType.Base64,
         })
@@ -362,6 +363,12 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
           allowUniversalAccessFromFileURLs
         />
       ) : null}
+      {loading ? (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>{t('Loading eBook…')}</Text>
+        </View>
+      ) : null}
     </View>
   )
 }
@@ -372,4 +379,16 @@ const createStyles = (colors: ThemeColors) =>
     webView: { flex: 1, backgroundColor: 'transparent' },
     errorContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, gap: spacing.sm },
     errorText: { fontSize: type.body, color: colors.danger, textAlign: 'center' },
+    loadingOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.md,
+    },
+    loadingText: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
   })

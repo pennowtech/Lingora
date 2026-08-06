@@ -8,7 +8,7 @@ import {
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import { router, Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -51,8 +51,7 @@ export default function EbooksLibraryScreen(): JSX.Element {
 
       const file = result.assets[0]
       const id = `epub_${Date.now()}`
-      const fileSysObj = FileSystem as unknown as { documentDirectory?: string; cacheDirectory?: string }
-      const baseDir = fileSysObj.documentDirectory ?? fileSysObj.cacheDirectory ?? ''
+      const baseDir = FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? ''
       const targetPath = `${baseDir}ebooks/${id}.epub`
 
       // Ensure directory exists

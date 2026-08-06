@@ -253,6 +253,7 @@ export async function persistWordGuideAsCard(
       isPrimary: true,
       orderIndex: 0,
     })
+    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [meaningId, now, card.id])
 
     for (const [index, example] of entry.examples.entries()) {
       await createExample(tx, {
@@ -299,7 +300,7 @@ export async function persistTranslationAsCard(
   db: DatabaseAdapter,
   args: { form: string; language: LanguageCode; translation: string; provider: Exclude<CardSource, 'word_guide'> },
   deckId: string,
-  cefrLevel: CefrLevel = 'A1',
+  cefrLevel: CefrLevel = 'unknown',
 ): Promise<{ lemma: Lemma; cardId: string }> {
   return db.transaction(async (tx) => {
     const existing = await getLemmaByForm(tx, args.form, args.language)
@@ -356,8 +357,9 @@ export async function persistTranslationAsCard(
       orderIndex: 0,
     })
 
+    const meaningId = crypto.randomUUID()
     await createMeaning(tx, {
-      id: crypto.randomUUID(),
+      id: meaningId,
       cardId: card.id,
       clusterId,
       translation: args.translation,
@@ -366,6 +368,7 @@ export async function persistTranslationAsCard(
       isPrimary: true,
       orderIndex: 0,
     })
+    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [meaningId, now, card.id])
 
     return { lemma, cardId: card.id }
   })

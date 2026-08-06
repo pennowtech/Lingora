@@ -50,7 +50,7 @@ export async function createCluster(db: DatabaseAdapter, cluster: MeaningCluster
       cluster.lemmaId,
       cluster.label,
       cluster.description,
-      cluster.cefrLevel,
+      cluster.cefrLevel ?? null,
       cluster.orderIndex,
     ],
   )
@@ -108,7 +108,7 @@ export async function createMeaning(db: DatabaseAdapter, meaning: Meaning): Prom
       meaning.explanation,
       meaning.usage ?? null,
       meaning.isPrimary ? 1 : 0,
-      meaning.cefrLevel,
+      meaning.cefrLevel ?? null,
       meaning.orderIndex,
     ],
   )

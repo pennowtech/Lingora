@@ -214,7 +214,6 @@ export default function SearchScreen(): JSX.Element {
           provider: dictionaryNameToCardSource(dictionary.name),
         },
         deckId,
-        defaultCefr,
       )
     },
     onSuccess: async ({ lemma }) => {
@@ -249,7 +248,6 @@ export default function SearchScreen(): JSX.Element {
             provider: dictionaryNameToCardSource(dictionary.name),
           },
           id,
-          defaultCefr,
         )
       }
       throw new Error(t('Nothing to add.'))

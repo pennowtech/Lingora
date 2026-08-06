@@ -2,7 +2,7 @@
 
 export type LanguageCode = 'de' | 'en' | 'ja' | 'es' | 'fr' | 'vi' | 'hi'
 
-export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'unknown'
 
 export type PartOfSpeech =
   | 'noun'
@@ -65,7 +65,7 @@ export interface MeaningCluster {
   lemmaId: string
   label: string // 'finance', 'electricity', 'social'
   description: string // 'financial charges, fees, costs'
-  cefrLevel: CefrLevel
+  cefrLevel?: CefrLevel | null
   orderIndex: number // display order
 }
 
@@ -99,7 +99,7 @@ export interface Meaning {
   translation: string // 'to go out'
   explanation: string // 'to leave home for a social activity'
   usage?: string // short notes on register/context/typical collocations
-  cefrLevel: CefrLevel
+  cefrLevel?: CefrLevel | null
   isPrimary: boolean
   orderIndex: number
 }

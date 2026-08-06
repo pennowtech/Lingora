@@ -278,17 +278,8 @@ export async function persistWordGeneration(
       }
     }
 
-    for (const phrase of payload.phrases) {
-      await createPhrase(tx, {
-        id: crypto.randomUUID(),
-        cardId: card.id,
-        expression: phrase.expression,
-        meaning: phrase.meaning,
-        exampleSentence: phrase.exampleSentence,
-        exampleTranslation: phrase.exampleTranslation,
-        cefrLevel: phrase.cefrLevel,
-      })
-    }
+    // Phrases are fetched on demand inside the card — not created automatically on card package generation
+    // (see generatePhrases on-demand action in app/word/[form].tsx).
 
     // No cloze card is created automatically — payload.clozes (the AI's own attempt) goes unused
     // by design. Neither an independently AI-generated cloze (stale the moment the user picks a
@@ -449,17 +440,7 @@ export async function regenerateWordPackage(
       }
     }
 
-    for (const phrase of payload.phrases) {
-      await createPhrase(tx, {
-        id: crypto.randomUUID(),
-        cardId,
-        expression: phrase.expression,
-        meaning: phrase.meaning,
-        exampleSentence: phrase.exampleSentence,
-        exampleTranslation: phrase.exampleTranslation,
-        cefrLevel: phrase.cefrLevel,
-      })
-    }
+    // Phrases are fetched on demand inside the card — not created automatically on regeneration.
 
     // No cloze card is created automatically — see persistWordGeneration's identical comment for
     // why. Regenerating wipes this card's previous cloze variants (the DELETE above) and doesn't

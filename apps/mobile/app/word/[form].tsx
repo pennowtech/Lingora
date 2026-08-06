@@ -416,6 +416,20 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate word card'), error),
   })
 
+  useEffect(() => {
+    if (
+      !wordQuery.isPending &&
+      !word &&
+      !wordQuery.isError &&
+      pipeline &&
+      !generateMissingWord.isPending &&
+      !generateMissingWord.isSuccess &&
+      !generateMissingWord.isError
+    ) {
+      generateMissingWord.mutate()
+    }
+  }, [wordQuery.isPending, word, wordQuery.isError, pipeline, form])
+
   const evaluate = useMutation({
     mutationFn: (args: { targetType: EvaluationTarget; targetId: string; rating: 'up' | 'down' }) =>
       setEvaluation(db, args),
@@ -472,10 +486,10 @@ export default function WordDetailScreen(): JSX.Element {
       meaning: {
         translation: headlineMeaning.translation,
         explanation: headlineMeaning.explanation,
-        cefrLevel: headlineMeaning.cefrLevel,
+        cefrLevel: headlineMeaning.cefrLevel ?? defaultCefr,
       },
       example: selectedExample
-        ? { sentence: selectedExample.sentence, translation: selectedExample.translation, cefrLevel: selectedExample.cefrLevel }
+        ? { sentence: selectedExample.sentence, translation: selectedExample.translation, cefrLevel: selectedExample.cefrLevel ?? defaultCefr }
         : null,
     })
   }
@@ -509,7 +523,7 @@ export default function WordDetailScreen(): JSX.Element {
       cardId,
       sentence: selectedExample.sentence,
       translation: selectedExample.translation,
-      cefrLevel: active.cluster.cefrLevel,
+      cefrLevel: active.cluster.cefrLevel ?? defaultCefr,
     })
   }
 
@@ -833,11 +847,11 @@ export default function WordDetailScreen(): JSX.Element {
     void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(word.lemma.form)}`)
   }
 
-  if (wordQuery.isPending) {
+  if (wordQuery.isPending || (generateMissingWord.isPending && !word)) {
     return (
       <>
         <Stack.Screen options={{ title: form ?? '' }} />
-        <Spinner />
+        <Spinner message={t('Generating AI card for "{{form}}"...', { form: form ?? '' })} />
       </>
     )
   }
@@ -851,22 +865,17 @@ export default function WordDetailScreen(): JSX.Element {
             message={
               wordQuery.isError
                 ? String(wordQuery.error)
+                : generateMissingWord.isError
+                ? String(generateMissingWord.error)
                 : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
             }
-            {...(wordQuery.isError && { onRetry: () => void wordQuery.refetch() })}
+            {...(wordQuery.isError || generateMissingWord.isError ? { onRetry: () => void generateMissingWord.mutate() } : {})}
           />
-          {!wordQuery.isError ? (
+          {!pipeline ? (
             <View style={styles.missingWordActions}>
               <Button
-                label={generateMissingWord.isPending ? t('Generating with AI…') : t('Generate "{{form}}" with AI', { form: form ?? '' })}
-                onPress={() => {
-                  if (!pipeline) {
-                    aiRequiredAlert.show(t('generate word cards'))
-                    return
-                  }
-                  generateMissingWord.mutate()
-                }}
-                disabled={generateMissingWord.isPending}
+                label={t('Configure AI in Settings')}
+                onPress={() => router.push('/settings/ai-providers')}
               />
             </View>
           ) : null}
@@ -967,9 +976,6 @@ export default function WordDetailScreen(): JSX.Element {
                   ) : null}
                 </Card>
                 <CardActionBar
-                  {...(!isAiCard && {
-                    onListen: () => speak(selectedExample?.sentence ?? word.lemma.form, word.lemma.language),
-                  })}
                   onExplain={handleExplain}
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
@@ -1227,38 +1233,34 @@ export default function WordDetailScreen(): JSX.Element {
         ) : null}
         {/* Always available, not just when this word has no cloze yet — setCloze replaces rather
             than adds, so this doubles as "edit the cloze card" for the currently-selected sense. */}
-        {word.card ? (
-          <Button
-            label={word.clozes.length > 0 ? t('Edit cloze card') : t('+ Add cloze card')}
-            icon="create-outline"
-            variant="secondary"
-            small
-            onPress={() =>
-              setClozeEditor({
-                cardId: word.card!.id,
-                sentence: selectedExample?.sentence ?? '',
-                translation: selectedExample?.translation ?? '',
-                cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
-              })
-            }
-            style={styles.addClozeButton}
-          />
-        ) : null}
-
         <View style={{ height: 96 }} />
       </ScrollView>
 
-      {/* ── Sticky add-to-deck bar — a deck-name breadcrumb once it's actually in one, not a
-          button that reads as an invitation to add it again. Still tappable, to add to another
-          deck. ── */}
+      {/* ── Sticky bottom actions bar: Add to deck & Add to cloze ── */}
       {word.card ? (
         <View style={styles.bottomBar}>
-          <Button
-            label={t('Add to deck')}
-            icon="add-circle"
-            onPress={() => setDeckPickerOpen(true)}
-            style={styles.addButton}
-          />
+          <View style={styles.bottomBarButtonRow}>
+            <Button
+              label={t('Add to deck')}
+              icon="add-circle"
+              onPress={() => setDeckPickerOpen(true)}
+              style={styles.bottomBarButton}
+            />
+            <Button
+              label={word.clozes.length > 0 ? t('Edit Cloze') : t('Add to Cloze')}
+              icon="create-outline"
+              variant="secondary"
+              onPress={() =>
+                setClozeEditor({
+                  cardId: word.card!.id,
+                  sentence: selectedExample?.sentence ?? '',
+                  translation: selectedExample?.translation ?? '',
+                  cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
+                })
+              }
+              style={styles.bottomBarButton}
+            />
+          </View>
         </View>
       ) : null}
 
@@ -1624,12 +1626,18 @@ const createStyles = (colors: ThemeColors) =>
     left: 0,
     right: 0,
     bottom: 0,
-    padding: spacing.lg,
+    padding: spacing.md,
     backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  addButton: {},
+  bottomBarButtonRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  bottomBarButton: {
+    flex: 1,
+  },
   modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
   modalSheet: {
     backgroundColor: colors.surface,

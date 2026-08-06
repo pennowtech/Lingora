@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { WebView, type WebViewMessageEvent } from 'react-native-webview'
@@ -15,6 +15,13 @@ export interface TocItem {
   subitems?: TocItem[]
 }
 
+export interface EbookReaderRef {
+  nextPage: () => void
+  prevPage: () => void
+  jumpToPercentage: (percent: number) => void
+  jumpToCfi: (cfi: string) => void
+}
+
 export interface EbookReaderProps {
   filePath: string
   initialCfi?: string | null
@@ -26,7 +33,7 @@ export interface EbookReaderProps {
   onParagraphTap?: (paragraphText: string) => void
 }
 
-export function EbookReader(props: EbookReaderProps): JSX.Element {
+export const EbookReader = forwardRef<EbookReaderRef, EbookReaderProps>(function EbookReader(props, ref): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -34,6 +41,29 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
   const [base64Data, setBase64Data] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+
+  useImperativeHandle(ref, () => ({
+    nextPage: () => {
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(`if (window.nextPage) window.nextPage();`)
+      }
+    },
+    prevPage: () => {
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(`if (window.prevPage) window.prevPage();`)
+      }
+    },
+    jumpToPercentage: (percent: number) => {
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(`if (window.jumpToPercentage) window.jumpToPercentage(${percent});`)
+      }
+    },
+    jumpToCfi: (cfi: string) => {
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(`if (window.jumpToCfi) window.jumpToCfi('${cfi}');`)
+      }
+    },
+  }))
 
   useEffect(() => {
     let active = true
@@ -231,6 +261,23 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
         }
       };
 
+      window.nextPage = function() {
+        if (rendition) rendition.next();
+      };
+
+      window.prevPage = function() {
+        if (rendition) rendition.prev();
+      };
+
+      window.jumpToPercentage = function(percent) {
+        if (book && rendition) {
+          try {
+            var cfi = book.locations ? book.locations.cfiFromPercentage(percent / 100) : null;
+            if (cfi) rendition.display(cfi);
+          } catch(e) {}
+        }
+      };
+
       window.jumpToCfi = function(target) {
         if (rendition) {
           rendition.display(target);
@@ -296,6 +343,29 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
                 sendToRN({ type: 'selected', text: text, context: para });
               }
             });
+          });
+
+          var startX = 0;
+          var startY = 0;
+          rendition.on("touchstart", function(e) {
+            if (e.touches && e.touches[0]) {
+              startX = e.touches[0].clientX;
+              startY = e.touches[0].clientY;
+            }
+          });
+
+          rendition.on("touchend", function(e) {
+            if (e.changedTouches && e.changedTouches[0]) {
+              var diffX = e.changedTouches[0].clientX - startX;
+              var diffY = e.changedTouches[0].clientY - startY;
+              if (Math.abs(diffX) > 40 && Math.abs(diffY) < 60) {
+                if (diffX < 0) {
+                  rendition.next();
+                } else {
+                  rendition.prev();
+                }
+              }
+            }
           });
 
           rendition.on("click", function(event) {
@@ -378,7 +448,7 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
       ) : null}
     </View>
   )
-}
+})
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({

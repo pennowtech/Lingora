@@ -17,7 +17,7 @@ import {
   Text,
   View,
 } from 'react-native'
-import { EbookReader, type TocItem } from '../../components/EbookReader'
+import { EbookReader, type EbookReaderRef, type TocItem } from '../../components/EbookReader'
 import { Button, IconButton, Spinner, ErrorState } from '../../components/ui'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -31,6 +31,8 @@ export default function ReaderScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
+  const readerRef = useRef<EbookReaderRef>(null)
+  const trackWidthRef = useRef<number>(200)
 
   const [toc, setToc] = useState<TocItem[]>([])
   const [tocOpen, setTocOpen] = useState(false)
@@ -99,6 +101,14 @@ export default function ReaderScreen(): JSX.Element {
     }
   }
 
+  const handlePrevPage = (): void => {
+    readerRef.current?.prevPage()
+  }
+
+  const handleNextPage = (): void => {
+    readerRef.current?.nextPage()
+  }
+
   const ebook = ebookQuery.data
 
   if (ebookQuery.isPending) {
@@ -133,6 +143,7 @@ export default function ReaderScreen(): JSX.Element {
 
       {/* Reader WebView */}
       <EbookReader
+        ref={readerRef}
         filePath={ebook.filePath}
         initialCfi={ebook.currentCfi ?? null}
         fontSize={fontSize}
@@ -143,15 +154,28 @@ export default function ReaderScreen(): JSX.Element {
         onParagraphTap={handleParagraphTap}
       />
 
-      {/* Bottom Reading Progress Bar */}
+      {/* Bottom Reading Navigation & Interactive Progress Scrubber */}
       <View style={styles.bottomBar}>
         <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>
-            {progressPercent}% {t('read')}
-          </Text>
-          <View style={styles.progressBarTrack}>
+          <IconButton icon="chevron-back" size={20} onPress={handlePrevPage} />
+
+          <Pressable
+            style={styles.progressBarTrack}
+            onLayout={(e) => {
+              trackWidthRef.current = e.nativeEvent.layout.width
+            }}
+            onPress={(e) => {
+              const width = trackWidthRef.current || 200
+              const percent = Math.min(100, Math.max(0, Math.round((e.nativeEvent.locationX / width) * 100)))
+              readerRef.current?.jumpToPercentage(percent)
+            }}
+          >
             <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
-          </View>
+          </Pressable>
+
+          <Text style={styles.progressLabel}>{progressPercent}%</Text>
+
+          <IconButton icon="chevron-forward" size={20} onPress={handleNextPage} />
         </View>
       </View>
 

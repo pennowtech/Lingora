@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { WordGuideEntry } from '@lingora/types'
+import type { LanguageCode, WordGuideEntry } from '@lingora/types'
 import type { JSX, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
@@ -16,8 +16,17 @@ function titleWordClass(partOfSpeech: string | undefined): string {
   return 'Word'
 }
 
+/** Display name for the sheet title's "Understanding the {{language}} ..." fragment — same set
+ * of word-guide-bundled languages as settings/word-guides.tsx's own local label map, duplicated
+ * per the same convention rather than shared (see ttsSettings.ts's APP_KEY_PREFIX comment). */
+const TITLE_LANGUAGE_LABELS: Partial<Record<LanguageCode, string>> = {
+  de: 'German',
+  fr: 'French',
+  hi: 'Hindi',
+}
+
 /**
- * The rich "Understanding the German {word class} '{headword}'" presentation
+ * The rich "Understanding the {language} {word class} '{headword}'" presentation
  * for an installed word_guides entry — intro, synonyms, usage, and examples
  * (each with its own speaker button). Shared between Search's new-word
  * preview, the word detail screen, and the review session's explain (book)
@@ -50,7 +59,8 @@ export function WordGuideModal(props: {
             <>
               <View style={styles.headerRow}>
                 <Text style={styles.title}>
-                  {t('Understanding the German {{wordClass}} "{{headword}}"', {
+                  {t('Understanding the {{language}} {{wordClass}} "{{headword}}"', {
+                    language: t(TITLE_LANGUAGE_LABELS[guide.language] ?? guide.language),
                     wordClass: t(titleWordClass(guide.partOfSpeech)),
                     headword: guide.headword,
                   })}

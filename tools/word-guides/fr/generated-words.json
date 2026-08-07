@@ -1,0 +1,2008 @@
+{
+  "generatedAt": "2026-08-05",
+  "totalWords": 400,
+  "chunksCovered": 4,
+  "duplicateCount": 0,
+  "words": [
+    {
+      "word": "à",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "acheter",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "aéroport",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "aider",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ailleurs",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "aimer",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ainsi",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "aller",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "alors",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ami",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "amour",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "an",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "année",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "appeler",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "apprendre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "après",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "après-midi",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "arbre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "argent",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "arriver",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "assez",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "attendre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "au-dessous",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "au-dessus",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "aujourd'hui",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "aussi",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "automne",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "autour",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "autre",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "avant",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "avec",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "avion",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "avoir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bagage",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "bateau",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "beau",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "beaucoup",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "bébé",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "beurre",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "bien",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "bien sûr",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "bientôt",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "bière",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "billet",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "bon",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "brûlant",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "bureau",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "café",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ce",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "certain",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "certainement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "chacun",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "chaise",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "chambre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "changer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chanter",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "chapeau",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chaque",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "chaud",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chaussure",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chemin",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "cher",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chez",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "choisir",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "chose",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ciel",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "clé",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "coeur",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "comme",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "commencer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "comment",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "complexe",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "comprendre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "connaître",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "content",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "continuer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "corps",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "courir",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "croire",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "cuisine",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dans",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "danser",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "date",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "de",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "décider",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dedans",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dehors",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "déjà",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "demander",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "depuis",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "derrière",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dessous",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "dessus",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "devant",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "devenir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "devoir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "difficile",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "dire",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "donc",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "donner",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "dormir",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "doucement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "doux",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "drôle",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "dur",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "eau",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "école",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "écouter",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "écrire",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "elle",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "elles",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "en",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "encore",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "enfant",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ensemble",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "entendre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "entre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "environ",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "espace",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "espérer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "esprit",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "essayer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "et",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "été",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "être",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "expliquer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "fâché",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "facile",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "faible",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "faire",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "famille",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "fauteuil",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "faux",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "femme",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "fenêtre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "fermer",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "fille",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "fils",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "finir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "fleur",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "forêt",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "fort",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "frère",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "froid",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "fromage",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "fruit",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "garçon",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "gare",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "glacé",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "grand",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "gratuit",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "guère",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "habiter",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "heure",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "heureux",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "histoire",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "hiver",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "homme",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ici",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "idée",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "il",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ils",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "impossible",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "jamais",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "jardin",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "je",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "jeune",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "jouer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "jour",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "journée",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "jusque",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "la",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "là",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "laisser",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lait",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "le",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "léger",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "légume",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "lent",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "lentement",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "lettre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "leur",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "lire",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lit",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "livre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lorsque",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "lourd",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "lui",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ma",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "madame",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "main",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mais",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "maison",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mal",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "malheureux",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "manteau",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "marcher",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "mari",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "matin",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "matinée",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "mauvais",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "me",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "même",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mère",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mes",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "mettre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "midi",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "minute",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "mois",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "moment",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "mon",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "monde",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "monsieur",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "montrer",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mot",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "mur",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "ne",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "net",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "nom",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "non",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "nos",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "notre",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "nous",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "nouveau",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "nuit",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "offrir",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "on",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "où",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "oublier",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "oui",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ouvrir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "pain",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "pantalon",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "paraître",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "parc",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "parent",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "parfois",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "parler",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "partager",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "particulièrement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "partir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "partout",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "pas",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "passer",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "pauvre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "payer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "pays",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "paysage",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "pendant",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "penser",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "perdre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "père",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "permettre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "personne",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "petit",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "peu",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "peut-être",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "place",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "plaire",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "plante",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "plein",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "pleurer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "plus",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "plusieurs",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "plutôt",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "poche",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "port",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "porte",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "porter",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "possible",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "pour",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "pourquoi",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "pourtant",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "pouvoir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "prendre",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "préparer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "presque",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "printemps",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "problème",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "propre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "puisque",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "quand",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "quasiment",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "que",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "quelque",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "quelquefois",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "question",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "qui",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "rapide",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "rapidement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "rarement",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "recevoir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "recommencer",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "regarder",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "remarquer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "rencontrer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "rendre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "rentrer",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "repas",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "répondre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "réponse",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "rester",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "riche",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "rien",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "rire",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "robe",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "route",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "rue",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sa",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sac",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "saison",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "sale",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "salle",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "salle de bain",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "sans",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sauter",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "savoir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "se",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sec",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "seconde",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "sel",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "semaine",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "sentir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ses",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "seul",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "si",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "siècle",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "simple",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "sœur",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "soir",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "soirée",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "soleil",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sombre",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "son",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "soudain",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "souvent",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sucre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "suffisamment",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "suivre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "sur",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "sûr",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "surtout",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ta",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "table",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tard",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "te",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "tellement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "temps",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "tenir",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tes",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "tête",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "thé",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "tomber",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ton",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "tôt",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "toujours",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "tous",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tout",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "toutes",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "train",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "tranquille",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "travail",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "travailler",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "très",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "triste",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "trop",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "trouver",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "tu",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "un",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "une",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "uniquement",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "valise",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "vendre",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "venir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "vers",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "vêtement",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "viande",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "vide",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "vie",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "vieux",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ville",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "vin",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "visiter",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "vite",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "vivre",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "voir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "voisin",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "voisine",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "voiture",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "voler",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "vos",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "votre",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "vouloir",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "vous",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "voyage",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "voyager",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "vrai",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "vraiment",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "y",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "yeux",
+      "chunkIndex": 2,
+      "kind": "primary"
+    }
+  ]
+}

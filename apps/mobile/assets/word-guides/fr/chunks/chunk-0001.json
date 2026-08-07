@@ -1,0 +1,3230 @@
+{
+  "chunkIndex": 1,
+  "language": "fr",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.5-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-08-05",
+  "note": "Intermediate format — not yet a .lin file. WP3 converts this into a BackupPayload for import via importLinDeck. Content is AI-generated and has not been reviewed by a fluent French speaker yet — treat as a first draft. Each entry has 4 examples: two plain (indicative), one Konjunktiv II (conditionnel), one passive voice. All nouns are annotated with their grammatical gender (masculine/feminine). Common counterparts, opposites, and gender pairs are cross-referenced.",
+  "entries": [
+    {
+      "headword": "être",
+      "partOfSpeech": "verb",
+      "translation": "to be",
+      "intro": "The most fundamental French verb, meaning 'to be'. Used as a copula and as an auxiliary verb for passive voice and certain active verbs in past tenses.",
+      "usage": "Highly irregular: être, suis, es, est, sommes, êtes, sont. Past participle is 'été'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je suis fatigué.",
+          "translation": "I am tired.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est médecin.",
+          "translation": "He is a doctor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais riche, je voyagerais.",
+          "translation": "If I were rich, I would travel.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La maison est vendue.",
+          "translation": "The house is sold.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "avoir",
+      "partOfSpeech": "verb",
+      "translation": "to have",
+      "intro": "One of the two primary auxiliary verbs in French, meaning 'to have'. Used to form compound past tenses for most verbs.",
+      "usage": "Highly irregular: avoir, ai, as, a, avons, avez, ont. Past participle is 'eu'. Used in idioms like 'avoir faim' (to be hungry).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'ai un chien.",
+          "translation": "I have a dog.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle a chaud.",
+          "translation": "She is hot. (Literally: She has warmth)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais le temps, je viendrais.",
+          "translation": "If I had the time, I would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'autorisation a été obtenue.",
+          "translation": "The authorization has been obtained.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "je",
+      "partOfSpeech": "pronoun",
+      "translation": "I",
+      "intro": "First-person singular subject pronoun ('I'). Cross-referenced with 'moi' (stressed), 'me' (#48, object), and 'mon' (#52, possessive).",
+      "usage": "Elides to j' before a vowel or mute h (e.g. j'ai, j'habite). Must always be lowercase unless starting a sentence.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je parle français.",
+          "translation": "I speak French.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'adore ce livre.",
+          "translation": "I love this book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je pouvais, je le ferais.",
+          "translation": "If I could, I would do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Je suis invité à la fête.",
+          "translation": "I am invited to the party.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "de",
+      "partOfSpeech": "preposition",
+      "translation": "of / from / about",
+      "intro": "A highly versatile preposition indicating possession, origin, cause, material, or partition.",
+      "usage": "Elides to d' before a vowel. Contracts with definite articles: de + le = du, de + les = des.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le livre de Marie.",
+          "translation": "Marie's book. (Literally: The book of Marie)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il vient de Paris.",
+          "translation": "He comes from Paris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je manquais de courage, je partirais.",
+          "translation": "If I lacked courage, I would leave.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le mur est couvert de fleurs.",
+          "translation": "The wall is covered with/of flowers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ne",
+      "partOfSpeech": "adverb",
+      "translation": "not (first part of negation)",
+      "intro": "The first particle of standard French negation, typically paired with 'pas' (#6) or other negative words like 'plus' or 'jamais'.",
+      "usage": "Placed before the conjugated verb, eliding to n' before a vowel. In informal spoken French, it is often omitted.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je ne parle pas anglais.",
+          "translation": "I do not speak English.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il n'aime pas le café.",
+          "translation": "He doesn't like coffee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu ne savais pas, tu n'aurais pas dû venir.",
+          "translation": "If you didn't know, you shouldn't have come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le match ne sera pas annulé.",
+          "translation": "The match will not be canceled.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pas",
+      "partOfSpeech": "adverb / noun",
+      "translation": "not / step",
+      "intro": "The second particle of standard French negation (paired with 'ne' #5). Can also function as a masculine noun meaning 'step' or 'pace'.",
+      "usage": "Placed after the conjugated verb in negative structures. As a noun: le pas, les pas.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ce n'est pas difficile.",
+          "translation": "It is not difficult.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait un pas en avant.",
+          "translation": "He takes a step forward. (Noun usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce n'était pas si cher, je l'achèterais.",
+          "translation": "If it weren't so expensive, I would buy it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La cible n'est pas encore touchée.",
+          "translation": "The target is not yet hit.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "le",
+      "partOfSpeech": "article / pronoun",
+      "translation": "the (masculine singular) / him / it",
+      "intro": "Definite article for masculine singular nouns. Can also serve as a direct object pronoun meaning 'him' or 'it'. Cross-referenced with feminine 'la' (#8).",
+      "usage": "Elides to l' before a vowel. Direct object pronoun is placed before the verb (e.g. je le vois - I see him/it).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le chien est noir.",
+          "translation": "The dog is black.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je le vois tous les jours.",
+          "translation": "I see him/it every day. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu avais le temps, tu le ferais.",
+          "translation": "If you had the time, you would do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le livre est lu par l'élève.",
+          "translation": "The book is read by the student.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "la",
+      "partOfSpeech": "article / pronoun",
+      "translation": "the (feminine singular) / her / it",
+      "intro": "Definite article for feminine singular nouns. Can also serve as a direct object pronoun meaning 'her' or 'it'. Cross-referenced with masculine 'le' (#7).",
+      "usage": "Elides to l' before a vowel. Pronoun is placed before the verb.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La voiture est rouge.",
+          "translation": "The car is red.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je la connais bien.",
+          "translation": "I know her well. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu connaissais la réponse, tu la donnerais.",
+          "translation": "If you knew the answer, you would give it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La pomme est mangée par l'enfant.",
+          "translation": "The apple is eaten by the child.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "tu",
+      "partOfSpeech": "pronoun",
+      "translation": "you (informal singular)",
+      "intro": "Second-person singular subject pronoun. Used strictly in informal situations (family, friends, children). Cross-referenced with formal/plural 'vous' (#10) and possessive 'ton' (#53).",
+      "usage": "Subject pronoun. Elides colloquially to t' before a vowel (e.g. t'es instead of tu es - informal only).",
+      "synonyms": [
+        {
+          "word": "vous",
+          "gloss": "you (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Tu es très gentil.",
+          "translation": "You are very kind.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tu parles bien français.",
+          "translation": "You speak French well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu venais demain, tu me verrais.",
+          "translation": "If you came tomorrow, you would see me.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Tu es invité par tes amis.",
+          "translation": "You are invited by your friends.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vous",
+      "partOfSpeech": "pronoun",
+      "translation": "you (formal singular / plural)",
+      "intro": "Second-person plural pronoun ('you all') or polite/formal second-person singular pronoun ('you' respectful). Cross-referenced with informal 'tu' (#9) and possessive 'votre' (#56).",
+      "usage": "Can represent one person respectfully or multiple people. Verb always takes the '-ez' ending.",
+      "synonyms": [
+        {
+          "word": "tu",
+          "gloss": "you (informal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Comment vous vous appelez?",
+          "translation": "What is your name? (Formal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Vous parlez tous ensemble.",
+          "translation": "You are all speaking together.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si vous vouliez, vous pourriez le faire.",
+          "translation": "If you wanted, you could do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Vous êtes attendus dans la salle.",
+          "translation": "You are expected in the hall.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "il",
+      "partOfSpeech": "pronoun",
+      "translation": "he / it",
+      "intro": "Third-person singular masculine subject pronoun ('he' or 'it'). Cross-referenced with feminine 'elle' (#12). Also used in impersonal verbs ('il pleut' - it rains).",
+      "usage": "Subject pronoun. Oblique form is 'lui'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il habite à Paris.",
+          "translation": "He lives in Paris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il pleut aujourd'hui.",
+          "translation": "It is raining today. (Impersonal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si il (s'il) avait faim, il mangerait.",
+          "translation": "If he were hungry, he would eat.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Il est respecté de tous.",
+          "translation": "He is respected by all.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "elle",
+      "partOfSpeech": "pronoun",
+      "translation": "she / it",
+      "intro": "Third-person singular feminine subject pronoun ('she' or 'it'). Cross-referenced with masculine 'il' (#11).",
+      "usage": "Subject pronoun. Plural form is 'elles'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Elle travaille beaucoup.",
+          "translation": "She works a lot.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle est très intelligente.",
+          "translation": "She is very smart.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si elle le savait, elle nous le dirait.",
+          "translation": "If she knew it, she would tell us.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Elle est soignée par le médecin.",
+          "translation": "She is treated by the doctor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "un",
+      "partOfSpeech": "article / numeral",
+      "translation": "a / an / one (masculine)",
+      "intro": "Indefinite article for masculine singular nouns. Also represents the number 'one'. Cross-referenced with feminine 'une' (#14).",
+      "usage": "Invariable as number. Contracts or triggers liaison (e.g. un ami - pronounced with 'n' liaison).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'ai un frère.",
+          "translation": "I have a brother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il ne reste qu'un gâteau.",
+          "translation": "Only one cake remains.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais un million d'euros, je serais heureux.",
+          "translation": "If I had a million euros, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Un nouveau livre est publié.",
+          "translation": "A new book is published.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "une",
+      "partOfSpeech": "article / numeral",
+      "translation": "a / an / one (feminine)",
+      "intro": "Indefinite article for feminine singular nouns. Also the feminine form of the number 'one'. Cross-referenced with masculine 'un' (#13).",
+      "usage": "Used with feminine nouns.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Elle a une sœur.",
+          "translation": "She has a sister.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une heure est passée.",
+          "translation": "One hour has passed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais une voiture, je conduirais.",
+          "translation": "If I had a car, I would drive.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Une décision importante est prise.",
+          "translation": "An important decision is made.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "et",
+      "partOfSpeech": "conjunction",
+      "translation": "and",
+      "intro": "Coordinating conjunction used to join words or groups of words. Pronounced as a closed 'é'; the 't' is never pronounced, and never triggers liaison.",
+      "usage": "Invariable conjunction.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Toi et moi, nous sommes amis.",
+          "translation": "You and I are friends.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est grand et fort.",
+          "translation": "He is tall and strong.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous avions du temps et du courage, nous réussirions.",
+          "translation": "If we had time and courage, we would succeed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le pain et le vin sont servis.",
+          "translation": "Bread and wine are being served.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "à",
+      "partOfSpeech": "preposition",
+      "translation": "to / at / in",
+      "intro": "A highly common preposition indicating destination, location, time, or possession.",
+      "usage": "Takes an accent grave (à) to distinguish it from the verb 'a' (has). Contracts: à + le = au, à + les = aux.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je vais à la bibliothèque.",
+          "translation": "I am going to the library.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il habite à Paris.",
+          "translation": "He lives in Paris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais à ta place, je dirais oui.",
+          "translation": "If I were in your place, I would say yes.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le prix est attribué à l'artiste.",
+          "translation": "The prize is awarded to the artist.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "en",
+      "partOfSpeech": "preposition / pronoun",
+      "translation": "in / on / by / pronoun",
+      "intro": "Can act as a preposition of place/material or as an adverbial pronoun replacing nouns preceded by 'de'.",
+      "usage": "As pronoun, placed before the verb (e.g. j'en veux - I want some). As preposition, does not contract.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La boîte est en bois.",
+          "translation": "The box is made of wood.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'en ai trois.",
+          "translation": "I have three of them. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'en avais le pouvoir, je changerais tout.",
+          "translation": "If I had the power of it, I would change everything.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le cours est dispensé en français.",
+          "translation": "The course is taught in French.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "que",
+      "partOfSpeech": "conjunction / pronoun",
+      "translation": "that / what / than",
+      "intro": "Functions as a relative pronoun (whom/which), subordinating conjunction (that), interrogative pronoun (what), or comparative adverb (than).",
+      "usage": "Elides to qu' before a vowel. Used as relative pronoun for direct objects.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je pense qu'il a raison.",
+          "translation": "I think that he is right. (Conjunction)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le livre que je lis est bon.",
+          "translation": "The book that I am reading is good. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais plus grand que lui, je serais heureux.",
+          "translation": "If I were taller than him, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Il est exigé que la tâche soit faite.",
+          "translation": "It is required that the task be done.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "qui",
+      "partOfSpeech": "pronoun",
+      "translation": "who / which",
+      "intro": "Relative or interrogative pronoun referring to people or things, acting as the subject of the relative clause. Cross-referenced with direct object 'que' (#18).",
+      "usage": "Never elides (always 'qui', even before vowels).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "L'homme qui parle est mon père.",
+          "translation": "The man who is speaking is my father.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Qui est là?",
+          "translation": "Who is there? (Interrogative)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si c'était toi qui décidais, que ferais-tu?",
+          "translation": "If it were you who decided, what would you do?",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le coupable qui est recherché sera trouvé.",
+          "translation": "The culprit who is sought will be found.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dans",
+      "partOfSpeech": "preposition",
+      "translation": "in / into / within",
+      "intro": "Preposition of place and time. Specifically denotes being inside an enclosed space or occurring within a timeframe.",
+      "usage": "Contrasts with 'en' (#17) because 'dans' is typically followed by a determiner (e.g. dans la boîte vs. en boîte).",
+      "synonyms": [
+        {
+          "word": "en",
+          "gloss": "in"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je suis dans la maison.",
+          "translation": "I am inside the house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il partira dans dix minutes.",
+          "translation": "He will leave in ten minutes. (Time)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais dans sa situation, je paniquerais.",
+          "translation": "If I were in his situation, I would panic.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les fleurs sont placées dans le vase.",
+          "translation": "The flowers are placed inside the vase.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ce",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "this / that / it",
+      "intro": "Demonstrative adjective (this/that) or demonstrative pronoun (it/this/that). Used as subject in the common phrase 'c'est' (it is).",
+      "usage": "Demonstrative adjective inflects: ce (masc), cet (before vowel/h), cette (fem), ces (plural).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ce livre est très intéressant.",
+          "translation": "This book is very interesting. (Adjective)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est une bonne idée.",
+          "translation": "It/this is a good idea. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce n'était pas vrai, je ne le dirais pas.",
+          "translation": "If it weren't true, I wouldn't say it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce travail est fait par des experts.",
+          "translation": "This work is done by experts.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sur",
+      "partOfSpeech": "preposition",
+      "translation": "on / upon / about",
+      "intro": "Preposition of place meaning 'on' or 'above', or indicating topic/subject (about). Distinct from adjective 'sûr' (sure).",
+      "usage": "Invariable preposition. Triggers liaison (pronounced 'sur' with vowel following).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La clé est sur la table.",
+          "translation": "The key is on the table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un article sur l'économie.",
+          "translation": "An article about economy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je comptais sur toi, je serais déçu.",
+          "translation": "If I relied on you, I would be disappointed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le dossier est posé sur le bureau.",
+          "translation": "The file is placed on the desk.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pour",
+      "partOfSpeech": "preposition",
+      "translation": "for / in order to",
+      "intro": "Preposition indicating purpose, destination, recipient, or cause. Followed by infinitive to mean 'in order to'.",
+      "usage": "Followed by a noun or infinitive verb (e.g. pour manger - in order to eat).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Cette lettre est pour toi.",
+          "translation": "This letter is for you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il travaille pour gagner sa vie.",
+          "translation": "He works (in order) to earn his living.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais là pour t'aider, ce serait plus facile.",
+          "translation": "If I were here to help you, it would be easier.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le médicament est prescrit pour la toux.",
+          "translation": "The medicine is prescribed for the cough.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mais",
+      "partOfSpeech": "conjunction",
+      "translation": "but",
+      "intro": "Coordinating conjunction used to introduce an opposition, reservation, or correction.",
+      "usage": "Invariable. Often placed between clauses.",
+      "synonyms": [
+        {
+          "word": "cependant",
+          "gloss": "however"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il est petit mais courageux.",
+          "translation": "He is small but brave.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je veux venir, mais je ne peux pas.",
+          "translation": "I want to come, but I can't.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si c'était facile mais long, je le ferais quand même.",
+          "translation": "If it were easy but long, I would do it anyway.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La maison est ancienne mais bien entretenue.",
+          "translation": "The house is old but well maintained. (Passive adjective context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "nous",
+      "partOfSpeech": "pronoun",
+      "translation": "we / us / ourselves",
+      "intro": "First-person plural pronoun. Serves as subject ('we'), direct/indirect object ('us'), or reflexive pronoun ('ourselves'). Cross-referenced with possessive 'notre' (#55).",
+      "usage": "Pronounced 'noo' (or 'nooz' before vowels). Oblique/stressed form is also 'nous'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Nous apprenons le français.",
+          "translation": "We are learning French. (Subject)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il nous regarde.",
+          "translation": "He looks at us. (Object)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous le voulions, nous pourrions voyager.",
+          "translation": "If we wanted, we could travel.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Nous sommes accueillis chaleureusement.",
+          "translation": "We are welcomed warmly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ils",
+      "partOfSpeech": "pronoun",
+      "translation": "they (masculine)",
+      "intro": "Third-person plural masculine subject pronoun. Used for groups of males or mixed groups (even if only one male is present). Cross-referenced with feminine 'elles' (#27) and possessive 'leur' (#51).",
+      "usage": "Takes plural verb endings (e.g. ils parlent). The final 's' is silent except in liaison ('ilz').",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ils vont au cinéma.",
+          "translation": "They are going to the cinema.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ils étudient la physique.",
+          "translation": "They are studying physics.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ils (s'ils) savaient, ils viendraient.",
+          "translation": "If they knew, they would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ils sont protégés par la loi.",
+          "translation": "They are protected by the law.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "elles",
+      "partOfSpeech": "pronoun",
+      "translation": "they (feminine)",
+      "intro": "Third-person plural feminine subject pronoun. Used strictly for groups of all-female people or all-feminine objects. Cross-referenced with masculine 'ils' (#26).",
+      "usage": "Takes plural verb endings. final 's' is silent except in liaison.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Elles sont sœurs.",
+          "translation": "They are sisters.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elles lisent des livres.",
+          "translation": "They are reading books.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si elles partaient maintenant, elles arriveraient à l'heure.",
+          "translation": "If they left now, they would arrive on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Elles sont invitées à dîner.",
+          "translation": "They are invited to dinner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "on",
+      "partOfSpeech": "pronoun",
+      "translation": "one / we / people",
+      "intro": "Indefinite third-person singular subject pronoun meaning 'one', 'people', or very commonly used in modern spoken French for 'we'.",
+      "usage": "Takes singular verb agreement (like il/elle), but context determines if it refers to 'we' (plural) or 'one' (singular).",
+      "synonyms": [
+        {
+          "word": "nous",
+          "gloss": "we"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "On va à la plage.",
+          "translation": "We are going to the beach. (Informal/Spoken)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ici, on parle français.",
+          "translation": "French is spoken here. / One speaks French here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si on travaillait ensemble, ce serait mieux.",
+          "translation": "If we worked together, it would be better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "On est souvent trompé par les apparences.",
+          "translation": "One is often deceived by appearances.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "tout",
+      "partOfSpeech": "adjective / pronoun / adverb",
+      "translation": "all / everything / very",
+      "intro": "Highly versatile word meaning 'all', 'every', 'everything', or 'entirely'.",
+      "usage": "Inflects: tout (masc sing), toute (fem sing), tous (masc plur - final 's' pronounced when pronoun), toutes (fem plur).",
+      "synonyms": [
+        {
+          "word": "chaque",
+          "gloss": "each"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Tout le monde est là.",
+          "translation": "Everyone is here. (Literally: All the world)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je comprends tout.",
+          "translation": "I understand everything. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tout allait bien, je ne me plaindrais pas.",
+          "translation": "If everything went well, I wouldn't complain.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Tout le gâteau est mangé.",
+          "translation": "The entire cake is eaten.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "plus",
+      "partOfSpeech": "adverb",
+      "translation": "more / no more",
+      "intro": "Adverb used to express superiority (more) or negation (no more / no longer, paired with 'ne').",
+      "usage": "Pronunciation of final 's': pronounced ('pluss') in positive comparative contexts, silent ('plu') in negative contexts.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il est plus grand que moi.",
+          "translation": "He is taller (more tall) than me. (Final 's' is silent)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je n'ai plus d'argent.",
+          "translation": "I have no more money. (Negation)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais plus de temps, je lirais plus.",
+          "translation": "If I had more time, I would read more. (Final 's' is pronounced in 'plus de')",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La décision n'est plus contestée.",
+          "translation": "The decision is no longer contested.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "faire",
+      "partOfSpeech": "verb",
+      "translation": "to do / to make",
+      "intro": "Highly common verb meaning 'to do' or 'to make'. Used in numerous idioms and causative constructions.",
+      "usage": "Irregular verb: faire, fais, fait, faisons, faites, font. Past participle is 'fait'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je fais mes devoirs.",
+          "translation": "I am doing my homework.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle fait un gâteau.",
+          "translation": "She is making a cake.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je savais le faire, je t'aiderais.",
+          "translation": "If I knew how to do it, I would help you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le travail est fait avec soin.",
+          "translation": "The work is done with care.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dire",
+      "partOfSpeech": "verb",
+      "translation": "to say / to tell",
+      "intro": "Common verb meaning 'to say' or 'to tell'.",
+      "usage": "Irregular verb: dire, dis, dit, disons, dites, disent. Past participle is 'dit'.",
+      "synonyms": [
+        {
+          "word": "raconter",
+          "gloss": "to tell / narrate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Qu'est-ce que tu dis?",
+          "translation": "What are you saying?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il dit la vérité.",
+          "translation": "He says the truth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je le savais, je te le dirais.",
+          "translation": "If I knew it, I would tell you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La vérité est enfin dite.",
+          "translation": "The truth is finally told.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pouvoir",
+      "partOfSpeech": "verb",
+      "translation": "to be able to / can",
+      "intro": "Modal verb expressing ability, capability, or permission. Can also be a masculine noun meaning 'power' (#346).",
+      "usage": "Highly irregular: pouvoir, peux, peut, pouvons, pouvez, peuvent. Past participle is 'pu'. Followed by infinitive.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je peux parler espagnol.",
+          "translation": "I can speak Spanish.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous pouvons entrer?",
+          "translation": "Can we come in?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je le pouvais, je viendrais avec plaisir.",
+          "translation": "If I could, I would come with pleasure.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette tâche peut être accomplie rapidement.",
+          "translation": "This task can be accomplished quickly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vouloir",
+      "partOfSpeech": "verb",
+      "translation": "to want / wish",
+      "intro": "Modal verb expressing desire, wish, or will.",
+      "usage": "Highly irregular: vouloir, veux, veut, voulons, voulez, veulent. Past participle is 'voulu'. Polite request uses conditionnel 'voudrais'.",
+      "synonyms": [
+        {
+          "word": "désirer",
+          "gloss": "to desire"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je veux manger maintenant.",
+          "translation": "I want to eat now.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il veut réussir.",
+          "translation": "He wants to succeed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je voudrais un verre d'eau, s'il vous plaît.",
+          "translation": "I would like a glass of water, please.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce changement est voulu par tous.",
+          "translation": "This change is wanted by everyone.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "devoir",
+      "partOfSpeech": "verb / noun",
+      "translation": "to have to / must / duty",
+      "intro": "Modal verb indicating obligation, necessity, or probability. Can also be a masculine noun meaning 'duty' or 'homework'.",
+      "usage": "Irregular verb: devoir, dois, doit, devons, devez, doivent. Past participle is 'dû'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je dois travailler ce soir.",
+          "translation": "I have to work tonight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait ses devoirs. (Noun usage)",
+          "translation": "He does his homework.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tu devrais te reposer un peu.",
+          "translation": "You should rest a bit. (Polite obligation)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le rapport doit être soumis avant midi.",
+          "translation": "The report must be submitted before noon.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "aller",
+      "partOfSpeech": "verb",
+      "translation": "to go",
+      "intro": "Extremely common verb meaning 'to go'. Also acts as auxiliary to form the near future (futur proche).",
+      "usage": "Irregular -er verb: aller, vais, vas, va, allons, allez, vont. Requires auxiliary 'être' in past compound tenses.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je vais au supermarché.",
+          "translation": "I am going to the supermarket.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle va partir bientôt.",
+          "translation": "She is going to leave soon. (Near future)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'allais là-bas, je le verrais.",
+          "translation": "If I went there, I would see him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le chemin est tracé.",
+          "translation": "The path is traced. (Passive context of going/routing)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "venir",
+      "partOfSpeech": "verb",
+      "translation": "to come",
+      "intro": "Common verb meaning 'to come'. Paired with 'de' to form the recent past (passé récent). Opposite of 'aller' (#36).",
+      "usage": "Highly irregular: venir, viens, vient, venons, venez, viennent. Past participle is 'venu'. Requires auxiliary 'être'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je viens de chez moi.",
+          "translation": "I am coming from my place.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il vient de manger.",
+          "translation": "He has just eaten. (Recent past)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu venais ce soir, on dînerait ensemble.",
+          "translation": "If you came tonight, we would dine together.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La marchandise est venue de loin.",
+          "translation": "The merchandise came from far away. (Intransitive, passive context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "voir",
+      "partOfSpeech": "verb",
+      "translation": "to see",
+      "intro": "Verb of perception meaning 'to see' or 'to understand'.",
+      "usage": "Irregular verb: voir, vois, voit, voyons, voyez, voient. Past participle is 'vu'.",
+      "synonyms": [
+        {
+          "word": "regarder",
+          "gloss": "to watch/look at"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je vois un oiseau dans le ciel.",
+          "translation": "I see a bird in the sky.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ah, je vois ce que tu veux dire.",
+          "translation": "Ah, I see what you mean.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je le voyais, je l'appellerais.",
+          "translation": "If I saw him, I would call him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le film est vu par des millions de gens.",
+          "translation": "The movie is seen by millions of people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "savoir",
+      "partOfSpeech": "verb",
+      "translation": "to know (a fact / how to do)",
+      "intro": "Verb meaning 'to know' information/facts or 'to know how to' perform an action. Cross-referenced with 'connaître' (to know people/places).",
+      "usage": "Irregular verb: savoir, sais, sait, savons, savez, savent. Past participle is 'su'.",
+      "synonyms": [
+        {
+          "word": "connaître",
+          "gloss": "to know (be acquainted with)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je sais lire.",
+          "translation": "I know how to read.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il sait que tu es là.",
+          "translation": "He knows that you are here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je savais son numéro, je l'appellerais.",
+          "translation": "If I knew his number, I would call him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le secret est connu de tous.",
+          "translation": "The secret is known by all. (Derived from connaître/savoir passive)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "prendre",
+      "partOfSpeech": "verb",
+      "translation": "to take",
+      "intro": "Very common verb meaning 'to take', 'to catch', or 'to eat/drink' (meals).",
+      "usage": "Irregular verb: prendre, prends, prend, prenons, prenez, prennent. Past participle is 'pris'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je prends le bus tous les matins.",
+          "translation": "I take the bus every morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il prend son café.",
+          "translation": "He has his coffee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu prenais le temps, tu réussirais.",
+          "translation": "If you took the time, you would succeed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La décision est prise.",
+          "translation": "The decision is taken.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "donner",
+      "partOfSpeech": "verb",
+      "translation": "to give",
+      "intro": "Standard French verb meaning 'to give'. Cross-referenced with 'prendre' (#40).",
+      "usage": "Regular -er verb. Past participle is 'donné'.",
+      "synonyms": [
+        {
+          "word": "offrir",
+          "gloss": "to offer / give as gift"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je donne un livre à mon ami.",
+          "translation": "I give a book to my friend.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle donne des conseils utiles.",
+          "translation": "She gives useful advice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu lui donnais une chance, il s'excuserait.",
+          "translation": "If you gave him a chance, he would apologize.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'autorisation est donnée par le directeur.",
+          "translation": "The authorization is given by the director.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "avec",
+      "partOfSpeech": "preposition",
+      "translation": "with",
+      "intro": "Preposition indicating accompaniment, association, or instrument.",
+      "usage": "Invariable. Triggers liaison in formal speech (e.g. avec un ami).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je vais au marché avec ma mère.",
+          "translation": "I go to the market with my mother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il écrit avec un stylo plume.",
+          "translation": "He writes with a fountain pen.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je voyageais avec toi, je serais heureux.",
+          "translation": "If I traveled with you, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le café est servi avec du sucre.",
+          "translation": "The coffee is served with sugar.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sans",
+      "partOfSpeech": "preposition",
+      "translation": "without",
+      "intro": "Preposition indicating absence or exclusion. Opposite of 'avec' (#42).",
+      "usage": "Invariable. Followed by a noun or an infinitive (e.g. sans manger - without eating).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il boit son café sans sucre.",
+          "translation": "He drinks his coffee without sugar.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle est partie sans dire un mot.",
+          "translation": "She left without saying a word.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais sans amis, je m'ennuierais.",
+          "translation": "If I were without friends, I would be bored.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'exercice est fait sans calculatrice.",
+          "translation": "The exercise is done without a calculator.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "comme",
+      "partOfSpeech": "conjunction / preposition",
+      "translation": "like / as / since",
+      "intro": "Indicates comparison (like/as), role (as), or cause (since).",
+      "usage": "Invariable. When introducing a cause, it must be at the beginning of the sentence.",
+      "synonyms": [
+        {
+          "word": "puisque",
+          "gloss": "since"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il court comme un lapin.",
+          "translation": "He runs like a rabbit. (Comparison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Comme il pleut, je reste chez moi.",
+          "translation": "Since it is raining, I am staying home. (Cause)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'agissais comme toi, je serais blâmé.",
+          "translation": "If I acted like you, I would be blamed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette maison est utilisée comme musée.",
+          "translation": "This house is used as a museum.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "si",
+      "partOfSpeech": "conjunction / adverb",
+      "translation": "if / so / yes",
+      "intro": "Conjunction introducing a condition (if), adverb of intensity (so), or response confirming a negative question (yes).",
+      "usage": "Elides to s' only before 'il' or 'ils' (s'il, s'ils).",
+      "synonyms": [
+        {
+          "word": "oui",
+          "gloss": "yes"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Si tu étudies, tu réussiras.",
+          "translation": "If you study, you will succeed. (Condition)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Mais si, je l'ai vu! (Response)",
+          "translation": "Yes indeed, I saw him! (Contradicting a negative statement)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais su, je ne serais pas venu.",
+          "translation": "If I had known, I wouldn't have come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le match sera rejoué si la pluie s'arrête.",
+          "translation": "The match will be replayed if the rain stops.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "y",
+      "partOfSpeech": "pronoun",
+      "translation": "there / to it",
+      "intro": "Adverbial pronoun replacing a place preceded by 'à' or a preposition of location (there), or replacing a noun introduced by 'à'.",
+      "usage": "Placed before the verb (e.g. j'y vais - I'm going there). Commonly used in 'il y a' (there is/are).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il y a un chat dans le jardin.",
+          "translation": "There is a cat in the garden. (Idiom: il y a)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'y pense souvent.",
+          "translation": "I think about it/to it often. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'y allais, je serais perdu.",
+          "translation": "If I went there, I would be lost.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le projet y est intégré.",
+          "translation": "The project is integrated into it.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "se",
+      "partOfSpeech": "pronoun",
+      "translation": "himself / herself / themselves / each other",
+      "intro": "Third-person singular/plural reflexive pronoun. Used with pronominal verbs.",
+      "usage": "Placed directly before the verb. Elides to s' before a vowel.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il se lave les mains.",
+          "translation": "He washes his hands.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elles se regardent.",
+          "translation": "They look at each other.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si elle se couchait tôt, elle serait en forme.",
+          "translation": "If she went to bed early, she would be in shape.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'histoire se répète.",
+          "translation": "History repeats itself. (Pronominal passive context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "me",
+      "partOfSpeech": "pronoun",
+      "translation": "me / myself / to me",
+      "intro": "First-person singular reflexive or object pronoun. Cross-referenced with 'je' (#3) and stressed 'moi'.",
+      "usage": "Placed before the verb. Elides to m' before a vowel.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il me parle de ses projets.",
+          "translation": "He is talking to me about his plans.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je me lève à six heures.",
+          "translation": "I get myself up at six o'clock.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu me le demandais, je le ferais.",
+          "translation": "If you asked me (for it), I would do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Un cadeau m'est donné par mon frère.",
+          "translation": "A gift is given to me by my brother.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "te",
+      "partOfSpeech": "pronoun",
+      "translation": "you / yourself / to you",
+      "intro": "Second-person singular informal reflexive or object pronoun. Cross-referenced with 'tu' (#9) and stressed 'toi'.",
+      "usage": "Placed before the verb. Elides to t' before a vowel.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je te donnerai le livre demain.",
+          "translation": "I will give you the book tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tu te laves.",
+          "translation": "You wash yourself.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je te voyais triste, je t'aiderais.",
+          "translation": "If I saw you sad, I would help you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette lettre t'est envoyée.",
+          "translation": "This letter is sent to you.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lui",
+      "partOfSpeech": "pronoun",
+      "translation": "him / her / to him / to her",
+      "intro": "Third-person singular indirect object pronoun (to him / to her) or stressed pronoun (him).",
+      "usage": "Stressed pronoun placed after prepositions (pour lui). Indirect object pronoun placed before verb (je lui parle).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je lui parle tous les jours.",
+          "translation": "I talk to him/her every day. (Indirect object)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ce sac est à lui.",
+          "translation": "This bag is his. (Stressed)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu lui écrivais, il répondrait.",
+          "translation": "If you wrote to him, he would reply.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La parole lui est donnée.",
+          "translation": "The floor is given to him/her.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "leur",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "their / to them",
+      "intro": "Can act as a possessive adjective (their) or as a third-person plural indirect object pronoun (to them).",
+      "usage": "As pronoun, invariable and placed before the verb (je leur dis). As adjective, takes 's' in plural (leurs).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je leur donne un conseil.",
+          "translation": "I give them advice. (Pronoun)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est leur maison.",
+          "translation": "It is their house. (Adjective)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu leur parlais, ils comprendraient.",
+          "translation": "If you talked to them, they would understand.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Un prix leur est décerné.",
+          "translation": "A prize is awarded to them.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mon",
+      "partOfSpeech": "adjective",
+      "translation": "my (masculine)",
+      "intro": "Masculine singular possessive adjective. Cross-referenced with feminine 'ma' (#57) and plural 'mes' (#60).",
+      "usage": "Used before masculine singular nouns, and also before feminine singular nouns starting with a vowel/mute h (e.g. mon amie).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est mon livre préféré.",
+          "translation": "It is my favorite book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Mon amie habite à Lyon.",
+          "translation": "My (female) friend lives in Lyon. (Feminine noun starting with vowel)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si mon père était là, il serait fier.",
+          "translation": "If my father were here, he would be proud.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Mon sac est gardé à la consigne.",
+          "translation": "My bag is kept in the cloakroom.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ton",
+      "partOfSpeech": "adjective / noun",
+      "translation": "your (informal) / tone",
+      "intro": "Second-person singular possessive adjective. Can also be a masculine noun meaning 'tone' or 'pitch'. Cross-referenced with feminine 'ta' (#58) and plural 'tes' (#61).",
+      "usage": "Possessive adjective used before masculine singular nouns or feminine singular nouns starting with a vowel.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Où est ton sac?",
+          "translation": "Where is your bag?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'aime ton d'écriture. (Noun usage)",
+          "translation": "I like your writing tone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ton frère venait, ce serait amusant.",
+          "translation": "If your brother came, it would be fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ton avis est demandé par l'équipe.",
+          "translation": "Your opinion is requested by the team.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "son",
+      "partOfSpeech": "adjective / noun",
+      "translation": "his / her / its / sound",
+      "intro": "Third-person singular possessive adjective. Can also be a masculine noun meaning 'sound'. Cross-referenced with feminine 'sa' (#59) and plural 'ses' (#62).",
+      "usage": "Adjective agrees with the possessed noun, not the owner (e.g. son livre - his/her book). Used before vowels.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est son manteau.",
+          "translation": "It is his/her coat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le son de la musique est fort. (Noun usage)",
+          "translation": "The sound of the music is loud.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si son projet était prêt, il le présenterait.",
+          "translation": "If his/her project were ready, he/she would present it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Son travail est apprécié de tous.",
+          "translation": "His/Her work is appreciated by all.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "notre",
+      "partOfSpeech": "adjective",
+      "translation": "our (singular)",
+      "intro": "Possessive adjective for first-person plural, used with singular nouns. Cross-referenced with plural possessive 'nos' (#63).",
+      "usage": "Used for both masculine and feminine singular nouns. Plural form is 'nos'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Voici notre maison.",
+          "translation": "Here is our house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Notre professeur est absent.",
+          "translation": "Our teacher is absent.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si notre équipe gagnait, on fêterait.",
+          "translation": "If our team won, we would celebrate.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Notre projet est validé.",
+          "translation": "Our project is validated.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "votre",
+      "partOfSpeech": "adjective",
+      "translation": "your (formal/plural singular)",
+      "intro": "Possessive adjective for second-person formal or plural, used with singular nouns. Cross-referenced with plural possessive 'vos' (#64).",
+      "usage": "Used for both masculine and feminine singular nouns.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Où est votre voiture?",
+          "translation": "Where is your car?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est votre choix.",
+          "translation": "It is your choice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si votre ami venait, nous serions ravis.",
+          "translation": "If your friend came, we would be delighted.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Votre passeport est demandé à l'entrée.",
+          "translation": "Your passport is requested at the entrance.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ma",
+      "partOfSpeech": "adjective",
+      "translation": "my (feminine)",
+      "intro": "Feminine singular possessive adjective. Cross-referenced with masculine 'mon' (#52) and plural 'mes' (#60).",
+      "usage": "Used strictly before feminine singular nouns starting with a consonant (e.g. ma sœur).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est ma voiture.",
+          "translation": "It is my car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ma mère habite ici.",
+          "translation": "My mother lives here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ma sœur était libre, elle viendrait.",
+          "translation": "If my sister were free, she would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ma valise est perdue.",
+          "translation": "My suitcase is lost.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ta",
+      "partOfSpeech": "adjective",
+      "translation": "your (informal feminine)",
+      "intro": "Second-person singular feminine possessive adjective. Cross-referenced with masculine 'ton' (#53) and plural 'tes' (#61).",
+      "usage": "Used before feminine singular nouns starting with a consonant.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est ta chambre.",
+          "translation": "This is your bedroom.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ta mère t'appelle.",
+          "translation": "Your mother is calling you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ta valise était trop lourde, je la porterais.",
+          "translation": "If your suitcase were too heavy, I would carry it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ta candidature est acceptée.",
+          "translation": "Your candidacy is accepted.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sa",
+      "partOfSpeech": "adjective",
+      "translation": "his / her / its (feminine)",
+      "intro": "Third-person singular feminine possessive adjective. Cross-referenced with masculine 'son' (#54) and plural 'ses' (#62).",
+      "usage": "Agrees with the possessed feminine noun (e.g. sa table).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est sa guitare.",
+          "translation": "It is his/her guitar.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sa maison est grande.",
+          "translation": "His/Her house is large.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si sa voiture tombait en panne, il prendrait le train.",
+          "translation": "If his/her car broke down, he/she would take the train.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Sa voix est entendue par tout le monde.",
+          "translation": "His/Her voice is heard by everyone.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mes",
+      "partOfSpeech": "adjective",
+      "translation": "my (plural)",
+      "intro": "Possessive adjective for first-person singular plural nouns. Cross-referenced with singular 'mon' (#52) and 'ma' (#57).",
+      "usage": "Used for both masculine and feminine plural nouns. Triggers 'z' liaison before vowels.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Où sont mes clés?",
+          "translation": "Where are my keys?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Mes amis habitent à Paris.",
+          "translation": "My friends live in Paris. (Liaison: 'mezami')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si mes notes étaient meilleures, je serais heureux.",
+          "translation": "If my grades were better, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Mes bagages sont enregistrés.",
+          "translation": "My luggage is checked in.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "tes",
+      "partOfSpeech": "adjective",
+      "translation": "your (informal plural)",
+      "intro": "Possessive adjective for second-person singular plural nouns. Cross-referenced with singular 'ton' (#53) and 'ta' (#58).",
+      "usage": "Used for plural nouns owned by 'tu'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Voici tes affaires.",
+          "translation": "Here are your things.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tes parents sont gentils.",
+          "translation": "Your parents are kind.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tes devoirs étaient faits, tu pourrais sortir.",
+          "translation": "If your homework were done, you could go out.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Tes idées sont acceptées par le comité.",
+          "translation": "Your ideas are accepted by the committee.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ses",
+      "partOfSpeech": "adjective",
+      "translation": "his / her / its (plural)",
+      "intro": "Possessive adjective for third-person singular plural nouns. Cross-referenced with singular 'son' (#54) and 'sa' (#59).",
+      "usage": "Agrees with the possessed plural nouns.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il range ses vêtements.",
+          "translation": "He puts away his clothes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ses yeux sont bleus.",
+          "translation": "His/Her eyes are blue.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ses amis étaient là, il ferait la fête.",
+          "translation": "If his/her friends were here, he/she would party.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ses droits sont protégés par la constitution.",
+          "translation": "His/Her rights are protected by the constitution.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "nos",
+      "partOfSpeech": "adjective",
+      "translation": "our (plural)",
+      "intro": "Possessive adjective for first-person plural, used with plural nouns. Cross-referenced with singular 'notre' (#55).",
+      "usage": "Used for all plural nouns owned by 'nous'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Voici nos bagages.",
+          "translation": "Here is our luggage.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nos amis arrivent ce soir.",
+          "translation": "Our friends are arriving tonight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nos plans changeaient, nous t'avertirions.",
+          "translation": "If our plans changed, we would warn you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Nos projets sont financés par l'État.",
+          "translation": "Our projects are funded by the State.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vos",
+      "partOfSpeech": "adjective",
+      "translation": "your (formal/plural plural)",
+      "intro": "Possessive adjective for second-person plural or formal singular, used with plural nouns. Cross-referenced with singular 'votre' (#56).",
+      "usage": "Used for plural nouns owned by 'vous'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Où sont vos enfants?",
+          "translation": "Where are your children?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'attends vos réponses.",
+          "translation": "I am waiting for your answers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si vos billets étaient perdus, il faudrait en racheter.",
+          "translation": "If your tickets were lost, you would have to buy new ones.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Vos données sont sauvegardées.",
+          "translation": "Your data is backed up.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "temps",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "time / weather",
+      "intro": "A masculine noun indicating either duration/period (time) or atmospheric conditions (weather).",
+      "usage": "le temps, les temps (plural remains the same). 'avoir le temps' (to have time), 'quel temps fait-il?' (how is the weather?).",
+      "synonyms": [
+        {
+          "word": "époque",
+          "gloss": "epoch / era"
+        },
+        {
+          "word": "climat",
+          "gloss": "climate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je n'ai pas le temps.",
+          "translation": "I do not have time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Quel beau temps aujourd'hui!",
+          "translation": "What beautiful weather today!",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le temps s'arrêtait, je profiterais de l'instant.",
+          "translation": "If time stopped, I would enjoy the moment.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le temps de travail est réglementé.",
+          "translation": "Working time is regulated.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "chose",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "thing",
+      "intro": "A general feminine noun for an object, matter, or event. 'quelque chose' means 'something'.",
+      "usage": "la chose, les choses. Used heavily in everyday phrases.",
+      "synonyms": [
+        {
+          "word": "objet",
+          "gloss": "object"
+        },
+        {
+          "word": "affaire",
+          "gloss": "matter / affair"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est une bonne chose.",
+          "translation": "It is a good thing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il raconte des choses intéressantes.",
+          "translation": "He tells interesting things.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une telle chose serait impossible ici.",
+          "translation": "Such a thing would be impossible here.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les choses sont clarifiées.",
+          "translation": "Things are clarified.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "homme",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "man / human",
+      "intro": "An adult male human or mankind in general (with capital H). Cross-referenced with feminine 'femme' (#68).",
+      "usage": "l'homme (requires elision), les hommes. 'droits de l'homme' (human rights).",
+      "synonyms": [
+        {
+          "word": "humain",
+          "gloss": "human"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cet homme est mon oncle.",
+          "translation": "This man is my uncle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "L'Homme a marché sur la lune.",
+          "translation": "Man walked on the moon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si cet homme avait du courage, il parlerait.",
+          "translation": "If this man had courage, he would speak.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'homme est soigné à l'hôpital.",
+          "translation": "The man is treated at the hospital.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "femme",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "woman / wife",
+      "intro": "An adult female human or a married female partner. Cross-referenced with masculine 'homme' (#67).",
+      "usage": "la femme, les femmes. Pronounced 'fam'.",
+      "synonyms": [
+        {
+          "word": "épouse",
+          "gloss": "wife"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est une femme très dynamique.",
+          "translation": "She is a very dynamic woman.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je vous présente ma femme.",
+          "translation": "I present my wife to you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une femme plus patiente comprendrait.",
+          "translation": "A more patient woman would understand.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La femme est élue présidente.",
+          "translation": "The woman is elected president.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ami",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "friend",
+      "intro": "A person with whom one has a bond of friendship. Feminine form is 'amie'.",
+      "usage": "l'ami, les amis. Oblique/possessive is 'mon ami' (even for females, for sound reasons).",
+      "synonyms": [
+        {
+          "word": "camarade",
+          "gloss": "comrade / classmate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il est mon meilleur ami.",
+          "translation": "He is my best friend.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je sors avec mes amis.",
+          "translation": "I am going out with my friends.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais un ami sincère, je lui confierais mon secret.",
+          "translation": "If I had a sincere friend, I would confide my secret to him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'ami est accueilli à bras ouverts.",
+          "translation": "The friend is welcomed with open arms.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "jour",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "day",
+      "intro": "A 24-hour period or the daylight hours. Cross-referenced with 'nuit' (#71).",
+      "usage": "le jour, les jours. 'tous les jours' (every day), 'le jour J' (D-day).",
+      "synonyms": [
+        {
+          "word": "journée",
+          "gloss": "day / daytime"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un grand jour.",
+          "translation": "It is a great day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il travaille pendant le jour.",
+          "translation": "He works during the day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un jour plus ensoleillé serait parfait.",
+          "translation": "A sunnier day would be perfect.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le jour de l'an est célébré partout.",
+          "translation": "New Year's Day is celebrated everywhere.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "nuit",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "night",
+      "intro": "The period of darkness from sunset to sunrise. Cross-referenced with 'jour' (#70).",
+      "usage": "la nuit, les nuits. 'bonne nuit' (good night).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La nuit est calme.",
+          "translation": "The night is calm.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il lit pendant la nuit.",
+          "translation": "He reads during the night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la nuit était plus claire, on verrait les étoiles.",
+          "translation": "If the night were clearer, we would see the stars.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La nuit est souvent troublée par l'orage.",
+          "translation": "The night is often disturbed by the storm.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "eau",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "water",
+      "intro": "The liquid substance forming rain, rivers, and seas.",
+      "usage": "l'eau, les eaux (plural spelling with 'x'). Uncountable singular.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je bois de l'eau.",
+          "translation": "I drink water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "L'eau du lac est froide.",
+          "translation": "The lake's water is cold.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "De l'eau plus chaude serait agréable.",
+          "translation": "Warmer water would be pleasant.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'eau est polluée par les usines.",
+          "translation": "The water is polluted by factories.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "grand",
+      "partOfSpeech": "adjective",
+      "translation": "big / tall / great",
+      "intro": "Describes large physical size, height in people, or moral greatness. Cross-referenced with 'petit' (#74).",
+      "usage": "Inflects: grand (masc), grande (fem), grands (masc plur), grandes (fem plur). Placed before the noun.",
+      "synonyms": [
+        {
+          "word": "immense",
+          "gloss": "huge / vast"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un grand homme.",
+          "translation": "He is a great man.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il a une grande maison.",
+          "translation": "He has a big house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un plus grand jardin plairait aux enfants.",
+          "translation": "A bigger garden would please the children.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le projet est mené à grande échelle.",
+          "translation": "The project is conducted on a large scale.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "petit",
+      "partOfSpeech": "adjective",
+      "translation": "small / little / younger",
+      "intro": "Describes small size, stature, or younger age. Cross-referenced with 'grand' (#73).",
+      "usage": "Inflects: petit (masc), petite (fem), petits (masc plur), petites (fem plur). Placed before the noun.",
+      "synonyms": [
+        {
+          "word": "minuscule",
+          "gloss": "tiny"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il a un petit chat.",
+          "translation": "He has a small cat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est ma petite sœur.",
+          "translation": "She is my little sister.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un plus petit sac serait plus pratique.",
+          "translation": "A smaller bag would be more practical.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les petits détails sont souvent oubliés.",
+          "translation": "The small details are often forgotten.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "bon",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "good / right / correct",
+      "intro": "Refers to high quality, pleasant taste, moral goodness, or correctness. Cross-referenced with 'mauvais' (#76) and adverb 'bien' (#77).",
+      "usage": "Inflects: bon (masc), bonne (fem), bons (masc plur), bonnes (fem plur). Placed before the noun.",
+      "synonyms": [
+        {
+          "word": "correct",
+          "gloss": "correct"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce chocolat est très bon.",
+          "translation": "This chocolate is very good.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est une bonne idée.",
+          "translation": "It is a good idea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un bon vin accompagnerait bien le repas.",
+          "translation": "A good wine would go well with the meal.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le bon candidat est enfin choisi.",
+          "translation": "The right candidate is finally chosen.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mauvais",
+      "partOfSpeech": "adjective",
+      "translation": "bad / wrong / poor",
+      "intro": "Refers to poor quality, unpleasantness, or moral wrongness. Cross-referenced with 'bon' (#75) and adverb 'mal' (#78).",
+      "usage": "Inflects: mauvais (masc sing/plur), mauvaise (fem sing), mauvaises (fem plur). Placed before the noun.",
+      "synonyms": [
+        {
+          "word": "méchant",
+          "gloss": "mean / bad"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un mauvais film.",
+          "translation": "It is a bad movie.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait mauvais aujourd'hui.",
+          "translation": "The weather is bad today. (Idiom)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une mauvaise décision gâcherait tout.",
+          "translation": "A bad decision would ruin everything.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les mauvais comportements sont punis.",
+          "translation": "Bad behaviors are punished.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "bien",
+      "partOfSpeech": "adverb / noun",
+      "translation": "well / good / property",
+      "intro": "The standard adverb meaning 'well'. Can also function as a masculine noun meaning 'property' or 'moral good'. Cross-referenced with 'bon' (#75) and 'mal' (#78).",
+      "usage": "Invariable adverb. Modify verbs or adjectives ('très bien').",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il parle très bien français.",
+          "translation": "He speaks French very well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est pour ton bien. (Noun)",
+          "translation": "It is for your own good.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je me sentirais bien mieux si tu venais.",
+          "translation": "I would feel much better if you came.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La leçon est bien comprise.",
+          "translation": "The lesson is well understood.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mal",
+      "partOfSpeech": "adverb / noun",
+      "translation": "badly / pain / evil",
+      "intro": "The standard adverb meaning 'badly'. Can also act as a masculine noun meaning 'pain', 'difficulty', or 'evil'. Cross-referenced with 'bien' (#77).",
+      "usage": "Invariable adverb. 'avoir mal' (to have pain/hurt), 'faire mal' (to hurt).",
+      "synonyms": [
+        {
+          "word": "douleur",
+          "gloss": "pain"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il écrit mal.",
+          "translation": "He writes badly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'ai mal à la tête. (Noun)",
+          "translation": "I have a headache. (Literally: pain at the head)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tu aurais du mal à le croire.",
+          "translation": "You would have difficulty believing it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le projet est mal conçu.",
+          "translation": "The project is poorly designed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ici",
+      "partOfSpeech": "adverb",
+      "translation": "here",
+      "intro": "Adverb of place indicating proximity to the speaker. Cross-referenced with 'là' (#80) and 'où' (#81).",
+      "usage": "Invariable. Often paired with 'là' (ici et là - here and there).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Viens ici.",
+          "translation": "Come here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait chaud ici.",
+          "translation": "It is warm here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'habitais ici, je serais ravi.",
+          "translation": "If I lived here, I would be delighted.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le français est enseigné ici.",
+          "translation": "French is taught here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "là",
+      "partOfSpeech": "adverb",
+      "translation": "there / then / here",
+      "intro": "Adverb of place indicating a distant location. In everyday spoken French, it is often used interchangeably with 'ici' (here).",
+      "usage": "Takes accent grave (là) to distinguish from article 'la' (#8). 'être là' (to be here/present).",
+      "synonyms": [
+        {
+          "word": "ici",
+          "gloss": "here"
+        },
+        {
+          "word": "y",
+          "gloss": "there"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je serai là demain.",
+          "translation": "I will be there/here tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Qui est là?",
+          "translation": "Who is there?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu allais là, tu verrais la mer.",
+          "translation": "If you went there, you would see the sea.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Une nouvelle école est construite là.",
+          "translation": "A new school is being built there.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "où",
+      "partOfSpeech": "pronoun / adverb",
+      "translation": "where / when (relative)",
+      "intro": "Relative pronoun or interrogative adverb of place (where) or time (when / which).",
+      "usage": "Takes accent grave (où) to distinguish from conjunction 'ou' (or).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Où vas-tu?",
+          "translation": "Where are you going? (Interrogative)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le jour où je suis né.",
+          "translation": "The day when I was born. (Relative)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je savais où il habite, je le visiterais.",
+          "translation": "If I knew where he lives, I would visit him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'endroit où le crime a été commis est bouclé.",
+          "translation": "The place where the crime was committed is cordoned off.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "quand",
+      "partOfSpeech": "conjunction / adverb",
+      "translation": "when",
+      "intro": "Subordinating conjunction or interrogative adverb of time.",
+      "usage": "Pronounced with 't' liaison before a vowel (e.g. quand il - pronounced 'kantil').",
+      "synonyms": [
+        {
+          "word": "lorsque",
+          "gloss": "when"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Quand viendras-tu?",
+          "translation": "When will you come? (Interrogative)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je dors quand je suis fatigué. (Conjunction)",
+          "translation": "I sleep when I am tired.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu venais quand je t'invite, ce serait bien.",
+          "translation": "If you came when I invite you, it would be nice.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le colis est envoyé quand le paiement est reçu.",
+          "translation": "The package is sent when the payment is received.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pourquoi",
+      "partOfSpeech": "adverb / conjunction",
+      "translation": "why",
+      "intro": "Interrogative adverb of reason or subordinating conjunction.",
+      "usage": "Invariable. Written as a single word. 'le pourquoi' (the reason why).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Pourquoi ris-tu?",
+          "translation": "Why are you laughing?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il demande pourquoi tu es parti.",
+          "translation": "He asks why you left.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je comprenais pourquoi il agit ainsi, je l'aiderais.",
+          "translation": "If I understood why he acts this way, I would help him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "On ignore pourquoi la route a été fermée.",
+          "translation": "It is unknown why the road was closed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "comment",
+      "partOfSpeech": "adverb",
+      "translation": "how",
+      "intro": "Interrogative adverb of manner or state. Often used to ask about health or ask for clarification.",
+      "usage": "Invariable. Triggers 't' liaison.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Comment vas-tu?",
+          "translation": "How are you?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Comment faire ce gâteau?",
+          "translation": "How to make this cake?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je savais comment résoudre ce problème, je le ferais.",
+          "translation": "If I knew how to solve this problem, I would do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "On montre comment le moteur est construit.",
+          "translation": "They show how the engine is built.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "autre",
+      "partOfSpeech": "adjective / pronoun",
+      "translation": "other / another",
+      "intro": "Refers to a different person or object. Can function as adjective or indefinite pronoun.",
+      "usage": "agrees in number: autre (sing), autres (plur). 'un autre' (another), 'l'autre' (the other).",
+      "synonyms": [
+        {
+          "word": "différent",
+          "gloss": "different"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je veux un autre livre.",
+          "translation": "I want another book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Les autres sont déjà partis.",
+          "translation": "The others have already left.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une autre solution serait préférable.",
+          "translation": "Another solution would be preferable.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'autre option est choisie.",
+          "translation": "The other option is chosen.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "même",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "same / even / self",
+      "intro": "Adjective indicating identity (same) or adverb indicating emphasis (even). Placed after pronouns to mean '-self' (moi-même).",
+      "usage": "As adjective, takes plural 's' (mêmes). As adverb, invariable.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Nous avons la même voiture.",
+          "translation": "We have the same car. (Adjective)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Même les enfants le savent. (Adverb)",
+          "translation": "Even the children know it.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si c'était le même prix, je l'achèterais.",
+          "translation": "If it were the same price, I would buy it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La même règle est appliquée partout.",
+          "translation": "The same rule is applied everywhere.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "quelque",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "some / a few",
+      "intro": "Adjective meaning 'some' (singular) or 'a few' (plural). Can also function as adverb meaning 'about/approximately'.",
+      "usage": "Plural form is 'quelques' (extremely common, meaning 'a few / some').",
+      "synonyms": [
+        {
+          "word": "plusieurs",
+          "gloss": "several"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'ai quelques amis à Paris.",
+          "translation": "I have a few friends in Paris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a quelque malentendu.",
+          "translation": "There is some misunderstanding.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais quelques jours de congé, je partirais.",
+          "translation": "If I had a few days off, I would leave.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Quelques fautes sont corrigées.",
+          "translation": "A few errors are corrected.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "rien",
+      "partOfSpeech": "pronoun",
+      "translation": "nothing",
+      "intro": "Indefinite pronoun indicating the absence of everything. Used with negative particle 'ne' (#5) in negation.",
+      "usage": "Pronoun. 'rien ne...' (nothing as subject). 'de rien' (you're welcome).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je ne sais rien.",
+          "translation": "I know nothing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Rien n'est facile.",
+          "translation": "Nothing is easy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je n'avais rien à faire, je dormirais.",
+          "translation": "If I had nothing to do, I would sleep.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Rien n'est perdu.",
+          "translation": "Nothing is lost.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "jamais",
+      "partOfSpeech": "adverb",
+      "translation": "never / ever",
+      "intro": "Adverb of time indicating negation (never, paired with 'ne') or condition (ever).",
+      "usage": "Paired with 'ne' for negation. Standing alone, it can mean 'ever' in conditional/question clauses.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je ne bois jamais de café.",
+          "translation": "I never drink coffee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si jamais tu le vois, dis-le moi.",
+          "translation": "If ever you see him, tell me. (Condition)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je ne voyageais jamais, je serais triste.",
+          "translation": "If I never traveled, I would be sad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La leçon n'est jamais oubliée.",
+          "translation": "The lesson is never forgotten.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "toujours",
+      "partOfSpeech": "adverb",
+      "translation": "always / still",
+      "intro": "Adverb of frequency meaning 'always', or indicating continuity (still).",
+      "usage": "Invariable adverb. Opposes 'jamais' (#89).",
+      "synonyms": [
+        {
+          "word": "encore",
+          "gloss": "still / yet"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il est toujours en retard.",
+          "translation": "He is always late.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'attends toujours sa réponse.",
+          "translation": "I am still waiting for his answer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu m'aimais toujours, tu resterais.",
+          "translation": "If you still loved me, you would stay.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les règles sont toujours respectées.",
+          "translation": "The rules are always respected.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "souvent",
+      "partOfSpeech": "adverb",
+      "translation": "often",
+      "intro": "Adverb of frequency indicating that an event occurs frequently.",
+      "usage": "Invariable. Often placed after the conjugated verb.",
+      "synonyms": [
+        {
+          "word": "fréquemment",
+          "gloss": "frequently"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je vais souvent au cinéma.",
+          "translation": "I often go to the cinema.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il pleut souvent à Londres.",
+          "translation": "It rains often in London.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous nous voyions plus souvent, nous serions plus proches.",
+          "translation": "If we saw each other more often, we would be closer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La question est souvent posée.",
+          "translation": "The question is often asked.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "travail",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "work / job / task",
+      "intro": "Refers to physical/mental effort or a professional occupation. Cross-referenced with 'maison' (#93) and 'nom' (#94).",
+      "usage": "le travail, les travaux (highly irregular plural form 'travaux').",
+      "synonyms": [
+        {
+          "word": "boulot",
+          "gloss": "job / work (colloquial)"
+        },
+        {
+          "word": "emploi",
+          "gloss": "employment"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'aime mon travail.",
+          "translation": "I like my work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Les travaux sur la route ont commencé.",
+          "translation": "The roadworks have started.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un travail plus intéressant me plairait.",
+          "translation": "A more interesting job would please me.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le travail est terminé à temps.",
+          "translation": "The work is completed on time.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "maison",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "house / home",
+      "intro": "A building for human habitation, or the concept of household/firm. Cross-referenced with 'travail' (#92).",
+      "usage": "la maison, les maisons. 'fait maison' (homemade).",
+      "synonyms": [
+        {
+          "word": "foyer",
+          "gloss": "hearth / home"
+        },
+        {
+          "word": "habitation",
+          "gloss": "habitation"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est une belle maison.",
+          "translation": "It is a beautiful house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je reste à la maison ce soir.",
+          "translation": "I am staying at home tonight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une maison plus grande conviendrait à la famille.",
+          "translation": "A bigger house would suit the family.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La maison est repeinte en blanc.",
+          "translation": "The house is repainted in white.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "nom",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "name / noun",
+      "intro": "A word by which a person, animal, place, or thing is designated (name), or a word class in grammar (noun).",
+      "usage": "le nom, les noms. 'nom de famille' (last name), 'prénom' (first name).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Quel est ton nom?",
+          "translation": "What is your name?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un nom propre.",
+          "translation": "It is a proper noun.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je connaissais son nom, je l'appellerais.",
+          "translation": "If I knew his/her name, I would call him/her.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le nom est inscrit sur la liste.",
+          "translation": "The name is written on the list.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mère",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "mother",
+      "intro": "A female parent. Cross-referenced with masculine 'père' (#96) and 'fils' (#97) / 'fille' (#98).",
+      "usage": "la mère, les mères. 'grand-mère' (grandmother).",
+      "synonyms": [
+        {
+          "word": "maman",
+          "gloss": "mom"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ma mère cuisine très bien.",
+          "translation": "My mother cooks very well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle est une bonne mère.",
+          "translation": "She is a good mother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ma mère était là, elle saurait quoi faire.",
+          "translation": "If my mother were here, she would know what to do.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La mère est fêtée en mai.",
+          "translation": "Mother is celebrated in May.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "père",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "father",
+      "intro": "A male parent. Cross-referenced with feminine 'mère' (#95).",
+      "usage": "le père, les pères. 'grand-père' (grandfather).",
+      "synonyms": [
+        {
+          "word": "papa",
+          "gloss": "dad"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Mon père travaille comme ingénieur.",
+          "translation": "My father works as an engineer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un père dévoué.",
+          "translation": "He is a devoted father.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si mon père le permettait, je sortirais.",
+          "translation": "If my father permitted it, I would go out.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le père est respecté par ses enfants.",
+          "translation": "The father is respected by his children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fils",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "son",
+      "intro": "A male child in relation to his parents. Cross-referenced with feminine 'fille' (#98).",
+      "usage": "le fils, les fils (pronounciation: final 's' is always pronounced, 'fiss').",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il est le fils unique de la famille.",
+          "translation": "He is the only son of the family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Son fils a dix ans.",
+          "translation": "His/Her son is ten years old.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un fils plus obéissant aiderait ses parents.",
+          "translation": "A more obedient son would help his parents.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le fils est éduqué avec rigueur.",
+          "translation": "The son is educated with rigor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fille",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "daughter / girl",
+      "intro": "A female child or young woman. Cross-referenced with masculine 'fils' (#97) and 'garçon' (boy).",
+      "usage": "la fille, les filles. 'jeune fille' (young girl).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "C'est sa fille aînée.",
+          "translation": "She is his/her eldest daughter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a une fille dans la cour.",
+          "translation": "There is a girl in the yard.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Une fille plus âgée pourrait garder les enfants.",
+          "translation": "An older girl could babysit the children.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La jeune fille est récompensée.",
+          "translation": "The young girl is rewarded.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pays",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "country / nation",
+      "intro": "A nation state, territory, or region.",
+      "usage": "le pays, les pays (plural spelling and pronunciation remain the same).",
+      "synonyms": [
+        {
+          "word": "nation",
+          "gloss": "nation"
+        },
+        {
+          "word": "patrie",
+          "gloss": "homeland"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "La France est un beau pays.",
+          "translation": "France is a beautiful country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il voyage dans plusieurs pays.",
+          "translation": "He travels to several countries.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Un pays plus solidaire surmonterait la crise.",
+          "translation": "A more united country would overcome the crisis.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le pays est gouverné démocratiquement.",
+          "translation": "The country is governed democratically.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "aujourd'hui",
+      "partOfSpeech": "adverb",
+      "translation": "today / nowadays",
+      "intro": "Refers to the current day or modern times.",
+      "usage": "Invariable. Compound spelling with apostrophe.",
+      "synonyms": [
+        {
+          "word": "actuellement",
+          "gloss": "currently"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Aujourd'hui, il fait beau.",
+          "translation": "Today the weather is beautiful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je commence mon nouveau travail aujourd'hui.",
+          "translation": "I start my new job today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Aujourd'hui serait un bon jour pour commencer.",
+          "translation": "Today would be a good day to start.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le rapport sera présenté aujourd'hui.",
+          "translation": "The report will be presented today.",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

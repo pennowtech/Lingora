@@ -1,0 +1,2018 @@
+{
+  "generatedAt": "2026-08-05",
+  "totalWords": 402,
+  "chunksCovered": 4,
+  "duplicateCount": 0,
+  "words": [
+    {
+      "word": "अंततः",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "अंदर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अक्सर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "अगर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अचानक",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "अच्छा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अथवा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिक से अधिक",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "अपना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अब",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अमीर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "अवधि",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "असंभव",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "असफलता",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "अस्पताल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "आँख",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आईना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "आकर्षक",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "आज",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आदमी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "आना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "आप",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "आमतौर पर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "आवाज़",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आसान",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "इधर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "इसलिए",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ईश्वर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "उड़ना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्तर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "उदास",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "उधर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "उनका",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "उन्हें",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "उसे",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ऊंचा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ऊपर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ऋतु",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "एक",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "और",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कंघी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कठिन",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कड़वा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कपड़ा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कभी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कभी नहीं",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कभी-कभार",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कम से कम",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कमजोर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कमरा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "करना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कल",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कलम",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कहना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कहा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कहाँ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कहीं और",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "का",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कागज़",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कान",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "काम",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कि",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "किताब",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "की",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कुछ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कुर्सी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कूदना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "के",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "के आसपास",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "के ऊपर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "के नीचे",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "के बजाय",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "के लिए",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "केवल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कैसे",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "को",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कोई",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कौन",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "क्या",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "क्यों",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "क्योंकि",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "क्रोध",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खट्टा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खतरनाक",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "खरीदना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खाना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खाली",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "खासकर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खिड़की",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "खुद",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खुश",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खुशी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खेलना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खोलना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "गंदा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "गया",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "गरीब",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "गर्म",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "गर्मी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "गहरा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "गाँव",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "गाड़ी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "गाना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "गीला",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "घटना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "घर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "घूमना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चलना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "चाँद",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "चांदी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "चाचा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चाची",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चादर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चाबी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चाय",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "चारों ओर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चावल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "चाहना",
+      "chunkIndex": 1,
+      "kind": "companion"
+    },
+    {
+      "word": "चाहिए",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "चिल्लाना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चीनी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "चुराना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चोर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "चौड़ा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "छत",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "छोटा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "छोड़ना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "जटिल",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "जब",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "जरूर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "जल्दी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "जाना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "जारी रखना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "ज़िंदगी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "जूता",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "जैसे",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ज्ञान",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "झूठ",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "झूठा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "टिकट",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "टोपी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ठंडा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ठीक",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "डाकघर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "डॉक्टर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "तकिया",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तथा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "तब",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ताकि",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ताजा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तारीख",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "ताला",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तीखा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "तुम",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तुम्हारा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तुम्हें",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तुरंत",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "तेज़",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "तेजी से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तैयार करना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "तैयार होना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तो",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तौलिया",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "था",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "थैला",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दफ़्तर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दरअसल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दवा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दादा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "दादी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "दिन",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "दिया",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "दिल",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दीवार",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "दुकान",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दुख",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दुखी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दुनिया",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दुल्हन",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "दुश्मन",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दूध",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दूल्हा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "देखना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "देना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "देर से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "देश",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "दोपहर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दोस्त",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "दौड़ना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "द्वारा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "धर्म",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "धीमा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "धीरे",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "धीरे से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "धीरे-धीरे",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "धोना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "नक्शा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "नफ़रत",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "नमक",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "नया",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "नहीं",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "नाचना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "नाम",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "निश्चित",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "निश्चित रूप से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "नीचे",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ने",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पकड़ना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पड़ोसन",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पड़ोसी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पढ़ना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पतझड़",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पति",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पत्नी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पत्र",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "परिवार",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "पर्याप्त",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पसंद करना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पहचानना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पहले",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पाँव",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पानी",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पास",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पिता",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पीछे",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पीना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पुराना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पुरुष",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "पुलिस",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "पूछना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पूर्ण रूप से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पेड़",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पैसा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "प्यार",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रदान करना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रेम",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "फर्श",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "फल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "फिर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "फिर भी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "फूल",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बंद करना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बच्चा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बजाना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बड़ा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बढ़ना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बताना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बदसूरत",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बनाना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बर्तन",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बहन",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बहुत",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बांटना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बाज़ार",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बात",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बारे में",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बासी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बाहर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बिना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बिलकुल",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बिस्तर",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बीच में",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बीमारी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बुद्धि",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बुरा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बेचना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बैठना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बोलना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "भरा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "भाई",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "भारी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भी",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "भूलना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भेजना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भोजन",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मजबूत",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मदद करना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मन",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "महंगा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "महिला",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "माँ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "मिलना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मीठा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मुँह",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मुझे",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "मुफ्त",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "मुस्कुराना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "में",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "मेज",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मेरा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "मेहनत",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मैं",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "मौत",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "यह",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "यहाँ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "या",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "याद करना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "युद्ध",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "योजना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "रसोई",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "रहना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "रात",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "रास्ता",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "रोटी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "रोना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "लंबा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "लगभग",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "लगातार",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "लड़का",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लड़की",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लाना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "लापरवाह",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "लिखना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "लिफाफा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "लिया",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लेकिन",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लेना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लोग",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लोहा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "लौटना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "वसंत",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "वह",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "वहाँ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "विचार",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "विशेष रूप से",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "विशेषकर",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "वे",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "वैसे",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "वैसे भी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "शत्रु",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "शरीर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "शहर",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "शांत",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "शांति",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "शाम",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "शायद",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "शायद ही",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "शिक्षक",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "शिशु",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "संभव",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सकता",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "सकना",
+      "chunkIndex": 1,
+      "kind": "companion"
+    },
+    {
+      "word": "सक्रिय",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सच",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सच्चा",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सजाना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सड़क",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सत्य",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सदी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सपना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सफलता",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सब",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "सब्ज़ी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "समझना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "समझाना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "समय",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "सरल",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सर्दी",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सवाल",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सस्ता",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "साथ",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "साथी",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "साफ़",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "साफ़ करना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "साबुन",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सामना करना",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सामने",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "साल",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "सावधान",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सिखाना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सिपाही",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सिर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सीखना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सुंदर",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सुखी",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सुबह",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सुरक्षित",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सूखा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सूरज",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "से",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "सेना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सोचना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सोना",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "स्कूल",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "स्टेशन",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "स्त्री",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "हंसना",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "हम",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "हमारा",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "हमेशा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "हर जगह",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "हल्का",
+      "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "हवा",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "हवाई अड्डा",
+      "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "हाथ",
+      "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ही",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "है",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "हैं",
+      "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "होना",
+      "chunkIndex": 1,
+      "kind": "primary"
+    }
+  ]
+}

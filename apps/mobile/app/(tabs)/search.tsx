@@ -24,9 +24,6 @@ import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
-import { getWordGuideManifest } from '../../lib/wordGuides'
-
-const WORD_GUIDE_LANGUAGE = getWordGuideManifest().language
 
 const HELP_SECTIONS: HelpSection[] = [
   {
@@ -133,8 +130,8 @@ export default function SearchScreen(): JSX.Element {
   // card. Independent of `pipeline`/`tier`/an internet connection, unlike
   // quickTranslate/generate below.
   const wordGuide = useQuery({
-    queryKey: ['word-guide-preview', term],
-    queryFn: () => getWordGuide(db, term, WORD_GUIDE_LANGUAGE),
+    queryKey: ['word-guide-preview', term, targetLanguage],
+    queryFn: () => getWordGuide(db, term, targetLanguage),
     enabled: term !== '' && (search.data?.length ?? 0) === 0,
   })
 

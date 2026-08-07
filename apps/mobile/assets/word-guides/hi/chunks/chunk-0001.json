@@ -1,0 +1,3406 @@
+{
+  "chunkIndex": 1,
+  "language": "hi",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.5-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-08-05",
+  "note": "Intermediate format — not yet a .lin file. WP3 converts this into a BackupPayload for import via importLinDeck. Content is AI-generated and has not been reviewed by a fluent Hindi speaker yet — treat as a first draft. Each entry has 4 examples: two plain (indicative), one Konjunktiv II (subjunctive/conditional hypothetical/polite), one passive voice. NEW this chunk: the first 100 entries are the ranked headwords 1-100, in rank order — but where one of those 100 is a verb's conjugated/participle form whose own infinitive doesn't yet appear as a headword in the top 100, a companion entry for that infinitive is appended after the 100 (2 such companions this chunk: सकना, चाहना). Scope note: pronoun/determiner case inflections, gender pairs, and polar opposites in this same chunk (जैसे: यह/वह, तुम/आप, लड़का/लड़की, माँ/पिता, नया/पुराना, बड़ा/छोटा, अच्छा/बुरा, यहाँ/वहाँ/कहाँ) were cross-referenced in their intros. Total entries this chunk: 102 (100 ranked + 2 companions).",
+  "entries": [
+    {
+      "headword": "है",
+      "partOfSpeech": "verb",
+      "translation": "is",
+      "intro": "The present tense singular form of the auxiliary/copula verb 'होना' (to be) for third person singular (he/she/it is).",
+      "usage": "Used to connect a subject with a predicate or as an auxiliary verb. Pronounced as 'hai'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह एक डॉक्टर है।",
+          "translation": "He/She is a doctor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह बहुत अच्छा है।",
+          "translation": "This is very good.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह यहाँ होता, तो खुश होता।",
+          "translation": "If he were here, he would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यहाँ काम किया जाता है।",
+          "translation": "Work is done here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "में",
+      "partOfSpeech": "postposition",
+      "translation": "in / inside / at",
+      "intro": "A postposition indicating location, space, or time inside something. Equivalent to the English preposition 'in'.",
+      "usage": "Always placed after the noun it governs, which puts the noun into the oblique case.",
+      "synonyms": [
+        {
+          "word": "अंदर",
+          "gloss": "inside"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह कमरे में है।",
+          "translation": "He is in the room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पानी में मछली है।",
+          "translation": "There is fish in the water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर जेब में पैसे होते, तो मैं खरीद लेता।",
+          "translation": "If there were money in the pocket, I would buy it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कक्षा में शांति रखी जाती है।",
+          "translation": "Silence is maintained in the class.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "और",
+      "partOfSpeech": "conjunction",
+      "translation": "and / more",
+      "intro": "A coordinating conjunction used to connect words, phrases, or clauses. Can also mean 'more' or 'other'.",
+      "usage": "Connects two elements. Can also emphasize addition ('और भी' - even more).",
+      "synonyms": [
+        {
+          "word": "तथा",
+          "gloss": "and"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "राम और श्याम दोस्त हैं।",
+          "translation": "Ram and Shyam are friends.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे थोड़ा और water चाहिए।",
+          "translation": "I want a little more water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास समय और पैसा होता, तो हम घूमते।",
+          "translation": "If we had time and money, we would travel.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चाय और बिस्कुट परोसे जाते हैं।",
+          "translation": "Tea and biscuits are being served.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "को",
+      "partOfSpeech": "postposition",
+      "translation": "to / for / at",
+      "intro": "A case-marking postposition representing the dative (to/for) or accusative (marking definite direct objects) cases.",
+      "usage": "Placed after the noun/pronoun. Changes preceding pronouns (e.g. मैं + को = मुझे).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "राम को फल दो।",
+          "translation": "Give the fruit to Ram.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे रात को काम करना है।",
+          "translation": "I have to work at night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह राम को बुलाता, तो अच्छा होता।",
+          "translation": "If he had called Ram, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बच्चों को school भेजा जाता है।",
+          "translation": "Children are sent to school.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "का",
+      "partOfSpeech": "postposition",
+      "translation": "of / 's (masculine singular)",
+      "intro": "Genitive case marker indicating possession. Agrees in gender, number, and case with the possessed noun. Cross-referenced with 'की' (#7) and 'के' (#8).",
+      "usage": "Used when the possessed noun is masculine singular and in the nominative case.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह राम का घर है।",
+          "translation": "This is Ram's house. ('घर' is masculine singular)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मोहन का भाई आया है।",
+          "translation": "Mohan's brother has come.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह सोने का सिक्का होता, तो मैं अमीर होता।",
+          "translation": "If this were a gold coin, I would be rich.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "राजा का आदेश सुनाया जाता है।",
+          "translation": "The king's order is being announced.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "से",
+      "partOfSpeech": "postposition",
+      "translation": "from / with / by / than",
+      "intro": "A highly versatile postposition indicating source (from), instrument (with/by), comparison (than), or starting time.",
+      "usage": "Triggers oblique case in the preceding noun/pronoun. Used in passive construction to mark the agent (by).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं दिल्ली से आया हूँ।",
+          "translation": "I have come from Delhi.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह पेन से लिखता है।",
+          "translation": "He writes with a pen.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह मुझसे पूछता, तो मैं बता देता।",
+          "translation": "If he asked me, I would tell him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम राम से किया गया।",
+          "translation": "This work was done by Ram.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "की",
+      "partOfSpeech": "postposition",
+      "translation": "of / 's (feminine)",
+      "intro": "Genitive case marker. Cross-referenced with 'का' (#5) and 'के' (#8). Used when the possessed noun is feminine.",
+      "usage": "Agrees with the possessed feminine noun (e.g. किताब, बहन). Distinct from conjunction 'कि'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह सीता की किताब है।",
+          "translation": "This is Sita's book. ('किताब' is feminine)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रवि की बहन पढ़ रही है।",
+          "translation": "Ravi's sister is studying.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह सोने की अंगूठी होती, तो अच्छा होता।",
+          "translation": "If this were a gold ring, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "देश की रक्षा की जाती है।",
+          "translation": "The country's defense is maintained.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "के",
+      "partOfSpeech": "postposition",
+      "translation": "of / 's (masculine plural/oblique)",
+      "intro": "Genitive case marker. Cross-referenced with 'का' (#5) and 'की' (#7). Used when the possessed noun is masculine plural or oblique.",
+      "usage": "Acts as base for compound postpositions like 'के लिए' (#21), 'के पास' (#95).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वे राम के बेटे हैं।",
+          "translation": "They are Ram's sons. ('बेटे' is masculine plural)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह अपने भाई के घर गया।",
+          "translation": "He went to his brother's house. ('घर' is oblique singular)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसके पास सोने के सिक्के होते, तो वह देता।",
+          "translation": "If he had gold coins, he would give them.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "School के नियम बनाए जाते हैं।",
+          "translation": "School rules are being created.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हैं",
+      "partOfSpeech": "verb",
+      "translation": "are",
+      "intro": "The present tense plural form of 'होना' (to be) for plural subjects or as a sign of respect for a singular subject.",
+      "usage": "Used with plural pronouns (हम, वे) and formal 'आप'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वे बहुत खुश हैं।",
+          "translation": "They are very happy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आप हमारे शिक्षक हैं।",
+          "translation": "You are our teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम तैयार होते, तो वहाँ होते।",
+          "translation": "If we were ready, we would be there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यहाँ कपड़े धोए जाते हैं।",
+          "translation": "Clothes are washed here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "था",
+      "partOfSpeech": "verb",
+      "translation": "was (masculine)",
+      "intro": "The past tense singular form of 'होना' (to be) for masculine subjects. Feminine equivalent is 'थी'.",
+      "usage": "Agrees with masculine singular subject. Used as auxiliary in past tenses.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह घर पर था।",
+          "translation": "He was at home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "एक राजा था।",
+          "translation": "There was a king.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह बीमार न होता, तो यहाँ होता।",
+          "translation": "If he were not sick, he would be here.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम कल पूरा किया गया था।",
+          "translation": "This work was completed yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "यह",
+      "partOfSpeech": "pronoun",
+      "translation": "this / it",
+      "intro": "Demonstrative pronoun referring to a nearby person or object. Also functions as 'it'. Cross-referenced with 'वह' (#12).",
+      "usage": "Used for proximal reference. Oblique form is 'इस'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह मेरी कार है।",
+          "translation": "This is my car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह कल हुआ था।",
+          "translation": "It happened yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह काम आसान होता, तो मैं कर लेता।",
+          "translation": "If this task were easy, I would do it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम आज ही पूरा किया जाता है।",
+          "translation": "This task is completed today itself.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "वह",
+      "partOfSpeech": "pronoun",
+      "translation": "he / she / that / it",
+      "intro": "Demonstrative pronoun referring to a distant person or object. Also serves as third-person singular pronoun (he/she/it). Cross-referenced with 'यह' (#11).",
+      "usage": "Used for distal reference. Oblique form is 'उस'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह मेरा भाई है।",
+          "translation": "He is my brother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह घर पुराना है।",
+          "translation": "That house is old.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह यहाँ आती, तो बहुत अच्छा होता।",
+          "translation": "If she came here, it would be very good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वह गाना कल रेडियो पर बजाया गया।",
+          "translation": "That song was played on the radio yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पर",
+      "partOfSpeech": "postposition",
+      "translation": "on / at / but",
+      "intro": "Can function as a postposition meaning 'on' or 'at', or as a conjunction meaning 'but'.",
+      "usage": "As postposition, placed after the noun (oblique). As conjunction, connects contrastive clauses.",
+      "synonyms": [
+        {
+          "word": "लेकिन",
+          "gloss": "but"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "किताब मेज पर है।",
+          "translation": "The book is on the table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं आया पर वह चला गया।",
+          "translation": "I came, but he left.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं समय पर पहुँचता, तो ट्रेन मिल जाती।",
+          "translation": "If I arrived on time, I would catch the train.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मेज पर खाना परोसा जाता है।",
+          "translation": "Food is served on the table.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कि",
+      "partOfSpeech": "conjunction",
+      "translation": "that",
+      "intro": "A subordinating conjunction used to introduce a noun clause, report speech, or express cause/purpose. Pronounced short 'ki'. Distinct from possessive 'की' (#7).",
+      "usage": "Equivalent to English conjunction 'that' (e.g. 'He said that...').",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "उसने कहा कि वह आएगा।",
+          "translation": "He said that he will come.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे पता है कि यह मुश्किल है।",
+          "translation": "I know that this is difficult.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह जानता कि मैं बीमार हूँ, तो वह आता।",
+          "translation": "If he knew that I am sick, he would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह आदेश दिया गया कि सभा बुलाई जाए।",
+          "translation": "It was ordered that the meeting be called.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नहीं",
+      "partOfSpeech": "adverb",
+      "translation": "not / no",
+      "intro": "The standard word for negation, used to negate verbs or express refusal ('No').",
+      "usage": "Placed before the verb in a sentence. Triggers drop of auxiliary 'है/हैं' in simple present negative sentences.",
+      "synonyms": [
+        {
+          "word": "ना",
+          "gloss": "no / not"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं स्कूल नहीं जाता।",
+          "translation": "I do not go to school.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नहीं, मैं यह नहीं करूँगा।",
+          "translation": "No, I will not do this.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह झूठ नहीं बोलता, तो सब विश्वास करते।",
+          "translation": "If he didn't lie, everyone would believe him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह नियम यहाँ लागू नहीं किया जाता।",
+          "translation": "This rule is not applied here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तो",
+      "partOfSpeech": "conjunction / particle",
+      "translation": "then / so / indeed",
+      "intro": "A highly versatile word. Serves as a conditional conjunction (then) in 'if... then...' structures, or as an emphatic particle.",
+      "usage": "Paired with 'अगर' or 'यदि' (if) to introduce the consequent clause.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "अगर तुम आओगे, तो मैं चलूँगा।",
+          "translation": "If you come, then I will go.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेरे पास पैसे तो हैं।",
+          "translation": "I do indeed have money. (Emphatic)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम मेहनत करते, तो सफल हो जाते।",
+          "translation": "If you had worked hard, you would have succeeded.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तो फिर यह काम किसके द्वारा किया जाता है?",
+          "translation": "So then by whom is this work being done?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ही",
+      "partOfSpeech": "particle",
+      "translation": "only / emphasis particle",
+      "intro": "An exclusive or emphatic particle used to highlight the immediately preceding word. Equivalent to 'only', 'alone', or 'itself'.",
+      "usage": "Invariable. Often fuses with preceding pronouns (e.g. अब + ही = अभी, यहाँ + ही = यहीं).",
+      "synonyms": [
+        {
+          "word": "केवल",
+          "gloss": "only"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह आज ही आएगा।",
+          "translation": "He will come today itself.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "राम ही यह कर सकता है।",
+          "translation": "Ram alone can do this.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अभी ही चले जाते, तो अच्छा होता।",
+          "translation": "If you had left right now, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम यहाँ ही किया जाता है।",
+          "translation": "This work is done right here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "भी",
+      "partOfSpeech": "particle",
+      "translation": "also / too / even",
+      "intro": "An additive particle indicating inclusion. Equivalent to 'also', 'too', or 'even'. Cross-referenced with 'ही' (#17).",
+      "usage": "Placed directly after the word it emphasizes.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं भी तुम्हारे साथ चलूँगा।",
+          "translation": "I will also go with you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने पानी भी नहीं पिया।",
+          "translation": "He didn't even drink water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह भी हमारे साथ चलता, तो मज़ा आता।",
+          "translation": "If he had also come with us, it would be fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह त्योहार वहाँ भी मनाया जाता है।",
+          "translation": "This festival is celebrated there too.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ने",
+      "partOfSpeech": "postposition",
+      "translation": "ergative subject marker",
+      "intro": "Ergative case marker used to mark the subject of transitive verbs in perfective tenses (past simple, past perfect, etc.).",
+      "usage": "Forces the verb to agree in gender and number with the direct object instead of the subject.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "राम ने सेब खाया।",
+          "translation": "Ram ate an apple. ('खाया' agrees with masculine 'सेब')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "लड़की ने किताबें खरीदीं।",
+          "translation": "The girl bought books. ('खरीदीं' agrees with feminine plural 'किताबें')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसने सच कहा होता, तो सब बच जाते।",
+          "translation": "If he had told the truth, everyone would be saved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह कहानी लेखक ने लिखी थी।",
+          "translation": "This story was written by the author.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कर",
+      "partOfSpeech": "verb",
+      "translation": "do / having done",
+      "intro": "The root form of the verb 'करना' (#28) or used as a suffix for conjunctive participles meaning 'having done'.",
+      "usage": "Acts as root of करना. As a suffix (e.g. 'खाकर' - having eaten, 'जाकर' - having gone), it connects sequential actions.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह गृहकार्य कर रहा है।",
+          "translation": "He is doing homework.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह खाना खाकर सो गया।",
+          "translation": "Having eaten food, he slept.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम कोशिश कर के देखते, तो सफल होते।",
+          "translation": "If you had tried and checked, you would succeed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम कल पूरा कर दिया जाएगा।",
+          "translation": "This work will be completed tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "के लिए",
+      "partOfSpeech": "postposition",
+      "translation": "for",
+      "intro": "A compound postposition meaning 'for' or 'for the sake of'. Built on the oblique genitive 'के' (#8) + 'लिए'.",
+      "usage": "Always placed after the noun/pronoun, putting it in the oblique case.",
+      "synonyms": [
+        {
+          "word": "हेतु",
+          "gloss": "for (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह उपहार तुम्हारे के लिए है।",
+          "translation": "This gift is for you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह पढ़ाई के लिए शहर गया।",
+          "translation": "He went to the city for studies.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरे पास तुम्हारे के लिए समय होता, तो मैं आता।",
+          "translation": "If I had time for you, I would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गरीबों के लिए अनाज इकट्ठा किया जाता है।",
+          "translation": "Grain is collected for the poor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "एक",
+      "partOfSpeech": "numeral / adjective",
+      "translation": "one / a",
+      "intro": "The number 1. Also functions as the indefinite article 'a' or 'an' in English.",
+      "usage": "Invariable when modifying nouns. Can mean 'united' or 'same' in some contexts.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मेरे पास एक किताब है।",
+          "translation": "I have one book / a book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "एक दिन सब ठीक हो जाएगा।",
+          "translation": "One day everything will be fine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास एक और कार होती, तो हम चलते।",
+          "translation": "If we had one more car, we would go.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सभा में केवल एक सदस्य को चुना जाता है।",
+          "translation": "Only one member is chosen in the meeting.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हम",
+      "partOfSpeech": "pronoun",
+      "translation": "we",
+      "intro": "First-person plural pronoun ('we'). Also colloquially used in parts of northern India as a singular pronoun meaning 'I'. Cross-referenced with 'हमारा' (#84).",
+      "usage": "Takes plural verb agreement. Oblique form is 'हमें' / 'हम'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "हम कल दिल्ली जा रहे हैं।",
+          "translation": "We are going to Delhi tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम cricket खेलते हैं।",
+          "translation": "We play cricket.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम सच बोलते, तो समस्या न होती।",
+          "translation": "If we told the truth, there would be no problem.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हमें कल पुरस्कार दिया जाएगा।",
+          "translation": "We will be given an award tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "वे",
+      "partOfSpeech": "pronoun",
+      "translation": "they / those",
+      "intro": "Third-person plural distal pronoun ('they' or 'those'). Used for plural people/objects or as formal singular reference. Cross-referenced with 'उनका' (#86) and 'उन्हें' (#83).",
+      "usage": "Oblique form is 'उन'. Takes plural verb agreement.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वे फुटबॉल खेल रहे हैं।",
+          "translation": "They are playing football.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे लोग कहाँ जा रहे हैं?",
+          "translation": "Where are those people going?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वे हमारी मदद करते, तो हम जीत जाते।",
+          "translation": "If they helped us, we would win.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वे छात्र यहाँ बुलाए जाते हैं।",
+          "translation": "Those students are being called here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तुम",
+      "partOfSpeech": "pronoun",
+      "translation": "you (informal)",
+      "intro": "Second-person singular/plural pronoun used for informal situations (friends, peers, younger relatives). Cross-referenced with formal 'आप' (#26) and 'तुम्हारा' (#85).",
+      "usage": "Verb conjugations end in '-ओ' (e.g. तुम जाओ). Oblique form is 'तुम'.",
+      "synonyms": [
+        {
+          "word": "तू",
+          "gloss": "you (highly intimate/informal)"
+        },
+        {
+          "word": "आप",
+          "gloss": "you (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तुम क्या कर रहे हो?",
+          "translation": "What are you doing?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम बहुत अच्छे लड़के हो।",
+          "translation": "You are a very good boy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम यहाँ आते, तो हम खेलते।",
+          "translation": "If you came here, we would play.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तुम्हें कल स्कूल बुलाया जाएगा।",
+          "translation": "You will be called to school tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "आप",
+      "partOfSpeech": "pronoun",
+      "translation": "you (formal / respectful)",
+      "intro": "Second-person singular/plural pronoun used in formal, polite, or respectful contexts (elders, teachers, strangers). Cross-referenced with informal 'तुम' (#25).",
+      "usage": "Requires plural/respectful verb agreement (verb ends in -एँ/हैं, e.g. आप आइए). Oblique form is 'आप'.",
+      "synonyms": [
+        {
+          "word": "तुम",
+          "gloss": "you (informal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "आप कहाँ रहते हैं?",
+          "translation": "Where do you live?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आप हमारे मुख्य अतिथि हैं।",
+          "translation": "You are our chief guest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आप मेरी मदद करें, तो मैं आभारी रहूँगा।",
+          "translation": "If you would help me, I would be grateful.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आपको आज सम्मानित किया जाएगा।",
+          "translation": "You will be honored today.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मैं",
+      "partOfSpeech": "pronoun",
+      "translation": "I",
+      "intro": "First-person singular pronoun ('I'). Cross-referenced with 'मेरा' (#87) and 'मुझे' (#81).",
+      "usage": "Takes unique present copula 'हूँ' (है/हैं are not used). Oblique form is 'मुझ'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं हिंदी सीख रहा हूँ।",
+          "translation": "I am learning Hindi.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं रोज़ सैर करता हूँ।",
+          "translation": "I walk every day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं राजा होता, तो सबको खुश रखता।",
+          "translation": "If I were a king, I would keep everyone happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मुझे एक नया काम सौंपा गया है।",
+          "translation": "I have been assigned a new task.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "करना",
+      "partOfSpeech": "verb",
+      "translation": "to do",
+      "intro": "The standard Hindi verb meaning 'to do' or 'to perform'. Acts as the light verb in compound verbs.",
+      "usage": "Regular weak verb: करना, किया, करेगा. Used extensively to form verbs from nouns/adjectives (e.g. काम करना - to work).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मुझे अपना काम करना है।",
+          "translation": "I have to do my work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह रोज़ योग करता है।",
+          "translation": "He does yoga every day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं यह करता, तो वह नाराज़ हो जाता।",
+          "translation": "If I did this, he would get angry.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम कल पूरा किया जाएगा।",
+          "translation": "This work will be completed tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "होना",
+      "partOfSpeech": "verb",
+      "translation": "to be / to happen",
+      "intro": "The most basic Hindi verb, meaning 'to be' (identity/copula) or 'to happen / occur'.",
+      "usage": "Irregular verb. Root for auxiliary tenses. Forms: है, था, होगा, हुआ.",
+      "synonyms": [
+        {
+          "word": "घटित होना",
+          "gloss": "to happen"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह एक अच्छा दिन होना चाहिए।",
+          "translation": "This should be a good day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "त्योहार कल होना है।",
+          "translation": "The festival is to happen tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि ऐसा होता, तो सब खुश होते।",
+          "translation": "If that happened, everyone would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस घटना को दर्ज किया जाता है।",
+          "translation": "This event is being recorded.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गया",
+      "partOfSpeech": "verb",
+      "translation": "went / done (passive auxiliary)",
+      "intro": "Past tense form of the verb 'जाना' (#34) meaning 'went'. Also serves as auxiliary verb to form the passive voice.",
+      "usage": "Irregular past of जाना (जाता, गया, जाएगा). In passive voice: 'किया गया' (was done).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह कल बाज़ार गया।",
+          "translation": "He went to the market yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे सब स्कूल गए।",
+          "translation": "They all went to school.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह home गया होता, तो मिल जाता।",
+          "translation": "If he had gone home, he would be found.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पत्र कल लिखा गया।",
+          "translation": "The letter was written yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दिया",
+      "partOfSpeech": "verb",
+      "translation": "gave",
+      "intro": "Past tense singular masculine form of the verb 'देना' (#36) meaning 'gave'. Also used as a compound verb helper indicating action directed outward.",
+      "usage": "Past form of देना (देता, दिया, देगा). Pronounced 'diyaa'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "उसने मुझे एक उपहार दिया।",
+          "translation": "He gave me a gift.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने काम पूरा कर दिया।",
+          "translation": "He completed the work. (Compound verb: कर + दिया)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसने मुझे पैसे दिए होते, तो मैं जाता।",
+          "translation": "If he had given me money, I would go.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गरीबों को भोजन दिया गया।",
+          "translation": "Food was given to the poor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लिया",
+      "partOfSpeech": "verb",
+      "translation": "took",
+      "intro": "Past tense singular masculine form of 'लेना' (#37) meaning 'took'. As a compound verb helper, indicates action done for oneself.",
+      "usage": "Past form of लेना (लेता, लिया, लेगा). Pronounced 'liyaa'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "उसने बाज़ार से फल लिया।",
+          "translation": "He took/bought fruit from the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने अपना गृहकार्य कर लिया।",
+          "translation": "I did my homework. (Compound verb: कर + लिया)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुमने समय पर खाना खा लिया होता, तो अच्छा होता।",
+          "translation": "If you had eaten food on time, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह निर्णय सर्वसम्मति से लिया गया।",
+          "translation": "This decision was taken unanimously.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कहा",
+      "partOfSpeech": "verb",
+      "translation": "said",
+      "intro": "Past tense singular masculine form of 'कहना' (#38) meaning 'said'.",
+      "usage": "Past form of कहना. Pronounced 'kahaa'. Requires 'ने' marker with agent.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "राम ने मुझसे कहा कि वह आएगा।",
+          "translation": "Ram said to me that he will come.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने सच कहा था।",
+          "translation": "He had said the truth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसने यह कहा होता, तो विवाद होता।",
+          "translation": "If he had said this, there would be a dispute.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ऐसा हमेशा कहा जाता है।",
+          "translation": "It is always said so.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जाना",
+      "partOfSpeech": "verb",
+      "translation": "to go / to know",
+      "intro": "The infinitive verb meaning 'to go'. Also serves as auxiliary verb to construct the passive voice.",
+      "usage": "Root conjugation: जाना, गया, जाएगा. Forms passive when added after the perfective participle of another verb.",
+      "synonyms": [
+        {
+          "word": "प्रस्थान करना",
+          "gloss": "to depart"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे स्कूल जाना है।",
+          "translation": "I have to go to school.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह हर रविवार मंदिर जाता है।",
+          "translation": "He goes to the temple every Sunday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं वहाँ जाता, तो वह मिलता।",
+          "translation": "If I went there, he would meet.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम राम द्वारा किया जाना है।",
+          "translation": "This work is to be done by Ram.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "आना",
+      "partOfSpeech": "verb",
+      "translation": "to come",
+      "intro": "The infinitive verb meaning 'to come'. Opposite of 'जाना' (#34).",
+      "usage": "Root conjugation: आना, आया, आएगा. In compound verbs, shows progress toward the present.",
+      "synonyms": [
+        {
+          "word": "पहुंचना",
+          "gloss": "to arrive"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तुम्हें मेरे घर आना होगा।",
+          "translation": "You will have to come to my house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेहमान आज आ रहे हैं।",
+          "translation": "Guests are coming today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम आते, तो हम फिल्म देखते।",
+          "translation": "If you came, we would watch a movie.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यहाँ हर साल लाखों पर्यटक आते हैं।",
+          "translation": "Millions of tourists come here every year. (Intransitive, used in passive context: पर्यटकों का स्वागत किया जाता है)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "देना",
+      "partOfSpeech": "verb",
+      "translation": "to give",
+      "intro": "The infinitive verb meaning 'to give'. Cross-referenced with 'लेना' (#37).",
+      "usage": "Conjugation: देना, दिया, देगा. In compound verbs, indicates action directed outwards.",
+      "synonyms": [
+        {
+          "word": "प्रदान करना",
+          "gloss": "to provide"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे एक गिलास पानी देना।",
+          "translation": "Give me a glass of water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह गरीबों को पैसे देता है।",
+          "translation": "He gives money to the poor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम मुझे किताब देते, तो मैं पढ़ता।",
+          "translation": "If you gave me the book, I would read.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "छात्रों को पुरस्कार दिए गए।",
+          "translation": "Awards were given to the students.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लेना",
+      "partOfSpeech": "verb",
+      "translation": "to take",
+      "intro": "The infinitive verb meaning 'to take'. Cross-referenced with 'देना' (#36).",
+      "usage": "Conjugation: लेना, लिया, लेगा. In compound verbs, indicates action directed inwards.",
+      "synonyms": [
+        {
+          "word": "स्वीकार करना",
+          "gloss": "to accept"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दुकानदार से रसीद लेना मत भूलना।",
+          "translation": "Don't forget to take the receipt from the shopkeeper.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह हर काम सोच-समझकर लेता है।",
+          "translation": "He takes every task thoughtfully.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं तुम्हारी सलाह लेता, तो नुकसान न होता।",
+          "translation": "If I took your advice, there would be no loss.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह सामान बाज़ार से लिया गया है।",
+          "translation": "This item has been taken from the market.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कहना",
+      "partOfSpeech": "verb",
+      "translation": "to say",
+      "intro": "The infinitive verb meaning 'to say' or 'to tell'.",
+      "usage": "Transitive. Requires ergative particle 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "बताना",
+          "gloss": "to tell"
+        },
+        {
+          "word": "बोलना",
+          "gloss": "to speak"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे तुमसे कुछ कहना है।",
+          "translation": "I have to say something to you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह हमेशा सच कहता है।",
+          "translation": "He always says the truth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं तुमसे कहता, तो क्या तुम सुनते?",
+          "translation": "If I told you, would you listen?",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ऐसा पुराने लोगों द्वारा कहा जाता था।",
+          "translation": "This was said by old people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सकता",
+      "partOfSpeech": "verb",
+      "translation": "can / be able to",
+      "intro": "Conjugated form of the modal verb 'सकना' (to be able to, added as companion). Expresses ability or permission.",
+      "usage": "Always follows the root form of the main verb (e.g. कर सकता है - can do).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह बहुत तेज़ दौड़ सकता है।",
+          "translation": "He can run very fast.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "क्या मैं अंदर आ सकता हूँ?",
+          "translation": "Can I come in?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं अंग्रेजी बोल पाता, तो विदेश जा सकता।",
+          "translation": "If I could speak English, I could go abroad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम राम द्वारा आसानी से किया जा सकता है।",
+          "translation": "This work can easily be done by Ram.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चाहिए",
+      "partOfSpeech": "verb",
+      "translation": "should / ought to / want",
+      "intro": "An auxiliary/defective verb expressing necessity, obligation (should), or desire (want). Companion: 'चाहना' (to want, added as companion).",
+      "usage": "Invariable form. Used with a dative subject (marked by 'को') and either a noun (wants) or infinitive verb (should).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मुझे एक नई किताब चाहिए।",
+          "translation": "I want a new book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम्हें रोज़ पढ़ाई करनी चाहिए।",
+          "translation": "You should study every day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें मदद चाहिए होती, तो तुम कहते।",
+          "translation": "If you wanted help, you would say so.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सभी नियमों का पालन किया जाना चाहिए।",
+          "translation": "All rules should be followed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सब",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "all / everything",
+      "intro": "Indefinite pronoun or adjective referring to everything or everyone in a group.",
+      "usage": "Invariable. Often paired with 'कुछ' (सब कुछ - everything) or 'लोग' (सब लोग - everyone).",
+      "synonyms": [
+        {
+          "word": "सारा",
+          "gloss": "all"
+        },
+        {
+          "word": "कुल",
+          "gloss": "total"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सब लोग घर चले गए।",
+          "translation": "All people went home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सब कुछ ठीक है।",
+          "translation": "Everything is fine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सब शांत होते, तो मैं बोलता।",
+          "translation": "If everyone were quiet, I would speak.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह ज्ञान सब में बाँटा जाता है।",
+          "translation": "This knowledge is shared among all.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कोई",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "someone / some / any",
+      "intro": "Indefinite pronoun referring to an unspecified person or object. Cross-referenced with 'कुछ' (#43).",
+      "usage": "Oblique form is 'किसी'. Used as adjective before countable nouns.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वहाँ कोई खड़ा है।",
+          "translation": "Someone is standing there.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "क्या आपके पास कोई योजना है?",
+          "translation": "Do you have any plan?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कोई हमारी मदद करता, तो हम जीत जाते।",
+          "translation": "If someone helped us, we would win.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम किसी के द्वारा किया जाना चाहिए।",
+          "translation": "This work should be done by someone.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कुछ",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "something / some / a little",
+      "intro": "Indefinite pronoun or adjective referring to unspecified objects, quantity, or degree. Cross-referenced with 'कोई' (#42).",
+      "usage": "Used for uncountable nouns or abstract ideas. Oblique form remains 'कुछ'.",
+      "synonyms": [
+        {
+          "word": "थोड़ा",
+          "gloss": "a little"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेज पर कुछ रखा है।",
+          "translation": "Something is placed on the table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे कुछ पानी चाहिए।",
+          "translation": "I want some water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कुछ पैसे होते, तो मैं घूमता।",
+          "translation": "If there were some money, I would travel.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस बारे में कुछ किया जाना चाहिए।",
+          "translation": "Something should be done about this.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बहुत",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "very / many / a lot",
+      "intro": "Indicates a large quantity or high degree. Equivalent to 'very', 'many', or 'a lot'.",
+      "usage": "Invariable. Can modify adjectives, adverbs, or nouns.",
+      "synonyms": [
+        {
+          "word": "अत्यधिक",
+          "gloss": "extremely"
+        },
+        {
+          "word": "ज्यादा",
+          "gloss": "more/a lot"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह कमरा बहुत बड़ा है।",
+          "translation": "This room is very big.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वहाँ बहुत लोग थे।",
+          "translation": "There were many people there.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरे पास बहुत समय होता, तो मैं आता।",
+          "translation": "If I had a lot of time, I would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पुस्तक बहुत पसंद की जाती है।",
+          "translation": "This book is liked a lot.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लोग",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "people",
+      "intro": "A masculine plural noun referring to human beings collectively.",
+      "usage": "Always plural. Acts as a plural suffix for pronouns (e.g. 'हम लोग' - we people). Oblique is 'लोगों'.",
+      "synonyms": [
+        {
+          "word": "जनता",
+          "gloss": "public"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लोग क्या सोचेंगे?",
+          "translation": "What will people think?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यहाँ बहुत से लोग रहते हैं।",
+          "translation": "Many people live here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि लोग मेरी बात सुनते, तो अच्छा होता।",
+          "translation": "If people listened to me, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लोगों को सूचित किया जाता है।",
+          "translation": "People are being informed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "काम",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "work / task / job",
+      "intro": "Work, duty, task, or business. Can also mean lust/passion.",
+      "usage": "derivation: 'काम करना' (to work). Plural is also 'काम'. Oblique is 'काम'.",
+      "synonyms": [
+        {
+          "word": "कार्य",
+          "gloss": "task / work"
+        },
+        {
+          "word": "नौकरी",
+          "gloss": "job"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं अपना काम कर रहा हूँ।",
+          "translation": "I am doing my work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह दफ़्तर में काम करता है।",
+          "translation": "He works in the office.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मुझे काम मिल जाता, तो मैं खुश होता।",
+          "translation": "If I got a job, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम राम द्वारा पूरा किया गया।",
+          "translation": "This work was completed by Ram.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "समय",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "time",
+      "intro": "Time, duration, or era.",
+      "usage": "masculine noun. 'समय पर' (on time), 'समय बिताना' (to spend time).",
+      "synonyms": [
+        {
+          "word": "वक़्त",
+          "gloss": "time"
+        },
+        {
+          "word": "काल",
+          "gloss": "era / time"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरे पास समय नहीं है।",
+          "translation": "I do not have time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समय बहुत कीमती है।",
+          "translation": "Time is very precious.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास समय होता, तो हम फिल्म देखते।",
+          "translation": "If we had time, we would watch a movie.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "समय को नष्ट नहीं किया जाना चाहिए।",
+          "translation": "Time should not be wasted.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बात",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "matter / talk / word / conversation",
+      "intro": "A highly common feminine noun meaning a spoken word, matter, opinion, or topic of discussion.",
+      "usage": "Plural is 'बातें'. 'बात करना' (to talk).",
+      "synonyms": [
+        {
+          "word": "चर्चा",
+          "gloss": "discussion"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह एक महत्वपूर्ण बात है।",
+          "translation": "This is an important matter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह मुझसे बात कर रहा था।",
+          "translation": "He was talking to me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह मेरी बात मान लेता, तो अच्छा होता।",
+          "translation": "If he had accepted my word, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह बात सबके सामने उठाई गई।",
+          "translation": "This matter was raised in front of everyone.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "घर",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "house / home",
+      "intro": "A building for human habitation, or the emotional concept of home.",
+      "usage": "Plural is 'घर'. Oblique singular is 'घर', oblique plural is 'घरों'.",
+      "synonyms": [
+        {
+          "word": "मकान",
+          "gloss": "house"
+        },
+        {
+          "word": "गृह",
+          "gloss": "home"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह मेरा नया घर है।",
+          "translation": "This is my new house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं शाम को घर जाऊँगा।",
+          "translation": "I will go home in the evening.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं घर पर होता, तो आराम करता।",
+          "translation": "If I were at home, I would rest.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह घर हाल ही में बेचा गया है।",
+          "translation": "This house has been sold recently.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नाम",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "name",
+      "intro": "A word by which a person, place, or thing is known.",
+      "usage": "Plural is 'नाम'. Oblique is 'नाम'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "आपका नाम क्या है?",
+          "translation": "What is your name?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेरा नाम अमित है।",
+          "translation": "My name is Amit.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं उसका नाम जानता, तो बता देता।",
+          "translation": "If I knew his name, I would tell.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "उसका नाम सूची में दर्ज किया गया है।",
+          "translation": "His name has been recorded in the list.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "माँ",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "mother",
+      "intro": "Affectionate or standard name for a mother. Cross-referenced with 'पिता' (#52).",
+      "usage": "die/feminine. Plural is 'माएँ'.",
+      "synonyms": [
+        {
+          "word": "माता",
+          "gloss": "mother (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरी माँ बहुत अच्छा खाना बनाती हैं।",
+          "translation": "My mother cooks very good food.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माँ ने मुझे प्यार किया।",
+          "translation": "Mother loved me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरी माँ यहाँ होतीं, तो मुझे खुशी होती।",
+          "translation": "If my mother were here, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "माँ को हर साल सम्मानित किया जाता है।",
+          "translation": "Mother is honored every year.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पिता",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "father",
+      "intro": "A male parent. Cross-referenced with 'माँ' (#51).",
+      "usage": "masculine noun. Oblique/plural form remains 'पिता' (or 'पिताजी' for respect).",
+      "synonyms": [
+        {
+          "word": "पापा",
+          "gloss": "dad"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरे पिता एक शिक्षक हैं।",
+          "translation": "My father is a teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पिताजी ने मुझे बुलाया।",
+          "translation": "Father called me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरे पिता यहाँ होते, तो वे गर्व महसूस करते।",
+          "translation": "If my father were here, he would feel proud.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पिताजी को एक नया उपहार दिया गया।",
+          "translation": "Father was given a new gift.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दोस्त",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "friend",
+      "intro": "A person whom one knows and has a bond of mutual affection. Can be used for both males and females.",
+      "usage": "masculine (though feminine context uses same noun with feminine verbs). Plural: 'दोस्त'.",
+      "synonyms": [
+        {
+          "word": "मित्र",
+          "gloss": "friend (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह मेरा सबसे अच्छा दोस्त है।",
+          "translation": "He is my best friend.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेरे बहुत सारे दोस्त हैं।",
+          "translation": "I have a lot of friends.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरा दोस्त यहाँ होता, तो हम खेलते।",
+          "translation": "If my friend were here, we would play.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दोस्त को पार्टी में आमंत्रित किया गया है।",
+          "translation": "The friend has been invited to the party.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लड़का",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "boy / son",
+      "intro": "A male child or young man. Cross-referenced with feminine 'लड़की' (#55).",
+      "usage": "Plural: 'लड़के'. Oblique singular: 'लड़के', oblique plural: 'लड़कों'.",
+      "synonyms": [
+        {
+          "word": "पुत्र",
+          "gloss": "son (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लड़का मैदान में खेल रहा है।",
+          "translation": "The boy is playing in the field.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह एक अच्छा लड़का है।",
+          "translation": "He is a good boy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह लड़का समझदार होता, तो यह नहीं करता।",
+          "translation": "If that boy were smart, he wouldn't do this.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लड़के को इनाम दिया जाता है।",
+          "translation": "The boy is given a prize.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लड़की",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "girl / daughter",
+      "intro": "A female child or young woman. Cross-referenced with masculine 'लड़का' (#54).",
+      "usage": "Plural: 'लड़कियाँ'. Oblique singular: 'लड़की', oblique plural: 'लड़कियों'.",
+      "synonyms": [
+        {
+          "word": "पुत्री",
+          "gloss": "daughter (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लड़की गाना गा रही है।",
+          "translation": "The girl is singing a song.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह एक होनहार लड़की है।",
+          "translation": "She is a promising girl.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह लड़की यहाँ होती, तो नृत्य करती।",
+          "translation": "If that girl were here, she would dance.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लड़की को सम्मानित किया गया।",
+          "translation": "The girl was honored.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "शहर",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "city / town",
+      "intro": "A large human settlement, more populated and developed than a village.",
+      "usage": "Plural is 'शहर'. Oblique singular: 'शहर', oblique plural: 'शहरों'.",
+      "synonyms": [
+        {
+          "word": "नगर",
+          "gloss": "city / town (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह शहर बहुत सुंदर है।",
+          "translation": "This city is very beautiful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह नौकरी के लिए शहर गया।",
+          "translation": "He went to the city for a job.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं इस शहर में रहता, तो बहुत घूमता।",
+          "translation": "If I lived in this city, I would travel a lot.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह शहर नदी के किनारे बसाया गया है।",
+          "translation": "This city is situated on the bank of the river.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "देश",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "country / nation",
+      "intro": "A nation state, land, or country.",
+      "usage": "Plural is 'देश'. Oblique singular: 'देश', oblique plural: 'देशों'.",
+      "synonyms": [
+        {
+          "word": "राष्ट्र",
+          "gloss": "nation (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हमारा देश भारत है।",
+          "translation": "Our country is India.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह दूसरे देश में काम करता है।",
+          "translation": "He works in another country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारा देश समृद्ध होता, तो कोई गरीब न होता।",
+          "translation": "If our country were prosperous, no one would be poor.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "देश की सीमा की सुरक्षा की जाती है।",
+          "translation": "The defense of the country's border is maintained.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "साल",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "year",
+      "intro": "A period of 365 or 366 days.",
+      "usage": "Plural is 'साल'. Oblique singular: 'साल', oblique plural: 'सालों'.",
+      "synonyms": [
+        {
+          "word": "वर्ष",
+          "gloss": "year (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह साल बहुत अच्छा रहा।",
+          "translation": "This year was very good.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह पाँच साल से यहाँ काम कर रहा है।",
+          "translation": "He has been working here for five years.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह साल आसान होता, तो सब सफल होते।",
+          "translation": "If this year were easy, everyone would succeed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बजट हर साल पेश किया जाता है।",
+          "translation": "The budget is presented every year.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दिन",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "day",
+      "intro": "A period of 24 hours or the daylight period between sunrise and sunset. Cross-referenced with 'रात' (#60).",
+      "usage": "Plural is 'दिन'. Oblique singular: 'दिन', oblique plural: 'दिनों'.",
+      "synonyms": [
+        {
+          "word": "दिवस",
+          "gloss": "day (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "आज बहुत धूप वाला दिन है।",
+          "translation": "Today is a very sunny day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं दिन में काम करता हूँ।",
+          "translation": "I work during the day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दिन सुहावना होता, तो हम सैर पर जाते।",
+          "translation": "If the day were pleasant, we would go for a walk.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह दिन बहुत हर्षोल्लास से मनाया जाता है।",
+          "translation": "This day is celebrated with great joy.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "रात",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "night",
+      "intro": "The period of darkness between sunset and sunrise. Cross-referenced with 'दिन' (#59).",
+      "usage": "die/feminine. Plural: 'रातें'. Oblique plural: 'रातों'.",
+      "synonyms": [
+        {
+          "word": "रात्रि",
+          "gloss": "night (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रात बहुत ठंडी है।",
+          "translation": "The night is very cold.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह रात को सोता है।",
+          "translation": "He sleeps at night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रात चाँदनी होती, तो हम बाहर बैठते।",
+          "translation": "If the night were moonlit, we would sit outside.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़कें रात को साफ़ की जाती हैं।",
+          "translation": "The streets are cleaned at night.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पानी",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "water",
+      "intro": "The colorless, transparent, odorless liquid that forms the seas, lakes, rivers, and rain.",
+      "usage": "Uncountable masculine noun. Plural remains 'पानी'.",
+      "synonyms": [
+        {
+          "word": "जल",
+          "gloss": "water (formal)"
+        },
+        {
+          "word": "नीर",
+          "gloss": "water (literary)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे पीने के लिए पानी चाहिए।",
+          "translation": "I want water to drink.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नदी में बहुत पानी है।",
+          "translation": "There is a lot of water in the river.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पानी साफ़ होता, तो मैं पी लेता।",
+          "translation": "If the water were clean, I would drink it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पौधों को रोज़ पानी दिया जाता है।",
+          "translation": "Plants are given water every day.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नया",
+      "partOfSpeech": "adjective",
+      "translation": "new",
+      "intro": "Describes something recently made, introduced, or discovered. Cross-referenced with 'पुराना' (#63).",
+      "usage": "Inflects for gender/number: नया (masculine singular), नए (masculine plural/oblique), नई (feminine).",
+      "synonyms": [
+        {
+          "word": "नवीन",
+          "gloss": "modern / new"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह मेरा नया फोन है।",
+          "translation": "This is my new phone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम नए साल का स्वागत कर रहे हैं।",
+          "translation": "We are welcoming the new year. ('नए' is masculine oblique)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह नई योजना होती, तो हम समर्थन करते।",
+          "translation": "If this were a new plan, we would support it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह नया नियम कल लागू किया जाएगा।",
+          "translation": "This new rule will be applied tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पुराना",
+      "partOfSpeech": "adjective",
+      "translation": "old / ancient",
+      "intro": "Describes something that has existed for a long time, or is outdated. Cross-referenced with 'नया' (#62).",
+      "usage": "Inflects: पुराना (masculine), पुराने (masculine oblique/plural), पुरानी (feminine).",
+      "synonyms": [
+        {
+          "word": "प्राचीन",
+          "gloss": "ancient / historical"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह पुराना घर हमारे दादाजी का है।",
+          "translation": "This old house belongs to our grandfather.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे पुरानी यादें बहुत सुंदर हैं।",
+          "translation": "Those old memories are very beautiful. ('पुरानी' agrees with feminine plural)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह पुराना सिक्का होता, तो बहुत मूल्यवान होता।",
+          "translation": "If this were an old coin, it would be very valuable.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पुराने पुल को गिराया जा रहा है।",
+          "translation": "The old bridge is being demolished.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बड़ा",
+      "partOfSpeech": "adjective",
+      "translation": "big / large / elder",
+      "intro": "Describes large physical size, high status, or elder age. Cross-referenced with 'छोटा' (#65).",
+      "usage": "Inflects: बड़ा (masculine), बड़े (masculine oblique/plural), बड़ी (feminine).",
+      "synonyms": [
+        {
+          "word": "विशाल",
+          "gloss": "huge / vast"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह एक बड़ा कमरा है।",
+          "translation": "This is a big room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह मेरा बड़ा भाई है।",
+          "translation": "He is my elder brother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास बड़ा घर होता, तो हम आराम से रहते।",
+          "translation": "If we had a bigger house, we would live comfortably.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस शहर में एक बड़ा अस्पताल बनाया जा रहा है।",
+          "translation": "A large hospital is being built in this city.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "छोटा",
+      "partOfSpeech": "adjective",
+      "translation": "small / little / younger",
+      "intro": "Describes small size, low status, or younger age. Cross-referenced with 'बड़ा' (#64).",
+      "usage": "Inflects: छोटा (masculine), छोटे (masculine oblique/plural), छोटी (feminine).",
+      "synonyms": [
+        {
+          "word": "लघु",
+          "gloss": "small / short"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह एक छोटा खिलौना है।",
+          "translation": "This is a small toy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह मेरी छोटी बहन है।",
+          "translation": "She is my younger sister.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास छोटी गाड़ी होती, तो पार्किंग आसान होती।",
+          "translation": "If we had a small car, parking would be easy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस छोटे काम को जल्दी पूरा किया जाता है।",
+          "translation": "This small task is finished quickly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अच्छा",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "good / well / okay",
+      "intro": "Refers to high quality, correctness, or acting as an exclamation/response meaning 'okay'. Cross-referenced with 'बुरा' (#67).",
+      "usage": "Inflects: अच्छा (masculine), अच्छे (masculine oblique/plural), अच्छी (feminine).",
+      "synonyms": [
+        {
+          "word": "ठीक",
+          "gloss": "okay"
+        },
+        {
+          "word": "बढ़िया",
+          "gloss": "fine / excellent"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह बहुत अच्छी फिल्म है।",
+          "translation": "This is a very good movie. ('अच्छी' agrees with feminine 'फिल्म')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अच्छा, हम कल मिलेंगे।",
+          "translation": "Okay, we will meet tomorrow. (Exclamation)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मौसम अच्छा होता, तो हम बाहर जाते।",
+          "translation": "If the weather were good, we would go outside.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अच्छे व्यवहार की हमेशा सराहना की जाती है।",
+          "translation": "Good behavior is always appreciated.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बुरा",
+      "partOfSpeech": "adjective",
+      "translation": "bad / evil",
+      "intro": "Refers to poor quality, harmful, or morally wrong things. Cross-referenced with 'अच्छा' (#66).",
+      "usage": "Inflects: बुरा (masculine), बुरे (masculine oblique/plural), बुरी (feminine).",
+      "synonyms": [
+        {
+          "word": "खराब",
+          "gloss": "bad / spoiled"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह एक बुरा सपना था।",
+          "translation": "This was a bad dream.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हमें किसी के बारे में बुरा नहीं सोचना चाहिए।",
+          "translation": "We should not think bad of anyone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि परिणाम बुरा होता, तो चिंता होती।",
+          "translation": "If the result were bad, there would be worry.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बुरे कामों की निंदा की जाती है।",
+          "translation": "Bad deeds are condemned.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ठीक",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "okay / correct / right",
+      "intro": "Refers to correctness, health/wellness, or exactness. Very common as a conversational response ('Okay / All right').",
+      "usage": "Invariable. 'ठीक है' (it is okay / all right), 'ठीक समय पर' (exactly on time).",
+      "synonyms": [
+        {
+          "word": "सही",
+          "gloss": "correct"
+        },
+        {
+          "word": "अच्छा",
+          "gloss": "good"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह अब बिल्कुल ठीक है।",
+          "translation": "He is absolutely fine now.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह उत्तर बिल्कुल ठीक है।",
+          "translation": "This answer is absolutely correct.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सब कुछ ठीक होता, तो मैं क्यों पूछता?",
+          "translation": "If everything were fine, why would I ask?",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मशीन को समय पर ठीक किया जाता है।",
+          "translation": "The machine is repaired on time.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पहले",
+      "partOfSpeech": "adverb / preposition",
+      "translation": "before / first / previously",
+      "intro": "Indicates priority in time, order, or space. Can act as adverb (previously) or compound postposition (before, usually 'से पहले').",
+      "usage": "Invariable. Often paired with 'से': 'खाने से पहले' (before eating).",
+      "synonyms": [
+        {
+          "word": "पूर्व",
+          "gloss": "before / east"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं पहले दिल्ली में रहता था।",
+          "translation": "Previously I lived in Delhi.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आने से पहले मुझे फोन करना।",
+          "translation": "Call me before coming.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं पहले आता, तो टिकट मिल जाती।",
+          "translation": "If I came earlier, I would get the ticket.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम हमेशा सबसे पहले किया जाता है।",
+          "translation": "This work is always done first of all.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अब",
+      "partOfSpeech": "adverb",
+      "translation": "now",
+      "intro": "Refers to the present moment or the immediate situation. Opposite of 'तब' (#78).",
+      "usage": "Invariable time adverb. Combined with 'ही': 'अभी' (right now).",
+      "synonyms": [
+        {
+          "word": "वर्तमान में",
+          "gloss": "currently"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अब मुझे घर जाना चाहिए।",
+          "translation": "Now I should go home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अब खेल शुरू हो रहा है।",
+          "translation": "Now the game is starting.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह अब आता, तो हम उसे अंदर आने देते।",
+          "translation": "If he came now, we would let him in.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह नीति अब बदल दी गई है।",
+          "translation": "This policy has been changed now.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "यहाँ",
+      "partOfSpeech": "adverb",
+      "translation": "here",
+      "intro": "Adverb of place indicating the current location. Cross-referenced with 'वहाँ' (#72) and 'कहाँ' (#76).",
+      "usage": "Invariable. Fuses with emphatic particle 'ही': 'यहीं' (right here).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यहाँ बहुत ठंड है।",
+          "translation": "It is very cold here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम यहाँ बैठो।",
+          "translation": "You sit here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह यहाँ होता, तो मेरी मदद करता।",
+          "translation": "If he were here, he would help me.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यहाँ हिंदी पढ़ाई जाती है।",
+          "translation": "Hindi is taught here.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "वहाँ",
+      "partOfSpeech": "adverb",
+      "translation": "there",
+      "intro": "Adverb of place indicating a distant location. Cross-referenced with 'यहाँ' (#71).",
+      "usage": "Invariable. Fuses with emphatic 'ही': 'वहीं' (right there).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वहाँ एक बड़ा पेड़ है।",
+          "translation": "There is a big tree there.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं कल वहाँ जा रहा हूँ।",
+          "translation": "I am going there tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम वहाँ जाते, तो तुम्हें मज़ा आता।",
+          "translation": "If you went there, you would have fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वहाँ एक नया पुल बनाया जा रहा है।",
+          "translation": "A new bridge is being built there.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "क्या",
+      "partOfSpeech": "pronoun / particle",
+      "translation": "what / question marker",
+      "intro": "Interrogative pronoun meaning 'what'. Also serves as a sentence-initial particle to introduce yes/no questions.",
+      "usage": "Oblique form is 'किस'. Placement determines if it means 'what' (inside sentence) or marks a question (at start).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "तुम्हारा नाम क्या है?",
+          "translation": "What is your name?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "क्या तुम कल आओगे?",
+          "translation": "Will you come tomorrow? (Yes/No question marker)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं जानता कि समस्या क्या है, तो हल कर देता।",
+          "translation": "If I knew what the problem is, I would solve it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "क्या यह काम समय पर किया जा सकता है?",
+          "translation": "Can this work be done on time?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कैसे",
+      "partOfSpeech": "adverb",
+      "translation": "how",
+      "intro": "Interrogative adverb of manner or condition.",
+      "usage": "Invariable. Often used to ask about wellness ('आप कैसे हैं?' - How are you?).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "आप कैसे हैं?",
+          "translation": "How are you?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह काम कैसे हुआ?",
+          "translation": "How did this work happen?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं जानता कि वहाँ कैसे जाना है, तो चला जाता।",
+          "translation": "If I knew how to go there, I would go.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह समस्या कैसे हल की जा सकती है?",
+          "translation": "How can this problem be solved?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "क्यों",
+      "partOfSpeech": "adverb",
+      "translation": "why",
+      "intro": "Interrogative adverb of reason or cause.",
+      "usage": "Invariable. Pronounced 'kyon'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "तुम क्यों रो रहे हो?",
+          "translation": "Why are you crying?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह आज क्यों नहीं आया?",
+          "translation": "Why didn't he come today?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं कारण जानता कि तुम क्यों उदास हो, तो खुश करता।",
+          "translation": "If I knew the reason why you are sad, I would make you happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह नियम क्यों बनाया गया है?",
+          "translation": "Why was this rule made?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कहाँ",
+      "partOfSpeech": "adverb",
+      "translation": "where",
+      "intro": "Interrogative adverb of place. Cross-referenced with 'यहाँ' (#71) and 'वहाँ' (#72).",
+      "usage": "Invariable. Pronounced 'kahaan'. Fuses with 'ही' to mean 'where on earth'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "तुम्हारा दफ़्तर कहाँ है?",
+          "translation": "Where is your office?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम कहाँ जा रहे हो?",
+          "translation": "Where are you going?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं जानता कि तुम कहाँ छिपे हो, तो आ जाता।",
+          "translation": "If I knew where you are hiding, I would come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह सामान कहाँ भेजा जा रहा है?",
+          "translation": "Where is this luggage being sent?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जब",
+      "partOfSpeech": "conjunction / adverb",
+      "translation": "when (relative)",
+      "intro": "Relative adverb or conjunction of time. Used to introduce a time clause, usually paired with correlative 'तब' (#78).",
+      "usage": "Equivalent to relative 'when' (e.g. 'When X happens, then Y...').",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "जब बारिश होगी, तब हम बाहर जाएँगे।",
+          "translation": "When it rains, then we will go outside.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जब मैं छोटा था, तब गाँव में रहता था।",
+          "translation": "When I was young, I lived in the village.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं जानता कि तुम जब आओगे, तो मैं घर पर रुकता।",
+          "translation": "If I knew when you would come, I would stay at home.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "जब काम पूरा होता है, तब वेतन दिया जाता है।",
+          "translation": "When work is completed, then salary is given.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तब",
+      "partOfSpeech": "adverb",
+      "translation": "then / at that time",
+      "intro": "Correlative adverb of time. Used in pair with 'जब' (#77) or 'अगर' (#91).",
+      "usage": "Equivalent to correlative 'then' (e.g. 'When... then...').",
+      "synonyms": [
+        {
+          "word": "तो",
+          "gloss": "then"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "जब घंटी बजी, तब छात्र बाहर आए।",
+          "translation": "When the bell rang, then the students came out.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं तब बहुत व्यस्त था।",
+          "translation": "I was very busy at that time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम तब आते, तो हम बात करते।",
+          "translation": "If you had come then, we would talk.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तब सभी फसलों को काट लिया जाता है।",
+          "translation": "Then all crops are harvested.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कौन",
+      "partOfSpeech": "pronoun",
+      "translation": "who",
+      "intro": "Interrogative pronoun used for asking about people.",
+      "usage": "Oblique form is 'किस' (singular) and 'किन' (plural). Takes verb agreement based on subject.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वहाँ कौन है?",
+          "translation": "Who is there?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह काम कौन करेगा?",
+          "translation": "Who will do this work?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं जानता कि विजेता कौन है, तो बधाई देता।",
+          "translation": "If I knew who the winner is, I would congratulate.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पुरस्कार किसके द्वारा जीता जाता है?",
+          "translation": "By whom is this award won? ('किस' is oblique of कौन)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "उसे",
+      "partOfSpeech": "pronoun",
+      "translation": "him / her / to him / to her",
+      "intro": "The dative/accusative pronoun form of 'वह' (#12). Equivalent to 'him/her' or 'to him/her'. Cross-referenced with 'मुझे' (#81) and 'उन्हें' (#83).",
+      "usage": "Formed by वह + को. Used as direct object or indirect object.",
+      "synonyms": [
+        {
+          "word": "उसको",
+          "gloss": "him / her"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उसे बुलाओ।",
+          "translation": "Call him/her.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने उसे एक पत्र दिया।",
+          "translation": "I gave him/her a letter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं उसे जानता, तो घर आमंत्रित करता।",
+          "translation": "If I knew him/her, I would invite to the house.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "उसे कल पुरस्कार दिया जाएगा।",
+          "translation": "He/She will be given an award tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मुझे",
+      "partOfSpeech": "pronoun",
+      "translation": "me / to me",
+      "intro": "The dative/accusative pronoun form of first-person singular 'मैं' (#27). Cross-referenced with 'उसे' (#80) and 'तुम्हें' (#82).",
+      "usage": "Formed by मैं + को. Used as subject for psychological verbs (e.g. मुझे पसंद है - I like).",
+      "synonyms": [
+        {
+          "word": "मुझको",
+          "gloss": "me"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे सेब पसंद है।",
+          "translation": "I like apples.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने मुझे अपनी कार दिखाई।",
+          "translation": "He showed me his car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मुझे समय मिले, तो मैं घूमने जाऊँगा।",
+          "translation": "If I get time, I will go for a trip.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मुझे एक नया काम सौंपा गया है।",
+          "translation": "I have been assigned a new task.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तुम्हें",
+      "partOfSpeech": "pronoun",
+      "translation": "you / to you (informal)",
+      "intro": "The dative/accusative pronoun form of second-person informal 'तुम' (#25). Cross-referenced with formal 'आपको'.",
+      "usage": "Formed by तुम + को.",
+      "synonyms": [
+        {
+          "word": "तुमको",
+          "gloss": "you"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तुम्हें वहाँ जाना चाहिए।",
+          "translation": "You should go there.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने तुम्हें बाज़ार में देखा था।",
+          "translation": "I saw you in the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें मदद चाहिए होती, तो तुम मुझे बताते।",
+          "translation": "If you wanted help, you would tell me.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तुम्हें सूचित किया जाता है।",
+          "translation": "You are being informed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "उन्हें",
+      "partOfSpeech": "pronoun",
+      "translation": "them / to them / to him/her (respectful)",
+      "intro": "The dative/accusative pronoun form of third-person plural 'वे' (#24). Used for plural persons or singular respectful reference. Cross-referenced with 'उसे' (#80).",
+      "usage": "Formed by वे + को. Pronounced 'unhein'.",
+      "synonyms": [
+        {
+          "word": "उनको",
+          "gloss": "them"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उन्हें काम करने दो।",
+          "translation": "Let them work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने उन्हें अपनी समस्या बताई।",
+          "translation": "I told them/him my problem.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं उन्हें जानता, तो आदर करता।",
+          "translation": "If I knew them, I would show respect.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "उन्हें कल यहाँ बुलाया गया था।",
+          "translation": "They were called here yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हमारा",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "our",
+      "intro": "Possessive pronoun/adjective derived from 'हम' (#23). Cross-referenced with 'तुम्हारा' (#85) and 'मेरा' (#87).",
+      "usage": "Inflects: हमारा (masculine singular), हमारे (masculine oblique/plural), हमारी (feminine).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह हमारा नया स्कूल है।",
+          "translation": "This is our new school.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हमारी बहन डॉक्टर है।",
+          "translation": "Our sister is a doctor. ('हमारी' agrees with feminine 'बहन')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारा घर बड़ा होता, तो हम सब साथ रहते।",
+          "translation": "If our house were bigger, we would all live together.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हमारे नियमों का पालन किया जाता है।",
+          "translation": "Our rules are being followed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तुम्हारा",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "your",
+      "intro": "Possessive pronoun/adjective derived from informal 'तुम' (#25). Cross-referenced with formal 'आपका' and 'हमारा' (#84).",
+      "usage": "Inflects: तुम्हारा (masculine), तुम्हारे (masculine oblique/plural), तुम्हारी (feminine).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह तुम्हारा कुत्ता है।",
+          "translation": "This is your dog.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम्हारी आँखें बहुत सुंदर हैं।",
+          "translation": "Your eyes are very beautiful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारा दोस्त यहाँ आता, तो हम खेलते।",
+          "translation": "If your friend came here, we would play.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तुम्हारा नाम सूची में लिखा गया है।",
+          "translation": "Your name has been written in the list.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "उनका",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "their / his/her (respectful)",
+      "intro": "Possessive pronoun/adjective derived from third-person plural 'वे' (#24). Cross-referenced with singular 'उसका'.",
+      "usage": "Inflects: उनका (masculine), उनके (masculine oblique/plural), उनकी (feminine).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह उनका नया मकान है।",
+          "translation": "This is their new house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उनकी माँ कल बाज़ार गईं।",
+          "translation": "Their/His mother went to the market yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उनके नियम सरल होते, तो अच्छा होता।",
+          "translation": "If their rules were simple, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "उनका सामान सुरक्षित पहुँचाया गया।",
+          "translation": "Their luggage was delivered safely.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मेरा",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "my",
+      "intro": "Possessive pronoun/adjective derived from first-person singular 'मैं' (#27). Cross-referenced with 'हमारा' (#84).",
+      "usage": "Inflects: मेरा (masculine), मेरे (masculine oblique/plural), मेरी (feminine).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह मेरा कमरा है।",
+          "translation": "This is my room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेरी माँ एक शिक्षिका हैं।",
+          "translation": "My mother is a teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरा दोस्त आता, तो मैं खुश होता।",
+          "translation": "If my friend came, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मेरा नाम सूची से हटा दिया गया है।",
+          "translation": "My name has been removed from the list.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अपना",
+      "partOfSpeech": "pronoun / adjective",
+      "translation": "one's own",
+      "intro": "A reflexive possessive pronoun referring back to the grammatical subject of the sentence, regardless of gender or number.",
+      "usage": "Inflects like standard adjectives: अपना, अपने, अपनी. Equivalent to 'my own', 'his own', 'their own' depending on the subject.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं अपना काम करता हूँ।",
+          "translation": "I do my own work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह अपने घर जा रहा है।",
+          "translation": "He is going to his own house. ('अपने' agrees with masculine singular oblique)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपनी किताब लाते, तो मैं पढ़ता।",
+          "translation": "If you brought your own book, I would read.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह फैसला अपने लोगों द्वारा किया गया है।",
+          "translation": "This decision was taken by our own people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लेकिन",
+      "partOfSpeech": "conjunction",
+      "translation": "but / however",
+      "intro": "A common coordinating conjunction expressing contrast or exception. Cross-referenced with synonym 'पर' (#13) and 'या' (#90).",
+      "usage": "Connects two opposing clauses.",
+      "synonyms": [
+        {
+          "word": "पर",
+          "gloss": "but"
+        },
+        {
+          "word": "किंतु",
+          "gloss": "but / however"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह अमीर है लेकिन खुश नहीं है।",
+          "translation": "He is rich, but not happy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने कोशिश की, लेकिन सफल नहीं हुआ।",
+          "translation": "I tried, but didn't succeed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह आती लेकिन बात न करती, तो मुझे बुरा लगता।",
+          "translation": "If she came but did not talk, I would feel bad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह फैसला कठिन था लेकिन आखिरकार लिया गया।",
+          "translation": "This decision was difficult, but was eventually taken.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "या",
+      "partOfSpeech": "conjunction",
+      "translation": "or",
+      "intro": "A coordinating conjunction representing an alternative.",
+      "usage": "Invariable. Paired as 'या तो... या...' (either... or...).",
+      "synonyms": [
+        {
+          "word": "अथवा",
+          "gloss": "or (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तुम चाय लोगे या कॉफी?",
+          "translation": "Will you have tea or coffee?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आज धूप होगी या बारिश।",
+          "translation": "Today will be sunny or rainy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम या तुम्हारा दोस्त आता, तो बात बन जाती।",
+          "translation": "If you or your friend came, the matter would be resolved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम राम या मोहन द्वारा किया जाएगा।",
+          "translation": "This work will be done by Ram or Mohan.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अगर",
+      "partOfSpeech": "conjunction",
+      "translation": "if",
+      "intro": "A subordinating conjunction of condition. Cross-referenced with synonym 'यदि' and the correlative clause marker 'तो' (#16).",
+      "usage": "Usually begins a conditional clause. Followed by 'तो' (then) in the main clause.",
+      "synonyms": [
+        {
+          "word": "यदि",
+          "gloss": "if"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अगर तुम आओगे, तो मैं चलूँगा।",
+          "translation": "If you come, then I will go.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर बारिश होगी, तो खेल बंद हो जाएगा।",
+          "translation": "If it rains, then the game will stop.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर मैं प्रधानमंत्री होता, तो गरीबी हटाता।",
+          "translation": "If I were the prime minister, I would remove poverty.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अगर नियम तोड़ा जाता है, तो सजा दी जाती है।",
+          "translation": "If the rule is broken, then punishment is given.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "क्योंकि",
+      "partOfSpeech": "conjunction",
+      "translation": "because",
+      "intro": "A subordinating conjunction introducing a clause of reason or cause.",
+      "usage": "Pronounced 'kyonki'. Starts the explanatory clause.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं स्कूल नहीं आया क्योंकि मैं बीमार था।",
+          "translation": "I didn't come to school because I was sick.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह खुश है क्योंकि उसने परीक्षा पास कर ली।",
+          "translation": "He is happy because he passed the exam.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह रोता क्योंकि उसे चोट लगी होती, तो मैं मदद करता।",
+          "translation": "If he cried because he got hurt, I would help.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम रोका गया क्योंकि धन की कमी थी।",
+          "translation": "This work was stopped because there was a lack of funds.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "साथ",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "with / along with / company",
+      "intro": "Indicates association, accompaniment, or partnership. Often functions as compound postposition 'के साथ'.",
+      "usage": "As postposition, requires preceding 'के'. As adverb, means 'together'.",
+      "synonyms": [
+        {
+          "word": "संग",
+          "gloss": "with / along"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह मेरे साथ बाज़ार गया।",
+          "translation": "He went to the market with me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम सब साथ रहते हैं।",
+          "translation": "We all live together.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम मेरे साथ चलते, तो अच्छा होता।",
+          "translation": "If you had come along with me, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पत्र दस्तावेजों के साथ भेजा जाता है।",
+          "translation": "This letter is sent along with the documents.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बारे में",
+      "partOfSpeech": "postposition",
+      "translation": "about / concerning",
+      "intro": "A compound postposition meaning 'about', 'concerning', or 'regarding'. Built on genitive 'के' (#8) + 'बारे में'.",
+      "usage": "Requires preceding 'के': 'मेरे बारे में' (about me), 'इस बारे में' (about this).",
+      "synonyms": [
+        {
+          "word": "विषय में",
+          "gloss": "about (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह मेरे बारे में बात कर रहा था।",
+          "translation": "He was talking about me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे इस बारे में सब पता है।",
+          "translation": "I know everything about this.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपने बारे में सोचते, तो अच्छा होता।",
+          "translation": "If you thought about yourself, it would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कल बैठक में इस बारे में चर्चा की जाएगी।",
+          "translation": "This will be discussed in the meeting tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पास",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "near / by / possession marker",
+      "intro": "Can mean physical closeness (near) or serve as a possession marker (equivalent to 'to have' in English, as in 'के पास होना').",
+      "usage": "Usually requires preceding 'के': 'मेरे पास एक पेन है' (I have a pen / near me is a pen).",
+      "synonyms": [
+        {
+          "word": "निकट",
+          "gloss": "near (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरा घर मंदिर के पास है।",
+          "translation": "My house is near the temple.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रवि के पास बहुत पैसे हैं।",
+          "translation": "Ravi has a lot of money. (Possession)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारे पास कार होती, तो हम चलते।",
+          "translation": "If you had a car, we would go.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह डाक घर के पास पहुँचाया जाता है।",
+          "translation": "This mail is delivered near the house.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नीचे",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "down / under / below",
+      "intro": "Indicates a lower position, direction downwards, or being underneath. Cross-referenced with 'ऊपर' (#97).",
+      "usage": "Requires 'के' when used as postposition (e.g. 'पेड़ के नीचे' - under the tree).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "बिल्ली मेज के नीचे सो रही है।",
+          "translation": "The cat is sleeping under the table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह नीचे उतर गया।",
+          "translation": "He went down.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तापमान नीचे गिरता, तो बर्फ पड़ती।",
+          "translation": "If the temperature dropped down, it would snow.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कार को पुल के नीचे खड़ा किया जाता है।",
+          "translation": "The car is parked under the bridge.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ऊपर",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "up / above / on top of",
+      "intro": "Indicates a higher position, direction upwards, or being on top. Cross-referenced with 'नीचे' (#96).",
+      "usage": "Requires 'के' when used as postposition (e.g. 'छत के ऊपर' - on top of the roof).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "किताब अलमारी के ऊपर रखी है।",
+          "translation": "The book is placed on top of the cupboard.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चिड़िया ऊपर उड़ गई।",
+          "translation": "The bird flew up.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं ऊपर आसमान में उड़ पाता, तो मज़ा आता।",
+          "translation": "If I could fly up in the sky, it would be fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सामान को गाड़ी के ऊपर रखा जाता है।",
+          "translation": "The luggage is placed on top of the car.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बाहर",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "outside / out",
+      "intro": "Indicates the exterior or moving out of an enclosed space. Cross-referenced with 'अंदर' (#99).",
+      "usage": "Requires 'के' when acting as postposition (e.g. 'घर के बाहर' - outside the house).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह घर के बाहर खड़ा है।",
+          "translation": "He is standing outside the house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बच्चों, बाहर जाओ और खेलो।",
+          "translation": "Children, go outside and play.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम बाहर जाते, तो ताज़ी हवा मिलती।",
+          "translation": "If you went outside, you would get fresh air.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कचरे को बाहर फेंका जाता है।",
+          "translation": "Garbage is thrown outside.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अंदर",
+      "partOfSpeech": "postposition / adverb",
+      "translation": "inside / in",
+      "intro": "Indicates the interior or moving into an enclosed space. Cross-referenced with 'बाहर' (#98).",
+      "usage": "Requires 'के' when acting as postposition (e.g. 'कमरे के अंदर' - inside the room).",
+      "synonyms": [
+        {
+          "word": "भीतर",
+          "gloss": "inside"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चोर कमरे के अंदर घुस गया।",
+          "translation": "The thief entered inside the room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अंदर आओ और बैठो।",
+          "translation": "Come inside and sit down.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अंदर आते, तो भीगने से बच जाते।",
+          "translation": "If you came inside, you would avoid getting wet.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दूध को फ्रिज के अंदर रखा जाता है।",
+          "translation": "Milk is kept inside the fridge.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कल",
+      "partOfSpeech": "noun / adverb",
+      "translation": "tomorrow / yesterday / machine",
+      "intro": "A unique word meaning either 'tomorrow' or 'yesterday' depending on the tense of the verb. Can also mean a machine or part of a machine ('कल-पुर्ज़े').",
+      "usage": "Invariable. Context/verb tense determines past or future reference.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "कल मैं स्कूल जाऊँगा।",
+          "translation": "Tomorrow I will go to school. (Future verb: जाऊँगा)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कल मैं बीमार था।",
+          "translation": "Yesterday I was sick. (Past verb: था)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कल छुट्टी होती, तो हम बाहर घूमने जाते।",
+          "translation": "If yesterday/tomorrow were a holiday, we would go for an outing.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह कारखाना कल बंद रखा जाएगा।",
+          "translation": "This factory will be kept closed tomorrow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सकना",
+      "partOfSpeech": "verb",
+      "translation": "to be able to / can",
+      "intro": "Companion entry: the infinitive verb behind the capacity modal 'सकता' (#39). Expresses capability, potential, or permission.",
+      "usage": "Intransitive modal verb. Always conjugates in conjunction with the root form of another main verb (e.g. खा सकना - to be able to eat).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मैं तैर सकना चाहता हूँ।",
+          "translation": "I want to be able to swim.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह बिना चश्मे के पढ़ सकता है।",
+          "translation": "He is able to read without glasses.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं समय पर पहुँच सकता, तो बहुत अच्छा होता.",
+          "translation": "If I could be able to reach on time, it would be very good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह भारी संदूक राम से उठाया जा सकता है।",
+          "translation": "This heavy chest can be lifted by Ram.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चाहना",
+      "partOfSpeech": "verb",
+      "translation": "to want / wish / desire / should",
+      "intro": "Companion entry: the infinitive verb behind the obligation/desire form 'चाहिए' (#40). To want, desire, or love.",
+      "usage": "Transitive regular verb: चाहना, चाहा, चाहेगा. Root for 'चाहिए' (which represents 'should / is needed').",
+      "synonyms": [
+        {
+          "word": "इच्छा करना",
+          "gloss": "to wish / desire"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं चाय पीना चाहता हूँ।",
+          "translation": "I want to drink tea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह सफलता चाहता है।",
+          "translation": "He wants success.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम मेरी मदद करना चाहते, तो ज़रूर करते।",
+          "translation": "If you wanted to help me, you would surely do so.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सबके द्वारा शांति चाही जाती है।",
+          "translation": "Peace is desired by all.",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

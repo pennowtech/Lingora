@@ -17,6 +17,14 @@ function titleWordClass(partOfSpeech: string | undefined): string {
   return 'Word'
 }
 
+/** Display name for the sheet title's "Understanding the {{language}} ..." fragment — same
+ * mapping WordGuideModal.tsx uses, duplicated per that file's own comment on the convention. */
+const TITLE_LANGUAGE_LABELS: Partial<Record<LanguageCode, string>> = {
+  de: 'German',
+  fr: 'French',
+  hi: 'Hindi',
+}
+
 export interface FollowUpEntry {
   question: string
   explanation: string
@@ -25,7 +33,7 @@ export interface FollowUpEntry {
 
 /**
  * The AI-sourced counterpart to WordGuideModal's rich presentation (same "Understanding the
- * German {wordClass} '{headword}'" / Usage / Examples shape, so a dictionary-sourced and an
+ * {language} {wordClass} '{headword}'" / Usage / Examples shape, so a dictionary-sourced and an
  * AI-sourced explanation read consistently) — plus a short follow-up question composer and the
  * resulting Q&A thread, kept in memory only for this session (never persisted as new cards/cloze
  * — see LingoraDocs decision on ephemeral follow-ups). Opened by the "More info" action on an
@@ -58,7 +66,8 @@ export function AIExplanationSheet(props: {
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>
-              {t('Understanding the German {{wordClass}} "{{headword}}"', {
+              {t('Understanding the {{language}} {{wordClass}} "{{headword}}"', {
+                language: t(TITLE_LANGUAGE_LABELS[props.language] ?? props.language),
                 wordClass: t(titleWordClass(props.partOfSpeech)),
                 headword: props.headword,
               })}

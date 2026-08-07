@@ -6,6 +6,8 @@ virtualStoreDirMaxLength: 30
 allowBuilds:
   '@firebase/util': true
   better-sqlite3: false
+  core-js: false
+  es5-ext: false
   esbuild: false
   msgpackr-extract: false
   protobufjs: true

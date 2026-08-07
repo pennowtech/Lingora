@@ -1,13 +1,8 @@
 import { Ionicons } from '@expo/vector-icons'
-import {
-  getEbookById,
-  updateEbookProgress,
-  type Ebook,
-  type DatabaseAdapter,
-} from '@lingora/database'
+import { getEbookById, updateEbookProgress } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useState, useRef, type JSX } from 'react'
+import { useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Modal,
@@ -17,8 +12,9 @@ import {
   Text,
   View,
 } from 'react-native'
-import { EbookReader, type TocItem } from '../../components/EbookReader'
+import { EbookReader, type EbookReaderHandle, type TocItem } from '../../components/EbookReader'
 import { Button, IconButton, Spinner, ErrorState } from '../../components/ui'
+import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -29,9 +25,8 @@ export default function ReaderScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const db = {
-    // Standard Expo SQLite adapter handle from global context or parent
-  } as unknown as DatabaseAdapter
+  const { db, dictionary, nativeLanguage, targetLanguage } = useServices()
+  const readerRef = useRef<EbookReaderHandle>(null)
 
   const [toc, setToc] = useState<TocItem[]>([])
   const [tocOpen, setTocOpen] = useState(false)
@@ -39,7 +34,6 @@ export default function ReaderScreen(): JSX.Element {
   const [fontSize, setFontSize] = useState(100)
   const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light')
 
-  const [currentCfi, setCurrentCfi] = useState<string | null>(null)
   const [progressPercent, setProgressPercent] = useState(0)
   const [chapterName, setChapterName] = useState<string>('')
 
@@ -47,14 +41,9 @@ export default function ReaderScreen(): JSX.Element {
   const [selectedWord, setSelectedWord] = useState<string | null>(null)
   const [contextSentence, setContextSentence] = useState<string | null>(null)
 
-  // Paragraph tap state
-  const [tappedParagraph, setTappedParagraph] = useState<string | null>(null)
-  const [inlineTranslation, setInlineTranslation] = useState<string | null>(null)
-  const [translatingPara, setTranslatingPara] = useState(false)
-
   const ebookQuery = useQuery({
     queryKey: ['ebook', id],
-    queryFn: () => getEbookById(db, id!),
+    queryFn: () => getEbookById(db, id),
     enabled: Boolean(id),
   })
 
@@ -70,7 +59,6 @@ export default function ReaderScreen(): JSX.Element {
   })
 
   const handleProgressChange = (cfi: string, percent: number, chapter?: string): void => {
-    setCurrentCfi(cfi)
     setProgressPercent(percent)
     if (chapter) setChapterName(chapter)
     progressMutation.mutate({ cfi, percent })
@@ -83,21 +71,23 @@ export default function ReaderScreen(): JSX.Element {
     }
   }
 
+  // Tapping a paragraph translates it in place, injected as a box right under the paragraph
+  // inside the WebView's own DOM (EbookReader's injectInlineTranslation) — not a separate RN
+  // overlay, so it reads like a footnote rather than interrupting the page. The book itself is
+  // always in the learner's target language, so translation only ever runs target → native (not
+  // the bidirectional detect Search does, since there's no ambiguity about which language a book
+  // page is in). A "Translating…" placeholder goes in immediately so the tap has instant
+  // feedback even though the real translation is a network call.
   const handleParagraphTap = (paragraphText: string): void => {
-    setTappedParagraph(paragraphText)
-    setInlineTranslation(null)
-  }
-
-  const handleTranslateParagraph = async (): Promise<void> => {
-    if (!tappedParagraph) return
-    setTranslatingPara(true)
-    try {
-      // Simulate/trigger fast inline translation
-      const mockTranslation = t('Translation of selected paragraph text.')
-      setInlineTranslation(mockTranslation)
-    } finally {
-      setTranslatingPara(false)
-    }
+    readerRef.current?.injectInlineTranslation(paragraphText, t('Translating…'))
+    dictionary
+      .translate(paragraphText, targetLanguage, nativeLanguage)
+      .then((result) => {
+        readerRef.current?.injectInlineTranslation(paragraphText, result.data)
+      })
+      .catch(() => {
+        readerRef.current?.injectInlineTranslation(paragraphText, t('Could not translate this paragraph.'))
+      })
   }
 
   const ebook = ebookQuery.data
@@ -134,6 +124,7 @@ export default function ReaderScreen(): JSX.Element {
 
       {/* Reader WebView */}
       <EbookReader
+        ref={readerRef}
         filePath={ebook.filePath}
         initialCfi={ebook.currentCfi ?? null}
         fontSize={fontSize}
@@ -154,6 +145,11 @@ export default function ReaderScreen(): JSX.Element {
             <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
           </View>
         </View>
+        {chapterName ? (
+          <Text style={styles.chapterLabel} numberOfLines={1}>
+            {chapterName}
+          </Text>
+        ) : null}
       </View>
 
       {/* Word Lookup Popup Overlay */}
@@ -203,6 +199,7 @@ export default function ReaderScreen(): JSX.Element {
                   style={styles.tocItemRow}
                   onPress={() => {
                     setTocOpen(false)
+                    readerRef.current?.jumpTo(item.href)
                   }}
                 >
                   <Ionicons name="book-outline" size={18} color={colors.primary} />
@@ -267,6 +264,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     progressRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     progressLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textSecondary, width: 70 },
+    chapterLabel: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.xs },
     progressBarTrack: { flex: 1, height: 6, borderRadius: radius.full, backgroundColor: colors.surfaceMuted, overflow: 'hidden' },
     progressBarFill: { height: '100%', backgroundColor: colors.primary, borderRadius: radius.full },
     modalBackdrop: { flex: 1, backgroundColor: '#00000066' },

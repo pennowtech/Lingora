@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons'
+import { Asset } from 'expo-asset'
 import { readAsStringAsync, EncodingType } from 'expo-file-system'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { WebView, type WebViewMessageEvent } from 'react-native-webview'
+import epubjsBundle from '../assets/epubjs/epub.min.js.txt'
+import jszipBundle from '../assets/epubjs/jszip.min.js.txt'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -26,12 +29,30 @@ export interface EbookReaderProps {
   onParagraphTap?: (paragraphText: string) => void
 }
 
-export function EbookReader(props: EbookReaderProps): JSX.Element {
+/** Imperative controls the reader/[id].tsx screen drives from outside the WebView — jumping to a
+ * TOC entry, and injecting a translation into the DOM right under the paragraph that produced it
+ * (see the WebView-side window.injectInlineTranslation in readerHtml below, which does the actual
+ * DOM mutation). A ref rather than props because both are one-shot commands, not state the
+ * component itself needs to render around. */
+export interface EbookReaderHandle {
+  jumpTo: (cfiOrHref: string) => void
+  injectInlineTranslation: (paragraphText: string, translation: string) => void
+}
+
+/** A vendored bundle's own source could (in principle) contain the literal text `</script>`,
+ * which would prematurely close the inline <script> tag it's embedded in and break the page —
+ * neither vendored file does today, but this is cheap insurance against a future version change. */
+function escapeForInlineScript(source: string): string {
+  return source.replace(/<\/script/gi, '<\\/script')
+}
+
+export const EbookReader = forwardRef<EbookReaderHandle, EbookReaderProps>(function EbookReader(props, ref) {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const webViewRef = useRef<WebView>(null)
   const [base64Data, setBase64Data] = useState<string | null>(null)
+  const [engineScripts, setEngineScripts] = useState<{ jszip: string; epub: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -60,6 +81,38 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
       active = false
     }
   }, [props.filePath])
+
+  // Vendored engine bundles (epub.js needs a JSZip global at parse time, plus its own engine —
+  // see assets/epubjs/README.md for exactly what's vendored and why, vs. the old CDN <script
+  // src>) only need loading once per app session, not per book — they don't depend on
+  // props.filePath the way the book's own content does above.
+  useEffect(() => {
+    let active = true
+    async function loadEngine() {
+      try {
+        const [jszipAsset, epubAsset] = await Promise.all([
+          Asset.fromModule(jszipBundle).downloadAsync(),
+          Asset.fromModule(epubjsBundle).downloadAsync(),
+        ])
+        const [jszipSource, epubSource] = await Promise.all([
+          readAsStringAsync(jszipAsset.localUri ?? jszipAsset.uri),
+          readAsStringAsync(epubAsset.localUri ?? epubAsset.uri),
+        ])
+        if (active) {
+          setEngineScripts({ jszip: escapeForInlineScript(jszipSource), epub: escapeForInlineScript(epubSource) })
+        }
+      } catch (err: unknown) {
+        if (active) {
+          setError(String(err))
+          setLoading(false)
+        }
+      }
+    }
+    void loadEngine()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const fontSize = props.fontSize ?? 100
   const theme = props.theme ?? 'light'
@@ -132,15 +185,19 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
     }
   }
 
-  // HTML reader bundle with ePUB.js engine embedded from CDN
+  useImperativeHandle(ref, () => ({ jumpTo, injectInlineTranslation }), [])
+
+  // HTML reader bundle — JSZip and the epub.js engine are inlined directly (see engineScripts
+  // above) rather than <script src="https://...">'d from a CDN, so the reader works offline and
+  // isn't pinned to a mutable URL outside this repo's control.
   const readerHtml = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script>${engineScripts?.jszip ?? ''}</script>
+  <script>${engineScripts?.epub ?? ''}</script>
   <style>
     html, body {
       margin: 0;
@@ -318,7 +375,7 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
 
   return (
     <View style={styles.container}>
-      {base64Data ? (
+      {base64Data && engineScripts ? (
         <WebView
           ref={webViewRef}
           originWhitelist={['*']}
@@ -333,7 +390,7 @@ export function EbookReader(props: EbookReaderProps): JSX.Element {
       ) : null}
     </View>
   )
-}
+})
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({

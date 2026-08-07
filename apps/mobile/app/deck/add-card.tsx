@@ -38,7 +38,7 @@ const MANUAL_PART_OF_SPEECH: PartOfSpeech = 'unknown'
  */
 export default function AddCardScreen(): JSX.Element {
   const { deckId } = useLocalSearchParams<{ deckId: string }>()
-  const { db, ai, tier, defaultCefr, targetLanguage } = useServices()
+  const { db, ai, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const colors = useColors()
@@ -93,7 +93,7 @@ export default function AddCardScreen(): JSX.Element {
       const result = await ai.generateExamples(
         word.trim(),
         { label: 'General', description: meaning.trim() || word.trim() },
-        { cefrLevel: defaultCefr, language: targetLanguage },
+        { cefrLevel: defaultCefr, language: targetLanguage, nativeLanguage },
       )
       return result.data[0]
     },

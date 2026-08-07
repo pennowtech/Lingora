@@ -130,6 +130,14 @@ export const ALL_DECKS_ID = 'all'
 /** Every language the dictionary/generation providers know how to handle (see LanguageCode). */
 export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr', 'vi', 'hi']
 
+/** The subset of SUPPORTED_LANGUAGES with real generation/dictionary/word-guide content today —
+ * shared by settings/learning.tsx (gates the native/target pickers) and settings/general.tsx
+ * (gates the app-language ↔ native-language cross-prompt: offering to switch a language the
+ * native-language picker would then reject makes no sense). Japanese/Spanish/Vietnamese still
+ * show up in the pickers themselves but warn instead of applying — see learning.tsx's own
+ * warnUnsupportedLanguage. */
+export const FULLY_SUPPORTED_VOCAB_LANGUAGES: readonly LanguageCode[] = ['en', 'de', 'fr', 'hi']
+
 /** Preserves today's hardcoded German→English behavior for users who never open the setting. */
 export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
 export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'

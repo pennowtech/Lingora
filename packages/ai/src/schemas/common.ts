@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 export const cefrLevelSchema = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'])
 
-export const languageCodeSchema = z.enum(['de', 'en', 'ja', 'es', 'fr'])
+export const languageCodeSchema = z.enum(['de', 'en', 'ja', 'es', 'fr', 'vi', 'hi'])
 
 export const partOfSpeechSchema = z.enum([
   'noun',

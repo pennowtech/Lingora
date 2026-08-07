@@ -347,7 +347,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateExamples(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
         { grammar: grammarSelection },
       )
       const promptVersion = await getActivePromptVersion(db, 'examples')
@@ -380,6 +380,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generatePhrases(word.lemma.form, {
         cefrLevel: defaultCefr,
         language: word.lemma.language,
+        nativeLanguage,
       })
       for (const phrase of result.data) {
         await createPhrase(db, {
@@ -407,6 +408,7 @@ export default function WordDetailScreen(): JSX.Element {
         cefrLevel: defaultCefr,
         deckId: DEFAULT_DECK_ID,
         language: targetLanguage,
+        nativeLanguage,
         addToDeck: false,
       })
     },
@@ -595,7 +597,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateMeaning(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
       )
       const generated = result.data[0]
       await updateMeaningText(
@@ -623,6 +625,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateWordPackage(word.lemma.form, {
         cefrLevel: defaultCefr,
         language: word.lemma.language,
+        nativeLanguage,
       })
       if (result.kind === 'partial') {
         throw new Error(t('Generation came back incomplete — nothing was changed. Try again.'))
@@ -673,7 +676,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateMeaning(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
         question,
       )
       const generated = result.data[0]
@@ -830,7 +833,7 @@ export default function WordDetailScreen(): JSX.Element {
       const result = await ai.generateExamples(
         word.lemma.form,
         { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
       )
       return result.data[0]
     },

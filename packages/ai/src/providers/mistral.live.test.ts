@@ -17,6 +17,7 @@ describe.skipIf(!apiKey)('MistralProvider live', () => {
       const result = await provider.generateWordPackage('ausgehen', {
         cefrLevel: 'B1',
         language: 'de',
+        nativeLanguage: 'en',
       })
 
       expect(result.kind).toBe('complete')

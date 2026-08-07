@@ -23,6 +23,7 @@ describe('LruCache', () => {
 describe('buildCacheKey', () => {
   const base = {
     language: 'de',
+    nativeLanguage: 'en',
     word: 'Ausgehen',
     cefrLevel: 'B1',
     provider: 'openai',
@@ -56,6 +57,7 @@ describe('GenerationCache', () => {
   const key = (): string =>
     buildCacheKey({
       language: 'de',
+      nativeLanguage: 'en',
       word: 'ausgehen',
       cefrLevel: 'B1',
       provider: 'openai',

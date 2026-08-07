@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
 import { generateValidated, type RawCompletion } from '../generation/structured'
-import { PROMPTS, renderPrompt } from '../prompts/templates'
+import { languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
 import {
   generatedClozeBaseSchema,
   generatedClozeSchema,
@@ -114,6 +114,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.wordPackage.template, {
       word,
       cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
       baselineHint: hint
         ? `\nA trusted dictionary translates it as: "${hint.baselineTranslation}". Treat that as ground truth for the primary meaning.\n`
         : '',
@@ -134,6 +135,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.clusterOutlines.template, {
       word,
       cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
     })
     const result = await this.generateStrict(prompt, 'cluster_outlines', clusterOutlinesSchema)
     return { data: result.data.clusters, usage: result.usage }
@@ -148,6 +150,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.meanings.template, {
       word,
       cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
       followUpSection: question
@@ -168,6 +171,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.examples.template, {
       word,
       cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
       grammarInstructions:
@@ -187,6 +191,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.synonyms.template, {
       word,
       cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
     })
@@ -195,13 +200,13 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
   }
 
   async generatePhrases(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedPhrase[]>> {
-    const prompt = renderPrompt(PROMPTS.phrases.template, { word, cefrLevel: ctx.cefrLevel })
+    const prompt = renderPrompt(PROMPTS.phrases.template, { word, cefrLevel: ctx.cefrLevel, ...languageVars(ctx) })
     const result = await this.generateStrict(prompt, 'phrases', phrasesResponseSchema)
     return { data: result.data.phrases, usage: result.usage }
   }
 
   async generateCloze(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedCloze[]>> {
-    const prompt = renderPrompt(PROMPTS.cloze.template, { word, cefrLevel: ctx.cefrLevel })
+    const prompt = renderPrompt(PROMPTS.cloze.template, { word, cefrLevel: ctx.cefrLevel, ...languageVars(ctx) })
     const result = await generateValidated(
       this.makeCall(prompt, 'clozes', clozesJsonTargetSchema),
       clozesResponseSchema,

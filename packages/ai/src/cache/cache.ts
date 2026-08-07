@@ -24,6 +24,10 @@ export interface CachedGeneration {
 
 export interface GenerationCacheKeyParts {
   language: LanguageCode
+  /** The learner's own language — required so two users generating the same word at the same
+   * CEFR level but with different native languages (explanations/translations) never collide on
+   * one cached payload written in the wrong one. */
+  nativeLanguage: LanguageCode
   word: string
   cefrLevel: CefrLevel
   provider: string
@@ -40,6 +44,7 @@ export function buildCacheKey(parts: GenerationCacheKeyParts): string {
   return [
     'wordpkg',
     parts.language,
+    parts.nativeLanguage,
     normalizeWord(parts.word),
     parts.cefrLevel,
     parts.provider,

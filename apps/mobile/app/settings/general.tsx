@@ -1,10 +1,12 @@
+import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import { router, Stack } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Card, Chip, Dropdown, IconButton, LinkRow } from '../../components/ui'
+import { Card, Chip, ConfirmModal, Dropdown, IconButton, LinkRow } from '../../components/ui'
 import { getCaptureDestination, setCaptureDestination, type CaptureDestination } from '../../lib/captureIntent'
 import {
   APP_LANGUAGES,
@@ -14,6 +16,7 @@ import {
   type AppLanguage,
   type AppLanguagePreference,
 } from '../../lib/i18n'
+import { FULLY_SUPPORTED_VOCAB_LANGUAGES, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import { THEMES, THEME_ORDER } from '../../lib/themes'
@@ -83,8 +86,13 @@ export default function GeneralSettingsScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const { themeKey, setThemeKey } = useTheme()
+  const { nativeLanguage, targetLanguage, reloadServices } = useServices()
   const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
   const [captureDestination, setCaptureDestinationState] = useState<CaptureDestination>('search')
+  // The "vice versa" half of settings/learning.tsx's app-language cross-prompt: offered right
+  // after an explicit app-language pick, not "Follow device" (that's not really the user choosing
+  // a language) and not if it's already the native language.
+  const [nativeLanguagePrompt, setNativeLanguagePrompt] = useState<LanguageCode | null>(null)
   const help = useHelpAccordion('theme')
 
   useEffect(() => {
@@ -106,6 +114,32 @@ export default function GeneralSettingsScreen(): JSX.Element {
     setAppLanguageState(preference)
     setAppLanguagePreference(preference).catch((error: unknown) => {
       log.error('settings.app_language_change_failed', error, { message: 'Failed to persist app language preference' })
+    })
+    if (
+      preference !== 'system' &&
+      preference !== nativeLanguage &&
+      (FULLY_SUPPORTED_VOCAB_LANGUAGES as readonly string[]).includes(preference)
+    ) {
+      setNativeLanguagePrompt(preference)
+    }
+  }
+
+  // Mirrors settings/learning.tsx's setNativeLanguage swap-fallback (nudging the target language
+  // away if it would collide) — that screen owns its own local nativeLanguage/targetLanguage
+  // state, this one doesn't render either picker, so it goes straight to SecureStore + reload.
+  const confirmNativeLanguageChange = async (): Promise<void> => {
+    const language = nativeLanguagePrompt
+    setNativeLanguagePrompt(null)
+    if (!language) return
+    await SecureStore.setItemAsync(STORE_KEYS.nativeLanguage, language)
+    if (language === targetLanguage) {
+      const fallback = SUPPORTED_LANGUAGES.find((l) => l !== language) ?? targetLanguage
+      await SecureStore.setItemAsync(STORE_KEYS.targetLanguage, fallback)
+    }
+    await reloadServices()
+    log.info('settings.language_pair_changed', {
+      message: 'Native language changed to follow the app language',
+      metadata: { settingKey: 'nativeLanguage' },
     })
   }
 
@@ -183,6 +217,18 @@ export default function GeneralSettingsScreen(): JSX.Element {
         activeSectionId={help.sectionId}
         onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
         translate={t}
+      />
+
+      <ConfirmModal
+        visible={nativeLanguagePrompt !== null}
+        title={t('Match your native language too?')}
+        message={t('You just set the app language to {{language}}. Also set "I speak" to match?', {
+          language: nativeLanguagePrompt ? t(APP_LANGUAGE_LABELS[nativeLanguagePrompt as AppLanguage]) : '',
+        })}
+        onCancel={() => setNativeLanguagePrompt(null)}
+        onConfirm={() => void confirmNativeLanguageChange()}
+        confirmLabel={t('Yes, switch it')}
+        cancelLabel={t('No, keep it')}
       />
     </ScrollView>
   )

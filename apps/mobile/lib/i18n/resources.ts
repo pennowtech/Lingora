@@ -623,6 +623,12 @@ const ENGLISH_PHRASES = [
   'No settings match “{{query}}”',
   'No {{language}} voices are installed on this device.',
   'Not supported yet',
+  'Match your native language too?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?',
+  'Match the app language too?',
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?',
+  'Yes, switch it',
+  'No, keep it',
   'Nothing to add.',
   'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.',
   'Only bother with this if you want to be selective — otherwise everything gets turned into cards together.',
@@ -1553,6 +1559,14 @@ const de: Partial<Record<Phrase, string>> = {
     'Auf diesem Gerät sind keine {{language}}-Stimmen installiert.',
   Normal: 'Normal',
   'Not supported yet': 'Noch nicht unterstützt',
+  'Match your native language too?': 'Auch deine Muttersprache anpassen?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?':
+    'Du hast die App-Sprache gerade auf {{language}} gesetzt. Soll „Ich spreche" ebenfalls angepasst werden?',
+  'Match the app language too?': 'Auch die App-Sprache anpassen?',
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?':
+    'Du hast „Ich spreche" gerade auf {{language}} gesetzt. Soll die App-Sprache ebenfalls gewechselt werden?',
+  'Yes, switch it': 'Ja, wechseln',
+  'No, keep it': 'Nein, beibehalten',
   'Nothing to add.': 'Nichts hinzuzufügen.',
   'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.':
     'Nur App-Version, Plattform und deine aktuelle Funktionsstufe (Voll oder Nur Übersetzung) — genug, um einen Fehler nachzuvollziehen.',
@@ -2549,6 +2563,14 @@ const fr: Partial<Record<Phrase, string>> = {
     "Aucune voix en {{language}} n'est installée sur cet appareil.",
   Normal: 'Normal',
   'Not supported yet': 'Pas encore pris en charge',
+  'Match your native language too?': 'Adapter aussi votre langue maternelle ?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?':
+    "Vous venez de définir la langue de l'application sur {{language}}. Définir aussi « Je parle » sur cette langue ?",
+  'Match the app language too?': "Adapter aussi la langue de l'application ?",
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?':
+    "Vous venez de définir « Je parle » sur {{language}}. Changer aussi la langue de l'application ?",
+  'Yes, switch it': 'Oui, changer',
+  'No, keep it': 'Non, garder',
   'Nothing to add.': 'Rien à ajouter.',
   'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.':
     "Seulement la version de l'app, la plateforme et ton niveau de fonctionnalités actuel (Complet ou Traduction seule) — suffisant pour aider à reproduire un bug.",
@@ -3540,6 +3562,14 @@ const es: Partial<Record<Phrase, string>> = {
     'No hay voces de {{language}} instaladas en este dispositivo.',
   Normal: 'Normal',
   'Not supported yet': 'Aún no compatible',
+  'Match your native language too?': '¿Ajustar también tu idioma nativo?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?':
+    'Acabas de establecer el idioma de la app en {{language}}. ¿Establecer también "Hablo" para que coincida?',
+  'Match the app language too?': '¿Ajustar también el idioma de la app?',
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?':
+    'Acabas de establecer "Hablo" en {{language}}. ¿Cambiar también el idioma de la app para que coincida?',
+  'Yes, switch it': 'Sí, cambiarlo',
+  'No, keep it': 'No, mantenerlo',
   'Nothing to add.': 'No hay nada que añadir.',
   'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.':
     'Solo la versión de la app, la plataforma y tu nivel de funciones actual (Completo o Solo traducción); lo justo para ayudar a reproducir un error.',
@@ -4529,6 +4559,14 @@ const hi: Partial<Record<Phrase, string>> = {
   'No {{language}} voices are installed on this device.':
     'इस डिवाइस पर कोई {{language}} आवाज़ इंस्टॉल नहीं है।',
   'Not supported yet': 'अभी सपोर्टेड नहीं है',
+  'Match your native language too?': 'क्या आपकी मातृभाषा भी बदलें?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?':
+    'आपने अभी ऐप की भाषा {{language}} पर सेट की है। क्या "मैं बोलता/बोलती हूँ" भी इससे मिलाएं?',
+  'Match the app language too?': 'क्या ऐप की भाषा भी बदलें?',
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?':
+    'आपने अभी "मैं बोलता/बोलती हूँ" {{language}} पर सेट की है। क्या ऐप की भाषा भी इससे मिलाएं?',
+  'Yes, switch it': 'हाँ, बदलें',
+  'No, keep it': 'नहीं, ऐसे ही रहने दें',
   'Nothing to add.': 'जोड़ने के लिए कुछ नहीं है।',
   'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.':
     'सिर्फ़ ऐप वर्शन, प्लेटफ़ॉर्म, और आपका मौजूदा फ़ीचर टियर (Full या Translation-only) — बग को दोबारा समझने के लिए बस इतना काफ़ी है।',
@@ -5326,6 +5364,14 @@ const vi: Partial<Record<Phrase, string>> = {
   None: 'Không có',
   Normal: 'Bình thường',
   'Not supported yet': 'Chưa được hỗ trợ',
+  'Match your native language too?': 'Đổi luôn ngôn ngữ mẹ đẻ của bạn?',
+  'You just set the app language to {{language}}. Also set "I speak" to match?':
+    'Bạn vừa đặt ngôn ngữ ứng dụng thành {{language}}. Đặt luôn "Tôi nói" theo ngôn ngữ này?',
+  'Match the app language too?': 'Đổi luôn ngôn ngữ ứng dụng?',
+  'You just set "I speak" to {{language}}. Switch the app\'s own language to match?':
+    'Bạn vừa đặt "Tôi nói" thành {{language}}. Đổi luôn ngôn ngữ ứng dụng theo ngôn ngữ này?',
+  'Yes, switch it': 'Có, đổi',
+  'No, keep it': 'Không, giữ nguyên',
   'Nothing due right now': 'Hiện chưa có gì đến hạn',
   'Nothing due — study ahead': 'Chưa có gì đến hạn — học trước',
   'Nothing to add.': 'Không có gì để thêm.',

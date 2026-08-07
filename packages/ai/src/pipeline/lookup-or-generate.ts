@@ -34,6 +34,10 @@ export interface LookupOptions {
    * generation actually becomes visible/due in that deck. */
   deckId: string
   language?: LanguageCode
+  /** The learner's own language — explanations, translations, meanings and usage notes are
+   * written in it (see GenerationContext). Defaults to 'en', same as `language` defaulting to
+   * 'de' — preserves old behavior for callers that predate this option. */
+  nativeLanguage?: LanguageCode
   /** Defaults to true. False skips the `deck_cards` membership row so a plain search generates
    * (and fully persists) the word without silently adding it to a deck — see
    * persistWordGeneration's `options.addToDeck` for the underlying mechanics. */
@@ -65,6 +69,7 @@ export async function lookupOrGenerate(
 ): Promise<LookupOutcome> {
   const { db, ai, dictionary, cache, wordPackagePrompt } = deps
   const language = opts.language ?? 'de'
+  const nativeLanguage = opts.nativeLanguage ?? 'en'
   const startedAt = Date.now()
   const meta = { provider: ai.name, modelAlias: ai.model, sourceLanguage: language, cefrLevel: opts.cefrLevel }
 
@@ -80,9 +85,10 @@ export async function lookupOrGenerate(
     return { kind: 'existing', lemma: existing }
   }
 
-  // 2. Cache — same word, level and prompt version never hits the API twice.
+  // 2. Cache — same word, level, native language and prompt version never hits the API twice.
   const cacheKey = buildCacheKey({
     language,
+    nativeLanguage,
     word,
     cefrLevel: opts.cefrLevel,
     provider: ai.name,
@@ -114,11 +120,13 @@ export async function lookupOrGenerate(
     return { kind: 'generated', ...persisted, fromCache: true }
   }
 
-  // 3. Optional dictionary hint. Failure degrades to no-hint, never aborts.
+  // 3. Optional dictionary hint, translated into the learner's own language (not hardcoded
+  // English) so it matches the language generateWordPackage's meanings/explanations get written
+  // in. Failure degrades to no-hint, never aborts.
   let hint: { baselineTranslation: string } | undefined
   if (dictionary) {
     try {
-      const translation = await dictionary.translate(word, language, 'en')
+      const translation = await dictionary.translate(word, language, nativeLanguage)
       hint = { baselineTranslation: translation.data }
     } catch {
       log.warn('ai.dictionary_hint_failed', {
@@ -136,7 +144,7 @@ export async function lookupOrGenerate(
   })
   const result = await ai.generateWordPackage(
     word,
-    { cefrLevel: opts.cefrLevel, language },
+    { cefrLevel: opts.cefrLevel, language, nativeLanguage },
     hint,
   )
 

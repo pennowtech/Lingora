@@ -406,7 +406,7 @@ function formatTimeRemaining(remainingCards: number, avgMsPerCard: number): stri
  */
 export default function ReviewSessionScreen(): JSX.Element {
   const params = useLocalSearchParams<{ deckId: string; mode?: string; cardId?: string }>()
-  const { db, ai, tier, defaultCefr } = useServices()
+  const { db, ai, tier, defaultCefr, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -590,6 +590,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       const result = await ai.generateExamples(view.form, view.clusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
+        nativeLanguage,
       })
       return result.data[0]
     },
@@ -613,6 +614,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       const result = await ai.generateMeaning(view.form, view.clusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
+        nativeLanguage,
       })
       const generated = result.data[0]
       await updateMeaningText(
@@ -636,7 +638,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       const result = await ai.generateMeaning(
         view.form,
         view.clusterRef,
-        { cefrLevel: defaultCefr, language: view.language },
+        { cefrLevel: defaultCefr, language: view.language, nativeLanguage },
         question,
       )
       const generated = result.data[0]

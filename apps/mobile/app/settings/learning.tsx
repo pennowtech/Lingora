@@ -4,8 +4,16 @@ import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import { AlertModal, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
-import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
+import { AlertModal, Card, Chip, ConfirmModal, Dropdown, SectionHeader } from '../../components/ui'
+import { isAppLanguage, setAppLanguagePreference, type AppLanguage } from '../../lib/i18n'
+import {
+  DEFAULT_NATIVE_LANGUAGE,
+  DEFAULT_TARGET_LANGUAGE,
+  FULLY_SUPPORTED_VOCAB_LANGUAGES,
+  STORE_KEYS,
+  SUPPORTED_LANGUAGES,
+  useServices,
+} from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -26,20 +34,11 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
-/** Japanese/Spanish/Vietnamese show up in the language pickers (SUPPORTED_LANGUAGES) but nothing
- * in the generation/dictionary pipeline has real content for them yet — only English, German,
- * French, and Hindi are actually usable today (in either direction — a French speaker learning
- * German or English, an English/German speaker learning French, or a Hindi speaker/learner in
- * either direction all work, the last backed by the real bundled Hindi word-guide dictionary, see
- * lib/wordGuides.ts). Selecting one of the others warns instead of silently switching to a
- * language pair that won't work. */
-const FULLY_SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de', 'fr', 'hi']
-
 /** The "Learning" sub-screen: default CEFR level and the native/target vocabulary language pair.
  * The app's own UI language lives in Settings > General now, alongside Audio Settings — it's an
  * interface preference, not a learning preference. */
 export default function LearningScreen(): JSX.Element {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { reloadServices } = useServices()
   const styles = useThemedStyles(createStyles)
 
@@ -47,6 +46,9 @@ export default function LearningScreen(): JSX.Element {
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
+  // The "vice versa" half of general.tsx's app-language cross-prompt: offered right after a
+  // native-language change actually applies, not on every render — see setNativeLanguage below.
+  const [appLanguagePrompt, setAppLanguagePrompt] = useState<LanguageCode | null>(null)
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -113,7 +115,7 @@ export default function LearningScreen(): JSX.Element {
   // (search.tsx's auto-detect, the word/[form].tsx header) ambiguous, so each setter nudges the
   // other language out of the way rather than allowing that state.
   const setNativeLanguage = (language: LanguageCode): void => {
-    if (!FULLY_SUPPORTED_LANGUAGES.includes(language)) {
+    if (!FULLY_SUPPORTED_VOCAB_LANGUAGES.includes(language)) {
       warnUnsupportedLanguage(language)
       return
     }
@@ -128,9 +130,14 @@ export default function LearningScreen(): JSX.Element {
       message: 'Native language changed',
       metadata: { settingKey: 'nativeLanguage' },
     })
+    // Offer to keep the app's own UI language in sync too — only when the new native language is
+    // actually one the app can display itself in, and isn't already the active UI language.
+    if (isAppLanguage(language) && language !== i18n.language) {
+      setAppLanguagePrompt(language)
+    }
   }
   const setTargetLanguage = (language: LanguageCode): void => {
-    if (!FULLY_SUPPORTED_LANGUAGES.includes(language)) {
+    if (!FULLY_SUPPORTED_VOCAB_LANGUAGES.includes(language)) {
       warnUnsupportedLanguage(language)
       return
     }
@@ -190,6 +197,22 @@ export default function LearningScreen(): JSX.Element {
         title={notice?.title ?? ''}
         message={notice?.message ?? ''}
         onClose={() => setNotice(null)}
+      />
+
+      <ConfirmModal
+        visible={appLanguagePrompt !== null}
+        title={t('Match the app language too?')}
+        message={t('You just set "I speak" to {{language}}. Switch the app\'s own language to match?', {
+          language: appLanguagePrompt ? t(VOCAB_LANGUAGE_LABELS[appLanguagePrompt]) : '',
+        })}
+        onCancel={() => setAppLanguagePrompt(null)}
+        onConfirm={() => {
+          const language = appLanguagePrompt
+          setAppLanguagePrompt(null)
+          if (language) void setAppLanguagePreference(language as AppLanguage)
+        }}
+        confirmLabel={t('Yes, switch it')}
+        cancelLabel={t('No, keep it')}
       />
     </ScrollView>
   )

@@ -24,7 +24,7 @@ function fetchReturning(
   return fn
 }
 
-const ctx = { cefrLevel: 'B1', language: 'de' } as const
+const ctx = { cefrLevel: 'B1', language: 'de', nativeLanguage: 'en' } as const
 
 function provider(fetchFn: typeof fetch): OpenAIProvider {
   return new OpenAIProvider({ apiKey: 'sk-test', fetchFn })

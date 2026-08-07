@@ -296,6 +296,7 @@ export default function SearchScreen(): JSX.Element {
         cefrLevel: defaultCefr,
         deckId: DEFAULT_DECK_ID,
         language: targetLanguage,
+        nativeLanguage,
         addToDeck: false,
       })
       return { outcome, nativeTerm: reverseDirection ? requestTerm : undefined, requestTerm, myRequestId }

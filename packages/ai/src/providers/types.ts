@@ -37,10 +37,17 @@ export interface AIResult<T> {
 /**
  * CEFR level is required on every generation call, never optional — a B1
  * learner shown a C2 example doesn't learn faster, they lose confidence.
+ *
+ * `language` is the word/content being learned (lemma, examples, synonyms,
+ * phrases, cloze sentences); `nativeLanguage` is the learner's own language
+ * (translations, explanations, meanings, usage notes). Both required, same
+ * reasoning as cefrLevel — a silently-defaulted native language is how this
+ * package generated English explanations for non-English-native learners.
  */
 export interface GenerationContext {
   cefrLevel: CefrLevel
   language: LanguageCode
+  nativeLanguage: LanguageCode
 }
 
 /** Pins a generation call to one semantic context so contexts never bleed. */

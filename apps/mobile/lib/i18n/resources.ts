@@ -415,7 +415,7 @@ const ENGLISH_PHRASES = [
   'Local Dictionaries installed',
   'Installed {{count}} new chunks.',
   'Could not install local dictionaries',
-  'German-English Dictionary',
+  '{{language}}-English Dictionary',
   '{{installed}} installed · {{available}} available to install',
   'Install all available',
   'Chunks',
@@ -433,7 +433,7 @@ const ENGLISH_PHRASES = [
   'Details',
   'More info',
   'Hide details',
-  'Understanding the German {{wordClass}} "{{headword}}"',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"',
   'Usage',
   'Examples of Usage',
   'Noun',
@@ -1274,7 +1274,7 @@ const de: Partial<Record<Phrase, string>> = {
   'Local Dictionaries installed': 'Lokale Wörterbücher installiert',
   'Installed {{count}} new chunks.': '{{count}} neue Abschnitte installiert.',
   'Could not install local dictionaries': 'Lokale Wörterbücher konnten nicht installiert werden',
-  'German-English Dictionary': 'Deutsch-Englisch-Wörterbuch',
+  '{{language}}-English Dictionary': '{{language}}-Englisch-Wörterbuch',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} installiert · {{available}} verfügbar zum Installieren',
   'Install all available': 'Alle verfügbaren installieren',
@@ -1294,8 +1294,8 @@ const de: Partial<Record<Phrase, string>> = {
   'No dictionary entry to add.': 'Kein Wörterbucheintrag zum Hinzufügen.',
   'More info': 'Mehr Infos',
   'Hide details': 'Details ausblenden',
-  'Understanding the German {{wordClass}} "{{headword}}"':
-    'Das deutsche {{wordClass}} „{{headword}}" verstehen',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"':
+    'Das {{language}} {{wordClass}} „{{headword}}" verstehen',
   Usage: 'Verwendung',
   'Examples of Usage': 'Anwendungsbeispiele',
   Noun: 'Substantiv',
@@ -2274,7 +2274,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'Local Dictionaries installed': 'Dictionnaires locaux installés',
   'Installed {{count}} new chunks.': '{{count}} nouveaux segments installés.',
   'Could not install local dictionaries': "Impossible d'installer les dictionnaires locaux",
-  'German-English Dictionary': 'Dictionnaire allemand-anglais',
+  '{{language}}-English Dictionary': 'Dictionnaire {{language}}-anglais',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} installés · {{available}} disponibles à installer',
   'Install all available': 'Installer tout ce qui est disponible',
@@ -2294,8 +2294,8 @@ const fr: Partial<Record<Phrase, string>> = {
   Details: 'Détails',
   'More info': "Plus d'infos",
   'Hide details': 'Masquer les détails',
-  'Understanding the German {{wordClass}} "{{headword}}"':
-    'Comprendre le {{wordClass}} allemand « {{headword}} »',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"':
+    'Comprendre le {{wordClass}} {{language}} « {{headword}} »',
   'Examples of Usage': "Exemples d'usage",
   Noun: 'Nom',
   Verb: 'Verbe',
@@ -3264,7 +3264,7 @@ const es: Partial<Record<Phrase, string>> = {
   'Local Dictionaries installed': 'Diccionarios locales instalados',
   'Installed {{count}} new chunks.': '{{count}} fragmentos nuevos instalados.',
   'Could not install local dictionaries': 'No se pudieron instalar los diccionarios locales',
-  'German-English Dictionary': 'Diccionario alemán-inglés',
+  '{{language}}-English Dictionary': 'Diccionario {{language}}-inglés',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} instalados · {{available}} disponibles para instalar',
   'Install all available': 'Instalar todo lo disponible',
@@ -3284,8 +3284,8 @@ const es: Partial<Record<Phrase, string>> = {
   Details: 'Detalles',
   'More info': 'Más información',
   'Hide details': 'Ocultar detalles',
-  'Understanding the German {{wordClass}} "{{headword}}"':
-    'Entendiendo el {{wordClass}} alemán "{{headword}}"',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"':
+    'Entendiendo el {{wordClass}} {{language}} "{{headword}}"',
   Usage: 'Uso',
   'Examples of Usage': 'Ejemplos de uso',
   Noun: 'Sustantivo',
@@ -4255,7 +4255,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'Local Dictionaries installed': 'स्थानीय शब्दकोश इंस्टॉल हो गए',
   'Installed {{count}} new chunks.': '{{count}} नए हिस्से इंस्टॉल किए गए।',
   'Could not install local dictionaries': 'स्थानीय शब्दकोश इंस्टॉल नहीं हो सके',
-  'German-English Dictionary': 'जर्मन-अंग्रेज़ी शब्दकोश',
+  '{{language}}-English Dictionary': '{{language}}-अंग्रेज़ी शब्दकोश',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} इंस्टॉल किए गए · {{available}} इंस्टॉल के लिए उपलब्ध',
   'Install all available': 'सभी उपलब्ध इंस्टॉल करें',
@@ -4275,8 +4275,8 @@ const hi: Partial<Record<Phrase, string>> = {
   Details: 'विवरण',
   'More info': 'अधिक जानकारी',
   'Hide details': 'विवरण छुपाएं',
-  'Understanding the German {{wordClass}} "{{headword}}"':
-    'जर्मन {{wordClass}} "{{headword}}" को समझना',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"':
+    '{{language}} {{wordClass}} "{{headword}}" को समझना',
   Usage: 'उपयोग',
   'Examples of Usage': 'उपयोग के उदाहरण',
   Noun: 'संज्ञा',
@@ -5175,7 +5175,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'Generation came back incomplete — nothing was changed. Try again.':
     'Kết quả tạo nội dung bị thiếu — không có gì được thay đổi. Hãy thử lại.',
   German: 'Tiếng Đức',
-  'German-English Dictionary': 'Từ điển Đức-Anh',
+  '{{language}}-English Dictionary': 'Từ điển {{language}}-Anh',
   'Give the deck a name.': 'Đặt tên cho bộ thẻ.',
   'Go to platform.openai.com → Settings → Projects → select the project this key belongs to → Models → enable gpt-4o-mini-tts for that project.':
     'Vào platform.openai.com → Settings → Projects → chọn dự án mà khóa này thuộc về → Models → bật gpt-4o-mini-tts cho dự án đó.',
@@ -5600,8 +5600,8 @@ const vi: Partial<Record<Phrase, string>> = {
     'Gõ một từ bằng một trong hai ngôn ngữ bạn đã thiết lập trong mục Học tập — từ vựng của bạn được tìm ngay khi bạn gõ.',
   "Underneath each example, thumbs up/down let you mark whether it's good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense.":
     'Bên dưới mỗi ví dụ, nút thích/không thích cho phép bạn đánh dấu ví dụ đó tốt hay cần kiểm tra lại sau. Biểu tượng cờ báo cáo một vấn đề cụ thể (như cách diễn đạt không tự nhiên hoặc lỗi ngữ pháp) kèm ghi chú không bắt buộc. Mũi tên tròn tạo lại một loạt ví dụ mới cho nghĩa này.',
-  'Understanding the German {{wordClass}} "{{headword}}"':
-    'Hiểu về {{wordClass}} tiếng Đức "{{headword}}"',
+  'Understanding the {{language}} {{wordClass}} "{{headword}}"':
+    'Hiểu về {{wordClass}} {{language}} "{{headword}}"',
   Uninstall: 'Gỡ cài đặt',
   'Uninstall all': 'Gỡ cài đặt tất cả',
   'Uninstall all local dictionaries?': 'Gỡ cài đặt tất cả từ điển ngoại tuyến?',

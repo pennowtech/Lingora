@@ -26,8 +26,14 @@ import { fileURLToPath } from 'node:url'
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const chunksDir = path.join(__dirname, 'chunks')
-const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8'))
+
+const args = process.argv.slice(2)
+const languageFlagIndex = args.indexOf('--language')
+const language = languageFlagIndex !== -1 ? args[languageFlagIndex + 1] : null
+
+const baseDir = language && language !== 'de' ? path.join(__dirname, language) : __dirname
+const chunksDir = path.join(baseDir, 'chunks')
+const manifest = JSON.parse(fs.readFileSync(path.join(baseDir, 'manifest.json'), 'utf8'))
 
 const chunkFiles = fs
   .readdirSync(chunksDir)
@@ -50,7 +56,7 @@ for (const file of chunkFiles) {
 
 const byWordLower = new Map()
 for (const w of words) {
-  const key = w.word.toLocaleLowerCase('de')
+  const key = w.word.toLocaleLowerCase(language ?? 'de')
   if (!byWordLower.has(key)) byWordLower.set(key, [])
   byWordLower.get(key).push(w)
 }
@@ -63,7 +69,7 @@ if (duplicates.length > 0) {
   }
 }
 
-const sortedWords = [...words].sort((a, b) => a.word.localeCompare(b.word, 'de'))
+const sortedWords = [...words].sort((a, b) => a.word.localeCompare(b.word, language ?? 'de'))
 
 const output = {
   generatedAt: new Date().toISOString().slice(0, 10),
@@ -74,10 +80,11 @@ const output = {
 }
 
 fs.writeFileSync(
-  path.join(__dirname, 'generated-words.json'),
+  path.join(baseDir, 'generated-words.json'),
   `${JSON.stringify(output, null, 2)}\n`,
 )
 
 console.log(
-  `Wrote generated-words.json: ${sortedWords.length} words across ${chunkFiles.length} chunk(s).`,
+  `Wrote generated-words.json: ${sortedWords.length} words across ${chunkFiles.length} chunk(s) for language '${language ?? 'de'}'.`,
 )
+

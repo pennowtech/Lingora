@@ -1,0 +1,3578 @@
+{
+  "chunkIndex": 3,
+  "language": "hi",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.5-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-08-05",
+  "note": "Intermediate format — not yet a .lin file. WP3 converts this into a BackupPayload for import via importLinDeck. Content is AI-generated and has not been reviewed by a fluent Hindi speaker yet — treat as a first draft. Each entry has 4 examples: two plain (indicative), one conditional/subjunctive, one passive voice. All nouns are annotated with their grammatical gender (masculine/feminine). Common counterparts, opposites, and gender pairs in this same chunk (आदमी/महिला, पुरुष/स्त्री, शत्रु/दुश्मन, भोजन/फल/सब्ज़ी/दूध/चाय/रोटी/चावल/नमक/चीनी, कपड़ा/जूता/टोपी/थैला, दवा/बीमारी/अस्पताल/डॉक्टर, पुलिस/चोर/सिपाही/सेना/युद्ध/शांति, क्रोध/प्रेम, सफलता/असफलता/मेहनत, ज्ञान/बुद्धि/विचार/योजना, सच्चा/झूठा, सुखी/दुखी, अमीर/गरीब, मजबूत/कमजोर, भारी/हल्का, महंगा/सस्ता, लंबा/ऊंचा/चौड़ा/गहरा, मीठा/कड़वा/खट्टा/तीखा, जल्दी/धीरे, अचानक/लगातार, केवल/लगभग, जरूर/बिलकुल, खासकर/विशेषकर, जैसे/वैसे/वैसे भी, कम से कम/अधिक से अधिक, आमतौर पर/तुरंत, धीरे-धीरे/दरअसल/अंततः) were cross-referenced in their intros. Total entries this chunk: 100.",
+  "entries": [
+    {
+      "headword": "दौड़ना",
+      "partOfSpeech": "verb",
+      "translation": "to run",
+      "intro": "To run physically or to participate in a race. Cross-referenced with 'चलना' (to walk) and 'तेज़' (fast).",
+      "usage": "Intransitive verb. Does not take the agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "भागना",
+          "gloss": "to run away / flee"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह सुबह पार्क में दौड़ता है।",
+          "translation": "He runs in the park in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बच्चे मैदान में दौड़ रहे हैं।",
+          "translation": "The children are running in the field.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम तेज़ दौड़ते, तो बस पकड़ लेते।",
+          "translation": "If you had run fast, you would have caught the bus.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्रतियोगिता में धावकों द्वारा दौड़ा गया।",
+          "translation": "It was run by the runners in the competition. (Passive voice structure)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हंसना",
+      "partOfSpeech": "verb",
+      "translation": "to laugh",
+      "intro": "To laugh. Opposite of 'रोना' (to cry - #203). Can also mean to mock (हंसना + पर).",
+      "usage": "Intransitive verb. Does not take the postposition 'ने' in past tenses. Spelling note: sometimes written as हँसना.",
+      "synonyms": [
+        {
+          "word": "मुस्कुराना",
+          "gloss": "to smile"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह हमेशा चुटकुलों पर हंसता है।",
+          "translation": "He always laughs at jokes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बच्चा खिलखिलाकर हंस रहा है।",
+          "translation": "The child is laughing aloud.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वे आते, तो हम सब मिलकर हंसते।",
+          "translation": "If they had come, we would have all laughed together.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सभा में लोगों द्वारा हँसा गया।",
+          "translation": "It was laughed by the people in the meeting.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "रोना",
+      "partOfSpeech": "verb",
+      "translation": "to cry / weep",
+      "intro": "To cry or weep. Opposite of 'हंसना' (#202).",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses. Past participle is रोया.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "फिल्म देखकर वह रोने लगी।",
+          "translation": "She started crying after watching the movie.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बच्चा भूखा होने के कारण रोता है।",
+          "translation": "The child cries due to being hungry.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर वह सच बताता, तो कोई नहीं रोता।",
+          "translation": "If he told the truth, nobody would cry.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शोक सभा में महिलाओं द्वारा रोया गया।",
+          "translation": "It was wept by the women in the mourning assembly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खेलना",
+      "partOfSpeech": "verb",
+      "translation": "to play",
+      "intro": "To play a game, sport, or instrument/role. Related to 'मैदान' (field) and 'बच्चा' (child).",
+      "usage": "Transitive or intransitive verb. Takes postposition 'ने' in past transitive contexts.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "लड़के शाम को क्रिकेट खेलते हैं।",
+          "translation": "The boys play cricket in the evening.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने कल एक नया खेल खेला।",
+          "translation": "He played a new game yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आज बारिश न होती, तो हम बाहर खेलते।",
+          "translation": "If it had not rained today, we would have played outside.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बच्चों द्वारा मैदान में फुटबॉल खेला गया।",
+          "translation": "Football was played by the children in the field.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गाना",
+      "partOfSpeech": "verb / noun",
+      "gender": "masculine",
+      "translation": "to sing / song",
+      "intro": "Acts as a verb meaning to sing, or a masculine noun meaning a song. Related to 'संगीत' (music).",
+      "usage": "Verb is transitive. Takes agentive postposition 'ने' in past tenses. Noun is masculine, plural is also गाना or गाने.",
+      "synonyms": [
+        {
+          "word": "गीत",
+          "gloss": "song"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह बहुत मधुर गाना गाती है।",
+          "translation": "She sings a very sweet song. (Noun + Verb usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम सबने मिलकर एक पुराना गाना गाया।",
+          "translation": "We all sang an old song together. (Noun + Verb usage with 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम कहते, तो मैं भी एक गाना गाता।",
+          "translation": "If you had asked, I would have also sung a song.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गायिका द्वारा सुंदर भजन गाया गया।",
+          "translation": "A beautiful hymn was sung by the singer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नाचना",
+      "partOfSpeech": "verb",
+      "translation": "to dance",
+      "intro": "To dance or perform rhythmic body movements. Related to 'संगीत' (music) and 'गाना' (#205).",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "नृत्य करना",
+          "gloss": "to dance (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लड़कियाँ शादी में नाच रही हैं।",
+          "translation": "The girls are dancing at the wedding.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मयूर बारिश में नाचता है।",
+          "translation": "The peacock dances in the rain.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम संगीत बजाते, तो वे भी नाचते।",
+          "translation": "If you played music, they would dance too.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कलाकारों द्वारा मंच पर नाचा गया।",
+          "translation": "It was danced by the artists on the stage.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सीखना",
+      "partOfSpeech": "verb",
+      "translation": "to learn",
+      "intro": "To acquire knowledge or skill. Opposite of 'सिखाना' (to teach - #208) and related to 'स्कूल' (school).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "अध्ययन करना",
+          "gloss": "to study"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं हिंदी बोलना सीख रहा हूँ।",
+          "translation": "I am learning to speak Hindi.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने बहुत जल्दी तैरना सीख लिया।",
+          "translation": "He learned to swim very quickly. (Compound verb)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम ध्यान से सुनते, तो नया सबक सीख लेते।",
+          "translation": "If you listened carefully, you would have learned the new lesson.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कक्षा में विद्यार्थियों द्वारा पाठ सीखा गया।",
+          "translation": "The lesson was learned by the students in the class.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सिखाना",
+      "partOfSpeech": "verb",
+      "translation": "to teach / guide",
+      "intro": "To teach or guide someone. Opposite of 'सीखना' (#207) and related to 'शिक्षक' (teacher).",
+      "usage": "Transitive causative verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "पढ़ाना",
+          "gloss": "to teach / educate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पिता अपने बेटे को गाड़ी चलाना सिखाते हैं।",
+          "translation": "The father teaches his son to drive a car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शिक्षिका ने हमें एक नया नियम सिखाया।",
+          "translation": "The teacher taught us a new rule. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर शिक्षक आते, तो वे हमें गणित सिखाते।",
+          "translation": "If the teacher had come, he would have taught us mathematics.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बच्चों को बड़ों द्वारा अच्छी आदतें सिखाई गईं।",
+          "translation": "Good habits were taught to the children by the elders.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बेचना",
+      "partOfSpeech": "verb",
+      "translation": "to sell",
+      "intro": "To give goods in exchange for money. Opposite of 'खरीदना' (#210) and related to 'दुकान' (shop) and 'पैसा' (money).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses. Irregular past form: बेचा.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह बाज़ार में ताज़ी सब्जियाँ बेचता है।",
+          "translation": "He sells fresh vegetables in the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दुकानदार ने अपनी पुरानी गाड़ी बेच दी।",
+          "translation": "The shopkeeper sold his old car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर ग्राहक आता, तो दुकानदार सामान बेच देता।",
+          "translation": "If a customer had come, the shopkeeper would have sold the goods.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कल हमारे द्वारा पुराना मकान बेचा गया।",
+          "translation": "Yesterday, the old house was sold by us.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खरीदना",
+      "partOfSpeech": "verb",
+      "translation": "to buy / purchase",
+      "intro": "To obtain goods by paying money. Opposite of 'बेचना' (#209).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses. Pronunciation note: also spelled ख़रीदना.",
+      "synonyms": [
+        {
+          "word": "क्रय करना",
+          "gloss": "to purchase (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं आज बाज़ार से फल खरीदूँगा।",
+          "translation": "I will buy fruits from the market today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने एक नई किताब खरीदी।",
+          "translation": "He bought a new book. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर मेरे पास पैसे होते, तो मैं यह गाड़ी खरीदता।",
+          "translation": "If I had money, I would have bought this car.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह मकान मेरे पिता द्वारा खरीदा गया था।",
+          "translation": "This house was bought by my father.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "भेजना",
+      "partOfSpeech": "verb",
+      "translation": "to send / dispatch",
+      "intro": "To dispatch mail, package, message, or person to a destination.",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "प्रेषित करना",
+          "gloss": "to send / dispatch"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं हर हफ़्ते माँ को पैसे भेजता हूँ।",
+          "translation": "I send money to mother every week.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने मुझे एक ईमेल भेजा है।",
+          "translation": "He has sent me an email.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वे बुलाते, तो हम पत्र भेजते।",
+          "translation": "If they had requested, we would have sent a letter.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सामान डाकिया द्वारा भेजा गया है।",
+          "translation": "The luggage has been sent by the postman.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खोलना",
+      "partOfSpeech": "verb",
+      "translation": "to open / untie / start a shop",
+      "intro": "To open a door/window/box, untie a knot, or start a business. Opposite of 'बंद करना' (#213).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "कृपया कमरे की खिड़की खोल दीजिए।",
+          "translation": "Please open the room window.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने चाबी से ताला खोला।",
+          "translation": "He opened the lock with a key. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सुबह होती, तो हम दुकान खोलते।",
+          "translation": "If it were morning, we would have opened the shop.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सभी दस्तावेज़ अधिकारियों द्वारा खोले गए।",
+          "translation": "All documents were opened by the officers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बंद करना",
+      "partOfSpeech": "verb",
+      "translation": "to close / shut / turn off",
+      "intro": "To close a door, shut down a machine/light, or stop an activity. Opposite of 'खोलना' (#212).",
+      "usage": "Transitive compound verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "सोने से पहले टीवी बंद कर देना।",
+          "translation": "Turn off the TV before sleeping.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने कमरे का दरवाज़ा बंद कर दिया।",
+          "translation": "He closed the door of the room. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम बाहर जाते, तो मैं गेट बंद कर देता।",
+          "translation": "If you had gone outside, I would have closed the gate.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कारखाना सरकार द्वारा बंद किया गया।",
+          "translation": "The factory was closed by the government.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "धोना",
+      "partOfSpeech": "verb",
+      "translation": "to wash / cleanse",
+      "intro": "To wash clothes, dishes, hands, or body parts. Related to 'पानी' (water) and 'साफ़ करना' (#215).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses. Past participle: धोया.",
+      "synonyms": [
+        {
+          "word": "स्वच्छ करना",
+          "gloss": "to cleanse / clean"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "खाना खाने से पहले हाथ धोना चाहिए।",
+          "translation": "One must wash hands before eating food.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "धोबी ने सारे कपड़े धो दिए हैं।",
+          "translation": "The washerman has washed all the clothes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यहाँ पानी होता, तो मैं गाड़ी धो लेता।",
+          "translation": "If there were water here, I would have washed the car.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सारे गंदे बर्तन नौकर द्वारा धोए गए।",
+          "translation": "All dirty dishes were washed by the servant.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "साफ़ करना",
+      "partOfSpeech": "verb",
+      "translation": "to clean / clear",
+      "intro": "To clean a space, object, or clear a path. Related to adjective 'साफ़' (clean).",
+      "usage": "Transitive compound verb. Takes agentive postposition 'ने' in past tenses. Spelling note: also written as साफ करना.",
+      "synonyms": [
+        {
+          "word": "स्वच्छ करना",
+          "gloss": "to clean"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह रोज़ अपना कमरा साफ़ करता है।",
+          "translation": "He cleans his room every day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नौकरानी ने आज पूरा घर साफ़ कर दिया।",
+          "translation": "The maid cleaned the entire house today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम कहते, तो मैं मेज साफ़ कर देता।",
+          "translation": "If you asked, I would have cleaned the table.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह सड़क कर्मचारियों द्वारा साफ़ की गई।",
+          "translation": "This road was cleaned by the workers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मदद करना",
+      "partOfSpeech": "verb",
+      "translation": "to help / assist",
+      "intro": "To help or assist someone. Takes the genitive postposition 'की' before it (की मदद करना).",
+      "usage": "Transitive compound verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "सहायता करना",
+          "gloss": "to help / assist (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हमें हमेशा गरीबों की मदद करनी चाहिए।",
+          "translation": "We should always help the poor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने परीक्षा में मेरी मदद की थी।",
+          "translation": "He had helped me in the exam. (परीक्षा f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर वह माँगता, तो मैं उसकी मदद करता।",
+          "translation": "If he asked, I would have helped him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ पीड़ितों की स्वयंसेवकों द्वारा मदद की गई।",
+          "translation": "Help was given to the flood victims by the volunteers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तैयार करना",
+      "partOfSpeech": "verb",
+      "translation": "to prepare / make ready",
+      "intro": "To prepare food, lesson, plans, or get someone ready. Related to 'तैयार' (ready).",
+      "usage": "Transitive compound verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "बनाना",
+          "gloss": "to make / build"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रसोइया रात का भोजन तैयार कर रहा है।",
+          "translation": "The cook is preparing dinner (night food).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शिक्षिका ने नया पाठ्यक्रम तैयार किया।",
+          "translation": "The teacher prepared the new syllabus. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम समय पर आते, तो मैं चाय तैयार करता।",
+          "translation": "If you came on time, I would have prepared tea.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह रिपोर्ट विशेषज्ञों द्वारा तैयार की गई है।",
+          "translation": "This report has been prepared by experts.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "याद करना",
+      "partOfSpeech": "verb",
+      "translation": "to remember / memorize / miss someone",
+      "intro": "To remember, recall information (memorize), or miss a loved one.",
+      "usage": "Transitive compound verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "स्मरण करना",
+          "gloss": "to remember / recall"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "विद्यार्थी परीक्षा के लिए पाठ याद कर रहे हैं।",
+          "translation": "The students are memorizing the lesson for the exam.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माँ ने बचपन के दिनों को याद किया।",
+          "translation": "Mother remembered the childhood days. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम बुलाते, तो मैं तुम्हें याद करता।",
+          "translation": "If you had called, I would have remembered you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस महान नेता को देश द्वारा हमेशा याद किया जाएगा।",
+          "translation": "This great leader will always be remembered by the country.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "भूलना",
+      "partOfSpeech": "verb",
+      "translation": "to forget / make a mistake",
+      "intro": "To forget an object, date, or to make a mistake. Opposite of 'याद करना' (#218).",
+      "usage": "Transitive verb, but historically irregular: usually does NOT take agentive postposition 'ने' in past tenses (e.g. मैं भूल गया).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "वह अक्सर अपना चश्मा भूल जाता है।",
+          "translation": "He often forgets his glasses.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैं उसका नाम पूरी तरह भूल गया।",
+          "translation": "I completely forgot his name. (No 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह लिख लेता, तो पता नहीं भूलता।",
+          "translation": "If he had written it down, he would not have forgotten the address.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पुरानी घटना लोगों द्वारा भुलाई जा चुकी है।",
+          "translation": "This old event has already been forgotten by the people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सजाना",
+      "partOfSpeech": "verb",
+      "translation": "to decorate / arrange",
+      "intro": "To decorate a room, stage, or arrange objects beautifully. Related to 'कमरा' (room).",
+      "usage": "Transitive verb. Takes agentive postposition 'ने' in past tenses.",
+      "synonyms": [
+        {
+          "word": "अलंकृत करना",
+          "gloss": "to decorate (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वे त्योहार के लिए घर सजाते हैं।",
+          "translation": "They decorate the house for the festival.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बहन ने अपने कमरे को फूलों से सजाया।",
+          "translation": "The sister decorated her room with flowers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेहमान आते, तो हम पूरा घर सजाते।",
+          "translation": "If guests were coming, we would have decorated the whole house.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विवाह मंडप को कलाकारों द्वारा सजाया गया।",
+          "translation": "The wedding pavilion was decorated by the artists.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "आदमी",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "man / human / person",
+      "intro": "A male human adult, or generally a person/human. Opposite of 'महिला' (#222) and 'स्त्री' (#224).",
+      "usage": "Masculine noun. Plural form remains आदमी in direct case. Oblique plural is आदमियों.",
+      "synonyms": [
+        {
+          "word": "पुरुष",
+          "gloss": "male / man"
+        },
+        {
+          "word": "मानव",
+          "gloss": "human / mankind"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह आदमी दुकान के बाहर खड़ा है।",
+          "translation": "That man is standing outside the shop.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सभी आदमी सभा में उपस्थित थे।",
+          "translation": "All men were present in the meeting. (Plural direct)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह आदमी आता, तो मैं उससे बात करता।",
+          "translation": "If that man had come, I would have spoken to him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "एक अजनबी आदमी द्वारा पुलिस को सूचना दी गई।",
+          "translation": "Information was given to the police by a stranger man.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "महिला",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "woman / lady",
+      "intro": "A female human adult, polite address for a lady. Opposite of 'पुरुष' (#223) or 'आदमी' (#221).",
+      "usage": "Feminine noun. Plural: महिलाएँ. Oblique plural: महिलाओं.",
+      "synonyms": [
+        {
+          "word": "स्त्री",
+          "gloss": "woman / female"
+        },
+        {
+          "word": "नारी",
+          "gloss": "woman / female (literary)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह महिला बहुत दयालु है।",
+          "translation": "This woman is very kind.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कमिटी में कई महिलाएँ शामिल हैं।",
+          "translation": "Several women are included in the committee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर वह महिला यहाँ होती, तो समस्या हल हो जाती।",
+          "translation": "If that lady were here, the problem would be solved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "एक बुजुर्ग महिला द्वारा कहानी सुनाई गई।",
+          "translation": "The story was narrated by an elderly woman.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पुरुष",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "male / man",
+      "intro": "A male human being, or a man (more formal/literary than 'आदमी'). Opposite of 'स्त्री' (#224).",
+      "usage": "Masculine noun. Plural is पुरुष in direct case. Oblique plural is पुरुषों.",
+      "synonyms": [
+        {
+          "word": "नर",
+          "gloss": "male / man"
+        },
+        {
+          "word": "आदमी",
+          "gloss": "man / person"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कार्यालय में अधिक पुरुष काम करते हैं।",
+          "translation": "More men work in the office.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस विभाग में केवल एक पुरुष अधिकारी है।",
+          "translation": "There is only one male officer in this department.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज में पुरुष और स्त्री बराबर होते, तो देश प्रगति करता।",
+          "translation": "If men and women were equal in society, the country would progress.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह भारी सामान पुरुषों द्वारा उठाया गया।",
+          "translation": "This heavy luggage was lifted by men.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "स्त्री",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "female / woman",
+      "intro": "A female human being, or a woman. Opposite of 'पुरुष' (#223).",
+      "usage": "Feminine noun. Plural direct: स्त्रियाँ. Oblique plural: स्त्रियों.",
+      "synonyms": [
+        {
+          "word": "महिला",
+          "gloss": "lady / woman"
+        },
+        {
+          "word": "नारी",
+          "gloss": "woman (literary)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारत में हर स्त्री का सम्मान होता है।",
+          "translation": "Every woman is respected in India.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गाँव की स्त्रियाँ कुएँ से पानी लाती हैं।",
+          "translation": "The village women bring water from the well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि स्त्री शिक्षित हो, तो पूरा परिवार बढ़ता है।",
+          "translation": "If a woman is educated, the entire family grows.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह नियम केवल स्त्रियों द्वारा माना गया।",
+          "translation": "This rule was followed only by women.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "शिशु",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "baby / infant",
+      "intro": "A very young child, infant, or newborn baby. Related to 'बच्चा' (child).",
+      "usage": "Masculine noun. Plural direct is शिशु. Oblique plural is शिशुओं.",
+      "synonyms": [
+        {
+          "word": "बच्चा",
+          "gloss": "child"
+        },
+        {
+          "word": "बालक",
+          "gloss": "young boy / child"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शिशु पालने में सो रहा है।",
+          "translation": "The baby is sleeping in the cradle. (पालना m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माँ अपने शिशु को प्यार करती है।",
+          "translation": "The mother loves her baby.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि शिशु जागता, तो वह मुस्कुराता।",
+          "translation": "If the baby woke up, he would smile.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नर्स द्वारा रोते हुए शिशु को संभाला गया।",
+          "translation": "The crying baby was handled by the nurse.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "परिवार",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "family",
+      "intro": "A household of parents and children, or relatives collectively. Related to 'माँ' (mother) and 'पिता' (father).",
+      "usage": "Masculine noun. Plural direct is परिवार. Oblique plural: परिवारों.",
+      "synonyms": [
+        {
+          "word": "कुटुंब",
+          "gloss": "family / household"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरा परिवार बहुत बड़ा है।",
+          "translation": "My family is very big.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे अपने परिवार के साथ दिल्ली में रहते हैं।",
+          "translation": "They live in Delhi with their family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर परिवार साथ होता, तो मैं अकेला महसूस नहीं करता।",
+          "translation": "If family were with me, I would not feel lonely.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह समारोह पूरे परिवार द्वारा मनाया गया।",
+          "translation": "This celebration was celebrated by the whole family.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "शत्रु",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "enemy / foe",
+      "intro": "An enemy or foe (more formal/literary than 'दुश्मन'). Opposite of 'मित्र' / 'दोस्त' (friend).",
+      "usage": "Masculine noun. Plural direct is शत्रु. Oblique plural: शत्रुओं.",
+      "synonyms": [
+        {
+          "word": "दुश्मन",
+          "gloss": "enemy"
+        },
+        {
+          "word": "विरोधी",
+          "gloss": "opponent / rival"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "युद्ध में सेना ने शत्रु को पराजित किया।",
+          "translation": "In the war, the army defeated the enemy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हमें कभी किसी को अपना शत्रु नहीं समझना चाहिए।",
+          "translation": "We should never consider anyone our enemy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर शत्रु शक्तिशाली होता, तो लड़ाई कठिन हो जाती।",
+          "translation": "If the enemy were powerful, the fight would have become difficult.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शत्रु द्वारा नगर पर हमला किया गया।",
+          "translation": "An attack was made on the city by the enemy.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दुश्मन",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "enemy / adversary",
+      "intro": "An enemy or adversary (standard conversational word). Opposite of 'दोस्त' (friend).",
+      "usage": "Masculine noun. Plural direct is दुश्मन. Oblique plural: दुश्मनों.",
+      "synonyms": [
+        {
+          "word": "शत्रु",
+          "gloss": "enemy (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह अपने दुश्मन से कभी बात नहीं करता।",
+          "translation": "He never talks to his enemy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दोनों पड़ोसी एक-दूसरे के दुश्मन बन गए।",
+          "translation": "Both neighbors became enemies of each other.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम उसे दुश्मन न मानते, तो वह तुम्हारी मदद करता।",
+          "translation": "If you didn't consider him an enemy, he would have helped you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दुश्मन द्वारा सीमा पार करने का प्रयास किया गया।",
+          "translation": "An attempt to cross the border was made by the enemy.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "भोजन",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "food / meal",
+      "intro": "Food or a meal (formal Sanskritized term, equivalent to 'खाना'). Related to 'रसोई' (kitchen).",
+      "usage": "Masculine noun. Plural is भोजन in direct case. Oblique plural: भोजनों (rare).",
+      "synonyms": [
+        {
+          "word": "खाना",
+          "gloss": "food / meal"
+        },
+        {
+          "word": "आहार",
+          "gloss": "diet / food"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय भोजन दुनिया भर में प्रसिद्ध है।",
+          "translation": "Indian food is famous all over the world.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कृपया समय पर भोजन कर लीजिए।",
+          "translation": "Please have your meal on time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि भोजन स्वादिष्ट होता, तो सब लोग अधिक खाते।",
+          "translation": "If the food were delicious, everyone would eat more.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मेहमानों द्वारा भरपेट भोजन किया गया।",
+          "translation": "A full meal was eaten by the guests.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "फल",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "fruit / result",
+      "intro": "A physical fruit, or metaphorically the result/consequence of actions.",
+      "usage": "Masculine noun. Plural direct: फल. Oblique plural: फलों.",
+      "synonyms": [
+        {
+          "word": "परिणाम",
+          "gloss": "result / consequence"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ताज़े फल खाना स्वास्थ्य के लिए अच्छा है।",
+          "translation": "Eating fresh fruits is good for health.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेहनत का फल हमेशा मीठा होता है।",
+          "translation": "The fruit of hard work is always sweet. (Metaphorical)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम पेड़ लगाते, तो आज तुम्हें फल मिलते।",
+          "translation": "If you had planted a tree, today you would get fruits.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गरीबों में मुफ्त फल बांटे गए।",
+          "translation": "Free fruits were distributed among the poor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सब्ज़ी",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "vegetable / vegetable dish",
+      "intro": "A raw vegetable, or a cooked vegetable dish. Cross-referenced with 'फल' (#230).",
+      "usage": "Feminine noun. Plural direct: सब्जियाँ. Oblique plural: सब्जियों. Spelling note: also written as सब्जी.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "बाज़ार में हरी सब्ज़ी महंगी हो गई है।",
+          "translation": "Green vegetables have become expensive in the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माँ ने आलू की सब्ज़ी बनाई है।",
+          "translation": "Mother has cooked a potato dish.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम ताज़ी सब्ज़ी लाते, तो खाना स्वादिष्ट बनता।",
+          "translation": "If you had brought fresh vegetables, the food would have been delicious.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाज़ार में विक्रेताओं द्वारा सब्ज़ी बेची जा रही थी।",
+          "translation": "Vegetables were being sold by the vendors in the market.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दूध",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "milk",
+      "intro": "Milk, a vital nutrient. Related to 'गाय' (cow) and 'चाय' (#233).",
+      "usage": "Masculine noun. Uncountable, plural forms are rarely used in conversational Hindi.",
+      "synonyms": [
+        {
+          "word": "दुग्ध",
+          "gloss": "milk (formal Sanskritized)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बच्चा रात को दूध पीता है।",
+          "translation": "The child drinks milk at night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दूध स्वास्थ्य के लिए बहुत आवश्यक है।",
+          "translation": "Milk is very essential for health.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दूध गर्म होता, तो मैं उसमें चीनी डालता।",
+          "translation": "If the milk were hot, I would put sugar in it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बिल्ली द्वारा सारा दूध पी लिया गया।",
+          "translation": "All the milk was drunk by the cat.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चाय",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "tea",
+      "intro": "Tea, a highly popular hot beverage in India. Related to 'दूध' (#232) and 'चीनी' (#237).",
+      "usage": "Feminine noun. Uncountable. Plural (चायें) is rarely used.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "भारतीय लोग सुबह गर्म चाय पीते हैं।",
+          "translation": "Indian people drink hot tea in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कृपया मेरे लिए एक कप चाय बनाइए।",
+          "translation": "Please make a cup of tea for me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चाय मीठी होती, तो मेहमान उसे पसंद करते।",
+          "translation": "If the tea were sweet, the guests would like it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दुकानदार द्वारा ग्राहकों के लिए चाय बनाई गई।",
+          "translation": "Tea was made for the customers by the shopkeeper.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "रोटी",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "bread / flatbread / food",
+      "intro": "A traditional Indian flatbread (roti), or colloquially refers to general livelihood/food (e.g. रोटी-कपड़ा).",
+      "usage": "Feminine noun. Plural direct: रोटियाँ. Oblique plural: रोटियों.",
+      "synonyms": [
+        {
+          "word": "चपाती",
+          "gloss": "chapati / flatbread"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "माँ रसोई में गरम रोटी बना रही है।",
+          "translation": "Mother is making hot rotis in the kitchen. (रसोई f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह दोपहर के भोजन में दो रोटी खाता है।",
+          "translation": "He eats two rotis for lunch.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तवा गर्म होता, तो रोटी अच्छे से पकती।",
+          "translation": "If the griddle were hot, the roti would have cooked well. (तवा m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "भूखे गरीब को हमारे द्वारा रोटी दी गई।",
+          "translation": "Roti was given to the hungry poor by us.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चावल",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "rice / grains of rice",
+      "intro": "Rice grains, or cooked rice. Related to 'दाल' (lentils) and 'भोजन' (#229).",
+      "usage": "Masculine noun. Often used in singular to refer to the grain type, or plural contextually. Plural form remains चावल.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "दक्षिण भारत में लोग चावल अधिक खाते हैं।",
+          "translation": "In South India, people eat rice more.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "थाली में थोड़ा सा चावल बचा हुआ है।",
+          "translation": "A little rice is left on the plate. (थाली f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम चावल उबालते, तो वह जल्दी पक जाता।",
+          "translation": "If we boiled the rice, it would have cooked quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "किसान द्वारा खेतों में चावल उगाया जाता है।",
+          "translation": "Rice is grown in the fields by the farmer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नमक",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "salt / loyalty",
+      "intro": "Table salt, or metaphorically loyalty (e.g. नमक हलाल - loyal). Related to 'भोजन' (#229).",
+      "usage": "Masculine noun. Uncountable.",
+      "synonyms": [
+        {
+          "word": "लवण",
+          "gloss": "salt (Sanskritized)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सब्ज़ी में नमक बहुत कम है।",
+          "translation": "Salt is very low in the vegetable dish.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अधिक नमक खाना स्वास्थ्य के लिए हानिकारक है।",
+          "translation": "Eating too much salt is harmful to health.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर भोजन में नमक न होता, तो वह बेस्वाद लगता।",
+          "translation": "If there were no salt in the food, it would taste bland.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नमक कानून महात्मा गांधी द्वारा तोड़ा गया था।",
+          "translation": "The salt law was broken by Mahatma Gandhi. (Historical context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चीनी",
+      "partOfSpeech": "noun / adjective / language",
+      "gender": "feminine",
+      "translation": "sugar / Chinese",
+      "intro": "Acts as a feminine noun meaning sugar, a feminine noun/adjective meaning the Chinese language/people.",
+      "usage": "As sugar, feminine noun, uncountable. As adjective/language, invariable.",
+      "synonyms": [
+        {
+          "word": "शक्कर",
+          "gloss": "sugar"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चाय में दो चम्मच चीनी डालिए।",
+          "translation": "Put two spoons of sugar in the tea. (चम्मच f/m - usually m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह चीनी भाषा सीख रहा है।",
+          "translation": "He is learning the Chinese language. (Language usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम खीर में चीनी डालते, तो वह मीठी बनती।",
+          "translation": "If you put sugar in the rice pudding, it would taste sweet. (खीर f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाज़ार से दुकानदार द्वारा चीनी लाई गई।",
+          "translation": "Sugar was brought from the market by the shopkeeper.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कपड़ा",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "cloth / clothing / garment",
+      "intro": "A piece of cloth, or general clothing/garment. Related to 'जूता' (#239).",
+      "usage": "Masculine noun. Plural direct: कपड़े. Oblique plural: कपड़ों. Oblique singular: कपड़े.",
+      "synonyms": [
+        {
+          "word": "वस्त्र",
+          "gloss": "clothing / cloth"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह कपड़ा बहुत नरम और सुंदर है।",
+          "translation": "This cloth is very soft and beautiful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने बाज़ार से नए कपड़े खरीदे।",
+          "translation": "He bought new clothes from the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दर्जी होता, तो वह मेरा कपड़ा सिल देता।",
+          "translation": "If the tailor were here, he would have stitched my cloth. (दर्जी m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "धोबी द्वारा गंदा कपड़ा साफ़ किया गया।",
+          "translation": "The dirty cloth was cleaned by the washerman.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जूता",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "shoe / footwear",
+      "intro": "A shoe or footwear. Related to 'कपड़ा' (#238) and 'पांव' (foot).",
+      "usage": "Masculine noun. Plural direct: जूते. Oblique plural: जूतों. Oblique singular: जूते.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "मेरा नया जूता थोड़ा तंग है।",
+          "translation": "My new shoe is a bit tight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मंदिर के बाहर जूते उतार दीजिए।",
+          "translation": "Take off your shoes outside the temple.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह जूता मेरे नाप का होता, तो मैं पहन लेता।",
+          "translation": "If that shoe were my size, I would have worn it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "टूटा हुआ जूता मोची द्वारा ठीक किया गया।",
+          "translation": "The broken shoe was repaired by the cobbler. (मोची m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "टोपी",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "hat / cap / cover",
+      "intro": "A hat or cap worn on the head, or a cover/lid.",
+      "usage": "Feminine noun. Plural direct: टोपियाँ. Oblique plural: टोपियों.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "किसान धूप से बचने के लिए टोपी पहनता है।",
+          "translation": "The farmer wears a hat to avoid the sun.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुलिस की टोपी का रंग नीला है।",
+          "translation": "The color of the police cap is blue.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हवा तेज़ होती, तो तुम्हारी टोपी उड़ जाती।",
+          "translation": "If the wind were strong, your hat would have blown away.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लाल टोपी बच्चे द्वारा खरीदी गई।",
+          "translation": "The red cap was bought by the child.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "थैला",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bag / sack",
+      "intro": "A bag or sack for carrying vegetables, groceries, or books.",
+      "usage": "Masculine noun. Plural direct: थैले. Oblique plural: थैलों. Oblique singular: थैले.",
+      "synonyms": [
+        {
+          "word": "बस्ता",
+          "gloss": "school bag"
+        },
+        {
+          "word": "झोला",
+          "gloss": "shoulder bag"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह बाज़ार जाते समय हाथ में थैला रखता है।",
+          "translation": "He keeps a bag in his hand while going to the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह थैला किताबों से भरा हुआ है।",
+          "translation": "This bag is filled with books.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि थैला मजबूत होता, तो वह न फटता।",
+          "translation": "If the bag were strong, it would not have torn.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सामान पुराने थैले में रखा गया।",
+          "translation": "The luggage was placed in the old bag.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दवा",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "medicine / cure / drug",
+      "intro": "Medicine or cure for an illness. Related to 'बीमारी' (#243) and 'अस्पताल' (#244).",
+      "usage": "Feminine noun. Plural direct: दवाएँ. Oblique plural: दवाओं.",
+      "synonyms": [
+        {
+          "word": "औषधि",
+          "gloss": "medicine (formal Sanskritized)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "डॉक्टर ने मरीज को कड़वी दवा दी।",
+          "translation": "The doctor gave bitter medicine to the patient.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह दवा दिन में तीन बार खानी है।",
+          "translation": "This medicine has to be taken (eaten) three times a day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रोगी समय पर दवा लेता, तो वह ठीक हो जाता।",
+          "translation": "If the patient took medicine on time, he would recover. (रोगी m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मरीज को नर्स द्वारा दवा दी गई।",
+          "translation": "Medicine was given to the patient by the nurse.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बीमारी",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "illness / disease / sickness",
+      "intro": "Sickness, illness, or disease. Related to 'दवा' (#242) and 'कमजोर' (weak).",
+      "usage": "Feminine noun. Plural direct: बीमारियाँ. Oblique plural: बीमारियों.",
+      "synonyms": [
+        {
+          "word": "रोग",
+          "gloss": "disease / illness (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गंदा पानी पीने से बीमारी फैलती है।",
+          "translation": "Drinking dirty water spreads illness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह एक गंभीर बीमारी से पीड़ित है।",
+          "translation": "He is suffering from a serious illness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर गाँव में सफ़ाई होती, तो बीमारी न फैलती।",
+          "translation": "If there were cleanliness in the village, illness would not spread.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इस खतरनाक बीमारी का इलाज डॉक्टरों द्वारा खोजा गया।",
+          "translation": "The cure for this dangerous disease was discovered by doctors. (इलाज m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अस्पताल",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "hospital",
+      "intro": "A medical facility (hospital). Related to 'डॉक्टर' (#245) and 'दवा' (#242). Loanword from English 'hospital'.",
+      "usage": "Masculine noun. Plural direct: अस्पताल. Oblique plural: अस्पतालों.",
+      "synonyms": [
+        {
+          "word": "चिकित्सालय",
+          "gloss": "hospital (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शहर का सरकारी अस्पताल बहुत बड़ा है।",
+          "translation": "The government hospital of the city is very big.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मरीज को तुरंत अस्पताल ले जाया गया।",
+          "translation": "The patient was taken to the hospital immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यहाँ पास में अस्पताल होता, तो सुविधा रहती।",
+          "translation": "If there were a hospital nearby, it would have been convenient.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नया अस्पताल सरकार द्वारा खोला गया।",
+          "translation": "The new hospital was opened by the government.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "डॉक्टर",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "doctor / physician",
+      "intro": "A medical doctor. Loanword from English 'doctor'. Related to 'अस्पताल' (#244) and 'मरीज' (patient).",
+      "usage": "Masculine noun (can be contextually feminine for female doctors). Plural direct: डॉक्टर. Oblique plural: डॉक्टरों.",
+      "synonyms": [
+        {
+          "word": "वैद्य",
+          "gloss": "physician / healer (traditional)"
+        },
+        {
+          "word": "चिकित्सक",
+          "gloss": "physician (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "डॉक्टर अस्पताल में मरीजों की जाँच कर रहा है।",
+          "translation": "The doctor is examining patients in the hospital. (जाँच f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मैंने कल एक प्रसिद्ध डॉक्टर से सलाह ली।",
+          "translation": "I took advice from a famous doctor yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर डॉक्टर समय पर आ जाते, तो मरीज बच जाता।",
+          "translation": "If the doctor had arrived on time, the patient would have survived.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मरीज को डॉक्टर द्वारा आराम करने की सलाह दी गई।",
+          "translation": "The patient was advised to rest by the doctor. (सलाह f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पुलिस",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "police / police force",
+      "intro": "The police department or police officers collectively. Related to 'चोर' (#247).",
+      "usage": "Feminine noun. Plural direct is पुलिस. Oblique plural is पुलिसवालों or पुलिस.",
+      "synonyms": [
+        {
+          "word": "आरक्षी",
+          "gloss": "police (formal Sanskritized)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पुलिस सड़क पर गश्त लगा रही है।",
+          "translation": "The police are patrolling the street. (गश्त f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अपराध होने के तुरंत बाद पुलिस वहाँ पहुँच गई।",
+          "translation": "The police reached there immediately after the crime happened.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर पुलिस समय पर पहुँचती, तो चोर पकड़ा जाता।",
+          "translation": "If the police had reached on time, the thief would have been caught.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुरक्षा व्यवस्था पुलिस द्वारा संभाली जा रही है।",
+          "translation": "The security system is being managed by the police. (व्यवस्था f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चोर",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "thief / burglar",
+      "intro": "A thief or burglar. Opposite of 'सिपाही' (#248) and related to 'पुलिस' (#246).",
+      "usage": "Masculine noun. Plural direct: चोर. Oblique plural: चोरों.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "चोर अंधेरे में घर में घुसा।",
+          "translation": "The thief entered the house in the dark. (अंधेरा m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुलिस ने चोर को रंगे हाथों पकड़ा।",
+          "translation": "The police caught the thief red-handed. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर पहरेदार जागता, तो चोर चोरी न कर पाता।",
+          "translation": "If the watchman were awake, the thief wouldn't have been able to steal. (चोरी f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चोरी का माल चोर द्वारा पुलिस को लौटाया गया।",
+          "translation": "The stolen goods were returned to the police by the thief. (माल m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सिपाही",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "soldier / police constable / sepoy",
+      "intro": "A soldier or a police constable. Related to 'सेना' (#249) and 'पुलिस' (#246).",
+      "usage": "Masculine noun. Plural direct: सिपाही. Oblique plural: सिपाहियों.",
+      "synonyms": [
+        {
+          "word": "सैनिक",
+          "gloss": "soldier"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय सिपाही सीमा पर देश की रक्षा करते हैं।",
+          "translation": "Indian soldiers protect the country on the border.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सिपाही ने चोर का पीछा किया।",
+          "translation": "The constable chased the thief. (With 'ने')",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि देश संकट में होता, तो हर सिपाही लड़ता।",
+          "translation": "If the country were in danger, every soldier would fight. (संकट m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वीर सिपाही द्वारा वीरता का परिचय दिया गया।",
+          "translation": "An introduction of bravery was given by the brave soldier. (वीरता f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सेना",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "army / military force",
+      "intro": "The military force or army of a country. Related to 'सिपाही' (#248) and 'युद्ध' (#250).",
+      "usage": "Feminine noun. Plural direct: सेनाएँ. Oblique plural: सेनाओं.",
+      "synonyms": [
+        {
+          "word": "फ़ौज",
+          "gloss": "army / military"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय सेना बहुत शक्तिशाली है।",
+          "translation": "The Indian army is very powerful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सेना ने सीमा पर सुरक्षा बढ़ा दी है।",
+          "translation": "The army has increased security on the border.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सेना न होती, तो देश सुरक्षित न रहता।",
+          "translation": "If the army weren't there, the country wouldn't remain safe.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आतंकियों का ठिकाना सेना द्वारा नष्ट किया गया।",
+          "translation": "The terrorists' hideout was destroyed by the army. (ठिकाना m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "युद्ध",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "war / battle / combat",
+      "intro": "A war or large-scale battle. Opposite of 'शांति' (#251).",
+      "usage": "Masculine noun. Plural direct: युद्ध. Oblique plural: युद्धों.",
+      "synonyms": [
+        {
+          "word": "लड़ाई",
+          "gloss": "fight / battle (feminine)"
+        },
+        {
+          "word": "संग्राम",
+          "gloss": "battle / struggle (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "युद्ध में दोनों देशों को भारी नुकसान हुआ।",
+          "translation": "In the war, both countries suffered heavy losses. (नुकसान m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "संसार का सबसे बड़ा युद्ध महाभारत था।",
+          "translation": "The biggest war of the world was Mahabharata.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि बातचीत सफल होती, तो युद्ध न होता।",
+          "translation": "If the talks had been successful, war would not have occurred. (बातचीत f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "युद्ध हमेशा दोनों पक्षों द्वारा शुरू किया जाता है।",
+          "translation": "War is always started by both sides.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "शांति",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "peace / silence / calm",
+      "intro": "Peace, silence, or state of calm. Opposite of 'युद्ध' (#250) and related to 'मन' (mind).",
+      "usage": "Feminine noun. Plural: शांतियाँ (rare). Spelling note: also written as शान्ति.",
+      "synonyms": [
+        {
+          "word": "अमन",
+          "gloss": "peace"
+        },
+        {
+          "word": "मौन",
+          "gloss": "silence"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हमे दुनिया में शांति बनाए रखनी चाहिए।",
+          "translation": "We should maintain peace in the world.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुस्तकालय में बहुत शांति रहती है।",
+          "translation": "There is a lot of silence (peace) in the library. (पुस्तकालय m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि युद्ध समाप्त हो जाए, तो चारों ओर शांति होगी।",
+          "translation": "If the war ends, there will be peace all around.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गाँव में शांति का माहौल लोगों द्वारा स्थापित किया गया।",
+          "translation": "A peaceful atmosphere was established by the people in the village. (माहौल m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "क्रोध",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "anger / wrath / rage",
+      "intro": "Anger or wrath. Related to 'प्रेम' (#253) and 'मन' (mind).",
+      "usage": "Masculine noun. Plural direct: क्रोध. Oblique plural: क्रोधों (rare).",
+      "synonyms": [
+        {
+          "word": "गुस्सा",
+          "gloss": "anger / rage"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "क्रोध मनुष्य का सबसे बड़ा शत्रु है।",
+          "translation": "Anger is the biggest enemy of man.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसका क्रोध देखकर सब डर गए।",
+          "translation": "Everyone got scared seeing his anger.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपने क्रोध पर काबू रखते, तो झगड़ा न होता।",
+          "translation": "If you controlled your anger, a fight would not have occurred. (झगड़ा m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मूर्ख व्यक्ति द्वारा हमेशा क्रोध प्रकट किया जाता है।",
+          "translation": "Anger is always expressed by a foolish person.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "प्रेम",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "love / affection",
+      "intro": "Love or deep affection (formal terms, equivalent to 'प्यार'). Opposite of 'नफ़रत' (hate) and related to 'दिल' (heart).",
+      "usage": "Masculine noun. Uncountable.",
+      "synonyms": [
+        {
+          "word": "प्यार",
+          "gloss": "love"
+        },
+        {
+          "word": "मोहब्बत",
+          "gloss": "love / romance (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "माँ का प्रेम निस्वार्थ होता है।",
+          "translation": "Mother's love is selfless.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे आपस में प्रेम से रहते हैं।",
+          "translation": "They live together with love.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सब लोग प्रेम से रहें, तो संसार स्वर्ग बन जाएगा।",
+          "translation": "If everyone lives with love, the world will become heaven.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सच्चा प्रेम केवल कर्मों द्वारा प्रकट किया जा सकता है।",
+          "translation": "True love can only be expressed by deeds. (कर्म m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सफलता",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "success / achievement",
+      "intro": "Success or accomplishment. Opposite of 'असफलता' (#255) and related to 'मेहनत' (#256).",
+      "usage": "Feminine noun. Plural direct: सफलताएँ. Oblique plural: सफलताओं.",
+      "synonyms": [
+        {
+          "word": "कामयाबी",
+          "gloss": "success"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कठिन परिश्रम ही सफलता की कुंजी है।",
+          "translation": "Hard work is the key to success. (कुंजी f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी सफलता से पूरा परिवार खुश था।",
+          "translation": "Whole family was happy with his success.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम रोज़ मेहनत करते, तो तुम्हें सफलता अवश्य मिलती।",
+          "translation": "If you worked hard every day, you would certainly get success.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "महान वैज्ञानिकों द्वारा कड़ी मेहनत से सफलता पाई गई।",
+          "translation": "Success was achieved through hard work by great scientists.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "असफलता",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "failure / setback",
+      "intro": "Failure or setback. Opposite of 'सफलता' (#254).",
+      "usage": "Feminine noun. Plural direct: असफलताएँ. Oblique plural: असफलताओं.",
+      "synonyms": [
+        {
+          "word": "नाकामी",
+          "gloss": "failure"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "असफलता हमें जीवन में सीख देती है।",
+          "translation": "Failure gives us a lesson in life.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह अपनी असफलता से निराश नहीं हुआ।",
+          "translation": "He did not get disappointed by his failure.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम हार मान लेते, तो यह असफलता होती।",
+          "translation": "If you gave up, this would be a failure.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "जीवन में असफलता को भी मुस्कुराकर सहा जाना चाहिए।",
+          "translation": "Failure in life should also be borne with a smile.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मेहनत",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "hard work / labor / effort",
+      "intro": "Hard work, physical labor, or effort. Related to 'सफलता' (#254) and 'काम' (work).",
+      "usage": "Feminine noun. Plural: मेहनतें (rare).",
+      "synonyms": [
+        {
+          "word": "परिश्रम",
+          "gloss": "labor / hard work (masculine)"
+        },
+        {
+          "word": "श्रम",
+          "gloss": "labor / toil (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "किसान खेतों में बहुत मेहनत करते हैं।",
+          "translation": "Farmers do a lot of hard work in the fields.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस काम में बहुत मेहनत लगती है।",
+          "translation": "It takes a lot of hard work in this job.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम पढ़ाई में मेहनत करते, तो परीक्षा में प्रथम आते।",
+          "translation": "If you worked hard in studies, you would come first in the exam.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कठिन मेहनत द्वारा हर लक्ष्य पाया जा सकता है।",
+          "translation": "Every goal can be achieved through hard work. (लक्ष्य m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ज्ञान",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "knowledge / wisdom / awareness",
+      "intro": "Knowledge or awareness. Related to 'बुद्धि' (#258) and 'किताब' (book).",
+      "usage": "Masculine noun. Plural direct is ज्ञान. Oblique plural is ज्ञानों (rare).",
+      "synonyms": [
+        {
+          "word": "विद्या",
+          "gloss": "learning / knowledge (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पुस्तकों से हमें ज्ञान मिलता है।",
+          "translation": "We get knowledge from books. (पुस्तक f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गुरु अपने शिष्यों को ज्ञान देते हैं।",
+          "translation": "The teacher gives knowledge to his disciples. (गुरु m, शिष्य m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अनुभवी लोगों से बात करते, तो तुम्हें ज्ञान प्राप्त होता।",
+          "translation": "If you spoke to experienced people, you would obtain knowledge.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "परम ज्ञान केवल तपस्या द्वारा प्राप्त किया जाता है।",
+          "translation": "Supreme knowledge is only obtained through penance. (तपस्या f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बुद्धि",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "intelligence / intellect / mind",
+      "intro": "Intellect, mind, or intelligence. Related to 'ज्ञान' (#257) and 'विचार' (#259).",
+      "usage": "Feminine noun. Plural: बुद्धियाँ. Spelling note: also written as बुद्घि.",
+      "synonyms": [
+        {
+          "word": "मति",
+          "gloss": "mind / intellect"
+        },
+        {
+          "word": "दिमाग",
+          "gloss": "brain / intellect (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "संकट के समय बुद्धि का प्रयोग करना चाहिए।",
+          "translation": "One should use intelligence in times of crisis. (प्रयोग m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी तीव्र बुद्धि देखकर सब दंग रह गए।",
+          "translation": "Everyone was astounded seeing her sharp intellect.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपनी बुद्धि से काम लेते, तो नुकसान न होता।",
+          "translation": "If you had acted with your intelligence, loss would not have occurred.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह निर्णय बुद्धि द्वारा लिया जाना चाहिए, भावनाओं द्वारा नहीं।",
+          "translation": "This decision should be taken by intellect, not by emotions. (भावना f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "विचार",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "thought / idea / opinion",
+      "intro": "A thought, idea, or personal opinion. Related to 'बुद्धि' (#258) and 'सोचना' (to think).",
+      "usage": "Masculine noun. Plural direct is विचार. Oblique plural: विचारों.",
+      "synonyms": [
+        {
+          "word": "सोच",
+          "gloss": "thinking / thought (feminine)"
+        },
+        {
+          "word": "राय",
+          "gloss": "opinion (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेरे मन में एक नया विचार आया है।",
+          "translation": "A new thought has come to my mind. (मन m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह अपने विचार खुलकर व्यक्त करता है।",
+          "translation": "He expresses his thoughts openly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम इस विषय पर विचार करते, तो समझ जाते।",
+          "translation": "If you reflected (thought) on this topic, you would understand. (विषय m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह प्रस्ताव सभी सदस्यों के विचारों द्वारा स्वीकृत हुआ।",
+          "translation": "This proposal was approved by the thoughts of all members. (प्रस्ताव m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "योजना",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "plan / project / scheme",
+      "intro": "A plan, project, or development scheme. Related to 'काम' (work) and 'बनाना' (to make).",
+      "usage": "Feminine noun. Plural direct: योजनाएँ. Oblique plural: योजनाओं.",
+      "synonyms": [
+        {
+          "word": "स्कीम",
+          "gloss": "scheme"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सरकार ने गरीबों के लिए नई योजना शुरू की है।",
+          "translation": "The government has started a new scheme for the poor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम कल यात्रा की योजना बनाएँगे।",
+          "translation": "We will make a travel plan tomorrow. (यात्रा f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम पहले से योजना बनाते, तो काम समय पर पूरा होता।",
+          "translation": "If you had made a plan beforehand, the work would have been completed on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह बड़ी योजना अनुभवी इंजीनियरों द्वारा बनाई गई।",
+          "translation": "This big plan was made by experienced engineers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सच्चा",
+      "partOfSpeech": "adjective",
+      "translation": "true / sincere / honest",
+      "intro": "Honest, sincere, or true. Opposite of 'झूठा' (#262) and related to 'सच' (truth).",
+      "usage": "Inflected adjective. Masculine: सच्चा, Feminine: सच्ची, Plural: सच्चे.",
+      "synonyms": [
+        {
+          "word": "ईमानदार",
+          "gloss": "honest / sincere"
+        },
+        {
+          "word": "सत्यवादी",
+          "gloss": "truthful"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह एक सच्चा और वफादार मित्र है।",
+          "translation": "He is a true and loyal friend.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच्ची बातें लोगों को कड़वी लगती हैं।",
+          "translation": "True statements sound bitter to people. (बातें f pl)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सच्चे होते, तो डरने की ज़रूरत नहीं होती।",
+          "translation": "If you were honest, there would be no need to fear.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सच्चे इंसान द्वारा हमेशा न्याय का पक्ष लिया जाता है।",
+          "translation": "Justice is always supported by an honest person. (पक्ष m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "झूठा",
+      "partOfSpeech": "adjective / noun",
+      "translation": "false / liar / leftover food",
+      "intro": "False/fake (adjective), a liar (noun), or leftovers/touched food (adjective). Opposite of 'सच्चा' (#261).",
+      "usage": "Inflected adjective/noun. Masculine: झूठा, Feminine: झूठी, Plural: झूठे. Oblique plural noun: झूठों.",
+      "synonyms": [
+        {
+          "word": "असत्य",
+          "gloss": "false"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "झूठा वादा कभी मत करो।",
+          "translation": "Never make a false promise. (वादा m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह बहुत झूठा आदमी है, उसकी बातों पर विश्वास मत करो।",
+          "translation": "He is a very liar man, do not believe his words. (विश्वास m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह गवाही झूठी होती, तो न्यायाधीश समझ जाते।",
+          "translation": "If that testimony were false, the judge would have understood. (गवाही f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "झूठे लोगों द्वारा समाज में भ्रम फैलाया जाता है।",
+          "translation": "Confusion is spread in society by liars. (भ्रम m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सुखी",
+      "partOfSpeech": "adjective",
+      "translation": "happy / prosperous / comfortable",
+      "intro": "Happy or prosperous. Opposite of 'दुखी' (#264) and related to 'खुश' (happy).",
+      "usage": "Invariable adjective ending in -i. Remains सुखी for masculine, feminine, singular, and plural.",
+      "synonyms": [
+        {
+          "word": "समृद्ध",
+          "gloss": "prosperous / wealthy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह अपने परिवार के साथ एक सुखी जीवन जी रहा है।",
+          "translation": "He is living a happy life with his family. (जीवन m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सुखी लोग हमेशा दूसरों की मदद करते हैं।",
+          "translation": "Prosperous (happy) people always help others.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि देश का हर नागरिक सुखी होता, तो स्वर्ग बन जाता।",
+          "translation": "If every citizen of the country were happy, it would become heaven.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुखी परिवारों द्वारा दान-पुण्य किया जाता है।",
+          "translation": "Charity is done by prosperous families. (दान-पुण्य m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दुखी",
+      "partOfSpeech": "adjective",
+      "translation": "sad / sorrowful / unhappy",
+      "intro": "Sorrowful, sad, or suffering. Opposite of 'सुखी' (#263) and related to 'उदास' (sad) and 'दुख' (sorrow).",
+      "usage": "Invariable adjective ending in -i. Remains दुखी for masculine, feminine, singular, and plural. Also written as दुःखी.",
+      "synonyms": [
+        {
+          "word": "उदास",
+          "gloss": "sad / gloomy"
+        },
+        {
+          "word": "पीड़ित",
+          "gloss": "suffering / afflicted"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गरीब किसान अपनी फसल नष्ट होने से दुखी है।",
+          "translation": "The poor farmer is sad due to his crop being destroyed. (फसल f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दुखी लोगों की सेवा करना पुण्य का काम है।",
+          "translation": "Serving unhappy people is a work of merit.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह परीक्षा में असफल होता, तो वह बहुत दुखी होता।",
+          "translation": "If he failed the exam, he would be very sad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दुखी व्यक्ति द्वारा सहायता की गुहार लगाई गई।",
+          "translation": "A plea for help was made by the sad person. (गुहार f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अमीर",
+      "partOfSpeech": "adjective / noun",
+      "translation": "rich / wealthy / rich person",
+      "intro": "Wealthy/rich, or a rich person. Opposite of 'गरीब' (#266) and related to 'पैसा' (money).",
+      "usage": "Invariable adjective. As a noun, masculine, plural: अमीर, oblique plural: अमीरों.",
+      "synonyms": [
+        {
+          "word": "धनी",
+          "gloss": "wealthy"
+        },
+        {
+          "word": "दौलतमंद",
+          "gloss": "rich"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह शहर का सबसे अमीर व्यापारी है।",
+          "translation": "He is the richest merchant of the city. (व्यापारी m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अमीर लोगों को गरीबों की सहायता करनी चाहिए।",
+          "translation": "Rich people should help the poor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मैं अमीर होता, तो दुनिया का दौरा करता।",
+          "translation": "If I were rich, I would tour the world.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नया कर केवल अमीरों द्वारा चुकाया जाएगा।",
+          "translation": "The new tax will be paid only by the rich. (कर m, Noun usage)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गरीब",
+      "partOfSpeech": "adjective / noun",
+      "translation": "poor / needy / poor person",
+      "intro": "Poor/needy, or a poor person. Opposite of 'अमीर' (#265). Also spelled ग़रीब.",
+      "usage": "Invariable adjective. As a noun, masculine, plural: गरीब, oblique plural: गरीबों.",
+      "synonyms": [
+        {
+          "word": "निर्धन",
+          "gloss": "poor / penniless"
+        },
+        {
+          "word": "दीन",
+          "gloss": "poor / humble"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गरीब लोगों को ठंड में कंबल बांटे गए।",
+          "translation": "Blankets were distributed to the poor people in the cold. (कंबल m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह एक बहुत गरीब परिवार से आता है।",
+          "translation": "He comes from a very poor family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज में कोई गरीब न होता, तो अपराध कम होते।",
+          "translation": "If there were no poor in society, crimes would be fewer. (अपराध m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मुफ़्त अनाज गरीबों द्वारा सरकारी दुकान से लिया गया।",
+          "translation": "Free grain was taken by the poor from the government shop. (अनाज m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मजबूत",
+      "partOfSpeech": "adjective",
+      "translation": "strong / durable / sturdy",
+      "intro": "Sturdy, durable, or physically/mentally strong. Opposite of 'कमजोर' (#268).",
+      "usage": "Invariable adjective. Also spelled मज़बूत.",
+      "synonyms": [
+        {
+          "word": "बलवान",
+          "gloss": "strong"
+        },
+        {
+          "word": "दृढ़",
+          "gloss": "firm / resolute"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह दीवार बहुत मजबूत है, इसे तोड़ना मुश्किल है।",
+          "translation": "This wall is very strong, it is difficult to break it. (दीवार f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी मजबूत इच्छाशक्ति ने उसे जिताया।",
+          "translation": "Her strong willpower made her win. (इच्छाशक्ति f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गाड़ी मजबूत होती, तो दुर्घटना में नुकसान न होता।",
+          "translation": "If the car were strong, there would not be damage in the accident.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पुल सीमेंट और लोहे द्वारा मजबूत बनाया गया है।",
+          "translation": "This bridge has been made strong with cement and iron.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कमजोर",
+      "partOfSpeech": "adjective",
+      "translation": "weak / fragile / faint",
+      "intro": "Fragile, weak, or physically/mentally feeble. Opposite of 'मजबूत' (#267). Also spelled कमज़ोर.",
+      "usage": "Invariable adjective.",
+      "synonyms": [
+        {
+          "word": "दुर्बल",
+          "gloss": "feeble / weak"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बीमारी के बाद वह बहुत कमजोर हो गया है।",
+          "translation": "He has become very weak after the illness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस पुरानी इमारत की नींव बहुत कमजोर है।",
+          "translation": "The foundation of this old building is very weak. (नींव f, इमारत f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारी आँखें कमजोर होतीं, तो तुम पढ़ न पाते।",
+          "translation": "If your eyes were weak, you wouldn't have been able to read.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कमजोर विद्यार्थियों द्वारा विशेष कक्षा में भाग लिया गया।",
+          "translation": "Special classes were attended by the weak students.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "भारी",
+      "partOfSpeech": "adjective",
+      "translation": "heavy / massive / grave",
+      "intro": "Heavy in weight, massive size, or grave/serious situations. Opposite of 'हल्का' (#270).",
+      "usage": "Invariable adjective ending in -i. Remains same for all genders and numbers.",
+      "synonyms": [
+        {
+          "word": "वजनी",
+          "gloss": "heavy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह बक्सा बहुत भारी है, मुझसे नहीं उठेगा।",
+          "translation": "This box is very heavy, I cannot lift it. (बक्सा m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बारिश के कारण भारी नुकसान हुआ।",
+          "translation": "A massive loss occurred due to the rain.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सामान भारी होता, तो हम कुली की मदद लेते।",
+          "translation": "If the luggage were heavy, we would take the help of a porter. (कुली m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पत्थर पुरुषों द्वारा उठाया गया क्योंकि यह भारी था।",
+          "translation": "This stone was lifted by men because it was heavy. (पत्थर m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हल्का",
+      "partOfSpeech": "adjective",
+      "translation": "lightweight / mild / faint",
+      "intro": "Lightweight, mild flavor/color, or faint sound. Opposite of 'भारी' (#269).",
+      "usage": "Inflected adjective. Masculine: हल्का, Feminine: हल्की, Plural: हल्के.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "सूती कपड़े गर्मी में बहुत हल्के होते हैं।",
+          "translation": "Cotton clothes are very lightweight in summer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे हल्का संगीत पसंद है।",
+          "translation": "I like mild/light music. (संगीत m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह बैग हल्का होता, तो मैं इसे आसानी से उठा लेता।",
+          "translation": "If this bag were lightweight, I would lift it easily. (बैग m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हल्का खाना बीमार मरीज द्वारा खाया गया।",
+          "translation": "Light food was eaten by the sick patient.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "महंगा",
+      "partOfSpeech": "adjective",
+      "translation": "expensive / costly",
+      "intro": "Costly or high-priced. Opposite of 'सस्ता' (#272) and related to 'पैसा' (money). Also spelled महँगा.",
+      "usage": "Inflected adjective. Masculine: महंगा, Feminine: महंगी, Plural: महंगे.",
+      "synonyms": [
+        {
+          "word": "मूल्यवान",
+          "gloss": "valuable / costly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह होटल बहुत महंगा है।",
+          "translation": "This hotel is very expensive.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने एक महंगी घड़ी खरीदी।",
+          "translation": "She bought an expensive watch. (घड़ी f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सामान महंगा होता, तो हम मोलभाव करते।",
+          "translation": "If the goods were expensive, we would bargain.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "महंगे कपड़े अमीर लोगों द्वारा खरीदे जाते हैं।",
+          "translation": "Expensive clothes are bought by rich people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सस्ता",
+      "partOfSpeech": "adjective",
+      "translation": "cheap / inexpensive / low quality",
+      "intro": "Cheap or low-priced. Opposite of 'महंगा' (#271).",
+      "usage": "Inflected adjective. Masculine: सस्ता, Feminine: सस्ती, Plural: सस्ते.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "त्योहारों के मौसम में कपड़े सस्ते हो जाते हैं।",
+          "translation": "Clothes become cheap during the festive season. (मौसम m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह दुकान बहुत सस्ता सामान बेचती है।",
+          "translation": "This shop sells very cheap goods. (सामान m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि किराया सस्ता होता, तो मैं यह कमरा ले लेता।",
+          "translation": "If the rent were cheap, I would have taken this room. (किराया m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सस्ता फल गरीब लोगों द्वारा खरीदा गया।",
+          "translation": "Cheap fruit was bought by poor people.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लंबा",
+      "partOfSpeech": "adjective",
+      "translation": "tall / long / lengthy",
+      "intro": "Long in distance/length, or tall in height. Opposite of 'छोटा' (small/short) and related to 'रास्ता' (path). Also spelled लम्बा.",
+      "usage": "Inflected adjective. Masculine: लंबा, Feminine: लंबी, Plural: लंबे.",
+      "synonyms": [
+        {
+          "word": "दीर्घ",
+          "gloss": "long / lengthy (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह लड़का अपनी कक्षा में सबसे लंबा है।",
+          "translation": "That boy is the tallest in his class.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह बहुत लंबी यात्रा थी, हम थक गए।",
+          "translation": "It was a very long journey, we got tired. (यात्रा f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रास्ता लंबा होता, तो हम गाड़ी से जाते।",
+          "translation": "If the route were long, we would go by car.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "एक लंबा निबंध छात्रों द्वारा लिखा गया।",
+          "translation": "A long essay was written by the students. (निबंध m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ऊंचा",
+      "partOfSpeech": "adjective",
+      "translation": "high / tall / loud (voice)",
+      "intro": "High altitude, tall building/mountain, or loud tone. Related to 'पहाड़' (mountain) and opposite 'नीचा' (low). Also spelled ऊँचा.",
+      "usage": "Inflected adjective. Masculine: ऊंचा, Feminine: ऊंची, Plural: ऊंचे.",
+      "synonyms": [
+        {
+          "word": "उच्च",
+          "gloss": "high / noble"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हिमालय बहुत ऊंचा पर्वत है।",
+          "translation": "Himalayas is a very high mountain. (पर्वत m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शहर में बहुत ऊंची इमारतें हैं।",
+          "translation": "There are very tall buildings in the city. (इमारत f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आवाज़ ऊंची होती, तो सब लोग सुन पाते।",
+          "translation": "If the sound were loud (high), everyone would be able to hear. (आवाज़ f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "झंडा ऊंचे स्थान पर सैनिकों द्वारा फहराया गया।",
+          "translation": "The flag was hoisted at a high place by the soldiers. (झंडा m, स्थान m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चौड़ा",
+      "partOfSpeech": "adjective",
+      "translation": "wide / broad",
+      "intro": "Wide in width or broad. Opposite of 'सँकरा' (narrow) and related to 'सड़क' (road).",
+      "usage": "Inflected adjective. Masculine: चौड़ा, Feminine: चौड़ी, Plural: चौड़े.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह सड़क बहुत चौड़ी और साफ़ है।",
+          "translation": "This road is very wide and clean.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी छाती चौड़ी है।",
+          "translation": "His chest is broad. (छाती f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नदी चौड़ी होती, तो पुल लंबा बनता।",
+          "translation": "If the river were wide, the bridge would be long. (नदी f, पुल m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चौड़ा रास्ता मज़दूरों द्वारा बनाया गया।",
+          "translation": "The wide path was made by the laborers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गहरा",
+      "partOfSpeech": "adjective",
+      "translation": "deep / dark (color) / close (friend)",
+      "intro": "Deep water/well, dark color shade, or close emotional relation (e.g. गहरा दोस्त).",
+      "usage": "Inflected adjective. Masculine: गहरा, Feminine: गहरी, Plural: गहरे.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "यह कुआँ बहुत गहरा है, सावधान रहो।",
+          "translation": "This well is very deep, be careful. (कुआँ m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वे दोनों गहरे मित्र हैं।",
+          "translation": "They both are close friends. (मित्र m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नदी गहरी होती, तो हम उसमें न तैरते।",
+          "translation": "If the river were deep, we wouldn't swim in it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नीला रंग गहरे शेड में चित्रकार द्वारा चुना गया।",
+          "translation": "The blue color was selected in a dark shade by the painter. (रंग m, शेड m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मीठा",
+      "partOfSpeech": "adjective / noun",
+      "translation": "sweet / dessert",
+      "intro": "Sweet flavor, or sweet dish/dessert. Opposite of 'कड़वा' (#278) and related to 'चीनी' (#237).",
+      "usage": "Inflected adjective/noun. Masculine: मीठा, Feminine: मीठी, Plural: मीठे. Plural noun: मीठे (sweets).",
+      "synonyms": [
+        {
+          "word": "मधुर",
+          "gloss": "sweet / melodious"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पका हुआ आम बहुत मीठा होता है।",
+          "translation": "A ripe mango is very sweet. (आम m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुझे मीठा खाना पसंद है।",
+          "translation": "I like eating sweets (sweet food).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि फल मीठा होता, तो बंदर उसे खा जाता।",
+          "translation": "If the fruit were sweet, the monkey would have eaten it. (बंदर m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मीठा दलिया बच्चों द्वारा पसंद किया गया।",
+          "translation": "Sweet porridge was liked by the children. (दलिया m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कड़वा",
+      "partOfSpeech": "adjective",
+      "translation": "bitter / harsh (words)",
+      "intro": "Bitter taste (like medicine/gourd) or harsh statements/words. Opposite of 'मीठा' (#277). Also spelled कड़वा.",
+      "usage": "Inflected adjective. Masculine: कड़वा, Feminine: कड़वी, Plural: कड़वे.",
+      "synonyms": [
+        {
+          "word": "कटु",
+          "gloss": "harsh / bitter (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "करेले का स्वाद कड़वा होता है।",
+          "translation": "The taste of bitter gourd is bitter. (स्वाद m, करेला m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच हमेशा कड़वा होता है।",
+          "translation": "Truth is always bitter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दवाई कड़वी न होती, तो बच्चा उसे आसानी से पी लेता।",
+          "translation": "If the medicine were not bitter, the child would have taken it easily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कड़वा अनुभव यात्री द्वारा कभी नहीं भुलाया गया।",
+          "translation": "The bitter experience was never forgotten by the traveler. (अनुभव m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खट्टा",
+      "partOfSpeech": "adjective",
+      "translation": "sour / acidic",
+      "intro": "Sour taste like lemon, tamarind, or curd. Related to 'फल' (#230).",
+      "usage": "Inflected adjective. Masculine: खट्टा, Feminine: खट्टी, Plural: खट्टे. Spelling note: also written as खट्‍टा.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "नींबू बहुत खट्टा होता है।",
+          "translation": "Lemon is very sour. (नींबू m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दही खट्टा हो गया है।",
+          "translation": "The yogurt has become sour. (दही m - note: masculine in Hindi)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि अंगूर खट्टे होते, तो लोमड़ी उन्हें छोड़ देती।",
+          "translation": "If the grapes were sour, the fox would have left them. (अंगूर m pl, लोमड़ी f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "खट्टा अचार भोजन के साथ खाया गया।",
+          "translation": "Sour pickle was eaten with food. (अचार m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तीखा",
+      "partOfSpeech": "adjective",
+      "translation": "spicy / sharp / hot (chili)",
+      "intro": "Spicy/chili hot taste, sharp criticism, or sharp gaze.",
+      "usage": "Inflected adjective. Masculine: तीखा, Feminine: तीखी, Plural: तीखे.",
+      "synonyms": [
+        {
+          "word": "चटपटा",
+          "gloss": "tangy / spicy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय भोजन में तीखा मसाला डाला जाता है।",
+          "translation": "Spicy spices are added in Indian food. (मसाला m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मिर्ची बहुत तीखी है।",
+          "translation": "The chili is very spicy (hot). (मिर्ची f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सब्ज़ी तीखी न होती, तो बच्चे भी खाते।",
+          "translation": "If the vegetable dish were not spicy, children would have eaten too.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तीखा भोजन रसोइए द्वारा तैयार किया गया।",
+          "translation": "Spicy food was prepared by the cook.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जल्दी",
+      "partOfSpeech": "adverb / noun",
+      "gender": "feminine",
+      "translation": "quickly / early / hurry",
+      "intro": "Adverb meaning quickly or early, or feminine noun meaning hurry/haste. Related to 'धीमे' (slowly).",
+      "usage": "Feminine noun when used as 'hurry' (e.g. क्या जल्दी है?). Invariable adverb when modifying verbs.",
+      "synonyms": [
+        {
+          "word": "शीघ्र",
+          "gloss": "quickly (formal)"
+        },
+        {
+          "word": "तुरंत",
+          "gloss": "immediately"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सुबह जल्दी उठना स्वास्थ्य के लिए अच्छा है।",
+          "translation": "Rising early in the morning is good for health. (Adverbial usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चलो जल्दी करो, हमारी ट्रेन छूट जाएगी।",
+          "translation": "Come on, hurry up (do quickly), our train will be missed. (Verb helper)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम जल्दी सोते, तो सुबह जल्दी उठ पाते।",
+          "translation": "If you had slept early, you would have been able to get up early.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह काम जल्दी में कर्मचारियों द्वारा किया गया।",
+          "translation": "This work was done in a hurry by the workers. (Noun usage in oblique/postpositional case)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "धीरे",
+      "partOfSpeech": "adverb",
+      "translation": "slowly / softly",
+      "intro": "Slowly in movement, or softly in volume/speech. Opposite of 'तेज़' (fast) and related to 'धीरे-धीरे' (#298).",
+      "usage": "Invariable adverb. Often repeated as धीरे-धीरे.",
+      "synonyms": [
+        {
+          "word": "धीमे",
+          "gloss": "slowly / softly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वह बहुत धीरे बोलता है, मुझे सुनाई नहीं देता।",
+          "translation": "He speaks very softly (slowly), I cannot hear.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गाड़ी धीरे चलाओ, सड़क पर भीड़ है।",
+          "translation": "Drive the car slowly, there is a crowd on the road. (भीड़ f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम धीरे चलते, तो तुम गिरते नहीं।",
+          "translation": "If you had walked slowly, you would not have fallen.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "किताब के पन्ने धीरे से पाठक द्वारा पलटे गए।",
+          "translation": "The pages of the book were turned slowly by the reader. (पन्ना m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अचानक",
+      "partOfSpeech": "adverb",
+      "translation": "suddenly / unexpectedly",
+      "intro": "Suddenly, unexpectedly, or out of nowhere.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "एकाएक",
+          "gloss": "suddenly / all of a sudden"
+        },
+        {
+          "word": "सहसा",
+          "gloss": "suddenly / instantly (literary)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अचानक तेज़ बारिश शुरू हो गई।",
+          "translation": "Suddenly heavy rain started.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चोर को देखकर वह अचानक चिल्लाया।",
+          "translation": "He shouted suddenly upon seeing the thief.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि अचानक बिजली न जाती, तो हम काम पूरा कर लेते।",
+          "translation": "If the electricity had not gone suddenly, we would have finished the work. (बिजली f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह रहस्य अचानक जासूस द्वारा सुलझाया गया।",
+          "translation": "This mystery was solved suddenly by the detective. (रहस्य m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लगातार",
+      "partOfSpeech": "adverb",
+      "translation": "continuously / constantly",
+      "intro": "Without interruption, continuously, or constantly.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "निरंतर",
+          "gloss": "continuously / constantly"
+        },
+        {
+          "word": "सतत",
+          "gloss": "constant (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कल रात से लगातार बारिश हो रही है।",
+          "translation": "It is raining continuously since last night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह लगातार तीन घंटे से पढ़ रहा है।",
+          "translation": "He is studying continuously for three hours.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम लगातार अभ्यास करते, तो प्रतियोगिता जीत जाते।",
+          "translation": "If you had practiced continuously, you would have won the competition. (अभ्यास m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मशीन को लगातार ऑपरेटर द्वारा चलाया गया।",
+          "translation": "The machine was run continuously by the operator.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "केवल",
+      "partOfSpeech": "adverb / particle",
+      "translation": "only / just / merely",
+      "intro": "Indicates exclusivity (only/just/merely). Related to 'सिर्फ' (only).",
+      "usage": "Invariable particle/adverb.",
+      "synonyms": [
+        {
+          "word": "सिर्फ",
+          "gloss": "only / just"
+        },
+        {
+          "word": "मात्र",
+          "gloss": "only / sole"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "इस कमरे में केवल तीन कुर्सियाँ हैं।",
+          "translation": "There are only three chairs in this room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह केवल चाय पीता है, कॉफ़ी नहीं।",
+          "translation": "He drinks only tea, not coffee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेरे पास केवल एक दिन होता, तो मैं यहाँ आराम करता।",
+          "translation": "If I had only one day, I would have rested here.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह अनुमति केवल वयस्कों को दी जाएगी।",
+          "translation": "This permission will be given only to adults. (अनुमति f, derived passive context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लगभग",
+      "partOfSpeech": "adverb",
+      "translation": "almost / approximately / about",
+      "intro": "Expresses approximate quantity, degree, or time. Equivalents: about, around, almost.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "करीब",
+          "gloss": "about / nearly"
+        },
+        {
+          "word": "प्रायः",
+          "gloss": "generally / almost"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दिल्ली से जयपुर की दूरी लगभग तीन सौ किलोमीटर है।",
+          "translation": "The distance from Delhi to Jaipur is approximately three hundred kilometers. (दूरी f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सभा में लगभग सौ लोग उपस्थित थे।",
+          "translation": "Almost a hundred people were present in the assembly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि लगभग शाम हो जाती, तो हम घर लौट जाते।",
+          "translation": "If it were almost evening, we would have returned home.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लागत लगभग दस लाख आँकी गई।",
+          "translation": "The cost was estimated at approximately one million. (लागत f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जरूर",
+      "partOfSpeech": "adverb / particle",
+      "translation": "certainly / surely / must",
+      "intro": "Expresses absolute affirmation or necessity. Also spelled ज़रूर.",
+      "usage": "Invariable adverb. Often paired with verb to denote strong obligation (must do).",
+      "synonyms": [
+        {
+          "word": "अवश्य",
+          "gloss": "certainly / surely (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं कल तुम्हारे घर जरूर आऊँगा।",
+          "translation": "I will certainly come to your house tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तुम्हें परीक्षा के लिए मेहनत जरूर करनी चाहिए।",
+          "translation": "You must certainly work hard for the exam.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम बुलाते, तो मैं जरूर आता।",
+          "translation": "If you had invited, I would have certainly come.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह निर्देश अधिकारियों द्वारा जरूर माना जाएगा।",
+          "translation": "This instruction will certainly be followed by the officers. (निर्देश m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बिलकुल",
+      "partOfSpeech": "adverb",
+      "translation": "absolutely / completely / at all",
+      "intro": "Denotes completeness (completely, absolutely) or used in negative sentences meaning 'not at all'. Also spelled बिल्कुल.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "पूर्णतः",
+          "gloss": "completely / entirely"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं तुम्हारी बात से बिलकुल सहमत हूँ।",
+          "translation": "I completely agree with your statement.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह आज बिलकुल ठीक है।",
+          "translation": "He is absolutely fine today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम बिलकुल चुप रहते, तो झगड़ा न होता।",
+          "translation": "If you had remained completely silent, a fight would not have occurred.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नया नियम नियमों के बिलकुल विपरीत घोषित किया गया।",
+          "translation": "The new rule was declared completely opposite to the rules. (Derived passive context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खासकर",
+      "partOfSpeech": "adverb",
+      "translation": "especially / particularly",
+      "intro": "Particularly or especially. Related to adjective 'खास' (special) and synonym 'विशेषकर' (#290).",
+      "usage": "Invariable adverb. Also spelled ख़ासकर.",
+      "synonyms": [
+        {
+          "word": "विशेषकर",
+          "gloss": "especially"
+        },
+        {
+          "word": "मुख्यतः",
+          "gloss": "mainly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे भारतीय खाना पसंद है, खासकर डोसा।",
+          "translation": "I like Indian food, especially dosa.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बच्चों को मीठा पसंद होता है, खासकर चॉकलेट।",
+          "translation": "Children like sweets, especially chocolate.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम आते, खासकर शाम को, तो हम फिल्म देखते।",
+          "translation": "If you had come, especially in the evening, we would have watched a movie.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह योजना खासकर ग्रामीण क्षेत्रों के लिए बनाई गई।",
+          "translation": "This scheme was made especially for rural areas. (क्षेत्र m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "विशेषकर",
+      "partOfSpeech": "adverb",
+      "translation": "especially / notably",
+      "intro": "Notably or especially (more formal/Sanskritized than 'खासकर'). Related to adjective 'विशेष' (special).",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "खासकर",
+          "gloss": "especially"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों में उत्तर भारत में, विशेषकर पहाड़ों पर, बहुत ठंड होती है।",
+          "translation": "In winter in North India, especially in the mountains, it is very cold.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यह किताब छात्रों के लिए, विशेषकर हिंदी माध्यम के, उपयोगी है।",
+          "translation": "This book is useful for students, especially of Hindi medium.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि बारिश होती, विशेषकर सूखे इलाकों में, तो किसान खुश होते।",
+          "translation": "If it had rained, especially in dry areas, the farmers would be happy. (इलाका m)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह पुरस्कार विशेषकर युवा खिलाड़ियों को प्रोत्साहित करने के लिए दिया गया।",
+          "translation": "This award was given especially to encourage young players. (पुरस्कार m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जैसे",
+      "partOfSpeech": "adverb / conjunction",
+      "translation": "like / as / as soon as / for example",
+      "intro": "Denotes comparison (like/as), temporal link (as soon as), or introduces examples (like/for example). Opposite of 'वैसे' (#292).",
+      "usage": "Invariable adverb/conjunction. Often paired with 'वैसे' (जैसे... वैसे... - as... so...).",
+      "synonyms": [
+        {
+          "word": "उदाहरणस्वरूप",
+          "gloss": "for example"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "जैसे ही मैं घर पहुँचा, बारिश शुरू हो गई।",
+          "translation": "As soon as I reached home, rain started. (Temporal usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बाज़ार में ताज़े फल हैं जैसे सेब और केला।",
+          "translation": "There are fresh fruits in the market like apple and banana. (For example)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जैसे तुम बोओगे, वैसे ही काटोगे।",
+          "translation": "As you sow, so shall you reap. (Proverbial conditional context)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह चित्र वैसे ही बनाया गया जैसे निर्देश दिया गया था।",
+          "translation": "This picture was made exactly as instructed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "वैसे",
+      "partOfSpeech": "adverb / conjunction",
+      "translation": "similarly / in that manner / by the way / anyway",
+      "intro": "Indicates manner (in that way), paired correlative to 'जैसे' (as... so...), or used in conversation meaning 'by the way' or 'anyway'.",
+      "usage": "Invariable adverb/conjunction.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "जैसे राम काम करता है, वैसे मैं भी करूँगा।",
+          "translation": "As Ram works, similarly I will also do.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वैसे, तुम्हारा नाम क्या है?",
+          "translation": "By the way, what is your name? (Conversation starter)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम वैसे न करते, तो परिणाम कुछ और होता।",
+          "translation": "If you had not done in that way, the result would have been different.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "काम वैसे ही किया गया जैसे मालिक ने कहा था।",
+          "translation": "The work was done in that very way as the owner had said.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "वैसे भी",
+      "partOfSpeech": "adverb / conjunction",
+      "translation": "anyway / in any case / besides",
+      "intro": "Indicates that the outcome remains unchanged regardless of conditions (anyway/in any case/besides).",
+      "usage": "Invariable compound adverb.",
+      "synonyms": [
+        {
+          "word": "वैसे",
+          "gloss": "anyway / by the way"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मैं वहाँ नहीं जा रहा हूँ, वैसे भी आज बहुत ठंड है।",
+          "translation": "I am not going there, anyway it is very cold today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चिंता मत करो, वैसे भी काम कल होना है।",
+          "translation": "Don't worry, in any case the work has to happen tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम लेट होते, तो वैसे भी ट्रेन छूट जाती।",
+          "translation": "If we were late, anyway the train would have been missed. (Train f)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह निर्णय वैसे भी बोर्ड द्वारा लिया जाना था।",
+          "translation": "This decision was anyway to be taken by the board.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कम से कम",
+      "partOfSpeech": "adverb",
+      "translation": "at least / minimum",
+      "intro": "Denotes minimum limit or concession (at least). Opposite of 'अधिक से अधिक' (#295).",
+      "usage": "Invariable compound adverb.",
+      "synonyms": [
+        {
+          "word": "न्यूनतम",
+          "gloss": "minimum (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तुम्हें कम से कम मुझसे पूछना चाहिए था।",
+          "translation": "You should have at least asked me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस काम में कम से कम दो दिन लगेंगे।",
+          "translation": "It will take at least two days in this work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारे पास कम से कम एक किताब होती, तो तुम पढ़ पाते।",
+          "translation": "If you had at least one book, you would be able to read.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कम से कम पचास रुपये मज़दूर को दिए गए।",
+          "translation": "At least fifty rupees were given to the laborer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अधिक से अधिक",
+      "partOfSpeech": "adverb",
+      "translation": "at most / maximum",
+      "intro": "Denotes maximum limit (at most). Opposite of 'कम से कम' (#294).",
+      "usage": "Invariable compound adverb.",
+      "synonyms": [
+        {
+          "word": "ज्यादा से ज्यादा",
+          "gloss": "at most / maximum"
+        },
+        {
+          "word": "अधिकतम",
+          "gloss": "maximum (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "इस काम में अधिक से अधिक एक घंटा लगेगा।",
+          "translation": "It will take at most one hour in this work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह अधिक से अधिक पचास अंक प्राप्त कर सकता है।",
+          "translation": "He can get at most fifty marks. (अंक m)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि परीक्षा में अधिक से अधिक छात्र उत्तीर्ण होते, तो अच्छा होता।",
+          "translation": "If at most students passed in the exam, it would be good. (Liaison/usage)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अधिक से अधिक सहायता सरकार द्वारा दी जाएगी।",
+          "translation": "Maximum assistance will be given by the government. (सहायता f)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "आमतौर पर",
+      "partOfSpeech": "adverb",
+      "translation": "usually / generally / normally",
+      "intro": "Generally, usually, or normally. Related to 'अक्सर' (often).",
+      "usage": "Invariable compound adverb. Also spelled आम तौर पर.",
+      "synonyms": [
+        {
+          "word": "सामान्यतः",
+          "gloss": "generally / normally (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "आमतौर पर मैं सुबह छह बजे उठता हूँ।",
+          "translation": "Usually I wake up at six in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस मौसम में आमतौर पर बारिश नहीं होती।",
+          "translation": "Usually it doesn't rain in this season.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आमतौर पर लोग नियमों का पालन करते, तो दुर्घटनाएं न होतीं।",
+          "translation": "If usually people followed rules, accidents wouldn't occur. (दुर्घटना f pl)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यह त्योहार आमतौर पर पूरे देश में मनाया जाता है।",
+          "translation": "This festival is usually celebrated in the whole country.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तुरंत",
+      "partOfSpeech": "adverb",
+      "translation": "immediately / at once / instantly",
+      "intro": "Instantly, immediately, or at once. Related to 'जल्दी' (#281). Spelling note: also written as तुरन्त.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "तत्काल",
+          "gloss": "immediately"
+        },
+        {
+          "word": "फ़ौरन",
+          "gloss": "at once"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चोर पुलिस को देखकर तुरंत भाग गया।",
+          "translation": "The thief ran away immediately upon seeing the police.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कृपया यह काम तुरंत कीजिए।",
+          "translation": "Please do this work immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह तुरंत डॉक्टर के पास जाता, तो समस्या न बढ़ती।",
+          "translation": "If he went to the doctor immediately, the problem wouldn't have increased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "घायल यात्री को तुरंत अस्पताल पहुँचाया गया।",
+          "translation": "The injured traveler was taken to the hospital immediately.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "धीरे-धीरे",
+      "partOfSpeech": "adverb",
+      "translation": "slowly / gradually / bit by bit",
+      "intro": "Gradually, slowly, or bit by bit. Formed by repeating 'धीरे' (#282).",
+      "usage": "Invariable repeated adverb.",
+      "synonyms": [
+        {
+          "word": "क्रमशः",
+          "gloss": "gradually / sequentially"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बच्चा धीरे-धीरे चलना सीख रहा है।",
+          "translation": "The child is learning to walk slowly (gradually).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी हालत धीरे-धीरे सुधर रही है।",
+          "translation": "His condition is improving gradually. (हालत f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम धीरे-धीरे प्रयास करते, तो लक्ष्य पा लेते।",
+          "translation": "If you made efforts gradually, you would have achieved the goal.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पुराना मकान धीरे-धीरे मज़दूरों द्वारा गिराया गया।",
+          "translation": "The old house was demolished gradually by the laborers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दरअसल",
+      "partOfSpeech": "adverb / conjunction",
+      "translation": "actually / in fact / indeed",
+      "intro": "Actually, in fact, or indeed. Used to clarify or introduce real facts.",
+      "usage": "Invariable adverb/conjunction.",
+      "synonyms": [
+        {
+          "word": "वास्तव में",
+          "gloss": "in reality / actually"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दरअसल, मैं कल मीटिंग में नहीं था।",
+          "translation": "Actually, I was not in the meeting yesterday. (मीटिंग f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने झूठ बोला, दरअसल वह जानता था।",
+          "translation": "He lied, in fact he knew.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह दरअसल बीमार होता, तो वह काम पर न आता।",
+          "translation": "If he were actually sick, he wouldn't have come to work.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सत्य दरअसल जाँच के बाद ही सामने लाया गया।",
+          "translation": "The truth was actually brought out only after the investigation. (सत्य m)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अंततः",
+      "partOfSpeech": "adverb",
+      "translation": "finally / eventually / in the end",
+      "intro": "Finally, eventually, or in the end. Related to 'अंत' (end). Spelling note: final visual dots are visarga, pronounced like soft 'h'. Also written as अन्ततः.",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "आखिरकार",
+          "gloss": "finally / at last"
+        },
+        {
+          "word": "अंत में",
+          "gloss": "in the end"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लंबी लड़ाई के बाद, अंततः शांति स्थापित हुई।",
+          "translation": "After a long fight, finally peace was established. (शांति f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेहनत रंग लाई और अंततः उसने सफलता प्राप्त की।",
+          "translation": "Hard work paid off and finally he achieved success. (सफलता f)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम प्रयास जारी रखते, तो अंततः जीत जाते।",
+          "translation": "If we kept trying, eventually we would have won.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विवाद को अंततः पंचायत द्वारा सुलझाया गया।",
+          "translation": "The dispute was eventually resolved by the village council. (विवाद m, पंचायत f)",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

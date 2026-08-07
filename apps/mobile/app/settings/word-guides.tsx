@@ -1,13 +1,15 @@
 import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
+import type { LanguageCode } from '@lingora/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import { AlertModal, Button, Card, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, Chip, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
 import {
   getBundledChunkIndexes,
   getInstalledChunkIndexes,
+  getWordGuideLanguages,
   getWordGuideManifest,
   installAllAvailable,
   installBundledChunk,
@@ -28,6 +30,16 @@ interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
   status: ChunkStatus
 }
 
+/** Display name for a word-guide language tab — kept local rather than imported from
+ * settings/learning.tsx's VOCAB_LANGUAGE_LABELS since that map is intentionally duplicated
+ * per screen throughout Settings (see ttsSettings.ts's APP_KEY_PREFIX comment for the same
+ * convention). Only languages actually bundled here (getWordGuideLanguages()) ever need a label. */
+const WORD_GUIDE_LANGUAGE_LABELS: Partial<Record<LanguageCode, string>> = {
+  de: 'German',
+  fr: 'French',
+  hi: 'Hindi',
+}
+
 /**
  * A free, offline starter dictionary — chunks of pre-generated word content
  * (see LingoraDocs/6_word_guides_plan.md) a user can install without an AI
@@ -35,24 +47,31 @@ interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
  * (word/[form].tsx, review/[deckId].tsx); nothing here touches decks/cards.
  */
 export default function WordGuidesScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const manifest = getWordGuideManifest()
-  const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes()), [])
+  const guideLanguages = useMemo(() => getWordGuideLanguages(), [])
+  // Defaults to whatever the user is currently learning if a word guide is bundled for it,
+  // otherwise the first bundled language — a bare fallback since guideLanguages is never empty
+  // in a real build (German always ships).
+  const [language, setLanguage] = useState<LanguageCode>(
+    () => guideLanguages.find((l) => l === targetLanguage) ?? guideLanguages[0] ?? 'de',
+  )
+  const manifest = getWordGuideManifest(language)
+  const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes(language)), [language])
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   const [uninstallAllConfirmOpen, setUninstallAllConfirmOpen] = useState(false)
   const showError = (title: string, error: unknown): void => setNotice({ title, message: String(error) })
 
   const installedQuery = useQuery({
-    queryKey: ['word-guide-installed-chunks', manifest.language],
-    queryFn: () => getInstalledChunkIndexes(db, manifest.language),
+    queryKey: ['word-guide-installed-chunks', language],
+    queryFn: () => getInstalledChunkIndexes(db, language),
   })
 
   const install = useMutation({
-    mutationFn: (chunkIndex: number) => installBundledChunk(db, chunkIndex),
+    mutationFn: (chunkIndex: number) => installBundledChunk(db, language, chunkIndex),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
     },
@@ -63,7 +82,7 @@ export default function WordGuidesScreen(): JSX.Element {
   })
 
   const uninstall = useMutation({
-    mutationFn: (chunkIndex: number) => uninstallChunk(db, chunkIndex, manifest.language),
+    mutationFn: (chunkIndex: number) => uninstallChunk(db, chunkIndex, language),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
     },
@@ -74,7 +93,7 @@ export default function WordGuidesScreen(): JSX.Element {
   })
 
   const installAll = useMutation({
-    mutationFn: () => installAllAvailable(db, manifest.language),
+    mutationFn: () => installAllAvailable(db, language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
       setNotice({ title: t('Local Dictionaries installed'), message: t('Installed {{count}} new chunks.', { count: count.toLocaleString() }) })
@@ -86,7 +105,7 @@ export default function WordGuidesScreen(): JSX.Element {
   })
 
   const uninstallAll = useMutation({
-    mutationFn: () => uninstallAllInstalled(db, manifest.language),
+    mutationFn: () => uninstallAllInstalled(db, language),
     onSuccess: async (count) => {
       await queryClient.invalidateQueries({ queryKey: ['word-guide-installed-chunks'] })
       setNotice({ title: t('Local Dictionaries uninstalled'), message: t('Removed {{count}} chunks.', { count: count.toLocaleString() }) })
@@ -119,8 +138,22 @@ export default function WordGuidesScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      {guideLanguages.length > 1 ? (
+        <View style={styles.languageRow}>
+          {guideLanguages.map((l) => (
+            <Chip
+              key={l}
+              label={t(WORD_GUIDE_LANGUAGE_LABELS[l] ?? l)}
+              selected={l === language}
+              onPress={() => setLanguage(l)}
+            />
+          ))}
+        </View>
+      ) : null}
       <Card style={styles.summaryCard}>
-        <Text style={styles.title}>{t('German-English Dictionary')}</Text>
+        <Text style={styles.title}>
+          {t('{{language}}-English Dictionary', { language: t(WORD_GUIDE_LANGUAGE_LABELS[language] ?? language) })}
+        </Text>
         {installedQuery.isPending ? (
           <Spinner />
         ) : installedQuery.isError ? (
@@ -218,6 +251,7 @@ export default function WordGuidesScreen(): JSX.Element {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
+    languageRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
     summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
     title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
     progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },

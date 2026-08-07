@@ -1,0 +1,2002 @@
+[
+  {
+    "rank": 1,
+    "word": "है",
+    "sourceEnRank": 1
+  },
+  {
+    "rank": 2,
+    "word": "में",
+    "sourceEnRank": 2
+  },
+  {
+    "rank": 3,
+    "word": "और",
+    "sourceEnRank": 3
+  },
+  {
+    "rank": 4,
+    "word": "को",
+    "sourceEnRank": 4
+  },
+  {
+    "rank": 5,
+    "word": "का",
+    "sourceEnRank": 5
+  },
+  {
+    "rank": 6,
+    "word": "से",
+    "sourceEnRank": 6
+  },
+  {
+    "rank": 7,
+    "word": "की",
+    "sourceEnRank": 7
+  },
+  {
+    "rank": 8,
+    "word": "के",
+    "sourceEnRank": 8
+  },
+  {
+    "rank": 9,
+    "word": "हैं",
+    "sourceEnRank": 9
+  },
+  {
+    "rank": 10,
+    "word": "था",
+    "sourceEnRank": 10
+  },
+  {
+    "rank": 11,
+    "word": "यह",
+    "sourceEnRank": 11
+  },
+  {
+    "rank": 12,
+    "word": "वह",
+    "sourceEnRank": 12
+  },
+  {
+    "rank": 13,
+    "word": "पर",
+    "sourceEnRank": 13
+  },
+  {
+    "rank": 14,
+    "word": "कि",
+    "sourceEnRank": 14
+  },
+  {
+    "rank": 15,
+    "word": "नहीं",
+    "sourceEnRank": 15
+  },
+  {
+    "rank": 16,
+    "word": "तो",
+    "sourceEnRank": 16
+  },
+  {
+    "rank": 17,
+    "word": "ही",
+    "sourceEnRank": 17
+  },
+  {
+    "rank": 18,
+    "word": "भी",
+    "sourceEnRank": 18
+  },
+  {
+    "rank": 19,
+    "word": "ने",
+    "sourceEnRank": 19
+  },
+  {
+    "rank": 20,
+    "word": "कर",
+    "sourceEnRank": 20
+  },
+  {
+    "rank": 21,
+    "word": "के लिए",
+    "sourceEnRank": 21
+  },
+  {
+    "rank": 22,
+    "word": "एक",
+    "sourceEnRank": 22
+  },
+  {
+    "rank": 23,
+    "word": "हम",
+    "sourceEnRank": 23
+  },
+  {
+    "rank": 24,
+    "word": "वे",
+    "sourceEnRank": 24
+  },
+  {
+    "rank": 25,
+    "word": "तुम",
+    "sourceEnRank": 25
+  },
+  {
+    "rank": 26,
+    "word": "आप",
+    "sourceEnRank": 26
+  },
+  {
+    "rank": 27,
+    "word": "मैं",
+    "sourceEnRank": 27
+  },
+  {
+    "rank": 28,
+    "word": "करना",
+    "sourceEnRank": 28
+  },
+  {
+    "rank": 29,
+    "word": "होना",
+    "sourceEnRank": 29
+  },
+  {
+    "rank": 30,
+    "word": "गया",
+    "sourceEnRank": 30
+  },
+  {
+    "rank": 31,
+    "word": "दिया",
+    "sourceEnRank": 31
+  },
+  {
+    "rank": 32,
+    "word": "लिया",
+    "sourceEnRank": 32
+  },
+  {
+    "rank": 33,
+    "word": "कहा",
+    "sourceEnRank": 33
+  },
+  {
+    "rank": 34,
+    "word": "जाना",
+    "sourceEnRank": 34
+  },
+  {
+    "rank": 35,
+    "word": "आना",
+    "sourceEnRank": 35
+  },
+  {
+    "rank": 36,
+    "word": "देना",
+    "sourceEnRank": 36
+  },
+  {
+    "rank": 37,
+    "word": "लेना",
+    "sourceEnRank": 37
+  },
+  {
+    "rank": 38,
+    "word": "कहना",
+    "sourceEnRank": 38
+  },
+  {
+    "rank": 39,
+    "word": "सकता",
+    "sourceEnRank": 39
+  },
+  {
+    "rank": 40,
+    "word": "चाहिए",
+    "sourceEnRank": 40
+  },
+  {
+    "rank": 41,
+    "word": "सब",
+    "sourceEnRank": 41
+  },
+  {
+    "rank": 42,
+    "word": "कोई",
+    "sourceEnRank": 42
+  },
+  {
+    "rank": 43,
+    "word": "कुछ",
+    "sourceEnRank": 43
+  },
+  {
+    "rank": 44,
+    "word": "बहुत",
+    "sourceEnRank": 44
+  },
+  {
+    "rank": 45,
+    "word": "लोग",
+    "sourceEnRank": 45
+  },
+  {
+    "rank": 46,
+    "word": "काम",
+    "sourceEnRank": 46
+  },
+  {
+    "rank": 47,
+    "word": "समय",
+    "sourceEnRank": 47
+  },
+  {
+    "rank": 48,
+    "word": "बात",
+    "sourceEnRank": 48
+  },
+  {
+    "rank": 49,
+    "word": "घर",
+    "sourceEnRank": 49
+  },
+  {
+    "rank": 50,
+    "word": "नाम",
+    "sourceEnRank": 50
+  },
+  {
+    "rank": 51,
+    "word": "माँ",
+    "sourceEnRank": 51
+  },
+  {
+    "rank": 52,
+    "word": "पिता",
+    "sourceEnRank": 52
+  },
+  {
+    "rank": 53,
+    "word": "दोस्त",
+    "sourceEnRank": 53
+  },
+  {
+    "rank": 54,
+    "word": "लड़का",
+    "sourceEnRank": 54
+  },
+  {
+    "rank": 55,
+    "word": "लड़की",
+    "sourceEnRank": 55
+  },
+  {
+    "rank": 56,
+    "word": "शहर",
+    "sourceEnRank": 56
+  },
+  {
+    "rank": 57,
+    "word": "देश",
+    "sourceEnRank": 57
+  },
+  {
+    "rank": 58,
+    "word": "साल",
+    "sourceEnRank": 58
+  },
+  {
+    "rank": 59,
+    "word": "दिन",
+    "sourceEnRank": 59
+  },
+  {
+    "rank": 60,
+    "word": "रात",
+    "sourceEnRank": 60
+  },
+  {
+    "rank": 61,
+    "word": "पानी",
+    "sourceEnRank": 61
+  },
+  {
+    "rank": 62,
+    "word": "नया",
+    "sourceEnRank": 62
+  },
+  {
+    "rank": 63,
+    "word": "पुराना",
+    "sourceEnRank": 63
+  },
+  {
+    "rank": 64,
+    "word": "बड़ा",
+    "sourceEnRank": 64
+  },
+  {
+    "rank": 65,
+    "word": "छोटा",
+    "sourceEnRank": 65
+  },
+  {
+    "rank": 66,
+    "word": "अच्छा",
+    "sourceEnRank": 66
+  },
+  {
+    "rank": 67,
+    "word": "बुरा",
+    "sourceEnRank": 67
+  },
+  {
+    "rank": 68,
+    "word": "ठीक",
+    "sourceEnRank": 68
+  },
+  {
+    "rank": 69,
+    "word": "पहले",
+    "sourceEnRank": 69
+  },
+  {
+    "rank": 70,
+    "word": "अब",
+    "sourceEnRank": 70
+  },
+  {
+    "rank": 71,
+    "word": "यहाँ",
+    "sourceEnRank": 71
+  },
+  {
+    "rank": 72,
+    "word": "वहाँ",
+    "sourceEnRank": 72
+  },
+  {
+    "rank": 73,
+    "word": "क्या",
+    "sourceEnRank": 73
+  },
+  {
+    "rank": 74,
+    "word": "कैसे",
+    "sourceEnRank": 74
+  },
+  {
+    "rank": 75,
+    "word": "क्यों",
+    "sourceEnRank": 75
+  },
+  {
+    "rank": 76,
+    "word": "कहाँ",
+    "sourceEnRank": 76
+  },
+  {
+    "rank": 77,
+    "word": "जब",
+    "sourceEnRank": 77
+  },
+  {
+    "rank": 78,
+    "word": "तब",
+    "sourceEnRank": 78
+  },
+  {
+    "rank": 79,
+    "word": "कौन",
+    "sourceEnRank": 79
+  },
+  {
+    "rank": 80,
+    "word": "उसे",
+    "sourceEnRank": 80
+  },
+  {
+    "rank": 81,
+    "word": "मुझे",
+    "sourceEnRank": 81
+  },
+  {
+    "rank": 82,
+    "word": "तुम्हें",
+    "sourceEnRank": 82
+  },
+  {
+    "rank": 83,
+    "word": "उन्हें",
+    "sourceEnRank": 83
+  },
+  {
+    "rank": 84,
+    "word": "हमारा",
+    "sourceEnRank": 84
+  },
+  {
+    "rank": 85,
+    "word": "तुम्हारा",
+    "sourceEnRank": 85
+  },
+  {
+    "rank": 86,
+    "word": "उनका",
+    "sourceEnRank": 86
+  },
+  {
+    "rank": 87,
+    "word": "मेरा",
+    "sourceEnRank": 87
+  },
+  {
+    "rank": 88,
+    "word": "अपना",
+    "sourceEnRank": 88
+  },
+  {
+    "rank": 89,
+    "word": "लेकिन",
+    "sourceEnRank": 89
+  },
+  {
+    "rank": 90,
+    "word": "या",
+    "sourceEnRank": 90
+  },
+  {
+    "rank": 91,
+    "word": "अगर",
+    "sourceEnRank": 91
+  },
+  {
+    "rank": 92,
+    "word": "क्योंकि",
+    "sourceEnRank": 92
+  },
+  {
+    "rank": 93,
+    "word": "साथ",
+    "sourceEnRank": 93
+  },
+  {
+    "rank": 94,
+    "word": "बारे में",
+    "sourceEnRank": 94
+  },
+  {
+    "rank": 95,
+    "word": "पास",
+    "sourceEnRank": 95
+  },
+  {
+    "rank": 96,
+    "word": "नीचे",
+    "sourceEnRank": 96
+  },
+  {
+    "rank": 97,
+    "word": "ऊपर",
+    "sourceEnRank": 97
+  },
+  {
+    "rank": 98,
+    "word": "बाहर",
+    "sourceEnRank": 98
+  },
+  {
+    "rank": 99,
+    "word": "अंदर",
+    "sourceEnRank": 99
+  },
+  {
+    "rank": 100,
+    "word": "कल",
+    "sourceEnRank": 100
+  },
+  {
+    "rank": 101,
+    "word": "रहना",
+    "sourceEnRank": 101
+  },
+  {
+    "rank": 102,
+    "word": "देखना",
+    "sourceEnRank": 102
+  },
+  {
+    "rank": 103,
+    "word": "सोचना",
+    "sourceEnRank": 103
+  },
+  {
+    "rank": 104,
+    "word": "पूछना",
+    "sourceEnRank": 104
+  },
+  {
+    "rank": 105,
+    "word": "बताना",
+    "sourceEnRank": 105
+  },
+  {
+    "rank": 106,
+    "word": "बैठना",
+    "sourceEnRank": 106
+  },
+  {
+    "rank": 107,
+    "word": "चलना",
+    "sourceEnRank": 107
+  },
+  {
+    "rank": 108,
+    "word": "लिखना",
+    "sourceEnRank": 108
+  },
+  {
+    "rank": 109,
+    "word": "पढ़ना",
+    "sourceEnRank": 109
+  },
+  {
+    "rank": 110,
+    "word": "बोलना",
+    "sourceEnRank": 110
+  },
+  {
+    "rank": 111,
+    "word": "समझना",
+    "sourceEnRank": 111
+  },
+  {
+    "rank": 112,
+    "word": "बनाना",
+    "sourceEnRank": 112
+  },
+  {
+    "rank": 113,
+    "word": "लाना",
+    "sourceEnRank": 113
+  },
+  {
+    "rank": 114,
+    "word": "खाना",
+    "sourceEnRank": 114
+  },
+  {
+    "rank": 115,
+    "word": "पीना",
+    "sourceEnRank": 115
+  },
+  {
+    "rank": 116,
+    "word": "मिलना",
+    "sourceEnRank": 116
+  },
+  {
+    "rank": 117,
+    "word": "भाई",
+    "sourceEnRank": 117
+  },
+  {
+    "rank": 118,
+    "word": "बहन",
+    "sourceEnRank": 118
+  },
+  {
+    "rank": 119,
+    "word": "बच्चा",
+    "sourceEnRank": 119
+  },
+  {
+    "rank": 120,
+    "word": "पति",
+    "sourceEnRank": 120
+  },
+  {
+    "rank": 121,
+    "word": "पत्नी",
+    "sourceEnRank": 121
+  },
+  {
+    "rank": 122,
+    "word": "शिक्षक",
+    "sourceEnRank": 122
+  },
+  {
+    "rank": 123,
+    "word": "गाड़ी",
+    "sourceEnRank": 123
+  },
+  {
+    "rank": 124,
+    "word": "सड़क",
+    "sourceEnRank": 124
+  },
+  {
+    "rank": 125,
+    "word": "किताब",
+    "sourceEnRank": 125
+  },
+  {
+    "rank": 126,
+    "word": "दुकान",
+    "sourceEnRank": 126
+  },
+  {
+    "rank": 127,
+    "word": "पैसा",
+    "sourceEnRank": 127
+  },
+  {
+    "rank": 128,
+    "word": "दुनिया",
+    "sourceEnRank": 128
+  },
+  {
+    "rank": 129,
+    "word": "सवाल",
+    "sourceEnRank": 129
+  },
+  {
+    "rank": 130,
+    "word": "उत्तर",
+    "sourceEnRank": 130
+  },
+  {
+    "rank": 131,
+    "word": "बाज़ार",
+    "sourceEnRank": 131
+  },
+  {
+    "rank": 132,
+    "word": "सुबह",
+    "sourceEnRank": 132
+  },
+  {
+    "rank": 133,
+    "word": "दोपहर",
+    "sourceEnRank": 133
+  },
+  {
+    "rank": 134,
+    "word": "शाम",
+    "sourceEnRank": 134
+  },
+  {
+    "rank": 135,
+    "word": "कमरा",
+    "sourceEnRank": 135
+  },
+  {
+    "rank": 136,
+    "word": "मेज",
+    "sourceEnRank": 136
+  },
+  {
+    "rank": 137,
+    "word": "कुर्सी",
+    "sourceEnRank": 137
+  },
+  {
+    "rank": 138,
+    "word": "स्कूल",
+    "sourceEnRank": 138
+  },
+  {
+    "rank": 139,
+    "word": "दफ़्तर",
+    "sourceEnRank": 139
+  },
+  {
+    "rank": 140,
+    "word": "पेड़",
+    "sourceEnRank": 140
+  },
+  {
+    "rank": 141,
+    "word": "फूल",
+    "sourceEnRank": 141
+  },
+  {
+    "rank": 142,
+    "word": "हवा",
+    "sourceEnRank": 142
+  },
+  {
+    "rank": 143,
+    "word": "सूरज",
+    "sourceEnRank": 143
+  },
+  {
+    "rank": 144,
+    "word": "चाँद",
+    "sourceEnRank": 144
+  },
+  {
+    "rank": 145,
+    "word": "गाँव",
+    "sourceEnRank": 145
+  },
+  {
+    "rank": 146,
+    "word": "खुश",
+    "sourceEnRank": 146
+  },
+  {
+    "rank": 147,
+    "word": "उदास",
+    "sourceEnRank": 147
+  },
+  {
+    "rank": 148,
+    "word": "सुंदर",
+    "sourceEnRank": 148
+  },
+  {
+    "rank": 149,
+    "word": "कठिन",
+    "sourceEnRank": 149
+  },
+  {
+    "rank": 150,
+    "word": "आसान",
+    "sourceEnRank": 150
+  },
+  {
+    "rank": 151,
+    "word": "गर्म",
+    "sourceEnRank": 151
+  },
+  {
+    "rank": 152,
+    "word": "ठंडा",
+    "sourceEnRank": 152
+  },
+  {
+    "rank": 153,
+    "word": "साफ़",
+    "sourceEnRank": 153
+  },
+  {
+    "rank": 154,
+    "word": "गंदा",
+    "sourceEnRank": 154
+  },
+  {
+    "rank": 155,
+    "word": "तेज़",
+    "sourceEnRank": 155
+  },
+  {
+    "rank": 156,
+    "word": "धीमा",
+    "sourceEnRank": 156
+  },
+  {
+    "rank": 157,
+    "word": "खुद",
+    "sourceEnRank": 157
+  },
+  {
+    "rank": 158,
+    "word": "द्वारा",
+    "sourceEnRank": 158
+  },
+  {
+    "rank": 159,
+    "word": "पीछे",
+    "sourceEnRank": 159
+  },
+  {
+    "rank": 160,
+    "word": "सामने",
+    "sourceEnRank": 160
+  },
+  {
+    "rank": 161,
+    "word": "बीच में",
+    "sourceEnRank": 161
+  },
+  {
+    "rank": 162,
+    "word": "बिना",
+    "sourceEnRank": 162
+  },
+  {
+    "rank": 163,
+    "word": "ताकि",
+    "sourceEnRank": 163
+  },
+  {
+    "rank": 164,
+    "word": "इसलिए",
+    "sourceEnRank": 164
+  },
+  {
+    "rank": 165,
+    "word": "अथवा",
+    "sourceEnRank": 165
+  },
+  {
+    "rank": 166,
+    "word": "तथा",
+    "sourceEnRank": 166
+  },
+  {
+    "rank": 167,
+    "word": "शायद",
+    "sourceEnRank": 167
+  },
+  {
+    "rank": 168,
+    "word": "हमेशा",
+    "sourceEnRank": 168
+  },
+  {
+    "rank": 169,
+    "word": "कभी नहीं",
+    "sourceEnRank": 169
+  },
+  {
+    "rank": 170,
+    "word": "कभी",
+    "sourceEnRank": 170
+  },
+  {
+    "rank": 171,
+    "word": "फिर",
+    "sourceEnRank": 171
+  },
+  {
+    "rank": 172,
+    "word": "साथी",
+    "sourceEnRank": 172
+  },
+  {
+    "rank": 173,
+    "word": "शरीर",
+    "sourceEnRank": 173
+  },
+  {
+    "rank": 174,
+    "word": "मन",
+    "sourceEnRank": 174
+  },
+  {
+    "rank": 175,
+    "word": "सिर",
+    "sourceEnRank": 175
+  },
+  {
+    "rank": 176,
+    "word": "हाथ",
+    "sourceEnRank": 176
+  },
+  {
+    "rank": 177,
+    "word": "पाँव",
+    "sourceEnRank": 177
+  },
+  {
+    "rank": 178,
+    "word": "आँख",
+    "sourceEnRank": 178
+  },
+  {
+    "rank": 179,
+    "word": "कान",
+    "sourceEnRank": 179
+  },
+  {
+    "rank": 180,
+    "word": "मुँह",
+    "sourceEnRank": 180
+  },
+  {
+    "rank": 181,
+    "word": "दिल",
+    "sourceEnRank": 181
+  },
+  {
+    "rank": 182,
+    "word": "ज़िंदगी",
+    "sourceEnRank": 182
+  },
+  {
+    "rank": 183,
+    "word": "मौत",
+    "sourceEnRank": 183
+  },
+  {
+    "rank": 184,
+    "word": "खुशी",
+    "sourceEnRank": 184
+  },
+  {
+    "rank": 185,
+    "word": "दुख",
+    "sourceEnRank": 185
+  },
+  {
+    "rank": 186,
+    "word": "प्यार",
+    "sourceEnRank": 186
+  },
+  {
+    "rank": 187,
+    "word": "नफ़रत",
+    "sourceEnRank": 187
+  },
+  {
+    "rank": 188,
+    "word": "सच",
+    "sourceEnRank": 188
+  },
+  {
+    "rank": 189,
+    "word": "झूठ",
+    "sourceEnRank": 189
+  },
+  {
+    "rank": 190,
+    "word": "रास्ता",
+    "sourceEnRank": 190
+  },
+  {
+    "rank": 191,
+    "word": "सत्य",
+    "sourceEnRank": 191
+  },
+  {
+    "rank": 192,
+    "word": "धर्म",
+    "sourceEnRank": 192
+  },
+  {
+    "rank": 193,
+    "word": "ईश्वर",
+    "sourceEnRank": 193
+  },
+  {
+    "rank": 194,
+    "word": "आत्मा",
+    "sourceEnRank": 194
+  },
+  {
+    "rank": 195,
+    "word": "सपना",
+    "sourceEnRank": 195
+  },
+  {
+    "rank": 196,
+    "word": "आवाज़",
+    "sourceEnRank": 196
+  },
+  {
+    "rank": 197,
+    "word": "सोना",
+    "sourceEnRank": 197
+  },
+  {
+    "rank": 198,
+    "word": "चांदी",
+    "sourceEnRank": 198
+  },
+  {
+    "rank": 199,
+    "word": "लोहा",
+    "sourceEnRank": 199
+  },
+  {
+    "rank": 200,
+    "word": "आज",
+    "sourceEnRank": 200
+  },
+  {
+    "rank": 201,
+    "word": "दौड़ना",
+    "sourceEnRank": 201
+  },
+  {
+    "rank": 202,
+    "word": "हंसना",
+    "sourceEnRank": 202
+  },
+  {
+    "rank": 203,
+    "word": "रोना",
+    "sourceEnRank": 203
+  },
+  {
+    "rank": 204,
+    "word": "खेलना",
+    "sourceEnRank": 204
+  },
+  {
+    "rank": 205,
+    "word": "गाना",
+    "sourceEnRank": 205
+  },
+  {
+    "rank": 206,
+    "word": "नाचना",
+    "sourceEnRank": 206
+  },
+  {
+    "rank": 207,
+    "word": "सीखना",
+    "sourceEnRank": 207
+  },
+  {
+    "rank": 208,
+    "word": "सिखाना",
+    "sourceEnRank": 208
+  },
+  {
+    "rank": 209,
+    "word": "बेचना",
+    "sourceEnRank": 209
+  },
+  {
+    "rank": 210,
+    "word": "खरीदना",
+    "sourceEnRank": 210
+  },
+  {
+    "rank": 211,
+    "word": "भेजना",
+    "sourceEnRank": 211
+  },
+  {
+    "rank": 212,
+    "word": "खोलना",
+    "sourceEnRank": 212
+  },
+  {
+    "rank": 213,
+    "word": "बंद करना",
+    "sourceEnRank": 213
+  },
+  {
+    "rank": 214,
+    "word": "धोना",
+    "sourceEnRank": 214
+  },
+  {
+    "rank": 215,
+    "word": "साफ़ करना",
+    "sourceEnRank": 215
+  },
+  {
+    "rank": 216,
+    "word": "मदद करना",
+    "sourceEnRank": 216
+  },
+  {
+    "rank": 217,
+    "word": "तैयार करना",
+    "sourceEnRank": 217
+  },
+  {
+    "rank": 218,
+    "word": "याद करना",
+    "sourceEnRank": 218
+  },
+  {
+    "rank": 219,
+    "word": "भूलना",
+    "sourceEnRank": 219
+  },
+  {
+    "rank": 220,
+    "word": "सजाना",
+    "sourceEnRank": 220
+  },
+  {
+    "rank": 221,
+    "word": "आदमी",
+    "sourceEnRank": 221
+  },
+  {
+    "rank": 222,
+    "word": "महिला",
+    "sourceEnRank": 222
+  },
+  {
+    "rank": 223,
+    "word": "पुरुष",
+    "sourceEnRank": 223
+  },
+  {
+    "rank": 224,
+    "word": "स्त्री",
+    "sourceEnRank": 224
+  },
+  {
+    "rank": 225,
+    "word": "शिशु",
+    "sourceEnRank": 225
+  },
+  {
+    "rank": 226,
+    "word": "परिवार",
+    "sourceEnRank": 226
+  },
+  {
+    "rank": 227,
+    "word": "शत्रु",
+    "sourceEnRank": 227
+  },
+  {
+    "rank": 228,
+    "word": "दुश्मन",
+    "sourceEnRank": 228
+  },
+  {
+    "rank": 229,
+    "word": "भोजन",
+    "sourceEnRank": 229
+  },
+  {
+    "rank": 230,
+    "word": "फल",
+    "sourceEnRank": 230
+  },
+  {
+    "rank": 231,
+    "word": "सब्ज़ी",
+    "sourceEnRank": 231
+  },
+  {
+    "rank": 232,
+    "word": "दूध",
+    "sourceEnRank": 232
+  },
+  {
+    "rank": 233,
+    "word": "चाय",
+    "sourceEnRank": 233
+  },
+  {
+    "rank": 234,
+    "word": "रोटी",
+    "sourceEnRank": 234
+  },
+  {
+    "rank": 235,
+    "word": "चावल",
+    "sourceEnRank": 235
+  },
+  {
+    "rank": 236,
+    "word": "नमक",
+    "sourceEnRank": 236
+  },
+  {
+    "rank": 237,
+    "word": "चीनी",
+    "sourceEnRank": 237
+  },
+  {
+    "rank": 238,
+    "word": "कपड़ा",
+    "sourceEnRank": 238
+  },
+  {
+    "rank": 239,
+    "word": "जूता",
+    "sourceEnRank": 239
+  },
+  {
+    "rank": 240,
+    "word": "टोपी",
+    "sourceEnRank": 240
+  },
+  {
+    "rank": 241,
+    "word": "थैला",
+    "sourceEnRank": 241
+  },
+  {
+    "rank": 242,
+    "word": "दवा",
+    "sourceEnRank": 242
+  },
+  {
+    "rank": 243,
+    "word": "बीमारी",
+    "sourceEnRank": 243
+  },
+  {
+    "rank": 244,
+    "word": "अस्पताल",
+    "sourceEnRank": 244
+  },
+  {
+    "rank": 245,
+    "word": "डॉक्टर",
+    "sourceEnRank": 245
+  },
+  {
+    "rank": 246,
+    "word": "पुलिस",
+    "sourceEnRank": 246
+  },
+  {
+    "rank": 247,
+    "word": "चोर",
+    "sourceEnRank": 247
+  },
+  {
+    "rank": 248,
+    "word": "सिपाही",
+    "sourceEnRank": 248
+  },
+  {
+    "rank": 249,
+    "word": "सेना",
+    "sourceEnRank": 249
+  },
+  {
+    "rank": 250,
+    "word": "युद्ध",
+    "sourceEnRank": 250
+  },
+  {
+    "rank": 251,
+    "word": "शांति",
+    "sourceEnRank": 251
+  },
+  {
+    "rank": 252,
+    "word": "क्रोध",
+    "sourceEnRank": 252
+  },
+  {
+    "rank": 253,
+    "word": "प्रेम",
+    "sourceEnRank": 253
+  },
+  {
+    "rank": 254,
+    "word": "सफलता",
+    "sourceEnRank": 254
+  },
+  {
+    "rank": 255,
+    "word": "असफलता",
+    "sourceEnRank": 255
+  },
+  {
+    "rank": 256,
+    "word": "मेहनत",
+    "sourceEnRank": 256
+  },
+  {
+    "rank": 257,
+    "word": "ज्ञान",
+    "sourceEnRank": 257
+  },
+  {
+    "rank": 258,
+    "word": "बुद्धि",
+    "sourceEnRank": 258
+  },
+  {
+    "rank": 259,
+    "word": "विचार",
+    "sourceEnRank": 259
+  },
+  {
+    "rank": 260,
+    "word": "योजना",
+    "sourceEnRank": 260
+  },
+  {
+    "rank": 261,
+    "word": "सच्चा",
+    "sourceEnRank": 261
+  },
+  {
+    "rank": 262,
+    "word": "झूठा",
+    "sourceEnRank": 262
+  },
+  {
+    "rank": 263,
+    "word": "सुखी",
+    "sourceEnRank": 263
+  },
+  {
+    "rank": 264,
+    "word": "दुखी",
+    "sourceEnRank": 264
+  },
+  {
+    "rank": 265,
+    "word": "अमीर",
+    "sourceEnRank": 265
+  },
+  {
+    "rank": 266,
+    "word": "गरीब",
+    "sourceEnRank": 266
+  },
+  {
+    "rank": 267,
+    "word": "मजबूत",
+    "sourceEnRank": 267
+  },
+  {
+    "rank": 268,
+    "word": "कमजोर",
+    "sourceEnRank": 268
+  },
+  {
+    "rank": 269,
+    "word": "भारी",
+    "sourceEnRank": 269
+  },
+  {
+    "rank": 270,
+    "word": "हल्का",
+    "sourceEnRank": 270
+  },
+  {
+    "rank": 271,
+    "word": "महंगा",
+    "sourceEnRank": 271
+  },
+  {
+    "rank": 272,
+    "word": "सस्ता",
+    "sourceEnRank": 272
+  },
+  {
+    "rank": 273,
+    "word": "लंबा",
+    "sourceEnRank": 273
+  },
+  {
+    "rank": 274,
+    "word": "ऊंचा",
+    "sourceEnRank": 274
+  },
+  {
+    "rank": 275,
+    "word": "चौड़ा",
+    "sourceEnRank": 275
+  },
+  {
+    "rank": 276,
+    "word": "गहरा",
+    "sourceEnRank": 276
+  },
+  {
+    "rank": 277,
+    "word": "मीठा",
+    "sourceEnRank": 277
+  },
+  {
+    "rank": 278,
+    "word": "कड़वा",
+    "sourceEnRank": 278
+  },
+  {
+    "rank": 279,
+    "word": "खट्टा",
+    "sourceEnRank": 279
+  },
+  {
+    "rank": 280,
+    "word": "तीखा",
+    "sourceEnRank": 280
+  },
+  {
+    "rank": 281,
+    "word": "जल्दी",
+    "sourceEnRank": 281
+  },
+  {
+    "rank": 282,
+    "word": "धीरे",
+    "sourceEnRank": 282
+  },
+  {
+    "rank": 283,
+    "word": "अचानक",
+    "sourceEnRank": 283
+  },
+  {
+    "rank": 284,
+    "word": "लगातार",
+    "sourceEnRank": 284
+  },
+  {
+    "rank": 285,
+    "word": "केवल",
+    "sourceEnRank": 285
+  },
+  {
+    "rank": 286,
+    "word": "लगभग",
+    "sourceEnRank": 286
+  },
+  {
+    "rank": 287,
+    "word": "जरूर",
+    "sourceEnRank": 287
+  },
+  {
+    "rank": 288,
+    "word": "बिलकुल",
+    "sourceEnRank": 288
+  },
+  {
+    "rank": 289,
+    "word": "खासकर",
+    "sourceEnRank": 289
+  },
+  {
+    "rank": 290,
+    "word": "विशेषकर",
+    "sourceEnRank": 290
+  },
+  {
+    "rank": 291,
+    "word": "जैसे",
+    "sourceEnRank": 291
+  },
+  {
+    "rank": 292,
+    "word": "वैसे",
+    "sourceEnRank": 292
+  },
+  {
+    "rank": 293,
+    "word": "वैसे भी",
+    "sourceEnRank": 293
+  },
+  {
+    "rank": 294,
+    "word": "कम से कम",
+    "sourceEnRank": 294
+  },
+  {
+    "rank": 295,
+    "word": "अधिक से अधिक",
+    "sourceEnRank": 295
+  },
+  {
+    "rank": 296,
+    "word": "आमतौर पर",
+    "sourceEnRank": 296
+  },
+  {
+    "rank": 297,
+    "word": "तुरंत",
+    "sourceEnRank": 297
+  },
+  {
+    "rank": 298,
+    "word": "धीरे-धीरे",
+    "sourceEnRank": 298
+  },
+  {
+    "rank": 299,
+    "word": "दरअसल",
+    "sourceEnRank": 299
+  },
+  {
+    "rank": 300,
+    "word": "अंततः",
+    "sourceEnRank": 300
+  },
+  {
+    "rank": 301,
+    "word": "पसंद करना",
+    "sourceEnRank": 301
+  },
+  {
+    "rank": 302,
+    "word": "प्रदान करना",
+    "sourceEnRank": 302
+  },
+  {
+    "rank": 303,
+    "word": "बांटना",
+    "sourceEnRank": 303
+  },
+  {
+    "rank": 304,
+    "word": "लौटना",
+    "sourceEnRank": 304
+  },
+  {
+    "rank": 305,
+    "word": "पहचानना",
+    "sourceEnRank": 305
+  },
+  {
+    "rank": 306,
+    "word": "जारी रखना",
+    "sourceEnRank": 306
+  },
+  {
+    "rank": 307,
+    "word": "समझाना",
+    "sourceEnRank": 307
+  },
+  {
+    "rank": 308,
+    "word": "घूमना",
+    "sourceEnRank": 308
+  },
+  {
+    "rank": 309,
+    "word": "तैयार होना",
+    "sourceEnRank": 309
+  },
+  {
+    "rank": 310,
+    "word": "सामना करना",
+    "sourceEnRank": 310
+  },
+  {
+    "rank": 311,
+    "word": "बजाना",
+    "sourceEnRank": 311
+  },
+  {
+    "rank": 312,
+    "word": "मुस्कुराना",
+    "sourceEnRank": 312
+  },
+  {
+    "rank": 313,
+    "word": "कूदना",
+    "sourceEnRank": 313
+  },
+  {
+    "rank": 314,
+    "word": "उड़ना",
+    "sourceEnRank": 314
+  },
+  {
+    "rank": 315,
+    "word": "चुराना",
+    "sourceEnRank": 315
+  },
+  {
+    "rank": 316,
+    "word": "चिल्लाना",
+    "sourceEnRank": 316
+  },
+  {
+    "rank": 317,
+    "word": "पकड़ना",
+    "sourceEnRank": 317
+  },
+  {
+    "rank": 318,
+    "word": "छोड़ना",
+    "sourceEnRank": 318
+  },
+  {
+    "rank": 319,
+    "word": "बढ़ना",
+    "sourceEnRank": 319
+  },
+  {
+    "rank": 320,
+    "word": "घटना",
+    "sourceEnRank": 320
+  },
+  {
+    "rank": 321,
+    "word": "दूल्हा",
+    "sourceEnRank": 321
+  },
+  {
+    "rank": 322,
+    "word": "दुल्हन",
+    "sourceEnRank": 322
+  },
+  {
+    "rank": 323,
+    "word": "दादा",
+    "sourceEnRank": 323
+  },
+  {
+    "rank": 324,
+    "word": "दादी",
+    "sourceEnRank": 324
+  },
+  {
+    "rank": 325,
+    "word": "चाचा",
+    "sourceEnRank": 325
+  },
+  {
+    "rank": 326,
+    "word": "चाची",
+    "sourceEnRank": 326
+  },
+  {
+    "rank": 327,
+    "word": "पड़ोसी",
+    "sourceEnRank": 327
+  },
+  {
+    "rank": 328,
+    "word": "पड़ोसन",
+    "sourceEnRank": 328
+  },
+  {
+    "rank": 329,
+    "word": "अवधि",
+    "sourceEnRank": 329
+  },
+  {
+    "rank": 330,
+    "word": "सदी",
+    "sourceEnRank": 330
+  },
+  {
+    "rank": 331,
+    "word": "तारीख",
+    "sourceEnRank": 331
+  },
+  {
+    "rank": 332,
+    "word": "ऋतु",
+    "sourceEnRank": 332
+  },
+  {
+    "rank": 333,
+    "word": "वसंत",
+    "sourceEnRank": 333
+  },
+  {
+    "rank": 334,
+    "word": "गर्मी",
+    "sourceEnRank": 334
+  },
+  {
+    "rank": 335,
+    "word": "पतझड़",
+    "sourceEnRank": 335
+  },
+  {
+    "rank": 336,
+    "word": "सर्दी",
+    "sourceEnRank": 336
+  },
+  {
+    "rank": 337,
+    "word": "दीवार",
+    "sourceEnRank": 337
+  },
+  {
+    "rank": 338,
+    "word": "छत",
+    "sourceEnRank": 338
+  },
+  {
+    "rank": 339,
+    "word": "फर्श",
+    "sourceEnRank": 339
+  },
+  {
+    "rank": 340,
+    "word": "खिड़की",
+    "sourceEnRank": 340
+  },
+  {
+    "rank": 341,
+    "word": "चाबी",
+    "sourceEnRank": 341
+  },
+  {
+    "rank": 342,
+    "word": "ताला",
+    "sourceEnRank": 342
+  },
+  {
+    "rank": 343,
+    "word": "रसोई",
+    "sourceEnRank": 343
+  },
+  {
+    "rank": 344,
+    "word": "बर्तन",
+    "sourceEnRank": 344
+  },
+  {
+    "rank": 345,
+    "word": "बिस्तर",
+    "sourceEnRank": 345
+  },
+  {
+    "rank": 346,
+    "word": "तकिया",
+    "sourceEnRank": 346
+  },
+  {
+    "rank": 347,
+    "word": "चादर",
+    "sourceEnRank": 347
+  },
+  {
+    "rank": 348,
+    "word": "साबुन",
+    "sourceEnRank": 348
+  },
+  {
+    "rank": 349,
+    "word": "तौलिया",
+    "sourceEnRank": 349
+  },
+  {
+    "rank": 350,
+    "word": "कंघी",
+    "sourceEnRank": 350
+  },
+  {
+    "rank": 351,
+    "word": "आईना",
+    "sourceEnRank": 351
+  },
+  {
+    "rank": 352,
+    "word": "कागज़",
+    "sourceEnRank": 352
+  },
+  {
+    "rank": 353,
+    "word": "कलम",
+    "sourceEnRank": 353
+  },
+  {
+    "rank": 354,
+    "word": "नक्शा",
+    "sourceEnRank": 354
+  },
+  {
+    "rank": 355,
+    "word": "टिकट",
+    "sourceEnRank": 355
+  },
+  {
+    "rank": 356,
+    "word": "पत्र",
+    "sourceEnRank": 356
+  },
+  {
+    "rank": 357,
+    "word": "लिफाफा",
+    "sourceEnRank": 357
+  },
+  {
+    "rank": 358,
+    "word": "डाकघर",
+    "sourceEnRank": 358
+  },
+  {
+    "rank": 359,
+    "word": "स्टेशन",
+    "sourceEnRank": 359
+  },
+  {
+    "rank": 360,
+    "word": "हवाई अड्डा",
+    "sourceEnRank": 360
+  },
+  {
+    "rank": 361,
+    "word": "निश्चित",
+    "sourceEnRank": 361
+  },
+  {
+    "rank": 362,
+    "word": "संभव",
+    "sourceEnRank": 362
+  },
+  {
+    "rank": 363,
+    "word": "असंभव",
+    "sourceEnRank": 363
+  },
+  {
+    "rank": 364,
+    "word": "सरल",
+    "sourceEnRank": 364
+  },
+  {
+    "rank": 365,
+    "word": "जटिल",
+    "sourceEnRank": 365
+  },
+  {
+    "rank": 366,
+    "word": "शांत",
+    "sourceEnRank": 366
+  },
+  {
+    "rank": 367,
+    "word": "सक्रिय",
+    "sourceEnRank": 367
+  },
+  {
+    "rank": 368,
+    "word": "आकर्षक",
+    "sourceEnRank": 368
+  },
+  {
+    "rank": 369,
+    "word": "बदसूरत",
+    "sourceEnRank": 369
+  },
+  {
+    "rank": 370,
+    "word": "सुरक्षित",
+    "sourceEnRank": 370
+  },
+  {
+    "rank": 371,
+    "word": "खतरनाक",
+    "sourceEnRank": 371
+  },
+  {
+    "rank": 372,
+    "word": "खाली",
+    "sourceEnRank": 372
+  },
+  {
+    "rank": 373,
+    "word": "भरा",
+    "sourceEnRank": 373
+  },
+  {
+    "rank": 374,
+    "word": "सूखा",
+    "sourceEnRank": 374
+  },
+  {
+    "rank": 375,
+    "word": "गीला",
+    "sourceEnRank": 375
+  },
+  {
+    "rank": 376,
+    "word": "मुफ्त",
+    "sourceEnRank": 376
+  },
+  {
+    "rank": 377,
+    "word": "ताजा",
+    "sourceEnRank": 377
+  },
+  {
+    "rank": 378,
+    "word": "बासी",
+    "sourceEnRank": 378
+  },
+  {
+    "rank": 379,
+    "word": "सावधान",
+    "sourceEnRank": 379
+  },
+  {
+    "rank": 380,
+    "word": "लापरवाह",
+    "sourceEnRank": 380
+  },
+  {
+    "rank": 381,
+    "word": "निश्चित रूप से",
+    "sourceEnRank": 381
+  },
+  {
+    "rank": 382,
+    "word": "विशेष रूप से",
+    "sourceEnRank": 382
+  },
+  {
+    "rank": 383,
+    "word": "पूर्ण रूप से",
+    "sourceEnRank": 383
+  },
+  {
+    "rank": 384,
+    "word": "धीरे से",
+    "sourceEnRank": 384
+  },
+  {
+    "rank": 385,
+    "word": "तेजी से",
+    "sourceEnRank": 385
+  },
+  {
+    "rank": 386,
+    "word": "अक्सर",
+    "sourceEnRank": 386
+  },
+  {
+    "rank": 387,
+    "word": "कभी-कभार",
+    "sourceEnRank": 387
+  },
+  {
+    "rank": 388,
+    "word": "पर्याप्त",
+    "sourceEnRank": 388
+  },
+  {
+    "rank": 389,
+    "word": "शायद ही",
+    "sourceEnRank": 389
+  },
+  {
+    "rank": 390,
+    "word": "उधर",
+    "sourceEnRank": 390
+  },
+  {
+    "rank": 391,
+    "word": "इधर",
+    "sourceEnRank": 391
+  },
+  {
+    "rank": 392,
+    "word": "चारों ओर",
+    "sourceEnRank": 392
+  },
+  {
+    "rank": 393,
+    "word": "के आसपास",
+    "sourceEnRank": 393
+  },
+  {
+    "rank": 394,
+    "word": "के नीचे",
+    "sourceEnRank": 394
+  },
+  {
+    "rank": 395,
+    "word": "के ऊपर",
+    "sourceEnRank": 395
+  },
+  {
+    "rank": 396,
+    "word": "कहीं और",
+    "sourceEnRank": 396
+  },
+  {
+    "rank": 397,
+    "word": "हर जगह",
+    "sourceEnRank": 397
+  },
+  {
+    "rank": 398,
+    "word": "के बजाय",
+    "sourceEnRank": 398
+  },
+  {
+    "rank": 399,
+    "word": "फिर भी",
+    "sourceEnRank": 399
+  },
+  {
+    "rank": 400,
+    "word": "देर से",
+    "sourceEnRank": 400
+  }
+]

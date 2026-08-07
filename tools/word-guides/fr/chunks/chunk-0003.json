@@ -1,0 +1,3518 @@
+{
+  "chunkIndex": 3,
+  "language": "fr",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.5-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-08-05",
+  "note": "Intermediate format — not yet a .lin file. WP3 converts this into a BackupPayload for import via importLinDeck. Content is AI-generated and has not been reviewed by a fluent French speaker yet — treat as a first draft. Each entry has 4 examples: two plain (indicative), one Konjunktiv II (conditionnel), one passive voice. All nouns are annotated with their grammatical gender (masculine/feminine). Common counterparts, opposites, and gender pairs in this same chunk (monsieur/madame, matin/midi/soir, semaine/mois/saison, porte/fenêtre/cuisine/salle/jardin/fleur/arbre, voyage/valise/train/avion/bateau, vêtement/chapeau/chaussure/sac, pain/lait/vin/café/thé/viande/fruit/légume/sel/sucre, vrai/faux, facile/difficile, propre/sale, chaud/froid, rapide/lent, heureux/malheureux/triste, cher/pauvre/riche, fort/faible, doux/dur, vite/lentement, parfois/rarement, beaucoup/peu/assez, devant/derrière, dehors/dedans, au-dessus/au-dessous, ensemble/seul) were cross-referenced in their intros. Total entries this chunk: 100.",
+  "entries": [
+    {
+      "headword": "appeler",
+      "partOfSpeech": "verb",
+      "translation": "to call / name",
+      "intro": "To call someone by voice or phone, or to name someone/something (s'appeler - to be named).",
+      "usage": "Spelling changes before silent e: j'appelle, tu appelles, il appelle, nous appelons. Past participle: appelé.",
+      "synonyms": [
+        {
+          "word": "téléphoner",
+          "gloss": "to telephone / call"
+        },
+        {
+          "word": "nommer",
+          "gloss": "to name"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'appelle mon ami ce soir.",
+          "translation": "I am calling my friend tonight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Comment s'appelle cette fleur?",
+          "translation": "How is this flower called? (What is its name?)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais un problème, je t'appellerais.",
+          "translation": "If I had a problem, I would call you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le médecin a été appelé d'urgence.",
+          "translation": "The doctor was called urgently. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "tomber",
+      "partOfSpeech": "verb",
+      "translation": "to fall",
+      "intro": "To fall physically (slip/drop) or metaphorically (e.g. tomber malade - to fall ill; tomber amoureux - to fall in love).",
+      "usage": "Regular -er verb. Takes 'être' as auxiliary verb in past tenses (e.g. je suis tombé).",
+      "synonyms": [
+        {
+          "word": "chuter",
+          "gloss": "to fall / drop"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Les feuilles tombent en automne.",
+          "translation": "The leaves fall in autumn.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est tombé de son vélo.",
+          "translation": "He fell from his bike.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la pluie tombait, nous resterions à la maison.",
+          "translation": "If the rain fell, we would stay home.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les obstacles ont été fait tomber par le vent.",
+          "translation": "The obstacles were made to fall by the wind. (Impersonal/imitative passive)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "commencer",
+      "partOfSpeech": "verb",
+      "translation": "to start / begin",
+      "intro": "To start or begin a task, meeting, or time. Opposite of 'finir' (Chunk 2) and cross-referenced with 'recommencer' (#204).",
+      "usage": "Spelling changes to maintain soft c sound: nous commençons. Past participle: commencé.",
+      "synonyms": [
+        {
+          "word": "débuter",
+          "gloss": "to start / debut"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le cours commence à huit heures.",
+          "translation": "The class starts at eight o'clock.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous commençons à comprendre la règle.",
+          "translation": "We are beginning to understand the rule.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu commençais maintenant, tu finirais plus tôt.",
+          "translation": "If you started now, you would finish earlier.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce projet a été commencé le mois dernier.",
+          "translation": "This project was started last month.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "recommencer",
+      "partOfSpeech": "verb",
+      "translation": "to start again / restart",
+      "intro": "To start something again or redo an action. Cross-referenced with 'commencer' (#203).",
+      "usage": "Conjugates like commencer (nous recommençons). Past participle: recommencé.",
+      "synonyms": [
+        {
+          "word": "refaire",
+          "gloss": "to redo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je recommence mon exercice depuis le début.",
+          "translation": "I am starting my exercise again from the beginning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "La pluie recommence à tomber.",
+          "translation": "The rain is starting to fall again.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous échouions, nous recommencerions.",
+          "translation": "If we failed, we would start again.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La partie a été recommencée après l'incident.",
+          "translation": "The game was restarted after the incident.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "apprendre",
+      "partOfSpeech": "verb",
+      "translation": "to learn / teach / hear news",
+      "intro": "Meaning to acquire knowledge (learn), to teach someone (apprendre à quelqu'un), or to hear news/information.",
+      "usage": "Conjugates like prendre: apprends, apprends, apprend, apprenons, apprenez, apprennent. Past participle: appris.",
+      "synonyms": [
+        {
+          "word": "enseigner",
+          "gloss": "to teach"
+        },
+        {
+          "word": "étudier",
+          "gloss": "to study"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'apprends le français avec cette application.",
+          "translation": "I am learning French with this app.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle apprend la nouvelle dans le journal.",
+          "translation": "She learns the news in the newspaper. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu étudiais chaque jour, tu apprendrais vite.",
+          "translation": "If you studied every day, you would learn quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette leçon est apprise par tous les élèves.",
+          "translation": "This lesson is learned by all the students.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "essayer",
+      "partOfSpeech": "verb",
+      "translation": "to try / attempt / try on (clothes)",
+      "intro": "To make an attempt (essayer de faire) or to test/try on an item (like clothes).",
+      "usage": "Regular -er verb. Optional spelling change: j'essaie / j'essaye. Past participle: essayé.",
+      "synonyms": [
+        {
+          "word": "tenter",
+          "gloss": "to attempt / try"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'essaie de résoudre ce problème.",
+          "translation": "I am trying to solve this problem.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle essaie une nouvelle robe.",
+          "translation": "She is trying on a new dress.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu essayais ce chapeau, tu l'achèterais.",
+          "translation": "If you tried on this hat, you would buy it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette méthode a été essayée par l'équipe.",
+          "translation": "This method was tried by the team.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "payer",
+      "partOfSpeech": "verb",
+      "translation": "to pay / pay for",
+      "intro": "To give money for goods/services. Cross-referenced with 'argent' (Chunk 2) and 'acheter' (#210).",
+      "usage": "Conjugates like essayer (je paie / je paye). Past participle: payé.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je paie par carte bancaire.",
+          "translation": "I am paying by bank card.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il paye le café à ses amis.",
+          "translation": "He pays for coffee for his friends.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais de l'argent, je paierais ma part.",
+          "translation": "If I had money, I would pay my share. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La facture a été payée hier matin.",
+          "translation": "The bill was paid yesterday morning.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "travailler",
+      "partOfSpeech": "verb",
+      "translation": "to work / study hard",
+      "intro": "To perform labor or tasks, or to study hard. Cross-referenced with noun 'travail' (Chunk 1).",
+      "usage": "Regular -er verb. Pronunciation note: final -iller has glide /j/ sound.",
+      "synonyms": [
+        {
+          "word": "bosser",
+          "gloss": "to work (colloquial)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je travaille dans un bureau.",
+          "translation": "I work in an office.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il travaille dur pour réussir.",
+          "translation": "He works hard to succeed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu travaillais moins, tu serais moins fatigué.",
+          "translation": "If you worked less, you would be less tired.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La terre est travaillée par le paysan.",
+          "translation": "The land is worked by the farmer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dormir",
+      "partOfSpeech": "verb",
+      "translation": "to sleep",
+      "intro": "To rest in sleep. Cross-referenced with noun 'lit' (#233) and 'nuit' (Chunk 1).",
+      "usage": "Irregular -ir verb: dors, dors, dort, dormons, dormez, dorment. Past participle: dormi.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le bébé dort paisiblement.",
+          "translation": "The baby sleeps peacefully.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je dors huit heures par nuit.",
+          "translation": "I sleep eight hours per night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la chambre était calme, je dormirais mieux.",
+          "translation": "If the room were quiet, I would sleep better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sommeil est dormi par le patient. (Impersonal/imitative passive)",
+          "translation": "Sleep is slept by the patient. (Impersonal passive context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "acheter",
+      "partOfSpeech": "verb",
+      "translation": "to buy / purchase",
+      "intro": "To obtain goods by paying money. Opposite of 'vendre' (#211) and cross-referenced with 'payer' (#207).",
+      "usage": "Spelling changes before silent e: j'achète, tu achètes, nous achetons. Past participle: acheté.",
+      "synonyms": [
+        {
+          "word": "acquérir",
+          "gloss": "to acquire"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'achète des légumes au marché.",
+          "translation": "I am buying vegetables at the market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle achète un nouveau livre.",
+          "translation": "She is buying a new book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais de l'argent, j'achèterais cette maison.",
+          "translation": "If I had money, I would buy this house. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ces voitures sont achetées par des professionnels.",
+          "translation": "These cars are bought by professionals.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vendre",
+      "partOfSpeech": "verb",
+      "translation": "to sell",
+      "intro": "To give goods in exchange for money. Opposite of 'acheter' (#210).",
+      "usage": "Regular -re verb. Conjugation: vends, vends, vend. Past participle: vendu.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le commerçant vend des fruits.",
+          "translation": "The merchant sells fruits.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle vend sa vieille voiture.",
+          "translation": "She is selling her old car.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je vendais ma maison, j'irais vivre en ville.",
+          "translation": "If I sold my house, I would go live in the city. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce produit est vendu dans le monde entier.",
+          "translation": "This product is sold in the whole world.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "aider",
+      "partOfSpeech": "verb",
+      "translation": "to help / assist",
+      "intro": "To give assistance or support to someone (aider quelqu'un à faire - to help someone do).",
+      "usage": "Regular -er verb. Requires direct object pronoun (e.g. je l'aide). Past participle: aidé.",
+      "synonyms": [
+        {
+          "word": "assister",
+          "gloss": "to assist"
+        },
+        {
+          "word": "secourir",
+          "gloss": "to rescue / help"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je t'aide à faire tes devoirs.",
+          "translation": "I help you do your homework.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il aide sa mère dans la cuisine.",
+          "translation": "He helps his mother in the kitchen.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu m'aidais, nous finirions plus vite.",
+          "translation": "If you helped me, we would finish faster.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le blessé a été aidé par un médecin.",
+          "translation": "The injured person was helped by a doctor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "marcher",
+      "partOfSpeech": "verb",
+      "translation": "to walk / function / work",
+      "intro": "To walk on foot, or to function/work correctly (for machines, plans, or businesses).",
+      "usage": "Regular -er verb. Conjugation: marche, marches, marche. Past participle: marché.",
+      "synonyms": [
+        {
+          "word": "fonctionner",
+          "gloss": "to function / work"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Nous marchons dans le parc.",
+          "translation": "We are walking in the park.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Cette horloge ne marche plus.",
+          "translation": "This clock doesn't work (function) anymore.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si l'appareil marchait, je l'utiliserais.",
+          "translation": "If the device worked, I would use it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La route a été marchée par des milliers de pèlerins. (Impersonal/imitative passive)",
+          "translation": "The road was walked by thousands of pilgrims.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "écouter",
+      "partOfSpeech": "verb",
+      "translation": "to listen / listen to",
+      "intro": "To listen intentionally to a sound, music, or person. Cross-referenced with 'entendre' (Chunk 2).",
+      "usage": "Regular -er verb. Transitive in French, doesn't require a preposition (e.g. écouter la radio). Past participle: écouté.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'écoute de la musique classique.",
+          "translation": "I listen to classical music.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "L'élève écoute attentivement le professeur.",
+          "translation": "The student listens attentively to the teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu m'écoutais, tu ne ferais pas cette erreur.",
+          "translation": "If you listened to me, you wouldn't make this mistake.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ses conseils ont été écoutés par ses enfants.",
+          "translation": "His/Her advice was listened to by his/her children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "changer",
+      "partOfSpeech": "verb",
+      "translation": "to change / alter / exchange",
+      "intro": "To make different, to substitute one item for another, or to undergo modification.",
+      "usage": "Spelling changes before soft g: nous changeons. Past participle: changé.",
+      "synonyms": [
+        {
+          "word": "modifier",
+          "gloss": "to modify"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il change d'avis fréquemment.",
+          "translation": "He changes his mind frequently.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous changeons d'hôtel demain.",
+          "translation": "We are changing hotels tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le temps changeait, nous irions au musée.",
+          "translation": "If the weather changed, we would go to the museum.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les plans ont été changés au dernier moment.",
+          "translation": "The plans were changed at the last moment.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "choisir",
+      "partOfSpeech": "verb",
+      "translation": "to choose / select",
+      "intro": "To make a choice or select from alternatives. Related to noun 'choix'.",
+      "usage": "Regular -ir (second conjugation) verb: choisis, choisis, choisit, choisissons. Past participle: choisi.",
+      "synonyms": [
+        {
+          "word": "sélectionner",
+          "gloss": "to select"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je choisis un dessert sur le menu.",
+          "translation": "I am choosing a dessert on the menu.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ils choisissent de partir tôt.",
+          "translation": "They choose to leave early.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu devais choisir, lequel prendrais-tu?",
+          "translation": "If you had to choose, which one would you take?",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le vainqueur est choisi par le jury.",
+          "translation": "The winner is chosen by the jury.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "décider",
+      "partOfSpeech": "verb",
+      "translation": "to decide / settle",
+      "intro": "To make a decision, settle an issue, or convince (décider de faire - to decide to do).",
+      "usage": "Regular -er verb. Reflexive: se décider (to make up one's mind).",
+      "synonyms": [
+        {
+          "word": "trancher",
+          "gloss": "to settle / slice"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le directeur décide du budget aujourd'hui.",
+          "translation": "The director decides the budget today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle décide de changer de travail.",
+          "translation": "She decides to change jobs.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu décidais de venir, appelle-moi.",
+          "translation": "If you decided to come, call me.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La date de la réunion a été décidée hier.",
+          "translation": "The meeting date was decided yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "espérer",
+      "partOfSpeech": "verb",
+      "translation": "to hope / look forward to",
+      "intro": "To hope for something or look forward to an outcome. Related to noun 'espoir' (hope).",
+      "usage": "Spelling changes before silent e: j'espère, tu espères, nous espérons. Past participle: espéré.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'espère qu'il fera beau demain.",
+          "translation": "I hope it will be nice weather tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle espère recevoir une bonne nouvelle.",
+          "translation": "She hopes to receive good news.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous espérions encore, nous serions déçus.",
+          "translation": "If we still hoped, we would be disappointed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Une amélioration est espérée par les médecins.",
+          "translation": "An improvement is hoped for by the doctors.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "oublier",
+      "partOfSpeech": "verb",
+      "translation": "to forget",
+      "intro": "To fail to remember something, or leave an object behind (oublier de faire - to forget to do).",
+      "usage": "Regular -er verb. Conjugation: oublie, oublies, oublie. Past participle: oublié.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'oublie toujours son anniversaire.",
+          "translation": "I always forget his/her birthday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il a oublié ses clés à la maison.",
+          "translation": "He forgot his keys at home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu m'oubliais, je serais très triste.",
+          "translation": "If you forgot me, I would be very sad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cet incident a été vite oublié par le public.",
+          "translation": "This incident was quickly forgotten by the public.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "permettre",
+      "partOfSpeech": "verb",
+      "translation": "to allow / permit / enable",
+      "intro": "To give permission or enable an action (permettre à quelqu'un de faire - to allow someone to do). Opposite of 'interdire' (to forbid).",
+      "usage": "Irregular, conjugated like mettre: permets, permets, permet, permettons. Past participle: permis.",
+      "synonyms": [
+        {
+          "word": "autoriser",
+          "gloss": "to authorize / allow"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ma mère permet cette sortie.",
+          "translation": "My mother allows this outing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "La carte permet d'accéder au musée.",
+          "translation": "The card enables access to the museum. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu me permettais, je prendrais ce livre.",
+          "translation": "If you allowed me, I would take this book.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le stationnement est permis dans cette rue.",
+          "translation": "Parking is permitted in this street. (Adjective context)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "monsieur",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "gentleman / sir / Mr.",
+      "intro": "A polite address for a male adult, equivalent to Sir, Mr., or gentleman. Opposite of 'madame' (#222).",
+      "usage": "Irregular spelling and pronunciation: pronounced /məsjø/. Plural: messieurs /mesjø/.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ce monsieur cherche son chemin.",
+          "translation": "This gentleman is looking for his way.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Bonjour Monsieur, comment allez-vous?",
+          "translation": "Good morning Sir, how are you?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce monsieur parlait français, je l'aiderais.",
+          "translation": "If this gentleman spoke French, I would help him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le prix a été remis à un monsieur du comité.",
+          "translation": "The prize was awarded to a gentleman from the committee.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "madame",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "lady / madam / Mrs.",
+      "intro": "A polite address for a female adult, equivalent to Madam, Mrs., or lady. Opposite of 'monsieur' (#221).",
+      "usage": "Feminine noun. Plural: mesdames.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Cette madame est très élégante.",
+          "translation": "This lady is very elegant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Bonjour Madame, puis-je vous aider?",
+          "translation": "Hello Madam, can I help you?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si cette madame était là, elle saurait quoi faire.",
+          "translation": "If this lady were here, she would know what to do.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La parole a été donnée à la madame en rouge.",
+          "translation": "The speech was given to the lady in red.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "minute",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "minute",
+      "intro": "A unit of time equal to 60 seconds. Cross-referenced with 'seconde' (#224) and 'heure' (Chunk 1).",
+      "usage": "Feminine noun. Plural: minutes.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Attends-moi une minute, s'il te plaît.",
+          "translation": "Wait for me for a minute, please.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a soixante secondes dans une minute.",
+          "translation": "There are sixty seconds in a minute. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais une minute libre, je t'appellerais.",
+          "translation": "If I had a free minute, I would call you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La durée exacte est comptée à la minute près.",
+          "translation": "The exact duration is counted down to the minute.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "seconde",
+      "partOfSpeech": "noun / adjective",
+      "gender": "feminine",
+      "translation": "second",
+      "intro": "A unit of time equal to 1/60 of a minute, or the ordinal adjective second (feminine form of second). Cross-referenced with 'minute' (#223).",
+      "usage": "Feminine noun / adjective. Pronounced with /ɡ/ sound (seconde /səɡɔ̃d/). Plural: secondes.",
+      "synonyms": [
+        {
+          "word": "deuxième",
+          "gloss": "second (ordinal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il a fini la course en une seconde.",
+          "translation": "He finished the race in one second.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est la seconde fois que je viens.",
+          "translation": "This is the second time I come. (Adjective usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la seconde option était choisie, ce serait mieux.",
+          "translation": "If the second option were chosen, it would be better. (Adjective usage)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Chaque seconde est comptée par l'horloge.",
+          "translation": "Every second is counted by the clock.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "moment",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "moment / time",
+      "intro": "A brief period of time, or an appropriate point in time ('en ce moment' - right now).",
+      "usage": "Masculine noun. Plural: moments. Pronunciation note: final -t is silent.",
+      "synonyms": [
+        {
+          "word": "instant",
+          "gloss": "instant / moment"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un excellent moment pour parler.",
+          "translation": "This is an excellent moment to speak.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle est occupée en ce moment.",
+          "translation": "She is busy at the moment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais un moment, je lirais ton texte.",
+          "translation": "If I had a moment, I would read your text. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce moment a été immortalisé par une photo.",
+          "translation": "This moment was captured by a photo.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "matin",
+      "partOfSpeech": "noun / adverb",
+      "gender": "masculine",
+      "translation": "morning",
+      "intro": "The morning time, dawn, or early part of the day. Cross-referenced with 'midi' (#227) and 'soir' (#228).",
+      "usage": "Masculine noun. Plural: matins. Often used as adverb: 'le matin' (in the morning).",
+      "synonyms": [
+        {
+          "word": "matinée",
+          "gloss": "morning (duration)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le matin, je bois du café.",
+          "translation": "In the morning, I drink coffee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait frais ce matin.",
+          "translation": "It is cool this morning. (Impersonal weather)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si je me levais tôt le matin, je ferais du jogging.",
+          "translation": "If I got up early in the morning, I would jog.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le courrier est distribué le matin.",
+          "translation": "The mail is delivered in the morning.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "midi",
+      "partOfSpeech": "noun / adverb",
+      "gender": "masculine",
+      "translation": "midday / noon / south of France",
+      "intro": "Twelve o'clock in the daytime (noon), or referring colloquially to the South of France (le Midi). Cross-referenced with 'matin' (#226) and 'soir' (#228).",
+      "usage": "Masculine noun. Invariable as clock time. 'À midi' (at noon).",
+      "synonyms": [
+        {
+          "word": "sud",
+          "gloss": "south"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Nous déjeunons à midi.",
+          "translation": "We have lunch at noon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est midi pile.",
+          "translation": "It is exactly noon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la réunion finissait avant midi, ce serait parfait.",
+          "translation": "If the meeting finished before noon, it would be perfect.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le repas est servi à midi par le restaurant.",
+          "translation": "The meal is served at noon by the restaurant.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "soir",
+      "partOfSpeech": "noun / adverb",
+      "gender": "masculine",
+      "translation": "evening / night",
+      "intro": "The evening time or late afternoon. Cross-referenced with 'matin' (#226) and 'midi' (#227).",
+      "usage": "Masculine noun. Plural: soirs. 'Le soir' (in the evening).",
+      "synonyms": [
+        {
+          "word": "soirée",
+          "gloss": "evening (duration)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je lis un livre ce soir.",
+          "translation": "I am reading a book tonight (this evening).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous sortons le soir.",
+          "translation": "We go out in the evening.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le soir était frais, nous resterions dehors.",
+          "translation": "If the evening were cool, we would stay outside.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce film est diffusé le soir à la télévision.",
+          "translation": "This movie is broadcast in the evening on TV.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "semaine",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "week",
+      "intro": "A period of seven days, or the working days ('en semaine' - during the week). Cross-referenced with 'mois' (#230).",
+      "usage": "Feminine noun. Plural: semaines. 'Fin de semaine' (weekend).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La semaine a sept jours.",
+          "translation": "The week has seven days.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je pars en vacances la semaine prochaine.",
+          "translation": "I am leaving for holidays next week.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la semaine était finie, je me reposerais.",
+          "translation": "If the week were over, I would rest.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le calendrier a été établi pour la semaine entière.",
+          "translation": "The schedule was established for the entire week.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "mois",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "month",
+      "intro": "A calendar month (typically 30 or 31 days). Cross-referenced with 'semaine' (#229) and 'saison' (#231).",
+      "usage": "Masculine noun. Ending in -s, spelling remains identical in singular and plural (le mois / les mois). Final -s is silent.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Février est le mois le plus court.",
+          "translation": "February is the shortest month.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il travaille ici depuis trois mois.",
+          "translation": "He works here since three months.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce mois était pluvieux, les récoltes seraient bonnes.",
+          "translation": "If this month were rainy, the harvests would be good.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le loyer du mois a été payé par le locataire.",
+          "translation": "The month's rent was paid by the tenant.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "saison",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "season",
+      "intro": "One of the four quarters of the year (spring, summer, autumn, winter), or a period for specific activities/shows.",
+      "usage": "Feminine noun. Plural: saisons. 'Hors saison' (out of season).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le printemps est ma saison préférée.",
+          "translation": "Spring is my favorite season.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le tourisme bat son plein cette saison.",
+          "translation": "Tourism is in full swing this season.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la saison était sèche, nous manquerions d'eau.",
+          "translation": "If the season were dry, we would lack water. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les fruits de saison sont récoltés en été.",
+          "translation": "Seasonal fruits are harvested in summer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "place",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "place / square / seat",
+      "intro": "An open public square, a seat/space (e.g. place de parking), or position/rank.",
+      "usage": "Feminine noun. Plural: places. 'Prendre place' (to sit down / take a seat).",
+      "synonyms": [
+        {
+          "word": "square",
+          "gloss": "square"
+        },
+        {
+          "word": "siège",
+          "gloss": "seat"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette place est réservée aux vélos.",
+          "translation": "This space is reserved for bikes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "La mairie est sur la place du village.",
+          "translation": "The town hall is on the village square.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais une place dans la voiture, je t'emmènerais.",
+          "translation": "If I had a seat in the car, I would take you along.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les places ont été vendues en quelques minutes.",
+          "translation": "The seats were sold in a few minutes.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lit",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bed / channel (river)",
+      "intro": "A piece of furniture for sleeping, or the bottom channel of a river. Cross-referenced with 'dormir' (#209) and 'chambre' (Chunk 2).",
+      "usage": "Masculine noun. Plural: lits. Final -t is silent.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Elle dort dans un grand lit.",
+          "translation": "She sleeps in a large bed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le fleuve a quitté son lit.",
+          "translation": "The river has left its channel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le lit était confortable, je dormirais tout de suite.",
+          "translation": "If the bed were comfortable, I would sleep immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le lit a été fait par ma mère ce matin.",
+          "translation": "The bed was made by my mother this morning.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "porte",
+      "partOfSpeech": "noun / verb",
+      "gender": "feminine",
+      "translation": "door / gate / carry (verb root)",
+      "intro": "Acts as a feminine noun meaning 'door' or 'gate', or the conjugated form of verb 'porter' (to wear/carry - Chunk 2).",
+      "usage": "As a noun, feminine: la porte, plural: portes. Verb root is from 'porter'.",
+      "synonyms": [
+        {
+          "word": "barrière",
+          "gloss": "gate / barrier"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ferme la porte derrière toi.",
+          "translation": "Close the door behind you. (Noun usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il porte un manteau chaud.",
+          "translation": "He is wearing a warm coat. (Verb 'porter' usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la porte était ouverte, j'entrerais.",
+          "translation": "If the door were open, I would enter. (Noun usage)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La porte a été fermée par le concierge.",
+          "translation": "The door was closed by the caretaker. (Noun usage)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fenêtre",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "window",
+      "intro": "An opening in a wall to let in light or air. Cross-referenced with 'porte' (#234) and 'ouvrir' (Chunk 2).",
+      "usage": "Feminine noun. Plural: fenêtres. Accent circonflexe on 'e'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'ouvre la fenêtre du salon.",
+          "translation": "I open the living room window.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle regarde par la fenêtre.",
+          "translation": "She is looking out the window.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la fenêtre était fermée, il ferait plus chaud.",
+          "translation": "If the window were closed, it would be warmer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La fenêtre a été nettoyée hier.",
+          "translation": "The window was cleaned yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "cuisine",
+      "partOfSpeech": "noun / verb",
+      "gender": "feminine",
+      "translation": "kitchen / cooking / cuisine",
+      "intro": "Acts as a feminine noun meaning 'kitchen' or 'cooking/style of food', or verb form meaning 'to cook' (cuisiner).",
+      "usage": "Feminine noun. Plural: cuisines. As verb, from 'cuisiner'.",
+      "synonyms": [
+        {
+          "word": "gastronomie",
+          "gloss": "gastronomy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Elle prépare le repas dans la cuisine.",
+          "translation": "She prepares the meal in the kitchen. (Noun usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'adore la cuisine italienne.",
+          "translation": "I love Italian cuisine. (Noun usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu cuisinais ce soir, je ferais la vaisselle.",
+          "translation": "If you cooked tonight, I would do the dishes. (Verb usage)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La cuisine a été entièrement rénovée.",
+          "translation": "The kitchen has been completely renovated. (Noun usage)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "salle",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "hall / room / auditorium",
+      "intro": "A large room or hall for public assemblies, dining, or class (e.g. salle de classe).",
+      "usage": "Feminine noun. Plural: salles. 'Salle de bain' (bathroom).",
+      "synonyms": [
+        {
+          "word": "chambre",
+          "gloss": "room (private)"
+        },
+        {
+          "word": "pièce",
+          "gloss": "room (general)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "La salle est pleine de spectateurs.",
+          "translation": "The hall is full of spectators.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous sommes dans la salle de classe.",
+          "translation": "We are in the classroom.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la salle était vide, nous ferions une répétition.",
+          "translation": "If the hall were empty, we would do a rehearsal.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La salle a été décorée pour la fête.",
+          "translation": "The hall was decorated for the party.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "jardin",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "garden / yard",
+      "intro": "An outdoor plot of ground for growing flowers, vegetables, or grass. Cross-referenced with 'arbre' (#240) and 'fleur' (#239).",
+      "usage": "Masculine noun. Plural: jardins. 'Jardin public' (park).",
+      "synonyms": [
+        {
+          "word": "parc",
+          "gloss": "park"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Les enfants jouent dans le jardin.",
+          "translation": "The children are playing in the garden.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a de belles roses dans mon jardin.",
+          "translation": "There are beautiful roses in my garden.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le jardin était plus grand, je planterais un arbre.",
+          "translation": "If the garden were larger, I would plant a tree.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le jardin a été tondu hier après-midi.",
+          "translation": "The lawn (garden) was mowed yesterday afternoon.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fleur",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "flower / bloom",
+      "intro": "A flower or bloom of a plant. Cross-referenced with 'jardin' (#238) and 'arbre' (#240).",
+      "usage": "Feminine noun. Plural: fleurs. 'Fleur de sel' (premium salt).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Le rose est une belle fleur.",
+          "translation": "The rose is a beautiful flower.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle cueille des fleurs dans le pré.",
+          "translation": "She picks flowers in the meadow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si cette fleur avait de l'eau, elle ne fanerait pas.",
+          "translation": "If this flower had water, it wouldn't wither. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les fleurs ont été arrosées ce matin.",
+          "translation": "The flowers were watered this morning.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "arbre",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "tree",
+      "intro": "A woody perennial plant with a trunk and branches. Cross-referenced with 'jardin' (#238) and 'fleur' (#239).",
+      "usage": "Masculine noun. Plural: arbres. Requires 'l'' (l'arbre). Liaison /s/ in plural.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "L'arbre est très vieux.",
+          "translation": "The tree is very old.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a des pommes sur cet arbre.",
+          "translation": "There are apples on this tree.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si l'arbre tombait, il bloquerait la route.",
+          "translation": "If the tree fell, it would block the road. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les arbres ont été coupés par le forestier.",
+          "translation": "The trees were cut by the forester.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "route",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "road / route",
+      "intro": "A highway, road, or route connecting towns. Cross-referenced with 'chemin' (Chunk 2) and 'voyage' (#242).",
+      "usage": "Feminine noun. Plural: routes. 'En route' (on the way).",
+      "synonyms": [
+        {
+          "word": "voie",
+          "gloss": "way"
+        },
+        {
+          "word": "autoroute",
+          "gloss": "highway"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette route mène à Lyon.",
+          "translation": "This road leads to Lyon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a des travaux sur la route.",
+          "translation": "There is roadwork on the road.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la route était mouillée, je conduirais lentement.",
+          "translation": "If the road were wet, I would drive slowly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La route a été fermée à cause de la neige.",
+          "translation": "The road was closed due to snow.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "voyage",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "trip / travel / journey",
+      "intro": "A journey, trip, or act of traveling. Cross-referenced with 'train' (#244) and 'valise' (#243).",
+      "usage": "Masculine noun. Plural: voyages. 'Bon voyage!' (have a nice trip).",
+      "synonyms": [
+        {
+          "word": "trajet",
+          "gloss": "commute / journey"
+        },
+        {
+          "word": "excursion",
+          "gloss": "outing / trip"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Son voyage en Asie a été inoubliable.",
+          "translation": "His trip to Asia was unforgettable.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'aime faire des voyages.",
+          "translation": "I like taking trips.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous faisions ce voyage, nous verrions la mer.",
+          "translation": "If we took this trip, we would see the sea.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce voyage a été organisé par l'agence.",
+          "translation": "This trip was organized by the agency.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "valise",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "suitcase / bag",
+      "intro": "A suitcase or large traveling bag. Cross-referenced with 'voyage' (#242) and 'sac' (#250).",
+      "usage": "Feminine noun. Plural: valises. Pronounced with /z/ sound.",
+      "synonyms": [
+        {
+          "word": "bagage",
+          "gloss": "luggage"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je prépare ma valise pour demain.",
+          "translation": "I am preparing my suitcase for tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il porte une lourde valise.",
+          "translation": "He is carrying a heavy suitcase.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ma valise était trop lourde, je paierais un supplément.",
+          "translation": "If my suitcase were too heavy, I would pay extra.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La valise a été perdue à l'aéroport.",
+          "translation": "The suitcase was lost at the airport. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "train",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "train / pace / state",
+      "intro": "A railroad train, or pace/rate of speed ('en train de' - in the process of). Cross-referenced with 'voyage' (#242).",
+      "usage": "Masculine noun. Plural: trains. Note: 'en train de' is invariable auxiliary.",
+      "synonyms": [
+        {
+          "word": "chemin de fer",
+          "gloss": "railway"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le train arrive en gare.",
+          "translation": "The train is entering the station.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je suis en train de manger.",
+          "translation": "I am in the process of eating.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le train était à l'heure, nous n'attendrions pas.",
+          "translation": "If the train were on time, we wouldn't wait. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La billet de train a été acheté en ligne.",
+          "translation": "The train ticket was bought online.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "avion",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "airplane",
+      "intro": "A powered flying vehicle with fixed wings. Cross-referenced with 'voyage' (#242) and 'bateau' (#246).",
+      "usage": "Masculine noun. Plural: avions. Requires 'l'' (l'avion). Liaison /s/ in plural (les avions).",
+      "synonyms": [
+        {
+          "word": "aéronef",
+          "gloss": "aircraft"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "L'avion décolle à dix heures.",
+          "translation": "The airplane takes off at ten o'clock.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je voyage souvent en avion.",
+          "translation": "I travel often by airplane. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si l'avion avait du retard, nous raterions le rendez-vous.",
+          "translation": "If the plane had a delay, we would miss the meeting. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce modèle d'avion est construit en France.",
+          "translation": "This airplane model is built in France.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "bateau",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "boat / ship",
+      "intro": "A boat or ship navigating on water. Cross-referenced with 'avion' (#245) and 'eau' (Chunk 1).",
+      "usage": "Masculine noun. Plural: bateaux.",
+      "synonyms": [
+        {
+          "word": "navire",
+          "gloss": "ship / vessel"
+        },
+        {
+          "word": "embarcation",
+          "gloss": "craft / boat"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le bateau navigue sur le lac.",
+          "translation": "The boat sails on the lake.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ils ont loué un petit bateau.",
+          "translation": "They rented a small boat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le bateau coulait, nous nagerions.",
+          "translation": "If the boat sank, we would swim.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le bateau a été amarré au port.",
+          "translation": "The boat was moored at the port.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vêtement",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "clothing / garment",
+      "intro": "An article of clothing or general garments. Cross-referenced with 'chapeau' (#248) and 'chaussure' (#249).",
+      "usage": "Masculine noun. Plural: vêtements. Requires 'l'' (l'vêtement - rare, usually le vêtement / l'habit). Liaison /s/.",
+      "synonyms": [
+        {
+          "word": "habit",
+          "gloss": "clothing / suit"
+        },
+        {
+          "word": "tenue",
+          "gloss": "outfit"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce vêtement est en coton.",
+          "translation": "This clothing article is made of cotton.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il achète de nouveaux vêtements.",
+          "translation": "He is buying new clothes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce vêtement était chaud, je le mettrais.",
+          "translation": "If this garment were warm, I would put it on. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le vêtement a été lavé par ma mère.",
+          "translation": "The clothing article was washed by my mother.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "chapeau",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "hat / cover",
+      "intro": "A head covering (hat) worn for warmth/fashion, or a cover/lid. Cross-referenced with 'vêtement' (#247).",
+      "usage": "Masculine noun. Plural: chapeaux. 'Chapeau!' (hats off / well done!).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il porte un chapeau noir.",
+          "translation": "He is wearing a black hat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le vent a emporté son chapeau.",
+          "translation": "The wind blew away his hat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu mettais ce chapeau, tu serais protégé du soleil.",
+          "translation": "If you put on this hat, you would be protected from the sun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le chapeau a été posé sur la table.",
+          "translation": "The hat was placed on the table.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "chaussure",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "shoe / footwear",
+      "intro": "A shoe or piece of footwear. Cross-referenced with 'vêtement' (#247).",
+      "usage": "Feminine noun. Plural: chaussures.",
+      "synonyms": [
+        {
+          "word": "soulier",
+          "gloss": "shoe (traditional)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette chaussure me fait mal.",
+          "translation": "This shoe hurts me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle achète une paire de chaussures.",
+          "translation": "She is buying a pair of shoes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la chaussure était à ma taille, je l'achèterais.",
+          "translation": "If the shoe were my size, I would buy it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les chaussures ont été cirées hier.",
+          "translation": "The shoes were polished yesterday.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sac",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bag / sack",
+      "intro": "A bag, backpack, or sack for carrying objects. Cross-referenced with 'valise' (#243).",
+      "usage": "Masculine noun. Plural: sacs. 'Sac à dos' (backpack), 'sac à main' (handbag).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'ai mis mon livre dans mon sac.",
+          "translation": "I put my book in my bag.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle porte un petit sac à main.",
+          "translation": "She is carrying a small handbag.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le sac était vide, je le rangerais.",
+          "translation": "If the bag were empty, I would pack it away.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sac a été oublié sur le banc.",
+          "translation": "The bag was forgotten on the bench.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pain",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bread / loaf",
+      "intro": "Food made of flour, water, and yeast mixed and baked. Cross-referenced with 'lait' (#252) and 'cuisine' (#236).",
+      "usage": "Masculine noun. Plural: pains. 'Petit pain' (bread roll).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "J'achète une baguette de pain.",
+          "translation": "I am buying a loaf of bread.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le pain est encore chaud.",
+          "translation": "The bread is still warm.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous avions du pain, nous ferions des tartines.",
+          "translation": "If we had bread, we would make tartines.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le pain est cuit par le boulanger.",
+          "translation": "Bread is baked by the baker.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lait",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "milk",
+      "intro": "A white fluid secreted by female mammals for feeding their young, or plant milk. Cross-referenced with 'pain' (#251) and 'café' (#254).",
+      "usage": "Masculine noun. Plural: laits (rare). Final -t is silent.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je bois un verre de lait.",
+          "translation": "I am drinking a glass of milk.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le lait est dans le réfrigérateur.",
+          "translation": "The milk is in the refrigerator. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le lait était chaud, je le boirais.",
+          "translation": "If the milk were hot, I would drink it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le lait a été renversé sur la table.",
+          "translation": "The milk was spilled on the table.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vin",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "wine",
+      "intro": "An alcoholic drink made from fermented grape juice. Cross-referenced with 'lait' (#252) and 'eau' (Chunk 1).",
+      "usage": "Masculine noun. Plural: vins. 'Vin rouge' (red wine), 'vin blanc' (white wine).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La France produit d'excellent vin.",
+          "translation": "France produces excellent wine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je préfère le vin rouge.",
+          "translation": "I prefer red wine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le vin était frais, je le servirais.",
+          "translation": "If the wine were cool, I would serve it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le vin a été versé dans les verres.",
+          "translation": "The wine was poured into the glasses.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "café",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "coffee / café (shop)",
+      "intro": "A hot drink made from coffee beans, or the shop/café where it is sold. Cross-referenced with 'thé' (#255).",
+      "usage": "Masculine noun. Plural: cafés. 'Café noir' (black coffee).",
+      "synonyms": [
+        {
+          "word": "bistro",
+          "gloss": "bistro / café"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je prends un café le matin.",
+          "translation": "I have a coffee in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous nous retrouvons au café du coin.",
+          "translation": "We meet at the local café.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le café était fort, je me réveillerais.",
+          "translation": "If the coffee were strong, I would wake up.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le café est cultivé au Brésil.",
+          "translation": "Coffee is grown in Brazil.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "thé",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "tea",
+      "intro": "A hot drink made by infusing dried crushed leaves of the tea plant. Cross-referenced with 'café' (#254).",
+      "usage": "Masculine noun. Plural: thés. Silent 'h'.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je préfère le thé vert.",
+          "translation": "I prefer green tea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle boit du thé tous les après-midi.",
+          "translation": "She drinks tea every afternoon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le thé était trop chaud, je mettrais du lait.",
+          "translation": "If the tea were too hot, I would put milk. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le thé est servi dans des tasses de porcelaine.",
+          "translation": "Tea is served in porcelain cups.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "viande",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "meat",
+      "intro": "The flesh of an animal used as food. Cross-referenced with 'légume' (#258) and 'cuisine' (#236).",
+      "usage": "Feminine noun. Plural: viandes. 'Viande rouge' (red meat).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il ne mange pas de viande.",
+          "translation": "He does not eat meat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Cette viande est très tendre.",
+          "translation": "This meat is very tender.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la viande était cuite, nous mangerions.",
+          "translation": "If the meat were cooked, we would eat.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La viande a été achetée chez le boucher.",
+          "translation": "The meat was bought at the butcher's.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fruit",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "fruit / result",
+      "intro": "The sweet seed-bearing food of a plant, or abstractly the result/fruit of labor. Cross-referenced with 'légume' (#258).",
+      "usage": "Masculine noun. Plural: fruits. Final -t is silent.",
+      "synonyms": [
+        {
+          "word": "résultat",
+          "gloss": "result / fruit of labor"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "La pomme est un fruit d'automne.",
+          "translation": "The apple is an autumn fruit. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ce succès est le fruit de son travail.",
+          "translation": "This success is the fruit of his/her work. (Abstract)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce fruit était mûr, je le mangerais.",
+          "translation": "If this fruit were ripe, I would eat it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les fruits ont été cueillis ce matin.",
+          "translation": "The fruits were picked this morning.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "légume",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "vegetable",
+      "intro": "A plant or part of a plant used as food. Cross-referenced with 'fruit' (#257) and 'viande' (#256).",
+      "usage": "Masculine noun (despite ending in -e). Plural: légumes.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La carotte est un légume sain.",
+          "translation": "The carrot is a healthy vegetable.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il faut manger cinq fruits et légumes par jour.",
+          "translation": "You must eat five fruits and vegetables per day. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ce légume était frais, je ferais une soupe.",
+          "translation": "If this vegetable were fresh, I would make soup. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Les légumes ont été lavés avant la cuisson.",
+          "translation": "The vegetables were washed before cooking.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sel",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "salt",
+      "intro": "A white crystalline substance used for seasoning/preserving food. Cross-referenced with 'sucre' (#260) and 'cuisine' (#236).",
+      "usage": "Masculine noun. Plural: sels. Pronounced /sɛl/.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ajoutez une pincée de sel.",
+          "translation": "Add a pinch of salt.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a trop de sel dans cette soupe.",
+          "translation": "There is too much salt in this soup.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le sel manquait, le repas serait fade.",
+          "translation": "If salt were lacking, the meal would be bland.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sel a été ajouté au début de la cuisson.",
+          "translation": "Salt was added at the beginning of cooking.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sucre",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "sugar",
+      "intro": "A sweet crystalline substance obtained from sugar cane or sugar beet. Cross-referenced with 'sel' (#259).",
+      "usage": "Masculine noun. Plural: sucres. 'Morceau de sucre' (sugar cube).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Je ne prends pas de sucre dans mon thé.",
+          "translation": "I do not take sugar in my tea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le sucre est mauvais pour les dents.",
+          "translation": "Sugar is bad for the teeth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu mettais du sucre, ce café serait doux.",
+          "translation": "If you put sugar, this coffee would be sweet.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sucre a été versé dans la pâte.",
+          "translation": "Sugar was poured into the batter.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vrai",
+      "partOfSpeech": "adjective",
+      "translation": "true / real / genuine",
+      "intro": "Refers to facts or reality (true), or genuine/real objects. Opposite of 'faux' (#262) and related to adverb 'vraiment' (#299).",
+      "usage": "Inflects: vrai (m), vraie (f), vrais (m pl), vraies (f pl).",
+      "synonyms": [
+        {
+          "word": "authentique",
+          "gloss": "authentic"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette histoire est vraie.",
+          "translation": "This story is true.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un vrai diamant.",
+          "translation": "This is a real diamond.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si c'était vrai, je serais surpris.",
+          "translation": "If it were true, I would be surprised.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le vrai coupable a été identifié.",
+          "translation": "The true culprit has been identified.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "faux",
+      "partOfSpeech": "adjective",
+      "translation": "false / fake / incorrect",
+      "intro": "Refers to incorrect statements (false) or imitation/fake objects. Opposite of 'vrai' (#261).",
+      "usage": "Inflects: faux (m/m pl), fausse (f), fausses (f pl). Pronunciation: silent x.",
+      "synonyms": [
+        {
+          "word": "incorrect",
+          "gloss": "incorrect"
+        },
+        {
+          "word": "artificiel",
+          "gloss": "fake / artificial"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette réponse est fausse.",
+          "translation": "This answer is false.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il utilise un faux passeport.",
+          "translation": "He is using a fake passport.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la nouvelle était fausse, le journal s'excuserait.",
+          "translation": "If the news were false, the newspaper would apologize.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Un faux pas a été commis par le ministre.",
+          "translation": "A misstep (false step) was made by the minister.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "facile",
+      "partOfSpeech": "adjective",
+      "translation": "easy / simple",
+      "intro": "Refers to tasks requiring little effort. Opposite of 'difficile' (#264).",
+      "usage": "Inflects: facile (m/f), faciles (pl). Precedes or follows the noun depending on context.",
+      "synonyms": [
+        {
+          "word": "simple",
+          "gloss": "simple"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cet exercice est très facile.",
+          "translation": "This exercise is very easy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est facile de parler français.",
+          "translation": "It is easy to speak French. (Impersonal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la vie était facile, nous ne grandirions pas.",
+          "translation": "If life were easy, we wouldn't grow.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette tâche a été rendue facile par l'outil.",
+          "translation": "This task was made easy by the tool.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "difficile",
+      "partOfSpeech": "adjective",
+      "translation": "difficult / hard",
+      "intro": "Refers to tasks requiring effort or skill. Opposite of 'facile' (#263).",
+      "usage": "Inflects: difficile (m/f), difficiles (pl). Placed after the noun.",
+      "synonyms": [
+        {
+          "word": "dur",
+          "gloss": "hard / difficult"
+        },
+        {
+          "word": "complexe",
+          "gloss": "complex"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce problème est difficile.",
+          "translation": "This problem is difficult.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un choix difficile.",
+          "translation": "This is a difficult choice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le test était difficile, peu d'élèves réussiraient.",
+          "translation": "If the test were difficult, few students would succeed. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette décision difficile a été prise par le chef.",
+          "translation": "This difficult decision was made by the boss.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "propre",
+      "partOfSpeech": "adjective",
+      "translation": "clean / own / characteristic",
+      "intro": "Meaning clean (placed after noun: chambre propre) or own (placed before noun: ma propre chambre). Opposite of 'sale' (#266).",
+      "usage": "Inflects: propre (m/f), propres (pl). Singular spelling is identical for masc/fem.",
+      "synonyms": [
+        {
+          "word": "net",
+          "gloss": "neat / clean"
+        },
+        {
+          "word": "personnel",
+          "gloss": "personal / own"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "L'assiette est propre.",
+          "translation": "The plate is clean. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est mon propre frère.",
+          "translation": "He is my own brother. (Own usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ta chambre était propre, tu pourrais sortir.",
+          "translation": "If your room were clean, you could go out.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le linge propre a été rangé dans l'armoire.",
+          "translation": "The clean laundry was put away in the wardrobe.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sale",
+      "partOfSpeech": "adjective",
+      "translation": "dirty / nasty",
+      "intro": "Refers to lack of cleanliness, dirty objects, or bad behavior. Opposite of 'propre' (#265).",
+      "usage": "Inflects: sale (m/f), sales (pl). Placed after the noun.",
+      "synonyms": [
+        {
+          "word": "impropre",
+          "gloss": "unclean / unfit"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ses chaussures sont sales.",
+          "translation": "His/Her shoes are dirty.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "L'eau du canal est sale.",
+          "translation": "The canal water is dirty. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ton assiette était sale, je la laverais.",
+          "translation": "If your plate were dirty, I would wash it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sol sale a été nettoyé par le concierge.",
+          "translation": "The dirty floor was cleaned by the caretaker.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "chaud",
+      "partOfSpeech": "adjective / noun",
+      "gender": "masculine",
+      "translation": "hot / warm / heat",
+      "intro": "Refers to high temperature in food, weather, or objects. Opposite of 'froid' (#268).",
+      "usage": "Inflects: chaud (m), chaude (f), chauds (m pl), chaudes (f pl). Final -d is silent, pronounced /d/ in feminine. 'Avoir chaud' (to feel hot).",
+      "synonyms": [
+        {
+          "word": "chaleureux",
+          "gloss": "warm (personality)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le thé est très chaud.",
+          "translation": "The tea is very hot.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait chaud en été.",
+          "translation": "It is hot in summer. (Impersonal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le climat était plus chaud, j'aimerais vivre ici.",
+          "translation": "If the climate were warmer, I would like to live here. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le repas chaud est servi par le serveur.",
+          "translation": "The hot meal is served by the waiter.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "froid",
+      "partOfSpeech": "adjective / noun",
+      "gender": "masculine",
+      "translation": "cold / chill",
+      "intro": "Refers to low temperature. Opposite of 'chaud' (#267).",
+      "usage": "Inflects: froid (m), froide (f), froids (m pl), froides (f pl). Final -d is silent, pronounced /d/ in feminine. 'Avoir froid' (to feel cold).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "L'eau de la mer est froide.",
+          "translation": "The sea water is cold. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait froid aujourd'hui.",
+          "translation": "It is cold today. (Impersonal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le vent était froid, je fermerais la fenêtre.",
+          "translation": "If the wind were cold, I would close the window.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le dessert froid a été préparé à l'avance.",
+          "translation": "The cold dessert was prepared in advance.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "rapide",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "fast / rapid / quick",
+      "intro": "Refers to high speed in movement or task completion. Opposite of 'lent' (#270) and related to adverb 'vite' (#281).",
+      "usage": "Inflects: rapide (m/f), rapides (pl). Placed after the noun.",
+      "synonyms": [
+        {
+          "word": "véloce",
+          "gloss": "swift"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le train rapide arrive à Paris.",
+          "translation": "The fast train arrives in Paris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un moyen de transport très rapide.",
+          "translation": "This is a very fast means of transport.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le service était rapide, nous ne perdrions pas notre temps.",
+          "translation": "If the service were fast, we wouldn't waste our time. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La décision rapide a été saluée par tous.",
+          "translation": "The quick decision was welcomed by all.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lent",
+      "partOfSpeech": "adjective",
+      "translation": "slow",
+      "intro": "Refers to low speed. Opposite of 'rapide' (#269) and related to adverb 'lentement' (#282).",
+      "usage": "Inflects: lent (m), lente (f), lents (m pl), lentes (f pl). Final -t is silent, pronounced /t/ in liaison.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "La tortue est un animal lent.",
+          "translation": "The turtle is a slow animal. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le progrès est lent mais constant.",
+          "translation": "Progress is slow but constant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la connexion était lente, je ne travaillerais pas.",
+          "translation": "If the connection were slow, I wouldn't work.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Un rythme lent est imposé par le professeur.",
+          "translation": "A slow pace is imposed by the teacher.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "heureux",
+      "partOfSpeech": "adjective",
+      "translation": "happy / glad / fortunate",
+      "intro": "Refers to state of happiness, satisfaction, or good fortune. Opposite of 'malheureux' (#272) and 'triste' (#273).",
+      "usage": "Inflects: heureux (m/m pl), heureuse (f), heureuses (f pl). Requires liaison /z/ in plural. Silent h.",
+      "synonyms": [
+        {
+          "word": "joyeux",
+          "gloss": "joyful"
+        },
+        {
+          "word": "content",
+          "gloss": "glad / content"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Je suis heureux de te voir.",
+          "translation": "I am happy to see you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle mène une vie heureuse.",
+          "translation": "She leads a happy life.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu réussissais ton examen, je serais heureux.",
+          "translation": "If you passed your exam, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le gagnant heureux a été applaudi par la foule.",
+          "translation": "The happy winner was applauded by the crowd.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "malheureux",
+      "partOfSpeech": "adjective",
+      "translation": "unhappy / unfortunate / miserable",
+      "intro": "Refers to state of sadness, misery, or bad fortune. Opposite of 'heureux' (#271) and related to 'triste' (#273).",
+      "usage": "Inflects: malheureux (m/m pl), malheureuse (f), malheureuses (f pl). Silent h.",
+      "synonyms": [
+        {
+          "word": "misérable",
+          "gloss": "miserable"
+        },
+        {
+          "word": "triste",
+          "gloss": "sad"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un chien malheureux dans sa cage.",
+          "translation": "It is an unhappy dog in its cage.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il a fait un choix malheureux.",
+          "translation": "He made an unfortunate choice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu perdais ton travail, tu serais malheureux.",
+          "translation": "If you lost your job, you would be unhappy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le sort malheureux des victimes a été déploré par le président.",
+          "translation": "The unfortunate fate of the victims was deplored by the president.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "triste",
+      "partOfSpeech": "adjective",
+      "translation": "sad / gloomy",
+      "intro": "Refers to sadness or gloominess. Related to 'malheureux' (#272) and opposite 'heureux' (#271).",
+      "usage": "Inflects: triste (m/f), tristes (pl). Placed after the noun.",
+      "synonyms": [
+        {
+          "word": "mélancolique",
+          "gloss": "melancholy / sad"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Elle a l'air triste aujourd'hui.",
+          "translation": "She looks sad today. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est une histoire très triste.",
+          "translation": "This is a very sad story.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le film était triste, je pleurerais.",
+          "translation": "If the movie were sad, I would cry.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce triste constat est partagé par les experts.",
+          "translation": "This sad observation is shared by the experts.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "cher",
+      "partOfSpeech": "adjective",
+      "translation": "expensive / dear",
+      "intro": "Meaning high price (placed after noun: livre cher) or beloved/dear (placed before noun: cher ami). Related to 'pauvre' (#275) and 'riche' (#276).",
+      "usage": "Inflects: cher (m), chère (f), chers (m pl), chères (f pl). Pronounced /ʃɛr/.",
+      "synonyms": [
+        {
+          "word": "coûteux",
+          "gloss": "costly"
+        },
+        {
+          "word": "aimé",
+          "gloss": "beloved / dear"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce restaurant est très cher.",
+          "translation": "This restaurant is very expensive.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Mon cher ami, comment vas-tu?",
+          "translation": "My dear friend, how are you? (Dear usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si cet appartement était cher, je ne le louerais pas.",
+          "translation": "If this apartment were expensive, I wouldn't rent it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le prix cher a été critiqué par les clients.",
+          "translation": "The expensive price was criticized by the customers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "pauvre",
+      "partOfSpeech": "adjective / noun",
+      "translation": "poor / unfortunate",
+      "intro": "Meaning lacking money (placed after noun: homme pauvre) or unfortunate/pitiable (placed before noun: le pauvre homme). Opposite of 'riche' (#276) and related to 'cher' (#274).",
+      "usage": "Inflects: pauvre (m/f), pauvres (pl). Plural noun: les pauvres (the poor).",
+      "synonyms": [
+        {
+          "word": "misérable",
+          "gloss": "miserable / poor"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un quartier pauvre de la ville.",
+          "translation": "This is a poor neighborhood of the city.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ce pauvre garçon a perdu son chien.",
+          "translation": "This unfortunate boy lost his dog. (Unfortunate usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la famille était pauvre, l'État l'aiderait.",
+          "translation": "If the family were poor, the state would help it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'aide a été distribuée aux pauvres.",
+          "translation": "The aid was distributed to the poor. (Noun usage)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "riche",
+      "partOfSpeech": "adjective / noun",
+      "translation": "rich / wealthy",
+      "intro": "Refers to having a lot of money, assets, or high content of something (e.g. riche en fer). Opposite of 'pauvre' (#275).",
+      "usage": "Inflects: riche (m/f), riches (pl). Plural noun: les riches.",
+      "synonyms": [
+        {
+          "word": "fortuné",
+          "gloss": "wealthy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "C'est un pays très riche.",
+          "translation": "This is a very rich country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ce fruit est riche en vitamines.",
+          "translation": "This fruit is rich in vitamins.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais riche, je ferais des dons.",
+          "translation": "If I were rich, I would make donations.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le patrimoine des riches est lourdement taxé.",
+          "translation": "The heritage of the rich is heavily taxed. (Noun usage)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "fort",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "strong / loud / hard / very",
+      "intro": "Refers to physical strength, loud sound, intense wind/rain, or used as adverb meaning 'very' (crier fort - to cry loudly). Opposite of 'faible' (#278).",
+      "usage": "Inflects: fort (m), forte (f), forts (m pl), fortes (f pl). Final -t is silent in masculine.",
+      "synonyms": [
+        {
+          "word": "puissant",
+          "gloss": "powerful"
+        },
+        {
+          "word": "intense",
+          "gloss": "intense"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il est fort comme un lion.",
+          "translation": "He is strong like a lion.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a un vent fort dehors.",
+          "translation": "There is a strong wind outside.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la musique était trop forte, je baisserais le son.",
+          "translation": "If the music were too loud, I would turn down the sound. ('forte' agreements)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le colis a été emballé de manière forte. (Derived passive context)",
+          "translation": "The package was packed strongly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "faible",
+      "partOfSpeech": "adjective",
+      "translation": "weak / faint / low",
+      "intro": "Refers to lack of physical strength, faint sound/light, or low concentration. Opposite of 'fort' (#277).",
+      "usage": "Inflects: faible (m/f), faibles (pl). Placed after the noun.",
+      "synonyms": [
+        {
+          "word": "fragile",
+          "gloss": "fragile"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le vieil homme se sent faible aujourd'hui.",
+          "translation": "The old man feels weak today. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le signal radio est très faible.",
+          "translation": "The radio signal is very weak.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si ma vue était faible, je porterais des lunettes.",
+          "translation": "If my sight were weak, I would wear glasses.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le point faible a été identifié par le technicien.",
+          "translation": "The weak point was identified by the technician.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "doux",
+      "partOfSpeech": "adjective",
+      "translation": "sweet / soft / gentle / mild",
+      "intro": "Refers to pleasant taste (sweet), soft texture, gentle personality, or mild weather. Opposite of 'dur' (#280).",
+      "usage": "Inflects: doux (m/m pl), douce (f), douces (f pl). Final -x is silent, pronounced /z/ in liaison.",
+      "synonyms": [
+        {
+          "word": "tendre",
+          "gloss": "tender / gentle"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le climat est très doux en hiver.",
+          "translation": "The climate is very mild in winter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Elle a une voix douce.",
+          "translation": "She has a soft voice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le tissu était doux, je l'achèterais.",
+          "translation": "If the fabric were soft, I would buy it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce savon doux est recommandé pour les bébés.",
+          "translation": "This mild soap is recommended for babies.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dur",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "hard / tough / difficult / hard (adverb)",
+      "intro": "Refers to solid texture (hard), tough character, difficult situation, or used as adverb meaning 'hard' (travailler dur). Opposite of 'doux' (#279) and related to 'difficile' (#264).",
+      "usage": "Inflects: dur (m), dure (f), durs (m pl), dures (f pl).",
+      "synonyms": [
+        {
+          "word": "solide",
+          "gloss": "solid"
+        },
+        {
+          "word": "difficile",
+          "gloss": "difficult / hard"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce pain est très dur.",
+          "translation": "This bread is very hard.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il travaille dur toute la journée.",
+          "translation": "He works hard all day. (Adverbial usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la viande était trop dure, nous ne la mangerions pas.",
+          "translation": "If the meat were too tough, we wouldn't eat it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Une épreuve dure a été surmontée par l'équipe.",
+          "translation": "A tough trial was overcome by the team.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vite",
+      "partOfSpeech": "adverb / adjective",
+      "translation": "quickly / fast",
+      "intro": "Adverb of speed indicating rapid movement or quick completion. Related to adjective 'rapide' (#269) and opposite 'lentement' (#282).",
+      "usage": "Invariable. Can act as adjective in colloquial contexts.",
+      "synonyms": [
+        {
+          "word": "rapidement",
+          "gloss": "rapidly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cours vite pour attraper le bus.",
+          "translation": "Run fast to catch the bus.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le temps passe très vite.",
+          "translation": "Time passes very quickly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu parlais moins vite, je comprendrais.",
+          "translation": "If you spoke less fast, I would understand.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le travail a été fait vite et bien. (Derived passive context)",
+          "translation": "The work was done quickly and well.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lentement",
+      "partOfSpeech": "adverb",
+      "translation": "slowly",
+      "intro": "Adverb of speed indicating slow movement or delay. Related to adjective 'lent' (#270) and opposite 'vite' (#281).",
+      "usage": "Invariable. Formed by feminine adjective 'lente' + suffix '-ment'.",
+      "synonyms": [
+        {
+          "word": "doucement",
+          "gloss": "gently / slowly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "La tortue marche lentement.",
+          "translation": "The turtle walks slowly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Veuillez parler lentement, s'il vous plaît.",
+          "translation": "Please speak slowly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous roulions lentement, nous verrions le paysage.",
+          "translation": "If we drove slowly, we would see the scenery.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La leçon est expliquée lentement par le tuteur.",
+          "translation": "The lesson is explained slowly by the tutor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "parfois",
+      "partOfSpeech": "adverb",
+      "translation": "sometimes / occasionally",
+      "intro": "Adverb of frequency indicating occasional actions. Opposite of 'toujours' (Chunk 1) and related to 'rarement' (#284).",
+      "usage": "Invariable.",
+      "synonyms": [
+        {
+          "word": "quelquefois",
+          "gloss": "sometimes"
+        },
+        {
+          "word": "de temps en temps",
+          "gloss": "from time to time"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il prend parfois le train.",
+          "translation": "He sometimes takes the train.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Parfois, je préfère lire un livre à la maison.",
+          "translation": "Sometimes, I prefer to read a book at home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu venais parfois me voir, je serais ravi.",
+          "translation": "If you came to see me sometimes, I would be delighted.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette règle est parfois oubliée par le personnel.",
+          "translation": "This rule is sometimes forgotten by the staff.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "rarement",
+      "partOfSpeech": "adverb",
+      "translation": "rarely / seldom",
+      "intro": "Adverb of low frequency. Opposite of 'souvent' (Chunk 1) and related to 'parfois' (#283).",
+      "usage": "Invariable. Formed by adjective 'rare' + '-ment'.",
+      "synonyms": [
+        {
+          "word": "exceptionnellement",
+          "gloss": "exceptionally"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il pleut rarement dans ce désert.",
+          "translation": "It rarely rains in this desert.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Nous mangeons rarement au restaurant.",
+          "translation": "We rarely eat at the restaurant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu sortais rarement, tu t'ennuierais.",
+          "translation": "If you went out rarely, you would get bored.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce type de fleur est rarement trouvé en Europe.",
+          "translation": "This type of flower is rarely found in Europe. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "presque",
+      "partOfSpeech": "adverb",
+      "translation": "almost / nearly",
+      "intro": "Indicates a state very close to completion or limit (almost/nearly).",
+      "usage": "Invariable. Requires elision only in 'presqu'île' (peninsula).",
+      "synonyms": [
+        {
+          "word": "quasiment",
+          "gloss": "nearly / virtually"
+        },
+        {
+          "word": "environ",
+          "gloss": "approximately"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'ai presque fini mon travail.",
+          "translation": "I have almost finished my work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est presque midi.",
+          "translation": "It is nearly noon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la bouteille était presque vide, je la remplirais.",
+          "translation": "If the bottle were almost empty, I would fill it. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La victoire a été presque acquise par le champion.",
+          "translation": "The victory was almost secured by the champion. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "surtout",
+      "partOfSpeech": "adverb / noun",
+      "gender": "masculine",
+      "translation": "especially / above all / overcoat",
+      "intro": "Primarily acts as an adverb meaning especially/above all, or historically a masculine noun meaning a overcoat/centerpiece.",
+      "usage": "Invariable adverb. Pronunciation: final -t is silent.",
+      "synonyms": [
+        {
+          "word": "particulièrement",
+          "gloss": "particularly"
+        },
+        {
+          "word": "notamment",
+          "gloss": "notably"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il aime les fruits, surtout les pommes.",
+          "translation": "He likes fruits, especially apples.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ne l'oublie pas, surtout.",
+          "translation": "Don't forget it, above all.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu devais voyager, tu irais surtout en France.",
+          "translation": "If you had to travel, you would go especially to France. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce droit est surtout protégé par la constitution.",
+          "translation": "This right is especially protected by the constitution.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "assez",
+      "partOfSpeech": "adverb",
+      "translation": "enough / rather / quite",
+      "intro": "Denotes sufficiency (enough) or moderate intensity (rather/quite). Cross-referenced with 'peu' (#288) and 'beaucoup' (#289).",
+      "usage": "Invariable. Requires 'de' before nouns (e.g. assez de pain). Requires liaison /z/ before vowel sounds.",
+      "synonyms": [
+        {
+          "word": "suffisamment",
+          "gloss": "sufficiently"
+        },
+        {
+          "word": "plutôt",
+          "gloss": "rather"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Cette chambre est assez grande.",
+          "translation": "This bedroom is quite (rather) big.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "J'ai assez mangé.",
+          "translation": "I have eaten enough. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'avais assez d'argent, j'achèterais ce livre.",
+          "translation": "If I had enough money, I would buy this book. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Une somme assez importante a été récoltée.",
+          "translation": "A rather important sum was collected. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "peu",
+      "partOfSpeech": "adverb / noun",
+      "gender": "masculine",
+      "translation": "little / few",
+      "intro": "Denotes small quantity/degree. Opposite of 'beaucoup' (#289) and related to 'assez' (#287).",
+      "usage": "Invariable adverb. Requires 'de' before nouns (e.g. peu de sucre). 'Un peu' (a little).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Il y a peu de voitures dans la rue.",
+          "translation": "There are few cars in the street.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je mange un peu de pain.",
+          "translation": "I am eating a little bread.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu parlais un peu plus fort, j'entendrais.",
+          "translation": "If you spoke a little louder, I would hear.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ce cas a été peu étudié par la science.",
+          "translation": "This case has been little studied by science.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "beaucoup",
+      "partOfSpeech": "adverb",
+      "translation": "many / much / a lot",
+      "intro": "Denotes large quantity, degree, or intensity. Opposite of 'peu' (#288) and related to 'assez' (#287).",
+      "usage": "Invariable. Requires 'de' before nouns (e.g. beaucoup d'amis). Final -p is silent.",
+      "synonyms": [
+        {
+          "word": "énormément",
+          "gloss": "enormously"
+        },
+        {
+          "word": "très",
+          "gloss": "very (for verbs)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "J'aime beaucoup ce pays.",
+          "translation": "I like this country a lot.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il y a beaucoup de monde ici.",
+          "translation": "There are a lot of people here.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous lisions beaucoup, nous apprendrions vite.",
+          "translation": "If we read a lot, we would learn quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Beaucoup de cadeaux ont été distribués aux enfants.",
+          "translation": "Many gifts were distributed to the children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "environ",
+      "partOfSpeech": "adverb / preposition",
+      "translation": "about / approximately / around",
+      "intro": "Expresses approximate quantity, time, or location. Equivalents: about, around. Related to 'vers' (Chunk 1).",
+      "usage": "Invariable.",
+      "synonyms": [
+        {
+          "word": "à peu près",
+          "gloss": "about / nearly"
+        },
+        {
+          "word": "presque",
+          "gloss": "almost"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le livre coûte environ dix euros.",
+          "translation": "The book costs about ten euros.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est arrivé il y a environ une heure.",
+          "translation": "He arrived about an hour ago. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le trajet durait environ cinq minutes, j'irais à pied.",
+          "translation": "If the commute lasted about five minutes, I would walk. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le nombre a été estimé à environ mille.",
+          "translation": "The number was estimated at around one thousand. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "derrière",
+      "partOfSpeech": "preposition / adverb / noun",
+      "gender": "masculine",
+      "translation": "behind / at the back / bottom (noun)",
+      "intro": "Preposition of space indicating position behind something, or masculine noun meaning the bottom/back part. Opposite of 'devant' (#292).",
+      "usage": "Invariable preposition. As a noun, plural: derrières.",
+      "synonyms": [
+        {
+          "word": "dos",
+          "gloss": "back"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le chien court derrière son maître.",
+          "translation": "The dog runs behind its master.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Regarde derrière toi.",
+          "translation": "Look behind you.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le soleil était derrière le nuage, il ferait frais.",
+          "translation": "If the sun were behind the cloud, it would be cool. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La clé a été cachée derrière la porte.",
+          "translation": "The key was hidden behind the door.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "devant",
+      "partOfSpeech": "preposition / adverb / noun",
+      "gender": "masculine",
+      "translation": "in front of / ahead / front part (noun)",
+      "intro": "Preposition of space indicating position ahead of or facing something, or masculine noun meaning the front. Opposite of 'derrière' (#291).",
+      "usage": "Invariable preposition. Pronunciation: final -t is silent.",
+      "synonyms": [
+        {
+          "word": "face à",
+          "gloss": "facing / opposite"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "La voiture est garée devant la maison.",
+          "translation": "The car is parked in front of the house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il passe devant moi sans parler.",
+          "translation": "He passes in front of me without speaking.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu te tenais devant la scène, tu verrais mieux.",
+          "translation": "If you stood in front of the stage, you would see better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le coupable a été amené devant le juge.",
+          "translation": "The culprit was brought in front of the judge.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dehors",
+      "partOfSpeech": "adverb / preposition / noun",
+      "gender": "masculine",
+      "translation": "outside / outdoors / exterior",
+      "intro": "Denotes location outside a building/room, or the exterior part. Opposite of 'dedans' (#294) and related to 'dehors'.",
+      "usage": "Invariable. Final -s is silent. 'En dehors de' (outside of).",
+      "synonyms": [
+        {
+          "word": "extérieur",
+          "gloss": "exterior / outside"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Les enfants jouent dehors.",
+          "translation": "The children are playing outside.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il fait froid dehors.",
+          "translation": "It is cold outside. (Impersonal)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le temps était beau, nous mangerions dehors.",
+          "translation": "If the weather were nice, we would eat outside.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le coupable a été jeté dehors.",
+          "translation": "The culprit was thrown outside.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dedans",
+      "partOfSpeech": "adverb / preposition / noun",
+      "gender": "masculine",
+      "translation": "inside / indoors / interior",
+      "intro": "Denotes location inside or the interior part. Opposite of 'dehors' (#293).",
+      "usage": "Invariable. 'En dedans' (inwardly). Final -s is silent.",
+      "synonyms": [
+        {
+          "word": "intérieur",
+          "gloss": "interior"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Regarde ce qu'il y a dedans.",
+          "translation": "Look at what is inside. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Il est resté dedans toute la journée.",
+          "translation": "He stayed inside all day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si le chat entrait dedans, il dormirait.",
+          "translation": "If the cat went inside, it would sleep.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le trésor a été caché dedans. (Derived passive context)",
+          "translation": "The treasure was hidden inside.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "au-dessus",
+      "partOfSpeech": "adverb / preposition",
+      "translation": "above / overhead",
+      "intro": "Denotes location higher than something but not necessarily in contact. Opposite of 'au-dessous' (#296) and related to 'sur'.",
+      "usage": "Requires 'de' when acting as preposition (au-dessus de la table). Invariable.",
+      "synonyms": [
+        {
+          "word": "dessus",
+          "gloss": "above / on top"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "L'oiseau vole au-dessus du lac.",
+          "translation": "The bird flies above the lake. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le tableau est accroché au-dessus du canapé.",
+          "translation": "The painting is hung above the sofa.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu volais au-dessus des nuages, tu verrais le soleil.",
+          "translation": "If you flew above the clouds, you would see the sun. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Cette règle est placée au-dessus des autres.",
+          "translation": "This rule is placed above the others.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "au-dessous",
+      "partOfSpeech": "adverb / preposition",
+      "translation": "below / underneath",
+      "intro": "Denotes location lower than something. Opposite of 'au-dessus' (#295) and related to 'sous'.",
+      "usage": "Requires 'de' when acting as preposition (au-dessous du pont). Invariable.",
+      "synonyms": [
+        {
+          "word": "dessous",
+          "gloss": "underneath"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Le garage est situé au-dessous de l'immeuble.",
+          "translation": "The garage is situated below the building. (Liaison)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "La température est tombée au-dessous de zéro.",
+          "translation": "The temperature fell below zero.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si la clé était au-dessous du tapis, je la prendrais.",
+          "translation": "If the key were below the rug, I would take it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La valeur a été estimée au-dessous de son prix réel.",
+          "translation": "The value was estimated below its real price. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ensemble",
+      "partOfSpeech": "adverb / noun",
+      "gender": "masculine",
+      "translation": "together / collection / whole",
+      "intro": "Adverb meaning together (in group/conjointly), or masculine noun meaning a collection or whole set. Opposite of 'seul' (#298).",
+      "usage": "Invariable adverb. As a noun, plural: ensembles.",
+      "synonyms": [
+        {
+          "word": "collectivement",
+          "gloss": "collectively"
+        },
+        {
+          "word": "collection",
+          "gloss": "collection"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Nous travaillons ensemble sur ce projet.",
+          "translation": "We are working together on this project.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est un bel ensemble de bâtiments.",
+          "translation": "This is a beautiful set of buildings. (Noun usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si nous voyagions ensemble, ce serait amusant.",
+          "translation": "If we traveled together, it would be fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Ces pièces ont été assemblées ensemble.",
+          "translation": "These parts were assembled together.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "seul",
+      "partOfSpeech": "adjective",
+      "translation": "alone / single / only",
+      "intro": "Refers to being by oneself (alone), or the unique one (single/only). Opposite of 'ensemble' (#297).",
+      "usage": "Inflects: seul (m), seule (f), seuls (m pl), seules (f pl). Precedes the noun when meaning 'only'.",
+      "synonyms": [
+        {
+          "word": "unique",
+          "gloss": "only / unique"
+        },
+        {
+          "word": "solitaire",
+          "gloss": "solitary"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Il vit seul depuis un an.",
+          "translation": "He lives alone since one year.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "C'est la seule explication possible.",
+          "translation": "This is the only possible explanation. (Only usage)",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si j'étais seul à la maison, je ferais la fête.",
+          "translation": "If I were alone at home, I would make a party.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "L'enfant a été laissé seul pendant dix minutes.",
+          "translation": "The child was left alone for ten minutes. (Liaison)",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "vraiment",
+      "partOfSpeech": "adverb",
+      "translation": "really / truly / indeed",
+      "intro": "Adverb of degree expressing reality, sincerity, or emphasis. Related to adjective 'vrai' (#261).",
+      "usage": "Invariable. Formed by feminine adjective 'vraie' + '-ment'.",
+      "synonyms": [
+        {
+          "word": "réellement",
+          "gloss": "really / actually"
+        },
+        {
+          "word": "véritablement",
+          "gloss": "truly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ce film est vraiment fantastique.",
+          "translation": "This movie is really fantastic.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Je suis vraiment désolé pour ton retard.",
+          "translation": "I am truly sorry for your delay.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu l'aimais vraiment, tu serais là.",
+          "translation": "If you really loved him/her, you would be there. (Liaison)",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Le problème a été vraiment résolu par le chef.",
+          "translation": "The problem was really resolved by the boss.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "bientôt",
+      "partOfSpeech": "adverb",
+      "translation": "soon / shortly",
+      "intro": "Adverb of time denoting an action that will happen in the near future. 'À bientôt!' (see you soon!).",
+      "usage": "Invariable. Accent circonflexe on 'o'. Final -t is silent.",
+      "synonyms": [
+        {
+          "word": "prochainement",
+          "gloss": "shortly / soon"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Nous partirons bientôt en vacances.",
+          "translation": "We will leave soon on holiday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Le magasin va bientôt ouvrir.",
+          "translation": "The shop is going to open soon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Si tu partais bientôt, tu éviterais les embouteillages.",
+          "translation": "If you left soon, you would avoid traffic jams.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "La nouvelle sera bientôt annoncée par le directeur.",
+          "translation": "The news will soon be announced by the director.",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

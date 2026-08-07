@@ -34,6 +34,7 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
   es: 'Spanish',
   fr: 'French',
   vi: 'Vietnamese',
+  hi: 'Hindi',
 }
 
 const TRANSLATION_LABELS: Record<TranslationProviderName, string> = {

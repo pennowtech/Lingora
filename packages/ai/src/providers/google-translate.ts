@@ -28,7 +28,7 @@ export interface GoogleTranslateProviderConfig {
   fetchFn?: typeof fetch
 }
 
-const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr']
+const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr', 'hi']
 
 function isSupportedLanguage(value: string): value is LanguageCode {
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(value)

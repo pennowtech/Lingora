@@ -76,6 +76,7 @@ export async function createManualWordCard(
   db: DatabaseAdapter,
   deckId: string,
   language: LanguageCode,
+  nativeLanguage: LanguageCode,
   input: ManualWordCardInput,
 ): Promise<ManualCardResult> {
   return db.transaction(async (tx) => {
@@ -84,9 +85,9 @@ export async function createManualWordCard(
 
     const cardId = crypto.randomUUID()
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL, 'manual')`,
-      [cardId, lemma.id, deckId, now, now],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL, 'manual', ?)`,
+      [cardId, lemma.id, deckId, now, now, nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)
@@ -174,6 +175,7 @@ export async function createManualClozeCard(
   db: DatabaseAdapter,
   deckId: string,
   language: LanguageCode,
+  nativeLanguage: LanguageCode,
   input: ManualClozeCardInput,
 ): Promise<ManualCardResult> {
   return db.transaction(async (tx) => {
@@ -185,9 +187,9 @@ export async function createManualClozeCard(
 
     const cardId = crypto.randomUUID()
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, 'cloze', NULL, ?, ?, NULL, 'manual')`,
-      [cardId, lemma.id, deckId, now, now],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, 'cloze', NULL, ?, ?, NULL, 'manual', ?)`,
+      [cardId, lemma.id, deckId, now, now, nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)
@@ -240,15 +242,16 @@ export interface CardForSenseInput {
 export async function createCardForSense(
   db: DatabaseAdapter,
   deckId: string,
+  nativeLanguage: LanguageCode,
   input: CardForSenseInput,
 ): Promise<string> {
   return db.transaction(async (tx) => {
     const now = Date.now()
     const cardId = crypto.randomUUID()
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL, 'manual')`,
-      [cardId, input.lemmaId, deckId, now, now],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, 'basic', NULL, ?, ?, NULL, 'manual', ?)`,
+      [cardId, input.lemmaId, deckId, now, now, nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states (card_id, state, stability, difficulty, retrievability, lapses, last_reviewed_at, next_review_date)

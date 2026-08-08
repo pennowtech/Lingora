@@ -31,7 +31,7 @@ describe('phase 4 UI queries', () => {
   })
 
   it('searchLemmasWithPreview enriches FTS hits with translation, cefr and deck membership', async () => {
-    const results = await searchLemmasWithPreview(db, 'ausgeh')
+    const results = await searchLemmasWithPreview(db, 'ausgeh', 'de', 'en')
 
     expect(results.length).toBeGreaterThanOrEqual(1)
     const hit = results.find((r) => r.lemma.form === 'ausgehen')
@@ -42,14 +42,14 @@ describe('phase 4 UI queries', () => {
   })
 
   it('searchLemmasWithPreview handles lemmas without cards', async () => {
-    const results = await searchLemmasWithPreview(db, 'laufen')
+    const results = await searchLemmasWithPreview(db, 'laufen', 'de', 'en')
     const hit = results.find((r) => r.lemma.form === 'laufen')
     expect(hit).toBeDefined()
     expect(hit!.inDeck).toBe(false)
   })
 
   it('getInflectionsForLemma returns the stored surface forms', async () => {
-    const results = await searchLemmasWithPreview(db, 'ausgehen')
+    const results = await searchLemmasWithPreview(db, 'ausgehen', 'de', 'en')
     const lemmaId = results.find((r) => r.lemma.form === 'ausgehen')!.lemma.id
 
     const inflections = await getInflectionsForLemma(db, lemmaId)

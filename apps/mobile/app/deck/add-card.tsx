@@ -110,7 +110,7 @@ export default function AddCardScreen(): JSX.Element {
       if (!deckId) throw new Error(t('No deck selected.'))
       if (kind === 'word') {
         if (!wordValid) throw new Error(t('Word and meaning are required.'))
-        return createManualWordCard(db, deckId, targetLanguage, {
+        return createManualWordCard(db, deckId, targetLanguage, nativeLanguage, {
           word: word.trim(),
           partOfSpeech: MANUAL_PART_OF_SPEECH,
           gender,
@@ -126,7 +126,7 @@ export default function AddCardScreen(): JSX.Element {
       if (!clozeResult) {
         throw new Error(t('Compose the cloze sentence first.'))
       }
-      return createManualClozeCard(db, deckId, targetLanguage, {
+      return createManualClozeCard(db, deckId, targetLanguage, nativeLanguage, {
         sentence: clozeResult.sentence,
         answer: clozeResult.answer,
         translation: clozeResult.translation,

@@ -1,6 +1,7 @@
 import type { CefrLevel, LanguageCode, Lemma, PromptVersion } from '@lingora/types'
 import {
   findLemmaBySurfaceForm,
+  getCardByLemmaAndNativeLanguage,
   persistWordGeneration,
   type DatabaseAdapter,
 } from '@lingora/database'
@@ -73,16 +74,24 @@ export async function lookupOrGenerate(
   const startedAt = Date.now()
   const meta = { provider: ai.name, modelAlias: ai.model, sourceLanguage: language, cefrLevel: opts.cefrLevel }
 
-  // 1. Morphology-aware lookup: inflections → lemma, COLLATE NOCASE.
-  const existing = await findLemmaBySurfaceForm(db, word)
-  if (existing) {
-    log.info('ai.lookup_resolved_existing', {
-      message: 'Word resolved to an existing lemma via morphology lookup',
-      result: 'success',
-      durationMs: Date.now() - startedAt,
-      metadata: meta,
-    })
-    return { kind: 'existing', lemma: existing }
+  // 1. Morphology-aware lookup: inflections → lemma, COLLATE NOCASE. A lemma is shared across
+  // native languages, but its cards aren't — only treat this as resolved if a card already
+  // exists for the requested nativeLanguage too; otherwise reuse the lemma but fall through to
+  // generation so this native language gets its own card.
+  const existingLemma = await findLemmaBySurfaceForm(db, word)
+  let reuseLemmaId: string | undefined
+  if (existingLemma) {
+    const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingLemma.id, nativeLanguage)
+    if (matchingCard) {
+      log.info('ai.lookup_resolved_existing', {
+        message: 'Word resolved to an existing lemma via morphology lookup',
+        result: 'success',
+        durationMs: Date.now() - startedAt,
+        metadata: meta,
+      })
+      return { kind: 'existing', lemma: existingLemma }
+    }
+    reuseLemmaId = existingLemma.id
   }
 
   // 2. Cache — same word, level, native language and prompt version never hits the API twice.
@@ -109,7 +118,8 @@ export async function lookupOrGenerate(
         latencyMs: 0,
       },
       opts.deckId,
-      { addToDeck: opts.addToDeck ?? true },
+      nativeLanguage,
+      { addToDeck: opts.addToDeck ?? true, ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }) },
     )
     log.info('ai.generation_completed', {
       message: 'Word package served from cache and persisted',
@@ -176,7 +186,8 @@ export async function lookupOrGenerate(
       latencyMs: result.usage.latencyMs,
     },
     opts.deckId,
-    { addToDeck: opts.addToDeck ?? true },
+    nativeLanguage,
+    { addToDeck: opts.addToDeck ?? true, ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }) },
   )
 
   log.info('ai.generation_completed', {

@@ -3,13 +3,14 @@ import type {
   GeneratedExample,
   GenerationMetadata,
   GenerationUsage,
+  LanguageCode,
   Lemma,
   WordGenerationPayload,
 } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 import { createCluster, createMeaning } from './clusters'
 import { createExample } from './examples'
-import { createInflections, createLemma, getLemmaByForm } from './lemmas'
+import { createInflections, createLemma, getLemmaByForm, getLemmaById } from './lemmas'
 import { createPhrase } from './phrases'
 import { createSynonym } from './synonyms'
 
@@ -144,42 +145,60 @@ export interface PersistedWordGeneration {
  *        persisted, just not yet visible in any deck's list or due count, until a later explicit
  *        `addCardToDeck` call (e.g. the word detail screen's own "Add to deck" picker). Used by a
  *        plain search generation, which shouldn't silently add a new word to "My Vocabulary".
- * @throws If the lemma already exists — callers check findLemmaBySurfaceForm
- *         first; regeneration of existing words is a separate flow.
+ * @param nativeLanguage The learner's own language this generation's meanings/examples were
+ *        written in — stored on the new card so a later lookup under a different native language
+ *        never mistakes this card for a match (see `Card.nativeLanguage`).
+ * @param options.existingLemmaId Set when the same word already has a lemma under a *different*
+ *        native language (found via findLemmaBySurfaceForm, no card matched this nativeLanguage
+ *        via getCardByLemmaAndNativeLanguage) — reuses that lemma/its inflections instead of
+ *        creating new ones, and skips the existing-lemma throw below. A fresh, self-contained set
+ *        of clusters/meanings/examples/synonyms is still created for the new card either way.
+ * @throws If the lemma already exists and `options.existingLemmaId` wasn't given — callers check
+ *         findLemmaBySurfaceForm first; regeneration of existing words is a separate flow.
  */
 export async function persistWordGeneration(
   db: DatabaseAdapter,
   payload: WordGenerationPayload,
   usage: GenerationUsage,
   deckId: string,
-  options?: { addToDeck?: boolean },
+  nativeLanguage: LanguageCode,
+  options?: { addToDeck?: boolean; existingLemmaId?: string },
 ): Promise<PersistedWordGeneration> {
   const addToDeck = options?.addToDeck ?? true
   return db.transaction(async (tx) => {
     const now = Date.now()
 
-    const existing = await getLemmaByForm(tx, payload.lemma.form, payload.lemma.language)
-    if (existing) {
-      throw new Error(
-        `Lemma '${payload.lemma.form}' (${payload.lemma.language}) already exists — ` +
-          `look it up instead of regenerating it`,
-      )
-    }
+    let lemma: Lemma
+    if (options?.existingLemmaId) {
+      const existingLemma = await getLemmaById(tx, options.existingLemmaId)
+      if (!existingLemma) {
+        throw new Error(`existingLemmaId '${options.existingLemmaId}' does not reference a real lemma`)
+      }
+      lemma = existingLemma
+    } else {
+      const existing = await getLemmaByForm(tx, payload.lemma.form, payload.lemma.language)
+      if (existing) {
+        throw new Error(
+          `Lemma '${payload.lemma.form}' (${payload.lemma.language}) already exists — ` +
+            `look it up instead of regenerating it`,
+        )
+      }
 
-    const lemma: Lemma = {
-      id: crypto.randomUUID(),
-      form: payload.lemma.form,
-      language: payload.lemma.language,
-      partOfSpeech: payload.lemma.partOfSpeech,
-      ...(payload.lemma.gender !== null && { gender: payload.lemma.gender }),
-      ...(payload.lemma.plural !== null && { plural: payload.lemma.plural }),
-      createdAt: now,
-      updatedAt: now,
-    }
-    await createLemma(tx, lemma)
+      lemma = {
+        id: crypto.randomUUID(),
+        form: payload.lemma.form,
+        language: payload.lemma.language,
+        partOfSpeech: payload.lemma.partOfSpeech,
+        ...(payload.lemma.gender !== null && { gender: payload.lemma.gender }),
+        ...(payload.lemma.plural !== null && { plural: payload.lemma.plural }),
+        createdAt: now,
+        updatedAt: now,
+      }
+      await createLemma(tx, lemma)
 
-    // The lemma's own form must resolve in surface-form lookups too.
-    await createInflections(tx, lemma.id, [payload.lemma.form, ...payload.inflections])
+      // The lemma's own form must resolve in surface-form lookups too.
+      await createInflections(tx, lemma.id, [payload.lemma.form, ...payload.inflections])
+    }
 
     const card: Card = {
       id: crypto.randomUUID(),
@@ -189,11 +208,12 @@ export async function persistWordGeneration(
       createdAt: now,
       updatedAt: now,
       source: usage.provider,
+      nativeLanguage,
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source, card.nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states

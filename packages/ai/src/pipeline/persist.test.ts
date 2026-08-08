@@ -41,7 +41,7 @@ describe('persistWordGeneration', () => {
   }
 
   it('writes the whole package and returns the created lemma', async () => {
-    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID)
+    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')
 
     expect(result.lemma.form).toBe('ausgehen')
     expect(result.lemma.partOfSpeech).toBe('verb')
@@ -63,7 +63,7 @@ describe('persistWordGeneration', () => {
   })
 
   it('sets the primary meaning and selected example invariants', async () => {
-    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID)
+    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')
 
     const card = await db.querySingle<{ primary_meaning_id: string | null }>(
       `SELECT primary_meaning_id FROM cards WHERE id = ?`,
@@ -85,7 +85,7 @@ describe('persistWordGeneration', () => {
   })
 
   it('links every example to the generation metadata row', async () => {
-    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID)
+    const result = await persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')
 
     const rows = await db.query<{ generation_meta_data_id: string | null }>(
       `SELECT generation_meta_data_id FROM examples WHERE card_id = ?`,
@@ -103,7 +103,7 @@ describe('persistWordGeneration', () => {
   })
 
   it('makes the lemma resolvable via surface forms, including its own form', async () => {
-    await persistWordGeneration(db, validPayload(), usage, DECK_ID)
+    await persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')
     const { findLemmaBySurfaceForm } = await import('@lingora/database')
 
     const byInflection = await findLemmaBySurfaceForm(db, 'ging aus')
@@ -114,8 +114,8 @@ describe('persistWordGeneration', () => {
   })
 
   it('rejects a lemma that already exists', async () => {
-    await persistWordGeneration(db, validPayload(), usage, DECK_ID)
-    await expect(persistWordGeneration(db, validPayload(), usage, DECK_ID)).rejects.toThrow(
+    await persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')
+    await expect(persistWordGeneration(db, validPayload(), usage, DECK_ID, 'en')).rejects.toThrow(
       /already exists/,
     )
     expect(await count('cards')).toBe(1) // and nothing extra landed
@@ -125,7 +125,7 @@ describe('persistWordGeneration', () => {
     // Deterministic mid-transaction failure: the card insert FK-fails against
     // a deck that doesn't exist, after lemma and inflections already landed.
     await expect(
-      persistWordGeneration(db, validPayload(), usage, 'deck-that-does-not-exist'),
+      persistWordGeneration(db, validPayload(), usage, 'deck-that-does-not-exist', 'en'),
     ).rejects.toThrow()
 
     for (const table of [
@@ -152,7 +152,7 @@ describe('persistWordGeneration', () => {
     // guard AFTER lemma/card/phrases/clozes were written.
     const payload = { ...validPayload(), clusters: [] }
 
-    await expect(persistWordGeneration(db, payload, usage, DECK_ID)).rejects.toThrow(
+    await expect(persistWordGeneration(db, payload, usage, DECK_ID, 'en')).rejects.toThrow(
       /no meanings/,
     )
 

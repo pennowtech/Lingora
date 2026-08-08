@@ -40,7 +40,7 @@ async function addWord(
   const cardId = crypto.randomUUID()
   await createCardWithState(
     db,
-    { id: cardId, lemmaId, deckId, type: 'basic', createdAt, updatedAt: createdAt },
+    { id: cardId, lemmaId, deckId, type: 'basic', createdAt, updatedAt: createdAt, nativeLanguage: 'en' },
     initialState(cardId),
   )
   return cardId

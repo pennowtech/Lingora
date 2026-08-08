@@ -134,7 +134,7 @@ type Step = 'pick' | 'map' | 'preview'
  * decoded — reported honestly in the preview, not silently mangled.
  */
 export default function ApkgImportScreen(): JSX.Element {
-  const { db, targetLanguage } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
@@ -394,7 +394,7 @@ export default function ApkgImportScreen(): JSX.Element {
       message: 'User confirmed Anki import',
       metadata: { itemCount: toImport.length },
     })
-    importApkgNotes(db, toImport, deckId, targetLanguage, {
+    importApkgNotes(db, toImport, deckId, targetLanguage, nativeLanguage, {
       onProgress: (done, total) => setProgress({ done, total }),
       shouldCancel: () => cancelRequested.current,
       duplicatePolicy,

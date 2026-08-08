@@ -148,6 +148,7 @@ export async function importRow(
   row: ImportableRow,
   deckId: string,
   language: LanguageCode,
+  nativeLanguage: LanguageCode,
   existingLemmaId: string | null,
   duplicatePolicy: DuplicatePolicy,
   clusterDescription: string,
@@ -215,6 +216,7 @@ export async function importRow(
       lemmaId,
       clusterId,
       deckId,
+      nativeLanguage,
       row,
       existingLemmaId: resolvedExistingLemmaId,
       duplicatePolicy,
@@ -228,6 +230,7 @@ export async function importRow(
       lemmaId,
       clusterId,
       deckId,
+      nativeLanguage,
       row,
       existingLemmaId: resolvedExistingLemmaId,
       duplicatePolicy,
@@ -248,6 +251,7 @@ async function upsertCard(
     /** Shared across every card this row writes and across repeated merge/duplicate imports of the same lemma — see the "one cluster per lemma" comment in `importRow`. */
     clusterId: string
     deckId: string
+    nativeLanguage: LanguageCode
     row: ImportableRow
     existingLemmaId: string | null
     duplicatePolicy: DuplicatePolicy
@@ -255,7 +259,7 @@ async function upsertCard(
     content: CardContent
   },
 ): Promise<void> {
-  const { type, lemmaId, clusterId, deckId, row, existingLemmaId, duplicatePolicy, now, content } = args
+  const { type, lemmaId, clusterId, deckId, nativeLanguage, row, existingLemmaId, duplicatePolicy, now, content } = args
 
   let cardId: string
   // A merge attaches to the existing card of the same type rather than
@@ -285,9 +289,9 @@ async function upsertCard(
   } else {
     cardId = crypto.randomUUID()
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL)`,
-      [cardId, lemmaId, deckId, type, now, now],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, native_language)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
+      [cardId, lemmaId, deckId, type, now, now, nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states

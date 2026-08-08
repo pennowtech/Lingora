@@ -360,6 +360,7 @@ export async function importApkgNotes(
   previews: ApkgRowPreview[],
   deckId: string,
   language: LanguageCode,
+  nativeLanguage: LanguageCode,
   options?: {
     onProgress?: (done: number, total: number) => void
     shouldCancel?: () => boolean
@@ -399,6 +400,7 @@ export async function importApkgNotes(
             preview,
             deckId,
             language,
+            nativeLanguage,
             preview.status === 'duplicate' ? preview.existingLemmaId : null,
             duplicatePolicy,
             'Imported from Anki',

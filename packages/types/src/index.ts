@@ -88,6 +88,10 @@ export interface Card {
   updatedAt: number
   suspendedAt?: number // if set, card is suspended from review
   source?: CardSource
+  /** The learner's native language this card's meanings/examples/synonyms were generated in —
+   * scopes a card to one (lemma, nativeLanguage) pair. Defaults to 'en' on rows from before this
+   * existed (migration 0017), matching the fallback used everywhere nativeLanguage is optional. */
+  nativeLanguage: LanguageCode
 }
 
 // ─── Meanings ─────────────────────────────────────────────────────────────────

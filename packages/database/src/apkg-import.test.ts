@@ -145,7 +145,7 @@ describe('buildApkgImportPreview / importApkgNotes', () => {
     })
 
     const progressCalls: Array<[number, number]> = []
-    const result = await importApkgNotes(lingoraDb, previews, deckId, 'de', {
+    const result = await importApkgNotes(lingoraDb, previews, deckId, 'de', 'en', {
       onProgress: (done, total) => progressCalls.push([done, total]),
     })
 
@@ -171,7 +171,7 @@ describe('buildApkgImportPreview / importApkgNotes', () => {
       language: 'de',
     })
 
-    const result = await importApkgNotes(lingoraDb, previews, deckId, 'de', { shouldCancel: () => true })
+    const result = await importApkgNotes(lingoraDb, previews, deckId, 'de', 'en', { shouldCancel: () => true })
     expect(result).toEqual({ imported: 0, skipped: 0, failed: 0, cancelled: true })
   })
 })

@@ -305,6 +305,7 @@ export async function importCsvRows(
   previews: CsvRowPreview[],
   deckId: string,
   language: LanguageCode,
+  nativeLanguage: LanguageCode,
   duplicatePolicy: DuplicatePolicy = 'skip',
   cardType: 'basic' | 'cloze' = 'basic',
 ): Promise<CsvImportResult> {
@@ -335,6 +336,7 @@ export async function importCsvRows(
           preview,
           deckId,
           language,
+          nativeLanguage,
           preview.status === 'duplicate' ? preview.existingLemmaId : null,
           duplicatePolicy,
           'Imported from CSV',

@@ -80,6 +80,40 @@ describe('lookupOrGenerate', () => {
     expect(ai.packageCalls).toBe(1)
   })
 
+  it('regenerates under a different native language instead of returning the stale existing card', async () => {
+    const ai = mockProvider([complete(), complete()])
+    const pipeline = await createAIPipeline({ db, ai })
+
+    // First lookup: native=en (the default).
+    const first = await pipeline.lookupOrGenerate('ausgehen', { cefrLevel: 'B1', deckId: DECK_ID })
+    expect(first.kind).toBe('generated')
+
+    // Same word, different native language: must regenerate, not short-circuit to 'existing'.
+    const second = await pipeline.lookupOrGenerate('ausgehen', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      nativeLanguage: 'hi',
+    })
+    expect(second.kind).toBe('generated')
+    if (first.kind === 'generated' && second.kind === 'generated') {
+      expect(second.cardId).not.toBe(first.cardId)
+      expect(second.lemma.id).toBe(first.lemma.id) // same lemma, reused
+    }
+    expect(ai.packageCalls).toBe(2)
+
+    // The two cards are both real, distinct rows scoped to their own native language.
+    const cards = await db.query<{ id: string; native_language: string }>(
+      `SELECT id, native_language FROM cards WHERE lemma_id = (SELECT id FROM lemmas WHERE form = 'ausgehen')`,
+    )
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => c.native_language).sort()).toEqual(['en', 'hi'])
+
+    // Re-querying native=en again still resolves to the original card — no third generation.
+    const third = await pipeline.lookupOrGenerate('ausgehen', { cefrLevel: 'B1', deckId: DECK_ID })
+    expect(third.kind).toBe('existing')
+    expect(ai.packageCalls).toBe(2)
+  })
+
   it('generates, persists and reports usage on the happy path', async () => {
     const ai = mockProvider([complete()])
     const pipeline = await createAIPipeline({ db, ai })

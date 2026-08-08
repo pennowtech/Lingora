@@ -1,4 +1,4 @@
-import type { CardSource, CefrLevel, Inflection, Lemma } from '@lingora/types'
+import type { CardSource, CefrLevel, Inflection, LanguageCode, Lemma } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 import { buildFTSQuery } from '../fts'
 
@@ -89,7 +89,11 @@ export async function getLemmaByForm(
  *
  * Returns up to 20 results ordered by relevance.
  */
-export async function searchLemmas(db: DatabaseAdapter, input: string): Promise<Lemma[]> {
+export async function searchLemmas(
+  db: DatabaseAdapter,
+  input: string,
+  language: LanguageCode,
+): Promise<Lemma[]> {
   const query = buildFTSQuery(input)
   if (!query) return []
 
@@ -99,7 +103,7 @@ export async function searchLemmas(db: DatabaseAdapter, input: string): Promise<
        SELECT ${lemmaColumns('l')}, fts_lemmas.rank AS rank
        FROM fts_lemmas
        JOIN lemmas l ON l.rowid = fts_lemmas.rowid
-       WHERE fts_lemmas MATCH ?
+       WHERE fts_lemmas MATCH ? AND l.language = ?
 
        UNION ALL
 
@@ -108,12 +112,12 @@ export async function searchLemmas(db: DatabaseAdapter, input: string): Promise<
        JOIN meanings m ON m.rowid = fts_meanings.rowid
        JOIN cards c ON c.id = m.card_id
        JOIN lemmas l ON l.id = c.lemma_id
-       WHERE fts_meanings MATCH ?
+       WHERE fts_meanings MATCH ? AND l.language = ?
      )
      GROUP BY id
      ORDER BY MIN(rank)
      LIMIT 20`,
-    [query, query],
+    [query, language, query, language],
   )
 }
 
@@ -146,8 +150,10 @@ export interface LemmaSearchPreview {
 export async function searchLemmasWithPreview(
   db: DatabaseAdapter,
   input: string,
+  language: LanguageCode,
+  nativeLanguage: LanguageCode,
 ): Promise<LemmaSearchPreview[]> {
-  const lemmas = await searchLemmas(db, input)
+  const lemmas = await searchLemmas(db, input, language)
   const previews: LemmaSearchPreview[] = []
 
   for (const lemma of lemmas) {
@@ -160,22 +166,22 @@ export async function searchLemmasWithPreview(
       `SELECT m.translation, m.cefr_level AS cefrLevel, m.explanation, c.source
        FROM meanings m
        JOIN cards c ON c.id = m.card_id
-       WHERE c.lemma_id = ? AND m.is_primary = 1
+       WHERE c.lemma_id = ? AND c.native_language = ? AND m.is_primary = 1
        LIMIT 1`,
-      [lemma.id],
+      [lemma.id, nativeLanguage],
     )
     const membership = await db.querySingle<{ n: number }>(
       `SELECT COUNT(*) AS n
        FROM deck_cards dc
        JOIN cards c ON c.id = dc.card_id
-       WHERE c.lemma_id = ?`,
-      [lemma.id],
+       WHERE c.lemma_id = ? AND c.native_language = ?`,
+      [lemma.id, nativeLanguage],
     )
     const extras = await db.querySingle<{ n: number }>(
       `SELECT
-         (SELECT COUNT(*) FROM examples ex JOIN cards c ON c.id = ex.card_id WHERE c.lemma_id = ?) +
-         (SELECT COUNT(*) FROM synonyms sy JOIN cards c ON c.id = sy.card_id WHERE c.lemma_id = ?) AS n`,
-      [lemma.id, lemma.id],
+         (SELECT COUNT(*) FROM examples ex JOIN cards c ON c.id = ex.card_id WHERE c.lemma_id = ? AND c.native_language = ?) +
+         (SELECT COUNT(*) FROM synonyms sy JOIN cards c ON c.id = sy.card_id WHERE c.lemma_id = ? AND c.native_language = ?) AS n`,
+      [lemma.id, nativeLanguage, lemma.id, nativeLanguage],
     )
     previews.push({
       lemma,

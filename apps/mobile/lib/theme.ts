@@ -63,6 +63,36 @@ export const cefrColors: Record<CefrLevel, { fg: string; bg: string }> = {
   unknown: { fg: '#6B7280', bg: '#F3F4F6' },
 }
 
+/**
+ * Settings menu category tint — decorative wayfinding color per section, so the menu is scannable
+ * by color instead of eight identical brand-purple icons. Not a status/semantic signal like
+ * success/warning/danger — a fixed hue per category, unrelated to which of the six named themes
+ * (lib/themes.ts) is active, exactly like ratingColors/cefrColors above. Selected by light/dark
+ * mode the same way: `theme.mode === 'dark' ? darkSettingsCategoryColors : settingsCategoryColors`
+ * (see app/review/[deckId].tsx's identical pattern for ratingColors).
+ */
+export type SettingsCategoryKey = 'general' | 'learning' | 'data' | 'ai' | 'translation' | 'sync' | 'about'
+
+export const settingsCategoryColors: Record<SettingsCategoryKey, { fg: string; bg: string }> = {
+  general: { fg: '#64748B', bg: '#EEF1F5' },
+  learning: { fg: '#059669', bg: '#DDF5EA' },
+  data: { fg: '#B45309', bg: '#FCEEDA' },
+  ai: { fg: '#7C3AED', bg: '#F1E9FD' },
+  translation: { fg: '#0891B2', bg: '#DFF6FA' },
+  sync: { fg: '#2563EB', bg: '#E5EDFE' },
+  about: { fg: '#6B7280', bg: '#F1F2F4' },
+}
+
+export const darkSettingsCategoryColors: Record<SettingsCategoryKey, { fg: string; bg: string }> = {
+  general: { fg: '#A5B4C7', bg: '#262B36' },
+  learning: { fg: '#6EE7B7', bg: '#0F2E22' },
+  data: { fg: '#FBBF67', bg: '#3D2A12' },
+  ai: { fg: '#C4B5FD', bg: '#2E1F4D' },
+  translation: { fg: '#7DD3E8', bg: '#113138' },
+  sync: { fg: '#72ADFF', bg: '#122646' },
+  about: { fg: '#9AA1AE', bg: '#23262C' },
+}
+
 /** 4-based spacing scale. */
 export const spacing = {
   xs: 4,

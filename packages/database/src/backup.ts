@@ -34,7 +34,7 @@ export const TABLE_COLUMNS = {
   inflections: ['id', 'form', 'lemma_id', 'features', 'created_at', 'updated_at'],
   decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji'],
   meaning_clusters: ['id', 'label', 'description', 'lemma_id', 'cefr_level', 'order_index'],
-  cards: ['id', 'lemma_id', 'deck_id', 'type', 'primary_meaning_id', 'created_at', 'updated_at', 'suspended_at', 'source'],
+  cards: ['id', 'lemma_id', 'deck_id', 'type', 'primary_meaning_id', 'created_at', 'updated_at', 'suspended_at', 'source', 'native_language'],
   meanings: [
     'id',
     'card_id',

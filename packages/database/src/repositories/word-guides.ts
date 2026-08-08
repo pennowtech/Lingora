@@ -182,6 +182,7 @@ export async function persistWordGuideAsCard(
   db: DatabaseAdapter,
   entry: WordGuideEntry,
   deckId: string,
+  nativeLanguage: LanguageCode,
   cefrLevel: CefrLevel = 'A1',
 ): Promise<{ lemma: Lemma; cardId: string }> {
   return db.transaction(async (tx) => {
@@ -215,11 +216,12 @@ export async function persistWordGuideAsCard(
       createdAt: now,
       updatedAt: now,
       source: 'word_guide',
+      nativeLanguage,
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source, card.nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states
@@ -300,6 +302,7 @@ export async function persistTranslationAsCard(
   db: DatabaseAdapter,
   args: { form: string; language: LanguageCode; translation: string; provider: Exclude<CardSource, 'word_guide'> },
   deckId: string,
+  nativeLanguage: LanguageCode,
   cefrLevel: CefrLevel = 'unknown',
 ): Promise<{ lemma: Lemma; cardId: string }> {
   return db.transaction(async (tx) => {
@@ -330,11 +333,12 @@ export async function persistTranslationAsCard(
       createdAt: now,
       updatedAt: now,
       source: args.provider,
+      nativeLanguage,
     }
     await tx.execute(
-      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?)`,
-      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source],
+      `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+       VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, ?, ?)`,
+      [card.id, card.lemmaId, card.deckId, card.type, card.createdAt, card.updatedAt, card.source, card.nativeLanguage],
     )
     await tx.execute(
       `INSERT INTO card_states

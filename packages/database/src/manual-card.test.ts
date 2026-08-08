@@ -24,7 +24,7 @@ describe('createManualWordCard', () => {
   })
 
   it('creates a lemma, card, primary meaning, and deck membership from the minimum required fields', async () => {
-    const result = await createManualWordCard(db, 'deck-a', 'de', {
+    const result = await createManualWordCard(db, 'deck-a', 'de', 'en', {
       word: 'ablehnen',
       partOfSpeech: 'verb',
       meaning: 'to refuse',
@@ -57,13 +57,13 @@ describe('createManualWordCard', () => {
   })
 
   it('reuses an existing lemma of the same form/language instead of failing on the UNIQUE constraint', async () => {
-    const first = await createManualWordCard(db, 'deck-a', 'de', {
+    const first = await createManualWordCard(db, 'deck-a', 'de', 'en', {
       word: 'ablehnen',
       partOfSpeech: 'verb',
       meaning: 'to refuse',
       cefrLevel: 'B1',
     })
-    const second = await createManualWordCard(db, 'deck-a', 'de', {
+    const second = await createManualWordCard(db, 'deck-a', 'de', 'en', {
       word: 'ablehnen',
       partOfSpeech: 'verb',
       meaning: 'to decline',
@@ -96,7 +96,7 @@ describe('createManualClozeCard', () => {
   })
 
   it('creates a cloze card with no meaning, and both an FSRS card_states and cloze_states row', async () => {
-    const result = await createManualClozeCard(db, 'deck-a', 'de', {
+    const result = await createManualClozeCard(db, 'deck-a', 'de', 'en', {
       sentence: 'Wir gehen heute Abend [...].',
       answer: 'aus',
       translation: 'We are going out tonight.',

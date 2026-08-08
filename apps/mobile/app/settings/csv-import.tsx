@@ -124,7 +124,7 @@ type Step = 'pick' | 'map' | 'preview'
  * screen is just the picker → map → preview → confirm wizard around it.
  */
 export default function CsvImportScreen(): JSX.Element {
-  const { db, targetLanguage } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
@@ -372,7 +372,7 @@ export default function CsvImportScreen(): JSX.Element {
       message: 'User confirmed CSV import',
       metadata: { itemCount: toImport.length },
     })
-    importCsvRows(db, toImport, deckId, targetLanguage, duplicatePolicy, cardType)
+    importCsvRows(db, toImport, deckId, targetLanguage, nativeLanguage, duplicatePolicy, cardType)
       .then(async (outcome) => {
         setResult(outcome)
         await queryClient.invalidateQueries()

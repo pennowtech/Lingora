@@ -168,7 +168,7 @@ describe('backup / restore', () => {
       await createDeck(db, { id: 'other-deck', name: 'Other', createdAt: now, updatedAt: now })
       const { rows } = parseCsv('word,meaning\nHund,dog\n')
       const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-      await importCsvRows(db, previews, 'other-deck', 'de')
+      await importCsvRows(db, previews, 'other-deck', 'de', 'en')
 
       const deckDefaultBackup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')
       expect(deckDefaultBackup.tables.decks?.map((d) => d.id)).toEqual(['deck-default'])
@@ -195,6 +195,7 @@ describe('backup / restore', () => {
           examples: [{ sentence: 'Das ist ein Beispiel.', translation: 'This is an example.', type: 'indicative' }],
         },
         'deck-default',
+        'en',
       )
 
       const backup = await createDeckBackup(db, 'deck-default', {}, '1.0.0')

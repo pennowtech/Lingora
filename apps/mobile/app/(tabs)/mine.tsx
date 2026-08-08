@@ -83,7 +83,7 @@ const HELP_SECTIONS: HelpSection[] = [
  * the user discards what they don't want, then generates the rest in one go.
  */
 export default function MiningQueueScreen(): JSX.Element {
-  const { db, pipeline, tier, defaultCefr } = useServices()
+  const { db, pipeline, tier, defaultCefr, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -181,6 +181,7 @@ export default function MiningQueueScreen(): JSX.Element {
           const outcome = await pipeline.lookupOrGenerate(entry.rawText.trim(), {
             cefrLevel: defaultCefr,
             deckId,
+            nativeLanguage,
           })
           if (outcome.kind === 'generated') {
             await updateMineEntryProcessed(db, entry.id, outcome.cardId)

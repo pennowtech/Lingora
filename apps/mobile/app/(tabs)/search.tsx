@@ -7,6 +7,7 @@ import {
   searchLemmasWithPreview,
   type LemmaSearchPreview,
 } from '@lingora/database'
+import type { LanguageCode } from '@lingora/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX } from 'react'
@@ -24,6 +25,18 @@ import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+
+/** Vocabulary languages (what's being looked up/learned), duplicated intentionally per-screen —
+ * see settings/learning.tsx's VOCAB_LANGUAGE_LABELS, the source of this convention. */
+const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
+  en: 'English',
+  de: 'German',
+  ja: 'Japanese',
+  es: 'Spanish',
+  fr: 'French',
+  vi: 'Vietnamese',
+  hi: 'Hindi',
+}
 
 const HELP_SECTIONS: HelpSection[] = [
   {
@@ -118,8 +131,8 @@ export default function SearchScreen(): JSX.Element {
   }, [params.q])
 
   const search = useQuery({
-    queryKey: ['search', term],
-    queryFn: () => searchLemmasWithPreview(db, term),
+    queryKey: ['search', term, targetLanguage, nativeLanguage],
+    queryFn: () => searchLemmasWithPreview(db, term, targetLanguage, nativeLanguage),
     enabled: term !== '',
   })
 
@@ -138,7 +151,7 @@ export default function SearchScreen(): JSX.Element {
   const addFromGuide = useMutation({
     mutationFn: (deckId: string) => {
       if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      return persistWordGuideAsCard(db, wordGuide.data, deckId)
+      return persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
     },
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
@@ -211,6 +224,7 @@ export default function SearchScreen(): JSX.Element {
           provider: dictionaryNameToCardSource(dictionary.name),
         },
         deckId,
+        nativeLanguage,
       )
     },
     onSuccess: async ({ lemma }) => {
@@ -230,7 +244,7 @@ export default function SearchScreen(): JSX.Element {
       await createDeck(db, { id, name, createdAt: now, updatedAt: now })
       if (deckPickerFor === 'guide') {
         if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-        return persistWordGuideAsCard(db, wordGuide.data, id)
+        return persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
       }
       if (deckPickerFor === 'translation') {
         if (!quickTranslate.data || quickTranslate.data.source !== targetLanguage) {
@@ -245,6 +259,7 @@ export default function SearchScreen(): JSX.Element {
             provider: dictionaryNameToCardSource(dictionary.name),
           },
           id,
+          nativeLanguage,
         )
       }
       throw new Error(t('Nothing to add.'))
@@ -424,7 +439,10 @@ export default function SearchScreen(): JSX.Element {
           <TextInput
             testID="search-input"
             style={styles.input}
-            placeholder={t('Type a German or English word…')}
+            placeholder={t('Type a {{target}} or {{native}} word…', {
+              target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
+              native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
+            })}
             placeholderTextColor={colors.textMuted}
             value={query}
             onChangeText={(text) => {
@@ -450,7 +468,10 @@ export default function SearchScreen(): JSX.Element {
         <EmptyState
           icon="search"
           title={t('Instant lookup')}
-          message={t('Search in German ("ausgeh…") or English ("go out").\nInflected forms like "ging aus" work too.')}
+          message={t('Search in {{target}} or {{native}}.\nInflected or conjugated forms work too.', {
+            target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
+            native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
+          })}
         />
       ) : search.isPending ? (
         <View style={styles.centered}>

@@ -79,7 +79,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    await importCsvRows(db, first, deckId, 'de')
+    await importCsvRows(db, first, deckId, 'de', 'en')
 
     const second = await buildCsvImportPreview(db, rows, {
       mapping: { word: 0, meaning: 1 },
@@ -98,7 +98,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     })
     expect(previews.map((p) => p.status)).toEqual(['ok', 'ok'])
 
-    const result = await importCsvRows(db, previews, deckId, 'de', 'duplicate')
+    const result = await importCsvRows(db, previews, deckId, 'de', 'en', 'duplicate')
 
     expect(result.failed).toBe(0)
     expect(result.imported).toBe(2)
@@ -123,7 +123,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     })
     expect(previews.map((p) => p.status)).toEqual(['ok', 'ok'])
 
-    const result = await importCsvRows(db, previews, deckId, 'de', 'skip')
+    const result = await importCsvRows(db, previews, deckId, 'de', 'en', 'skip')
 
     expect(result).toEqual({ imported: 2, skipped: 0, failed: 0 })
     const cards = await db.query<{ id: string }>('SELECT id FROM cards')
@@ -146,7 +146,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       language: 'de',
     })
 
-    const result = await importCsvRows(db, previews, deckId, 'de')
+    const result = await importCsvRows(db, previews, deckId, 'de', 'en')
     expect(result).toEqual({ imported: 1, skipped: 0, failed: 0 })
 
     const lemma = await getLemmaByForm(db, 'Haus', 'de')
@@ -189,7 +189,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     // Row 0 imports first; row 2 (same word) is a duplicate against row 0's
     // *pre-import* state, so the preview itself won't catch it — simulate the
     // realistic case of importing straight after preview build instead.
-    const result = await importCsvRows(db, previews.slice(0, 2), deckId, 'de')
+    const result = await importCsvRows(db, previews.slice(0, 2), deckId, 'de', 'en')
     expect(result.imported).toBe(1)
     expect(result.failed).toBe(1)
     expect(result.skipped).toBe(0)
@@ -212,7 +212,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     })
     expect(previews[0]?.synonyms).toEqual(['Gebäude', 'Anwesen'])
 
-    await importCsvRows(db, previews, deckId, 'de')
+    await importCsvRows(db, previews, deckId, 'de', 'en')
     const lemma = await getLemmaByForm(db, 'Haus', 'de')
     const card = await db.querySingle<{ id: string }>('SELECT id FROM cards WHERE lemma_id = ?', [lemma?.id])
     const synonyms = await db.query<{ word: string }>('SELECT synonym AS word FROM synonyms WHERE card_id = ?', [card?.id])
@@ -230,7 +230,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de')
+    await importCsvRows(db, previews, deckId, 'de', 'en')
 
     const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
     const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
@@ -248,7 +248,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de', 'skip', 'cloze')
+    await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'cloze')
 
     const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
     const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
@@ -273,7 +273,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, basicPreviews, deckId, 'de', 'skip', 'basic')
+    await importCsvRows(db, basicPreviews, deckId, 'de', 'en', 'skip', 'basic')
 
     // Second pass: the word now exists, so the preview flags it 'duplicate' — 'duplicate' policy
     // adds a new card under the SAME lemma rather than colliding on lemmas.form's UNIQUE constraint.
@@ -282,7 +282,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       language: 'de',
     })
     expect(clozePreviews[0]?.status).toBe('duplicate')
-    await importCsvRows(db, clozePreviews, deckId, 'de', 'duplicate', 'cloze')
+    await importCsvRows(db, clozePreviews, deckId, 'de', 'en', 'duplicate', 'cloze')
 
     const allLemmas = await db.query('SELECT id FROM lemmas WHERE form = ?', ['ausgehen'])
     expect(allLemmas).toHaveLength(1)
@@ -301,12 +301,12 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+    await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
     const dupPreviews = await buildCsvImportPreview(db, rows, {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
+    await importCsvRows(db, dupPreviews, deckId, 'de', 'en', 'duplicate', 'cloze')
 
     const lemma = await getLemmaByForm(db, 'ausgehen', 'de')
     const cards = await db.query<{ id: string; type: string }>('SELECT id, type FROM cards WHERE lemma_id = ? ORDER BY type', [
@@ -352,13 +352,13 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    await importCsvRows(db, first, deckId, 'de')
+    await importCsvRows(db, first, deckId, 'de', 'en')
 
     const second = await buildCsvImportPreview(db, rows, {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    const result = await importCsvRows(db, second, deckId, 'de', 'skip')
+    const result = await importCsvRows(db, second, deckId, 'de', 'en', 'skip')
     expect(result).toEqual({ imported: 0, skipped: 1, failed: 0 })
 
     const lemma = await getLemmaByForm(db, 'Haus', 'de')
@@ -372,7 +372,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    await importCsvRows(db, first, deckId, 'de')
+    await importCsvRows(db, first, deckId, 'de', 'en')
 
     const { rows: secondRows } = parseCsv('word,meaning,synonyms\nHaus,building,Gebäude\n')
     const second = await buildCsvImportPreview(db, secondRows, {
@@ -381,7 +381,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     })
     expect(second[0]?.status).toBe('duplicate')
 
-    const result = await importCsvRows(db, second, deckId, 'de', 'merge')
+    const result = await importCsvRows(db, second, deckId, 'de', 'en', 'merge')
     expect(result).toEqual({ imported: 1, skipped: 0, failed: 0 })
 
     const lemmas = await db.query<{ id: string }>('SELECT id FROM lemmas WHERE form = ?', ['Haus'])
@@ -428,12 +428,12 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+    await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
     const dupPreviews = await buildCsvImportPreview(db, rows, {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
+    await importCsvRows(db, dupPreviews, deckId, 'de', 'en', 'duplicate', 'cloze')
 
     const lemma = await getLemmaByForm(db, 'einbrechen', 'de')
     const cards = await db.query<{ id: string }>('SELECT id FROM cards WHERE lemma_id = ?', [lemma?.id])
@@ -471,7 +471,7 @@ describe('buildCsvImportPreview / importCsvRows', () => {
     })
     expect(previews[0]?.status).toBe('duplicate')
 
-    const result = await importCsvRows(db, previews, deckId, 'de', 'merge')
+    const result = await importCsvRows(db, previews, deckId, 'de', 'en', 'merge')
     expect(result).toEqual({ imported: 1, skipped: 0, failed: 0 })
 
     const deckMembership = await db.query<{ id: string }>(
@@ -487,14 +487,14 @@ describe('buildCsvImportPreview / importCsvRows', () => {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    await importCsvRows(db, first, deckId, 'de')
+    await importCsvRows(db, first, deckId, 'de', 'en')
 
     const { rows: secondRows } = parseCsv('word,meaning\nHaus,building\n')
     const second = await buildCsvImportPreview(db, secondRows, {
       mapping: { word: 0, meaning: 1 },
       language: 'de',
     })
-    const result = await importCsvRows(db, second, deckId, 'de', 'duplicate')
+    const result = await importCsvRows(db, second, deckId, 'de', 'en', 'duplicate')
     expect(result).toEqual({ imported: 1, skipped: 0, failed: 0 })
 
     const lemmas = await db.query<{ id: string }>('SELECT id FROM lemmas WHERE form = ?', ['Haus'])

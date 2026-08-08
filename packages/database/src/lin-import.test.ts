@@ -30,11 +30,11 @@ async function seedTwoDeckSource(db: NodeSqliteAdapter): Promise<{ deckAId: stri
     mapping: { word: 0, meaning: 1, example: 2, synonyms: 3 },
     language: 'de',
   })
-  await importCsvRows(db, previewsA, deckAId, 'de')
+  await importCsvRows(db, previewsA, deckAId, 'de', 'en')
 
   const { rows: rowsB } = parseCsv('word,meaning\nBaum,tree\n')
   const previewsB = await buildCsvImportPreview(db, rowsB, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-  await importCsvRows(db, previewsB, deckBId, 'de')
+  await importCsvRows(db, previewsB, deckBId, 'de', 'en')
 
   // Give the "Haus" card real review history + FSRS state to verify carryover.
   const hausLemma = await getLemmaByForm(db, 'Haus', 'de')

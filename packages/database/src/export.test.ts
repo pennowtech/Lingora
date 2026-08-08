@@ -28,7 +28,7 @@ describe('export formats', () => {
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, synonyms: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de')
+    await importCsvRows(db, previews, deckId, 'de', 'en')
 
     // A cloze card needs its own import pass with cardType: 'cloze' and a dedicated `cloze`
     // column now — cardType is fully authoritative (see import-shared.ts's importRow), there's no
@@ -41,7 +41,7 @@ describe('export formats', () => {
       language: 'de',
       cardType: 'cloze',
     })
-    await importCsvRows(db, clozePreviews, deckId, 'de', 'skip', 'cloze')
+    await importCsvRows(db, clozePreviews, deckId, 'de', 'en', 'skip', 'cloze')
   })
 
   afterEach(() => {
@@ -97,7 +97,7 @@ describe('export formats', () => {
         language: 'de',
         cardType: 'cloze',
       })
-      await importCsvRows(db, previews, deckId, 'de', 'skip', 'cloze')
+      await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'cloze')
 
       const cards = await getExportableCards(db, { deckId })
       const card = cards.find((c) => c.word === 'einbrechen')
@@ -117,7 +117,7 @@ describe('export formats', () => {
         mapping: { word: 0, example: 1, exampleTranslation: 2 },
         language: 'de',
       })
-      await importCsvRows(db, previews, deckId, 'de')
+      await importCsvRows(db, previews, deckId, 'de', 'en')
 
       const cards = await getExportableCards(db, { deckId })
       const card = cards.find((c) => c.word === 'Schmetterling')
@@ -196,7 +196,7 @@ describe('export formats', () => {
       // A sense change (createCardForSense) can create a second, genuinely distinct basic card
       // for one lemma — collapsing those together (the bug: keying purely by word, one entry per
       // word, last-write-wins) silently dropped the second meaning from CSV/Markdown export.
-      const first = await createManualWordCard(db, deckId, 'de', {
+      const first = await createManualWordCard(db, deckId, 'de', 'en', {
         word: 'Schloss',
         partOfSpeech: 'noun',
         gender: null,
@@ -207,7 +207,7 @@ describe('export formats', () => {
         'SELECT id FROM meaning_clusters WHERE lemma_id = ?',
         [first.lemma.id],
       )
-      await createCardForSense(db, deckId, {
+      await createCardForSense(db, deckId, 'en', {
         lemmaId: first.lemma.id,
         clusterId: cluster!.id,
         meaning: { translation: 'lock', explanation: '', cefrLevel: 'A1' },
@@ -229,12 +229,12 @@ describe('export formats', () => {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+      await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
       const dupPreviews = await buildCsvImportPreview(db, rows, {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
+      await importCsvRows(db, dupPreviews, deckId, 'de', 'en', 'duplicate', 'cloze')
 
       const raw = await getExportableCards(db, { deckId })
       // 2 from beforeEach (Haus, ausgehen) + 2 for einbrechen (basic + cloze) = 4 raw cards.
@@ -261,12 +261,12 @@ describe('export formats', () => {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+      await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
       const dupPreviews = await buildCsvImportPreview(db, rows, {
         mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
         language: 'de',
       })
-      await importCsvRows(db, dupPreviews, deckId, 'de', 'duplicate', 'cloze')
+      await importCsvRows(db, dupPreviews, deckId, 'de', 'en', 'duplicate', 'cloze')
 
       const csv = await buildCsvExport(db, { deckId })
       const einbrechenRows = csv.split('\r\n').filter((line) => line.startsWith('einbrechen,'))

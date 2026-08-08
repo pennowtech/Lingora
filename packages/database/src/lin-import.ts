@@ -299,10 +299,14 @@ export async function importLinDeck(
         const state = buildCardState(newCardId, srcState, now)
         const suspendedAt = nullableString(c.suspended_at)
 
+        // Older .lin backups (before migration 0017) never recorded native_language — 'en' matches
+        // the same fallback the migration itself backfills existing rows with.
+        const nativeLanguage = nullableString(c.native_language) ?? 'en'
+
         await tx.execute(
-          `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-           VALUES (?, ?, ?, ?, NULL, ?, ?, ?)`,
-          [newCardId, lemmaId, targetDeckId, String(c.type), now, now, suspendedAt !== null ? Number(suspendedAt) : null],
+          `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, native_language)
+           VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?)`,
+          [newCardId, lemmaId, targetDeckId, String(c.type), now, now, suspendedAt !== null ? Number(suspendedAt) : null, nativeLanguage],
         )
         await tx.execute(
           `INSERT INTO card_states

@@ -7,6 +7,7 @@ import type {
   EvaluationTarget,
   Example,
   Inflection,
+  LanguageCode,
   Lemma,
   Meaning,
   MeaningCluster,
@@ -211,7 +212,7 @@ interface WordView {
   clozes: Cloze[]
 }
 
-async function loadWord(db: DatabaseAdapter, form: string): Promise<WordView | null> {
+async function loadWord(db: DatabaseAdapter, form: string, nativeLanguage: LanguageCode): Promise<WordView | null> {
   const lemma = (await findLemmaBySurfaceForm(db, form)) ?? (await getLemmaByForm(db, form))
   if (!lemma) return null
 
@@ -220,7 +221,9 @@ async function loadWord(db: DatabaseAdapter, form: string): Promise<WordView | n
     getCardsByLemma(db, lemma.id),
     getClustersForLemma(db, lemma.id),
   ])
-  const card = cards[0] ?? null
+  // A lemma can have cards from more than one native language — only show the one generated for
+  // the learner's current native language, never an arbitrary other one (see migration 0017).
+  const card = cards.find((c) => c.nativeLanguage === nativeLanguage) ?? null
 
   const clusters = await Promise.all(
     clusterRows.map(async (cluster) => ({
@@ -287,8 +290,8 @@ export default function WordDetailScreen(): JSX.Element {
   const [editTranslation, setEditTranslation] = useState('')
 
   const wordQuery = useQuery({
-    queryKey: ['word', form],
-    queryFn: () => loadWord(db, form ?? ''),
+    queryKey: ['word', form, nativeLanguage],
+    queryFn: () => loadWord(db, form ?? '', nativeLanguage),
     enabled: (form ?? '') !== '',
   })
 
@@ -482,7 +485,7 @@ export default function WordDetailScreen(): JSX.Element {
       }
       return word.card.id
     }
-    return createCardForSense(db, deckId, {
+    return createCardForSense(db, deckId, nativeLanguage, {
       lemmaId: word.lemma.id,
       clusterId: active.cluster.id,
       meaning: {

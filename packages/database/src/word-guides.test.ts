@@ -126,7 +126,7 @@ describe('word_guides repository', () => {
     it('turns a dictionary entry into a real, reviewable card', async () => {
       const entry: WordGuideEntry = { ...ERFAHREN, language: 'de', chunkId: 1 }
 
-      const { lemma, cardId } = await persistWordGuideAsCard(db, entry, 'deck-default')
+      const { lemma, cardId } = await persistWordGuideAsCard(db, entry, 'deck-default', 'en')
 
       expect(lemma.form).toBe('erfahren')
       expect(lemma.partOfSpeech).toBe('verb')
@@ -162,15 +162,15 @@ describe('word_guides repository', () => {
         chunkId: 1,
       }
 
-      const { lemma } = await persistWordGuideAsCard(db, entry, 'deck-default')
+      const { lemma } = await persistWordGuideAsCard(db, entry, 'deck-default', 'en')
       expect(lemma.partOfSpeech).toBe('article')
     })
 
     it('throws rather than duplicating when the lemma already exists', async () => {
       const entry: WordGuideEntry = { ...ERFAHREN, language: 'de', chunkId: 1 }
-      await persistWordGuideAsCard(db, entry, 'deck-default')
+      await persistWordGuideAsCard(db, entry, 'deck-default', 'en')
 
-      await expect(persistWordGuideAsCard(db, entry, 'deck-default')).rejects.toThrow(/already exists/)
+      await expect(persistWordGuideAsCard(db, entry, 'deck-default', 'en')).rejects.toThrow(/already exists/)
     })
   })
 
@@ -184,6 +184,7 @@ describe('word_guides repository', () => {
         db,
         { form: 'sprechen', language: 'de', translation: 'to speak', provider: 'google' },
         'deck-default',
+        'en',
       )
 
       expect(lemma.form).toBe('sprechen')

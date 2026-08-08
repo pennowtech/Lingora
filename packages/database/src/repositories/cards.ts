@@ -1,4 +1,4 @@
-import type { Card, CardState, CefrLevel } from '@lingora/types'
+import type { Card, CardState, CefrLevel, LanguageCode } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /**
@@ -8,7 +8,7 @@ import type { DatabaseAdapter } from '../adapter'
  */
 function cardColumns(prefix = ''): string {
   const p = prefix === '' ? '' : `${prefix}.`
-  return `${p}id, ${p}lemma_id AS lemmaId, ${p}deck_id AS deckId, ${p}type, ${p}primary_meaning_id AS primaryMeaningId, ${p}created_at AS createdAt, ${p}updated_at AS updatedAt, ${p}suspended_at AS suspendedAt, ${p}source`
+  return `${p}id, ${p}lemma_id AS lemmaId, ${p}deck_id AS deckId, ${p}type, ${p}primary_meaning_id AS primaryMeaningId, ${p}created_at AS createdAt, ${p}updated_at AS updatedAt, ${p}suspended_at AS suspendedAt, ${p}source, ${p}native_language AS nativeLanguage`
 }
 
 /**
@@ -30,6 +30,24 @@ export async function getCardById(db: DatabaseAdapter, cardId: string): Promise<
  */
 export async function getCardsByLemma(db: DatabaseAdapter, lemmaId: string): Promise<Card[]> {
   return db.query<Card>(`SELECT ${cardColumns()} FROM cards WHERE lemma_id = ?`, [lemmaId])
+}
+
+/**
+ * Get the card generated for a lemma under a specific native language, if one exists.
+ * A lemma is shared across native languages; its cards are not — each (lemma,
+ * nativeLanguage) pair gets its own card with its own meanings/examples/synonyms.
+ */
+export async function getCardByLemmaAndNativeLanguage(
+  db: DatabaseAdapter,
+  lemmaId: string,
+  nativeLanguage: LanguageCode,
+): Promise<Card | null> {
+  return (
+    (await db.querySingle<Card>(
+      `SELECT ${cardColumns()} FROM cards WHERE lemma_id = ? AND native_language = ? LIMIT 1`,
+      [lemmaId, nativeLanguage],
+    )) ?? null
+  )
 }
 
 /**
@@ -120,8 +138,8 @@ export async function createCardWithState(
   await db.transaction(async (tx) => {
     await tx.execute(
       `INSERT INTO cards
-      (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         card.id,
         card.lemmaId,
@@ -131,6 +149,8 @@ export async function createCardWithState(
         card.createdAt,
         card.updatedAt,
         card.suspendedAt ?? null,
+        card.source ?? null,
+        card.nativeLanguage,
       ],
     )
     await tx.execute(

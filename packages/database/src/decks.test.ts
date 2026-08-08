@@ -22,7 +22,7 @@ describe('deleteDeck', () => {
     await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
 
     const lemmaBefore = await getLemmaByForm(db, 'Haus', 'de')
     expect(lemmaBefore).not.toBeNull()
@@ -44,14 +44,14 @@ describe('deleteDeck', () => {
     await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
     await deleteDeck(db, 'deck-a')
 
     await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
     const secondPreviews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
     expect(secondPreviews[0]?.status).toBe('ok')
 
-    const result = await importCsvRows(db, secondPreviews, 'deck-b', 'de')
+    const result = await importCsvRows(db, secondPreviews, 'deck-b', 'de', 'en')
     expect(result).toEqual({ imported: 1, skipped: 0, failed: 0 })
   })
 
@@ -61,7 +61,7 @@ describe('deleteDeck', () => {
     await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
 
     const lemma = await getLemmaByForm(db, 'Haus', 'de')
     const card = await db.querySingle<{ id: string }>('SELECT id FROM cards WHERE lemma_id = ?', [lemma?.id])
@@ -102,7 +102,7 @@ describe('mergeDecks', () => {
     await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
 
     await mergeDecks(db, 'deck-a', 'deck-b')
 
@@ -118,7 +118,7 @@ describe('mergeDecks', () => {
     await createDeck(db, { id: 'deck-b', name: 'B', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
     const card = await db.querySingle<{ id: string }>('SELECT id FROM cards')
     await db.execute(`INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`, [
       'membership-b',
@@ -167,7 +167,7 @@ describe('resetDeckProgress', () => {
     await createDeck(db, { id: 'deck-a', name: 'A', createdAt: now, updatedAt: now })
     const { rows } = parseCsv('word,meaning\nHaus,house\n')
     const previews = await buildCsvImportPreview(db, rows, { mapping: { word: 0, meaning: 1 }, language: 'de' })
-    await importCsvRows(db, previews, 'deck-a', 'de')
+    await importCsvRows(db, previews, 'deck-a', 'de', 'en')
 
     const card = await db.querySingle<{ id: string }>('SELECT id FROM cards LIMIT 1')
     const cardId = card?.id

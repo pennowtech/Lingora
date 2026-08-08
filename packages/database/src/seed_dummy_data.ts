@@ -96,8 +96,8 @@ export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
     // ── Card for 'ausgehen' with FSRS state and deck link ────
 
     await tx.execute(
-      `INSERT OR IGNORE INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT OR IGNORE INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, native_language)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         'card-ausgehen',
         'lemma-ausgehen',
@@ -107,6 +107,7 @@ export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
         now,
         now,
         null,
+        'en',
       ],
     )
     await tx.execute(

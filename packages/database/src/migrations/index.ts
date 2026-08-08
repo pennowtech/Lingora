@@ -14,6 +14,7 @@ import { meaningUsage } from './0012_meaning_usage'
 import { clozeStates } from './0013_cloze_states'
 import { syncSnapshots } from './0014_sync_snapshots'
 import { updateDefaultTemplates } from './0015_update_default_templates'
+import { cardNativeLanguage } from './0017_card_native_language'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -38,6 +39,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   clozeStates,
   syncSnapshots,
   updateDefaultTemplates,
+  cardNativeLanguage,
 ]
 
 /**

@@ -33,7 +33,7 @@ describe('card list de-duplication (basic + cloze cards of the same word)', () =
       mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3, cloze: 4 },
       language: 'de',
     })
-    await importCsvRows(db, previews, deckId, 'de', 'skip', 'basic')
+    await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
 
     // 'einbrechen' needs both a basic and a cloze card for this describe block's de-duplication
     // scenario — cardType only produces one card per row, so a second pass (now flagged
@@ -43,7 +43,7 @@ describe('card list de-duplication (basic + cloze cards of the same word)', () =
       language: 'de',
     })
     const einbrechenDup = dupPreviews.filter((p) => p.word === 'einbrechen' && p.status === 'duplicate')
-    await importCsvRows(db, einbrechenDup, deckId, 'de', 'duplicate', 'cloze')
+    await importCsvRows(db, einbrechenDup, deckId, 'de', 'en', 'duplicate', 'cloze')
   })
 
   afterEach(() => {
@@ -101,7 +101,7 @@ describe('due-card queries ignore orphaned deck memberships', () => {
     const cardId = crypto.randomUUID()
     await createCardWithState(
       db,
-      { id: cardId, lemmaId, deckId, type: 'basic', createdAt: now, updatedAt: now },
+      { id: cardId, lemmaId, deckId, type: 'basic', createdAt: now, updatedAt: now, nativeLanguage: 'en' },
       { cardId, stability: 1, difficulty: 5, retrievability: 1, nextReviewAt: now, lapses: 0, state: 'new', reps: 0, learningSteps: 0 },
     )
 

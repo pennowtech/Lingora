@@ -506,19 +506,34 @@ export function LinkRow(props: {
   onPress: () => void
   divider?: boolean
   testID?: string
+  /** Per-row icon tile color (e.g. lib/theme.ts's settingsCategoryColors) — omit to keep the
+   * plain bare-icon-in-brand-purple look every existing LinkRow caller already has. */
+  tint?: { fg: string; bg: string }
 }): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   return (
     <Pressable
       testID={props.testID}
+      accessibilityRole="button"
+      accessibilityLabel={props.detail ? `${props.label}, ${props.detail}` : props.label}
       style={[styles.linkRow, props.divider && styles.rowDivider]}
       onPress={props.onPress}
     >
-      <Ionicons name={props.icon} size={20} color={colors.primary} />
+      {props.tint ? (
+        <View style={[styles.linkRowIconTile, { backgroundColor: props.tint.bg }]}>
+          <Ionicons name={props.icon} size={18} color={props.tint.fg} />
+        </View>
+      ) : (
+        <Ionicons name={props.icon} size={20} color={colors.primary} />
+      )}
       <View style={styles.optionText}>
         <Text style={styles.optionLabel}>{props.label}</Text>
-        {props.detail ? <Text style={styles.optionDetail}>{props.detail}</Text> : null}
+        {props.detail ? (
+          <Text style={styles.optionDetail} numberOfLines={2}>
+            {props.detail}
+          </Text>
+        ) : null}
       </View>
       <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
     </Pressable>
@@ -715,6 +730,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     linkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
     rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+    linkRowIconTile: { width: 36, height: 36, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
     optionText: { flex: 1 },
     optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
     optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },

@@ -5,7 +5,8 @@ import { router, useFocusEffect } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useCallback, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import appIcon from '../../assets/icon-lingora.png'
 import { Card, LinkRow } from '../../components/ui'
 import { PROVIDER_STORE_KEYS } from '../../lib/aiProviderMeta'
 import {
@@ -19,8 +20,8 @@ import {
   type GenerationProviderName,
   type TranslationProviderName,
 } from '../../lib/services'
-import { radius, spacing, type } from '../../lib/theme'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { darkSettingsCategoryColors, radius, settingsCategoryColors, spacing, type, type SettingsCategoryKey } from '../../lib/theme'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'SettingsScreen' })
@@ -88,10 +89,24 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'import-export', label: 'Import & export', group: 'Data', keywords: ['anki', 'csv', 'json', 'backup', 'restore'], route: '/settings/import-export', icon: 'swap-vertical' },
   { key: 'templates', label: 'Card templates', group: 'Data', keywords: ['layout', 'design', 'liquid'], route: '/settings/templates', icon: 'color-palette' },
   { key: 'word-guides', label: 'Local Dictionaries', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
-  { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync' },
-  { key: 'about', label: 'About', group: 'About', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
-  { key: 'feedback', label: 'Send Feedback', group: 'About', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/feedback', icon: 'chatbox-ellipses-outline' },
+  { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync-outline' },
+  { key: 'about', label: 'About', group: 'About & Support', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
+  { key: 'feedback', label: 'Send Feedback', group: 'About & Support', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/about', icon: 'chatbox-ellipses-outline' },
 ]
+
+/** Maps a search result's route to the same category tint the main menu row for that destination
+ * uses, so browse mode and search mode stay visually consistent. "Send Feedback" and "About" are
+ * two SEARCHABLE_SETTINGS entries (different keywords) that both resolve here, since Send Feedback
+ * was folded into the About & Support screen — one destination, findable by either search term. */
+function routeToCategory(route: string): SettingsCategoryKey {
+  if (route === '/settings/ai-providers') return 'ai'
+  if (route === '/settings/translation') return 'translation'
+  if (route === '/settings/learning') return 'learning'
+  if (route === '/settings/sync') return 'sync'
+  if (route === '/settings/about') return 'about'
+  if (route === '/settings/data' || route === '/settings/import-export' || route === '/settings/templates' || route === '/settings/word-guides') return 'data'
+  return 'general'
+}
 
 /**
  * Settings menu — a short list of rows to each sub-screen (AI Providers, Translation, Learning,
@@ -104,6 +119,8 @@ export default function SettingsScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const { theme } = useTheme()
+  const categoryColors = theme.mode === 'dark' ? darkSettingsCategoryColors : settingsCategoryColors
 
   const [query, setQuery] = useState('')
   const [loaded, setLoaded] = useState(false)
@@ -196,6 +213,7 @@ export default function SettingsScreen(): JSX.Element {
         <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
           testID="settings-search-input"
+          accessibilityLabel={t('Search settings')}
           style={styles.searchInput}
           value={query}
           onChangeText={setQuery}
@@ -206,7 +224,13 @@ export default function SettingsScreen(): JSX.Element {
           returnKeyType="search"
         />
         {query ? (
-          <Pressable testID="settings-search-clear" onPress={() => setQuery('')} hitSlop={8}>
+          <Pressable
+            testID="settings-search-clear"
+            accessibilityRole="button"
+            accessibilityLabel={t('Clear search')}
+            onPress={() => setQuery('')}
+            hitSlop={8}
+          >
             <Ionicons name="close-circle" size={18} color={colors.textMuted} />
           </Pressable>
         ) : null}
@@ -226,6 +250,7 @@ export default function SettingsScreen(): JSX.Element {
                 detail={item.group}
                 onPress={() => router.push(item.route)}
                 divider={index > 0}
+                tint={categoryColors[routeToCategory(item.route)]}
               />
             ))
           )}
@@ -251,6 +276,7 @@ export default function SettingsScreen(): JSX.Element {
               label={t('General')}
               detail={t('Audio settings, app language')}
               onPress={() => router.push('/settings/general')}
+              tint={categoryColors.general}
             />
             <LinkRow
               testID="settings-menu-learning"
@@ -259,6 +285,7 @@ export default function SettingsScreen(): JSX.Element {
               detail={learningDetail}
               onPress={() => router.push('/settings/learning')}
               divider
+              tint={categoryColors.learning}
             />
             <LinkRow
               testID="settings-menu-data"
@@ -267,6 +294,7 @@ export default function SettingsScreen(): JSX.Element {
               detail={t('Import & export, templates, local dictionaries')}
               onPress={() => router.push('/settings/data')}
               divider
+              tint={categoryColors.data}
             />
             <LinkRow
               testID="settings-menu-ai-providers"
@@ -275,6 +303,7 @@ export default function SettingsScreen(): JSX.Element {
               detail={aiProvidersDetail}
               onPress={() => router.push('/settings/ai-providers')}
               divider
+              tint={categoryColors.ai}
             />
             <LinkRow
               testID="settings-menu-translation"
@@ -283,32 +312,32 @@ export default function SettingsScreen(): JSX.Element {
               detail={summary.translationLabel}
               onPress={() => router.push('/settings/translation')}
               divider
+              tint={categoryColors.translation}
             />
             <LinkRow
               testID="settings-menu-sync"
-              icon="sync"
+              icon="sync-outline"
               label={t('Sync')}
               detail={t('Sync decks, cards, and progress to a Google account')}
               onPress={() => router.push('/settings/sync')}
               divider
-            />
-            <LinkRow
-              testID="settings-menu-feedback"
-              icon="chatbox-ellipses-outline"
-              label={t('Send Feedback')}
-              detail={t('Report an issue or request a feature')}
-              onPress={() => router.push('/settings/feedback')}
-              divider
+              tint={categoryColors.sync}
             />
             <LinkRow
               testID="settings-menu-about"
               icon="information-circle-outline"
-              label={t('About')}
-              detail="Lingora"
+              label={t('About & Support')}
+              detail={t('App info, send feedback or report an issue')}
               onPress={() => router.push('/settings/about')}
               divider
+              tint={categoryColors.about}
             />
           </Card>
+
+          <View style={styles.footer}>
+            <Image source={appIcon} style={styles.footerIcon} resizeMode="contain" />
+            <Text style={styles.footerText}>{t('Lingora')}</Text>
+          </View>
         </>
       )}
     </ScrollView>
@@ -345,4 +374,7 @@ const createStyles = (colors: ThemeColors) =>
   bannerTitle: { fontSize: type.body, fontWeight: '700', color: colors.warning },
   bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
   menuCard: { gap: 0 },
+  footer: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.xxl },
+  footerIcon: { width: 28, height: 28, borderRadius: radius.sm, opacity: 0.5 },
+  footerText: { fontSize: type.caption, color: colors.textMuted, fontWeight: '600' },
 })

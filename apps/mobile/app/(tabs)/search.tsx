@@ -23,6 +23,7 @@ import { detectSearchLanguage } from '../../lib/languageDetection'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
 import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
+import { useCyclingIndex } from '../../lib/useCyclingIndex'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
@@ -340,6 +341,16 @@ export default function SearchScreen(): JSX.Element {
     generate.reset()
   }
 
+  // A single generation call builds the whole word package (meanings, examples, synonyms,
+  // phrases) in one AI round-trip with no real partial-progress signal — cycling the overlay's
+  // message is purely about making the wait feel legible, not reporting actual progress.
+  const generatingMessages = [
+    t('Looking up "{{word}}"…', { word: term }),
+    t('Writing meanings and examples…'),
+    t('Almost done…'),
+  ]
+  const generatingMessageIndex = useCyclingIndex(generate.isPending, generatingMessages.length)
+
   const results = search.data ?? []
   const partial = generate.data?.outcome.kind === 'partial' ? generate.data.outcome : null
 
@@ -633,7 +644,11 @@ export default function SearchScreen(): JSX.Element {
         translate={t}
       />
 
-      <ProgressOverlay visible={generate.isPending} message={t('Generating your card…')} onCancel={cancelGenerate} />
+      <ProgressOverlay
+        visible={generate.isPending}
+        message={generatingMessages[generatingMessageIndex] ?? t('Generating your card…')}
+        onCancel={cancelGenerate}
+      />
     </View>
   )
 }

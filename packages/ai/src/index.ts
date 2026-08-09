@@ -45,6 +45,7 @@ export {
   generatedSynonymSchema,
   salvagePartial,
   wordGenerationSchema,
+  wordGenerationSchemaForLanguage,
   type PartialWordGeneration,
 } from './schemas/generation'
 

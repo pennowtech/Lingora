@@ -20,7 +20,7 @@ import {
   generatedSynonymSchema,
   salvagePartial,
   wordGenerationJsonTargetSchema,
-  wordGenerationSchema,
+  wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
@@ -123,7 +123,7 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
 
     return generateValidated(
       this.makeCall(prompt, wordGenerationJsonTargetSchema),
-      wordGenerationSchema,
+      wordGenerationSchemaForLanguage(ctx.language),
       salvagePartial,
     )
   }

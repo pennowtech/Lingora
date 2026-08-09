@@ -6,9 +6,11 @@ import { I18nextProvider, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { ShareIntentProvider } from 'expo-share-intent'
+import { AppHeader } from '../components/AppHeader'
 import { BottomTabBar } from '../components/BottomTabBar'
 import { CaptureIntentHandler } from '../components/CaptureIntentHandler'
 import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
+import { LanguagePairBadge } from '../components/LanguagePairBadge'
 import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
@@ -44,6 +46,10 @@ function AppStack(): JSX.Element {
   // full-screen task (it already hides its own header too, see the review/[deckId] Stack.Screen
   // below), not somewhere you're expected to jump to another tab mid-card.
   const isReviewScreen = pathname.startsWith('/review/')
+  // Home is the only screen with `headerShown: false` (see (tabs)/_layout.tsx) — it gets the
+  // floating LanguagePairBadge standing in for a header; every other screen shows the same pair
+  // via AppHeader's own embedded compact pill instead (see AppHeader.tsx's doc comment for why).
+  const isHomeScreen = pathname === '/'
 
   return (
     <ServicesProvider
@@ -56,12 +62,10 @@ function AppStack(): JSX.Element {
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>
           <StartupScreen visible={showStartup} onComplete={() => setShowStartup(false)} />
+          {isReviewScreen || !isHomeScreen ? null : <LanguagePairBadge />}
           <Stack
             screenOptions={{
-              headerShadowVisible: false,
-              headerStyle: { backgroundColor: colors.background },
-              headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: '700' },
+              header: AppHeader,
               contentStyle: { backgroundColor: colors.background },
             }}
           >

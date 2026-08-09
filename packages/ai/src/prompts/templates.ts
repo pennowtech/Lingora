@@ -45,16 +45,38 @@ export const LANGUAGE_NAMES: Record<LanguageCode, string> = {
  * `nativeLanguage` is the learner's own language (translations, explanations,
  * meanings, usage notes get written in it). Spread into every renderPrompt
  * call's vars object rather than repeating the two lookups at each call site.
+ *
+ * Also exposes the raw {{targetLanguageCode}}/{{nativeLanguageCode}} (e.g. 'en'/'hi') — the
+ * wordPackage template uses these to tell the model exactly what to put in lemma.language,
+ * since a display name alone ("English") left room for a model to invert target/native anyway
+ * (confirmed on-device: asked for target=English/native=Hindi, a model returned the whole package
+ * — lemma, examples, "translations" — with the two languages swapped). See ANTI_SWAP_WARNING.
  */
 export function languageVars(ctx: {
   language: LanguageCode
   nativeLanguage: LanguageCode
-}): { targetLanguage: string; nativeLanguage: string } {
+}): { targetLanguage: string; nativeLanguage: string; targetLanguageCode: string; nativeLanguageCode: string } {
   return {
     targetLanguage: LANGUAGE_NAMES[ctx.language],
     nativeLanguage: LANGUAGE_NAMES[ctx.nativeLanguage],
+    targetLanguageCode: ctx.language,
+    nativeLanguageCode: ctx.nativeLanguage,
   }
 }
+
+/**
+ * A blunt, repeated warning against the exact failure mode found on-device: given an
+ * already-target-language word (e.g. "obviously" with target=English), a model sometimes
+ * defaults to a "translate the input into the other language" mental model and returns the
+ * entire response with target/native inverted — the word itself translated into the native
+ * language, "translations" written in the target language. Every template that touches
+ * target/native language pairs includes this line; the wordPackage template (the one that also
+ * sets lemma.language) additionally gets an explicit code-level instruction — see
+ * ANTI_SWAP_LEMMA_WARNING.
+ */
+const ANTI_SWAP_WARNING = `The word "{{word}}" is already written in {{targetLanguage}} — it is not something to translate. Never invert the two languages: {{targetLanguage}} for the word itself and every target-language field, {{nativeLanguage}} only for translations/explanations/meanings. Writing target-language content in {{nativeLanguage}}, or native-language content in {{targetLanguage}}, is wrong even if every other field is correct.`
+
+const ANTI_SWAP_LEMMA_WARNING = `${ANTI_SWAP_WARNING} Set lemma.language to exactly "{{targetLanguageCode}}" — never "{{nativeLanguageCode}}". If you find yourself translating "{{word}}" into {{nativeLanguage}} for the lemma field, stop: that is the native language, and the lemma must stay in {{targetLanguage}}.`
 
 export const PROMPTS = {
   /**
@@ -64,16 +86,19 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
-    version: 3, // v3: parameterized target/native language (was hardcoded German/English)
+    version: 4, // v4: explicit anti-swap warning + lemma.language code instruction (see ANTI_SWAP_LEMMA_WARNING) — a model was observed inverting target/native for the whole package
 
     template: `You are a {{targetLanguage}} lexicographer building vocabulary data for a {{targetLanguage}}→{{nativeLanguage}} learning app. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
+
+${ANTI_SWAP_LEMMA_WARNING}
 
 Generate a complete, accurate word package for the {{targetLanguage}} word: "{{word}}"
 {{baselineHint}}
 Requirements:
 
 LEMMA
-- Return the dictionary form (lemma). If the input is inflected, the lemma is its base form.
+- Return the dictionary form (lemma) of "{{word}}", in {{targetLanguage}} — not translated into {{nativeLanguage}}. If the input is inflected, the lemma is its base form, still in {{targetLanguage}}.
+- lemma.language must be exactly "{{targetLanguageCode}}".
 - partOfSpeech must be exact. For nouns include the grammatical gender and the plural form when the language marks them; for everything else (or a language without that feature) set gender and/or plural to null.
 - Capitalize the lemma and inflections exactly as {{targetLanguage}}'s own orthography requires (e.g. German nouns are always capitalized; most other languages are not).
 
@@ -122,8 +147,10 @@ Return the complete corrected JSON object again. Fix every listed problem, keep 
   /** Cluster skeletons only — the per-section regeneration entry point. */
   clusterOutlines: {
     name: 'cluster_outlines',
-    version: 2, // v2: parameterized target/native language (was hardcoded German)
+    version: 3, // v3: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `List the distinct semantic contexts of the {{targetLanguage}} word "{{word}}" for a learner at CEFR level {{cefrLevel}} whose own language is {{nativeLanguage}}.
+
+${ANTI_SWAP_WARNING}
 
 One cluster per genuinely distinct, established usage — never invent contexts. Each cluster: a short lowercase label and a one-line description (both in {{nativeLanguage}}), and the CEFR level where this usage becomes relevant.
 
@@ -132,10 +159,12 @@ Return strict JSON only: {"clusters": [{"label": "...", "description": "...", "c
   /** Meanings for one existing cluster. */
   meanings: {
     name: 'meanings',
-    version: 3, // v3: parameterized target/native language (was hardcoded German/English)
+    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `For the {{targetLanguage}} word "{{word}}", give 1–3 meanings that belong strictly to this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
+
+${ANTI_SWAP_WARNING}
 
 Learner level: {{cefrLevel}}. The learner's own language is {{nativeLanguage}} — write the translation, explanation and usage notes in {{nativeLanguage}}. Each meaning: a concise {{nativeLanguage}} translation, a one-line {{nativeLanguage}} explanation, 1–2 sentences of usage notes (register, common contexts, typical collocations — how this meaning is actually used day to day), and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
 {{followUpSection}}
@@ -144,10 +173,12 @@ Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "..
   /** Examples for one existing cluster — the regenerate/grammar-panel button. */
   examples: {
     name: 'examples',
-    version: 3, // v3: parameterized target/native language (was hardcoded German/English)
+    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `Write 2–4 natural, contemporary {{targetLanguage}} example sentences for the word "{{word}}", strictly within this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
+
+${ANTI_SWAP_WARNING}
 
 Learner level: {{cefrLevel}} — write at or slightly below it (A1/A2: present tense, common words, short main clauses; B1/B2: past tenses, subordinate clauses; C1/C2: subjunctive, complex structure). Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
 {{grammarInstructions}}
@@ -158,10 +189,12 @@ Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...",
   /** Synonyms for one existing cluster. */
   synonyms: {
     name: 'synonyms',
-    version: 2, // v2: parameterized target/native language (was hardcoded German)
+    version: 3, // v3: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `List 1–4 {{targetLanguage}} synonyms for "{{word}}" that work strictly within this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
+
+${ANTI_SWAP_WARNING}
 
 Learner level: {{cefrLevel}}. Each synonym: the {{targetLanguage}} word, its CEFR level, a formality tag (formal, neutral, colloquial or slang), and nuance — a short {{nativeLanguage}} note on how it differs from "{{word}}", or null if it's a near-exact match. Only established synonyms; an empty list is better than a forced one.
 
@@ -170,8 +203,10 @@ Return strict JSON only: {"synonyms": [{"word": "...", "cefrLevel": "...", "form
   /** Phrases and idioms built on the word. */
   phrases: {
     name: 'phrases',
-    version: 2, // v2: parameterized target/native language (was hardcoded German/English)
+    version: 3, // v3: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `List 1–4 established {{targetLanguage}} idioms, collocations or fixed patterns built on the word "{{word}}", useful for a learner at CEFR level {{cefrLevel}} whose own language is {{nativeLanguage}}.
+
+${ANTI_SWAP_WARNING}
 
 Each phrase: the {{targetLanguage}} expression, its {{nativeLanguage}} meaning, one natural {{targetLanguage}} example sentence, that sentence's {{nativeLanguage}} translation, and its own CEFR level. Only real, established phrases.
 
@@ -180,8 +215,10 @@ Return strict JSON only: {"phrases": [{"expression": "...", "meaning": "...", "e
   /** Cloze sentences for the word. */
   cloze: {
     name: 'cloze',
-    version: 2, // v2: parameterized target/native language (was hardcoded German)
+    version: 3, // v3: explicit anti-swap warning (see ANTI_SWAP_WARNING)
     template: `Write 1–3 {{targetLanguage}} cloze sentences for the word "{{word}}" at learner level {{cefrLevel}}.
+
+${ANTI_SWAP_WARNING}
 
 Replace exactly the target word (or its separated prefix, if {{targetLanguage}} has one) with the literal gap marker [...]. The "answer" field holds what fills the gap, in {{targetLanguage}}. The "translation" field holds the full sentence's translation in {{nativeLanguage}} — the learner's own language. difficulty: easy = obvious from context, contextual = needs the context understood, grammar = tests an inflected form.
 

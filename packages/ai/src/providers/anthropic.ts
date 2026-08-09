@@ -20,7 +20,7 @@ import {
   generatedSynonymSchema,
   salvagePartial,
   wordGenerationJsonTargetSchema,
-  wordGenerationSchema,
+  wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
@@ -127,7 +127,7 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
 
     return generateValidated(
       this.makeCall(prompt, 'word_generation', wordGenerationJsonTargetSchema),
-      wordGenerationSchema,
+      wordGenerationSchemaForLanguage(ctx.language),
       salvagePartial,
     )
   }

@@ -85,7 +85,9 @@ export default function HomeScreen(): JSX.Element {
   const recent = recentQuery.data ?? []
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    // No 'top' edge — LanguagePairBadge (app/_layout.tsx, above every non-review screen) already
+    // consumes the top safe-area inset; adding it again here doubled the gap below the badge.
+    <SafeAreaView style={styles.safe} edges={[]}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>

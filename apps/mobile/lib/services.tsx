@@ -138,6 +138,19 @@ export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', '
  * warnUnsupportedLanguage. */
 export const FULLY_SUPPORTED_VOCAB_LANGUAGES: readonly LanguageCode[] = ['en', 'de', 'fr', 'hi']
 
+/** Flag emoji per vocabulary language — purely decorative/iconographic, never translated, so
+ * (unlike the per-screen VOCAB_LANGUAGE_LABELS text maps) this one lives in one shared place
+ * instead of being duplicated per screen. Used by components/LanguagePairBadge.tsx. */
+export const LANGUAGE_FLAGS: Record<LanguageCode, string> = {
+  de: '🇩🇪',
+  en: '🇬🇧',
+  es: '🇪🇸',
+  fr: '🇫🇷',
+  hi: '🇮🇳',
+  ja: '🇯🇵',
+  vi: '🇻🇳',
+}
+
 /** Preserves today's hardcoded German→English behavior for users who never open the setting. */
 export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
 export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'

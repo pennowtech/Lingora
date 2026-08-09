@@ -952,20 +952,15 @@ export default function WordDetailScreen(): JSX.Element {
     .map((inf) => inf.surface)
     .join(' · ')
 
-  // The nav bar shows the language direction (e.g. "DE → EN"), not the word itself — the word is
-  // already the big, bold headline just below it, so repeating it in the header was redundant.
-  // The lemma's own stored language is always the "from" side; the learner's native language
-  // (Settings → Learning) is the "to" side, even for words looked up in an older/other pairing.
-  const languageDirectionTitle = `${word.lemma.language.toUpperCase()} → ${nativeLanguage.toUpperCase()}`
-
   return (
     <>
-      {/* Help lives in the native header, next to the language-direction title, not inline next
-          to the word itself — see the header-right pattern shared with Search, Mine, and the
+      {/* The language pair now shows once, globally, above every screen (see
+          components/LanguagePairBadge.tsx) — this header no longer repeats it. Help lives here,
+          next to a blank title, same header-right pattern shared with Search, Mine, and the
           Settings screens that have a help sheet. */}
       <Stack.Screen
         options={{
-          title: languageDirectionTitle,
+          title: '',
           headerRight: () => (
             <IconButton icon="help-circle-outline" size={22} onPress={() => help.openSection('meaning')} />
           ),
@@ -976,7 +971,7 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
             <View style={styles.wordFormRow}>
-              <Text style={styles.wordForm}>{nativeTerm ?? word.lemma.form}</Text>
+              <Text style={styles.wordForm} selectable>{nativeTerm ?? word.lemma.form}</Text>
               <CardSourceIcon source={word.card?.source} size={18} />
             </View>
             <Text style={styles.wordMeta}>
@@ -1022,11 +1017,11 @@ export default function WordDetailScreen(): JSX.Element {
                       Reverse-lookup words (nativeTerm set) swap this with the header: the
                       headline shows the native word the learner typed, so this slot shows the
                       target-language word (word.lemma.form) they're actually learning instead. */}
-                  <Text style={styles.primaryMeaning}>
+                  <Text style={styles.primaryMeaning} selectable>
                     {nativeTerm ? word.lemma.form : headlineMeaning.translation}
                   </Text>
                   {isAiCard ? (
-                    <Text style={styles.explanation}>
+                    <Text style={styles.explanation} selectable>
                       {generateExplanation.isPending ? t('Generating…') : headlineMeaning.explanation || t('No explanation yet.')}
                     </Text>
                   ) : null}
@@ -1096,10 +1091,10 @@ export default function WordDetailScreen(): JSX.Element {
                     </Pressable>
                   )}
                   <View style={styles.exampleSentenceRow}>
-                    <Text style={styles.exampleSentence}>{ex.sentence}</Text>
+                    <Text style={styles.exampleSentence} selectable>{ex.sentence}</Text>
                     <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
                   </View>
-                  <Text style={styles.exampleTranslation}>{ex.translation}</Text>
+                  <Text style={styles.exampleTranslation} selectable>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>
                     <EvalBar
                       activeRating={ratingFor(ex.id)}
@@ -1185,10 +1180,10 @@ export default function WordDetailScreen(): JSX.Element {
                     >
                       <View style={styles.synText}>
                         <View style={styles.synWordRow}>
-                          <Text style={styles.synWord}>{syn.word}</Text>
+                          <Text style={styles.synWord} selectable>{syn.word}</Text>
                           <Ionicons name="arrow-forward" size={13} color={colors.primary} />
                         </View>
-                        <Text style={styles.synNuance}>
+                        <Text style={styles.synNuance} selectable>
                           {syn.formality}
                           {syn.nuance ? ` · ${syn.nuance}` : ''}
                         </Text>
@@ -1215,12 +1210,12 @@ export default function WordDetailScreen(): JSX.Element {
             {word.phrases.map((phrase) => (
               <Card key={phrase.id} style={styles.phraseCard}>
                 <View style={styles.phraseHeader}>
-                  <Text style={styles.phraseExpression}>{phrase.expression}</Text>
+                  <Text style={styles.phraseExpression} selectable>{phrase.expression}</Text>
                   <CefrBadge level={phrase.cefrLevel} />
                 </View>
-                <Text style={styles.phraseMeaning}>{phrase.meaning}</Text>
-                <Text style={styles.phraseExample}>„{phrase.exampleSentence}"</Text>
-                <Text style={styles.phraseExampleTranslation}>{phrase.exampleTranslation}</Text>
+                <Text style={styles.phraseMeaning} selectable>{phrase.meaning}</Text>
+                <Text style={styles.phraseExample} selectable>„{phrase.exampleSentence}"</Text>
+                <Text style={styles.phraseExampleTranslation} selectable>{phrase.exampleTranslation}</Text>
               </Card>
             ))}
             <Pressable
@@ -1278,10 +1273,10 @@ export default function WordDetailScreen(): JSX.Element {
             <SectionHeader title={word.clozes.length === 1 ? t('Cloze card') : t('Cloze cards')} />
             {word.clozes.map((cloze) => (
               <Card key={cloze.id} style={styles.clozeCard}>
-                <Text style={styles.clozeSentence}>{cloze.sentence}</Text>
-                <Text style={styles.clozeTranslation}>{cloze.translation}</Text>
+                <Text style={styles.clozeSentence} selectable>{cloze.sentence}</Text>
+                <Text style={styles.clozeTranslation} selectable>{cloze.translation}</Text>
                 <View style={styles.clozeAnswerPill}>
-                  <Text style={styles.clozeAnswerLabel}>{cloze.answer}</Text>
+                  <Text style={styles.clozeAnswerLabel} selectable>{cloze.answer}</Text>
                 </View>
               </Card>
             ))}

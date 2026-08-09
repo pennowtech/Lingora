@@ -113,7 +113,6 @@ export * from './repositories/synonyms'
 export * from './repositories/tags'
 export * from './repositories/templates'
 export * from './repositories/word-guides'
-export * from './repositories/ebooks'
 
 // BetterSQLiteAdapter is deliberately NOT exported here: it pulls in Node's
 // 'fs'/'path', which breaks Metro bundling for the mobile app. Desktop/Node

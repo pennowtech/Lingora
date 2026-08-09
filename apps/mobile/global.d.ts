@@ -6,11 +6,3 @@ declare module '*.png' {
   const value: import('react-native').ImageSourcePropType
   export default value
 }
-
-// Vendored non-image assets (see components/EbookReader.tsx's epub.js/JSZip bundles) resolve to
-// the same opaque asset module id every other Metro-bundled asset does — Asset.fromModule (expo-
-// asset) takes it from there.
-declare module '*.txt' {
-  const value: number
-  export default value
-}

@@ -1,4 +1,4 @@
-import type { GeneratedCluster, GeneratedCloze, GeneratedPhrase, WordGenerationPayload } from '@lingora/types'
+import type { GeneratedCluster, GeneratedCloze, GeneratedPhrase, LanguageCode, WordGenerationPayload } from '@lingora/types'
 import { z } from 'zod'
 import {
   cefrLevelSchema,
@@ -101,6 +101,25 @@ export const wordGenerationJsonTargetSchema = z.object({
   ...wordGenerationBaseShape,
   clozes: z.array(generatedClozeBaseSchema).min(1),
 })
+
+/**
+ * wordGenerationSchema plus a check no prompt wording alone reliably prevents: confirmed
+ * on-device, a model asked for target=English/native=Hindi returned lemma.language: 'hi' and the
+ * entire package inverted (the lemma itself translated into the native language, "translations"
+ * written in the target language). The prompt already tells the model what to put in
+ * lemma.language (see ANTI_SWAP_LEMMA_WARNING in prompts/templates.ts), but this schema-level
+ * check is the actual enforcement — a mismatch fails validation exactly like any other malformed
+ * field, which sends the flattened issue back through generateValidated's one retry with the
+ * expected code spelled out, instead of silently persisting inverted content.
+ */
+export function wordGenerationSchemaForLanguage(
+  expectedLanguage: LanguageCode,
+): z.ZodType<z.infer<typeof wordGenerationSchema>> {
+  return wordGenerationSchema.refine((payload) => payload.lemma.language === expectedLanguage, {
+    message: `lemma.language must be "${expectedLanguage}" (the target/learning language) — got a different language. The headword and every target-language field must be written in "${expectedLanguage}", never translated into the learner's native language.`,
+    path: ['lemma', 'language'],
+  })
+}
 
 // Compile-time pin: the zod-inferred shape must stay assignable to the
 // cross-package contract in @lingora/types. If either side drifts, this stops

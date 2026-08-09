@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validPayload } from '../testing/fixtures'
-import { salvagePartial, wordGenerationSchema } from './generation'
+import { salvagePartial, wordGenerationSchema, wordGenerationSchemaForLanguage } from './generation'
 
 describe('wordGenerationSchema', () => {
   it('accepts a fully valid payload', () => {
@@ -35,6 +35,25 @@ describe('wordGenerationSchema', () => {
     const payload = validPayload()
     payload.clozes[0]!.sentence = 'Wir gehen heute Abend aus.'
     expect(wordGenerationSchema.safeParse(payload).success).toBe(false)
+  })
+})
+
+describe('wordGenerationSchemaForLanguage', () => {
+  it('accepts a payload whose lemma.language matches the expected target language', () => {
+    const payload = validPayload() // fixture lemma.language is 'de'
+    expect(wordGenerationSchemaForLanguage('de').safeParse(payload).success).toBe(true)
+  })
+
+  it('rejects a payload whose lemma.language does not match — the target/native inversion bug', () => {
+    // Confirmed on-device: asked for target=English, a model returned the whole package with
+    // lemma.language set to the native language instead (here simulated as German staying 'de'
+    // while the caller actually requested 'en', matching the real ausgehen/German fixture).
+    const payload = validPayload()
+    const result = wordGenerationSchemaForLanguage('en').safeParse(payload)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.some((issue) => issue.path.join('.') === 'lemma.language')).toBe(true)
+    }
   })
 })
 

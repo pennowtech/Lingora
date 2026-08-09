@@ -4,11 +4,10 @@ import {
   getAllEbooks,
   saveEbook,
   type Ebook,
-  type DatabaseAdapter,
 } from '@lingora/database'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import { router, Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,16 +20,17 @@ import {
   View,
 } from 'react-native'
 import { Button, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 export default function EbooksLibraryScreen(): JSX.Element {
+  const { db } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const db = {} as unknown as DatabaseAdapter
 
   const ebooksQuery = useQuery({
     queryKey: ['ebooks'],

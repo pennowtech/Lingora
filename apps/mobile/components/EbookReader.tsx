@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Asset } from 'expo-asset'
-import { readAsStringAsync, EncodingType } from 'expo-file-system'
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'

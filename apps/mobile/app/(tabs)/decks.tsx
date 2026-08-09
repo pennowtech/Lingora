@@ -403,16 +403,6 @@ export default function DecksScreen(): JSX.Element {
               setImportPickerOpen(true)
             }}
           />
-          <Button
-            testID="action-menu-ebooks"
-            label={t('eBook Reader')}
-            icon="book-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              router.push('/ebooks')
-            }}
-          />
         </View>
       </Modal>
 

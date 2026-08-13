@@ -258,8 +258,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   const handleGenerateAI = async () => {
     setIsGeneratingAI(true);
     try {
-      const geminiKey = localStorage.getItem('lingora.gemini_key') || '';
-      const pkg = await generateWithGemini(selectedWord.form, geminiKey);
+      const pkg = await generateWithGemini(selectedWord.form);
       if (pkg && pkg.clusters) {
         alert(`AI Generated ${pkg.clusters.length} semantic clusters for "${selectedWord.form}"!`);
       }

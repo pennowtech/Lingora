@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
@@ -13,7 +13,7 @@ interface SearchLookupScreenProps {
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
-  const { db, translateText, generateWithGemini, nativeLanguage, targetLanguage } = useDesktopServices();
+  const { db, translateText, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
   const [selectedWord, setSelectedWord] = useState<WordLemma>(words[0]);
@@ -31,6 +31,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
   // Deck Picker Modal State
   const [isDeckPickerOpen, setIsDeckPickerOpen] = useState(false);
+
+  // AI generation abort controller
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   // Load initial database words once on mount
   useEffect(() => {
@@ -257,16 +261,56 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // AI Card Package Generation
   const handleGenerateAI = async () => {
     setIsGeneratingAI(true);
+    setGenerationError(null);
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
       const pkg = await generateWithGemini(selectedWord.form);
-      if (pkg && pkg.clusters) {
-        alert(`AI Generated ${pkg.clusters.length} semantic clusters for "${selectedWord.form}"!`);
+
+      if (abortController.signal.aborted) return;
+
+      if (pkg && pkg.clusters && pkg.clusters.length > 0) {
+        // Map AI WordGenerationPayload clusters → WordLemma clusters
+        const aiClusters = pkg.clusters.map((c: any, idx: number) => ({
+          id: `ai-cluster-${idx}-${Date.now()}`,
+          context: c.label || 'General',
+          translation: c.meanings?.[0]?.translation || selectedWord.clusters[0]?.translation || selectedWord.form,
+          definition: c.description || c.meanings?.[0]?.meaning || '',
+          examples: (c.examples || []).slice(0, 3).map((e: any) => ({ de: e.sentence, en: e.translation }))
+        }));
+
+        const updatedWord: WordLemma = {
+          ...selectedWord,
+          pos: pkg.lemma?.partOfSpeech || selectedWord.pos,
+          cefr: pkg.clusters[0]?.cefrLevel || selectedWord.cefr,
+          grammar: {
+            ...selectedWord.grammar,
+            partOfSpeech: pkg.lemma?.partOfSpeech || selectedWord.grammar.partOfSpeech,
+            cefrNotes: `AI-generated package via ${selectedGenerationProvider}. ${pkg.clusters.length} semantic clusters.`,
+          },
+          clusters: aiClusters,
+          surfaceForms: pkg.inflections?.length > 0 ? pkg.inflections : selectedWord.surfaceForms,
+        };
+
+        setSelectedWord(updatedWord);
+        setSearchResults(prev => prev.map(w => w.id === selectedWord.id ? updatedWord : w));
+        setSelectedClusterId(aiClusters[0]?.id || '');
       }
     } catch (err: any) {
-      alert(`AI Generation Notice: ${err.message || 'Please configure your Gemini API Key in Settings to generate AI card packages.'}`);
+      if (!abortController.signal.aborted) {
+        setGenerationError(err.message || 'AI generation failed. Check your API key in Settings.');
+      }
     } finally {
       setIsGeneratingAI(false);
+      abortControllerRef.current = null;
     }
+  };
+
+  const handleCancelGeneration = () => {
+    abortControllerRef.current?.abort();
+    setIsGeneratingAI(false);
+    abortControllerRef.current = null;
   };
 
   const activeCluster = selectedWord.clusters.find(c => c.id === selectedClusterId) || selectedWord.clusters[0];
@@ -275,12 +319,82 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setIsDeckPickerOpen(true);
   };
 
-  const handleConfirmDeckAdd = (deckId: string, deckTitle: string) => {
+  const handleConfirmDeckAdd = async (deckId: string, deckTitle: string, isNew?: boolean) => {
+    if (isNew) {
+      await addNewDeck(deckTitle);
+    }
     onAddCard(selectedWord.form, activeCluster?.context || 'General', deckTitle, selectedCardType.toUpperCase());
   };
 
   return (
     <div className="page-container" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+
+      {/* AI Generation Popup Modal */}
+      {isGeneratingAI && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          backdropFilter: 'blur(6px)',
+          animation: 'fadeIn 0.15s ease-out'
+        }}>
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '20px',
+            padding: '36px 40px',
+            width: '420px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '24px',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.4)'
+          }}>
+            {/* Animated Icon */}
+            <div style={{
+              width: '64px', height: '64px', borderRadius: '50%',
+              backgroundColor: 'var(--accent-secondary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 32px var(--accent-primary)40'
+            }}>
+              <Sparkles size={28} color="var(--accent-primary)" style={{ animation: 'spin 2s linear infinite' }} />
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                Generating with {selectedGenerationProvider === 'openai' ? 'OpenAI' : selectedGenerationProvider === 'mistral' ? 'Mistral' : selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic Claude'}
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                Building semantic clusters, meanings, and examples for <strong style={{ color: 'var(--accent-primary)' }}>"{selectedWord.form}"</strong>
+              </div>
+            </div>
+
+            {/* Shimmer Progress Bar */}
+            <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-glass)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: '100%', borderRadius: '3px',
+                backgroundImage: 'linear-gradient(90deg, transparent 0%, var(--accent-primary) 40%, var(--accent-secondary) 60%, transparent 100%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s ease-in-out infinite'
+              }} />
+            </div>
+
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
+              Analyzing word structure · Generating semantic clusters · Building CEFR examples
+            </div>
+
+            <button
+              onClick={handleCancelGeneration}
+              className="btn btn-secondary"
+              style={{ color: 'var(--danger)', borderColor: 'var(--danger)', fontSize: '13px', padding: '8px 24px' }}
+            >
+              <X size={14} />
+              Cancel Generation
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Search Controls Bar with explicit Search Button */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
         <div style={{
@@ -412,6 +526,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               </div>
             </div>
 
+            {/* AI Generation Error Banner */}
+            {generationError && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: '8px', fontSize: '12px', color: 'var(--danger)' }}>
+                <AlertCircle size={14} />
+                <span>{generationError}</span>
+                <button onClick={() => setGenerationError(null)} className="btn btn-ghost" style={{ marginLeft: 'auto', padding: '2px 6px', fontSize: '11px' }}>✕</button>
+              </div>
+            )}
+
             {/* Target Deck & AI Generation Actions */}
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
@@ -421,7 +544,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 style={{ padding: '10px 14px', fontSize: '13px' }}
               >
                 <Sparkles size={16} color="var(--success)" />
-                <span>{isGeneratingAI ? 'Generating...' : 'Generate with AI'}</span>
+                <span>{`Generate with ${selectedGenerationProvider === 'openai' ? 'OpenAI' : selectedGenerationProvider === 'mistral' ? 'Mistral' : selectedGenerationProvider === 'gemini' ? 'Gemini' : 'Claude'}`}</span>
               </button>
 
               <button 

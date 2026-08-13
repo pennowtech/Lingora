@@ -1,57 +1,51 @@
-import { GoogleTranslateProvider, GeminiProvider } from '@lingora/ai';
+import { OpenAIProvider, MistralProvider, GeminiProvider, AnthropicProvider } from '@lingora/ai';
 import type { LanguageCode, CefrLevel } from '@lingora/types';
 
+export type SupportedProviderName = 'openai' | 'mistral' | 'gemini' | 'anthropic';
+
+interface ActiveProviderConfig {
+  name: SupportedProviderName;
+  key: string;
+  model: string;
+}
+
 export class DesktopAIPipeline {
-  private googleTranslator: GoogleTranslateProvider;
-  private geminiProvider: GeminiProvider | null = null;
+  private provider: OpenAIProvider | MistralProvider | GeminiProvider | AnthropicProvider | null = null;
+  private providerName: SupportedProviderName | null = null;
 
-  constructor(geminiApiKey?: string, geminiModel: string = 'gemini-2.5-flash') {
-    const isBrowserDev = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
-    this.googleTranslator = new GoogleTranslateProvider({
-      baseUrl: isBrowserDev ? '/api/google-translate' : 'https://translate.googleapis.com'
-    });
-
-    if (geminiApiKey && geminiApiKey.trim()) {
-      this.geminiProvider = new GeminiProvider({
-        apiKey: geminiApiKey.trim(),
-        model: geminiModel
-      });
+  constructor(activeProvider?: ActiveProviderConfig) {
+    if (activeProvider?.key?.trim()) {
+      const { name, key, model } = activeProvider;
+      const fetchFn = fetch.bind(window);
+      this.providerName = name;
+      if (name === 'openai') {
+        this.provider = new OpenAIProvider({ apiKey: key, model: model || 'gpt-4o-mini', fetchFn });
+      } else if (name === 'mistral') {
+        this.provider = new MistralProvider({ apiKey: key, model: model || 'mistral-small-latest', fetchFn });
+      } else if (name === 'gemini') {
+        this.provider = new GeminiProvider({ apiKey: key, model: model || 'gemini-2.5-flash', fetchFn });
+      } else if (name === 'anthropic') {
+        this.provider = new AnthropicProvider({ apiKey: key, model: model || 'claude-3-5-haiku-latest', fetchFn });
+      }
     }
   }
 
   /**
-   * Free keyless Google Translate for instant word/phrase translation
+   * Generate a full word package using the active AI provider.
    */
-  async translateWithGoogle(text: string, source: LanguageCode = 'de', target: LanguageCode = 'en'): Promise<string> {
-    try {
-      const res = await this.googleTranslator.translate(text, source, target);
-      return res.data;
-    } catch (err) {
-      console.warn('[Desktop AI Pipeline] Google Translate fallback error:', err);
-      return text;
-    }
-  }
-
-  /**
-   * Google Gemini AI generation for full word package (semantic clusters, examples, CEFR level)
-   */
-  async generateWordPackageWithGemini(
-    surfaceForm: string, 
-    cefrLevel: CefrLevel = 'B2', 
-    language: LanguageCode = 'de', 
+  async generateWordPackage(
+    surfaceForm: string,
+    cefrLevel: CefrLevel = 'B2',
+    language: LanguageCode = 'de',
     nativeLanguage: LanguageCode = 'en'
   ) {
-    if (!this.geminiProvider) {
-      throw new Error('Google Gemini API Key is not configured. Please set your Gemini API key in Settings.');
+    if (!this.provider) {
+      const name = this.providerName || 'the selected';
+      throw new Error(`No API key configured for ${name} provider. Please add your API key in Settings → AI Providers.`);
     }
 
-    const context = {
-      cefrLevel,
-      language,
-      nativeLanguage
-    };
-
-    const res = await this.geminiProvider.generateWordPackage(surfaceForm, context);
+    const context = { cefrLevel, language, nativeLanguage };
+    const res = await this.provider.generateWordPackage(surfaceForm, context);
     if (res.kind === 'complete') {
       return res.data;
     }

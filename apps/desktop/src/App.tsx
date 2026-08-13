@@ -15,25 +15,40 @@ import { DesktopServicesProvider, useDesktopServices } from './services/desktopS
 import { MOCK_DECKS, MOCK_WORDS, MOCK_CARDS_QUEUE, MOCK_MINING_QUEUE } from './mockData';
 
 const AppContent: React.FC = () => {
-  const { decks: dbDecks, dueCards, addNewCard } = useDesktopServices();
+  const { decks: dbDecks, isLoading, dueCards, addNewCard } = useDesktopServices();
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard');
-  const [decks, setDecks] = useState(MOCK_DECKS);
   const [words, setWords] = useState(MOCK_WORDS);
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
   const [miningQueue, setMiningQueue] = useState(MOCK_MINING_QUEUE);
 
   const [isQuickLookupOpen, setIsQuickLookupOpen] = useState(false);
 
-  const totalDueCards = decks.reduce((sum, d) => sum + d.dueToday, 0);
+  // Map DB deck shape { id, name, ... } → UI Deck shape { id, title, totalCards, ... }
+  // While DB is loading, show mock decks as placeholders
+  const decks = isLoading
+    ? MOCK_DECKS
+    : dbDecks.map((d: any, idx: number) => ({
+        id: d.id,
+        title: d.name,
+        description: d.description || '',
+        totalCards: d.totalCards ?? 0,
+        dueToday: d.dueToday ?? 0,
+        newToday: d.newToday ?? 0,
+        retention: d.retention ?? 0,
+        icon: d.emoji || 'BookOpen',
+        color: ['var(--accent-primary)', 'var(--success)', 'var(--info)', 'var(--warning)', 'var(--danger)'][idx % 5]
+      }));
+
+  const totalDueCards = dueCards.length;
 
   const handleAddCard = (wordForm: string, context: string, deckTitle: string, cardType: string) => {
     addNewCard(wordForm, context, deckTitle, cardType);
-    alert(`Card for "${wordForm}" (${context} — ${cardType}) saved to SQLite database deck "${deckTitle}"!`);
   };
 
   const handleProcessMiningItem = (id: string) => {
     setMiningQueue(prev => prev.filter(item => item.id !== id));
   };
+
 
   return (
     <div className="app-container">

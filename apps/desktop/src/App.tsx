@@ -11,9 +11,11 @@ import { StatsScreen } from './screens/StatsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { QuickLookupOverlay } from './components/QuickLookupOverlay';
 
+import { DesktopServicesProvider, useDesktopServices } from './services/desktopServices';
 import { MOCK_DECKS, MOCK_WORDS, MOCK_CARDS_QUEUE, MOCK_MINING_QUEUE } from './mockData';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { decks: dbDecks, dueCards, addNewCard } = useDesktopServices();
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard');
   const [decks, setDecks] = useState(MOCK_DECKS);
   const [words, setWords] = useState(MOCK_WORDS);
@@ -25,7 +27,8 @@ export const App: React.FC = () => {
   const totalDueCards = decks.reduce((sum, d) => sum + d.dueToday, 0);
 
   const handleAddCard = (wordForm: string, context: string, deckTitle: string, cardType: string) => {
-    alert(`Card for "${wordForm}" (${context} — ${cardType}) added to deck "${deckTitle}"!`);
+    addNewCard(wordForm, context, deckTitle, cardType);
+    alert(`Card for "${wordForm}" (${context} — ${cardType}) saved to SQLite database deck "${deckTitle}"!`);
   };
 
   const handleProcessMiningItem = (id: string) => {
@@ -103,5 +106,13 @@ export const App: React.FC = () => {
         onClose={() => setIsQuickLookupOpen(false)}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <DesktopServicesProvider>
+      <AppContent />
+    </DesktopServicesProvider>
   );
 };

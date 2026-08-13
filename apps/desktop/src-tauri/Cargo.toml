@@ -1,0 +1,18 @@
+[package]
+name = "lingora_desktop"
+version = "0.1.0"
+description = "Lingora Desktop App — AI-Native Language Learning"
+authors = ["Sukhdeep Singh <pennowtech@gmail.com>"]
+edition = "2021"
+
+[lib]
+name = "lingora_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = ["tray-icon"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

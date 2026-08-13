@@ -9,7 +9,7 @@ import { getClustersForLemma } from '@lingora/database';
 interface SearchLookupScreenProps {
   words: WordLemma[];
   decks: Deck[];
-  onAddCard: (wordForm: string, context: string, deckTitle: string, cardType: string) => void;
+  onAddCard: (wordForm: string, context: string, deckId: string, cardType: string, deckTitle?: string) => void;
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
@@ -271,35 +271,13 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       if (abortController.signal.aborted) return;
 
       if (pkg && pkg.clusters && pkg.clusters.length > 0) {
-        // Map AI WordGenerationPayload clusters → WordLemma clusters
-        const aiClusters = pkg.clusters.map((c: any, idx: number) => ({
-          id: `ai-cluster-${idx}-${Date.now()}`,
-          context: c.label || 'General',
-          translation: c.meanings?.[0]?.translation || selectedWord.clusters[0]?.translation || selectedWord.form,
-          definition: c.description || c.meanings?.[0]?.meaning || '',
-          examples: (c.examples || []).slice(0, 3).map((e: any) => ({ de: e.sentence, en: e.translation }))
-        }));
-
-        const updatedWord: WordLemma = {
-          ...selectedWord,
-          pos: pkg.lemma?.partOfSpeech || selectedWord.pos,
-          cefr: pkg.clusters[0]?.cefrLevel || selectedWord.cefr,
-          grammar: {
-            ...selectedWord.grammar,
-            partOfSpeech: pkg.lemma?.partOfSpeech || selectedWord.grammar.partOfSpeech,
-            cefrNotes: `AI-generated package via ${selectedGenerationProvider}. ${pkg.clusters.length} semantic clusters.`,
-          },
-          clusters: aiClusters,
-          surfaceForms: pkg.inflections?.length > 0 ? pkg.inflections : selectedWord.surfaceForms,
-        };
-
-        setSelectedWord(updatedWord);
-        setSearchResults(prev => prev.map(w => w.id === selectedWord.id ? updatedWord : w));
-        setSelectedClusterId(aiClusters[0]?.id || '');
+        setSelectedWord(pkg);
+        setSearchResults(prev => prev.map(w => w.id === selectedWord.id ? pkg : w));
+        setSelectedClusterId(pkg.clusters[0]?.id || '');
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
-        setGenerationError(err.message || 'AI generation failed. Check your API key in Settings.');
+        alert(err.message || 'AI generation failed. Check your API key in Settings.');
       }
     } finally {
       setIsGeneratingAI(false);
@@ -319,11 +297,13 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setIsDeckPickerOpen(true);
   };
 
-  const handleConfirmDeckAdd = async (deckId: string, deckTitle: string, isNew?: boolean) => {
+  const handleConfirmDeckAdd = async (deckId: string, deckTitle: string, isNew?: boolean, finalCardType?: string) => {
+    let targetDeckId = deckId;
     if (isNew) {
-      await addNewDeck(deckTitle);
+      targetDeckId = await addNewDeck(deckTitle, finalCardType);
     }
-    onAddCard(selectedWord.form, activeCluster?.context || 'General', deckTitle, selectedCardType.toUpperCase());
+    const typeToUse = finalCardType || selectedCardType.toUpperCase();
+    onAddCard(selectedWord.form, activeCluster?.context || 'General', targetDeckId, typeToUse, deckTitle);
   };
 
   return (
@@ -377,10 +357,6 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 backgroundSize: '200% 100%',
                 animation: 'shimmer 1.5s ease-in-out infinite'
               }} />
-            </div>
-
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
-              Analyzing word structure · Generating semantic clusters · Building CEFR examples
             </div>
 
             <button
@@ -526,14 +502,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               </div>
             </div>
 
-            {/* AI Generation Error Banner */}
-            {generationError && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: '8px', fontSize: '12px', color: 'var(--danger)' }}>
-                <AlertCircle size={14} />
-                <span>{generationError}</span>
-                <button onClick={() => setGenerationError(null)} className="btn btn-ghost" style={{ marginLeft: 'auto', padding: '2px 6px', fontSize: '11px' }}>✕</button>
-              </div>
-            )}
+
 
             {/* Target Deck & AI Generation Actions */}
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -702,8 +671,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   {[
                     { id: 'cloze', label: 'Cloze Deletion', desc: 'Fill-in the blank' },
                     { id: 'basic', label: 'Basic Front/Back', desc: 'Target word & translation' },
-                    { id: 'phrase', label: 'Phrase Context', desc: 'Idiom or sentence' },
-                    { id: 'reverse', label: 'Reverse Card', desc: 'English → German' }
+                    { id: 'phrase', label: 'Phrase Context', desc: 'Idiom or sentence' }
                   ].map((type) => (
                     <div
                       key={type.id}

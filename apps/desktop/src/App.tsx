@@ -15,7 +15,7 @@ import { DesktopServicesProvider, useDesktopServices } from './services/desktopS
 import { MOCK_DECKS, MOCK_WORDS, MOCK_CARDS_QUEUE, MOCK_MINING_QUEUE } from './mockData';
 
 const AppContent: React.FC = () => {
-  const { decks: dbDecks, isLoading, dueCards, addNewCard } = useDesktopServices();
+  const { db, decks: dbDecks, isLoading, dueCards, addNewCard, loadReviewQueue } = useDesktopServices();
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard');
   const [words, setWords] = useState(MOCK_WORDS);
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
@@ -27,26 +27,57 @@ const AppContent: React.FC = () => {
   // While DB is loading, show mock decks as placeholders
   const decks = isLoading
     ? MOCK_DECKS
-    : dbDecks.map((d: any, idx: number) => ({
-        id: d.id,
-        title: d.name,
-        description: d.description || '',
-        totalCards: d.totalCards ?? 0,
-        dueToday: d.dueToday ?? 0,
-        newToday: d.newToday ?? 0,
-        retention: d.retention ?? 0,
-        icon: d.emoji || 'BookOpen',
-        color: ['var(--accent-primary)', 'var(--success)', 'var(--info)', 'var(--warning)', 'var(--danger)'][idx % 5]
-      }));
+    : dbDecks.map((d: any, idx: number) => {
+        const deckTypes = JSON.parse(localStorage.getItem('lingora.deck_types') || '{}');
+        const deckType = deckTypes[d.id] || 'BASIC';
+        return {
+          id: d.id,
+          title: d.name,
+          description: `${deckType} Study Deck`,
+          totalCards: d.totalCards ?? 0,
+          dueToday: d.dueToday ?? 0,
+          newToday: d.newToday ?? 0,
+          retention: d.retention ?? 0,
+          icon: d.emoji || 'BookOpen',
+          color: ['var(--accent-primary)', 'var(--success)', 'var(--info)', 'var(--warning)', 'var(--danger)'][idx % 5]
+        };
+      });
 
   const totalDueCards = dueCards.length;
 
-  const handleAddCard = (wordForm: string, context: string, deckTitle: string, cardType: string) => {
-    addNewCard(wordForm, context, deckTitle, cardType);
+  const handleAddCard = async (wordForm: string, context: string, deckId: string, cardType: string, deckTitle?: string) => {
+    try {
+      await addNewCard(wordForm, context, deckId, cardType);
+      // Find deck title for the popup message
+      const resolvedTitle = deckTitle || decks.find(d => d.id === deckId)?.title || 'Deck';
+      alert(`Successfully added card "${wordForm}" to "${resolvedTitle}" as a ${cardType} card!`);
+    } catch (err) {
+      // addNewCard handles error popups internally
+    }
   };
 
   const handleProcessMiningItem = (id: string) => {
     setMiningQueue(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleStartReview = async (deckId?: string, cardId?: string) => {
+    if (!db) {
+      alert("Database not loaded yet!");
+      return;
+    }
+
+    try {
+      const queue = await loadReviewQueue(deckId, false, cardId);
+      if (!queue || queue.length === 0) {
+        alert(deckId ? "This deck is currently empty! Add some cards to it first." : "No cards due for review today! Excellent job.");
+        return;
+      }
+      setCardsQueue(queue);
+      setActiveScreen('review');
+    } catch (err: any) {
+      console.error('[StartReview] Error preparing review session:', err);
+      alert('Error preparing review session: ' + err.message);
+    }
   };
 
 
@@ -72,7 +103,7 @@ const AppContent: React.FC = () => {
             decks={decks}
             miningQueue={miningQueue}
             recentWords={words}
-            onStartReview={() => setActiveScreen('review')}
+            onStartReview={handleStartReview}
             onSelectScreen={setActiveScreen}
           />
         )}
@@ -95,7 +126,7 @@ const AppContent: React.FC = () => {
         {activeScreen === 'decks' && (
           <DecksScreen
             decks={decks}
-            onStartReview={() => setActiveScreen('review')}
+            onStartReview={handleStartReview}
           />
         )}
 

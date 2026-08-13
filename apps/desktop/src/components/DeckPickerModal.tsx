@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Layers, Plus, BookOpen, Check, FolderPlus, ArrowLeft } from 'lucide-react';
 import type { Deck } from '../mockData';
 
@@ -9,7 +9,7 @@ interface DeckPickerModalProps {
   wordForm: string;
   clusterContext: string;
   cardType: string;
-  onConfirmAdd: (deckId: string, deckTitle: string, isNew?: boolean) => void;
+  onConfirmAdd: (deckId: string, deckTitle: string, isNew?: boolean, finalCardType?: string) => void;
 }
 
 export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
@@ -24,40 +24,56 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
   const [selectedDeckId, setSelectedDeckId] = useState<string>(decks[0]?.id || '');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newDeckTitle, setNewDeckTitle] = useState('');
-  const [newDeckTitleError, setNewDeckTitleError] = useState('');
+  const [localCardType, setLocalCardType] = useState(cardType);
+
+  const filteredDecks = decks.filter(d => (d as any).type?.toUpperCase() === localCardType.toUpperCase());
+
+  useEffect(() => {
+    if (isOpen) {
+      setLocalCardType(cardType);
+    }
+  }, [isOpen, cardType]);
+
+  useEffect(() => {
+    if (filteredDecks.length > 0) {
+      setSelectedDeckId(prev => {
+        return filteredDecks.some(d => d.id === prev) ? prev : filteredDecks[0].id;
+      });
+    } else {
+      setSelectedDeckId('');
+    }
+  }, [localCardType, decks]);
 
   if (!isOpen) return null;
 
   const handleConfirmExisting = () => {
-    const targetDeck = decks.find(d => d.id === selectedDeckId) || decks[0];
+    const targetDeck = filteredDecks.find(d => d.id === selectedDeckId) || filteredDecks[0];
     if (!targetDeck) return;
-    onConfirmAdd(targetDeck.id, targetDeck.title);
+    onConfirmAdd(targetDeck.id, targetDeck.title, false, localCardType);
     onClose();
   };
 
   const handleConfirmNew = () => {
     const trimmed = newDeckTitle.trim();
     if (!trimmed) {
-      setNewDeckTitleError('Deck name cannot be empty.');
+      alert('Deck name cannot be empty.');
       return;
     }
     if (decks.some(d => d.title.toLowerCase() === trimmed.toLowerCase())) {
-      setNewDeckTitleError('A deck with this name already exists.');
+      alert('A deck with this name already exists.');
       return;
     }
-    onConfirmAdd(`new-deck-${Date.now()}`, trimmed, true);
+    onConfirmAdd(`new-deck-${Date.now()}`, trimmed, true, localCardType);
     onClose();
   };
 
   const handleStartCreating = () => {
     setIsCreatingNew(true);
     setNewDeckTitle('');
-    setNewDeckTitleError('');
   };
 
   const handleBackToList = () => {
     setIsCreatingNew(false);
-    setNewDeckTitleError('');
   };
 
   return (
@@ -132,14 +148,13 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
                 value={newDeckTitle}
                 onChange={(e) => {
                   setNewDeckTitle(e.target.value);
-                  setNewDeckTitleError('');
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && handleConfirmNew()}
                 placeholder="e.g. German B2 Verbs, Travel Vocabulary..."
                 style={{
                   padding: '12px 14px',
                   borderRadius: '10px',
-                  border: newDeckTitleError ? '1px solid var(--danger)' : '1px solid var(--border-color)',
+                  border: '1px solid var(--border-color)',
                   backgroundColor: 'var(--bg-glass)',
                   color: 'var(--text-primary)',
                   fontSize: '14px',
@@ -147,9 +162,6 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
                   fontFamily: 'var(--font-primary)'
                 }}
               />
-              {newDeckTitleError && (
-                <span style={{ fontSize: '12px', color: 'var(--danger)' }}>{newDeckTitleError}</span>
-              )}
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                 The deck will be created and <strong>"{wordForm}"</strong> will be added immediately.
               </span>
@@ -188,10 +200,10 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
             </div>
 
             <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginTop: '4px' }}>
-              Existing Decks ({decks.length})
+              Existing Decks ({filteredDecks.length})
             </div>
 
-            {decks.map((deck) => {
+            {filteredDecks.map((deck) => {
               const isSelected = deck.id === selectedDeckId;
               return (
                 <div
@@ -250,8 +262,27 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Card Type: <span className="badge badge-sky">{cardType}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Type:</span>
+            <select
+              value={localCardType}
+              onChange={(e) => setLocalCardType(e.target.value)}
+              style={{
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-glass)',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                outline: 'none',
+                fontFamily: 'var(--font-primary)',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="CLOZE">Cloze</option>
+              <option value="BASIC">Basic</option>
+              <option value="PHRASE">Phrase</option>
+            </select>
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>

@@ -1,8 +1,53 @@
 import type { DatabaseAdapter } from '@lingora/database';
-import initSqlJs, { Database } from 'sql.js';
+import initSqlJs, { Database } from 'fts5-sql-bundle';
+// @ts-ignore: Vite ?url import
+import sqlWasmUrl from 'fts5-sql-bundle/dist/sql-wasm.wasm?url';
+
+const DB_NAME = 'LingoraOfflineDb';
+const STORE_NAME = 'sqlite_file';
+const KEY_NAME = 'database_bytes';
+
+function saveDbBytes(bytes: Uint8Array): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(STORE_NAME);
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const putReq = store.put(bytes, KEY_NAME);
+      putReq.onsuccess = () => resolve();
+      putReq.onerror = () => reject(putReq.error);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function loadDbBytes(): Promise<Uint8Array | null> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(STORE_NAME);
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const getReq = store.get(KEY_NAME);
+      getReq.onsuccess = () => resolve(getReq.result || null);
+      getReq.onerror = () => reject(getReq.error);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
 
 export class SqlJsAdapter implements DatabaseAdapter {
   private db: Database;
+  public loadedFromIndexedDb = false;
+  public persistEnabled = false;
+  private transactionLevel = 0;
 
   private constructor(db: Database) {
     this.db = db;
@@ -14,20 +59,39 @@ export class SqlJsAdapter implements DatabaseAdapter {
     }
   }
 
-  static async create(): Promise<SqlJsAdapter> {
+  static async create(skipLoad = false): Promise<SqlJsAdapter> {
     const SQL = await initSqlJs({
-      locateFile: (file) => `https://sql.js.org/dist/${file}`
+      locateFile: () => sqlWasmUrl
     });
-    const db = new SQL.Database();
-    return new SqlJsAdapter(db);
+    const bytes = skipLoad ? null : await loadDbBytes();
+    const db = bytes ? new SQL.Database(bytes) : new SQL.Database();
+    const adapter = new SqlJsAdapter(db);
+    adapter.loadedFromIndexedDb = !!bytes;
+    return adapter;
+  }
+
+  public async persist(): Promise<void> {
+    if (!this.persistEnabled) return;
+    try {
+      const bytes = this.db.export();
+      await saveDbBytes(bytes);
+    } catch (err) {
+      console.warn('[SqlJsAdapter] Failed to persist database:', err);
+    }
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
     this.db.run(sql, (params ?? []) as any[]);
+    if (this.transactionLevel === 0) {
+      await this.persist();
+    }
   }
 
   async executeScript(sql: string): Promise<void> {
     this.db.exec(sql);
+    if (this.transactionLevel === 0) {
+      await this.persist();
+    }
   }
 
   async query<T = unknown>(sql: string, params?: unknown[]): Promise<T[]> {
@@ -49,13 +113,28 @@ export class SqlJsAdapter implements DatabaseAdapter {
   }
 
   async transaction<T>(fn: (adapter: DatabaseAdapter) => Promise<T>): Promise<T> {
-    this.db.exec('BEGIN TRANSACTION;');
+    const isOuter = this.transactionLevel === 0;
+    if (isOuter) {
+      this.db.exec('BEGIN TRANSACTION;');
+    }
+    this.transactionLevel++;
     try {
       const result = await fn(this);
-      this.db.exec('COMMIT;');
+      this.transactionLevel--;
+      if (isOuter) {
+        this.db.exec('COMMIT;');
+        await this.persist();
+      }
       return result;
     } catch (err) {
-      this.db.exec('ROLLBACK;');
+      this.transactionLevel--;
+      if (isOuter) {
+        try {
+          this.db.exec('ROLLBACK;');
+        } catch (rollbackErr) {
+          console.warn('[SqlJsAdapter] Rollback failed:', rollbackErr);
+        }
+      }
       throw err;
     }
   }

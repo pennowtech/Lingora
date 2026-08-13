@@ -8,12 +8,31 @@ import {
   createCardForSense,
   createDeck,
   getCardsByLemma,
-  recordReview
+  recordReview,
+  getLemmaById,
+  getMeaningsForCard,
+  getExamplesForCard,
+  getClozesForCard,
+  getSynonymsForCard,
+  getPhrasesForCard,
+  getCardState,
+  getClozeState,
+  getCardsDueForReview,
+  getClozeCardsDueForReview,
+  getDefaultTemplate,
+  createCloze
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
+import { buildCardContext, renderCardHtml } from './templates';
 import type { LanguageCode, CefrLevel } from '@lingora/types';
+import { 
+  OpenAIProvider, 
+  MistralProvider, 
+  GeminiProvider, 
+  AnthropicProvider,
+  createAIPipeline
+} from '@lingora/ai';
 import { getDesktopDatabase } from './database';
-import { DesktopAIPipeline } from './aiPipeline';
 
 export type ProviderName = 'openai' | 'mistral' | 'gemini' | 'anthropic';
 export type TranslationProvider = 'google' | 'deepl' | 'openai' | 'mistral' | 'gemini' | 'anthropic';
@@ -44,7 +63,7 @@ interface DesktopServicesContextType {
   setLearningConfig: (cefr: CefrLevel, nativeLang: LanguageCode, targetLang: LanguageCode) => void;
   refreshData: () => Promise<void>;
   rateCard: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => Promise<void>;
-  addNewDeck: (title: string, description?: string) => Promise<void>;
+  addNewDeck: (title: string, type?: string) => Promise<string>;
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
   generateWithGemini: (surfaceForm: string) => Promise<any>;
@@ -61,6 +80,7 @@ interface DesktopServicesContextType {
   deeplError?: string;
   validateProviderKey: (name: ProviderName) => Promise<void>;
   validateDeeplKey: () => Promise<void>;
+  loadReviewQueue: (deckId?: string, clozeOnly?: boolean, cardId?: string) => Promise<any[]>;
 }
 
 const DesktopServicesContext = createContext<DesktopServicesContextType | null>(null);
@@ -328,45 +348,159 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
-  const addNewDeck = async (title: string, description?: string) => {
-    if (!db) return;
+  const addNewDeck = async (title: string, type?: string) => {
+    if (!db) return '';
+    const deckId = `deck-${Date.now()}`;
     const newDeck = {
-      id: `deck-${Date.now()}`,
+      id: deckId,
       name: title,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
     await createDeck(db, newDeck);
+
+    // Save the deck type in localStorage (default to BASIC)
+    const deckTypes = JSON.parse(localStorage.getItem('lingora.deck_types') || '{}');
+    deckTypes[deckId] = type ? type.toUpperCase() : 'BASIC';
+    localStorage.setItem('lingora.deck_types', JSON.stringify(deckTypes));
+
     await refreshData();
+    return deckId;
   };
 
-  const addNewCard = async (lemmaForm: string, clusterId: string, deckTitle: string, cardType: string) => {
+  const addNewCard = async (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => {
     if (!db) return;
     try {
-      let deck = decks.find(d => d.name.toLowerCase() === deckTitle.toLowerCase());
-      let deckId = deck?.id;
-      if (!deckId) {
-        deckId = `deck-${Date.now()}`;
-        await createDeck(db, { id: deckId, name: deckTitle, createdAt: Date.now(), updatedAt: Date.now() });
+      // Validate that the card type matches the deck type
+      const deckTypes = JSON.parse(localStorage.getItem('lingora.deck_types') || '{}');
+      const deckType = deckTypes[deckId] || 'BASIC'; // default to BASIC
+      if (cardType.toUpperCase() !== deckType.toUpperCase()) {
+        throw new Error(`Cannot add a ${cardType.toUpperCase()} card to a ${deckType.toUpperCase()} deck.`);
       }
 
-      const lemma = await getLemmaByForm(db, lemmaForm);
-      if (lemma) {
-        const cardId = `card-${Date.now()}`;
-        const initialState = createInitialCardState(cardId);
+      let lemma = await getLemmaByForm(db, lemmaForm);
+      
+      // If the lemma doesn't exist (e.g. from AI generation), create a basic one
+      if (!lemma) {
+        const lemmaId = `lemma-${Date.now()}`;
+        const now = Date.now();
         await db.execute(
-          `INSERT OR IGNORE INTO card_states (card_id, stability, difficulty, retrievability, next_review_date, lapses, state, reps, learning_steps)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [cardId, initialState.stability, initialState.difficulty, initialState.retrievability, initialState.nextReviewAt, initialState.lapses, initialState.state, initialState.reps, initialState.learningSteps]
+          `INSERT INTO lemmas (id, form, language, part_of_speech, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+          [lemmaId, lemmaForm, targetLanguage, 'noun', now, now]
+        );
+        await db.execute(
+          `INSERT INTO inflections (lemma_id, form) VALUES (?, ?)`,
+          [lemmaId, lemmaForm]
+        );
+        lemma = { id: lemmaId } as any;
+      }
+
+      let targetCardId = '';
+
+      if (lemma) {
+        // Check if a card already exists for this lemma in the cards table
+        const existingCard = await db.querySingle<any>(
+          `SELECT id FROM cards WHERE lemma_id = ? LIMIT 1`,
+          [lemma.id]
         );
 
-        if (deckId) {
-          await addCardToDeck(db, cardId, deckId);
+        if (existingCard) {
+          targetCardId = existingCard.id;
+          // Update the deck_id and type on the existing card
+          await db.execute(
+            `UPDATE cards SET deck_id = ?, type = ? WHERE id = ?`,
+            [deckId, cardType.toLowerCase(), targetCardId]
+          );
+          // Link it to the deck
+          await addCardToDeck(db, deckId, targetCardId);
+        } else {
+          targetCardId = `card-${Date.now()}`;
+          const now = Date.now();
+          
+          await db.execute(
+            `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
+             VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, 'manual', ?)`,
+            [targetCardId, lemma.id, deckId, cardType.toLowerCase(), now, now, nativeLanguage]
+          );
+
+          const initialState = createInitialCardState(targetCardId);
+          await db.execute(
+            `INSERT OR IGNORE INTO card_states (card_id, stability, difficulty, retrievability, next_review_date, lapses, state, reps, learning_steps)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [targetCardId, initialState.stability, initialState.difficulty, initialState.retrievability, initialState.nextReviewAt, initialState.lapses, initialState.state, initialState.reps, initialState.learningSteps]
+          );
+
+          await addCardToDeck(db, deckId, targetCardId);
+        }
+
+        // If card type is cloze, ensure cloze_cards has a valid row
+        if (cardType.toUpperCase() === 'CLOZE') {
+          const clozes = await getClozesForCard(db, targetCardId);
+          if (clozes.length === 0) {
+            const examples = await getExamplesForCard(db, targetCardId);
+            const example = examples.find((e) => e.isSelected) ?? examples[0];
+            let sentence = example?.sentence || `Ich lerne ${lemmaForm}.`;
+            let translation = example?.translation || `I am learning ${lemmaForm}.`;
+            let answer = lemmaForm;
+
+            // Attempt to blank out the word in the sentence
+            const SEPARABLE_PREFIXES = [
+              'zusammen', 'zurück', 'entgegen', 'gegenüber', 'hinein', 'hinaus', 'heraus', 'herein',
+              'wieder', 'entlang', 'vorbei', 'statt', 'durch', 'über', 'unter', 'wider', 'fest',
+              'her', 'hin', 'los', 'mit', 'vor', 'weg', 'zu', 'ab', 'an', 'auf', 'aus', 'bei', 'ein',
+            ].sort((a, b) => b.length - a.length);
+
+            const forms = new Set<string>([lemmaForm]);
+            const lower = lemmaForm.toLowerCase();
+            const prefix = SEPARABLE_PREFIXES.find((p) => lower.startsWith(p) && lemmaForm.length - p.length >= 3);
+            if (prefix) {
+              const stem = lemmaForm.slice(prefix.length);
+              forms.add(prefix);
+              forms.add(stem.length > 4 && stem.toLowerCase().endsWith('en') ? stem.slice(0, -2) : stem);
+            }
+
+            let bestMatch = '';
+            const lowerSentence = sentence.toLowerCase();
+            for (const form of forms) {
+              const lowerForm = form.toLowerCase();
+              if (lowerSentence.includes(lowerForm) && form.length > bestMatch.length) {
+                bestMatch = form;
+              }
+            }
+
+            if (bestMatch) {
+              const regex = new RegExp(bestMatch, 'i');
+              const match = sentence.match(regex);
+              if (match) {
+                sentence = sentence.replace(regex, '[...]');
+                answer = match[0];
+              }
+            } else {
+              const regex = new RegExp(lemmaForm, 'i');
+              if (regex.test(sentence)) {
+                sentence = sentence.replace(regex, '[...]');
+              } else {
+                sentence = `${sentence} (${lemmaForm} -> [...])`;
+              }
+            }
+
+            await createCloze(db, {
+              id: `cloze-${Date.now()}`,
+              cardId: targetCardId,
+              sentence,
+              answer,
+              translation,
+              difficulty: 'easy',
+              cefrLevel: example?.cefrLevel || 'B2'
+            });
+          }
         }
       }
       await refreshData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Desktop Services] Error adding card:', err);
+      alert(err.message || 'Error adding card');
+      throw err; // Re-throw to prevent caller from showing success popup!
     }
   };
 
@@ -405,6 +539,65 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
+  const loadWordLemmaFromDb = async (adapter: DatabaseAdapter, lemmaId: string): Promise<any | null> => {
+    const lemma = await adapter.querySingle<any>(
+      `SELECT id, form, language, part_of_speech AS pos, gender, plural FROM lemmas WHERE id = ?`,
+      [lemmaId]
+    );
+    if (!lemma) return null;
+
+    const clusters = await adapter.query<any>(
+      `SELECT id, label AS context, description AS definition, cefr_level AS cefr FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
+      [lemmaId]
+    );
+
+    const enrichedClusters = await Promise.all(clusters.map(async (c: any) => {
+      // Get translation from meanings table
+      const meanings = await adapter.query<any>(
+        `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? ORDER BY order_index ASC`,
+        [c.id]
+      );
+      // Get examples
+      const examples = await adapter.query<any>(
+        `SELECT sentence AS de, translation AS en FROM examples WHERE meaning_cluster_id = ?`,
+        [c.id]
+      );
+
+      return {
+        id: c.id,
+        context: c.context,
+        translation: meanings[0]?.translation || lemma.form,
+        definition: meanings[0]?.explanation || c.definition || '',
+        cefr: c.cefr || 'B2',
+        examples: examples.map((ex: any) => ({
+          de: ex.de || '',
+          en: ex.en || ''
+        }))
+      };
+    }));
+
+    // Get grammar tags / info (fallback to defaults if missing)
+    const guideRow = await adapter.querySingle<any>(
+      `SELECT usage_note, intro FROM word_guides WHERE headword = ? AND language = ? LIMIT 1`,
+      [lemma.form, lemma.language]
+    );
+
+    return {
+      id: lemma.id,
+      form: lemma.form,
+      pos: lemma.pos || 'noun',
+      cefr: guideRow?.cefr_level || enrichedClusters[0]?.cefr || 'B2',
+      gender: lemma.gender,
+      frequency: 0,
+      grammar: {
+        partOfSpeech: lemma.pos || 'noun',
+        cefrNotes: guideRow?.usage_note || guideRow?.intro || ''
+      },
+      clusters: enrichedClusters,
+      surfaceForms: [lemma.form]
+    };
+  };
+
   const generateWithGemini = async (surfaceForm: string): Promise<any> => {
     const active = providers[selectedGenerationProvider];
     if (!active?.key?.trim()) {
@@ -414,12 +607,124 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
         selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic';
       throw new Error(`No API key configured for ${displayName}. Please add your key in Settings → AI Providers.`);
     }
-    const pipeline = new DesktopAIPipeline({
-      name: selectedGenerationProvider,
-      key: active.key,
-      model: active.model,
+
+    if (!db) throw new Error("Database not loaded.");
+
+    const fetchFn = fetch.bind(window);
+    let aiProviderInstance: any;
+    if (selectedGenerationProvider === 'openai') {
+      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || 'gpt-4o-mini', fetchFn });
+    } else if (selectedGenerationProvider === 'mistral') {
+      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || 'mistral-small-latest', fetchFn });
+    } else if (selectedGenerationProvider === 'gemini') {
+      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || 'gemini-2.5-flash', fetchFn });
+    } else if (selectedGenerationProvider === 'anthropic') {
+      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || 'claude-3-5-haiku-latest', fetchFn });
+    }
+
+    const pipeline = await createAIPipeline({
+      db,
+      ai: aiProviderInstance
     });
-    return pipeline.generateWordPackage(surfaceForm, cefrLevel, targetLanguage, nativeLanguage);
+
+    const outcome = await pipeline.lookupOrGenerate(surfaceForm, {
+      cefrLevel,
+      deckId: 'deck-default', // Fallback, not used when addToDeck is false
+      language: targetLanguage,
+      nativeLanguage,
+      addToDeck: false
+    });
+
+    if (outcome.kind === 'existing' || outcome.kind === 'generated') {
+      const loaded = await loadWordLemmaFromDb(db, outcome.lemma.id);
+      // Make sure counts / UI updates
+      await refreshData();
+      return loaded;
+    } else if (outcome.kind === 'partial') {
+      throw new Error("AI generation returned partial/validation issues: " + (outcome.issues || []).join(', '));
+    }
+  };
+
+  const loadReviewQueue = async (deckId?: string, clozeOnly: boolean = false, cardId?: string): Promise<any[]> => {
+    if (!db) return [];
+
+    let finalCards: any[] = [];
+    if (cardId) {
+      const card = await db.querySingle<any>(`SELECT * FROM cards WHERE id = ?`, [cardId]);
+      if (card) finalCards = [card];
+    } else {
+      const scopeDeckId = deckId === 'all' ? undefined : deckId;
+      const cards = clozeOnly
+        ? await getClozeCardsDueForReview(db, scopeDeckId)
+        : await getCardsDueForReview(db, scopeDeckId);
+
+      finalCards = cards;
+      if (finalCards.length === 0) {
+        if (scopeDeckId) {
+          finalCards = await db.query<any>(
+            `SELECT * FROM cards WHERE deck_id = ?`,
+            [scopeDeckId]
+          );
+        } else {
+          finalCards = await db.query<any>(
+            `SELECT * FROM cards`
+          );
+        }
+      }
+    }
+
+    const template = await getDefaultTemplate(db, clozeOnly ? 'cloze' : 'vocab');
+    const frontTemplate = template?.frontTemplate || '';
+    const backTemplate = template?.backTemplate || '';
+    const styles = template?.styles || '';
+
+    const views: any[] = [];
+    for (const card of finalCards) {
+      const lemma = await getLemmaById(db, card.lemmaId);
+      if (!lemma) continue;
+
+      const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
+        getMeaningsForCard(db, card.id),
+        getExamplesForCard(db, card.id),
+        getClozesForCard(db, card.id),
+        getSynonymsForCard(db, card.id),
+        getPhrasesForCard(db, card.id),
+        clozeOnly ? getClozeState(db, card.id) : getCardState(db, card.id),
+      ]);
+
+      const cloze = clozes[0];
+      const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0];
+      const selectedExample = examples.find((e) => e.isSelected) ?? examples[0];
+
+      const templateContext = buildCardContext({
+        lemma,
+        meanings,
+        examples,
+        synonyms,
+        phrases,
+        cloze,
+        mode: clozeOnly ? 'cloze' : 'vocab',
+      });
+
+      const frontHtml = renderCardHtml(frontTemplate, styles, templateContext, 'front');
+      const backHtml = renderCardHtml(backTemplate, styles, templateContext, 'back');
+
+      views.push({
+        id: card.id,
+        front: lemma.form,
+        back: primaryMeaning?.translation || '',
+        pos: lemma.partOfSpeech || 'noun',
+        cefr: primaryMeaning?.cefrLevel || 'B2',
+        context: primaryMeaning ? 'General' : '',
+        exampleDe: selectedExample?.sentence || '',
+        exampleEn: selectedExample?.translation || '',
+        frontHtml,
+        backHtml,
+        cardState: cardState || createInitialCardState(card.id),
+      });
+    }
+
+    return views;
   };
 
   return (
@@ -453,7 +758,8 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       deeplValidating,
       deeplError,
       validateProviderKey,
-      validateDeeplKey
+      validateDeeplKey,
+      loadReviewQueue
     }}>
       {children}
     </DesktopServicesContext.Provider>

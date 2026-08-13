@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, CheckCircle2, RotateCcw, Sparkles, ArrowRight, ShieldCheck, Key } from 'lucide-react';
 import type { CardReview } from '../mockData';
+import { useDesktopServices } from '../services/desktopServices';
+import { CardRenderer } from '../components/CardRenderer';
 
 interface ReviewScreenProps {
   cards: CardReview[];
@@ -8,6 +10,7 @@ interface ReviewScreenProps {
 }
 
 export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishReview }) => {
+  const { rateCard } = useDesktopServices();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -15,6 +18,9 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishRevie
   const currentCard = cards[currentIndex];
 
   const handleNextCard = (rating: 'again' | 'hard' | 'good' | 'easy') => {
+    if (currentCard) {
+      rateCard(currentCard.id, rating);
+    }
     setIsFlipped(false);
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex(prev => prev + 1);
@@ -102,60 +108,47 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishRevie
         style={{
           width: '100%',
           maxWidth: '720px',
-          height: '380px',
+          height: '420px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '40px',
+          padding: '20px',
           position: 'relative',
           border: isFlipped ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid var(--border-color)',
-          boxShadow: isFlipped ? '0 0 30px rgba(99, 102, 241, 0.25)' : 'var(--shadow-md)'
+          boxShadow: isFlipped ? '0 0 30px rgba(99, 102, 241, 0.25)' : 'var(--shadow-md)',
+          overflow: 'hidden'
         }}
       >
-        <div style={{ position: 'absolute', top: '20px', left: '24px', display: 'flex', gap: '8px' }}>
+        <div style={{ position: 'absolute', top: '16px', left: '20px', display: 'flex', gap: '8px', zIndex: 10 }}>
           <span className="badge badge-sky">{currentCard.pos}</span>
           <span className="badge badge-indigo">{currentCard.cefr}</span>
-          <span className="badge badge-amber">{currentCard.context}</span>
+          {currentCard.context && <span className="badge badge-amber">{currentCard.context}</span>}
         </div>
 
         <button 
           onClick={(e) => { e.stopPropagation(); }}
           className="btn btn-ghost"
-          style={{ position: 'absolute', top: '20px', right: '24px', borderRadius: '50%', padding: '8px' }}
+          style={{ position: 'absolute', top: '16px', right: '20px', borderRadius: '50%', padding: '8px', zIndex: 10 }}
         >
           <Volume2 size={20} color="var(--accent-primary)" />
         </button>
 
-        {/* Card Front Content */}
-        <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px', lineHeight: '1.4' }}>
-          {currentCard.front}
+        {/* Card Content via Template Renderer */}
+        <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+          {isFlipped ? (
+            <CardRenderer html={(currentCard as any).backHtml || ''} style={{ width: '100%', height: '100%' }} />
+          ) : (
+            <CardRenderer html={(currentCard as any).frontHtml || ''} style={{ width: '100%', height: '100%' }} />
+          )}
+          {/* Overlay to intercept clicks and prevent focus theft from iframe */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5, cursor: 'pointer' }} />
         </div>
 
-        {/* Card Back Content (Revealed on Click or Space) */}
-        {isFlipped ? (
-          <div style={{ animation: 'fadeIn 0.2s ease-out' }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '16px' }}>
-              Target: {currentCard.back}
-            </div>
-
-            <div style={{
-              backgroundColor: 'var(--bg-glass)',
-              padding: '14px 20px',
-              borderRadius: '10px',
-              borderLeft: '4px solid #10b981',
-              textAlign: 'left'
-            }}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{currentCard.exampleDe}</div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{currentCard.exampleEn}</div>
-            </div>
-          </div>
-        ) : (
-          <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '24px' }}>
-            <Key size={14} /> Press <strong style={{ color: 'var(--text-secondary)' }}>Space</strong> or click card to flip answer
-          </div>
-        )}
+        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', position: 'absolute', bottom: '16px' }}>
+          <Key size={12} /> Press <strong style={{ color: 'var(--text-secondary)' }}>Space</strong> or click card to flip answer
+        </div>
       </div>
 
       {/* FSRS Rating Buttons */}

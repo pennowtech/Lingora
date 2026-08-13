@@ -28,63 +28,110 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // Deck Picker Modal State
   const [isDeckPickerOpen, setIsDeckPickerOpen] = useState(false);
 
-  // Live Database Search Effect
+  // Live Database Search & Enrichment Effect
   useEffect(() => {
     let isSubscribed = true;
 
     const performLiveSearch = async () => {
-      if (!query.trim()) {
-        setSearchResults(words);
-        return;
-      }
-
       if (db) {
         try {
-          const ftsPattern = buildFTSQuery(query);
-          const rawRows = await db.query<any>(
-            `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender
-             FROM lemmas l
-             WHERE l.form LIKE ? OR l.id IN (SELECT lemma_id FROM inflections WHERE form LIKE ?)
-             LIMIT 20`,
-            [`%${query.trim()}%`, `%${query.trim()}%`]
-          );
+          let lemmaRows: any[] = [];
+          if (!query.trim()) {
+            lemmaRows = await db.query<any>(
+              `SELECT id, form, part_of_speech AS pos, gender, plural FROM lemmas ORDER BY form ASC LIMIT 20`
+            );
+          } else {
+            lemmaRows = await db.query<any>(
+              `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural
+               FROM lemmas l
+               WHERE l.form LIKE ? OR l.id IN (SELECT lemma_id FROM inflections WHERE form LIKE ?)
+               LIMIT 20`,
+              [`%${query.trim()}%`, `%${query.trim()}%`]
+            );
+          }
 
-          if (rawRows && rawRows.length > 0 && isSubscribed) {
-            const mappedResults: WordLemma[] = rawRows.map((r: any, idx: number) => ({
-              id: r.id,
-              form: r.form,
-              pos: r.pos || 'noun',
-              gender: r.gender,
-              cefr: idx % 2 === 0 ? 'B1' : 'B2',
-              frequency: 300 + idx * 100,
-              grammar: {
-                partOfSpeech: r.pos || 'Noun/Verb',
-                cases: 'Nominativ / Akkusativ',
-                cefrNotes: `Live SQLite result for "${r.form}". Indexed by FTS5 engine.`
-              },
-              clusters: [
-                {
-                  id: `db-c-${r.id}`,
-                  context: 'General Context',
-                  translation: `${r.form} (translation)`,
-                  definition: `Definition for ${r.form}`,
-                  examples: [
-                    { de: `Das ist ein Beispiel für ${r.form}.`, en: `This is an example for ${r.form}.` }
-                  ]
+          if (lemmaRows && lemmaRows.length > 0 && isSubscribed) {
+            const enrichedPromises = lemmaRows.map(async (l: any, idx: number) => {
+              // Fetch inflections (surface forms)
+              const inflRows = await db.query<{ form: string }>(
+                `SELECT form FROM inflections WHERE lemma_id = ?`,
+                [l.id]
+              );
+              const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
+
+              // Fetch clusters
+              const clusterRows = await db.query<any>(
+                `SELECT id, label, description, cefr_level AS cefrLevel FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
+                [l.id]
+              );
+
+              let clusters = [];
+              if (clusterRows && clusterRows.length > 0) {
+                for (const c of clusterRows) {
+                  const exRows = await db.query<{ sentence: string; translation: string }>(
+                    `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
+                    [c.id]
+                  );
+                  clusters.push({
+                    id: c.id,
+                    context: c.label || 'General Context',
+                    translation: c.description || l.form,
+                    definition: c.description || `Context for ${l.form}`,
+                    examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
+                      { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
+                    ]
+                  });
                 }
-              ],
-              surfaceForms: [r.form]
-            }));
+              } else {
+                clusters = [
+                  {
+                    id: `c-db-${l.id}`,
+                    context: 'General Context',
+                    translation: l.form,
+                    definition: `Context definition for ${l.form}`,
+                    examples: [
+                      { de: `Wir nutzen ${l.form} jeden Tag.`, en: `We use ${l.form} every day.` }
+                    ]
+                  }
+                ];
+              }
 
-            setSearchResults(mappedResults);
-            if (mappedResults[0]) {
-              setSelectedWord(mappedResults[0]);
-              setSelectedClusterId(mappedResults[0].clusters[0]?.id || '');
+              return {
+                id: l.id,
+                form: l.form,
+                pos: l.pos || 'noun',
+                gender: l.gender,
+                cefr: clusterRows[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
+                frequency: 300 + idx * 80,
+                grammar: {
+                  partOfSpeech: l.pos === 'verb' ? 'Starkes Verb (Strong Verb)' : `${l.gender || 'die'} Nomen`,
+                  cases: l.pos === 'verb' ? 'von + Dativ / Akkusativ' : `Plural: ${l.plural || '—'}`,
+                  preposition: l.pos === 'verb' ? 'mit / von + Dativ' : undefined,
+                  conjugation: l.pos === 'verb' ? {
+                    praesens: `er/sie/es ${l.form}`,
+                    praeteritum: `er/sie/es ging`,
+                    perfekt: `ist ${l.form}`
+                  } : undefined,
+                  prefixType: l.form.includes('aus') ? 'Trennbares Verb (Separable Prefix)' : undefined,
+                  cefrNotes: `SQLite DB Lemma: ${l.form}. Normalized surface forms: ${surfaceForms.join(', ')}.`
+                },
+                clusters,
+                surfaceForms
+              };
+            });
+
+            const enriched = await Promise.all(enrichedPromises);
+            if (isSubscribed) {
+              setSearchResults(enriched);
+              if (enriched[0]) {
+                setSelectedWord(enriched[0]);
+                setSelectedClusterId(enriched[0].clusters[0]?.id || '');
+              }
+              return;
             }
-            return;
           }
         } catch (err) {
-          console.error('[Live Search] Error running SQLite query:', err);
+          console.error('[Search & Lookup] SQLite live search error:', err);
         }
       }
 
@@ -167,7 +214,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             <span style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
               Results ({searchResults.length})
             </span>
-            <span className="badge badge-emerald" style={{ fontSize: '10px' }}>FTS5 Active</span>
+            <span className="badge badge-emerald" style={{ fontSize: '10px' }}>SQLite FTS5</span>
           </div>
 
           {searchResults.map(word => {

@@ -73,7 +73,7 @@ export const MOCK_DECKS: Deck[] = [
     newToday: 5,
     retention: 92.4,
     icon: 'BookOpen',
-    color: '#6366f1'
+    color: 'var(--accent-primary)'
   },
   {
     id: 'deck-2',
@@ -84,7 +84,7 @@ export const MOCK_DECKS: Deck[] = [
     newToday: 3,
     retention: 88.0,
     icon: 'Tv',
-    color: '#10b981'
+    color: 'var(--success)'
   },
   {
     id: 'deck-3',
@@ -95,7 +95,7 @@ export const MOCK_DECKS: Deck[] = [
     newToday: 2,
     retention: 95.1,
     icon: 'Cpu',
-    color: '#8b5cf6'
+    color: 'var(--accent-secondary)'
   }
 ];
 

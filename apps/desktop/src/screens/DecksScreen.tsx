@@ -15,8 +15,8 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff' }}>Your Vocabulary Decks</h2>
-          <p style={{ fontSize: '13px', color: '#9ca3af' }}>Manage and organize your custom decks and mined vocabulary</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Your Vocabulary Decks</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Manage and organize your custom decks and mined vocabulary</p>
         </div>
 
         <button className="btn btn-primary">
@@ -37,7 +37,7 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
               flexDirection: 'column',
               justifyContent: 'space-between',
               height: '220px',
-              border: selectedDeck?.id === deck.id ? `1px solid ${deck.color}` : '1px solid rgba(255, 255, 255, 0.08)'
+              border: selectedDeck?.id === deck.id ? `1px solid ${deck.color}` : '1px solid var(--bg-surface-hover)'
             }}
           >
             <div>
@@ -55,18 +55,18 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
                   <BookOpen size={20} color={deck.color} />
                 </div>
                 <button className="btn btn-ghost" style={{ padding: '4px' }}>
-                  <MoreVertical size={16} color="#9ca3af" />
+                  <MoreVertical size={16} color="var(--text-secondary)" />
                 </button>
               </div>
 
-              <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>{deck.title}</h3>
-              <p style={{ fontSize: '13px', color: '#9ca3af', lineClamp: 2 }}>{deck.description}</p>
+              <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>{deck.title}</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineClamp: 2 }}>{deck.description}</p>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--bg-surface-hover)', paddingTop: '14px' }}>
               <div>
-                <span style={{ fontSize: '14px', fontWeight: 800, color: '#f3f4f6' }}>{deck.totalCards}</span>
-                <span style={{ fontSize: '12px', color: '#6b7280', marginLeft: '4px' }}>cards</span>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>{deck.totalCards}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '4px' }}>cards</span>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -92,19 +92,19 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
       {selectedDeck && (
         <div className="glass-card" style={{ marginTop: '12px', animation: 'fadeIn 0.2s ease-out' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>
-              Deck Inspector: <span style={{ color: '#818cf8' }}>{selectedDeck.title}</span>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Deck Inspector: <span style={{ color: 'var(--accent-primary)' }}>{selectedDeck.title}</span>
             </h3>
             <span className="badge badge-emerald">{selectedDeck.retention}% Retention Score</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ padding: '12px', backgroundColor: 'rgba(15, 23, 42, 0.6)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ fontWeight: 600, color: '#f3f4f6' }}>Guten Tag → Hello / Good Day</span>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-glass)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Guten Tag → Hello / Good Day</span>
               <span className="badge badge-sky">B1 · Basic Card</span>
             </div>
-            <div style={{ padding: '12px', backgroundColor: 'rgba(15, 23, 42, 0.6)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ fontWeight: 600, color: '#f3f4f6' }}>Wir gehen davon aus, dass... → We assume that...</span>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-glass)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Wir gehen davon aus, dass... → We assume that...</span>
               <span className="badge badge-sky">B2 · Cloze Card</span>
             </div>
           </div>

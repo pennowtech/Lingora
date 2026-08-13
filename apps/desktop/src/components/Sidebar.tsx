@@ -40,8 +40,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside style={{
       width: '260px',
       height: '100%',
-      backgroundColor: '#0c121e',
-      borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+      backgroundColor: 'var(--bg-surface)',
+      borderRight: '1px solid var(--border-color)',
       display: 'flex',
       flexDirection: 'column',
       padding: '20px 14px',
@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         alignItems: 'center',
         gap: '12px',
         padding: '0 10px 20px 10px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        borderBottom: '1px solid var(--border-color)'
       }}>
         <div style={{
           width: '38px',
@@ -63,13 +63,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 0 16px rgba(99, 102, 241, 0.4)'
+          boxShadow: 'var(--shadow-glow)'
         }}>
-          <BookOpen size={20} color="#fff" />
+          <BookOpen size={20} color="var(--text-primary)" />
         </div>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: '#f3f4f6' }}>Lingora</h1>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Desktop</span>
+          <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Lingora</h1>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Desktop</span>
         </div>
       </div>
 
@@ -77,17 +77,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div style={{
         margin: '18px 0',
         padding: '12px 14px',
-        background: 'rgba(245, 158, 11, 0.1)',
+        background: 'var(--warning-bg)',
         border: '1px solid rgba(245, 158, 11, 0.25)',
         borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
         gap: '12px'
       }}>
-        <Flame size={22} color="#f59e0b" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
+        <Flame size={22} color="var(--warning)" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#fbbf24' }}>14 Day Streak</div>
-          <div style={{ fontSize: '11px', color: '#9ca3af' }}>18 cards due today</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--warning)' }}>14 Day Streak</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>18 cards due today</div>
         </div>
       </div>
 
@@ -107,23 +107,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 padding: '11px 14px',
                 borderRadius: '8px',
                 border: 'none',
-                background: isActive ? 'rgba(99, 102, 241, 0.18)' : 'transparent',
-                color: isActive ? '#f3f4f6' : '#9ca3af',
+                background: isActive ? 'var(--accent-secondary)' : 'transparent',
+                color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: isActive ? 600 : 500,
                 fontSize: '14px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
-                borderLeft: isActive ? '3px solid #6366f1' : '3px solid transparent'
+                borderLeft: isActive ? '3px solid var(--accent-primary)' : '3px solid transparent'
               }}
               onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                if (!isActive) e.currentTarget.style.background = 'var(--bg-surface-hover)';
               }}
               onMouseLeave={(e) => {
                 if (!isActive) e.currentTarget.style.background = 'transparent';
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Icon size={18} color={isActive ? '#818cf8' : '#6b7280'} />
+                <Icon size={18} color={isActive ? 'var(--accent-primary)' : 'var(--text-muted)'} />
                 <span>{item.label}</span>
               </div>
               {item.badge && (
@@ -132,8 +132,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   fontWeight: 700,
                   padding: '2px 7px',
                   borderRadius: '999px',
-                  background: item.id === 'review' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(16, 185, 129, 0.3)',
-                  color: item.id === 'review' ? '#a5b4fc' : '#6ee7b7'
+                  background: item.id === 'review' ? 'var(--accent-secondary)' : 'var(--success-bg)',
+                  color: item.id === 'review' ? 'var(--accent-primary)' : 'var(--success)'
                 }}>
                   {item.badge}
                 </span>
@@ -146,12 +146,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer Info */}
       <div style={{
         paddingTop: '14px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+        borderTop: '1px solid var(--border-color)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         fontSize: '12px',
-        color: '#6b7280'
+        color: 'var(--text-muted)'
       }}>
         <span>FSRS v4.5</span>
         <span className="badge badge-emerald">FTS5 Ready</span>

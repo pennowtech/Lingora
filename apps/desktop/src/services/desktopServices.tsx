@@ -11,7 +11,9 @@ import {
   recordReview
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
+import type { LanguageCode, CefrLevel } from '@lingora/types';
 import { getDesktopDatabase } from './database';
+import { DesktopAIPipeline } from './aiPipeline';
 
 interface DesktopServicesContextType {
   db: DatabaseAdapter | null;
@@ -19,10 +21,18 @@ interface DesktopServicesContextType {
   decks: any[];
   dueCards: any[];
   miningQueue: any[];
+  cefrLevel: CefrLevel;
+  nativeLanguage: LanguageCode;
+  targetLanguage: LanguageCode;
+  theme: string;
+  setTheme: (themeKey: string) => void;
+  setLearningConfig: (cefr: CefrLevel, nativeLang: LanguageCode, targetLang: LanguageCode) => void;
   refreshData: () => Promise<void>;
   rateCard: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => Promise<void>;
   addNewDeck: (title: string, description?: string) => Promise<void>;
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
+  translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
+  generateWithGemini: (surfaceForm: string, geminiKey: string) => Promise<any>;
 }
 
 const DesktopServicesContext = createContext<DesktopServicesContextType | null>(null);
@@ -33,6 +43,41 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const [decks, setDecks] = useState<any[]>([]);
   const [dueCards, setDueCards] = useState<any[]>([]);
   const [miningQueue, setMiningQueue] = useState<any[]>([]);
+
+  // Persistent Language & CEFR Settings
+  const [cefrLevel, setCefrLevelState] = useState<CefrLevel>(
+    (localStorage.getItem('lingora.cefr') as CefrLevel) || 'B2'
+  );
+  const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(
+    (localStorage.getItem('lingora.native_lang') as LanguageCode) || 'en'
+  );
+  const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(
+    (localStorage.getItem('lingora.target_lang') as LanguageCode) || 'de'
+  );
+
+  // App Theme State
+  const [theme, setThemeState] = useState<string>(
+    localStorage.getItem('lingora.theme') || 'midnight'
+  );
+
+  const setTheme = (themeKey: string) => {
+    setThemeState(themeKey);
+    localStorage.setItem('lingora.theme', themeKey);
+  };
+
+  useEffect(() => {
+    document.body.dataset.theme = theme;
+  }, [theme]);
+
+  const setLearningConfig = (cefr: CefrLevel, nativeLang: LanguageCode, targetLang: LanguageCode) => {
+    setCefrLevelState(cefr);
+    setNativeLanguageState(nativeLang);
+    setTargetLanguageState(targetLang);
+
+    localStorage.setItem('lingora.cefr', cefr);
+    localStorage.setItem('lingora.native_lang', nativeLang);
+    localStorage.setItem('lingora.target_lang', targetLang);
+  };
 
   const loadDatabase = async () => {
     try {
@@ -59,7 +104,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
          FROM cards c
          JOIN card_states cs ON cs.card_id = c.id
          WHERE cs.next_review_date <= ?
-         LIMIT 50`,
+         LIMIT 20`,
         [Date.now()]
       );
       setDueCards(dueRows || []);
@@ -79,61 +124,54 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const rateCard = async (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => {
     if (!db) return;
     try {
-      const currentStateRow = await db.querySingle<any>(
-        `SELECT stability, difficulty, retrievability, next_review_date AS nextReviewAt, lapses, state, reps, learning_steps AS learningSteps, last_review_date AS lastReviewAt
+      const cardStateRow = await db.querySingle<any>(
+        `SELECT stability, difficulty, retrievability, next_review_date AS nextReviewAt, lapses, state, reps, learning_steps AS learningSteps
          FROM card_states WHERE card_id = ?`,
         [cardId]
       );
 
-      const currentState = currentStateRow || createInitialCardState(cardId);
+      const currentState = cardStateRow || createInitialCardState(cardId);
       const newState = schedule(currentState, rating, Date.now());
 
-      const reviewEvent = {
+      await recordReview(db, {
         id: `rev-${Date.now()}`,
         cardId,
         rating,
         reviewedAt: Date.now(),
         durationMs: 1500
-      };
+      }, newState);
 
-      await recordReview(db, reviewEvent, newState);
       await refreshData();
     } catch (err) {
-      console.error('[Desktop Services] Error rating card:', err);
+      console.error('[Desktop Services] Error recording review:', err);
     }
   };
 
   const addNewDeck = async (title: string, description?: string) => {
     if (!db) return;
-    try {
-      const now = Date.now();
-      await createDeck(db, {
-        id: `deck-${now}`,
-        name: title,
-        parentId: undefined,
-        emoji: '📚',
-        createdAt: now,
-        updatedAt: now
-      });
-      await refreshData();
-    } catch (err) {
-      console.error('[Desktop Services] Error creating deck:', err);
-    }
+    const newDeck = {
+      id: `deck-${Date.now()}`,
+      name: title,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    await createDeck(db, newDeck);
+    await refreshData();
   };
 
-  const addNewCard = async (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => {
+  const addNewCard = async (lemmaForm: string, clusterId: string, deckTitle: string, cardType: string) => {
     if (!db) return;
     try {
+      let deck = decks.find(d => d.name.toLowerCase() === deckTitle.toLowerCase());
+      let deckId = deck?.id;
+      if (!deckId) {
+        deckId = `deck-${Date.now()}`;
+        await createDeck(db, { id: deckId, name: deckTitle, createdAt: Date.now(), updatedAt: Date.now() });
+      }
+
       const lemma = await getLemmaByForm(db, lemmaForm);
       if (lemma) {
         const cardId = `card-${Date.now()}`;
-        await db.execute(
-          `INSERT OR IGNORE INTO cards (id, lemma_id, type, source, created_at, updated_at)
-           VALUES (?, ?, ?, 'manual', ?, ?)`,
-          [cardId, lemma.id, cardType.toLowerCase(), Date.now(), Date.now()]
-        );
-
-        // Create initial FSRS state
         const initialState = createInitialCardState(cardId);
         await db.execute(
           `INSERT OR IGNORE INTO card_states (card_id, stability, difficulty, retrievability, next_review_date, lapses, state, reps, learning_steps)
@@ -151,6 +189,18 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
+  const translateText = async (text: string, source?: LanguageCode, target?: LanguageCode): Promise<string> => {
+    const pipeline = new DesktopAIPipeline();
+    const srcLang = source || targetLanguage;
+    const tgtLang = target || nativeLanguage;
+    return pipeline.translateWithGoogle(text, srcLang, tgtLang);
+  };
+
+  const generateWithGemini = async (surfaceForm: string, geminiKey: string): Promise<any> => {
+    const pipeline = new DesktopAIPipeline(geminiKey);
+    return pipeline.generateWordPackageWithGemini(surfaceForm, cefrLevel, targetLanguage, nativeLanguage);
+  };
+
   return (
     <DesktopServicesContext.Provider value={{
       db,
@@ -158,10 +208,18 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       decks,
       dueCards,
       miningQueue,
+      theme,
+      cefrLevel,
+      nativeLanguage,
+      targetLanguage,
+      setTheme,
+      setLearningConfig,
       refreshData,
       rateCard,
       addNewDeck,
-      addNewCard
+      addNewCard,
+      translateText,
+      generateWithGemini
     }}>
       {children}
     </DesktopServicesContext.Provider>
@@ -171,7 +229,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
 export const useDesktopServices = () => {
   const context = useContext(DesktopServicesContext);
   if (!context) {
-    throw new Error('useDesktopServices must be used within DesktopServicesProvider');
+    throw new Error('useDesktopServices must be used within a DesktopServicesProvider');
   }
   return context;
 };

@@ -14,21 +14,21 @@ export const GrammarInsightsView: React.FC<GrammarInsightsViewProps> = ({ word }
       {/* Overview Badge Header */}
       <div style={{
         padding: '16px 20px',
-        backgroundColor: 'rgba(99, 102, 241, 0.12)',
-        border: '1px solid rgba(99, 102, 241, 0.3)',
+        backgroundColor: 'var(--accent-secondary)',
+        border: '1px solid var(--accent-primary)',
         borderRadius: '12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
         <div>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
             Grammar Classification
           </div>
-          <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', marginTop: '2px' }}>
+          <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
             {word.gender ? `${word.gender} ` : ''}{word.form}
           </div>
-          <div style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '2px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
             {grammar.partOfSpeech}
           </div>
         </div>
@@ -42,28 +42,28 @@ export const GrammarInsightsView: React.FC<GrammarInsightsViewProps> = ({ word }
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
         <div style={{
           padding: '14px 16px',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--bg-glass)',
+          border: '1px solid var(--border-color)',
           borderRadius: '10px'
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
             Grammatical Cases
           </div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#38bdf8' }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--info)' }}>
             {grammar.cases || 'Nominativ / Akkusativ'}
           </div>
         </div>
 
         <div style={{
           padding: '14px 16px',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--bg-glass)',
+          border: '1px solid var(--border-color)',
           borderRadius: '10px'
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
             Preposition Collocation
           </div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#a5b4fc' }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--accent-primary)' }}>
             {grammar.preposition || 'N/A'}
           </div>
         </div>
@@ -73,32 +73,32 @@ export const GrammarInsightsView: React.FC<GrammarInsightsViewProps> = ({ word }
       {grammar.conjugation && (
         <div style={{
           padding: '16px',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--bg-glass)',
+          border: '1px solid var(--border-color)',
           borderRadius: '12px'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
             Verb Conjugation Patterns
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-            <div style={{ padding: '10px 12px', backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Präsens</div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ padding: '10px 12px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Präsens</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                 {grammar.conjugation.praesens}
               </div>
             </div>
 
-            <div style={{ padding: '10px 12px', backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Präteritum</div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ padding: '10px 12px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Präteritum</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                 {grammar.conjugation.praeteritum}
               </div>
             </div>
 
-            <div style={{ padding: '10px 12px', backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Perfekt</div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ padding: '10px 12px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Perfekt</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                 {grammar.conjugation.perfekt}
               </div>
             </div>
@@ -110,16 +110,16 @@ export const GrammarInsightsView: React.FC<GrammarInsightsViewProps> = ({ word }
       {grammar.prefixType && (
         <div style={{
           padding: '12px 16px',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          border: '1px solid rgba(245, 158, 11, 0.25)',
+          backgroundColor: 'var(--warning-bg)',
+          border: '1px solid var(--warning)',
           borderRadius: '10px',
           fontSize: '13px',
-          color: '#fbbf24',
+          color: 'var(--warning)',
           display: 'flex',
           alignItems: 'center',
           gap: '10px'
         }}>
-          <AlertCircle size={18} color="#f59e0b" />
+          <AlertCircle size={18} color="var(--warning)" />
           <span>{grammar.prefixType}</span>
         </div>
       )}
@@ -127,15 +127,15 @@ export const GrammarInsightsView: React.FC<GrammarInsightsViewProps> = ({ word }
       {/* AI CEFR Grammar Notes */}
       <div style={{
         padding: '16px',
-        backgroundColor: 'rgba(15, 23, 42, 0.8)',
-        border: '1px solid rgba(16, 185, 129, 0.25)',
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--success)',
         borderRadius: '12px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#10b981' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--success)' }}>
           <Sparkles size={16} />
           <span style={{ fontSize: '13px', fontWeight: 700 }}>AI Grammar & Usage Breakdown</span>
         </div>
-        <p style={{ fontSize: '13px', color: '#d1d5db', lineHeight: '1.5' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
           {grammar.cefrNotes}
         </p>
       </div>

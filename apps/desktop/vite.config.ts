@@ -6,6 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    open: false
+    strictPort: true,
+    open: false,
+    proxy: {
+      '/api/google-translate': {
+        target: 'https://translate.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/google-translate/, '')
+      }
+    }
   }
 })

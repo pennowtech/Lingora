@@ -33,25 +33,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     <div className="page-container">
       {/* Hero Welcome Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.15) 100%)',
-        border: '1px solid rgba(99, 102, 241, 0.3)',
+        background: 'var(--accent-secondary)',
+        border: '1px solid var(--accent-primary)',
         borderRadius: '16px',
         padding: '28px 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        boxShadow: '0 8px 32px rgba(99, 102, 241, 0.15)'
+        boxShadow: 'var(--shadow-glow)'
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span className="badge badge-indigo">Guten Tag!</span>
-            <span style={{ fontSize: '13px', color: '#9ca3af' }}>German (B2 Level)</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>German (B2 Level)</span>
           </div>
-          <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+          <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
             Ready for your daily review?
           </h2>
-          <p style={{ fontSize: '14px', color: '#cbd5e1', maxWidth: '500px' }}>
-            You have <strong style={{ color: '#818cf8' }}>{totalDue} cards</strong> due for optimal retention according to the FSRS spaced repetition algorithm.
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '500px' }}>
+            You have <strong style={{ color: 'var(--accent-primary)' }}>{totalDue} cards</strong> due for optimal retention according to the FSRS spaced repetition algorithm.
           </p>
         </div>
 
@@ -68,39 +68,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* Grid of Key Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>Daily Streak</span>
-            <Flame size={18} color="#f59e0b" />
+            <Flame size={18} color="var(--warning)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#f59e0b' }}>14 Days</div>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Top 5% consistency</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--warning)' }}>14 Days</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Top 5% consistency</div>
         </div>
 
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>Retention Rate</span>
-            <TrendingUp size={18} color="#10b981" />
+            <TrendingUp size={18} color="var(--success)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#10b981' }}>91.8%</div>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Target: 90% FSRS score</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--success)' }}>91.8%</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Target: 90% FSRS score</div>
         </div>
 
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>Mastered Words</span>
-            <Target size={18} color="#8b5cf6" />
+            <Target size={18} color="var(--info)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#c084fc' }}>717 Words</div>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>+24 words this week</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>717 Words</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>+24 words this week</div>
         </div>
 
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>Mined Sentences</span>
-            <Sparkles size={18} color="#0ea5e9" />
+            <Sparkles size={18} color="var(--info)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#38bdf8' }}>{miningQueue.length} Pending</div>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Ready for AI generation</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>{miningQueue.length} Pending</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Ready for AI generation</div>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         {/* Decks Progress */}
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#f3f4f6' }}>Active Study Decks</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Active Study Decks</h3>
             <button 
               onClick={() => onSelectScreen('decks')}
               className="btn btn-ghost"
@@ -128,8 +128,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '14px 16px',
-                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '10px'
                 }}
               >
@@ -147,8 +147,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     <BookOpen size={18} color={deck.color} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#f3f4f6' }}>{deck.title}</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>{deck.totalCards} cards · {deck.retention}% retention</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{deck.title}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{deck.totalCards} cards · {deck.retention}% retention</div>
                   </div>
                 </div>
 
@@ -170,7 +170,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         {/* Recently Added Vocabulary */}
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#f3f4f6' }}>Recent Vocabulary</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Recent Vocabulary</h3>
             <button onClick={() => onSelectScreen('search')} className="btn btn-ghost" style={{ fontSize: '13px' }}>
               Explore
             </button>
@@ -182,20 +182,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 key={word.id}
                 style={{
                   padding: '12px 14px',
-                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                  backgroundColor: 'var(--bg-glass)',
                   borderRadius: '10px',
-                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                  border: '1px solid var(--border-color)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 700, color: '#818cf8' }}>{word.form}</span>
+                  <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent-primary)' }}>{word.form}</span>
                   <span className="badge badge-sky">{word.cefr}</span>
                 </div>
-                <div style={{ fontSize: '13px', color: '#9ca3af' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {word.clusters[0]?.translation}
                 </div>
-                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
-                  Context: <span style={{ color: '#d1d5db' }}>{word.clusters[0]?.context}</span>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  Context: <span style={{ color: 'var(--text-primary)' }}>{word.clusters[0]?.context}</span>
                 </div>
               </div>
             ))}

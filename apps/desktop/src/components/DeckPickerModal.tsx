@@ -39,10 +39,10 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '520px',
-          backgroundColor: '#0c121e',
-          border: '1px solid rgba(99, 102, 241, 0.4)',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-active)',
           borderRadius: '16px',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.25)',
+          boxShadow: 'var(--shadow-glow)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -55,24 +55,24 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '18px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backgroundColor: 'rgba(17, 24, 39, 0.8)'
+          borderBottom: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-card)'
         }}>
           <div>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>Select Target Deck</h3>
-            <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-              Adding card for <strong style={{ color: '#818cf8' }}>"{wordForm}"</strong> ({clusterContext})
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Select Target Deck</h3>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Adding card for <strong style={{ color: 'var(--accent-primary)' }}>"{wordForm}"</strong> ({clusterContext})
             </span>
           </div>
 
           <button onClick={onClose} className="btn btn-ghost" style={{ padding: '6px' }}>
-            <X size={18} color="#9ca3af" />
+            <X size={18} color="var(--text-secondary)" />
           </button>
         </div>
 
         {/* Deck List */}
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '340px', overflowY: 'auto' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
             Available Decks ({decks.length})
           </div>
 
@@ -85,8 +85,8 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
                 style={{
                   padding: '14px 16px',
                   borderRadius: '12px',
-                  backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.18)' : 'rgba(15, 23, 42, 0.6)',
-                  border: isSelected ? '1px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.06)',
+                  backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-glass)',
+                  border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -108,10 +108,10 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
                     <BookOpen size={18} color={deck.color} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: isSelected ? '#fff' : '#e5e7eb' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: isSelected ? 'var(--text-primary)' : 'var(--text-primary)' }}>
                       {deck.title}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {deck.totalCards} cards · {deck.dueToday} due today
                     </div>
                   </div>
@@ -122,12 +122,12 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
                     width: '24px',
                     height: '24px',
                     borderRadius: '50%',
-                    backgroundColor: '#6366f1',
+                    backgroundColor: 'var(--accent-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    <Check size={14} color="#fff" />
+                    <Check size={14} color="var(--accent-primary)" />
                   </div>
                 )}
               </div>
@@ -138,13 +138,13 @@ export const DeckPickerModal: React.FC<DeckPickerModalProps> = ({
         {/* Footer Actions */}
         <div style={{
           padding: '16px 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          backgroundColor: 'rgba(17, 24, 39, 0.9)',
+          borderTop: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-surface)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
             Card Type: <span className="badge badge-sky">{cardType}</span>
           </div>
 

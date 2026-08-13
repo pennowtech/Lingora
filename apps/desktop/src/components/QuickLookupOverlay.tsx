@@ -21,10 +21,10 @@ export const QuickLookupOverlay: React.FC<QuickLookupOverlayProps> = ({ isOpen, 
         style={{
           width: '640px',
           maxHeight: '80vh',
-          backgroundColor: '#0c121e',
-          border: '1px solid rgba(99, 102, 241, 0.4)',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-active)',
           borderRadius: '16px',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.25)',
+          boxShadow: 'var(--shadow-glow)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -37,10 +37,10 @@ export const QuickLookupOverlay: React.FC<QuickLookupOverlayProps> = ({ isOpen, 
           alignItems: 'center',
           gap: '12px',
           padding: '16px 20px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backgroundColor: 'rgba(17, 24, 39, 0.8)'
+          borderBottom: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-card)'
         }}>
-          <Search size={20} color="#818cf8" />
+          <Search size={20} color="var(--accent-primary)" />
           <input
             type="text"
             autoFocus
@@ -51,18 +51,18 @@ export const QuickLookupOverlay: React.FC<QuickLookupOverlayProps> = ({ isOpen, 
               flex: 1,
               background: 'transparent',
               border: 'none',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '18px',
               fontWeight: 600,
               outline: 'none',
               fontFamily: 'var(--font-sans)'
             }}
           />
-          <kbd style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', color: '#9ca3af' }}>
+          <kbd style={{ backgroundColor: 'var(--bg-surface-hover)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', color: 'var(--text-secondary)' }}>
             ESC
           </kbd>
           <button onClick={onClose} className="btn btn-ghost" style={{ padding: '6px' }}>
-            <X size={18} color="#9ca3af" />
+            <X size={18} color="var(--text-secondary)" />
           </button>
         </div>
 
@@ -71,12 +71,12 @@ export const QuickLookupOverlay: React.FC<QuickLookupOverlayProps> = ({ isOpen, 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#fff' }}>{matchedWord.form}</h3>
+                <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>{matchedWord.form}</h2>
                 <span className="badge badge-sky">{matchedWord.pos}</span>
                 <span className="badge badge-emerald">{matchedWord.cefr}</span>
               </div>
-              <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-                Root Lemma normalized from <span style={{ color: '#818cf8' }}>ging aus / ausgegangen</span>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Root Lemma normalized from <span style={{ color: 'var(--accent-secondary)' }}>ging aus / ausgegangen</span>
               </div>
             </div>
 
@@ -89,15 +89,16 @@ export const QuickLookupOverlay: React.FC<QuickLookupOverlayProps> = ({ isOpen, 
           {/* Clusters */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {matchedWord.clusters.map((c, i) => (
-              <div key={i} style={{ padding: '14px', backgroundColor: 'rgba(15, 23, 42, 0.6)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div key={i} style={{ padding: '14px', backgroundColor: 'var(--bg-glass)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span className="badge badge-amber">{c.context}</span>
-                  <strong style={{ color: '#818cf8' }}>{c.translation}</strong>
+                  <strong style={{ color: 'var(--accent-primary)' }}>{c.translation}</strong>
                 </div>
-                <div style={{ fontSize: '13px', color: '#d1d5db', marginTop: '6px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '6px' }}>
                   {c.examples[0]?.de}
                 </div>
-                <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{c.definition}</p>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                   {c.examples[0]?.en}
                 </div>
               </div>

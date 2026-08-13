@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { useDesktopServices } from '../services/desktopServices';
-import { buildFTSQuery } from '@lingora/database';
+import { getClustersForLemma } from '@lingora/database';
 
 interface SearchLookupScreenProps {
   words: WordLemma[];
@@ -13,70 +13,56 @@ interface SearchLookupScreenProps {
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
-  const { db } = useDesktopServices();
+  const { db, translateText, generateWithGemini, nativeLanguage, targetLanguage } = useDesktopServices();
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
   const [selectedWord, setSelectedWord] = useState<WordLemma>(words[0]);
+
+  const [isSearching, setIsSearching] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
 
   // Selected Cluster for Card Review
-  const [selectedClusterId, setSelectedClusterId] = useState<string>(selectedWord.clusters[0]?.id || '');
+  const [selectedClusterId, setSelectedClusterId] = useState<string>('');
   const [selectedCardType, setSelectedCardType] = useState<'cloze' | 'basic' | 'phrase' | 'reverse'>('cloze');
 
   // Deck Picker Modal State
   const [isDeckPickerOpen, setIsDeckPickerOpen] = useState(false);
 
-  // Live Database Search & Enrichment Effect
+  // Load initial database words once on mount
   useEffect(() => {
     let isSubscribed = true;
-
-    const performLiveSearch = async () => {
+    const loadInitialDbWords = async () => {
       if (db) {
         try {
-          let lemmaRows: any[] = [];
-          if (!query.trim()) {
-            lemmaRows = await db.query<any>(
-              `SELECT id, form, part_of_speech AS pos, gender, plural FROM lemmas ORDER BY form ASC LIMIT 20`
-            );
-          } else {
-            lemmaRows = await db.query<any>(
-              `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural
-               FROM lemmas l
-               WHERE l.form LIKE ? OR l.id IN (SELECT lemma_id FROM inflections WHERE form LIKE ?)
-               LIMIT 20`,
-              [`%${query.trim()}%`, `%${query.trim()}%`]
-            );
-          }
-
+          const lemmaRows = await db.query<any>(
+            `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural FROM lemmas l ORDER BY l.form ASC LIMIT 20`
+          );
           if (lemmaRows && lemmaRows.length > 0 && isSubscribed) {
             const enrichedPromises = lemmaRows.map(async (l: any, idx: number) => {
-              // Fetch inflections (surface forms)
-              const inflRows = await db.query<{ form: string }>(
-                `SELECT form FROM inflections WHERE lemma_id = ?`,
-                [l.id]
-              );
+              const inflRows = await db.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
               const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
+              const dbClusters = await getClustersForLemma(db, l.id);
 
-              // Fetch clusters
-              const clusterRows = await db.query<any>(
-                `SELECT id, label, description, cefr_level AS cefrLevel FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
-                [l.id]
-              );
-
-              let clusters = [];
-              if (clusterRows && clusterRows.length > 0) {
-                for (const c of clusterRows) {
+              let clusters: any[] = [];
+              if (dbClusters && dbClusters.length > 0) {
+                for (const c of dbClusters) {
                   const exRows = await db.query<{ sentence: string; translation: string }>(
                     `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
+                    [c.id]
+                  );
+                  const meanRows = await db.query<{ translation: string; explanation: string }>(
+                    `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                     [c.id]
                   );
                   clusters.push({
                     id: c.id,
                     context: c.label || 'General Context',
-                    translation: c.description || l.form,
-                    definition: c.description || `Context for ${l.form}`,
+                    translation: meanRows[0]?.translation || c.description || l.form,
+                    definition: meanRows[0]?.explanation || c.description || `Semantic context for ${l.form}`,
                     examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
                       { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                     ]
@@ -89,9 +75,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     context: 'General Context',
                     translation: l.form,
                     definition: `Context definition for ${l.form}`,
-                    examples: [
-                      { de: `Wir nutzen ${l.form} jeden Tag.`, en: `We use ${l.form} every day.` }
-                    ]
+                    examples: [{ de: `Wir nutzen ${l.form} jeden Tag.`, en: `We use ${l.form} every day.` }]
                   }
                 ];
               }
@@ -101,19 +85,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 form: l.form,
                 pos: l.pos || 'noun',
                 gender: l.gender,
-                cefr: clusterRows[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
-                frequency: 300 + idx * 80,
+                cefr: dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
+                frequency: 250 + idx * 75,
                 grammar: {
                   partOfSpeech: l.pos === 'verb' ? 'Starkes Verb (Strong Verb)' : `${l.gender || 'die'} Nomen`,
                   cases: l.pos === 'verb' ? 'von + Dativ / Akkusativ' : `Plural: ${l.plural || '—'}`,
-                  preposition: l.pos === 'verb' ? 'mit / von + Dativ' : undefined,
-                  conjugation: l.pos === 'verb' ? {
-                    praesens: `er/sie/es ${l.form}`,
-                    praeteritum: `er/sie/es ging`,
-                    perfekt: `ist ${l.form}`
-                  } : undefined,
-                  prefixType: l.form.includes('aus') ? 'Trennbares Verb (Separable Prefix)' : undefined,
-                  cefrNotes: `SQLite DB Lemma: ${l.form}. Normalized surface forms: ${surfaceForms.join(', ')}.`
+                  cefrNotes: `SQLite Lemma "${l.form}".`
                 },
                 clusters,
                 surfaceForms
@@ -127,32 +104,171 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 setSelectedWord(enriched[0]);
                 setSelectedClusterId(enriched[0].clusters[0]?.id || '');
               }
-              return;
             }
           }
         } catch (err) {
-          console.error('[Search & Lookup] SQLite live search error:', err);
-        }
-      }
-
-      // Fallback local filter
-      const filtered = words.filter(w => 
-        w.form.toLowerCase().includes(query.toLowerCase()) ||
-        w.surfaceForms.some(sf => sf.toLowerCase().includes(query.toLowerCase())) ||
-        w.clusters.some(c => c.translation.toLowerCase().includes(query.toLowerCase()) || c.context.toLowerCase().includes(query.toLowerCase()))
-      );
-      if (isSubscribed) {
-        setSearchResults(filtered);
-        if (filtered[0]) {
-          setSelectedWord(filtered[0]);
-          setSelectedClusterId(filtered[0].clusters[0]?.id || '');
+          console.error('[Search & Lookup] Error loading initial database words:', err);
         }
       }
     };
-
-    performLiveSearch();
+    loadInitialDbWords();
     return () => { isSubscribed = false; };
-  }, [query, db, words]);
+  }, [db]);
+
+  // Execute Search strictly on Button Click or Enter Key (Bi-directional Translate Support)
+  const handleExecuteSearch = async () => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    setIsSearching(true);
+    setHasSearched(true);
+
+    try {
+      let lemmaRows: any[] = [];
+      if (db) {
+        lemmaRows = await db.query<any>(
+          `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural
+           FROM lemmas l
+           WHERE l.form LIKE ? OR l.id IN (SELECT lemma_id FROM inflections WHERE form LIKE ?)
+           LIMIT 20`,
+          [`%${trimmed}%`, `%${trimmed}%`]
+        );
+      }
+
+      // Bi-directional Google Translate API call: Target -> Native, with Native -> Target fallback
+      let googleTranslation = await translateText(trimmed, targetLanguage, nativeLanguage);
+      if (!googleTranslation || googleTranslation.toLowerCase() === trimmed.toLowerCase()) {
+        const reverseTranslation = await translateText(trimmed, nativeLanguage, targetLanguage);
+        if (reverseTranslation && reverseTranslation.toLowerCase() !== trimmed.toLowerCase()) {
+          googleTranslation = reverseTranslation;
+        }
+      }
+
+      if (lemmaRows && lemmaRows.length > 0) {
+        const enrichedPromises = lemmaRows.map(async (l: any, idx: number) => {
+          const inflRows = await db!.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
+          const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
+          const dbClusters = await getClustersForLemma(db!, l.id);
+
+          let clusters: any[] = [];
+          if (dbClusters && dbClusters.length > 0) {
+            for (const c of dbClusters) {
+              const exRows = await db!.query<{ sentence: string; translation: string }>(
+                `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
+                [c.id]
+              );
+              const meanRows = await db!.query<{ translation: string; explanation: string }>(
+                `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
+                [c.id]
+              );
+              clusters.push({
+                id: c.id,
+                context: c.label || 'General Context',
+                translation: googleTranslation || meanRows[0]?.translation || c.description || l.form,
+                definition: meanRows[0]?.explanation || c.description || `Google Translation: ${googleTranslation}`,
+                examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
+                  { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
+                ]
+              });
+            }
+          } else {
+            clusters = [
+              {
+                id: `c-db-${l.id}`,
+                context: 'General Context',
+                translation: googleTranslation || l.form,
+                definition: `Google Translation: "${googleTranslation}"`,
+                examples: [{ de: `Wir untersuchen ${l.form} im Detail.`, en: `We examine ${l.form} in detail.` }]
+              }
+            ];
+          }
+
+          return {
+            id: l.id,
+            form: l.form,
+            pos: l.pos || 'noun',
+            gender: l.gender,
+            cefr: dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
+            frequency: 250 + idx * 75,
+            grammar: {
+              partOfSpeech: l.pos === 'verb' ? 'Starkes Verb (Strong Verb)' : `${l.gender || 'die'} Nomen`,
+              cases: l.pos === 'verb' ? 'von + Dativ / Akkusativ' : `Plural: ${l.plural || '—'}`,
+              cefrNotes: `SQLite Lemma "${l.form}" + Google Translation ("${googleTranslation}").`
+            },
+            clusters,
+            surfaceForms
+          };
+        });
+
+        const enriched = await Promise.all(enrichedPromises);
+        setSearchResults(enriched);
+        if (enriched[0]) {
+          setSelectedWord(enriched[0]);
+          setSelectedClusterId(enriched[0].clusters[0]?.id || '');
+        }
+      } else {
+        // No match in local SQLite database: construct live result with Google Translate translation!
+        const newWord: WordLemma = {
+          id: `search-${Date.now()}`,
+          form: trimmed,
+          pos: 'word',
+          cefr: 'B1-B2',
+          frequency: 500,
+          grammar: {
+            partOfSpeech: 'Vocabulary Word',
+            cefrNotes: `Live Google Translate result for "${trimmed}". Click "Generate with AI" for full CEFR card package.`
+          },
+          clusters: [
+            {
+              id: `cluster-search-${Date.now()}`,
+              context: 'Google Translate',
+              translation: googleTranslation,
+              definition: `Instant Google Translation for "${trimmed}": "${googleTranslation}".`,
+              examples: [
+                { de: `Ein Satz mit ${trimmed}.`, en: `A sentence with ${trimmed}.` }
+              ]
+            }
+          ],
+          surfaceForms: [trimmed]
+        };
+
+        setSearchResults([newWord]);
+        setSelectedWord(newWord);
+        setSelectedClusterId(newWord.clusters[0].id);
+      }
+    } catch (err) {
+      console.error('[Search & Lookup] Error executing search on button press:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleExecuteSearch();
+    }
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setHasSearched(false);
+  };
+
+  // AI Card Package Generation
+  const handleGenerateAI = async () => {
+    setIsGeneratingAI(true);
+    try {
+      const geminiKey = localStorage.getItem('lingora.gemini_key') || '';
+      const pkg = await generateWithGemini(selectedWord.form, geminiKey);
+      if (pkg && pkg.clusters) {
+        alert(`AI Generated ${pkg.clusters.length} semantic clusters for "${selectedWord.form}"!`);
+      }
+    } catch (err: any) {
+      alert(`AI Generation Notice: ${err.message || 'Please configure your Gemini API Key in Settings to generate AI card packages.'}`);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
 
   const activeCluster = selectedWord.clusters.find(c => c.id === selectedClusterId) || selectedWord.clusters[0];
 
@@ -166,44 +282,66 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
   return (
     <div className="page-container" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Search Controls */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+      {/* Top Search Controls Bar with explicit Search Button */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
         <div style={{
           flex: 1,
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          backgroundColor: 'rgba(17, 24, 39, 0.9)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
           borderRadius: '12px',
-          padding: '12px 18px'
+          padding: '8px 16px'
         }}>
-          <Search size={20} color="#818cf8" />
+          <Search size={20} color="var(--accent-primary)" />
           <input
             type="text"
-            placeholder="Search German words, surface forms ('ging aus'), translations, or contexts..."
+            placeholder="Type any word in German or English (e.g. 'ausreden', 'excuse', 'Voraussetzung') and click Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             style={{
               flex: 1,
               background: 'transparent',
               border: 'none',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '15px',
               outline: 'none',
-              fontFamily: 'var(--font-sans)'
+              fontFamily: 'var(--font-sans)',
+              padding: '8px 0'
             }}
           />
           {query && (
             <button 
-              onClick={() => setQuery('')}
+              onClick={handleClear}
               className="btn btn-ghost"
-              style={{ padding: '2px 8px', fontSize: '12px' }}
+              style={{ padding: '4px 8px', fontSize: '12px' }}
             >
               Clear
             </button>
           )}
         </div>
+
+        {/* Dedicated Search Button */}
+        <button
+          onClick={handleExecuteSearch}
+          disabled={isSearching || !query.trim()}
+          className="btn btn-primary"
+          style={{ padding: '0 24px', height: '50px', fontSize: '14px', borderRadius: '12px' }}
+        >
+          {isSearching ? (
+            <>
+              <RefreshCw size={16} className="spin" />
+              <span>Searching...</span>
+            </>
+          ) : (
+            <>
+              <Search size={16} />
+              <span>Search</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Main Split Inspector View */}
@@ -211,10 +349,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         {/* Left List of Matches */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Results ({searchResults.length})
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+              {hasSearched ? `Search Results (${searchResults.length})` : `Database Words (${searchResults.length})`}
             </span>
-            <span className="badge badge-emerald" style={{ fontSize: '10px' }}>SQLite FTS5</span>
+            <span className="badge badge-sky" style={{ fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Globe size={11} /> Google Translate Active
+            </span>
           </div>
 
           {searchResults.map(word => {
@@ -229,22 +369,22 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 style={{
                   padding: '14px',
                   borderRadius: '10px',
-                  backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'rgba(15, 23, 42, 0.5)',
-                  border: isSelected ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255, 255, 255, 0.05)',
+                  backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-card)',
+                  border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? '#a5b4fc' : '#f3f4f6' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)' }}>
                     {word.form}
                   </span>
                   <span className="badge badge-indigo">{word.cefr}</span>
                 </div>
-                <div style={{ fontSize: '13px', color: '#9ca3af' }}>
+                <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600 }}>
                   {word.clusters[0]?.translation}
                 </div>
-                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
                   {word.clusters.length} semantic cluster{word.clusters.length > 1 ? 's' : ''}
                 </div>
               </div>
@@ -255,37 +395,50 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         {/* Right Word Detail Inspector */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '18px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-                <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#fff' }}>
+                <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>
                   {selectedWord.gender ? `${selectedWord.gender} ` : ''}{selectedWord.form}
                 </h2>
                 <button className="btn btn-ghost" style={{ padding: '6px', borderRadius: '50%' }}>
-                  <Volume2 size={20} color="#818cf8" />
+                  <Volume2 size={20} color="var(--accent-primary)" />
                 </button>
                 <span className="badge badge-sky">{selectedWord.pos}</span>
                 <span className="badge badge-emerald">{selectedWord.cefr}</span>
               </div>
-              <div style={{ fontSize: '13px', color: '#9ca3af' }}>
-                Frequency Rank: <strong style={{ color: '#d1d5db' }}>#{selectedWord.frequency}</strong> in modern German corpus
+              <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Globe size={15} color="var(--info)" />
+                Google Translation: <strong>"{selectedWord.clusters[0]?.translation}"</strong>
               </div>
             </div>
 
-            {/* Target Deck Action */}
-            <button 
-              onClick={handleOpenDeckPicker}
-              className="btn btn-primary"
-              style={{ padding: '10px 18px' }}
-            >
-              <Plus size={16} />
-              <span>Add to Deck...</span>
-            </button>
+            {/* Target Deck & AI Generation Actions */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={handleGenerateAI}
+                disabled={isGeneratingAI}
+                className="btn btn-secondary"
+                style={{ padding: '10px 14px', fontSize: '13px' }}
+              >
+                <Sparkles size={16} color="var(--success)" />
+                <span>{isGeneratingAI ? 'Generating...' : 'Generate with AI'}</span>
+              </button>
+
+              <button 
+                onClick={handleOpenDeckPicker}
+                className="btn btn-primary"
+                style={{ padding: '10px 18px', fontSize: '13px' }}
+              >
+                <Plus size={16} />
+                <span>Add to Deck...</span>
+              </button>
+            </div>
           </div>
 
           {/* Morphological Surface Forms */}
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
               Inflected Surface Forms (Lemma Normalization)
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -296,10 +449,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     fontSize: '12px',
                     fontFamily: 'var(--font-mono)',
                     padding: '4px 10px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    backgroundColor: 'var(--bg-glass)',
                     borderRadius: '6px',
-                    color: '#cbd5e1',
-                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-color)'
                   }}
                 >
                   {form}
@@ -309,7 +462,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           </div>
 
           {/* Tab Navigation */}
-          <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
             <button
               onClick={() => setActiveTab('clusters')}
               className={`btn ${activeTab === 'clusters' ? 'btn-primary' : 'btn-ghost'}`}
@@ -333,7 +486,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               className={`btn ${activeTab === 'builder' ? 'btn-primary' : 'btn-ghost'}`}
               style={{ fontSize: '13px', padding: '8px 14px' }}
             >
-              <Sparkles size={15} color="#10b981" />
+              <Sparkles size={15} color="var(--success)" />
               <span>Card Generator & Cloze Selection</span>
             </button>
           </div>
@@ -341,7 +494,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           {/* Tab 1: Semantic Clusters & Cluster Selector */}
           {activeTab === 'clusters' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.15s ease-out' }}>
-              <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                 Select a cluster below to configure context scoping for your review deck:
               </div>
 
@@ -353,8 +506,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                       key={cluster.id}
                       onClick={() => setSelectedClusterId(cluster.id)}
                       style={{
-                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'rgba(15, 23, 42, 0.6)',
-                        border: isSelected ? '1px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.08)',
+                        backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-glass)',
+                        border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                         borderRadius: '12px',
                         padding: '18px',
                         cursor: 'pointer',
@@ -366,10 +519,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                           <span className="badge badge-amber">{cluster.context}</span>
                           {isSelected && <span className="badge badge-emerald">Selected for Review</span>}
                         </div>
-                        <span style={{ fontSize: '16px', fontWeight: 700, color: '#818cf8' }}>{cluster.translation}</span>
+                        <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--info)' }}>{cluster.translation}</span>
                       </div>
 
-                      <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '14px', fontStyle: 'italic' }}>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', fontStyle: 'italic' }}>
                         "{cluster.definition}"
                       </p>
 
@@ -380,13 +533,13 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                             style={{
                               fontSize: '13px',
                               padding: '10px 14px',
-                              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                              backgroundColor: 'var(--bg-glass)',
                               borderRadius: '8px',
-                              borderLeft: '3px solid #6366f1'
+                              borderLeft: '3px solid var(--accent-primary)'
                             }}
                           >
-                            <div style={{ color: '#f3f4f6', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
-                            <div style={{ color: '#9ca3af', fontSize: '12px' }}>{ex.en}</div>
+                            <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{ex.en}</div>
                           </div>
                         ))}
                       </div>
@@ -406,7 +559,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           {activeTab === 'builder' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', animation: 'fadeIn 0.15s ease-out' }}>
               <div>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>1. Select Target Cluster</h4>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>1. Select Target Cluster</h4>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {selectedWord.clusters.map((c) => (
                     <button
@@ -422,7 +575,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               </div>
 
               <div>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>2. Select Card Type</h4>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>2. Select Card Type</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                   {[
                     { id: 'cloze', label: 'Cloze Deletion', desc: 'Fill-in the blank' },
@@ -436,13 +589,13 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                       style={{
                         padding: '12px',
                         borderRadius: '10px',
-                        backgroundColor: selectedCardType === type.id ? 'rgba(99, 102, 241, 0.2)' : 'rgba(15, 23, 42, 0.6)',
-                        border: selectedCardType === type.id ? '1px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.08)',
+                        backgroundColor: selectedCardType === type.id ? 'var(--accent-secondary)' : 'var(--bg-card)',
+                        border: selectedCardType === type.id ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                         cursor: 'pointer'
                       }}
                     >
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>{type.label}</div>
-                      <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>{type.desc}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>{type.label}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{type.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -450,19 +603,19 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
               <div style={{
                 padding: '16px',
-                backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                backgroundColor: 'var(--bg-glass)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                border: '1px solid var(--border-color)'
               }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#818cf8', marginBottom: '6px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '6px' }}>
                   LIVE CARD PREVIEW ({selectedCardType.toUpperCase()})
                 </div>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                   {selectedCardType === 'cloze' 
-                    ? `Wir gehen davon [...], dass das Ergebnis korrekt ist.` 
+                    ? `Wir nutzen [...] jeden Tag.` 
                     : selectedWord.form}
                 </div>
-                <div style={{ fontSize: '13px', color: '#9ca3af' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   Context: {activeCluster?.context} → {activeCluster?.translation}
                 </div>
               </div>

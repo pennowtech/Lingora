@@ -257,7 +257,27 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const refreshDataInternal = async (adapter: DatabaseAdapter) => {
     try {
       const allDecks = await getAllDecks(adapter);
-      setDecks(allDecks || []);
+
+      // Augment each deck with totalCards and dueToday counts
+      const now = Date.now();
+      const enrichedDecks = await Promise.all((allDecks || []).map(async (deck: any) => {
+        try {
+          const countRow = await adapter.querySingle<{ total: number }>(
+            `SELECT COUNT(*) AS total FROM deck_cards WHERE deck_id = ?`, [deck.id]
+          );
+          const dueRow = await adapter.querySingle<{ due: number }>(
+            `SELECT COUNT(*) AS due FROM deck_cards dc
+             JOIN card_states cs ON cs.card_id = dc.card_id
+             WHERE dc.deck_id = ? AND cs.next_review_date <= ?`,
+            [deck.id, now]
+          );
+          return { ...deck, totalCards: countRow?.total ?? 0, dueToday: dueRow?.due ?? 0 };
+        } catch {
+          return { ...deck, totalCards: 0, dueToday: 0 };
+        }
+      }));
+
+      setDecks(enrichedDecks);
 
       // Query due cards from card_states table
       const dueRows = await adapter.query(
@@ -351,19 +371,55 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   };
 
   const translateText = async (text: string, source?: LanguageCode, target?: LanguageCode): Promise<string> => {
-    const pipeline = new DesktopAIPipeline();
     const srcLang = source || targetLanguage;
     const tgtLang = target || nativeLanguage;
-    return pipeline.translateWithGoogle(text, srcLang, tgtLang);
+    try {
+      const params = new URLSearchParams({
+        client: 'gtx',
+        sl: srcLang,
+        tl: tgtLang,
+        dt: 't',
+        q: text,
+      });
+      const url = `https://translate.googleapis.com/translate_a/single?${params.toString()}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn('[TranslateText] HTTP error:', response.status);
+        return text;
+      }
+      const json = await response.json();
+      // Response structure: [[[translatedText, origText, ...], ...], null, detectedLang, ...]
+      let translation = '';
+      if (Array.isArray(json) && Array.isArray(json[0])) {
+        for (const segment of json[0]) {
+          if (Array.isArray(segment) && typeof segment[0] === 'string') {
+            translation += segment[0];
+          }
+        }
+      }
+      console.log('[TranslateText]', { text, srcLang, tgtLang, translation: translation.trim() || '(empty)' });
+      return translation.trim() || text;
+    } catch (err) {
+      console.error('[TranslateText] Failed:', err);
+      return text;
+    }
   };
 
   const generateWithGemini = async (surfaceForm: string): Promise<any> => {
-    const geminiKey = providers.gemini.key;
-    if (!geminiKey) {
-      throw new Error('Please configure a Gemini API key in Settings first.');
+    const active = providers[selectedGenerationProvider];
+    if (!active?.key?.trim()) {
+      const displayName =
+        selectedGenerationProvider === 'openai' ? 'OpenAI' :
+        selectedGenerationProvider === 'mistral' ? 'Mistral' :
+        selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic';
+      throw new Error(`No API key configured for ${displayName}. Please add your key in Settings → AI Providers.`);
     }
-    const pipeline = new DesktopAIPipeline(geminiKey);
-    return pipeline.generateWordPackageWithGemini(surfaceForm, cefrLevel, targetLanguage, nativeLanguage);
+    const pipeline = new DesktopAIPipeline({
+      name: selectedGenerationProvider,
+      key: active.key,
+      model: active.model,
+    });
+    return pipeline.generateWordPackage(surfaceForm, cefrLevel, targetLanguage, nativeLanguage);
   };
 
   return (

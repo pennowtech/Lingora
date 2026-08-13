@@ -7,13 +7,6 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: true,
-    open: false,
-    proxy: {
-      '/api/google-translate': {
-        target: 'https://translate.googleapis.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/google-translate/, '')
-      }
-    }
+    open: false
   }
 })

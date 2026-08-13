@@ -24,8 +24,8 @@ export const App: React.FC = () => {
 
   const totalDueCards = decks.reduce((sum, d) => sum + d.dueToday, 0);
 
-  const handleAddCard = (wordForm: string, context: string) => {
-    alert(`Card for "${wordForm}" (${context}) added to your deck!`);
+  const handleAddCard = (wordForm: string, context: string, deckTitle: string, cardType: string) => {
+    alert(`Card for "${wordForm}" (${context} — ${cardType}) added to deck "${deckTitle}"!`);
   };
 
   const handleProcessMiningItem = (id: string) => {
@@ -62,6 +62,7 @@ export const App: React.FC = () => {
         {activeScreen === 'search' && (
           <SearchLookupScreen
             words={words}
+            decks={decks}
             onAddCard={handleAddCard}
           />
         )}

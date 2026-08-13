@@ -3,8 +3,22 @@ export interface WordLemma {
   form: string;
   pos: string;
   cefr: string;
+  gender?: 'der' | 'die' | 'das';
   frequency: number;
+  grammar: {
+    partOfSpeech: string;
+    cases?: string;
+    preposition?: string;
+    conjugation?: {
+      praesens: string;
+      praeteritum: string;
+      perfekt: string;
+    };
+    prefixType?: string;
+    cefrNotes: string;
+  };
   clusters: {
+    id: string;
     context: string;
     translation: string;
     definition: string;
@@ -92,8 +106,21 @@ export const MOCK_WORDS: WordLemma[] = [
     pos: 'verb',
     cefr: 'B1',
     frequency: 340,
+    grammar: {
+      partOfSpeech: 'Starkes Verb (Strong Verb)',
+      cases: 'von + Dativ (when assuming)',
+      preposition: 'von + Dativ / mit + Dativ',
+      conjugation: {
+        praesens: 'er/sie/es geht aus',
+        praeteritum: 'er/sie/es ging aus',
+        perfekt: 'ist ausgegangen'
+      },
+      prefixType: 'Trennbares Verb (Separable Prefix: aus-)',
+      cefrNotes: 'B1/B2 grammar point: Trennbare Verben split in main clauses ("Er geht abends aus") and reattach in Perfekt ("ist ausgegangen"). When paired with "von", it takes Dative.'
+    },
     clusters: [
       {
+        id: 'cluster-101',
         context: 'Social / Going out',
         translation: 'to go out socially',
         definition: 'Mit Freunden das Haus verlassen, um sich zu amüsieren.',
@@ -103,6 +130,7 @@ export const MOCK_WORDS: WordLemma[] = [
         ]
       },
       {
+        id: 'cluster-102',
         context: 'Devices / Power',
         translation: 'to turn off / go out',
         definition: 'Das Erlöschen oder Ausschalten einer Lichtquelle oder eines Geräts.',
@@ -111,6 +139,7 @@ export const MOCK_WORDS: WordLemma[] = [
         ]
       },
       {
+        id: 'cluster-103',
         context: 'Assumptions / Premise',
         translation: 'to assume / start from',
         definition: 'Etwas als Voraussetzung annehmen.',
@@ -123,12 +152,20 @@ export const MOCK_WORDS: WordLemma[] = [
   },
   {
     id: 'w-2',
-    form: 'die Voraussetzung',
+    form: 'Voraussetzung',
     pos: 'noun',
+    gender: 'die',
     cefr: 'B2',
     frequency: 610,
+    grammar: {
+      partOfSpeech: 'Feminines Nomen (Feminine Noun)',
+      cases: 'Genitiv: der Voraussetzung | Plural: die Voraussetzungen',
+      preposition: 'unter der Voraussetzung, dass... (on condition that)',
+      cefrNotes: 'B2 Noun collocation: Commonly used in formal business & academic German. Formed with prefix "voraus-" + "Setzung".'
+    },
     clusters: [
       {
+        id: 'cluster-201',
         context: 'Prerequisite / Condition',
         translation: 'requirement, prerequisite',
         definition: 'Eine Bedingung, die erfüllt sein muss, bevor etwas geschehen kann.',
@@ -145,8 +182,15 @@ export const MOCK_WORDS: WordLemma[] = [
     pos: 'adjective',
     cefr: 'B2',
     frequency: 780,
+    grammar: {
+      partOfSpeech: 'Partizip I als Adjektiv (Present Participle used as Adjective)',
+      cases: 'Deklination: ein entscheidender Vorteil / die entscheidende Frage',
+      preposition: 'entscheidend für + Akkusativ',
+      cefrNotes: 'B2 Adjective: Derived from "entscheiden" (to decide). Declines according to standard strong/weak adjective endings.'
+    },
     clusters: [
       {
+        id: 'cluster-301',
         context: 'Importance / Impact',
         translation: 'crucial, decisive',
         definition: 'Von sehr großer Bedeutung für einen Ausgang oder Erfolg.',
@@ -173,7 +217,7 @@ export const MOCK_CARDS_QUEUE: CardReview[] = [
   },
   {
     id: 'c-102',
-    word: 'die Voraussetzung',
+    word: 'Voraussetzung',
     pos: 'noun',
     cefr: 'B2',
     context: 'Prerequisite / Condition',

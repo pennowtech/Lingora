@@ -15,6 +15,21 @@ import type { LanguageCode, CefrLevel } from '@lingora/types';
 import { getDesktopDatabase } from './database';
 import { DesktopAIPipeline } from './aiPipeline';
 
+export type ProviderName = 'openai' | 'mistral' | 'gemini' | 'anthropic';
+export type TranslationProvider = 'google' | 'deepl' | 'openai' | 'mistral' | 'gemini' | 'anthropic';
+
+export interface ProviderConfig {
+  key: string;
+  model: string;
+  enabled: boolean;
+  validated: boolean;
+  validating: boolean;
+  showKey: boolean;
+  requestsCount: number;
+  tokensUsed: number;
+  error?: string;
+}
+
 interface DesktopServicesContextType {
   db: DatabaseAdapter | null;
   isLoading: boolean;
@@ -32,7 +47,20 @@ interface DesktopServicesContextType {
   addNewDeck: (title: string, description?: string) => Promise<void>;
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
-  generateWithGemini: (surfaceForm: string, geminiKey: string) => Promise<any>;
+  generateWithGemini: (surfaceForm: string) => Promise<any>;
+  selectedGenerationProvider: ProviderName;
+  setSelectedGenerationProvider: (provider: ProviderName) => void;
+  selectedTranslationProvider: TranslationProvider;
+  setSelectedTranslationProvider: (provider: TranslationProvider) => void;
+  providers: Record<ProviderName, ProviderConfig>;
+  setProviders: React.Dispatch<React.SetStateAction<Record<ProviderName, ProviderConfig>>>;
+  deeplKey: string;
+  setDeeplKey: (key: string) => void;
+  deeplValidated: boolean;
+  deeplValidating: boolean;
+  deeplError?: string;
+  validateProviderKey: (name: ProviderName) => Promise<void>;
+  validateDeeplKey: () => Promise<void>;
 }
 
 const DesktopServicesContext = createContext<DesktopServicesContextType | null>(null);
@@ -63,6 +91,139 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const setTheme = (themeKey: string) => {
     setThemeState(themeKey);
     localStorage.setItem('lingora.theme', themeKey);
+  };
+
+  // API Providers State
+  const [selectedGenerationProvider, setSelectedGenerationProviderState] = useState<ProviderName>(
+    (localStorage.getItem('lingora.generation_provider') as ProviderName) || 'openai'
+  );
+  
+  const setSelectedGenerationProvider = (provider: ProviderName) => {
+    setSelectedGenerationProviderState(provider);
+    localStorage.setItem('lingora.generation_provider', provider);
+  };
+
+  const [selectedTranslationProvider, setSelectedTranslationProviderState] = useState<TranslationProvider>(
+    (localStorage.getItem('lingora.translation_provider') as TranslationProvider) || 'google'
+  );
+
+  const setSelectedTranslationProvider = (provider: TranslationProvider) => {
+    setSelectedTranslationProviderState(provider);
+    localStorage.setItem('lingora.translation_provider', provider);
+  };
+
+  const loadSavedProviders = (): Record<ProviderName, ProviderConfig> => {
+    const saved = localStorage.getItem('lingora.providers');
+    const defaults: Record<ProviderName, ProviderConfig> = {
+      openai: { key: '', model: 'gpt-4o-mini', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      mistral: { key: '', model: 'mistral-small-latest', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      gemini: { key: '', model: 'gemini-2.5-flash', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      anthropic: { key: '', model: 'claude-3-5-haiku-latest', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 }
+    };
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Merge defaults to ensure no missing fields
+        for (const k of Object.keys(defaults)) {
+          if (parsed[k]) {
+            parsed[k].validating = false; // Reset validating state on load
+            parsed[k].showKey = false;
+            defaults[k as ProviderName] = { ...defaults[k as ProviderName], ...parsed[k] };
+          }
+        }
+      } catch(e){}
+    }
+    return defaults;
+  };
+
+  const [providers, setProviders] = useState<Record<ProviderName, ProviderConfig>>(loadSavedProviders());
+
+  // DeepL State
+  const [deeplKey, setDeeplKeyState] = useState<string>(localStorage.getItem('lingora.deepl_key') || '');
+  const [deeplValidated, setDeeplValidatedState] = useState<boolean>(localStorage.getItem('lingora.deepl_validated') === 'true');
+  const [deeplValidating, setDeeplValidating] = useState(false);
+  const [deeplError, setDeeplError] = useState<string | undefined>();
+
+  const setDeeplKey = (key: string) => {
+    setDeeplKeyState(key);
+    setDeeplError(undefined);
+    localStorage.setItem('lingora.deepl_key', key);
+    if (!key) {
+      setDeeplValidatedState(false);
+      localStorage.removeItem('lingora.deepl_validated');
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem('lingora.providers', JSON.stringify(providers));
+  }, [providers]);
+
+  // Validation Logic
+  const validateProviderKey = async (name: ProviderName) => {
+    setProviders(prev => ({ ...prev, [name]: { ...prev[name], validating: true, validated: false, error: undefined } }));
+    const p = providers[name];
+    let isValid = false;
+    let errorMsg = undefined;
+
+    try {
+      if (name === 'openai') {
+        const res = await fetch('https://api.openai.com/v1/models', {
+          headers: { 'Authorization': `Bearer ${p.key}` }
+        });
+        isValid = res.ok;
+      } else if (name === 'gemini') {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${p.key}`);
+        isValid = res.ok;
+      } else if (name === 'mistral') {
+        const res = await fetch('https://api.mistral.ai/v1/models', {
+          headers: { 'Authorization': `Bearer ${p.key}` }
+        });
+        isValid = res.ok;
+      } else if (name === 'anthropic') {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'x-api-key': p.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+          body: JSON.stringify({ model: p.model, max_tokens: 1, messages: [{ role: 'user', content: 'hello' }] })
+        });
+        isValid = res.ok || res.status === 400; // 400 means valid key, bad request structure, 401 is bad key
+      }
+    } catch(err: any) {
+      isValid = false;
+      errorMsg = err.message || 'Network error occurred';
+    }
+
+    if (!isValid && !errorMsg) {
+      errorMsg = 'Invalid API key or authentication failed.';
+    }
+
+    setProviders(prev => ({ ...prev, [name]: { ...prev[name], validating: false, validated: isValid, error: errorMsg } }));
+  };
+
+  const validateDeeplKey = async () => {
+    setDeeplValidating(true);
+    setDeeplError(undefined);
+    let isValid = false;
+    let errorMsg = undefined;
+    try {
+      const isPro = deeplKey.endsWith(':fx') ? false : true;
+      const endpoint = isPro ? 'https://api.deepl.com/v2/usage' : 'https://api-free.deepl.com/v2/usage';
+      const res = await fetch(endpoint, {
+        headers: { 'Authorization': `DeepL-Auth-Key ${deeplKey}` }
+      });
+      isValid = res.ok;
+    } catch (e: any) {
+      isValid = false;
+      errorMsg = e.message || 'Network error occurred';
+    }
+    
+    if (!isValid && !errorMsg) {
+      errorMsg = 'Invalid DeepL API key or authorization failed.';
+    }
+
+    setDeeplValidating(false);
+    setDeeplValidatedState(isValid);
+    setDeeplError(errorMsg);
+    localStorage.setItem('lingora.deepl_validated', isValid.toString());
   };
 
   useEffect(() => {
@@ -196,7 +357,11 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     return pipeline.translateWithGoogle(text, srcLang, tgtLang);
   };
 
-  const generateWithGemini = async (surfaceForm: string, geminiKey: string): Promise<any> => {
+  const generateWithGemini = async (surfaceForm: string): Promise<any> => {
+    const geminiKey = providers.gemini.key;
+    if (!geminiKey) {
+      throw new Error('Please configure a Gemini API key in Settings first.');
+    }
     const pipeline = new DesktopAIPipeline(geminiKey);
     return pipeline.generateWordPackageWithGemini(surfaceForm, cefrLevel, targetLanguage, nativeLanguage);
   };
@@ -219,7 +384,20 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       addNewDeck,
       addNewCard,
       translateText,
-      generateWithGemini
+      generateWithGemini,
+      selectedGenerationProvider,
+      setSelectedGenerationProvider,
+      selectedTranslationProvider,
+      setSelectedTranslationProvider,
+      providers,
+      setProviders,
+      deeplKey,
+      setDeeplKey,
+      deeplValidated,
+      deeplValidating,
+      deeplError,
+      validateProviderKey,
+      validateDeeplKey
     }}>
       {children}
     </DesktopServicesContext.Provider>

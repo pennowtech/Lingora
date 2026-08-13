@@ -54,7 +54,27 @@ const CEFR_LEVELS: { level: CefrLevel; desc: string; color: string }[] = [
 ];
 
 export const SettingsScreen: React.FC = () => {
-  const { cefrLevel: currentCefr, nativeLanguage: currentNative, targetLanguage: currentTarget, setLearningConfig, theme, setTheme } = useDesktopServices();
+  const { 
+    cefrLevel: currentCefr, 
+    nativeLanguage: currentNative, 
+    targetLanguage: currentTarget, 
+    setLearningConfig, 
+    theme, 
+    setTheme,
+    selectedGenerationProvider,
+    setSelectedGenerationProvider,
+    selectedTranslationProvider,
+    setSelectedTranslationProvider,
+    providers,
+    setProviders,
+    deeplKey,
+    setDeeplKey,
+    deeplValidated,
+    deeplValidating,
+    deeplError,
+    validateProviderKey,
+    validateDeeplKey
+  } = useDesktopServices();
 
   const [activeTab, setActiveTab] = useState<'learning' | 'ai' | 'translation' | 'srs' | 'desktop'>('learning');
 
@@ -89,79 +109,15 @@ export const SettingsScreen: React.FC = () => {
     setLearningConfig(cefr, nextNative, lang);
   };
 
-  // AI Providers State
-  const [selectedGenerationProvider, setSelectedGenerationProvider] = useState<ProviderName>('openai');
-  const [providers, setProviders] = useState<Record<ProviderName, ProviderConfig>>({
-    openai: {
-      key: 'sk-proj-openai-sample-key-9824',
-      model: 'gpt-4.1-mini',
-      enabled: true,
-      validated: true,
-      validating: false,
-      showKey: false,
-      requestsCount: 142,
-      tokensUsed: 48920
-    },
-    mistral: {
-      key: '',
-      model: 'mistral-small-latest',
-      enabled: true,
-      validated: false,
-      validating: false,
-      showKey: false,
-      requestsCount: 0,
-      tokensUsed: 0
-    },
-    gemini: {
-      key: '',
-      model: 'gemini-2.5-flash',
-      enabled: true,
-      validated: false,
-      validating: false,
-      showKey: false,
-      requestsCount: 0,
-      tokensUsed: 0
-    },
-    anthropic: {
-      key: '',
-      model: 'claude-haiku-4-5-20251001',
-      enabled: true,
-      validated: false,
-      validating: false,
-      showKey: false,
-      requestsCount: 0,
-      tokensUsed: 0
-    }
-  });
-
-  const [expandedProvider, setExpandedProvider] = useState<ProviderName | null>('openai');
-
-  // Translation State
-  const [selectedTranslationProvider, setSelectedTranslationProvider] = useState<TranslationProvider>('google');
-  const [deeplKey, setDeeplKey] = useState('');
+  // Local UI State for DeepL Password Toggle
   const [deeplShowKey, setDeeplShowKey] = useState(false);
   const [deeplEnabled, setDeeplEnabled] = useState(true);
-  const [deeplValidating, setDeeplValidating] = useState(false);
-  const [deeplValidated, setDeeplValidated] = useState(false);
   const [deeplUsage, setDeeplUsage] = useState({ requests: 84, tokensUsed: 12400 });
 
   // FSRS Target Retention Rate
   const [retentionTarget, setRetentionTarget] = useState(90);
 
-  // Handlers
-  const handleValidateProvider = (name: ProviderName) => {
-    setProviders(prev => ({
-      ...prev,
-      [name]: { ...prev[name], validating: true }
-    }));
-
-    setTimeout(() => {
-      setProviders(prev => ({
-        ...prev,
-        [name]: { ...prev[name], validating: false, validated: true }
-      }));
-    }, 1000);
-  };
+  const [expandedProvider, setExpandedProvider] = useState<ProviderName | null>('openai');
 
   const handleClearProvider = (name: ProviderName) => {
     setProviders(prev => ({
@@ -170,18 +126,8 @@ export const SettingsScreen: React.FC = () => {
     }));
   };
 
-  const handleValidateDeepl = () => {
-    setDeeplValidating(true);
-    setTimeout(() => {
-      setDeeplValidating(false);
-      setDeeplValidated(true);
-    }, 1000);
-  };
-
   const handleClearDeepl = () => {
     setDeeplKey('');
-    setDeeplValidated(false);
-    setDeeplUsage({ requests: 0, tokensUsed: 0 });
   };
 
   return (
@@ -525,7 +471,7 @@ export const SettingsScreen: React.FC = () => {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', gap: '10px' }}>
                           <button
-                            onClick={() => handleValidateProvider(name)}
+                            onClick={() => validateProviderKey(name)}
                             disabled={p.validating || !hasKey}
                             className={`btn ${p.validated ? 'btn-secondary' : 'btn-primary'}`}
                             style={{
@@ -575,6 +521,14 @@ export const SettingsScreen: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Error Message */}
+                      {p.error && (
+                        <div style={{ padding: '8px 12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: '6px', fontSize: '12px', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <XCircle size={14} />
+                          <span>{p.error}</span>
+                        </div>
+                      )}
+
                       {/* Observed Usage Stats Box */}
                       <div style={{
                         padding: '12px 16px',
@@ -595,7 +549,12 @@ export const SettingsScreen: React.FC = () => {
                         </div>
 
                         <a 
-                          href="https://platform.openai.com/usage" 
+                          href={
+                            name === 'openai' ? 'https://platform.openai.com/usage' :
+                            name === 'mistral' ? 'https://console.mistral.ai/billing/' :
+                            name === 'gemini' ? 'https://aistudio.google.com/app/plan_information' :
+                            'https://console.anthropic.com/settings/billing'
+                          } 
                           target="_blank" 
                           rel="noreferrer"
                           style={{ fontSize: '12px', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
@@ -703,7 +662,7 @@ export const SettingsScreen: React.FC = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button
-                        onClick={handleValidateDeepl}
+                        onClick={validateDeeplKey}
                         disabled={deeplValidating || !deeplKey.trim()}
                         className={`btn ${deeplValidated ? 'btn-secondary' : 'btn-primary'}`}
                         style={{
@@ -729,6 +688,13 @@ export const SettingsScreen: React.FC = () => {
                       Usage: <strong>{deeplUsage.requests}</strong> requests · <strong>{deeplUsage.tokensUsed}</strong> tokens
                     </div>
                   </div>
+
+                  {deeplError && (
+                    <div style={{ marginTop: '14px', padding: '8px 12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: '6px', fontSize: '12px', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <XCircle size={14} />
+                      <span>{deeplError}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

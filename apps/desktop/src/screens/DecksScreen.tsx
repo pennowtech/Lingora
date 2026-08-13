@@ -1,25 +1,109 @@
-import React, { useState } from 'react';
-import { Layers, Plus, BookOpen, MoreVertical, Zap, CheckCircle2, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layers, Plus, BookOpen, MoreVertical, Zap } from 'lucide-react';
 import type { Deck } from '../mockData';
+import { useDesktopServices } from '../services/desktopServices';
 
 interface DecksScreenProps {
   decks: Deck[];
-  onStartReview: () => void;
+  onStartReview: (deckId: string, cardId?: string) => void;
 }
 
 export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }) => {
+  const { db, addNewDeck } = useDesktopServices();
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
+  const [deckCards, setDeckCards] = useState<any[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+
+  // Create Deck Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newDeckTitle, setNewDeckTitle] = useState('');
+  const [newDeckType, setNewDeckType] = useState('BASIC');
+
+  // Fetch cards inside the selected deck dynamically
+  useEffect(() => {
+    const fetchDeckCards = async () => {
+      if (!db || !selectedDeck) {
+        setDeckCards([]);
+        return;
+      }
+      setLoadingCards(true);
+      try {
+        const rows = await db.query<any>(
+          `SELECT c.id, c.type, l.form AS word, l.part_of_speech AS pos,
+                  COALESCE(m.cefr_level, (SELECT cefr_level FROM meanings WHERE card_id = c.id LIMIT 1), 'B2') AS cefr,
+                  COALESCE(m.explanation, (SELECT explanation FROM meanings WHERE card_id = c.id LIMIT 1), 'General') AS context,
+                  l.form AS front,
+                  COALESCE(m.translation, (SELECT translation FROM meanings WHERE card_id = c.id LIMIT 1), 'Translation') AS back,
+                  cz.sentence AS clozeSentence,
+                  cz.translation AS clozeTranslation,
+                  cz.cefr_level AS clozeCefr
+           FROM cards c
+           JOIN lemmas l ON l.id = c.lemma_id
+           JOIN deck_cards dc ON dc.card_id = c.id
+           LEFT JOIN meanings m ON m.id = c.primary_meaning_id
+           LEFT JOIN cloze_cards cz ON cz.card_id = c.id
+           WHERE dc.deck_id = ?`,
+          [selectedDeck.id]
+        );
+        const mapped = (rows || []).map((row: any) => {
+          if (row.type === 'cloze' && row.clozeSentence) {
+            return {
+              id: row.id,
+              display: `${row.clozeSentence} (${row.word}) → ${row.clozeTranslation || ''}`,
+              badge: `${row.clozeCefr || row.cefr} · Cloze`
+            };
+          } else {
+            return {
+              id: row.id,
+              display: `${row.word} → ${row.back}`,
+              badge: `${row.cefr} · Basic`
+            };
+          }
+        });
+        setDeckCards(mapped);
+      } catch (err) {
+        console.error('Error fetching deck cards:', err);
+      } finally {
+        setLoadingCards(false);
+      }
+    };
+
+    fetchDeckCards();
+  }, [db, selectedDeck]);
+
+  const handleCreateDeckSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newDeckTitle.trim();
+    if (!trimmed) {
+      alert('Deck name cannot be empty.');
+      return;
+    }
+    if (decks.some(d => d.title.toLowerCase() === trimmed.toLowerCase())) {
+      alert('A deck with this name already exists.');
+      return;
+    }
+    try {
+      await addNewDeck(trimmed, newDeckType);
+      setIsCreateModalOpen(false);
+      setNewDeckTitle('');
+      setNewDeckType('BASIC');
+    } catch (err: any) {
+      alert('Error creating deck: ' + err.message);
+    }
+  };
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Header Area */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Your Vocabulary Decks</h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Manage and organize your custom decks and mined vocabulary</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>Decks & SRS Schedule</h2>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Manage your custom study decks and review due vocabulary</p>
         </div>
-
-        <button className="btn btn-primary">
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="btn btn-primary"
+        >
           <Plus size={16} />
           <span>Create New Deck</span>
         </button>
@@ -74,7 +158,7 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    onStartReview();
+                    onStartReview(deck.id);
                   }}
                   className="btn btn-secondary"
                   style={{ fontSize: '12px', padding: '6px 10px' }}
@@ -99,14 +183,123 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ padding: '12px', backgroundColor: 'var(--bg-glass)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Guten Tag → Hello / Good Day</span>
-              <span className="badge badge-sky">B1 · Basic Card</span>
-            </div>
-            <div style={{ padding: '12px', backgroundColor: 'var(--bg-glass)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Wir gehen davon aus, dass... → We assume that...</span>
-              <span className="badge badge-sky">B2 · Cloze Card</span>
-            </div>
+            {loadingCards ? (
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Loading cards...</div>
+            ) : deckCards.length === 0 ? (
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>No cards in this deck. Add some via Search!</div>
+            ) : (
+              deckCards.map((card) => (
+                <div 
+                  key={card.id}
+                  onClick={() => onStartReview(selectedDeck.id, card.id)}
+                  className="interactive"
+                  style={{ 
+                    padding: '12px', 
+                    backgroundColor: 'var(--bg-glass)', 
+                    borderRadius: '8px', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    fontSize: '13px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{card.display}</span>
+                  <span className="badge badge-sky">{card.badge}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Create New Deck Modal */}
+      {isCreateModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div className="glass-card" style={{
+            width: '400px',
+            padding: '24px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.3)'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>Create New Study Deck</h3>
+            <form onSubmit={handleCreateDeckSubmit}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>DECK TITLE</label>
+                <input
+                  type="text"
+                  placeholder="e.g. German Verbs"
+                  value={newDeckTitle}
+                  onChange={(e) => setNewDeckTitle(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-glass)',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    fontSize: '13px'
+                  }}
+                  autoFocus
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>DECK TYPE</label>
+                <select
+                  value={newDeckType}
+                  onChange={(e) => setNewDeckType(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-glass)',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    fontSize: '13px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="BASIC">Basic Card Deck</option>
+                  <option value="CLOZE">Cloze Card Deck</option>
+                  <option value="PHRASE">Phrase Card Deck</option>
+                </select>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  Only cards matching this type can be saved into this deck.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="btn btn-ghost"
+                  style={{ padding: '8px 16px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ padding: '8px 16px' }}
+                >
+                  Create Deck
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

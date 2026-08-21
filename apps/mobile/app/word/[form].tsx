@@ -1481,53 +1481,78 @@ export default function WordDetailScreen(): JSX.Element {
         ) : null}
 
         {/* ── Phrases & collocations (on demand) ── */}
-        {/* One compact icon button drives both the first load and every "load more" afterward —
-            replaces the old empty-state's large description card + full-width button, which took
-            as much vertical space as the content it was gating. Icon-only, so its meaning has to
-            be unambiguous from context + accessibilityLabel alone: the section title right next to
-            it already says what it does, and the hint line below covers the empty state. */}
-        <View style={styles.phrasesHeaderRow}>
-          <Text style={styles.phrasesTitle}>{t('Phrases & collocations')}</Text>
-          <Pressable
-            style={styles.phrasesAiButton}
-            accessibilityRole="button"
-            accessibilityLabel={
-              word.phrases.length > 0
-                ? t('Load more phrases with AI')
-                : t('Explore idioms and collocations with AI')
-            }
-            disabled={generatePhrases.isPending}
-            onPress={() => {
-              if (!ai) {
-                aiRequiredAlert.show(t('generate phrases for this word'))
-                return
-              }
-              generatePhrases.mutate()
-            }}
-          >
-            {generatePhrases.isPending ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
-              <Ionicons name="sparkles" size={16} color={colors.primary} />
-            )}
-          </Pressable>
-        </View>
+        <SectionHeader title={t('Phrases & collocations')} />
         {word.phrases.length > 0 ? (
-          word.phrases.map((phrase) => (
-            <Card key={phrase.id} style={styles.phraseCard}>
-              <View style={styles.phraseHeader}>
-                <Text style={styles.phraseExpression} selectable>{phrase.expression}</Text>
-                <CefrBadge level={phrase.cefrLevel} />
-              </View>
-              <Text style={styles.phraseMeaning} selectable>{phrase.meaning}</Text>
-              <Text style={styles.phraseExample} selectable>„{phrase.exampleSentence}"</Text>
-              <Text style={styles.phraseExampleTranslation} selectable>{phrase.exampleTranslation}</Text>
-            </Card>
-          ))
+          <>
+            {word.phrases.map((phrase) => (
+              <Card key={phrase.id} style={styles.phraseCard}>
+                <View style={styles.phraseHeader}>
+                  <Text style={styles.phraseExpression} selectable>{phrase.expression}</Text>
+                  <CefrBadge level={phrase.cefrLevel} />
+                </View>
+                <Text style={styles.phraseMeaning} selectable>{phrase.meaning}</Text>
+                <Text style={styles.phraseExample} selectable>„{phrase.exampleSentence}"</Text>
+                <Text style={styles.phraseExampleTranslation} selectable>{phrase.exampleTranslation}</Text>
+              </Card>
+            ))}
+            {/* A solid-color, icon+label pill — not the icon-only circle this replaced, which
+                turned out too easy to miss, and not the old full-width button either. High
+                contrast + a shadow so it visibly reads as "tap me" at a glance. */}
+            <Pressable
+              style={({ pressed }) => [styles.phrasesPill, pressed && styles.phrasesPillPressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t('Load more phrases with AI')}
+              disabled={generatePhrases.isPending}
+              onPress={() => {
+                if (!ai) {
+                  aiRequiredAlert.show(t('generate phrases for this word'))
+                  return
+                }
+                generatePhrases.mutate()
+              }}
+            >
+              {generatePhrases.isPending ? (
+                <ActivityIndicator size="small" color={colors.textOnPrimary} />
+              ) : (
+                <Ionicons name="sparkles" size={15} color={colors.textOnPrimary} />
+              )}
+              <Text style={styles.phrasesPillLabel}>
+                {generatePhrases.isPending ? t('Generating…') : t('Load more with AI')}
+              </Text>
+            </Pressable>
+          </>
         ) : (
-          <Text style={styles.phrasesEmptyHint}>
-            {t('Tap the sparkle above to explore idioms, expressions, and common word combinations.')}
-          </Text>
+          <Card style={styles.phrasesEmptyCard}>
+            <View style={styles.phrasesEmptyIconBadge}>
+              <Ionicons name="chatbubbles" size={22} color={colors.primary} />
+            </View>
+            <Text style={styles.phrasesEmptyTitle}>{t('Idioms & Collocations')}</Text>
+            <Text style={styles.phrasesEmptySubtitle}>
+              {t('Discover common expressions and word combinations for this word.')}
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.phrasesPill, pressed && styles.phrasesPillPressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t('Explore idioms and collocations with AI')}
+              disabled={generatePhrases.isPending}
+              onPress={() => {
+                if (!ai) {
+                  aiRequiredAlert.show(t('generate phrases for this word'))
+                  return
+                }
+                generatePhrases.mutate()
+              }}
+            >
+              {generatePhrases.isPending ? (
+                <ActivityIndicator size="small" color={colors.textOnPrimary} />
+              ) : (
+                <Ionicons name="sparkles" size={16} color={colors.textOnPrimary} />
+              )}
+              <Text style={styles.phrasesPillLabel}>
+                {generatePhrases.isPending ? t('Generating…') : t('Explore with AI')}
+              </Text>
+            </Pressable>
+          </Card>
         )}
 
         {/* ── Cloze preview ── */}
@@ -2085,6 +2110,50 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
     },
     phrasesEmptyHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+    phrasesPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.full,
+      alignSelf: 'flex-start',
+      marginTop: spacing.xs,
+    },
+    phrasesPillPressed: {
+      opacity: 0.8,
+    },
+    phrasesPillLabel: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.textOnPrimary,
+    },
+    phrasesEmptyCard: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      gap: spacing.xs,
+    },
+    phrasesEmptyIconBadge: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.xs,
+    },
+    phrasesEmptyTitle: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    phrasesEmptySubtitle: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.xs,
+    },
     missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
     missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
     phraseCard: { marginBottom: spacing.sm },

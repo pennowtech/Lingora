@@ -105,7 +105,7 @@ export default function LearningScreen(): JSX.Element {
   const warnUnsupportedLanguage = (language: LanguageCode): void => {
     setNotice({
       title: t('Not supported yet'),
-      message: t('{{language}} isn\'t ready yet — English and German are the only languages Lingora fully supports right now.', {
+      message: t('{{language}} isn\'t ready yet — English and German are the only languages Lemmory fully supports right now.', {
         language: t(VOCAB_LANGUAGE_LABELS[language]),
       }),
     })

@@ -31,7 +31,7 @@ export function CaptureChooserSheet(props: {
         <Pressable style={styles.dismissArea} onPress={props.onClose} />
         <View style={styles.card}>
           <View style={styles.headerRow}>
-            <Text style={styles.title}>{t('Add to Lingora')}</Text>
+            <Text style={styles.title}>{t('Add to Lemmory')}</Text>
             <Pressable onPress={props.onClose} hitSlop={8}>
               <Ionicons name="close" size={22} color={colors.textMuted} />
             </Pressable>

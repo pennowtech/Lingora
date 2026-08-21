@@ -29,7 +29,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'This becomes a public issue',
     icon: 'globe-outline',
     paragraphs: [
-      'Submitting posts your message as a GitHub issue on Lingora\'s public repository — anyone can read it, including your contact email if you provide one.',
+      'Submitting posts your message as a GitHub issue on Lemmory\'s public repository — anyone can read it, including your contact email if you provide one.',
       'Please don\'t include anything private in your message.',
     ],
   },
@@ -138,7 +138,7 @@ export default function AboutScreen(): JSX.Element {
         <View style={styles.iconWrap}>
           <Image source={appIcon} style={styles.icon} resizeMode="contain" />
         </View>
-        <Text style={styles.appName}>Lingora</Text>
+        <Text style={styles.appName}>Lemmory</Text>
         <View style={styles.versionBadgeContainer}>
           <Text style={styles.versionBadgeText}>{buildLabel}</Text>
         </View>

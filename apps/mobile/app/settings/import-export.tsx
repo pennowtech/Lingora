@@ -103,7 +103,7 @@ export default function ImportExportScreen(): JSX.Element {
   const runFormatExport = (format: ExportFormat, fileName: string): void => {
     setExportingFormat(format)
     log.info('export.format_export_pressed', { message: 'User pressed a whole-library format export button' })
-    runExport(db, format, { deckName: 'Lingora vocabulary', fileName })
+    runExport(db, format, { deckName: 'Lemmory vocabulary', fileName })
       .then(({ itemCount, outcome }) => {
         setExportNotice({
           title: t('Export ready'),
@@ -228,7 +228,7 @@ export default function ImportExportScreen(): JSX.Element {
         icon="cloud-upload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Restore from Lingora backup (.lin)')}
+        title={t('Restore from Lemmory backup (.lin)')}
         detail={t('Replaces everything on this device with a previously exported backup.')}
         expanded={expanded.has('import-restore')}
         onToggle={() => toggle('import-restore')}
@@ -246,7 +246,7 @@ export default function ImportExportScreen(): JSX.Element {
         icon="cloud-download"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Lingora backup (.lin)')}
+        title={t('Lemmory backup (.lin)')}
         detail={t('Your full library — decks, cards, review history. Your data is always yours. API keys are never included.')}
         expanded={expanded.has('export-lin')}
         onToggle={() => toggle('export-lin')}
@@ -278,7 +278,7 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.infoSoft}
         iconColor={colors.info}
         title={t('Anki deck (.apkg)')}
-        detail={t("Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.")}
+        detail={t("Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.")}
         expanded={expanded.has('export-apkg')}
         onToggle={() => toggle('export-apkg')}
       >
@@ -309,7 +309,7 @@ export default function ImportExportScreen(): JSX.Element {
 
       <ExportNameModal
         visible={exportPending !== null}
-        defaultName={defaultExportFileName('Lingora vocabulary')}
+        defaultName={defaultExportFileName('Lemmory vocabulary')}
         onCancel={() => setExportPending(null)}
         onConfirm={(fileName) => {
           const pending = exportPending

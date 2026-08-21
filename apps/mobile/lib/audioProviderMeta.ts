@@ -4,7 +4,7 @@ import type { LanguageCode } from '@lingora/types'
 /**
  * This whole audio module (this file, cloudTtsProviders.ts, cloudTts.ts, ttsSettings.ts,
  * speech.ts) is written to be portable to another Expo app with minimal changes — it has no
- * dependency on Lingora's database, vocabulary, or screens, only on generic Expo packages
+ * dependency on Lemmory's database, vocabulary, or screens, only on generic Expo packages
  * (expo-speech, expo-audio, expo-file-system, expo-secure-store). To reuse it elsewhere:
  *   1. Copy all five files as-is.
  *   2. Change APP_KEY_PREFIX below to the new app's own prefix (keeps SecureStore keys from

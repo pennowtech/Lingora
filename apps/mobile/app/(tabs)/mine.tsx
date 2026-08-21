@@ -72,7 +72,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding from other apps',
     icon: 'share-outline',
     paragraphs: [
-      'Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you\'d share it to any other app.',
+      'Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you\'d share it to any other app.',
       'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.',
     ],
   },

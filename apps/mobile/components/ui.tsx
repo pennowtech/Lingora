@@ -405,7 +405,7 @@ const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet — word, meaning, example, and more.', icon: 'grid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'albums' },
   { format: 'markdown', label: 'Markdown', description: 'A readable word — meaning — example list. Not re-importable.', icon: 'document-text' },
-  { format: 'lin', label: 'Lingora (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
+  { format: 'lin', label: 'Lemmory (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
 ]
 
 /**
@@ -459,7 +459,7 @@ interface ImportFormatOption {
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck — including Cloze notes.', icon: 'albums' },
-  { format: 'lin', label: 'Lingora (.lin)', description: 'A deck someone shared from Lingora — full fidelity, including review history.', icon: 'sparkles' },
+  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory — full fidelity, including review history.', icon: 'sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */

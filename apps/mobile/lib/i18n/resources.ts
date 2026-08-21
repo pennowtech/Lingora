@@ -323,17 +323,17 @@ const ENGLISH_PHRASES = [
   'A shared deck (.lin)',
   "Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.",
   'Choose .lin file',
-  'Restore from Lingora backup (.lin)',
+  'Restore from Lemmory backup (.lin)',
   'Replaces everything on this device with a previously exported backup.',
   'Restoring…',
   'Choose backup file',
-  'Lingora backup (.lin)',
+  'Lemmory backup (.lin)',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.',
   'Export everything',
   'CSV',
   'One row per card — the same columns CSV import reads, so this file re-imports as-is.',
   'Export as CSV',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.",
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.",
   'Export as .apkg',
   'Markdown',
   'A readable word — meaning — example list. Not meant to re-import.',
@@ -409,7 +409,7 @@ const ENGLISH_PHRASES = [
   'Tags',
 
   'Import from a .lin file',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.',
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.',
   'This file has more than one deck. Which one do you want to import?',
   'This file has no decks to import.',
   'Importing "{{name}}" ({{count}} cards).',
@@ -572,7 +572,7 @@ const ENGLISH_PHRASES = [
   'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
   'Add card',
   'Add card manually',
-  'Add to Lingora',
+  'Add to Lemmory',
   'Add to Mining queue',
   'Add your AI provider key in Settings to ask a follow-up.',
   'Add your AI provider key in Settings to regenerate this card.',
@@ -637,7 +637,7 @@ const ENGLISH_PHRASES = [
   'Exporting…',
   'Expression',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.",
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.",
   'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.',
   "Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.",
   'Full',
@@ -666,8 +666,8 @@ const ENGLISH_PHRASES = [
   'Key validated',
   'Last synced: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:',
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.',
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.',
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.',
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.',
   'Message',
   'Mine help',
   'Mine is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.',
@@ -742,7 +742,7 @@ const ENGLISH_PHRASES = [
   'Speaking speed',
   'Speaking speed isn’t configurable for this provider yet.',
   'Speech engine',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.",
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.",
   'Sync',
   'Sync decks, cards, and progress to a Google account',
   'Sync failed',
@@ -813,8 +813,8 @@ const ENGLISH_PHRASES = [
   'Word and meaning are required.',
   'Word card',
   'You can add your cards to multiple decks even if it is added before.',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.",
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.",
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.",
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.",
   'ask a follow-up question',
   'e.g. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.',
@@ -837,7 +837,7 @@ const ENGLISH_PHRASES = [
   '{{count}} selected',
   '{{count}}h',
   '{{count}}m',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.",
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.",
   '{{provider}} playback failed',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted',
 
@@ -849,7 +849,7 @@ const ENGLISH_PHRASES = [
   'Hard',
   'Good',
   'Easy',
-  'Lingora Light',
+  'Lemmory Light',
   'Midnight Indigo',
   'Carbon Noir',
   'Arctic Day',
@@ -890,14 +890,14 @@ const ENGLISH_PHRASES = [
   'How sync works',
   'Deleting your account & data',
   'What does this actually delete?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.",
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.",
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.",
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.',
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.',
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.",
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.",
   "This is the one action here you genuinely can't undo — read this before you tap it.",
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.',
 
@@ -1248,20 +1248,20 @@ const de: Partial<Record<Phrase, string>> = {
   "Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.":
     'Füge einen Stapel hinzu, den dir jemand geteilt hat — vollständig, inklusive Wiederholungsverlauf. Berührt nichts anderes auf diesem Gerät.',
   'Choose .lin file': '.lin-Datei auswählen',
-  'Restore from Lingora backup (.lin)': 'Aus Lingora-Sicherung wiederherstellen (.lin)',
+  'Restore from Lemmory backup (.lin)': 'Aus Lemmory-Sicherung wiederherstellen (.lin)',
   'Replaces everything on this device with a previously exported backup.':
     'Ersetzt alles auf diesem Gerät durch eine zuvor exportierte Sicherung.',
   'Restoring…': 'Wird wiederhergestellt…',
   'Choose backup file': 'Sicherungsdatei auswählen',
-  'Lingora backup (.lin)': 'Lingora-Sicherung (.lin)',
+  'Lemmory backup (.lin)': 'Lemmory-Sicherung (.lin)',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.':
     'Deine gesamte Bibliothek — Stapel, Karten, Wiederholungsverlauf. Deine Daten gehören immer dir. API-Schlüssel sind nie enthalten.',
   'Export everything': 'Alles exportieren',
   'One row per card — the same columns CSV import reads, so this file re-imports as-is.':
     'Eine Zeile pro Karte — dieselben Spalten, die der CSV-Import liest, sodass diese Datei unverändert wieder importiert werden kann.',
   'Export as CSV': 'Als CSV exportieren',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
-    'Lerne deine Lingora-Vokabeln in Anki/AnkiDroid. Karten starten neu — der Wiederholungsverlauf wird nicht übernommen.',
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
+    'Lerne deine Lemmory-Vokabeln in Anki/AnkiDroid. Karten starten neu — der Wiederholungsverlauf wird nicht übernommen.',
   'Export as .apkg': 'Als .apkg exportieren',
   'A readable word — meaning — example list. Not meant to re-import.':
     'Eine lesbare Wort-Bedeutung-Beispiel-Liste. Nicht zum erneuten Import gedacht.',
@@ -1341,8 +1341,8 @@ const de: Partial<Record<Phrase, string>> = {
   'The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'Der Rest wurde nicht verändert — du kannst dieselbe Datei erneut importieren, um dort weiterzumachen (bereits importierte Wörter werden als Duplikate übersprungen).',
   'Import from a .lin file': 'Aus einer .lin-Datei importieren',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Wähle eine Lingora-`.lin`-Datei — einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Wähle eine Lemmory-`.lin`-Datei — einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
   'This file has more than one deck. Which one do you want to import?':
     'Diese Datei enthält mehr als einen Stapel. Welchen möchtest du importieren?',
   'This file has no decks to import.': 'Diese Datei enthält keine importierbaren Stapel.',
@@ -1513,7 +1513,7 @@ const de: Partial<Record<Phrase, string>> = {
     'Füge einen Satz hinzu, indem du ihn eingibst, aus der Zwischenablage einfügst oder Text aus einer anderen App hierher teilst.',
   'Add card': 'Karte hinzufügen',
   'Add card manually': 'Karte manuell hinzufügen',
-  'Add to Lingora': 'Zu Lingora hinzufügen',
+  'Add to Lemmory': 'Zu Lemmory hinzufügen',
   'Add to Mining queue': 'Zur Sammel-Warteschlange hinzufügen',
   'Add your AI provider key in Settings to ask a follow-up.':
     'Füge deinen KI-Anbieter-Schlüssel in den Einstellungen hinzu, um eine Anschlussfrage zu stellen.',
@@ -1606,8 +1606,8 @@ const de: Partial<Record<Phrase, string>> = {
   Expression: 'Ausdruck',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     'Über die Schalter hinzugefügte Felder werden nie automatisch in ein <div> oder <span> eingepackt — {{ word }} wird als reiner Text direkt im Kartenkörper gerendert. Das hält generierte Vorlagen minimal, bedeutet aber, dass eine Regel wie ".word { ... }" nichts trifft, solange du diese Klasse nicht selbst hinzufügst.',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.":
-    'Einen Satz woanders gefunden, etwa in einem Artikel oder einer Nachricht? Teile ihn mit Lingora genauso, wie du ihn mit jeder anderen App teilen würdest.',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
+    'Einen Satz woanders gefunden, etwa in einem Artikel oder einer Nachricht? Teile ihn mit Lemmory genauso, wie du ihn mit jeder anderen App teilen würdest.',
   'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.':
     'Vorder- und Rückseite sind rohe Liquid-Vorlagen — alles gültige Liquid funktioniert hier, nicht nur das, was die Felder-Schalter erzeugen.',
   "Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -1653,10 +1653,10 @@ const de: Partial<Record<Phrase, string>> = {
   'Last synced: {{when}}': 'Zuletzt synchronisiert: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Listenfelder (Weitere Bedeutungen, Synonyme, Verwandte Redewendungen) benötigen bereits eine {% for %}-Schleife, um überhaupt gerendert zu werden — diese Schleife ist strukturell erforderlich, keine Stilentscheidung. Um jedes Element einzeln zu gestalten, packe das Element innerhalb der Schleife ein:',
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.':
-    'Halte ein Wort in einer beliebigen App gedrückt und wähle „In Lingora suchen“, um es sofort hier nachzuschlagen.',
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.':
-    'Halte ein Wort in einer beliebigen App gedrückt — deinem Browser, Nachrichten, überall — und wähle „In Lingora suchen.“ Es öffnet sich direkt hier mit diesem Wort startklar.',
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
+    'Halte ein Wort in einer beliebigen App gedrückt und wähle „In Lemmory suchen“, um es sofort hier nachzuschlagen.',
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.':
+    'Halte ein Wort in einer beliebigen App gedrückt — deinem Browser, Nachrichten, überall — und wähle „In Lemmory suchen.“ Es öffnet sich direkt hier mit diesem Wort startklar.',
   Markdown: 'Markdown',
   Message: 'Nachricht',
   'Mine help': 'Hilfe zu Meins',
@@ -1760,8 +1760,8 @@ const de: Partial<Record<Phrase, string>> = {
     'Die Sprechgeschwindigkeit ist für diesen Anbieter noch nicht einstellbar.',
   'Speech engine': 'Sprach-Engine',
   Status: 'Status',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.":
-    'Beim Absenden wird deine Nachricht als GitHub-Issue im öffentlichen Repository von Lingora veröffentlicht — jeder kann es lesen, einschließlich deiner Kontakt-E-Mail, falls du eine angibst.',
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.":
+    'Beim Absenden wird deine Nachricht als GitHub-Issue im öffentlichen Repository von Lemmory veröffentlicht — jeder kann es lesen, einschließlich deiner Kontakt-E-Mail, falls du eine angibst.',
   Sync: 'Synchronisierung',
   'Sync decks, cards, and progress to a Google account':
     'Stapel, Karten und Fortschritt mit einem Google-Konto synchronisieren',
@@ -1875,10 +1875,10 @@ const de: Partial<Record<Phrase, string>> = {
   'Word card': 'Wortkarte',
   'You can add your cards to multiple decks even if it is added before.':
     'Du kannst deine Karten zu mehreren Stapeln hinzufügen, auch wenn sie bereits zuvor hinzugefügt wurden.',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.":
-    'Du kannst auch Text direkt aus einer anderen App mit Lingora teilen, genauso wie du einen Link oder ein Foto teilen würdest.',
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.":
-    'Du kannst auch Text mit Lingora teilen, genauso wie du einen Link oder ein Foto mit jeder anderen App teilen würdest.',
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
+    'Du kannst auch Text direkt aus einer anderen App mit Lemmory teilen, genauso wie du einen Link oder ein Foto teilen würdest.',
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
+    'Du kannst auch Text mit Lemmory teilen, genauso wie du einen Link oder ein Foto mit jeder anderen App teilen würdest.',
   'ask a follow-up question': 'eine Anschlussfrage stellen',
   'e.g. Er lehnt das Angebot ab.': 'z. B. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': 'z. B. He refuses the offer.',
@@ -1904,8 +1904,8 @@ const de: Partial<Record<Phrase, string>> = {
   '{{count}} selected': '{{count}} ausgewählt',
   '{{count}}h': '{{count}}h',
   '{{count}}m': '{{count}}m',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.":
-    '{{language}} ist noch nicht bereit — Englisch und Deutsch sind derzeit die einzigen Sprachen, die Lingora vollständig unterstützt.',
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.":
+    '{{language}} ist noch nicht bereit — Englisch und Deutsch sind derzeit die einzigen Sprachen, die Lemmory vollständig unterstützt.',
   '{{provider}} playback failed': '{{provider}}-Wiedergabe fehlgeschlagen',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} abgerufen · {{pushed}} gesendet · {{deleted}} gelöscht',
@@ -1917,7 +1917,7 @@ const de: Partial<Record<Phrase, string>> = {
   Hard: 'Schwer',
   Good: 'Gut',
   Easy: 'Leicht',
-  'Lingora Light': 'Lingora Hell',
+  'Lemmory Light': 'Lemmory Hell',
   'Midnight Indigo': 'Mitternachtsindigo',
   'Carbon Noir': 'Kohleschwarz',
   'Arctic Day': 'Arktischer Tag',
@@ -1963,22 +1963,22 @@ const de: Partial<Record<Phrase, string>> = {
   'How sync works': 'Wie die Synchronisierung funktioniert',
   'Deleting your account & data': 'Konto & Daten löschen',
   'What does this actually delete?': 'Was wird dabei genau gelöscht?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.":
-    'Wenn du dich mit Google anmeldest, wird dieses Gerät mit einer privaten Cloud-Kopie deiner Decks, Karten und deines Lernfortschritts verknüpft — bekommst du also ein neues Handy oder nutzt Lingora auf zwei Geräten, fängst du auf dem zweiten nicht bei null an.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
+    'Wenn du dich mit Google anmeldest, wird dieses Gerät mit einer privaten Cloud-Kopie deiner Decks, Karten und deines Lernfortschritts verknüpft — bekommst du also ein neues Handy oder nutzt Lemmory auf zwei Geräten, fängst du auf dem zweiten nicht bei null an.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.':
     'Tippe jederzeit auf „Jetzt synchronisieren“, um deine neuesten Änderungen hochzuladen und alles von einem anderen Gerät herunterzuladen. Im Hintergrund wird zusammengeführt statt überschrieben — hast du hier eine Karte hinzugefügt und auf deinem anderen Handy eine wiederholt, bleibt beides erhalten.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'Deine KI-Anbieter-API-Schlüssel werden nie synchronisiert. Sie liegen nur im sicheren Speicher dieses Geräts — richtest du ein neues Gerät ein, musst du sie dort erneut eingeben.',
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
-    'Ist das aktiviert, synchronisiert Lingora still im Hintergrund, sobald du die App verlässt — du musst nicht mehr selbst an „Jetzt synchronisieren“ denken.',
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
+    'Ist das aktiviert, synchronisiert Lemmory still im Hintergrund, sobald du die App verlässt — du musst nicht mehr selbst an „Jetzt synchronisieren“ denken.',
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '„Höchstens alle“ ist eine Abklingzeit, kein fester Zeitplan — häufiger als angegeben wird nicht synchronisiert, aber es wird auch nicht erzwungen, wenn du die App zwischendurch gar nicht geöffnet hast.',
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.":
     'Es läuft über jede verfügbare Verbindung, WLAN oder mobile Daten — einen Nur-WLAN-Schalter gibt es nicht.',
   "This is the one action here you genuinely can't undo — read this before you tap it.":
     'Das ist die einzige Aktion hier, die du wirklich nicht rückgängig machen kannst — lies dir das durch, bevor du tippst.',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.':
-    'Es löscht dauerhaft alles, was dieses Konto je in die Cloud synchronisiert hat, trennt das Google-Konto von Lingora und meldet dich ab.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
+    'Es löscht dauerhaft alles, was dieses Konto je in die Cloud synchronisiert hat, trennt das Google-Konto von Lemmory und meldet dich ab.',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Deine Decks, Karten und dein Fortschritt auf DIESEM Gerät bleiben komplett unangetastet — sie bleiben genau da, vollständig offline nutzbar. Nur die Cloud-Kopie (und die Verknüpfung dazu) verschwindet.',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.':
@@ -2315,20 +2315,20 @@ const fr: Partial<Record<Phrase, string>> = {
   "Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.":
     "Ajoutez un paquet que quelqu'un a partagé avec vous — fidélité totale, y compris l'historique de révision. Ne touche à rien d'autre sur cet appareil.",
   'Choose .lin file': 'Choisir un fichier .lin',
-  'Restore from Lingora backup (.lin)': 'Restaurer depuis une sauvegarde Lingora (.lin)',
+  'Restore from Lemmory backup (.lin)': 'Restaurer depuis une sauvegarde Lemmory (.lin)',
   'Replaces everything on this device with a previously exported backup.':
     'Remplace tout sur cet appareil par une sauvegarde exportée précédemment.',
   'Restoring…': 'Restauration…',
   'Choose backup file': 'Choisir un fichier de sauvegarde',
-  'Lingora backup (.lin)': 'Sauvegarde Lingora (.lin)',
+  'Lemmory backup (.lin)': 'Sauvegarde Lemmory (.lin)',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.':
     'Toute votre bibliothèque — paquets, cartes, historique de révision. Vos données vous appartiennent toujours. Les clés API ne sont jamais incluses.',
   'Export everything': 'Tout exporter',
   'One row per card — the same columns CSV import reads, so this file re-imports as-is.':
     "Une ligne par carte — les mêmes colonnes que celles lues par l'import CSV, donc ce fichier se réimporte tel quel.",
   'Export as CSV': 'Exporter en CSV',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
-    "Étudiez votre vocabulaire Lingora dans Anki/AnkiDroid. Les cartes repartent à zéro — l'historique de révision n'est pas transféré.",
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
+    "Étudiez votre vocabulaire Lemmory dans Anki/AnkiDroid. Les cartes repartent à zéro — l'historique de révision n'est pas transféré.",
   'Export as .apkg': 'Exporter en .apkg',
   'A readable word — meaning — example list. Not meant to re-import.':
     'Une liste lisible mot — sens — exemple. Pas destinée à être réimportée.',
@@ -2410,8 +2410,8 @@ const fr: Partial<Record<Phrase, string>> = {
     'Le reste a été laissé intact — vous pouvez réimporter le même fichier pour reprendre où vous en étiez (les mots déjà importés sont ignorés comme doublons).',
   Tags: 'Étiquettes',
   'Import from a .lin file': 'Importer depuis un fichier .lin',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    "Choisissez un fichier Lingora `.lin` — un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    "Choisissez un fichier Lemmory `.lin` — un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
   'This file has more than one deck. Which one do you want to import?':
     'Ce fichier contient plusieurs paquets. Lequel voulez-vous importer ?',
   'This file has no decks to import.': 'Ce fichier ne contient aucun paquet à importer.',
@@ -2585,7 +2585,7 @@ const fr: Partial<Record<Phrase, string>> = {
     'Ajoute une phrase en la tapant, en la collant depuis ton presse-papiers, ou en partageant du texte ici depuis une autre app.',
   'Add card': 'Ajouter la carte',
   'Add card manually': 'Ajouter une carte manuellement',
-  'Add to Lingora': 'Ajouter à Lingora',
+  'Add to Lemmory': 'Ajouter à Lemmory',
   'Add to Mining queue': 'Ajouter à la file de collecte',
   'Add your AI provider key in Settings to ask a follow-up.':
     "Ajoute ta clé de fournisseur d'IA dans les Réglages pour poser une question complémentaire.",
@@ -2675,8 +2675,8 @@ const fr: Partial<Record<Phrase, string>> = {
   Expression: 'Expression',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     "Les champs ajoutés via les interrupteurs ne sont jamais automatiquement enveloppés dans un <div> ou un <span> — {{ word }} s'affiche comme du texte brut directement dans le corps de la carte. Cela garde les modèles générés minimalistes, mais une règle comme « .word { ... } » n'a rien à cibler tant que tu n'ajoutes pas cette classe toi-même.",
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.":
-    "Tu as trouvé une phrase ailleurs, comme dans un article ou un message ? Partage-la vers Lingora comme tu le ferais vers n'importe quelle autre app.",
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
+    "Tu as trouvé une phrase ailleurs, comme dans un article ou un message ? Partage-la vers Lemmory comme tu le ferais vers n'importe quelle autre app.",
   'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.':
     'Recto et Verso sont des modèles Liquid bruts — tout code Liquid valide fonctionne ici, pas seulement ce que génèrent les interrupteurs de champs.',
   "Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -2721,10 +2721,10 @@ const fr: Partial<Record<Phrase, string>> = {
   'Last synced: {{when}}': 'Dernière synchronisation : {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     "Les champs de liste (Autres sens, Synonymes, Expressions liées) ont déjà besoin d'une boucle {% for %} pour s'afficher — cette boucle est structurellement obligatoire, pas un choix de style. Pour styliser chaque élément individuellement, enveloppe l'élément à l'intérieur de la boucle :",
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.':
-    "Fais un appui long sur un mot dans n'importe quelle app et choisis « Rechercher dans Lingora » pour le chercher ici directement.",
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.':
-    "Fais un appui long sur un mot dans n'importe quelle app — ton navigateur, tes messages, n'importe où — et choisis « Rechercher dans Lingora ». Ça s'ouvre directement ici avec ce mot prêt à l'emploi.",
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
+    "Fais un appui long sur un mot dans n'importe quelle app et choisis « Rechercher dans Lemmory » pour le chercher ici directement.",
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.':
+    "Fais un appui long sur un mot dans n'importe quelle app — ton navigateur, tes messages, n'importe où — et choisis « Rechercher dans Lemmory ». Ça s'ouvre directement ici avec ce mot prêt à l'emploi.",
   Markdown: 'Markdown',
   Message: 'Message',
   'Mine help': 'Aide de la collecte',
@@ -2827,8 +2827,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'Speaking speed isn’t configurable for this provider yet.':
     "La vitesse de la voix n'est pas encore configurable pour ce fournisseur.",
   'Speech engine': 'Moteur vocal',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.":
-    "Envoyer publie ton message comme issue GitHub sur le dépôt public de Lingora — n'importe qui peut le lire, y compris ton e-mail de contact si tu en fournis un.",
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.":
+    "Envoyer publie ton message comme issue GitHub sur le dépôt public de Lemmory — n'importe qui peut le lire, y compris ton e-mail de contact si tu en fournis un.",
   Sync: 'Synchronisation',
   'Sync decks, cards, and progress to a Google account':
     'Synchroniser les paquets, cartes et progression avec un compte Google',
@@ -2939,10 +2939,10 @@ const fr: Partial<Record<Phrase, string>> = {
   'Word card': 'Carte de mot',
   'You can add your cards to multiple decks even if it is added before.':
     'Tu peux ajouter tes cartes à plusieurs paquets même si elles y ont déjà été ajoutées.',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.":
-    'Tu peux aussi partager du texte depuis une autre app directement vers Lingora, comme tu partagerais un lien ou une photo.',
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.":
-    "Tu peux aussi partager du texte vers Lingora, comme tu partagerais un lien ou une photo vers n'importe quelle autre app.",
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
+    'Tu peux aussi partager du texte depuis une autre app directement vers Lemmory, comme tu partagerais un lien ou une photo.',
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
+    "Tu peux aussi partager du texte vers Lemmory, comme tu partagerais un lien ou une photo vers n'importe quelle autre app.",
   'ask a follow-up question': 'poser une question complémentaire',
   'e.g. Er lehnt das Angebot ab.': 'ex. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': "ex. Il refuse l'offre.",
@@ -2968,8 +2968,8 @@ const fr: Partial<Record<Phrase, string>> = {
   '{{count}} selected': '{{count}} sélectionné(s)',
   '{{count}}h': '{{count}} h',
   '{{count}}m': '{{count}} min',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.":
-    "{{language}} n'est pas encore prêt — l'anglais et l'allemand sont les seules langues entièrement prises en charge par Lingora pour l'instant.",
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.":
+    "{{language}} n'est pas encore prêt — l'anglais et l'allemand sont les seules langues entièrement prises en charge par Lemmory pour l'instant.",
   '{{provider}} playback failed': 'Échec de la lecture {{provider}}',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} récupérées · {{pushed}} envoyées · {{deleted}} supprimées',
@@ -2981,7 +2981,7 @@ const fr: Partial<Record<Phrase, string>> = {
   Hard: 'Difficile',
   Good: 'Bien',
   Easy: 'Facile',
-  'Lingora Light': 'Lingora Clair',
+  'Lemmory Light': 'Lemmory Clair',
   'Midnight Indigo': 'Indigo Minuit',
   'Carbon Noir': 'Carbone Noir',
   'Arctic Day': 'Jour Arctique',
@@ -3027,22 +3027,22 @@ const fr: Partial<Record<Phrase, string>> = {
   'How sync works': 'Comment fonctionne la synchronisation',
   'Deleting your account & data': 'Supprimer ton compte et tes données',
   'What does this actually delete?': "Qu'est-ce que ça supprime exactement ?",
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.":
-    'Se connecter avec Google relie cet appareil à une copie cloud privée de tes decks, cartes et progression — donc si tu changes de téléphone, ou utilises Lingora sur deux appareils, tu ne repars pas de zéro sur le second.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
+    'Se connecter avec Google relie cet appareil à une copie cloud privée de tes decks, cartes et progression — donc si tu changes de téléphone, ou utilises Lemmory sur deux appareils, tu ne repars pas de zéro sur le second.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.':
     "Touche « Synchroniser maintenant » à tout moment pour envoyer tes derniers changements et récupérer ceux d'un autre appareil. En coulisses, ça fusionne plutôt que d'écraser — si tu as ajouté une carte ici et révisé sur ton autre téléphone, les deux sont conservés.",
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     "Tes clés API des fournisseurs d'IA ne sont jamais synchronisées. Elles restent uniquement dans le stockage sécurisé de cet appareil — tu devras les ressaisir sur un nouvel appareil.",
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
-    "Une fois activé, Lingora se synchronise discrètement en arrière-plan dès que tu quittes l'app — plus besoin de penser à toucher « Synchroniser maintenant » toi-même.",
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
+    "Une fois activé, Lemmory se synchronise discrètement en arrière-plan dès que tu quittes l'app — plus besoin de penser à toucher « Synchroniser maintenant » toi-même.",
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     "« Au plus toutes les » est un délai minimum, pas un horaire fixe — ça ne synchronise pas plus souvent que ça, mais ça ne force pas non plus une synchronisation si tu n'as pas rouvert l'app entre-temps.",
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.":
     "Ça fonctionne avec n'importe quelle connexion disponible, Wi-Fi ou données mobiles — il n'y a pas d'option Wi-Fi uniquement.",
   "This is the one action here you genuinely can't undo — read this before you tap it.":
     "C'est la seule action ici que tu ne peux vraiment pas annuler — lis ceci avant de la toucher.",
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.':
-    'Ça efface définitivement tout ce que ce compte a jamais synchronisé dans le cloud, déconnecte le compte Google de Lingora, et te déconnecte.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
+    'Ça efface définitivement tout ce que ce compte a jamais synchronisé dans le cloud, déconnecte le compte Google de Lemmory, et te déconnecte.',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Tes decks, cartes et progression sur CET appareil restent totalement intacts — ils restent exactement là où ils sont, utilisables hors ligne. Seule la copie cloud (et le lien vers elle) disparaît.',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.':
@@ -3377,20 +3377,20 @@ const es: Partial<Record<Phrase, string>> = {
   "Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.":
     'Añade un mazo que alguien compartió contigo — fidelidad total, incluido el historial de repaso. No afecta nada más en este dispositivo.',
   'Choose .lin file': 'Elegir archivo .lin',
-  'Restore from Lingora backup (.lin)': 'Restaurar desde una copia de seguridad de Lingora (.lin)',
+  'Restore from Lemmory backup (.lin)': 'Restaurar desde una copia de seguridad de Lemmory (.lin)',
   'Replaces everything on this device with a previously exported backup.':
     'Reemplaza todo en este dispositivo con una copia de seguridad exportada previamente.',
   'Restoring…': 'Restaurando…',
   'Choose backup file': 'Elegir archivo de copia de seguridad',
-  'Lingora backup (.lin)': 'Copia de seguridad de Lingora (.lin)',
+  'Lemmory backup (.lin)': 'Copia de seguridad de Lemmory (.lin)',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.':
     'Toda tu biblioteca — mazos, tarjetas, historial de repaso. Tus datos siempre son tuyos. Las claves API nunca se incluyen.',
   'Export everything': 'Exportar todo',
   'One row per card — the same columns CSV import reads, so this file re-imports as-is.':
     'Una fila por tarjeta — las mismas columnas que lee la importación CSV, así que este archivo se reimporta tal cual.',
   'Export as CSV': 'Exportar como CSV',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
-    'Estudia tu vocabulario de Lingora en Anki/AnkiDroid. Las tarjetas empiezan de cero — el historial de repaso no se transfiere.',
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
+    'Estudia tu vocabulario de Lemmory en Anki/AnkiDroid. Las tarjetas empiezan de cero — el historial de repaso no se transfiere.',
   'Export as .apkg': 'Exportar como .apkg',
   'A readable word — meaning — example list. Not meant to re-import.':
     'Una lista legible de palabra — significado — ejemplo. No pensada para reimportarse.',
@@ -3472,8 +3472,8 @@ const es: Partial<Record<Phrase, string>> = {
     'El resto se dejó sin cambios — puedes volver a importar el mismo archivo para continuar donde lo dejaste (las palabras ya importadas se omiten como duplicados).',
   Tags: 'Etiquetas',
   'Import from a .lin file': 'Importar desde un archivo .lin',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Elige un archivo Lingora `.lin` — un mazo que alguien compartió contigo, o una de tus propias exportaciones de mazo. Fidelidad total: significados, ejemplos, sinónimos, tarjetas de huecos, historial de repaso y programación FSRS se transfieren todos.',
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Elige un archivo Lemmory `.lin` — un mazo que alguien compartió contigo, o una de tus propias exportaciones de mazo. Fidelidad total: significados, ejemplos, sinónimos, tarjetas de huecos, historial de repaso y programación FSRS se transfieren todos.',
   'This file has more than one deck. Which one do you want to import?':
     'Este archivo tiene más de un mazo. ¿Cuál quieres importar?',
   'This file has no decks to import.': 'Este archivo no tiene mazos para importar.',
@@ -3647,7 +3647,7 @@ const es: Partial<Record<Phrase, string>> = {
     'Añade una frase escribiéndola, pegándola desde el portapapeles o compartiendo texto aquí desde otra app.',
   'Add card': 'Añadir tarjeta',
   'Add card manually': 'Añadir tarjeta manualmente',
-  'Add to Lingora': 'Añadir a Lingora',
+  'Add to Lemmory': 'Añadir a Lemmory',
   'Add to Mining queue': 'Añadir a la cola de captura',
   'Add your AI provider key in Settings to ask a follow-up.':
     'Añade tu clave de proveedor de IA en Ajustes para hacer una pregunta de seguimiento.',
@@ -3737,8 +3737,8 @@ const es: Partial<Record<Phrase, string>> = {
   Expression: 'Expresión',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     'Los campos añadidos mediante los interruptores nunca se envuelven automáticamente en un <div> o <span>: {{ word }} se renderiza como texto suelto directamente dentro del cuerpo de la tarjeta. Eso mantiene las plantillas generadas mínimas, pero significa que una regla como ".word { ... }" no tiene nada que coincidir a menos que añadas tú mismo esa clase.',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.":
-    '¿Encontraste una frase en otro sitio, como un artículo o un mensaje? Compártela con Lingora igual que la compartirías con cualquier otra app.',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
+    '¿Encontraste una frase en otro sitio, como un artículo o un mensaje? Compártela con Lemmory igual que la compartirías con cualquier otra app.',
   'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.':
     'Anverso y Reverso son plantillas Liquid en bruto: aquí funciona cualquier Liquid válido, no solo lo que generan los interruptores de Campos.',
   "Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -3784,10 +3784,10 @@ const es: Partial<Record<Phrase, string>> = {
   'Last synced: {{when}}': 'Última sincronización: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Los campos de lista (Otros significados, Sinónimos, Frases relacionadas) ya necesitan un bucle {% for %} para renderizarse; ese bucle es estructuralmente necesario, no una opción de estilo. Para dar estilo a cada elemento individualmente, envuelve el elemento dentro del bucle:',
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.':
-    'Mantén pulsada una palabra en cualquier app y elige "Buscar en Lingora" para consultarla aquí al instante.',
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.':
-    'Mantén pulsada una palabra en cualquier app (tu navegador, mensajes, donde sea) y elige "Buscar en Lingora". Se abre aquí mismo con esa palabra lista para consultar.',
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
+    'Mantén pulsada una palabra en cualquier app y elige "Buscar en Lemmory" para consultarla aquí al instante.',
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.':
+    'Mantén pulsada una palabra en cualquier app (tu navegador, mensajes, donde sea) y elige "Buscar en Lemmory". Se abre aquí mismo con esa palabra lista para consultar.',
   Markdown: 'Markdown',
   Message: 'Mensaje',
   'Mine help': 'Ayuda de Capturas',
@@ -3890,8 +3890,8 @@ const es: Partial<Record<Phrase, string>> = {
   'Speaking speed isn’t configurable for this provider yet.':
     'La velocidad de habla aún no se puede configurar para este proveedor.',
   'Speech engine': 'Motor de voz',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.":
-    'Enviar publica tu mensaje como una incidencia de GitHub en el repositorio público de Lingora; cualquiera puede leerlo, incluido tu correo de contacto si proporcionas uno.',
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.":
+    'Enviar publica tu mensaje como una incidencia de GitHub en el repositorio público de Lemmory; cualquiera puede leerlo, incluido tu correo de contacto si proporcionas uno.',
   Sync: 'Sincronizar',
   'Sync decks, cards, and progress to a Google account':
     'Sincroniza mazos, tarjetas y progreso con una cuenta de Google',
@@ -4001,10 +4001,10 @@ const es: Partial<Record<Phrase, string>> = {
   'Word card': 'Tarjeta de palabra',
   'You can add your cards to multiple decks even if it is added before.':
     'Puedes añadir tus tarjetas a varios mazos aunque ya se hayan añadido antes.',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.":
-    'También puedes compartir texto directamente desde otra app a Lingora, igual que compartirías un enlace o una foto.',
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.":
-    'También puedes compartir texto con Lingora, igual que compartirías un enlace o una foto con cualquier otra app.',
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
+    'También puedes compartir texto directamente desde otra app a Lemmory, igual que compartirías un enlace o una foto.',
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
+    'También puedes compartir texto con Lemmory, igual que compartirías un enlace o una foto con cualquier otra app.',
   'ask a follow-up question': 'hacer una pregunta de seguimiento',
   'e.g. Er lehnt das Angebot ab.': 'p. ej. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': 'p. ej. He refuses the offer.',
@@ -4031,8 +4031,8 @@ const es: Partial<Record<Phrase, string>> = {
   '{{count}} tokens': '{{count}} tokens',
   '{{count}}h': '{{count}} h',
   '{{count}}m': '{{count}} min',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.":
-    '{{language}} aún no está disponible: el inglés y el alemán son los únicos idiomas que Lingora admite completamente por ahora.',
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.":
+    '{{language}} aún no está disponible: el inglés y el alemán son los únicos idiomas que Lemmory admite completamente por ahora.',
   '{{provider}} playback failed': 'Error de reproducción de {{provider}}',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} descargados · {{pushed}} subidos · {{deleted}} eliminados',
@@ -4044,7 +4044,7 @@ const es: Partial<Record<Phrase, string>> = {
   Hard: 'Difícil',
   Good: 'Bien',
   Easy: 'Fácil',
-  'Lingora Light': 'Lingora Claro',
+  'Lemmory Light': 'Lemmory Claro',
   'Midnight Indigo': 'Índigo Medianoche',
   'Carbon Noir': 'Carbón Negro',
   'Arctic Day': 'Día Ártico',
@@ -4090,22 +4090,22 @@ const es: Partial<Record<Phrase, string>> = {
   'How sync works': 'Cómo funciona la sincronización',
   'Deleting your account & data': 'Eliminar tu cuenta y datos',
   'What does this actually delete?': '¿Qué elimina esto exactamente?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.":
-    'Iniciar sesión con Google vincula este dispositivo a una copia privada en la nube de tus mazos, tarjetas y progreso — así que si consigues un teléfono nuevo, o usas Lingora en dos dispositivos, no empiezas de cero en el segundo.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
+    'Iniciar sesión con Google vincula este dispositivo a una copia privada en la nube de tus mazos, tarjetas y progreso — así que si consigues un teléfono nuevo, o usas Lemmory en dos dispositivos, no empiezas de cero en el segundo.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.':
     'Toca "Sincronizar ahora" en cualquier momento para subir tus últimos cambios y bajar lo de otro dispositivo. Por dentro, combina en lugar de sobrescribir — si añadiste una tarjeta aquí y repasaste otra en tu otro teléfono, ambas se conservan.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'Tus claves API de proveedores de IA nunca se sincronizan. Solo viven en el almacenamiento seguro de este dispositivo, así que tendrás que volver a introducirlas si configuras un dispositivo nuevo.',
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
-    'Cuando esto está activado, Lingora sincroniza silenciosamente en segundo plano cada vez que sales de la app — no hace falta que recuerdes tocar "Sincronizar ahora".',
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
+    'Cuando esto está activado, Lemmory sincroniza silenciosamente en segundo plano cada vez que sales de la app — no hace falta que recuerdes tocar "Sincronizar ahora".',
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '"Como mucho cada" es un tiempo de espera mínimo, no un horario fijo — no sincronizará más a menudo que eso, pero tampoco forzará una sincronización si no has abierto la app mientras tanto.',
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.":
     'Funciona con cualquier conexión que tengas, Wi-Fi o datos móviles — no hay opción de solo Wi-Fi.',
   "This is the one action here you genuinely can't undo — read this before you tap it.":
     'Esta es la única acción aquí que de verdad no se puede deshacer — lee esto antes de tocarla.',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.':
-    'Borra permanentemente todo lo que esta cuenta haya sincronizado alguna vez con la nube, desconecta la cuenta de Google de Lingora y cierra tu sesión.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
+    'Borra permanentemente todo lo que esta cuenta haya sincronizado alguna vez con la nube, desconecta la cuenta de Google de Lemmory y cierra tu sesión.',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Tus mazos, tarjetas y progreso en ESTE dispositivo quedan completamente intactos — se quedan justo donde están, totalmente utilizables sin conexión. Solo desaparece la copia en la nube (y el enlace a ella).',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.':
@@ -4442,20 +4442,20 @@ const hi: Partial<Record<Phrase, string>> = {
   "Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.":
     'किसी ने आपके साथ साझा किया गया डेक जोड़ें — पूरी निष्ठा के साथ, दोहराव इतिहास सहित। यह इस डिवाइस पर कुछ और नहीं छूता।',
   'Choose .lin file': '.lin फ़ाइल चुनें',
-  'Restore from Lingora backup (.lin)': 'Lingora बैकअप से पुनर्स्थापित करें (.lin)',
+  'Restore from Lemmory backup (.lin)': 'Lemmory बैकअप से पुनर्स्थापित करें (.lin)',
   'Replaces everything on this device with a previously exported backup.':
     'यह पहले निर्यात किए गए बैकअप से इस डिवाइस पर सब कुछ बदल देता है।',
   'Restoring…': 'पुनर्स्थापित हो रहा है…',
   'Choose backup file': 'बैकअप फ़ाइल चुनें',
-  'Lingora backup (.lin)': 'Lingora बैकअप (.lin)',
+  'Lemmory backup (.lin)': 'Lemmory बैकअप (.lin)',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.':
     'आपकी पूरी लाइब्रेरी — डेक, कार्ड, दोहराव इतिहास। आपका डेटा हमेशा आपका ही रहता है। API कुंजियाँ कभी शामिल नहीं होतीं।',
   'Export everything': 'सब कुछ निर्यात करें',
   'One row per card — the same columns CSV import reads, so this file re-imports as-is.':
     'प्रति कार्ड एक पंक्ति — वही कॉलम जो CSV आयात पढ़ता है, इसलिए यह फ़ाइल जैसी है वैसे ही फिर से आयात हो जाती है।',
   'Export as CSV': 'CSV के रूप में निर्यात करें',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
-    'Anki/AnkiDroid में अपनी Lingora शब्दावली पढ़ें। कार्ड नए सिरे से शुरू होते हैं — दोहराव इतिहास आगे नहीं बढ़ता।',
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
+    'Anki/AnkiDroid में अपनी Lemmory शब्दावली पढ़ें। कार्ड नए सिरे से शुरू होते हैं — दोहराव इतिहास आगे नहीं बढ़ता।',
   'Export as .apkg': '.apkg के रूप में निर्यात करें',
   'A readable word — meaning — example list. Not meant to re-import.':
     'एक पठनीय शब्द — अर्थ — उदाहरण सूची। फिर से आयात के लिए नहीं है।',
@@ -4536,8 +4536,8 @@ const hi: Partial<Record<Phrase, string>> = {
     'बाकी को नहीं बदला गया — आप जहाँ छोड़ा था वहीं से जारी रखने के लिए वही फ़ाइल फिर से आयात कर सकते हैं (पहले से आयातित शब्द डुप्लिकेट के रूप में छोड़ दिए जाते हैं)।',
   Tags: 'टैग',
   'Import from a .lin file': '.lin फ़ाइल से आयात करें',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'एक Lingora `.lin` फ़ाइल चुनें — किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक निर्यातों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, समानार्थी शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'एक Lemmory `.lin` फ़ाइल चुनें — किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक निर्यातों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, समानार्थी शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
   'This file has more than one deck. Which one do you want to import?':
     'इस फ़ाइल में एक से अधिक डेक हैं। आप कौन सा आयात करना चाहते हैं?',
   'This file has no decks to import.': 'इस फ़ाइल में आयात करने के लिए कोई डेक नहीं है।',
@@ -4712,7 +4712,7 @@ const hi: Partial<Record<Phrase, string>> = {
     'वाक्य टाइप करके, क्लिपबोर्ड से पेस्ट करके, या किसी और ऐप से टेक्स्ट शेयर करके यहां जोड़ें।',
   'Add card': 'कार्ड जोड़ें',
   'Add card manually': 'कार्ड खुद जोड़ें',
-  'Add to Lingora': 'Lingora में जोड़ें',
+  'Add to Lemmory': 'Lemmory में जोड़ें',
   'Add to Mining queue': 'Mining क्यू में जोड़ें',
   'Add your AI provider key in Settings to ask a follow-up.':
     'फॉलो-अप सवाल पूछने के लिए Settings में अपनी AI provider key जोड़ें।',
@@ -4802,8 +4802,8 @@ const hi: Partial<Record<Phrase, string>> = {
   Expression: 'वाक्यांश',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     'टॉगल से जोड़ी गई फ़ील्ड कभी अपने आप <div> या <span> में रैप नहीं होतीं — {{ word }} कार्ड बॉडी के अंदर सीधे खाली टेक्स्ट की तरह रेंडर होता है। इससे जनरेट किए गए टेम्पलेट्स मिनिमल रहते हैं, लेकिन इसका मतलब है कि ".word { ... }" जैसा नियम तब तक किसी चीज़ से मैच नहीं करेगा जब तक आप खुद वह क्लास न जोड़ें।',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.":
-    'कहीं और, जैसे किसी आर्टिकल या मैसेज में कोई वाक्य मिला? उसे Lingora में वैसे ही शेयर करें जैसे आप किसी और ऐप में शेयर करते हैं।',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
+    'कहीं और, जैसे किसी आर्टिकल या मैसेज में कोई वाक्य मिला? उसे Lemmory में वैसे ही शेयर करें जैसे आप किसी और ऐप में शेयर करते हैं।',
   'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.':
     'Front और Back कच्चे (raw) Liquid टेम्पलेट हैं — यहां कोई भी वैध Liquid काम करेगा, सिर्फ़ Fields टॉगल से जनरेट हुआ ही नहीं।',
   "Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -4847,10 +4847,10 @@ const hi: Partial<Record<Phrase, string>> = {
   'Last synced: {{when}}': 'आख़िरी सिंक: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'लिस्ट फ़ील्ड (Other meanings, Synonyms, Related phrases) को रेंडर होने के लिए पहले से ही {% for %} लूप चाहिए होता है — यह लूप स्ट्रक्चर के लिहाज़ से ज़रूरी है, स्टाइलिंग का विकल्प नहीं। हर आइटम को अलग से स्टाइल करने के लिए, आइटम को लूप के अंदर रैप करें:',
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.':
-    'किसी भी ऐप में किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lingora" चुनें, ताकि उसे तुरंत यहां देख सकें।',
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.':
-    'किसी भी ऐप में — ब्राउज़र, मैसेज, कहीं भी — किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lingora" चुनें। यह उस शब्द के साथ सीधे यहां खुल जाएगा।',
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
+    'किसी भी ऐप में किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemmory" चुनें, ताकि उसे तुरंत यहां देख सकें।',
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.':
+    'किसी भी ऐप में — ब्राउज़र, मैसेज, कहीं भी — किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemmory" चुनें। यह उस शब्द के साथ सीधे यहां खुल जाएगा।',
   Markdown: 'Markdown',
   Message: 'मैसेज',
   'Mine help': 'Mine सहायता',
@@ -4951,8 +4951,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'Speaking speed isn’t configurable for this provider yet.':
     'इस प्रोवाइडर के लिए बोलने की स्पीड अभी सेट नहीं की जा सकती।',
   'Speech engine': 'स्पीच इंजन',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.":
-    'सबमिट करने पर आपका मैसेज Lingora की पब्लिक repository पर एक GitHub issue के तौर पर पोस्ट हो जाता है — इसे कोई भी पढ़ सकता है, आपकी दी गई कॉन्टैक्ट ईमेल समेत।',
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.":
+    'सबमिट करने पर आपका मैसेज Lemmory की पब्लिक repository पर एक GitHub issue के तौर पर पोस्ट हो जाता है — इसे कोई भी पढ़ सकता है, आपकी दी गई कॉन्टैक्ट ईमेल समेत।',
   Sync: 'सिंक',
   'Sync decks, cards, and progress to a Google account':
     'डेक, कार्ड और प्रोग्रेस को Google अकाउंट में सिंक करें',
@@ -5062,10 +5062,10 @@ const hi: Partial<Record<Phrase, string>> = {
   'Word card': 'शब्द कार्ड',
   'You can add your cards to multiple decks even if it is added before.':
     'आप अपने कार्ड को कई डेक में जोड़ सकते हैं, भले ही वह पहले जोड़ा जा चुका हो।',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.":
-    'आप किसी और ऐप से सीधे Lingora में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप कोई लिंक या फ़ोटो शेयर करते हैं।',
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.":
-    'आप Lingora में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप किसी और ऐप में लिंक या फ़ोटो शेयर करते हैं।',
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
+    'आप किसी और ऐप से सीधे Lemmory में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप कोई लिंक या फ़ोटो शेयर करते हैं।',
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
+    'आप Lemmory में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप किसी और ऐप में लिंक या फ़ोटो शेयर करते हैं।',
   'ask a follow-up question': 'फॉलो-अप सवाल पूछें',
   'e.g. Er lehnt das Angebot ab.': 'जैसे: Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': 'जैसे: He refuses the offer.',
@@ -5091,8 +5091,8 @@ const hi: Partial<Record<Phrase, string>> = {
   '{{count}} selected': '{{count}} चुने गए',
   '{{count}}h': '{{count}}घं',
   '{{count}}m': '{{count}}मि',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.":
-    '{{language}} अभी तैयार नहीं है — अभी सिर्फ़ अंग्रेज़ी और जर्मन ही ऐसी भाषाएं हैं जिन्हें Lingora पूरी तरह सपोर्ट करता है।',
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.":
+    '{{language}} अभी तैयार नहीं है — अभी सिर्फ़ अंग्रेज़ी और जर्मन ही ऐसी भाषाएं हैं जिन्हें Lemmory पूरी तरह सपोर्ट करता है।',
   '{{provider}} playback failed': '{{provider}} प्लेबैक फेल हो गया',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} पुल किए · {{pushed}} पुश किए · {{deleted}} डिलीट किए',
@@ -5104,7 +5104,7 @@ const hi: Partial<Record<Phrase, string>> = {
   Hard: 'कठिन',
   Good: 'अच्छा',
   Easy: 'आसान',
-  'Lingora Light': 'लिंगोरा लाइट',
+  'Lemmory Light': 'लेमोरी लाइट',
   'Midnight Indigo': 'मिडनाइट इंडिगो',
   'Carbon Noir': 'कार्बन नॉयर',
   'Arctic Day': 'आर्कटिक डे',
@@ -5149,22 +5149,22 @@ const hi: Partial<Record<Phrase, string>> = {
   'How sync works': 'सिंक कैसे काम करता है',
   'Deleting your account & data': 'अपना खाता और डेटा हटाना',
   'What does this actually delete?': 'इससे असल में क्या डिलीट होता है?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.":
-    'Google से साइन इन करने पर यह डिवाइस आपके डेक, कार्ड और रिव्यू प्रोग्रेस की एक प्राइवेट क्लाउड कॉपी से जुड़ जाता है — तो अगर आपको नया फ़ोन मिलता है, या आप Lingora दो डिवाइस पर इस्तेमाल करते हैं, तो दूसरे डिवाइस पर आप ज़ीरो से शुरू नहीं करते।',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
+    'Google से साइन इन करने पर यह डिवाइस आपके डेक, कार्ड और रिव्यू प्रोग्रेस की एक प्राइवेट क्लाउड कॉपी से जुड़ जाता है — तो अगर आपको नया फ़ोन मिलता है, या आप Lemmory दो डिवाइस पर इस्तेमाल करते हैं, तो दूसरे डिवाइस पर आप ज़ीरो से शुरू नहीं करते।',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.':
     '"Sync now" पर कभी भी टैप करें ताकि आपके नए बदलाव ऊपर चले जाएं और दूसरे डिवाइस का डेटा नीचे आ जाए। अंदर ही अंदर यह ओवरराइट नहीं, बल्कि मर्ज करता है — अगर आपने यहां एक कार्ड जोड़ा और अपने दूसरे फ़ोन पर एक रिव्यू किया, तो दोनों बच जाते हैं।',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'आपकी AI provider API keys कभी सिंक नहीं होतीं। वे सिर्फ इसी डिवाइस के secure storage में रहती हैं, इसलिए नया डिवाइस सेट करते समय आपको उन्हें फिर से डालना होगा।',
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
-    'यह ऑन होने पर, जब भी आप ऐप छोड़ते हैं, Lingora बैकग्राउंड में चुपचाप सिंक कर लेता है — खुद "Sync now" पर टैप करना याद रखने की ज़रूरत नहीं।',
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
+    'यह ऑन होने पर, जब भी आप ऐप छोड़ते हैं, Lemmory बैकग्राउंड में चुपचाप सिंक कर लेता है — खुद "Sync now" पर टैप करना याद रखने की ज़रूरत नहीं।',
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '"At most every" एक कूलडाउन है, कोई तय शेड्यूल नहीं — यह उससे ज़्यादा बार सिंक नहीं करेगा, लेकिन अगर आपने बीच में ऐप खोला ही नहीं, तो यह सिंक को ज़बरदस्ती भी नहीं करेगा।',
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.":
     'यह जो भी कनेक्शन उपलब्ध हो उस पर चलता है, चाहे Wi-Fi हो या मोबाइल डेटा — कोई Wi-Fi-only टॉगल नहीं है।',
   "This is the one action here you genuinely can't undo — read this before you tap it.":
     'यह यहां की एक ऐसी कार्रवाई है जिसे आप वाकई वापस नहीं कर सकते — टैप करने से पहले इसे ज़रूर पढ़ें।',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.':
-    'यह इस खाते ने क्लाउड पर जो कुछ भी कभी सिंक किया है उसे स्थायी रूप से मिटा देता है, Google खाते को Lingora से डिसकनेक्ट कर देता है, और आपको साइन आउट कर देता है।',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
+    'यह इस खाते ने क्लाउड पर जो कुछ भी कभी सिंक किया है उसे स्थायी रूप से मिटा देता है, Google खाते को Lemmory से डिसकनेक्ट कर देता है, और आपको साइन आउट कर देता है।',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'इसी डिवाइस पर आपके डेक, कार्ड और प्रोग्रेस बिल्कुल सुरक्षित रहते हैं — वे वहीं रहते हैं, पूरी तरह ऑफ़लाइन इस्तेमाल के लायक। सिर्फ़ क्लाउड कॉपी (और उससे जुड़ा लिंक) ही मिटता है।',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.':
@@ -5257,7 +5257,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'Add card manually': 'Thêm thẻ thủ công',
   'Add this as another meaning on the existing card.':
     'Thêm cái này như một nghĩa khác vào thẻ đã có.',
-  'Add to Lingora': 'Thêm vào Lingora',
+  'Add to Lemmory': 'Thêm vào Lemmory',
   'Add to Mining queue': 'Thêm vào hàng đợi Khai thác',
   'Add to deck': 'Thêm vào bộ thẻ',
   'Add to queue': 'Thêm vào hàng đợi',
@@ -5351,8 +5351,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'Choose .apkg file': 'Chọn tệp .apkg',
   'Choose .lin file': 'Chọn tệp .lin',
   'Choose CSV file': 'Chọn tệp CSV',
-  'Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Chọn một tệp Lingora `.lin` — bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
+  'Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Chọn một tệp Lemmory `.lin` — bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
   "Choose a `.apkg` export. Review history isn't imported — every card starts fresh — and media (audio/images) is stripped rather than copied.":
     'Chọn một bản xuất `.apkg`. Lịch sử ôn tập không được nhập — mọi thẻ đều bắt đầu lại từ đầu — và media (âm thanh/hình ảnh) sẽ bị loại bỏ thay vì được sao chép.',
   'Choose a voice…': 'Chọn một giọng đọc…',
@@ -5532,8 +5532,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'Fields tab': 'Tab Trường',
   'Focus words': 'Từ trọng tâm',
   'Follow device': 'Theo máy',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you'd share it to any other app.":
-    'Tìm thấy một câu ở đâu đó, như trong bài báo hay tin nhắn? Hãy chia sẻ nó đến Lingora giống như cách bạn chia sẻ đến bất kỳ ứng dụng nào khác.',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
+    'Tìm thấy một câu ở đâu đó, như trong bài báo hay tin nhắn? Hãy chia sẻ nó đến Lemmory giống như cách bạn chia sẻ đến bất kỳ ứng dụng nào khác.',
   'Free starter dictionary — no AI key needed': 'Từ điển khởi đầu miễn phí — không cần khóa AI',
   'Free tier, no key needed': 'Gói miễn phí, không cần khóa',
   French: 'Tiếng Pháp',
@@ -5638,16 +5638,16 @@ const vi: Partial<Record<Phrase, string>> = {
   'Layout & style': 'Bố cục & kiểu dáng',
   Learning: 'Học tập',
   'Limited mode': 'Chế độ giới hạn',
-  'Lingora backup (.lin)': 'Bản sao lưu Lingora (.lin)',
+  'Lemmory backup (.lin)': 'Bản sao lưu Lemmory (.lin)',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Các trường dạng danh sách (Nghĩa khác, Từ đồng nghĩa, Cụm từ liên quan) vốn đã cần một vòng lặp {% for %} để hiển thị — vòng lặp đó là yêu cầu về cấu trúc, không phải lựa chọn về kiểu dáng. Để tạo kiểu riêng cho từng mục, hãy bọc mục đó bên trong vòng lặp:',
   'Local Dictionaries': 'Từ điển ngoại tuyến',
   'Local Dictionaries installed': 'Đã cài đặt từ điển ngoại tuyến',
   'Local Dictionaries uninstalled': 'Đã gỡ cài đặt từ điển ngoại tuyến',
-  'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.':
-    'Nhấn giữ một từ trong bất kỳ ứng dụng nào và chọn "Tìm trong Lingora" để tra cứu ngay tại đây.',
-  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.':
-    'Nhấn giữ một từ trong bất kỳ ứng dụng nào — trình duyệt, tin nhắn, bất cứ đâu — và chọn "Tìm trong Lingora." Nó sẽ mở ngay tại đây với từ đó đã sẵn sàng.',
+  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
+    'Nhấn giữ một từ trong bất kỳ ứng dụng nào và chọn "Tìm trong Lemmory" để tra cứu ngay tại đây.',
+  'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.':
+    'Nhấn giữ một từ trong bất kỳ ứng dụng nào — trình duyệt, tin nhắn, bất cứ đâu — và chọn "Tìm trong Lemmory." Nó sẽ mở ngay tại đây với từ đó đã sẵn sàng.',
   'Look up a word': 'Tra một từ',
   'Look up a word to add your first card.': 'Tra một từ để thêm thẻ đầu tiên của bạn.',
   'Make primary: {{translation}}': 'Đặt làm nghĩa chính: {{translation}}',
@@ -5839,7 +5839,7 @@ const vi: Partial<Record<Phrase, string>> = {
   Restore: 'Khôi phục',
   'Restore complete': 'Đã khôi phục xong',
   'Restore failed': 'Khôi phục thất bại',
-  'Restore from Lingora backup (.lin)': 'Khôi phục từ bản sao lưu Lingora (.lin)',
+  'Restore from Lemmory backup (.lin)': 'Khôi phục từ bản sao lưu Lemmory (.lin)',
   'Restore from backup?': 'Khôi phục từ bản sao lưu?',
   'Restored {{count}} rows.': 'Đã khôi phục {{count}} dòng.',
   'Restoring…': 'Đang khôi phục…',
@@ -5901,11 +5901,11 @@ const vi: Partial<Record<Phrase, string>> = {
   Statistics: 'Thống kê',
   Status: 'Trạng thái',
   'Stored as a': 'Được lưu dưới dạng',
-  "Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
-    'Học từ vựng Lingora của bạn trong Anki/AnkiDroid. Thẻ bắt đầu lại từ đầu — lịch sử ôn tập không được mang theo.',
+  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.":
+    'Học từ vựng Lemmory của bạn trong Anki/AnkiDroid. Thẻ bắt đầu lại từ đầu — lịch sử ôn tập không được mang theo.',
   'Style tab': 'Tab Kiểu dáng',
-  "Submitting posts your message as a GitHub issue on Lingora's public repository — anyone can read it, including your contact email if you provide one.":
-    'Gửi đi sẽ đăng tin nhắn của bạn thành một issue trên kho lưu trữ công khai của Lingora trên GitHub — bất kỳ ai cũng có thể đọc được, kể cả email liên hệ nếu bạn cung cấp.',
+  "Submitting posts your message as a GitHub issue on Lemmory's public repository — anyone can read it, including your contact email if you provide one.":
+    'Gửi đi sẽ đăng tin nhắn của bạn thành một issue trên kho lưu trữ công khai của Lemmory trên GitHub — bất kỳ ai cũng có thể đọc được, kể cả email liên hệ nếu bạn cung cấp.',
   Sync: 'Đồng bộ',
   'Sync decks, cards, and progress to a Google account':
     'Đồng bộ bộ thẻ, thẻ và tiến trình lên một tài khoản Google',
@@ -6077,10 +6077,10 @@ const vi: Partial<Record<Phrase, string>> = {
   'Wrong CEFR level': 'Sai cấp độ CEFR',
   'You can add your cards to multiple decks even if it is added before.':
     'Bạn có thể thêm thẻ của mình vào nhiều bộ thẻ ngay cả khi nó đã được thêm trước đó.',
-  "You can also share text from another app straight to Lingora, the same way you'd share a link or a photo.":
-    'Bạn cũng có thể chia sẻ văn bản từ ứng dụng khác thẳng đến Lingora, giống như cách bạn chia sẻ một liên kết hoặc ảnh.',
-  "You can also share text to Lingora, the same way you'd share a link or a photo to any other app.":
-    'Bạn cũng có thể chia sẻ văn bản đến Lingora, giống như cách bạn chia sẻ một liên kết hoặc ảnh đến bất kỳ ứng dụng nào khác.',
+  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
+    'Bạn cũng có thể chia sẻ văn bản từ ứng dụng khác thẳng đến Lemmory, giống như cách bạn chia sẻ một liên kết hoặc ảnh.',
+  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
+    'Bạn cũng có thể chia sẻ văn bản đến Lemmory, giống như cách bạn chia sẻ một liên kết hoặc ảnh đến bất kỳ ứng dụng nào khác.',
   'You reviewed {{count}} cards. Great work — come back when the next cards are due.':
     'Bạn đã ôn {{count}} thẻ. Làm tốt lắm — hãy quay lại khi có thẻ tiếp theo đến hạn.',
   'Your full library — decks, cards, review history. Your data is always yours. API keys are never included.':
@@ -6147,8 +6147,8 @@ const vi: Partial<Record<Phrase, string>> = {
   '{{due}} due/{{total}} cards': '{{due}} đến hạn/{{total}} thẻ',
   '{{installed}} installed · {{available}} available to install':
     'Đã cài {{installed}} · {{available}} có thể cài thêm',
-  "{{language}} isn't ready yet — English and German are the only languages Lingora fully supports right now.":
-    '{{language}} chưa sẵn sàng — tiếng Anh và tiếng Đức là hai ngôn ngữ duy nhất Lingora hỗ trợ đầy đủ hiện tại.',
+  "{{language}} isn't ready yet — English and German are the only languages Lemmory fully supports right now.":
+    '{{language}} chưa sẵn sàng — tiếng Anh và tiếng Đức là hai ngôn ngữ duy nhất Lemmory hỗ trợ đầy đủ hiện tại.',
   '{{notes}} notes across {{decks}} decks. Map each field below — it applies to every note, so a note type without that many fields just leaves it empty.':
     '{{notes}} ghi chú trải khắp {{decks}} bộ thẻ. Ánh xạ từng trường bên dưới — nó áp dụng cho mọi ghi chú, nên một loại ghi chú không có đủ số trường đó sẽ chỉ để trống.',
   '{{provider}} playback failed': 'Phát âm thanh {{provider}} thất bại',
@@ -6163,7 +6163,7 @@ const vi: Partial<Record<Phrase, string>> = {
   Hard: 'Khó',
   Good: 'Tốt',
   Easy: 'Dễ',
-  'Lingora Light': 'Lingora Sáng',
+  'Lemmory Light': 'Lemmory Sáng',
   'Midnight Indigo': 'Chàm Nửa Đêm',
   'Carbon Noir': 'Đen Carbon',
   'Arctic Day': 'Ngày Bắc Cực',
@@ -6208,22 +6208,22 @@ const vi: Partial<Record<Phrase, string>> = {
   'How sync works': 'Đồng bộ hoạt động thế nào',
   'Deleting your account & data': 'Xóa tài khoản & dữ liệu của bạn',
   'What does this actually delete?': 'Việc này thực sự xóa những gì?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lingora on two devices, you're not starting from zero on the second one.":
-    'Đăng nhập bằng Google sẽ liên kết thiết bị này với một bản sao đám mây riêng tư của bộ thẻ, thẻ và tiến độ ôn tập của bạn — nên nếu bạn đổi điện thoại mới, hoặc dùng Lingora trên hai thiết bị, bạn không phải bắt đầu lại từ đầu trên thiết bị thứ hai.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
+    'Đăng nhập bằng Google sẽ liên kết thiết bị này với một bản sao đám mây riêng tư của bộ thẻ, thẻ và tiến độ ôn tập của bạn — nên nếu bạn đổi điện thoại mới, hoặc dùng Lemmory trên hai thiết bị, bạn không phải bắt đầu lại từ đầu trên thiết bị thứ hai.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.':
     'Chạm "Đồng bộ ngay" bất cứ lúc nào để đẩy các thay đổi mới nhất lên và tải về mọi thứ từ thiết bị khác. Về bản chất, nó hợp nhất chứ không ghi đè — nếu bạn thêm một thẻ ở đây và ôn tập một thẻ khác trên điện thoại kia, cả hai đều được giữ lại.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'Khóa API của các nhà cung cấp AI không bao giờ được đồng bộ. Chúng chỉ tồn tại trong bộ nhớ an toàn của thiết bị này, nên bạn sẽ cần nhập lại chúng khi thiết lập một thiết bị mới.',
-  'When this is on, Lingora quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
-    'Khi bật tính năng này, Lingora sẽ âm thầm đồng bộ trong nền mỗi khi bạn rời khỏi ứng dụng — không cần phải nhớ tự chạm "Đồng bộ ngay".',
+  'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.':
+    'Khi bật tính năng này, Lemmory sẽ âm thầm đồng bộ trong nền mỗi khi bạn rời khỏi ứng dụng — không cần phải nhớ tự chạm "Đồng bộ ngay".',
   "\"At most every\" is a cooldown, not a schedule — it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '"Tối đa mỗi" là thời gian chờ tối thiểu, không phải lịch cố định — nó sẽ không đồng bộ thường xuyên hơn mức đó, nhưng cũng không ép đồng bộ nếu bạn chưa mở lại ứng dụng trong lúc đó.',
   "It runs over whatever connection you've got, Wi-Fi or mobile data — there's no Wi-Fi-only toggle.":
     'Nó chạy trên bất kỳ kết nối nào bạn có, Wi-Fi hay dữ liệu di động — không có tùy chọn chỉ dùng Wi-Fi.',
   "This is the one action here you genuinely can't undo — read this before you tap it.":
     'Đây là hành động duy nhất ở đây mà bạn thực sự không thể hoàn tác — hãy đọc kỹ trước khi chạm vào nó.',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lingora, and signs you out.':
-    'Nó xóa vĩnh viễn mọi thứ tài khoản này từng đồng bộ lên đám mây, ngắt kết nối tài khoản Google khỏi Lingora, và đăng xuất bạn.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
+    'Nó xóa vĩnh viễn mọi thứ tài khoản này từng đồng bộ lên đám mây, ngắt kết nối tài khoản Google khỏi Lemmory, và đăng xuất bạn.',
   'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Bộ thẻ, thẻ và tiến độ của bạn trên CHÍNH thiết bị này hoàn toàn không bị ảnh hưởng — chúng vẫn ở nguyên đó, dùng ngoại tuyến bình thường. Chỉ bản sao trên đám mây (và liên kết tới nó) là mất đi.',
   'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.':

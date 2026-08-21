@@ -79,8 +79,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Search from anywhere',
     icon: 'share-outline',
     paragraphs: [
-      'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lingora." It opens right here with that word ready to go.',
-      'You can also share text to Lingora, the same way you\'d share a link or a photo to any other app.',
+      'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.',
+      'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
       'Want it to work a bit differently? There\'s a setting for that in Settings, under "Share & Search."',
     ],
   },

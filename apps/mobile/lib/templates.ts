@@ -393,7 +393,7 @@ export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
 /**
  * Renders one side of a card (front or back) to a full HTML document string,
  * ready to load into a WebView. Synchronous (LiquidJS's `parseAndRenderSync`
- * — none of Lingora's templates use async filters/tags) so callers can use
+ * — none of Lemmory's templates use async filters/tags) so callers can use
  * it directly during render without extra async state. Falls back to a
  * visible error message instead of throwing — a malformed template (bad
  * Liquid syntax) shouldn't crash the review session or the editor's live

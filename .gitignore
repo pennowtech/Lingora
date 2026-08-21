@@ -69,3 +69,6 @@ extension/build/
 *.pem
 *.key
 *.crt
+
+# Private release checklist
+/todo.md

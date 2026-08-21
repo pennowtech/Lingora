@@ -341,7 +341,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <View style={styles.footer}>
             <Image source={appIcon} style={styles.footerIcon} resizeMode="contain" />
-            <Text style={styles.footerText}>{t('Lingora')}</Text>
+            <Text style={styles.footerText}>{t('Lemmory')}</Text>
           </View>
         </>
       )}

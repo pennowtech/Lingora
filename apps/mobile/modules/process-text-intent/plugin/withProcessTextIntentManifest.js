@@ -1,12 +1,12 @@
 const { withAndroidManifest, AndroidConfig } = require('@expo/config-plugins')
 
 // The label shown as the entry in Android's text-selection toolbar (long-press a word in any
-// app -> Copy / Web search / "Search in Lingora"). Without an explicit label Android would fall
+// app -> Copy / Web search / "Search in Lemmory"). Without an explicit label Android would fall
 // back to the whole app name, which reads oddly in that specific menu.
-const PROCESS_TEXT_LABEL = 'Search in Lingora'
+const PROCESS_TEXT_LABEL = 'Search in Lemmory'
 
 /**
- * Registers MainActivity as a handler for Android's ACTION_PROCESS_TEXT intent, so Lingora shows
+ * Registers MainActivity as a handler for Android's ACTION_PROCESS_TEXT intent, so Lemmory shows
  * up in the system text-selection toolbar everywhere on the device. Paired with
  * `modules/process-text-intent`'s native module, which is what actually reads the selected text
  * back out of the intent once this filter routes it to MainActivity — see that module's own doc

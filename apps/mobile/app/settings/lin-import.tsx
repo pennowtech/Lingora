@@ -434,7 +434,7 @@ export default function LinImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <Text style={styles.title}>{t('Import from a .lin file')}</Text>
           <Text style={styles.body}>
-            {t('Choose a Lingora `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
+            {t('Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
           <Button label={t('Choose .lin file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}

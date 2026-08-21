@@ -277,7 +277,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
             </View>
 
           {/* Title & Subtitle */}
-          <Text style={styles.title}>{t('Welcome to Lingora')}</Text>
+          <Text style={styles.title}>{t('Welcome to Lemmory')}</Text>
           <Text style={styles.subtitle}>
             {t('Learn German the way it actually works — in context, at your level, with real examples.')}
           </Text>

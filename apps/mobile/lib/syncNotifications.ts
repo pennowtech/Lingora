@@ -34,7 +34,7 @@ export async function notifySyncSucceeded(summary: CloudSyncSummary): Promise<vo
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Lingora synced',
+        title: 'Lemmory synced',
         body: `${summary.pulled} pulled · ${summary.pushed} pushed · ${summary.deleted} deleted`,
       },
       trigger: null,
@@ -48,7 +48,7 @@ export async function notifySyncFailed(message: string): Promise<void> {
   try {
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
-      content: { title: 'Lingora sync failed', body: message },
+      content: { title: 'Lemmory sync failed', body: message },
       trigger: null,
     })
   } catch (error) {

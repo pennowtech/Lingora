@@ -1,6 +1,6 @@
 <div align="center">
 
-# Lingora
+# Lemmory
 
 **An AI-native language learning app for serious vocabulary acquisition**
 
@@ -12,7 +12,7 @@
 
 </div>
 
-- [Lingora](#lingora)
+- [Lemmory](#lemmory)
   - [What this is](#what-this-is)
   - [Features](#features)
     - [Core vocabulary](#core-vocabulary)
@@ -52,11 +52,11 @@
 
 ## What this is
 
-Lingora is a not just a translation app or a flashcard app. It is built around two ideas most language apps get wrong.
+Lemmory is not just a translation app or a flashcard app. It is built around two ideas most language apps get wrong.
 
-The first is **semantic context**. Most apps store a flat list of meanings for a word. Lingora groups meanings into clusters — the word _charge_ in a financial context is a fundamentally different word from _charge_ in an electrical context. Every example sentence, synonym, and generated card is scoped to a specific cluster. You never get an example about courtrooms when you were studying batteries.
+The first is **semantic context**. Most apps store a flat list of meanings for a word. Lemmory groups meanings into clusters — the word _charge_ in a financial context is a fundamentally different word from _charge_ in an electrical context. Every example sentence, synonym, and generated card is scoped to a specific cluster. You never get an example about courtrooms when you were studying batteries.
 
-The second is **morphological awareness**. German is an inflected language. _Ging aus_, _geht aus_, and _ausgegangen_ are all forms of the same verb. Lingora normalises every surface form to its root before anything else happens, so you never end up with duplicate cards for the same word.
+The second is **morphological awareness**. German is an inflected language. _Ging aus_, _geht aus_, and _ausgegangen_ are all forms of the same verb. Lemmory normalises every surface form to its root before anything else happens, so you never end up with duplicate cards for the same word.
 
 Everything else — AI generation, spaced repetition, cross-device sync, the browser extension — builds on top of those two foundations.
 
@@ -391,7 +391,7 @@ All 24 tables, in the phase they are introduced:
 
 ## AI providers
 
-Lingora ships with OpenAI. Adding a new provider means implementing one interface:
+Lemmory ships with OpenAI. Adding a new provider means implementing one interface:
 
 ```typescript
 interface AIProvider {
@@ -566,6 +566,6 @@ MIT — see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-*Lingora — app for people who want to actually learn, not just feel like they're learning.*
+*Lemmory — for people who want to actually learn, not just feel like they're learning.*
 <sub>Built with React Native, Tauri, SQLite, and a lot of German vocabulary.</sub>
 </div>

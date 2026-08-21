@@ -4,8 +4,8 @@ import android.content.Intent
 
 /**
  * Holds a PROCESS_TEXT intent received before the JS side had a chance to ask for it — the cold
- * start case (user long-presses text in another app, taps "Search in Lingora" in the selection
- * toolbar, and Lingora wasn't already running). `ProcessTextIntentReactActivityLifecycleListener`
+ * start case (user long-presses text in another app, taps "Search in Lemmory" in the selection
+ * toolbar, and Lemmory wasn't already running). `ProcessTextIntentReactActivityLifecycleListener`
  * populates this from `Activity.onCreate`; `ProcessTextIntentModule#getInitialProcessText` drains
  * it once the JS side is ready. The already-running case never touches this — it's handled by the
  * module's own `OnNewIntent` straight away, no singleton hand-off needed.

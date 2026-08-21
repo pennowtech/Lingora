@@ -1499,7 +1499,11 @@ export default function WordDetailScreen(): JSX.Element {
                 turned out too easy to miss, and not the old full-width button either. High
                 contrast + a shadow so it visibly reads as "tap me" at a glance. */}
             <Pressable
-              style={({ pressed }) => [styles.phrasesPill, pressed && styles.phrasesPillPressed]}
+              style={({ pressed }) => [
+                styles.phrasesPill,
+                styles.phrasesLoadMorePill,
+                pressed && styles.phrasesPillPressed,
+              ]}
               accessibilityRole="button"
               accessibilityLabel={t('Load more phrases with AI')}
               disabled={generatePhrases.isPending}
@@ -1523,10 +1527,6 @@ export default function WordDetailScreen(): JSX.Element {
           </>
         ) : (
           <Card style={styles.phrasesEmptyCard}>
-            <View style={styles.phrasesEmptyIconBadge}>
-              <Ionicons name="chatbubbles" size={22} color={colors.primary} />
-            </View>
-            <Text style={styles.phrasesEmptyTitle}>{t('Idioms & Collocations')}</Text>
             <Text style={styles.phrasesEmptySubtitle}>
               {t('Discover common expressions and word combinations for this word.')}
             </Text>
@@ -2093,33 +2093,23 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       marginTop: 2,
     },
-    phrasesHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: spacing.xl,
-      marginBottom: spacing.md,
-    },
-    phrasesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-    phrasesAiButton: {
-      width: 32,
-      height: 32,
-      borderRadius: radius.full,
-      backgroundColor: colors.primarySoft,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    phrasesEmptyHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
     phrasesPill: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
       backgroundColor: colors.primary,
       paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
+      paddingVertical: spacing.sm,
       borderRadius: radius.full,
+      marginTop: spacing.sm,
+      shadowColor: colors.primaryDark,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    phrasesLoadMorePill: {
       alignSelf: 'flex-start',
-      marginTop: spacing.xs,
     },
     phrasesPillPressed: {
       opacity: 0.8,

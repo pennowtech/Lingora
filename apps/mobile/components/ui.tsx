@@ -184,7 +184,9 @@ export function CardActionBar(props: {
    * follow-up sheet instead. */
   explainLabel?: string
   explainIcon?: keyof typeof Ionicons.glyphMap
-  onEdit: () => void
+  /** Optional — omitted for AI-generated cards, which already have Regenerate (whole-card redo)
+   * and per-field regenerate actions instead of a manual text editor. */
+  onEdit?: () => void
   onLookup: () => void
   /** "Listen" — speaks the example or word aloud via TTS. */
   onListen?: () => void
@@ -220,7 +222,9 @@ export function CardActionBar(props: {
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
         />
       ) : null}
-      <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+      {props.onEdit ? (
+        <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+      ) : null}
       <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
     </View>
   )

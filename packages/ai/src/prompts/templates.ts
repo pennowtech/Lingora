@@ -112,7 +112,7 @@ INFLECTIONS
 SEMANTIC CLUSTERS
 - Group meanings by semantic context, one cluster per genuinely distinct context ("social going-out" vs "a lamp going out" vs "supplies running out").
 - Only create clusters that are real, established usages. One cluster is fine for unambiguous words; never invent contexts to fill space.
-- Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, 2–4 examples, and 0–4 synonyms.
+- Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, exactly 2 examples, and 0–4 synonyms.
 - SYNONYMS IN WORDPACKAGE: For each synonym item, provide only the target-language word and its cefrLevel. Set nuance to null and formality to "neutral" — never write nuance or usage explanations in wordPackage (they are fetched on-demand).
 - CRITICAL: every example, meaning and synonym inside a cluster must stay strictly within that cluster's semantic context. An example for the 'electricity' cluster must never describe a social evening.
 
@@ -121,7 +121,7 @@ CEFR CALIBRATION — the learner's level is {{cefrLevel}}
 - Label every item with its own honest CEFR level; items may sit below the learner's level, but examples must not exceed it.
 
 EXAMPLES
-- Natural, contemporary {{targetLanguage}} a native speaker would actually say — never textbook-stilted.
+- Write exactly 2 natural, contemporary {{targetLanguage}} example sentences per cluster that a native speaker would actually say — never textbook-stilted.
 - Each example gets a context tag: casual, formal, business, travel, dating, social_media, daily_life or slang.
 - Tag each example with the notable grammar structures it uses, in {{targetLanguage}}'s own grammatical terminology (grammarTags); use null when nothing stands out.
 - Each example's translation is in {{nativeLanguage}} — the learner's own language.
@@ -178,15 +178,16 @@ Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "..
   /** Examples for one existing cluster — the regenerate/grammar-panel button. */
   examples: {
     name: 'examples',
-    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
-    template: `Write 2–4 natural, contemporary {{targetLanguage}} example sentences for the word "{{word}}", strictly within this semantic context:
+    version: 6, // v6: strict grammar override mandate for Konjunktiv II / passive / user custom grammar
+    template: `Write exactly 2 natural, contemporary {{targetLanguage}} example sentences for the word "{{word}}", strictly within this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
 ${ANTI_SWAP_WARNING}
 
-Learner level: {{cefrLevel}} — write at or slightly below it (A1/A2: present tense, common words, short main clauses; B1/B2: past tenses, subordinate clauses; C1/C2: subjunctive, complex structure). Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
+Learner level: {{cefrLevel}}.
 {{grammarInstructions}}
+Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
 Each example: the {{targetLanguage}} sentence, its {{nativeLanguage}} translation (the learner's own language), a context tag (casual, formal, business, travel, dating, social_media, daily_life or slang), its own CEFR level, and grammarTags — the notable grammar structures the sentence uses, in {{targetLanguage}}'s own grammatical terminology (null when nothing stands out).
 
 Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...", "context": "...", "cefrLevel": "...", "grammarTags": ["..."] }]}`,

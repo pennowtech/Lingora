@@ -177,8 +177,8 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
       clusterDescription: cluster.description,
       grammarInstructions:
         grammar.length > 0
-          ? `\nGRAMMAR TARGETING: every example must exercise at least one of these structures, and together the examples must cover all of them: ${grammar.join(', ')}. List the structures each sentence actually uses in its grammarTags.\n`
-          : '',
+          ? `\nCRITICAL GRAMMAR REQUIREMENT: You MUST write EVERY example sentence using the following specified grammar structure(s): ${grammar.join(', ')}. Override any default tense or simplicity restrictions to ensure this grammar structure is explicitly present in the sentence. Include "${grammar.join(', ')}" in the grammarTags array for each sentence.\n`
+          : 'Write sentences at or slightly below the learner level.',
     })
     const result = await this.generateStrict(prompt, 'examples', examplesResponseSchema)
     return { data: result.data.examples, usage: result.usage }

@@ -83,7 +83,7 @@ import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/Cloze
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { WordGuideModal } from '../../components/WordGuideModal'
-import { CardSourceIcon } from '../../lib/cardSource'
+import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
@@ -368,6 +368,16 @@ export default function WordDetailScreen(): JSX.Element {
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
+  const [customGrammarInput, setCustomGrammarInput] = useState('')
+
+  const handleAddCustomGrammar = () => {
+    const trimmed = customGrammarInput.trim()
+    if (!trimmed) return
+    if (!grammarSelection.includes(trimmed)) {
+      setGrammarSelection((prev) => [...prev, trimmed])
+    }
+    setCustomGrammarInput('')
+  }
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
@@ -1051,7 +1061,14 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.headerText}>
             <View style={styles.wordFormRow}>
               <Text style={styles.wordForm} selectable>{nativeTerm ?? word.lemma.form}</Text>
-              <CardSourceIcon source={word.card?.source} size={18} />
+              <CardSourceIcon
+                source={
+                  word.card?.source && !['google', 'google_translate', 'word_guide'].includes(word.card.source)
+                    ? word.card.source
+                    : (ai?.name ? dictionaryNameToCardSource(ai.name) : word.card?.source)
+                }
+                size={18}
+              />
             </View>
             {autoEnrichMutation.isPending ? (
               <View style={styles.aiEnrichingBadge}>
@@ -1123,7 +1140,7 @@ export default function WordDetailScreen(): JSX.Element {
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
                   {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
-                  onEdit={openEdit}
+                  {...(!isAiCard && { onEdit: openEdit })}
                   onLookup={handleLookup}
                   onAskAI={handleAskAI}
                   {...(isAiCard && {
@@ -1166,25 +1183,29 @@ export default function WordDetailScreen(): JSX.Element {
                     ex.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
                   ]}
                 >
-                  {ex.isSelected ? (
-                    <View style={styles.selectedBanner}>
-                      <Ionicons name="star" size={14} color={colors.primary} />
-                      <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
-                    </View>
-                  ) : (
-                    <Pressable
-                      style={styles.selectedBanner}
-                      onPress={() => selectExample.mutate(ex.id)}
-                      disabled={selectExample.isPending}
-                      hitSlop={10}
-                    >
-                      <Ionicons name="star-outline" size={14} color={colors.textMuted} />
-                      <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
-                    </Pressable>
-                  )}
+                  <View style={styles.exampleHeaderRow}>
+                    {ex.isSelected ? (
+                      <View style={styles.selectedBanner}>
+                        <Ionicons name="star" size={14} color={colors.primary} />
+                        <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
+                      </View>
+                    ) : (
+                      <Pressable
+                        style={styles.selectedBanner}
+                        onPress={() => selectExample.mutate(ex.id)}
+                        disabled={selectExample.isPending}
+                        hitSlop={10}
+                      >
+                        <Ionicons name="star-outline" size={14} color={colors.textMuted} />
+                        <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
+                      </Pressable>
+                    )}
+
+                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                  </View>
+
                   <View style={styles.exampleSentenceRow}>
                     <Text style={styles.exampleSentence} selectable>{ex.sentence}</Text>
-                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
                   </View>
                   <Text style={styles.exampleTranslation} selectable>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>
@@ -1199,61 +1220,150 @@ export default function WordDetailScreen(): JSX.Element {
                 </Card>
               ))}
 
-            {/* ── Grammar controls panel (advanced, collapsible) ── */}
-            <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen((v) => !v)}>
-              <Ionicons name="options" size={16} color={colors.primary} />
+            {tier === 'full' && active.examples.length > 0 && (
+              <View style={styles.moreExamplesContainer}>
+                <Button
+                  label={generateExamples.isPending ? t('Generating more examples…') : t('Generate more examples')}
+                  icon="sparkles"
+                  variant="secondary"
+                  small
+                  disabled={generateExamples.isPending}
+                  onPress={() => generateExamples.mutate()}
+                />
+              </View>
+            )}
+
+            {/* ── Advanced grammar options trigger button ── */}
+            <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen(true)}>
+              <Ionicons name="options-outline" size={16} color={colors.primary} />
               <Text style={styles.grammarToggleLabel}>
                 {t('Advanced grammar options')}{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}
               </Text>
-              <Ionicons name={grammarOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+              <Ionicons name="chevron-forward" size={16} color={colors.primary} />
             </Pressable>
 
-            {grammarOpen ? (
-              <Card style={styles.grammarPanel}>
-                {getGrammarGroups(targetLanguage).map((group) => (
-                  <View key={group.title} style={styles.grammarGroup}>
-                    <Text style={styles.grammarGroupTitle}>{t(group.title)}</Text>
-                    <View style={styles.chipRow}>
-                      {group.options.map((option) => (
-                        <Chip
-                          key={option}
-                          label={option}
-                          selected={grammarSelection.includes(option)}
-                          onPress={() => toggleGrammar(option)}
-                        />
-                      ))}
+            {/* ── Advanced Grammar Options Modal Pop-Up ── */}
+            <Modal
+              visible={grammarOpen}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setGrammarOpen(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <Pressable style={StyleSheet.absoluteFill} onPress={() => setGrammarOpen(false)} />
+                <View style={styles.grammarModalContent}>
+                  <View style={styles.grammarModalHeader}>
+                    <View style={styles.grammarModalTitleRow}>
+                      <Ionicons name="options" size={20} color={colors.primary} />
+                      <Text style={styles.grammarModalTitle}>{t('Advanced Grammar Options')}</Text>
                     </View>
+                    <Pressable
+                      style={styles.grammarModalCloseBtn}
+                      onPress={() => setGrammarOpen(false)}
+                      hitSlop={10}
+                    >
+                      <Ionicons name="close" size={20} color={colors.textSecondary} />
+                    </Pressable>
                   </View>
-                ))}
-                {grammarSelection.length > 0 ? (
-                  <Text style={styles.grammarSummary}>{t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}</Text>
-                ) : null}
-                {tier === 'full' ? (
-                  <Button
-                    label={generateExamples.isPending ? t('Generating…') : t('Generate examples')}
-                    icon="sparkles"
-                    disabled={generateExamples.isPending}
-                    onPress={() => generateExamples.mutate()}
-                  />
-                ) : (
-                  <>
-                    <Text style={styles.limitedHint}>
-                      {t('No AI provider is active — add and enable one to generate targeted examples.')}
+
+                  <ScrollView
+                    style={styles.grammarModalBody}
+                    contentContainerStyle={{ paddingBottom: spacing.md }}
+                    showsVerticalScrollIndicator={true}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <Text style={styles.grammarModalSubtitle}>
+                      {t('Select grammar structures to exercise in your examples:')}
                     </Text>
-                    <Button
-                      label={t('Open Settings')}
-                      icon="key-outline"
-                      variant="secondary"
-                      small
-                      onPress={() => router.push('/settings')}
-                    />
-                  </>
-                )}
-                {generateExamples.isError ? (
-                  <Text style={styles.generateError}>{String(generateExamples.error)}</Text>
-                ) : null}
-              </Card>
-            ) : null}
+
+                    {getGrammarGroups(targetLanguage).map((group) => (
+                      <View key={group.title} style={styles.grammarGroup}>
+                        <Text style={styles.grammarGroupTitle}>{t(group.title)}</Text>
+                        <View style={styles.chipRow}>
+                          {group.options.map((option) => (
+                            <Chip
+                              key={option}
+                              label={option}
+                              selected={grammarSelection.includes(option)}
+                              onPress={() => toggleGrammar(option)}
+                            />
+                          ))}
+                        </View>
+                      </View>
+                    ))}
+
+                    {/* Custom Grammar Rule Input */}
+                    <View style={styles.grammarGroup}>
+                      <Text style={styles.grammarGroupTitle}>{t('Custom Grammar Rule')}</Text>
+                      <View style={styles.customGrammarInputRow}>
+                        <TextInput
+                          style={styles.customGrammarInput}
+                          placeholder={t('e.g. Past perfect continuous, reported speech…')}
+                          placeholderTextColor={colors.textMuted}
+                          value={customGrammarInput}
+                          onChangeText={setCustomGrammarInput}
+                          onSubmitEditing={handleAddCustomGrammar}
+                          returnKeyType="done"
+                        />
+                        <Pressable
+                          style={[
+                            styles.addCustomGrammarBtn,
+                            !customGrammarInput.trim() && styles.addCustomGrammarBtnDisabled,
+                          ]}
+                          onPress={handleAddCustomGrammar}
+                          disabled={!customGrammarInput.trim()}
+                        >
+                          <Ionicons
+                            name="add"
+                            size={20}
+                            color={customGrammarInput.trim() ? colors.surface : colors.textMuted}
+                          />
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    {grammarSelection.length > 0 ? (
+                      <View style={styles.grammarSummaryBox}>
+                        <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                        <Text style={styles.grammarSummary}>
+                          {t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </ScrollView>
+
+                  <View style={styles.grammarModalFooter}>
+                    {tier === 'full' ? (
+                      <Button
+                        label={generateExamples.isPending ? t('Generating examples…') : t('Generate targeted examples')}
+                        icon="sparkles"
+                        disabled={generateExamples.isPending}
+                        onPress={() => {
+                          setGrammarOpen(false)
+                          generateExamples.mutate()
+                        }}
+                      />
+                    ) : (
+                      <View style={styles.grammarModalNoAi}>
+                        <Text style={styles.limitedHint}>
+                          {t('No AI provider is active — add and enable one to generate targeted examples.')}
+                        </Text>
+                        <Button
+                          label={t('Open Settings')}
+                          icon="key-outline"
+                          variant="secondary"
+                          small
+                          onPress={() => {
+                            setGrammarOpen(false)
+                            router.push('/settings')
+                          }}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </View>
+            </Modal>
 
             {/* ── Synonyms ── */}
             {active.synonyms.length > 0 ? (
@@ -1741,6 +1851,12 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.sm,
       padding: spacing.sm,
     },
+    exampleHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.xs,
+    },
     exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
     exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
@@ -1757,13 +1873,115 @@ const createStyles = (colors: ThemeColors) =>
       gap: spacing.sm,
       paddingVertical: spacing.md,
     },
+    moreExamplesContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: spacing.xs,
+      marginBottom: spacing.xs,
+    },
     grammarToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-    grammarPanel: { gap: spacing.md, marginBottom: spacing.md },
-    grammarGroup: {},
-    grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
-    grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
+    grammarGroup: { marginBottom: spacing.md },
+    grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
+    customGrammarInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    customGrammarInput: {
+      flex: 1,
+      fontSize: type.caption,
+      color: colors.text,
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    addCustomGrammarBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.md,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addCustomGrammarBtnDisabled: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    grammarSummaryBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.primarySoft,
+      padding: spacing.sm,
+      borderRadius: radius.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    grammarSummary: { fontSize: type.caption, color: colors.primary, fontWeight: '600' },
     limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
     generateError: { fontSize: type.caption, color: colors.danger },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.55)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    grammarModalContent: {
+      width: '100%',
+      maxWidth: 440,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      maxHeight: '82%',
+      padding: spacing.lg,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.25,
+      shadowRadius: 20,
+      elevation: 10,
+    },
+    grammarModalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    grammarModalTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    grammarModalTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    grammarModalCloseBtn: {
+      padding: spacing.xs,
+    },
+    grammarModalSubtitle: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    grammarModalBody: {
+      flexShrink: 1,
+      maxHeight: 420,
+    },
+    grammarModalFooter: {
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    grammarModalNoAi: {
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
     synBlock: {
       paddingVertical: spacing.sm,
     },

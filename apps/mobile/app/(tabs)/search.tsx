@@ -1,13 +1,18 @@
 import { Ionicons } from '@expo/vector-icons'
 import {
   createDeck,
+  findLemmaBySurfaceForm,
+  getCardByLemmaAndNativeLanguage,
   getWordGuide,
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
   type LemmaSearchPreview,
 } from '@lingora/database'
+import { logger } from '@lingora/observability'
 import type { LanguageCode } from '@lingora/types'
+
+const log = logger.child({ feature: 'search', component: 'search-screen' })
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX } from 'react'
@@ -98,11 +103,27 @@ function useDebounced(value: string, delayMs: number): string {
 }
 
 /**
+ * Same idea as useDebounced, but much slower and flushable — for the quick-explain AI call, which
+ * (unlike FTS search or the free Google Translate preview) costs real tokens per distinct word, so
+ * it shouldn't fire on every short typing pause. `flush` lets the keyboard's search/submit action
+ * skip the wait entirely once the user clearly means "this word, now."
+ */
+function useSlowDebounced(value: string, delayMs: number): [string, () => void] {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs)
+    return () => clearTimeout(timer)
+  }, [value, delayMs])
+  const flush = (): void => setDebounced(value)
+  return [debounced, flush]
+}
+
+/**
  * Word search with results-as-you-type: FTS5 over lemma forms and meaning
  * translations. Unknown words hand off to the Phase 3 generation pipeline.
  */
 export default function SearchScreen(): JSX.Element {
-  const { db, dictionary, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
+  const { db, ai, dictionary, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -119,6 +140,7 @@ export default function SearchScreen(): JSX.Element {
   const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
   const help = useHelpAccordion('lookup')
   const term = useDebounced(query.trim(), 250)
+  const [explainTerm, flushExplainTerm] = useSlowDebounced(query.trim(), 2500)
 
   const setQuery = (value: string): void => {
     lastSearchQuery = value
@@ -147,6 +169,28 @@ export default function SearchScreen(): JSX.Element {
     queryKey: ['word-guide-preview', term, targetLanguage],
     queryFn: () => getWordGuide(db, term, targetLanguage),
     enabled: term !== '' && (search.data?.length ?? 0) === 0,
+  })
+
+  // A short (~50-word) AI gist of a not-yet-generated word, shown by default in place of the bare
+  // "Generate with AI" button once it's ready — tapping it (like the plain button) generates the
+  // full card. Unlike quickTranslate/wordGuide below, this costs real tokens per distinct word, so
+  // it's gated behind explainTerm's own much slower debounce (2500ms, or immediately on keyboard
+  // submit — see flushExplainTerm) rather than the fast 250ms `term` used for search-as-you-type,
+  // and skipped entirely when the free installed dictionary (wordGuide) already has a gloss.
+  // staleTime is a full day: the explanation of a word doesn't change, so a session that revisits
+  // the same word (e.g. backspacing and retyping it) shouldn't pay for it twice.
+  const quickExplain = useQuery({
+    queryKey: ['quick-explain', explainTerm, targetLanguage, nativeLanguage, defaultCefr, ai?.name, ai?.model],
+    queryFn: async () =>
+      (await ai!.explainWord(explainTerm, { cefrLevel: defaultCefr, language: targetLanguage, nativeLanguage })).data,
+    enabled:
+      explainTerm !== '' &&
+      explainTerm === term &&
+      (search.data?.length ?? 0) === 0 &&
+      tier === 'full' &&
+      !!ai &&
+      !wordGuide.data,
+    staleTime: 24 * 60 * 60 * 1000,
   })
 
   const addFromGuide = useMutation({
@@ -300,39 +344,77 @@ export default function SearchScreen(): JSX.Element {
     mutationFn: async () => {
       if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate words.'))
       const myRequestId = ++generateRequestId.current
-      // Captured at mutation start, not in onSuccess — term could have moved on by the time
-      // generation finishes if the user kept typing.
       const requestTerm = term
+      const flowStart = Date.now()
+
+      log.info('search.ai_generation_button_tapped', {
+        message: `User tapped "Generate with AI" for "${requestTerm}"`,
+      })
+
+      const existingLemma = await findLemmaBySurfaceForm(db, requestTerm)
+      if (existingLemma) {
+        const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingLemma.id, nativeLanguage)
+        const isFullAiCard = !!matchingCard?.source && ['openai', 'mistral', 'gemini', 'anthropic', 'local'].includes(matchingCard.source)
+        log.info('search.ai_generation_instant_existing', {
+          message: `Word "${requestTerm}" resolved to existing lemma "${existingLemma.form}" in ${Date.now() - flowStart}ms (isFullAiCard: ${isFullAiCard})`,
+        })
+        return {
+          form: existingLemma.form,
+          nativeTerm: undefined,
+          requestTerm,
+          myRequestId,
+          flowStart,
+          autoEnrich: !isFullAiCard,
+        }
+      }
+
       const detectedSource = await detectSearchLanguage(dictionary, requestTerm, nativeLanguage, targetLanguage)
       const reverseDirection = detectedSource === nativeLanguage
-      const word = reverseDirection
+      const targetWord = reverseDirection
         ? (await dictionary.translate(requestTerm, detectedSource, targetLanguage)).data
         : requestTerm
-      const outcome = await pipeline.lookupOrGenerate(word, {
-        cefrLevel: defaultCefr,
-        deckId: DEFAULT_DECK_ID,
-        language: targetLanguage,
+
+      const translation = (await dictionary.translate(targetWord, targetLanguage, nativeLanguage)).data
+
+      const { lemma } = await persistTranslationAsCard(
+        db,
+        {
+          form: targetWord,
+          language: targetLanguage,
+          translation,
+          provider: dictionaryNameToCardSource(dictionary.name),
+        },
+        DEFAULT_DECK_ID,
         nativeLanguage,
-        addToDeck: false,
+      )
+
+      const totalFlowDurationMs = Date.now() - flowStart
+      log.info('search.ai_generation_optimistic_created', {
+        message: `Optimistic card created in ${totalFlowDurationMs}ms for "${lemma.form}" — navigating instantly!`,
+        durationMs: totalFlowDurationMs,
       })
-      return { outcome, nativeTerm: reverseDirection ? requestTerm : undefined, requestTerm, myRequestId }
+
+      return {
+        form: lemma.form,
+        nativeTerm: reverseDirection ? requestTerm : undefined,
+        requestTerm,
+        myRequestId,
+        flowStart,
+        autoEnrich: true,
+      }
     },
-    // `term` here is read fresh when onSuccess actually fires, not when mutate() was called — a
-    // React Query mutation isn't cancelled by generate.reset() (that only clears the UI-visible
-    // state, letting the "Generate with AI" button reappear), so if the user changed the search
-    // and fired a second generate() before a slow first one resolved, the first one's onSuccess
-    // could still land later and silently navigate the user away from the word they're now
-    // actually looking at. Comparing requestTerm to the live term drops that stale result instead.
-    onSuccess: async ({ outcome, nativeTerm, requestTerm, myRequestId }) => {
+    onSuccess: async ({ form, nativeTerm, requestTerm, myRequestId, flowStart, autoEnrich }) => {
       if (myRequestId !== generateRequestId.current) return
       if (requestTerm !== term) return
-      if (outcome.kind === 'existing' || outcome.kind === 'generated') {
-        await queryClient.invalidateQueries()
-        router.push({
-          pathname: '/word/[form]',
-          params: { form: outcome.lemma.form, ...(nativeTerm && { nativeTerm }) },
-        })
-      }
+      await queryClient.invalidateQueries({ queryKey: ['search-lemmas'] })
+      log.info('search.ai_generation_navigating', {
+        message: `Navigating to word detail page for "${form}" (Total flow to nav: ${Date.now() - flowStart}ms)`,
+        durationMs: Date.now() - flowStart,
+      })
+      router.push({
+        pathname: '/word/[form]',
+        params: { form, ...(nativeTerm && { nativeTerm }), ...(autoEnrich && { autoEnrich: 'true' }) },
+      })
     },
   })
 
@@ -352,7 +434,12 @@ export default function SearchScreen(): JSX.Element {
   const generatingMessageIndex = useCyclingIndex(generate.isPending, generatingMessages.length)
 
   const results = search.data ?? []
-  const partial = generate.data?.outcome.kind === 'partial' ? generate.data.outcome : null
+  const partial = null
+
+  // Guards quickExplain's card against showing a previous word's cached explanation while the
+  // user is still mid-typing the next one — explainTerm only catches up to term (and to the AI
+  // response) after the user pauses, so the two must match before quickExplain.data is trusted.
+  const explainReady = explainTerm === term && explainTerm !== ''
 
   // Only meaningful when alwaysShowTranslation (Google) shows the translate card above existing
   // results — the "Add to deck" button there would otherwise offer to add a word that's already
@@ -468,6 +555,8 @@ export default function SearchScreen(): JSX.Element {
             autoCorrect={false}
             autoCapitalize="none"
             autoFocus
+            returnKeyType="search"
+            onSubmitEditing={flushExplainTerm}
           />
           {query !== '' ? (
             <Ionicons name="close-circle" size={18} color={colors.textMuted} onPress={() => setQuery('')} />
@@ -493,95 +582,122 @@ export default function SearchScreen(): JSX.Element {
       ) : results.length === 0 ? (
         <View>
           <View style={styles.newWordCards}>
-          {wordGuide.data ? (
-            <Card style={styles.guideCard}>
-              <View style={styles.guideHeaderRow}>
-                <View style={styles.guideTitleGroup}>
-                  <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
-                  {wordGuide.data.partOfSpeech ? (
-                    <Text style={styles.guidePosText}>
-                      {wordGuide.data.partOfSpeech}
-                      {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
-                    </Text>
-                  ) : null}
+            {wordGuide.data ? (
+              <Card style={styles.guideCard}>
+                <View style={styles.guideHeaderRow}>
+                  <View style={styles.guideTitleGroup}>
+                    <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
+                    {wordGuide.data.partOfSpeech ? (
+                      <Text style={styles.guidePosText}>
+                        {wordGuide.data.partOfSpeech}
+                        {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.guideActionIcons}>
+                    <SpeakerButton text={wordGuide.data.headword} language={wordGuide.data.language} size={18} />
+                    <CardSourceIcon source="word_guide" size={16} />
+                  </View>
                 </View>
-                <View style={styles.guideActionIcons}>
-                  <SpeakerButton text={wordGuide.data.headword} language={wordGuide.data.language} size={18} />
-                  <CardSourceIcon source="word_guide" size={16} />
+
+                <Text style={styles.guideTranslationText}>{wordGuide.data.translation}</Text>
+
+                {wordGuide.data.intro ? (
+                  <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
+                ) : null}
+
+                <View style={styles.guideFooterRow}>
+                  <Button
+                    label={t('Add to deck')}
+                    icon="add-circle"
+                    variant="primary"
+                    small
+                    onPress={() => setDeckPickerFor('guide')}
+                  />
+                  <Button
+                    label={t('More info')}
+                    icon="book-outline"
+                    variant="secondary"
+                    small
+                    onPress={() => setGuideModalOpen(true)}
+                  />
                 </View>
-              </View>
-
-              <Text style={styles.guideTranslationText}>{wordGuide.data.translation}</Text>
-
-              {wordGuide.data.intro ? (
-                <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
-              ) : null}
-
-              <View style={styles.guideFooterRow}>
-                <Button
-                  label={t('Add to deck')}
-                  icon="add-circle"
-                  variant="primary"
-                  small
-                  onPress={() => setDeckPickerFor('guide')}
-                />
-                <Button
-                  label={t('More info')}
-                  icon="book-outline"
-                  variant="secondary"
-                  small
-                  onPress={() => setGuideModalOpen(true)}
-                />
-              </View>
-            </Card>
-          ) : null}
-
-          {/* ── Word guide detail modal ── */}
-          <WordGuideModal
-            visible={guideModalOpen}
-            guide={wordGuide.data ?? null}
-            onClose={() => setGuideModalOpen(false)}
-            footer={
-              <Button label={t('Add to deck')} icon="add-circle" onPress={() => setDeckPickerFor('guide')} />
-            }
-          />
-          {quickTranslatePreview}
-          {generate.isPending ? (
-            <Card style={styles.generateCard}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.generateLabel}>{t('Generating…')}</Text>
-            </Card>
-          ) : tier === 'full' ? (
-            <Card style={styles.generateCard} onPress={() => generate.mutate()}>
-              <Ionicons name="sparkles" size={18} color={colors.primary} />
-              <Text style={styles.generateLabel}>{t('Generate with AI')}</Text>
-            </Card>
-          ) : (
-            <Pressable onPress={() => router.push('/settings/ai-providers')}>
-              <Card style={styles.limitedCard}>
-                <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
-                <Text style={styles.limitedLabel}>
-                  {t('No AI provider is active — add and enable one in Settings to generate new words')}
-                </Text>
               </Card>
-            </Pressable>
-          )}
-          {generate.isError ? (
-            <Text style={styles.generateError}>
-              {isNetworkError(generate.error)
-                ? networkErrorMessage(t)
-                : String(generate.error)}
-            </Text>
-          ) : null}
-          {partial ? (
-            <Card style={styles.partialCard}>
-              <Text style={styles.partialTitle}>{t('Generation came back incomplete')}</Text>
-              <Text style={styles.partialBody}>
-                {partial.issues.slice(0, 3).join('\n')}
+            ) : null}
+
+            {/* ── Word guide detail modal ── */}
+            <WordGuideModal
+              visible={guideModalOpen}
+              guide={wordGuide.data ?? null}
+              onClose={() => setGuideModalOpen(false)}
+              footer={
+                <Button label={t('Add to deck')} icon="add-circle" onPress={() => setDeckPickerFor('guide')} />
+              }
+            />
+            {quickTranslatePreview}
+            {generate.isPending ? (
+              <Card style={styles.generateCard}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.generateLabel}>{t('Generating…')}</Text>
+              </Card>
+            ) : tier === 'full' ? (
+              explainReady && quickExplain.data ? (
+                <Pressable onPress={() => generate.mutate()} accessibilityRole="button">
+                  {({ pressed }) => (
+                    <Card style={[styles.explainCard, pressed && styles.explainCardPressed]}>
+                      <View style={styles.explainHeaderRow}>
+                        <View style={styles.explainIconBadge}>
+                          <Ionicons name="sparkles" size={13} color={colors.primary} />
+                        </View>
+                        <Text style={styles.explainWord} numberOfLines={1}>
+                          {term}
+                        </Text>
+                      </View>
+                      <Text style={styles.explainText} numberOfLines={5}>
+                        {quickExplain.data}
+                      </Text>
+                      <View style={styles.explainFooterRow}>
+                        <Text style={styles.explainFooterText}>{t('Tap to build the full card')}</Text>
+                        <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                      </View>
+                    </Card>
+                  )}
+                </Pressable>
+              ) : explainReady && quickExplain.isPending ? (
+                <Pressable onPress={() => generate.mutate()} accessibilityRole="button">
+                  <Card style={styles.explainCard}>
+                    <View style={styles.explainHeaderRow}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                      <Text style={styles.explainLoadingLabel} numberOfLines={1}>
+                        {t('Getting a quick take on "{{word}}"…', { word: term })}
+                      </Text>
+                    </View>
+                  </Card>
+                </Pressable>
+              ) : (
+                <Card style={styles.generateCard} onPress={() => generate.mutate()}>
+                  <Ionicons name="sparkles" size={18} color={colors.primary} />
+                  <Text style={styles.generateLabel}>{t('Generate with AI')}</Text>
+                </Card>
+              )
+            ) : (
+              <Pressable onPress={() => router.push('/settings/ai-providers')}>
+                <Card style={styles.limitedCard}>
+                  <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
+                  <Text style={styles.limitedLabel}>
+                    {t('No AI provider is active — add and enable one in Settings to generate new words')}
+                  </Text>
+                </Card>
+              </Pressable>
+            )}
+            {generate.isError ? (
+              <Text style={styles.generateError}>
+                {isNetworkError(generate.error)
+                  ? networkErrorMessage(t)
+                  : String(generate.error)}
               </Text>
-              <Text style={styles.partialHint}>{t('Nothing was saved — try again.')}</Text>
-            </Card>
-          ) : null}
+            ) : null}
+
           </View>
         </View>
       ) : (
@@ -655,165 +771,195 @@ export default function SearchScreen(): JSX.Element {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 2,
-  },
-  input: { flex: 1, fontSize: type.body, color: colors.text, paddingVertical: spacing.md },
-  centered: { paddingTop: spacing.xxl, alignItems: 'center' },
-  list: { paddingTop: spacing.lg },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  rowText: { flex: 1, marginRight: spacing.md },
-  form: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  // Was a negative offset that pulled these cards up into the old "is new" EmptyState's own
-  // bottom padding — now that block is gone (see the `results.length === 0` branch above), so
-  // this is the top of the whole panel and needs real breathing room under the search bar instead.
-  newWordCards: { marginTop: spacing.lg },
-  guideCard: {
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  guideHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  guideTitleGroup: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-    flex: 1,
-  },
-  guideActionIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  guideHeadword: {
-    fontSize: type.heading,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  guidePosText: {
-    fontSize: type.caption,
-    fontWeight: '600',
-    color: colors.textMuted,
-    fontStyle: 'italic',
-  },
-  guideTranslationText: {
-    fontSize: type.body,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  guideSnippet: {
-    fontSize: type.caption,
-    color: colors.textSecondary,
-    lineHeight: 18,
-  },
-  guideFooterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  translateCard: {
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  inDeckBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.xs,
-  },
-  inDeckBadgeText: {
-    fontSize: type.caption,
-    fontWeight: '600',
-    color: colors.success,
-  },
-  translateDirectionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-  },
-  translateDirection: {
-    fontSize: type.micro,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  translateLabel: { fontSize: type.body, color: colors.textSecondary },
-  translateErrorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  translateErrorText: { flex: 1, fontSize: type.caption, color: colors.textMuted },
-  inDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  translationsLine: { flexShrink: 1, fontSize: type.body, fontWeight: '400', color: colors.textSecondary },
-  translationPrimary: { fontWeight: '700', color: colors.text },
-  guideTranslationRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-  generateCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primarySoft,
-  },
-  generateLabel: { fontSize: type.body, fontWeight: '700', color: colors.primary },
-  limitedCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-    backgroundColor: colors.surfaceMuted,
-    borderColor: colors.border,
-  },
-  limitedLabel: {
-    flex: 1,
-    fontSize: type.caption,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  generateError: {
-    marginTop: spacing.md,
-    fontSize: type.caption,
-    color: colors.danger,
-    textAlign: 'center',
-  },
-  partialCard: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.warningSoft,
-    borderColor: colors.warningSoft,
-    gap: spacing.sm,
-  },
-  partialTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  partialBody: { fontSize: type.caption, color: colors.textSecondary },
-  partialHint: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },
+    container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    searchBox: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 2,
+    },
+    input: { flex: 1, fontSize: type.body, color: colors.text, paddingVertical: spacing.md },
+    centered: { paddingTop: spacing.xxl, alignItems: 'center' },
+    list: { paddingTop: spacing.lg },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    rowText: { flex: 1, marginRight: spacing.md },
+    form: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    meaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    // Was a negative offset that pulled these cards up into the old "is new" EmptyState's own
+    // bottom padding — now that block is gone (see the `results.length === 0` branch above), so
+    // this is the top of the whole panel and needs real breathing room under the search bar instead.
+    newWordCards: { marginTop: spacing.lg },
+    guideCard: {
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    guideHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    guideTitleGroup: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+      flex: 1,
+    },
+    guideActionIcons: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    guideHeadword: {
+      fontSize: type.heading,
+      fontWeight: '800',
+      color: colors.text,
+    },
+    guidePosText: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textMuted,
+      fontStyle: 'italic',
+    },
+    guideTranslationText: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    guideSnippet: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    guideFooterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    translateCard: {
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    inDeckBadgeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      marginTop: spacing.xs,
+    },
+    inDeckBadgeText: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.success,
+    },
+    translateDirectionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+    },
+    translateDirection: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    translateLabel: { fontSize: type.body, color: colors.textSecondary },
+    translateErrorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    translateErrorText: { flex: 1, fontSize: type.caption, color: colors.textMuted },
+    inDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    translationsLine: { flexShrink: 1, fontSize: type.body, fontWeight: '400', color: colors.textSecondary },
+    translationPrimary: { fontWeight: '700', color: colors.text },
+    guideTranslationRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+    generateCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primarySoft,
+    },
+    generateLabel: { fontSize: type.body, fontWeight: '700', color: colors.primary },
+    // The AI quick-explanation card (search-result-inline preview, tap to build the full card) —
+    // primarySoft-tinted like generateCard so it reads as the same "AI, actionable" affordance,
+    // just richer once content has loaded instead of a bare CTA pill.
+    explainCard: {
+      marginTop: spacing.md,
+      gap: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primarySoft,
+    },
+    explainCardPressed: { opacity: 0.85 },
+    explainHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    explainIconBadge: {
+      width: 24,
+      height: 24,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    explainWord: { flex: 1, fontSize: type.body, fontWeight: '800', color: colors.text },
+    explainText: { fontSize: type.body, color: colors.textSecondary, lineHeight: 21 },
+    explainFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing.xs },
+    explainFooterText: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.primary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    explainLoadingLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.primary },
+    limitedCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.border,
+    },
+    limitedLabel: {
+      flex: 1,
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    generateError: {
+      marginTop: spacing.md,
+      fontSize: type.caption,
+      color: colors.danger,
+      textAlign: 'center',
+    },
+    partialCard: {
+      marginTop: spacing.lg,
+      backgroundColor: colors.warningSoft,
+      borderColor: colors.warningSoft,
+      gap: spacing.sm,
+    },
+    partialTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    partialBody: { fontSize: type.caption, color: colors.textSecondary },
+    partialHint: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },
   })

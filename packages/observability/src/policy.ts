@@ -15,6 +15,10 @@ export const ALLOWED_METADATA_KEYS = new Set([
   'queueSize', 'itemCount', 'conflictCount',
   'settingGroup', 'settingKey', 'occurrenceCount', 'windowMs',
   'recordId',
+  'dictHintDurationMs', 'llmDurationMs', 'dbPersistDurationMs',
+  'morphologyDurationMs', 'cacheCheckDurationMs', 'detectDurationMs',
+  'reverseTranslateDurationMs', 'pipelineDurationMs', 'totalFlowDurationMs',
+  'navPrepareDurationMs',
 ])
 
 const EVENT_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]+)+$/

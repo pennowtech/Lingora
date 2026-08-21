@@ -43,13 +43,60 @@ function offlineMessage(providerName: string): string {
  * Formats technical raw API errors (JSON strings, HTTP status dumps, stack traces)
  * into clean, user-friendly, actionable messages for settings & error alerts.
  */
-export function formatUserFriendlyProviderError(providerName: string, error: unknown): string {
+export type TranslateFn = (key: string, options?: any) => string
+
+export function formatUserFriendlyProviderError(
+  providerName: string,
+  error: unknown,
+  t?: TranslateFn,
+): string {
+  const tr: TranslateFn = t ?? ((key, options) => {
+    if (!options) return key
+    return Object.entries(options).reduce(
+      (acc, [k, v]) => acc.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v)),
+      key,
+    )
+  })
+
   const providerError = error instanceof AIProviderError ? error : undefined
   const status = providerError?.status
   const rawMsg = error instanceof Error ? error.message : String(error)
   const lower = rawMsg.toLowerCase()
 
-  // 1. Invalid API Key / Authentication Failure
+  // 1. Model Access / Project Permission Restriction (takes precedence over generic 403)
+  if (
+    status === 404 ||
+    lower.includes('model_not_found') ||
+    lower.includes('does not exist') ||
+    lower.includes('does not have access') ||
+    lower.includes('unsupported model')
+  ) {
+    return tr(
+      'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.',
+      { providerName },
+    )
+  }
+
+  // 2. Insufficient Quota / Billing Exceeded
+  if (
+    lower.includes('insufficient_quota') ||
+    lower.includes('quota') ||
+    lower.includes('credit_balance_too_low') ||
+    lower.includes('exceeded your current quota') ||
+    lower.includes('billing')
+  ) {
+    return tr(
+      '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.',
+      { providerName },
+    )
+  }
+
+  // 3. Rate Limited / Too Many Requests
+  if (status === 429 || lower.includes('rate_limit') || lower.includes('too many requests')) {
+    return tr('{{providerName}} rate limit reached. Please wait a few seconds and try again.', { providerName })
+  }
+
+  // 4. Invalid API Key / Authentication Failure
   if (
     status === 401 ||
     status === 403 ||
@@ -63,34 +110,10 @@ export function formatUserFriendlyProviderError(providerName: string, error: unk
     lower.includes('unauthorized') ||
     lower.includes('forbidden')
   ) {
-    return `Invalid ${providerName} API key. Please check your key in Settings.`
-  }
-
-  // 2. Insufficient Quota / Billing Exceeded
-  if (
-    lower.includes('insufficient_quota') ||
-    lower.includes('quota') ||
-    lower.includes('credit_balance_too_low') ||
-    lower.includes('exceeded your current quota') ||
-    lower.includes('billing')
-  ) {
-    return `${providerName} quota or credit balance exceeded. Please check your plan and billing details.`
-  }
-
-  // 3. Model Not Found / Restricted Access
-  if (
-    status === 404 ||
-    lower.includes('model_not_found') ||
-    lower.includes('does not exist') ||
-    lower.includes('does not have access') ||
-    lower.includes('unsupported model')
-  ) {
-    return `Selected model is unavailable or not accessible with your ${providerName} account.`
-  }
-
-  // 4. Rate Limited / Too Many Requests
-  if (status === 429 || lower.includes('rate_limit') || lower.includes('too many requests')) {
-    return `${providerName} rate limit reached. Please wait a few seconds and try again.`
+    return tr(
+      'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.',
+      { providerName },
+    )
   }
 
   // 5. Network / Timeout / Reachability
@@ -101,12 +124,17 @@ export function formatUserFriendlyProviderError(providerName: string, error: unk
     lower.includes('fetch failed') ||
     lower.includes('network')
   ) {
-    return `Couldn't reach ${providerName} — check your device's internet connection and try again.`
+    return tr("Couldn't reach {{providerName}} — check your device's internet connection and try again.", {
+      providerName,
+    })
   }
 
   // 6. Server Unavailable
   if ((status && status >= 500) || lower.includes('server_error') || lower.includes('internal server error')) {
-    return `${providerName} servers are temporarily unavailable (${status ?? 500}). Please try again shortly.`
+    return tr('{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.', {
+      providerName,
+      status: status ?? 500,
+    })
   }
 
   // 7. Extract nested human message if raw JSON error response was captured

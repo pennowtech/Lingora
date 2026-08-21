@@ -124,5 +124,11 @@ export interface AIProvider {
   generatePhrases(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedPhrase[]>>
   generateCloze(word: string, ctx: GenerationContext): Promise<AIResult<GeneratedCloze[]>>
 
+  /**
+   * A short (~50-word) plain-language gist of a word — cheap and fast compared to
+   * generateWordPackage, for the Search screen's inline preview of a word with no card yet.
+   */
+  explainWord(word: string, ctx: GenerationContext): Promise<AIResult<string>>
+
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
 }

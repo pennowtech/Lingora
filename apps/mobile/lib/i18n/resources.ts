@@ -201,6 +201,14 @@ const ENGLISH_PHRASES = [
   'Add your OpenAI key to generate cards',
 
   // Word detail
+  '✨ AI enriching meanings & examples…',
+  'AI Enrichment Failed',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.",
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.',
   'Add your OpenAI key in Settings to generate examples.',
   'This word has no card yet.',
   'Could not save your feedback',
@@ -1074,6 +1082,20 @@ const de: Partial<Record<Phrase, string>> = {
     'Füge einen Satz manuell hinzu, füge einen aus der Zwischenablage ein oder erfasse Text über das Teilen-Menü — er landet hier, bevor er von der KI verarbeitet wird.',
   '{{done}} of {{total}} generated': '{{done}} von {{total}} erzeugt',
   '{{count}} failed': '{{count}} fehlgeschlagen',
+  '✨ AI enriching meanings & examples…': '✨ KI ergänzt Bedeutungen & Beispiele…',
+  'AI Enrichment Failed': 'KI-Anreicherung fehlgeschlagen',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':
+    'Das ausgewählte Modell ist mit Ihrem {{providerName}}-Schlüssel/Projekt nicht zugänglich. Versuchen Sie, ein anderes Modell in Einstellungen → KI-Anbieter auszuwählen.',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
+    'Guthaben oder Kontingent von {{providerName}} überschritten. Bitte überprüfen Sie Ihren Tarif und Ihre Abrechnungsdaten.',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
+    'Ratenlimit von {{providerName}} erreicht. Bitte warten Sie einige Sekunden und versuchen Sie es erneut.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.':
+    'Ungültiger {{providerName}}-API-Schlüssel oder Zugriff verweigert. Bitte überprüfen Sie Ihren Schlüssel in Einstellungen → KI-Anbieter.',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.":
+    '{{providerName}} konnte nicht erreicht werden — überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.',
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
+    'Server von {{providerName}} sind vorübergehend nicht erreichbar ({{status}}). Bitte versuchen Sie es in Kürze erneut.',
   'see Decks.': 'siehe Stapel.',
   "Review your captures. Discard what you don't need, then generate cards for the rest — no API call is wasted on text you didn't ask for.":
     'Überprüfe deine Erfassungen. Verwirf, was du nicht brauchst, und erzeuge dann Karten für den Rest — kein API-Aufruf wird für Text verschwendet, den du nicht angefordert hast.',
@@ -2095,6 +2117,20 @@ const fr: Partial<Record<Phrase, string>> = {
   'Clipboard is empty': 'Le presse-papiers est vide',
   'Copy some text first, then paste it here.': "Copiez d'abord du texte, puis collez-le ici.",
   'Could not read clipboard': 'Impossible de lire le presse-papiers',
+  '✨ AI enriching meanings & examples…': '✨ L’IA enrichit les significations et exemples…',
+  'AI Enrichment Failed': 'Échec de l’enrichissement IA',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':
+    'Le modèle sélectionné n’est pas accessible avec votre clé/projet {{providerName}}. Essayez de choisir un autre modèle dans Paramètres → Fournisseurs IA.',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
+    'Solde de crédit ou quota {{providerName}} dépassé. Veuillez vérifier votre abonnement et vos coordonnées de facturation.',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
+    'Limite de fréquence {{providerName}} atteinte. Veuillez patienter quelques secondes et réessayer.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.':
+    'Clé d’API {{providerName}} non valide ou autorisation refusée. Veuillez vérifier votre clé dans Paramètres → Fournisseurs IA.',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.":
+    'Impossible d’atteindre {{providerName}} — vérifiez la connexion Internet de votre appareil et réessayez.',
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
+    'Les serveurs {{providerName}} sont temporairement indisponibles ({{status}}). Veuillez réessayer sous peu.',
   'Add your OpenAI key in Settings to generate cards.':
     'Ajoutez votre clé OpenAI dans les réglages pour générer des cartes.',
   'Add a sentence': 'Ajouter une phrase',
@@ -3122,6 +3158,20 @@ const es: Partial<Record<Phrase, string>> = {
   'Clipboard is empty': 'El portapapeles está vacío',
   'Copy some text first, then paste it here.': 'Copia algún texto primero y luego pégalo aquí.',
   'Could not read clipboard': 'No se pudo leer el portapapeles',
+  '✨ AI enriching meanings & examples…': '✨ IA enriqueciendo significados y ejemplos…',
+  'AI Enrichment Failed': 'Error en el enriquecimiento de IA',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':
+    'El modelo seleccionado no está accesible con tu clave/proyecto de {{providerName}}. Intenta seleccionar otro modelo en Ajustes → Proveedores de IA.',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
+    'Saldo o cuota de {{providerName}} superados. Consulta tu plan de cuenta y datos de facturación.',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
+    'Límite de solicitudes de {{providerName}} alcanzado. Espera unos segundos e inténtalo de nuevo.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.':
+    'Clave API de {{providerName}} no válida o permiso denegado. Revisa tu clave en Ajustes → Proveedores de IA.',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.":
+    'No se pudo acceder a {{providerName}}: comprueba la conexión a Internet e inténtalo de nuevo.',
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
+    'Los servidores de {{providerName}} no están disponibles temporalmente ({{status}}). Inténtalo de nuevo en unos minutos.',
   'Add your OpenAI key in Settings to generate cards.':
     'Añade tu clave de OpenAI en Ajustes para generar tarjetas.',
   'Add a sentence': 'Añadir una frase',
@@ -4150,6 +4200,20 @@ const hi: Partial<Record<Phrase, string>> = {
   'Copy some text first, then paste it here.':
     'पहले कुछ टेक्स्ट कॉपी करें, फिर उसे यहाँ पेस्ट करें।',
   'Could not read clipboard': 'क्लिपबोर्ड पढ़ा नहीं जा सका',
+  '✨ AI enriching meanings & examples…': '✨ AI अर्थ और उदाहरण जोड़ रहा है…',
+  'AI Enrichment Failed': 'AI संवर्धन विफल रहा',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':
+    'चयनित मॉडल आपकी {{providerName}} कुंजी/प्रोजेक्ट के साथ उपलब्ध नहीं है। सेटिंग्स → AI प्रदाता में दूसरा मॉडल चुनें।',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
+    '{{providerName}} क्रेडिट शेष या कोटा समाप्त हो गया है। कृपया अपना खाता प्लान और बिलिंग विवरण जांचें।',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
+    '{{providerName}} दर सीमा समाप्त हो गई है। कृपया कुछ सेकंड प्रतीक्षा करें और पुनः प्रयास करें।',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.':
+    'अमान्य {{providerName}} API कुंजी या अनुमति अस्वीकृत। सेटिंग्स → AI प्रदाता में अपनी कुंजी जांचें।',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.":
+    '{{providerName}} तक पहुंच नहीं हो सकी — अपने डिवाइस का इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।',
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
+    '{{providerName}} सर्वर अस्थायी रूप से अनुपलब्ध हैं ({{status}})। कृपया जल्द ही पुनः प्रयास करें।',
   'Add your OpenAI key in Settings to generate cards.':
     'कार्ड बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें।',
   'Add a sentence': 'एक वाक्य जोड़ें',
@@ -5201,6 +5265,20 @@ const vi: Partial<Record<Phrase, string>> = {
   'Could not merge deck': 'Không thể gộp bộ thẻ',
   'Could not move deck': 'Không thể di chuyển bộ thẻ',
   'Could not read clipboard': 'Không thể đọc khay nhớ tạm',
+  '✨ AI enriching meanings & examples…': '✨ AI đang bổ sung nghĩa và ví dụ…',
+  'AI Enrichment Failed': 'Bổ sung AI thất bại',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':
+    'Mô hình đã chọn không thể truy cập bằng khóa/dự án {{providerName}} của bạn. Thử chọn mô hình khác trong Cài đặt → Nhà cung cấp AI.',
+  '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
+    'Hạn ngạch hoặc số dư {{providerName}} đã hết. Vui lòng kiểm tra gói tài khoản và thông tin thanh toán.',
+  '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
+    'Đã đạt giới hạn yêu cầu của {{providerName}}. Vui lòng đợi vài giây và thử lại.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.':
+    'Khóa API {{providerName}} không hợp lệ hoặc bị từ chối quyền. Vui lòng kiểm tra khóa trong Cài đặt → Nhà cung cấp AI.',
+  "Couldn't reach {{providerName}} — check your device's internet connection and try again.":
+    'Không thể kết nối tới {{providerName}} — kiểm tra kết nối internet của thiết bị và thử lại.',
+  '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
+    'Máy chủ {{providerName}} tạm thời không khả dụng ({{status}}). Vui lòng thử lại sau ít phút.',
   'Could not read file': 'Không thể đọc tệp',
   'Could not read this collection': 'Không thể đọc bộ sưu tập này',
   'Could not read this file': 'Không thể đọc tệp này',

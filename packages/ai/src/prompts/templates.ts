@@ -243,6 +243,20 @@ Text: {{text}}`,
 
 Text: {{text}}`,
   },
+  /**
+   * A short, cheap gist for the Search screen's inline preview of a not-yet-generated word — one
+   * flowing explanation, not the structured multi-cluster word package. Deliberately capped at 50
+   * words so it reads as a glance-and-go teaser, not a substitute for opening the full card.
+   */
+  explainWord: {
+    name: 'explain_word',
+    version: 1,
+    template: `You are a {{targetLanguage}} teacher giving a learner a quick, glanceable gist of a word before they commit to studying it properly.
+
+${ANTI_SWAP_WARNING}
+
+Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. One short, natural paragraph — at most 50 words. No examples, no lists, no headings, just the explanation itself: what it means and, if useful, a one-clause note on how/when it's used. Return strict JSON only: {"explanation": "..."}`,
+  },
 } as const satisfies Record<string, PromptTemplate>
 
 export type PromptName = keyof typeof PROMPTS

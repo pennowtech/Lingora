@@ -77,6 +77,7 @@ const clozesResponseSchema = z.object({ clozes: z.array(generatedClozeSchema) })
 const clozesJsonTargetSchema = z.object({ clozes: z.array(generatedClozeBaseSchema) })
 const translateResponseSchema = z.object({ translation: z.string().min(1) })
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
+const explainWordResponseSchema = z.object({ explanation: z.string().min(1).max(400) })
 
 const log = logger.child({ feature: 'ai', component: 'OpenAIProvider' })
 
@@ -231,6 +232,16 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     })
     const result = await this.generateStrict(prompt, 'translation', translateResponseSchema)
     return { data: result.data.translation, usage: result.usage }
+  }
+
+  async explainWord(word: string, ctx: GenerationContext): Promise<AIResult<string>> {
+    const prompt = renderPrompt(PROMPTS.explainWord.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, 'explain_word', explainWordResponseSchema)
+    return { data: result.data.explanation, usage: result.usage }
   }
 
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {

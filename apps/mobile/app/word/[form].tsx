@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { logger } from '@lingora/observability'
 import type {
   Card as CardRow,
   CefrLevel,
@@ -82,12 +83,13 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
-import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { PROVIDER_META } from '../../lib/aiProviderMeta'
+import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
+import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
-import { useCyclingIndex } from '../../lib/useCyclingIndex'
 
 /** Cards created by one of the AI providers — as opposed to a dictionary quick-translate, the
  * installed word-guides dictionary, or manual/import entry (see packages/types CardSource). */
@@ -284,13 +286,10 @@ async function loadWord(db: DatabaseAdapter, form: string, nativeLanguage: Langu
  * Word detail — the core lookup experience: semantic cluster tabs, meanings,
  * CEFR-controlled examples with the grammar panel, synonyms, phrases, cloze.
  */
+const log = logger.child({ feature: 'vocabulary', component: 'word-detail' })
+
 export default function WordDetailScreen(): JSX.Element {
-  // nativeTerm is only set when search.tsx's reverse-direction auto-detect generated this word
-  // (the user typed a native-language word, e.g. "rumor", and got the target-language equivalent,
-  // e.g. "Gerucht") — it's what lets the headline show the word the learner actually typed instead
-  // of the unfamiliar target-language form. Absent for every other way of reaching this screen
-  // (straight search, decks, review), which keeps their current headword-first display unchanged.
-  const { form, nativeTerm } = useLocalSearchParams<{ form: string; nativeTerm?: string }>()
+  const { form, nativeTerm, autoEnrich } = useLocalSearchParams<{ form: string; nativeTerm?: string; autoEnrich?: string }>()
   const { db, ai, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
@@ -300,6 +299,31 @@ export default function WordDetailScreen(): JSX.Element {
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false)
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
+
+  const autoEnrichMutation = useMutation({
+    mutationFn: async () => {
+      if (!pipeline || !form) return
+      log.info('word_detail.auto_enrich_started', { message: `Background AI enrichment started for ${form}` })
+      await pipeline.lookupOrGenerate(form, {
+        cefrLevel: defaultCefr,
+        deckId: DEFAULT_DECK_ID,
+        language: targetLanguage,
+        nativeLanguage,
+        addToDeck: false,
+        forceGenerate: true,
+      })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+      log.info('word_detail.auto_enrich_completed', { message: `Background AI enrichment completed for ${form}` })
+    },
+    onError: (err) => {
+      log.error('word_detail.auto_enrich_failed', err, { message: `Background AI enrichment failed for ${form}` })
+      const providerLabel = ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI'
+      const formatted = formatUserFriendlyProviderError(providerLabel, err, t)
+      setErrorNotice({ title: t('AI Enrichment Failed'), message: formatted })
+    },
+  })
 
   const [clusterId, setClusterId] = useState<string | null>(null)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
@@ -347,6 +371,12 @@ export default function WordDetailScreen(): JSX.Element {
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
   const isAiCard = !!word?.card?.source && AI_SOURCES.includes(word.card.source)
+
+  useEffect(() => {
+    if (autoEnrich === 'true' && word && !isAiCard && !autoEnrichMutation.isPending && !autoEnrichMutation.isSuccess) {
+      autoEnrichMutation.mutate()
+    }
+  }, [autoEnrich, word, isAiCard])
 
   const exampleCounts = useMemo(() => {
     const counts: Record<string, number> = { all: active?.examples.length ?? 0 }
@@ -456,17 +486,6 @@ export default function WordDetailScreen(): JSX.Element {
     },
     onError: (error: unknown) => showError(t('Could not generate word card'), error),
   })
-
-  // Generating a brand-new word is a single, slow AI round-trip with no real partial-progress
-  // signal — cycling the loading message is purely about making the wait feel legible, not
-  // reporting actual progress. Only used while generateMissingWord itself is in flight, not for
-  // the (near-instant, local DB) wordQuery-only loading state below.
-  const generatingWordMessages = [
-    t('Looking up "{{form}}"…', { form: form ?? '' }),
-    t('Writing meanings and examples…'),
-    t('Almost done…'),
-  ]
-  const generatingWordMessageIndex = useCyclingIndex(generateMissingWord.isPending, generatingWordMessages.length)
 
   useEffect(() => {
     if (
@@ -820,24 +839,24 @@ export default function WordDetailScreen(): JSX.Element {
   // anywhere — built fresh from whatever's already loaded each render.
   const aiExplanationGuide: WordGuideEntry | null =
     explainVisible &&
-    !guideModalOpen &&
-    !lookupWordGuide.isPending &&
-    !generateExplanation.isPending &&
-    word &&
-    headlineMeaning?.explanation
+      !guideModalOpen &&
+      !lookupWordGuide.isPending &&
+      !generateExplanation.isPending &&
+      word &&
+      headlineMeaning?.explanation
       ? {
-          headword: word.lemma.form,
-          language: word.lemma.language,
-          chunkId: 0,
-          partOfSpeech: word.lemma.partOfSpeech,
-          translation: headlineMeaning.translation,
-          ...(headlineMeaning.usage && { usage: headlineMeaning.usage }),
-          intro: headlineMeaning.explanation,
-          synonyms: (active?.synonyms ?? []).map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
-          examples: selectedExample
-            ? [{ sentence: selectedExample.sentence, translation: selectedExample.translation, type: 'indicative' as const }]
-            : [],
-        }
+        headword: word.lemma.form,
+        language: word.lemma.language,
+        chunkId: 0,
+        partOfSpeech: word.lemma.partOfSpeech,
+        translation: headlineMeaning.translation,
+        ...(headlineMeaning.usage && { usage: headlineMeaning.usage }),
+        intro: headlineMeaning.explanation,
+        synonyms: (active?.synonyms ?? []).map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
+        examples: selectedExample
+          ? [{ sentence: selectedExample.sentence, translation: selectedExample.translation, type: 'indicative' as const }]
+          : [],
+      }
       : null
 
   // "Ask AI" is a separate, minimal affordance from Explain/More info — just the follow-up
@@ -900,14 +919,35 @@ export default function WordDetailScreen(): JSX.Element {
     void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(word.lemma.form)}`)
   }
 
-  if (wordQuery.isPending || (generateMissingWord.isPending && !word)) {
-    const loadingMessage = generateMissingWord.isPending
-      ? (generatingWordMessages[generatingWordMessageIndex] ?? t('Generating AI card for "{{form}}"...', { form: form ?? '' }))
-      : t('Loading…')
+  if (wordQuery.isPending) {
     return (
       <>
         <Stack.Screen options={{ title: form ?? '' }} />
-        <Spinner message={loadingMessage} />
+        <Spinner message={t('Loading…')} />
+      </>
+    )
+  }
+
+  // Landing here for a word with no local card yet (deep link, share intent, or any direct
+  // navigation not already covered by the optimistic-card flow in search.tsx) auto-generates via
+  // generateMissingWord below. Show the real screen shell immediately with just the headword and
+  // the same AI-enriching badge autoEnrichMutation uses further down, instead of a full-screen
+  // blocking spinner — an instant, near-empty page beats staring at a spinner for the whole AI
+  // round-trip, and reusing the badge keeps both "upgrading" cases on this screen consistent.
+  const isGeneratingNewWord = !word && !wordQuery.isError && !!pipeline && !generateMissingWord.isError
+  if (isGeneratingNewWord) {
+    return (
+      <>
+        <Stack.Screen options={{ title: '' }} />
+        <View style={styles.skeletonContainer}>
+          <Text style={styles.wordForm} selectable>
+            {nativeTerm ?? form}
+          </Text>
+          <View style={styles.aiEnrichingBadge}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples…')}</Text>
+          </View>
+        </View>
       </>
     )
   }
@@ -922,8 +962,8 @@ export default function WordDetailScreen(): JSX.Element {
               wordQuery.isError
                 ? String(wordQuery.error)
                 : generateMissingWord.isError
-                ? String(generateMissingWord.error)
-                : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
+                  ? String(generateMissingWord.error)
+                  : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
             }
             {...(wordQuery.isError || generateMissingWord.isError ? { onRetry: () => void generateMissingWord.mutate() } : {})}
           />
@@ -974,6 +1014,12 @@ export default function WordDetailScreen(): JSX.Element {
               <Text style={styles.wordForm} selectable>{nativeTerm ?? word.lemma.form}</Text>
               <CardSourceIcon source={word.card?.source} size={18} />
             </View>
+            {autoEnrichMutation.isPending ? (
+              <View style={styles.aiEnrichingBadge}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples…')}</Text>
+              </View>
+            ) : null}
             <Text style={styles.wordMeta}>
               {lemmaMeta}
               {inflectionMeta ? ` · ${inflectionMeta}` : ''}
@@ -1526,185 +1572,193 @@ export default function WordDetailScreen(): JSX.Element {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-  headerText: { flex: 1, marginRight: spacing.md },
-  wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
-  wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  clusterTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
-  clusterTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
-  },
-  clusterTabActive: { backgroundColor: colors.primary },
-  clusterTabLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
-  clusterTabLabelActive: { color: colors.textOnPrimary },
-  meaningCard: { marginTop: spacing.lg },
-  primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
-  examplesHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  examplesFilterDropdown: { width: 175 },
-  exampleCard: { marginBottom: spacing.sm },
-  exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  selectedBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
-  reportNoteInput: {
-    minHeight: 72,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-    textAlignVertical: 'top',
-  },
-  reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
-  editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
-  editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
-  editInput: {
-    fontSize: type.body,
-    color: colors.text,
-    minHeight: 44,
-    textAlignVertical: 'top',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
-  },
-  exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
-  exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
-  exampleFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: spacing.md,
-  },
-  grammarToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  grammarToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  grammarPanel: { gap: spacing.md, marginBottom: spacing.md },
-  grammarGroup: {},
-  grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
-  grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
-  limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
-  generateError: { fontSize: type.caption, color: colors.danger },
-  synRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
-  synText: { flex: 1, marginRight: spacing.md },
-  synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  synNuance: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1 },
-  synRowPressed: { opacity: 0.7 },
-  synWordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  loadMorePhrasesBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  loadMorePhrasesLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  phrasesEmptyCard: { gap: spacing.md, paddingVertical: spacing.md },
-  phrasesEmptyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  phrasesEmptyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phrasesEmptyTextGroup: { flex: 1 },
-  phrasesEmptyTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  phrasesEmptySubtitle: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
-  missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
-  phraseCard: { marginBottom: spacing.sm },
-  phraseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  phraseExpression: { fontSize: type.body, fontWeight: '700', color: colors.primary },
-  phraseMeaning: { fontSize: type.caption, color: colors.text, marginTop: 2 },
-  phraseExample: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: 'italic' },
-  phraseExampleTranslation: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  clozeCard: { alignItems: 'center', marginBottom: spacing.sm },
-  clozeSentence: { fontSize: type.subheading, fontWeight: '700', color: colors.text, textAlign: 'center' },
-  clozeTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm },
-  clozeAnswerPill: {
-    marginTop: spacing.md,
-    backgroundColor: colors.successSoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-  },
-  clozeAnswerLabel: { fontSize: type.body, fontWeight: '700', color: colors.success },
-  addClozeButton: { alignSelf: 'center', marginTop: spacing.sm },
-  bottomBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: spacing.md,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  bottomBarButtonRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  bottomBarButton: {
-    flex: 1,
-  },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.sm,
-    maxHeight: '80%',
-  },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-    marginBottom: spacing.sm,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg },
+    headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+    headerText: { flex: 1, marginRight: spacing.md },
+    wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
+    wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    aiEnrichingBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginVertical: spacing.xs,
+    },
+    aiEnrichingText: { fontSize: type.caption, color: colors.primary, fontWeight: '600' },
+    skeletonContainer: { flex: 1, padding: spacing.lg },
+    clusterTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
+    clusterTab: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+      backgroundColor: colors.surfaceMuted,
+    },
+    clusterTabActive: { backgroundColor: colors.primary },
+    clusterTabLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
+    clusterTabLabelActive: { color: colors.textOnPrimary },
+    meaningCard: { marginTop: spacing.lg },
+    primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
+    examplesHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+    examplesFilterDropdown: { width: 175 },
+    exampleCard: { marginBottom: spacing.sm },
+    exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+    selectedBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginBottom: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
+    reportNoteInput: {
+      minHeight: 72,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      fontSize: type.body,
+      color: colors.text,
+      textAlignVertical: 'top',
+    },
+    reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
+    editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+    editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    editInput: {
+      fontSize: type.body,
+      color: colors.text,
+      minHeight: 44,
+      textAlignVertical: 'top',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.sm,
+      padding: spacing.sm,
+    },
+    exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
+    exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
+    exampleFooter: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      marginTop: spacing.md,
+    },
+    grammarToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    grammarToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    grammarPanel: { gap: spacing.md, marginBottom: spacing.md },
+    grammarGroup: {},
+    grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
+    grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
+    limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
+    generateError: { fontSize: type.caption, color: colors.danger },
+    synRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+    },
+    rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+    synText: { flex: 1, marginRight: spacing.md },
+    synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    synNuance: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1 },
+    synRowPressed: { opacity: 0.7 },
+    synWordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    loadMorePhrasesBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    loadMorePhrasesLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    phrasesEmptyCard: { gap: spacing.md, paddingVertical: spacing.md },
+    phrasesEmptyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    phrasesEmptyIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.md,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    phrasesEmptyTextGroup: { flex: 1 },
+    phrasesEmptyTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    phrasesEmptySubtitle: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
+    missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
+    phraseCard: { marginBottom: spacing.sm },
+    phraseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    phraseExpression: { fontSize: type.body, fontWeight: '700', color: colors.primary },
+    phraseMeaning: { fontSize: type.caption, color: colors.text, marginTop: 2 },
+    phraseExample: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: 'italic' },
+    phraseExampleTranslation: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    clozeCard: { alignItems: 'center', marginBottom: spacing.sm },
+    clozeSentence: { fontSize: type.subheading, fontWeight: '700', color: colors.text, textAlign: 'center' },
+    clozeTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm },
+    clozeAnswerPill: {
+      marginTop: spacing.md,
+      backgroundColor: colors.successSoft,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+    },
+    clozeAnswerLabel: { fontSize: type.body, fontWeight: '700', color: colors.success },
+    addClozeButton: { alignSelf: 'center', marginTop: spacing.sm },
+    bottomBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      padding: spacing.md,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    bottomBarButtonRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    bottomBarButton: {
+      flex: 1,
+    },
+    modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    modalSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.sm,
+      maxHeight: '80%',
+    },
+    modalHandle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.border,
+      marginBottom: spacing.sm,
+    },
+    modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
   })

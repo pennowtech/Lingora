@@ -36,10 +36,17 @@ export interface SafeLogMetadata {
   settingKey?: LogMetadataValue
   occurrenceCount?: LogMetadataValue
   windowMs?: LogMetadataValue
-  /** Internal record identifier (card, deck, generation, mining item, etc.) — never the record's
-   * content (word form, translation, generated text), only its id, so an issue can be traced back
-   * to a specific row without leaking vocabulary content into logs. */
   recordId?: LogMetadataValue
+  dictHintDurationMs?: LogMetadataValue
+  llmDurationMs?: LogMetadataValue
+  dbPersistDurationMs?: LogMetadataValue
+  morphologyDurationMs?: LogMetadataValue
+  cacheCheckDurationMs?: LogMetadataValue
+  detectDurationMs?: LogMetadataValue
+  reverseTranslateDurationMs?: LogMetadataValue
+  pipelineDurationMs?: LogMetadataValue
+  totalFlowDurationMs?: LogMetadataValue
+  navPrepareDurationMs?: LogMetadataValue
 }
 
 export type LingoraFeature =

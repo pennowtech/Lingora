@@ -294,6 +294,20 @@ For the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterL
 
 Do NOT restate a basic definition or translation — assume the learner already has one. Do NOT list or mention synonyms. Write at most 3 short paragraphs, in the same warm, conversational voice — never dry textbook phrasing. Each paragraph must be 30 words or fewer — short and scannable, not a dense block. Return strict JSON only: {"paragraphs": ["...", "..."]}`,
   },
+  /**
+   * "Word of the Day" (Home dashboard + daily notification) — the AI picks the word itself (no
+   * ANTI_SWAP_WARNING here: unlike every other template, there's no already-given word to invert,
+   * since choosing it is the whole point), avoiding whatever the learner's library already has.
+   */
+  suggestWordOfTheDay: {
+    name: 'suggest_word_of_the_day',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor picking a "Word of the Day" for a {{cefrLevel}} learner — something useful, interesting, and genuinely worth knowing at their level, in a warm, natural voice in {{nativeLanguage}}.
+
+Pick exactly ONE {{targetLanguage}} word or short common phrase. The learner already knows these — never pick one of them or an obvious variant: {{excludeList}}
+
+Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two — 30 words or fewer, no exceptions. Speak naturally and directly — NEVER dry textbook formulas like "X means that...". No examples, no lists. Return strict JSON only: {"word": "...", "explanation": "..."}`,
+  },
 } as const satisfies Record<string, PromptTemplate>
 
 export type PromptName = keyof typeof PROMPTS

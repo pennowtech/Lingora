@@ -11,6 +11,7 @@ import { BottomTabBar } from '../components/BottomTabBar'
 import { CaptureIntentHandler } from '../components/CaptureIntentHandler'
 import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
 import { LanguagePairBadge } from '../components/LanguagePairBadge'
+import { WordOfTheDayLifecycle } from '../components/WordOfTheDayLifecycle'
 import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
@@ -74,6 +75,7 @@ function AppStack(): JSX.Element {
     >
       <QueryClientProvider client={queryClient}>
         <CloudSyncLifecycle />
+        <WordOfTheDayLifecycle />
         <CaptureIntentHandler />
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>

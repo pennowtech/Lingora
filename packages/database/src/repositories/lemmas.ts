@@ -78,6 +78,17 @@ export async function getLemmaByForm(
 }
 
 /**
+ * Every lemma form already in the user's library for one language — used to tell "Word of the
+ * Day" (see apps/mobile/lib/wordOfTheDay.ts) which words NOT to suggest again. Deliberately just
+ * the bare forms, not full Lemma rows — this is passed straight into an AI prompt as a plain
+ * exclude-list, nothing else about the lemma is needed.
+ */
+export async function getAllLemmaFormsForLanguage(db: DatabaseAdapter, language: LanguageCode): Promise<string[]> {
+  const rows = await db.query<{ form: string }>(`SELECT form FROM lemmas WHERE language = ?`, [language])
+  return rows.map((row) => row.form)
+}
+
+/**
  * Full-text search across lemma forms AND meaning translations.
  * Called on every keystroke in the search bar, so a user finds
  * 'ausgehen' whether they type "ausgeh" (German) or "go out" (English).

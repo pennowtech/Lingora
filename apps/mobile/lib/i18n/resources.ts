@@ -66,6 +66,10 @@ const ENGLISH_PHRASES = [
   'Hindi',
 
   // Home
+  'Word of the Day',
+  'Learn this word',
+  "Finding today's word…",
+  '✨ Word of the Day: {{word}}',
   'Nice to see you back.',
   '{{count}} days',
   "Some data on this screen couldn't load.",
@@ -973,6 +977,10 @@ const de: Partial<Record<Phrase, string>> = {
   German: 'Deutsch',
   French: 'Französisch',
   Spanish: 'Spanisch',
+  'Word of the Day': 'Wort des Tages',
+  'Learn this word': 'Dieses Wort lernen',
+  "Finding today's word…": 'Suche das heutige Wort…',
+  '✨ Word of the Day: {{word}}': '✨ Wort des Tages: {{word}}',
   'Nice to see you back.': 'Schön, dass du wieder da bist.',
   '{{count}} days': '{{count}} Tage',
   "Some data on this screen couldn't load.":
@@ -2047,6 +2055,10 @@ const fr: Partial<Record<Phrase, string>> = {
   German: 'Allemand',
   French: 'Français',
   Spanish: 'Espagnol',
+  'Word of the Day': 'Mot du jour',
+  'Learn this word': 'Apprendre ce mot',
+  "Finding today's word…": "Recherche du mot du jour…",
+  '✨ Word of the Day: {{word}}': '✨ Mot du jour : {{word}}',
   'Nice to see you back.': 'Content de te revoir !',
   '{{count}} days': '{{count}} jours',
   "Some data on this screen couldn't load.":
@@ -3107,6 +3119,10 @@ const es: Partial<Record<Phrase, string>> = {
   German: 'Alemán',
   French: 'Francés',
   Spanish: 'Español',
+  'Word of the Day': 'Palabra del día',
+  'Learn this word': 'Aprender esta palabra',
+  "Finding today's word…": 'Buscando la palabra de hoy…',
+  '✨ Word of the Day: {{word}}': '✨ Palabra del día: {{word}}',
   'Nice to see you back.': '¡Qué bueno verte de nuevo!',
   '{{count}} days': '{{count}} días',
   "Some data on this screen couldn't load.":
@@ -4167,6 +4183,10 @@ const hi: Partial<Record<Phrase, string>> = {
   French: 'फ़्रेंच',
   Spanish: 'स्पेनिश',
   Hindi: 'हिन्दी',
+  'Word of the Day': 'आज का शब्द',
+  'Learn this word': 'यह शब्द सीखें',
+  "Finding today's word…": 'आज का शब्द खोजा जा रहा है…',
+  '✨ Word of the Day: {{word}}': '✨ आज का शब्द: {{word}}',
   'Nice to see you back.': 'आपको वापस देखकर अच्छा लगा।',
   '{{count}} days': '{{count}} दिन',
   "Some data on this screen couldn't load.": 'इस स्क्रीन का कुछ डेटा लोड नहीं हो सका।',
@@ -5656,6 +5676,10 @@ const vi: Partial<Record<Phrase, string>> = {
   'New words are looked up and generated in this language.':
     'Từ mới sẽ được tra cứu và tạo bằng ngôn ngữ này.',
   Next: 'Tiếp theo',
+  'Word of the Day': 'Từ trong ngày',
+  'Learn this word': 'Học từ này',
+  "Finding today's word…": 'Đang tìm từ của hôm nay…',
+  '✨ Word of the Day: {{word}}': '✨ Từ trong ngày: {{word}}',
   'Nice to see you back.': 'Rất vui vì bạn đã quay lại.',
   'No AI provider active — open Settings':
     'Không có nhà cung cấp AI nào đang hoạt động — mở Cài đặt',

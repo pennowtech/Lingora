@@ -138,5 +138,16 @@ export interface AIProvider {
    */
   explainWordDetail(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<string[]>>
 
+  /**
+   * Picks one word/short phrase worth learning today for the "Word of the Day" feature (Home
+   * dashboard + daily notification) — useful and appropriate for the learner's level, avoiding
+   * `excludeWords` (their existing library, so it never repeats a word they already have), plus a
+   * short (~30-word) explanation in the same style as explainWord.
+   */
+  suggestWordOfTheDay(
+    ctx: GenerationContext,
+    excludeWords: string[],
+  ): Promise<AIResult<{ word: string; explanation: string }>>
+
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
 }

@@ -85,6 +85,10 @@ const explainWordDetailResponseSchema = z.object({
     .min(1)
     .max(3),
 })
+const suggestWordOfTheDayResponseSchema = z.object({
+  word: z.string().min(1),
+  explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+})
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
 
 const log = logger.child({ feature: 'ai', component: 'GeminiProvider' })
@@ -257,6 +261,19 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
     })
     const result = await this.generateStrict(prompt, explainWordDetailResponseSchema)
     return { data: result.data.paragraphs, usage: result.usage }
+  }
+
+  async suggestWordOfTheDay(
+    ctx: GenerationContext,
+    excludeWords: string[],
+  ): Promise<AIResult<{ word: string; explanation: string }>> {
+    const prompt = renderPrompt(PROMPTS.suggestWordOfTheDay.template, {
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      excludeList: excludeWords.length > 0 ? excludeWords.join(', ') : '(none yet — this is their first word)',
+    })
+    const result = await this.generateStrict(prompt, suggestWordOfTheDayResponseSchema)
+    return { data: result.data, usage: result.usage }
   }
 
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {

@@ -3,7 +3,7 @@ import { Stack, usePathname } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import type { JSX } from 'react'
 import { I18nextProvider, useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Text, TextInput, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { ShareIntentProvider } from 'expo-share-intent'
 import { AppHeader } from '../components/AppHeader'
@@ -19,6 +19,22 @@ import { ThemeProvider, useTheme } from '../lib/ThemeContext'
 import { isOnboardingCompleted } from '../lib/onboarding'
 import { StartupScreen } from '../components/StartupScreen'
 import { useEffect, useState } from 'react'
+
+// Configure global accessibility font scale ceiling (max 1.35x) to ensure text remains
+// clear & readable for enlarged system fonts while preventing layout & button overflow.
+interface TextWithDefaults extends Function {
+  defaultProps?: { maxFontSizeMultiplier?: number }
+}
+if ((Text as unknown as TextWithDefaults).defaultProps) {
+  ;(Text as unknown as TextWithDefaults).defaultProps!.maxFontSizeMultiplier = 1.35
+} else {
+  ;(Text as unknown as TextWithDefaults).defaultProps = { maxFontSizeMultiplier: 1.35 }
+}
+if ((TextInput as unknown as TextWithDefaults).defaultProps) {
+  ;(TextInput as unknown as TextWithDefaults).defaultProps!.maxFontSizeMultiplier = 1.35
+} else {
+  ;(TextInput as unknown as TextWithDefaults).defaultProps = { maxFontSizeMultiplier: 1.35 }
+}
 
 // One client for the app; queries read on-device SQLite, so data is never
 // stale in the HTTP sense — invalidation happens explicitly after mutations.

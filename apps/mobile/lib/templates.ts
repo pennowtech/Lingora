@@ -98,20 +98,20 @@ export const DEFAULT_BACK_TEMPLATE = `<div class="dc-back">
   {% endif %}
 </div>`
 
-export const DEFAULT_STYLES = `.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; }
-.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: 3.2rem; font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.1; }
-.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); }
+export const DEFAULT_STYLES = `.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; box-sizing: border-box; }
+.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: clamp(1.8rem, 6.5vw, 2.6rem); font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.15; word-break: break-word; overflow-wrap: break-word; max-width: 100%; text-align: center; }
+.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); max-width: 100%; box-sizing: border-box; word-break: break-word; }
 
-.dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
-.dc-meaning { font-size: 2.1rem; font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; }
-.dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; }
-.dc-example-de { font-size: 1.1rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; }
-.dc-example-en { font-size: 0.92rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; }
+.dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; box-sizing: border-box; }
+.dc-meaning { font-size: clamp(1.3rem, 4.5vw, 1.85rem); font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
+.dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; word-break: break-word; overflow-wrap: break-word; }
+.dc-example-de { font-size: 1.05rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; word-break: break-word; overflow-wrap: break-word; }
+.dc-example-en { font-size: 0.9rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; word-break: break-word; overflow-wrap: break-word; }
 .dc-example-de mark.dc-hl { background: var(--theme-primary-soft, #F1F0FE); color: var(--theme-primary, #6C63FF); font-weight: 800; padding: 1px 5px; border-radius: 4px; font-style: normal; }
 
-.dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
-.dc-syn-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.dc-syn-pill { font-size: 0.82rem; font-weight: 600; color: var(--theme-text, #1C1B22); background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); padding: 4px 12px; border-radius: 999px; }`
+.dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; }
+.dc-syn-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; }
+.dc-syn-pill { font-size: 0.82rem; font-weight: 600; color: var(--theme-text, #1C1B22); background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); padding: 4px 12px; border-radius: 999px; word-break: break-word; }`
 
 /** A worked example of Liquid's conditional syntax, shown in the editor's Code tab. */
 export const CONDITIONAL_EXAMPLE = `{% if gender %}
@@ -363,10 +363,10 @@ export const CLOZE_BACK_TEMPLATE = `<div class="dc-cloze dc-cloze-back">
 </div>`
 
 export const CLOZE_STYLES = `:root{--accent:#534AB7;}
-.dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; }
+.dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word; }
 .dc-cloze-back { position: relative; }
-.dc-cloze-sentence { font-size: 1.15rem; font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; }
-.dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; }
+.dc-cloze-sentence { font-size: clamp(1.0rem, 4vw, 1.25rem); font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
+.dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
 .dc-blank { display: inline-block; min-width: 2.5em; border-bottom: 2px solid var(--accent); color: transparent; }
 mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }
 .dc-speaker { position: absolute; top: 0; right: 0; width: 26px; height: 26px; padding: 0; border: none; border-radius: 999px; background: #F7F6FC; box-shadow: 0 1px 3px rgba(0,0,0,0.18); font-size: 13px; line-height: 26px; text-align: center; }`

@@ -86,7 +86,15 @@ export default function AboutScreen(): JSX.Element {
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
 
-  const appVersion = Constants.expoConfig?.version ?? 'unknown'
+  const appVersion = Constants.expoConfig?.version ?? '0.1.0'
+  const buildNumber =
+    Constants.nativeBuildVersion ??
+    (Platform.OS === 'android'
+      ? Constants.expoConfig?.android?.versionCode?.toString()
+      : Constants.expoConfig?.ios?.buildNumber) ??
+    '8'
+
+  const buildLabel = `v${appVersion} (${t('Build')} ${buildNumber})`
   const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android'
 
   const canSubmit = title.trim() !== '' && message.trim() !== '' && !submitting
@@ -131,7 +139,10 @@ export default function AboutScreen(): JSX.Element {
           <Image source={appIcon} style={styles.icon} resizeMode="contain" />
         </View>
         <Text style={styles.appName}>Lingora</Text>
-        <Text style={styles.detail}>{t('v0.0.1 · offline-first · your data stays on device')}</Text>
+        <View style={styles.versionBadgeContainer}>
+          <Text style={styles.versionBadgeText}>{buildLabel}</Text>
+        </View>
+        <Text style={styles.detail}>{t('offline-first · your data stays on device')}</Text>
       </Card>
 
       <Text style={styles.sectionLabel}>{t('Send Feedback')}</Text>
@@ -256,6 +267,18 @@ const createStyles = (colors: ThemeColors) =>
     },
     icon: { width: 72, height: 72 },
     appName: { fontSize: type.heading, fontWeight: '800', color: colors.text },
+    versionBadgeContainer: {
+      backgroundColor: colors.primarySoft,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 2,
+      borderRadius: radius.full,
+      marginVertical: spacing.xs,
+    },
+    versionBadgeText: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.primary,
+    },
     detail: { fontSize: type.caption, color: colors.textMuted, textAlign: 'center' },
     sectionLabel: {
       fontSize: type.caption,

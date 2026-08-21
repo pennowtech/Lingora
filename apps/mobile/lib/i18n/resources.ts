@@ -532,6 +532,8 @@ const ENGLISH_PHRASES = [
   'Enabled',
   'Open DeepL usage ↗',
   'v0.0.1 · offline-first · your data stays on device',
+  'offline-first · your data stays on device',
+  'Build',
 
   // Root layout titles
   'Opening your vocabulary…',

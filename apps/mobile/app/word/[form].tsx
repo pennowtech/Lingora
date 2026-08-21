@@ -289,7 +289,12 @@ async function loadWord(db: DatabaseAdapter, form: string, nativeLanguage: Langu
 const log = logger.child({ feature: 'vocabulary', component: 'word-detail' })
 
 export default function WordDetailScreen(): JSX.Element {
-  const { form, nativeTerm, autoEnrich } = useLocalSearchParams<{ form: string; nativeTerm?: string; autoEnrich?: string }>()
+  const { form, nativeTerm, autoEnrich, initialExplanation } = useLocalSearchParams<{
+    form: string
+    nativeTerm?: string
+    autoEnrich?: string
+    initialExplanation?: string
+  }>()
   const { db, ai, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
@@ -1066,11 +1071,18 @@ export default function WordDetailScreen(): JSX.Element {
                   <Text style={styles.primaryMeaning} selectable>
                     {nativeTerm ? word.lemma.form : headlineMeaning.translation}
                   </Text>
-                  {isAiCard ? (
-                    <Text style={styles.explanation} selectable>
-                      {generateExplanation.isPending ? t('Generating…') : headlineMeaning.explanation || t('No explanation yet.')}
-                    </Text>
-                  ) : null}
+                  {(() => {
+                    const explanationToDisplay =
+                      headlineMeaning?.explanation && headlineMeaning.explanation.trim() !== ''
+                        ? headlineMeaning.explanation
+                        : initialExplanation
+                    return explanationToDisplay || isAiCard ? (
+                      <Text style={styles.explanation} selectable>
+                        {explanationToDisplay ??
+                          (generateExplanation.isPending ? t('Generating…') : isAiCard ? t('No explanation yet.') : null)}
+                      </Text>
+                    ) : null
+                  })()}
                 </Card>
                 <CardActionBar
                   onExplain={handleExplain}

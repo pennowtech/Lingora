@@ -86,15 +86,19 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
-    version: 4, // v4: explicit anti-swap warning + lemma.language code instruction (see ANTI_SWAP_LEMMA_WARNING) — a model was observed inverting target/native for the whole package
+    version: 5, // v5: conversational explanations (no academic "<word> means that..." or "This term denotes...")
 
-    template: `You are a {{targetLanguage}} lexicographer building vocabulary data for a {{targetLanguage}}→{{nativeLanguage}} learning app. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
+    template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
 
 ${ANTI_SWAP_LEMMA_WARNING}
 
 Generate a complete, accurate word package for the {{targetLanguage}} word: "{{word}}"
 {{baselineHint}}
 Requirements:
+
+EXPLANATION TONE & STYLE
+- Explanations and usage notes must sound like a friendly native mentor chatting with a friend.
+- NEVER use dry academic textbook phrasing like "{{word}} means that...", "This term denotes...", or "Defines...". Speak naturally and directly (e.g. "Think of this as...", "You'll use this when...", "A casual way of saying...").
 
 LEMMA
 - Return the dictionary form (lemma) of "{{word}}", in {{targetLanguage}} — not translated into {{nativeLanguage}}. If the input is inflected, the lemma is its base form, still in {{targetLanguage}}.
@@ -250,12 +254,12 @@ Text: {{text}}`,
    */
   explainWord: {
     name: 'explain_word',
-    version: 1,
-    template: `You are a {{targetLanguage}} teacher giving a learner a quick, glanceable gist of a word before they commit to studying it properly.
+    version: 2, // v2: warm, conversational human tone (no academic textbook phrasing like "<word> means that...")
+    template: `You are a friendly {{targetLanguage}} language mentor explaining a word to a learner in a warm, natural, human voice in {{nativeLanguage}}.
 
 ${ANTI_SWAP_WARNING}
 
-Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. One short, natural paragraph — at most 50 words. No examples, no lists, no headings, just the explanation itself: what it means and, if useful, a one-clause note on how/when it's used. Return strict JSON only: {"explanation": "..."}`,
+Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. Speak naturally and directly — NEVER use dry textbook formulas like "{{word}} means that..." or "This term denotes...". (e.g. "Think of this when...", "Used when..."). One short, natural paragraph — at most 50 words. No examples, no lists, no headings, just the explanation itself. Return strict JSON only: {"explanation": "..."}`,
   },
 } as const satisfies Record<string, PromptTemplate>
 

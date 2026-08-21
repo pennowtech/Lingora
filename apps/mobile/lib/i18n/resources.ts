@@ -201,6 +201,10 @@ const ENGLISH_PHRASES = [
   'Add your OpenAI key to generate cards',
 
   // Word detail
+  'Explore Full AI Flashcard',
+  'Generate Full AI Flashcard',
+  'AI Insights',
+  'Getting AI insights for "{{word}}"…',
   '✨ AI enriching meanings & examples…',
   'AI Enrichment Failed',
   'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.',
@@ -1082,6 +1086,10 @@ const de: Partial<Record<Phrase, string>> = {
     'Füge einen Satz manuell hinzu, füge einen aus der Zwischenablage ein oder erfasse Text über das Teilen-Menü — er landet hier, bevor er von der KI verarbeitet wird.',
   '{{done}} of {{total}} generated': '{{done}} von {{total}} erzeugt',
   '{{count}} failed': '{{count}} fehlgeschlagen',
+  'Explore Full AI Flashcard': 'Vollständige KI-Karte erkunden',
+  'Generate Full AI Flashcard': 'Vollständige KI-Karte generieren',
+  'AI Insights': 'KI-Einblicke',
+  'Getting AI insights for "{{word}}"…': 'Holt KI-Einblicke für „{{word}}“…',
   '✨ AI enriching meanings & examples…': '✨ KI ergänzt Bedeutungen & Beispiele…',
   'AI Enrichment Failed': 'KI-Anreicherung fehlgeschlagen',
   'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.':

@@ -300,7 +300,7 @@ export async function persistWordGuideAsCard(
  */
 export async function persistTranslationAsCard(
   db: DatabaseAdapter,
-  args: { form: string; language: LanguageCode; translation: string; provider: Exclude<CardSource, 'word_guide'> },
+  args: { form: string; language: LanguageCode; translation: string; explanation?: string; provider: Exclude<CardSource, 'word_guide'> },
   deckId: string,
   nativeLanguage: LanguageCode,
   cefrLevel: CefrLevel = 'unknown',
@@ -367,7 +367,7 @@ export async function persistTranslationAsCard(
       cardId: card.id,
       clusterId,
       translation: args.translation,
-      explanation: '',
+      explanation: args.explanation ?? '',
       cefrLevel,
       isPrimary: true,
       orderIndex: 0,

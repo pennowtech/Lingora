@@ -24,9 +24,10 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
+import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage } from '../../lib/languageDetection'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
-import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useCyclingIndex } from '../../lib/useCyclingIndex'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -382,6 +383,7 @@ export default function SearchScreen(): JSX.Element {
           form: targetWord,
           language: targetLanguage,
           translation,
+          ...(quickExplain.data && { explanation: quickExplain.data }),
           provider: dictionaryNameToCardSource(dictionary.name),
         },
         DEFAULT_DECK_ID,
@@ -413,7 +415,12 @@ export default function SearchScreen(): JSX.Element {
       })
       router.push({
         pathname: '/word/[form]',
-        params: { form, ...(nativeTerm && { nativeTerm }), ...(autoEnrich && { autoEnrich: 'true' }) },
+        params: {
+          form,
+          ...(nativeTerm && { nativeTerm }),
+          ...(autoEnrich && { autoEnrich: 'true' }),
+          ...(quickExplain.data && { initialExplanation: quickExplain.data }),
+        },
       })
     },
   })
@@ -646,19 +653,24 @@ export default function SearchScreen(): JSX.Element {
                   {({ pressed }) => (
                     <Card style={[styles.explainCard, pressed && styles.explainCardPressed]}>
                       <View style={styles.explainHeaderRow}>
-                        <View style={styles.explainIconBadge}>
-                          <Ionicons name="sparkles" size={13} color={colors.primary} />
-                        </View>
                         <Text style={styles.explainWord} numberOfLines={1}>
                           {term}
                         </Text>
+                        <View style={styles.explainBadgePill}>
+                          <CardSourceIcon source={ai?.name} size={14} />
+                          <Text style={styles.explainBadgeText}>
+                            {t('AI Insights')}
+                          </Text>
+                        </View>
                       </View>
                       <Text style={styles.explainText} numberOfLines={5}>
                         {quickExplain.data}
                       </Text>
                       <View style={styles.explainFooterRow}>
-                        <Text style={styles.explainFooterText}>{t('Tap to build the full card')}</Text>
-                        <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                        <View style={styles.explainCtaBtn}>
+                          <Text style={styles.explainFooterText}>{t('Explore Full AI Flashcard')}</Text>
+                          <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+                        </View>
                       </View>
                     </Card>
                   )}
@@ -669,15 +681,15 @@ export default function SearchScreen(): JSX.Element {
                     <View style={styles.explainHeaderRow}>
                       <ActivityIndicator size="small" color={colors.primary} />
                       <Text style={styles.explainLoadingLabel} numberOfLines={1}>
-                        {t('Getting a quick take on "{{word}}"…', { word: term })}
+                        {t('Getting AI insights for "{{word}}"…', { word: term })}
                       </Text>
                     </View>
                   </Card>
                 </Pressable>
               ) : (
                 <Card style={styles.generateCard} onPress={() => generate.mutate()}>
-                  <Ionicons name="sparkles" size={18} color={colors.primary} />
-                  <Text style={styles.generateLabel}>{t('Generate with AI')}</Text>
+                  <CardSourceIcon source={ai?.name} size={18} />
+                  <Text style={styles.generateLabel}>{t('Generate Full AI Flashcard')}</Text>
                 </Card>
               )
             ) : (
@@ -913,23 +925,36 @@ const createStyles = (colors: ThemeColors) =>
     },
     explainCardPressed: { opacity: 0.85 },
     explainHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    explainIconBadge: {
-      width: 24,
-      height: 24,
-      borderRadius: radius.full,
-      backgroundColor: colors.surface,
+    explainBadgePill: {
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.surface,
+      borderRadius: radius.full,
     },
-    explainWord: { flex: 1, fontSize: type.body, fontWeight: '800', color: colors.text },
-    explainText: { fontSize: type.body, color: colors.textSecondary, lineHeight: 21 },
-    explainFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing.xs },
-    explainFooterText: {
+    explainBadgeText: {
       fontSize: type.micro,
       fontWeight: '700',
       color: colors.primary,
-      textTransform: 'uppercase',
-      letterSpacing: 0.4,
+    },
+    explainWord: { flex: 1, fontSize: type.body, fontWeight: '800', color: colors.text, textAlign: 'left' },
+    explainText: { fontSize: type.body, color: colors.textSecondary, lineHeight: 21 },
+    explainFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: spacing.xs },
+    explainCtaBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.surface,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+    },
+    explainFooterText: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.primary,
     },
     explainLoadingLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.primary },
     limitedCard: {

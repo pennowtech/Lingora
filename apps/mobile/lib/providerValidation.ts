@@ -39,6 +39,94 @@ function offlineMessage(providerName: string): string {
   return `Couldn't reach ${providerName} — check the device's internet connection and try again.`
 }
 
+/**
+ * Formats technical raw API errors (JSON strings, HTTP status dumps, stack traces)
+ * into clean, user-friendly, actionable messages for settings & error alerts.
+ */
+export function formatUserFriendlyProviderError(providerName: string, error: unknown): string {
+  const providerError = error instanceof AIProviderError ? error : undefined
+  const status = providerError?.status
+  const rawMsg = error instanceof Error ? error.message : String(error)
+  const lower = rawMsg.toLowerCase()
+
+  // 1. Invalid API Key / Authentication Failure
+  if (
+    status === 401 ||
+    status === 403 ||
+    lower.includes('invalid_api_key') ||
+    lower.includes('incorrect api key') ||
+    lower.includes('invalid api key') ||
+    lower.includes('authentication_error') ||
+    lower.includes('invalid x-api-key') ||
+    lower.includes('authorization failed') ||
+    lower.includes('api_key_invalid') ||
+    lower.includes('unauthorized') ||
+    lower.includes('forbidden')
+  ) {
+    return `Invalid ${providerName} API key. Please check your key in Settings.`
+  }
+
+  // 2. Insufficient Quota / Billing Exceeded
+  if (
+    lower.includes('insufficient_quota') ||
+    lower.includes('quota') ||
+    lower.includes('credit_balance_too_low') ||
+    lower.includes('exceeded your current quota') ||
+    lower.includes('billing')
+  ) {
+    return `${providerName} quota or credit balance exceeded. Please check your plan and billing details.`
+  }
+
+  // 3. Model Not Found / Restricted Access
+  if (
+    status === 404 ||
+    lower.includes('model_not_found') ||
+    lower.includes('does not exist') ||
+    lower.includes('does not have access') ||
+    lower.includes('unsupported model')
+  ) {
+    return `Selected model is unavailable or not accessible with your ${providerName} account.`
+  }
+
+  // 4. Rate Limited / Too Many Requests
+  if (status === 429 || lower.includes('rate_limit') || lower.includes('too many requests')) {
+    return `${providerName} rate limit reached. Please wait a few seconds and try again.`
+  }
+
+  // 5. Network / Timeout / Reachability
+  if (
+    lower.includes('timed out') ||
+    lower.includes('timeout') ||
+    lower.includes('econnrefused') ||
+    lower.includes('fetch failed') ||
+    lower.includes('network')
+  ) {
+    return `Couldn't reach ${providerName} — check your device's internet connection and try again.`
+  }
+
+  // 6. Server Unavailable
+  if ((status && status >= 500) || lower.includes('server_error') || lower.includes('internal server error')) {
+    return `${providerName} servers are temporarily unavailable (${status ?? 500}). Please try again shortly.`
+  }
+
+  // 7. Extract nested human message if raw JSON error response was captured
+  try {
+    const jsonMatch = rawMsg.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0])
+      const extracted = parsed?.error?.message || parsed?.error?.detail || parsed?.message
+      if (typeof extracted === 'string' && extracted.trim().length > 0) {
+        const cleanExtracted = extracted.replace(/https?:\/\/\S+/g, '').trim()
+        return `${providerName}: ${cleanExtracted}`
+      }
+    }
+  } catch {
+    // Ignore JSON parse failure
+  }
+
+  return `${providerName} validation failed. Please check your key and settings.`
+}
+
 async function runValidation(
   providerName: string,
   hostUrl: string,
@@ -76,10 +164,7 @@ async function runValidation(
         ...(providerError?.status !== undefined ? { statusCode: providerError.status } : {}),
       },
     })
-    if (providerError) {
-      return { ok: false, message: providerError.message }
-    }
-    return { ok: false, message: `${providerName} validation failed: ${String(error)}` }
+    return { ok: false, message: formatUserFriendlyProviderError(providerName, error) }
   }
 }
 

@@ -1,6 +1,7 @@
 import { logger } from '@lingora/observability'
 import type { CloudAudioProviderName } from './audioProviderMeta'
 import { CloudTtsError, synthesizeSpeech } from './cloudTtsProviders'
+import { formatUserFriendlyProviderError } from './providerValidation'
 
 const log = logger.child({ feature: 'settings', component: 'audioProviderValidation' })
 
@@ -53,11 +54,7 @@ export async function validateAudioProviderKey(
         durationMs: Date.now() - startedAt,
         metadata: { provider, statusCode: error.status },
       })
-      const detail = error.body.trim() !== '' ? ` ${error.body}` : ''
-      if (error.status === 401 || error.status === 403) {
-        return { ok: false, message: `${label} rejected this key (${error.status}).${detail}` }
-      }
-      return { ok: false, message: `${label} returned an unexpected response (${error.status}).${detail}` }
+      return { ok: false, message: formatUserFriendlyProviderError(label, error) }
     }
     if (error instanceof Error) {
       // A thrown validation-input error (e.g. ElevenLabs' "no voice ID set") rather than a network

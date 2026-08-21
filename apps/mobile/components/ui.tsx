@@ -117,7 +117,12 @@ export function Button(props: {
       ]}
     >
       {icon ? <Ionicons name={icon} size={small ? 15 : 18} color={fg} /> : null}
-      <Text style={[styles.buttonLabel, small && styles.buttonLabelSmall, { color: fg }]}>
+      <Text
+        maxFontSizeMultiplier={1.25}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={[styles.buttonLabel, small && styles.buttonLabelSmall, { color: fg }]}
+      >
         {label}
       </Text>
     </Pressable>

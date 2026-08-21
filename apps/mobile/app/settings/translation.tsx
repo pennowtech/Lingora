@@ -11,6 +11,7 @@ import { DEEPL_USAGE_URL, PROVIDER_META, PROVIDER_STORE_KEYS, ZERO_USAGE } from 
 import { validateDeepLKey } from '../../lib/providerValidation'
 import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
 import {
+  DEFAULT_MODELS,
   GENERATION_PROVIDERS,
   STORE_KEYS,
   TRANSLATION_PROVIDERS,
@@ -58,11 +59,15 @@ export default function TranslationScreen(): JSX.Element {
           getUsage('deepl'),
           Promise.all(
             GENERATION_PROVIDERS.map(async (name) => {
-              const [apiKey, enabledRaw] = await Promise.all([
+              const [apiKey, model, enabledRaw, validatedKeyRaw] = await Promise.all([
                 SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key),
+                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].model),
                 SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].enabled),
+                SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].validatedKey),
               ])
-              return { name, available: (apiKey ?? '').trim() !== '' && enabledRaw !== 'false' }
+              const key = (apiKey ?? '').trim()
+              const loadedModel = model ?? DEFAULT_MODELS[name]
+              return { name, available: key !== '' && enabledRaw !== 'false' && validatedKeyRaw !== 'invalid' }
             }),
           ),
         ])

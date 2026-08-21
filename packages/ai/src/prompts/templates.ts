@@ -98,7 +98,8 @@ Requirements:
 
 EXPLANATION TONE & STYLE
 - Explanations and usage notes must sound like a friendly native mentor chatting with a friend.
-- NEVER use dry academic textbook phrasing like "{{word}} means that...", "This term denotes...", or "Defines...". Speak naturally and directly (e.g. "Think of this as...", "You'll use this when...", "A casual way of saying...").
+- NEVER use dry academic textbook phrasing like "{{word}} means that...", "This term denotes...", or "Defines...". Speak naturally and directly.
+- MEANING USAGE FIELD IN WORDPACKAGE: Set usage to null for every meaning in wordPackage — detailed usage explanations (50–100 words covering when, why, how, and where to use the word) are fetched on-demand when the user taps 'More info'.
 
 LEMMA
 - Return the dictionary form (lemma) of "{{word}}", in {{targetLanguage}} — not translated into {{nativeLanguage}}. If the input is inflected, the lemma is its base form, still in {{targetLanguage}}.
@@ -164,14 +165,14 @@ Return strict JSON only: {"clusters": [{"label": "...", "description": "...", "c
   /** Meanings for one existing cluster. */
   meanings: {
     name: 'meanings',
-    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
+    version: 5, // v5: 50-100 word usage explanation answering when, why, how, and where to use the word
     template: `For the {{targetLanguage}} word "{{word}}", give 1–3 meanings that belong strictly to this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
 ${ANTI_SWAP_WARNING}
 
-Learner level: {{cefrLevel}}. The learner's own language is {{nativeLanguage}} — write the translation, explanation and usage notes in {{nativeLanguage}}. Each meaning: a concise {{nativeLanguage}} translation, a one-line {{nativeLanguage}} explanation, 1–2 sentences of usage notes (register, common contexts, typical collocations — how this meaning is actually used day to day), and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
+Learner level: {{cefrLevel}}. The learner's own language is {{nativeLanguage}} — write the translation, explanation and usage notes in {{nativeLanguage}}. Each meaning: a concise {{nativeLanguage}} translation, a one-line {{nativeLanguage}} explanation, and a detailed 50–100 word {{nativeLanguage}} usage note answering when, why, how, and where native speakers use this word in this context (situations, register, settings, practical use-case). Do NOT repeat the basic definition or translation, and do NOT include synonyms.
 {{followUpSection}}
 Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "usage": "...", "cefrLevel": "..."}]}`,
   },
@@ -275,6 +276,23 @@ Text: {{text}}`,
 ${ANTI_SWAP_WARNING}
 
 Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. Speak naturally and directly — NEVER use dry textbook formulas like "{{word}} means that..." or "This term denotes...". (e.g. "Think of this when...", "Used when..."). One short, natural paragraph — at most 50 words. No examples, no lists, no headings, just the explanation itself. Return strict JSON only: {"explanation": "..."}`,
+  },
+  /**
+   * The word detail screen's "More info" sheet, fetched on demand (only once the learner taps the
+   * button, never on card generation) — deliberately distinct from meanings.explanation, which is
+   * already shown inline on the card. Repeating that content, or listing synonyms (already shown
+   * in their own section), would make tapping "More info" pointless.
+   */
+  explainWordDetail: {
+    name: 'explain_word_detail',
+    version: 2, // v2: hard cap — at most 3 paragraphs, each at most 30 words (was 2-3 paragraphs/50-100 words total, which read as too dense)
+    template: `You are a friendly {{targetLanguage}} language mentor giving a learner ADDITIONAL practical context for a word they already have a basic definition for.
+
+${ANTI_SWAP_WARNING}
+
+For the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}} — explain, in {{nativeLanguage}}, practical things like when, why, how, or where it's typically used, and its natural real-world use-case in this sense. A {{cefrLevel}} learner should come away knowing how to actually use it, not just what it means.
+
+Do NOT restate a basic definition or translation — assume the learner already has one. Do NOT list or mention synonyms. Write at most 3 short paragraphs, in the same warm, conversational voice — never dry textbook phrasing. Each paragraph must be 30 words or fewer — short and scannable, not a dense block. Return strict JSON only: {"paragraphs": ["...", "..."]}`,
   },
 } as const satisfies Record<string, PromptTemplate>
 

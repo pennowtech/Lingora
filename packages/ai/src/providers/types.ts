@@ -130,5 +130,13 @@ export interface AIProvider {
    */
   explainWord(word: string, ctx: GenerationContext): Promise<AIResult<string>>
 
+  /**
+   * The word detail screen's "More info" sheet content (2-3 short paragraphs, 50-100 words) —
+   * additional practical context (when/why/how/where it's used) for a specific sense, distinct
+   * from generateMeaning's explanation/usage (already shown inline on the card) and never
+   * including synonyms. Fetched on demand only, never as part of initial card generation.
+   */
+  explainWordDetail(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<string[]>>
+
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
 }

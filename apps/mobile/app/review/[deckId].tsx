@@ -439,6 +439,10 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
   const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
+  // "More info" sheet content — same on-demand, cached-per-card design as word/[form].tsx's
+  // moreInfoByCluster, keyed by card id instead of cluster id since review has no cluster tabs
+  // (one meaning per flipped card).
+  const [moreInfoByCard, setMoreInfoByCard] = useState<Record<string, string[]>>({})
 
   // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
   // from the template editor (which only edits layout/style, never content)
@@ -629,6 +633,25 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
+  // "More info" sheet content — same on-demand, never-on-open design as word/[form].tsx's
+  // identical mutation, keyed by card id (see moreInfoByCard's doc comment).
+  const generateMoreInfo = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
+      if (!view?.clusterRef) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.explainWordDetail(view.form, view.clusterRef, {
+        cefrLevel: defaultCefr,
+        language: view.language,
+        nativeLanguage,
+      })
+      return result.data
+    },
+    onSuccess: (paragraphs) => {
+      if (view?.card.id) setMoreInfoByCard((prev) => ({ ...prev, [view.card.id]: paragraphs }))
+    },
+    onError: (error: unknown) => showError(t('Could not load more info'), error),
+  })
+
   // A follow-up question from the "More info" sheet's composer — ephemeral, not persisted (same
   // decision as word/[form].tsx's identical mutation).
   const askFollowUp = useMutation({
@@ -702,6 +725,9 @@ export default function ReviewSessionScreen(): JSX.Element {
     if (!view) return
     if (isAiCard) {
       setAiSheetOpen(true)
+      if (!moreInfoByCard[view.card.id] && !generateMoreInfo.isPending && ai) {
+        generateMoreInfo.mutate()
+      }
       return
     }
     if (explainVisible || guideModalOpen) {
@@ -1052,11 +1078,8 @@ export default function ReviewSessionScreen(): JSX.Element {
           headword={view.form}
           partOfSpeech={view.partOfSpeech}
           language={view.language}
-          translation={view.meaning ?? ''}
-          explanation={view.explanation ?? ''}
-          usage={view.usage}
-          loading={generateExplanation.isPending}
-          synonyms={view.synonyms}
+          paragraphs={moreInfoByCard[view.card.id] ?? []}
+          loading={generateMoreInfo.isPending}
           followUps={followUps}
           askLoading={askFollowUp.isPending}
           onAsk={(question) => askFollowUp.mutate(question)}

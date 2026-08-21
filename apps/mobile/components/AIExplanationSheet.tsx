@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import type { LanguageCode, Synonym } from '@lingora/types'
+import type { LanguageCode } from '@lingora/types'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
@@ -32,12 +32,16 @@ export interface FollowUpEntry {
 }
 
 /**
- * The AI-sourced counterpart to WordGuideModal's rich presentation (same "Understanding the
- * {language} {wordClass} '{headword}'" / Usage / Examples shape, so a dictionary-sourced and an
- * AI-sourced explanation read consistently) — plus a short follow-up question composer and the
- * resulting Q&A thread, kept in memory only for this session (never persisted as new cards/cloze
- * — see LingoraDocs decision on ephemeral follow-ups). Opened by the "More info" action on an
- * AI-generated card's action bar.
+ * The word detail screen's "More info" sheet — additional practical context (when/why/how/where
+ * a word is used) for whichever cluster is currently active, deliberately distinct from the
+ * meaning's own explanation already shown inline on the card, and never repeating synonyms
+ * (already in their own section). Fetched on demand only, the first time this sheet opens for the
+ * current cluster — never as part of initial card generation — see explainWordDetail's doc
+ * comment in packages/ai/src/providers/types.ts.
+ *
+ * Plus a short follow-up question composer and the resulting Q&A thread, kept in memory only for
+ * this session (never persisted as new cards/cloze — see LingoraDocs decision on ephemeral
+ * follow-ups). Opened by the "More info" action on an AI-generated card's action bar.
  */
 export function AIExplanationSheet(props: {
   visible: boolean
@@ -45,11 +49,9 @@ export function AIExplanationSheet(props: {
   headword: string
   partOfSpeech: string | undefined
   language: LanguageCode
-  translation: string
-  explanation: string
-  usage: string | null
+  /** 2-3 short paragraphs of additional context — empty while not yet fetched. */
+  paragraphs: string[]
   loading: boolean
-  synonyms: Synonym[]
   followUps: FollowUpEntry[]
   askLoading: boolean
   onAsk: (question: string) => void
@@ -84,27 +86,15 @@ export function AIExplanationSheet(props: {
               </View>
             ) : (
               <>
-                <Text style={styles.intro}>{props.explanation || t('No explanation yet.')}</Text>
-
-                {props.synonyms.length > 0 ? (
-                  <>
-                    <Text style={styles.sectionTitle}>{t('Synonyms')}</Text>
-                    {props.synonyms.map((syn) => (
-                      <Text key={syn.id} style={styles.synonym}>
-                        {'• '}
-                        <Text style={styles.synonymWord}>{syn.word}</Text>
-                        {syn.nuance ? ` — ${syn.nuance}` : ''}
-                      </Text>
-                    ))}
-                  </>
-                ) : null}
-
-                {props.usage ? (
-                  <>
-                    <Text style={styles.sectionTitle}>{t('Usage')}</Text>
-                    <Text style={styles.usage}>{props.usage}</Text>
-                  </>
-                ) : null}
+                {props.paragraphs.length > 0 ? (
+                  props.paragraphs.map((paragraph, index) => (
+                    <Text key={index} style={styles.usage}>
+                      {paragraph}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={styles.usage}>{t('No additional info available yet.')}</Text>
+                )}
 
                 {props.followUps.map((entry, index) => (
                   <View key={`${entry.question}-${index}`} style={styles.followUpEntry}>
@@ -152,17 +142,9 @@ const createStyles = (colors: ThemeColors) =>
     scroll: { marginTop: spacing.md, flexGrow: 0 },
     loadingRow: { alignItems: 'center', paddingVertical: spacing.xl, gap: spacing.sm },
     loadingLabel: { fontSize: type.body, color: colors.textSecondary },
-    intro: { fontSize: type.body, color: colors.text, lineHeight: 22 },
-    sectionTitle: {
-      fontSize: type.body,
-      fontWeight: '700',
-      color: colors.text,
-      marginTop: spacing.lg,
-      marginBottom: spacing.sm,
-    },
-    synonym: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
-    synonymWord: { fontWeight: '700', color: colors.text },
-    usage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20 },
+    // Each paragraph is its own Text block with its own bottom margin — short paragraphs read as
+    // distinct thoughts, not one dense wall of text.
+    usage: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 20, marginBottom: spacing.md },
     followUpEntry: {
       marginTop: spacing.lg,
       paddingTop: spacing.md,

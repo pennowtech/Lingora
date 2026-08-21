@@ -79,6 +79,12 @@ const clozesResponseSchema = z.object({ clozes: z.array(generatedClozeSchema) })
 const clozesJsonTargetSchema = z.object({ clozes: z.array(generatedClozeBaseSchema) })
 const translateResponseSchema = z.object({ translation: z.string().min(1) })
 const explainWordResponseSchema = z.object({ explanation: z.string().min(1).max(400) })
+const explainWordDetailResponseSchema = z.object({
+  paragraphs: z
+    .array(z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'))
+    .min(1)
+    .max(3),
+})
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
 
 const log = logger.child({ feature: 'ai', component: 'AnthropicProvider' })
@@ -240,6 +246,22 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
     })
     const result = await this.generateStrict(prompt, 'explain_word', explainWordResponseSchema)
     return { data: result.data.explanation, usage: result.usage }
+  }
+
+  async explainWordDetail(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+  ): Promise<AIResult<string[]>> {
+    const prompt = renderPrompt(PROMPTS.explainWordDetail.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      clusterLabel: cluster.label,
+      clusterDescription: cluster.description,
+    })
+    const result = await this.generateStrict(prompt, 'explain_word_detail', explainWordDetailResponseSchema)
+    return { data: result.data.paragraphs, usage: result.usage }
   }
 
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {

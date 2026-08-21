@@ -485,6 +485,7 @@ const ENGLISH_PHRASES = [
   'More info',
   'Hide details',
   'Understanding the {{language}} {{wordClass}} "{{headword}}"',
+  'Context & Practical Usage',
   'Usage',
   'Examples of Usage',
   'Noun',
@@ -2461,6 +2462,7 @@ const fr: Partial<Record<Phrase, string>> = {
   Details: 'Détails',
   'More info': "Plus d'infos",
   'Hide details': 'Masquer les détails',
+  'Context & Practical Usage': 'Contexte et utilisation pratique',
   'Understanding the {{language}} {{wordClass}} "{{headword}}"':
     'Comprendre le {{wordClass}} {{language}} « {{headword}} »',
   'Examples of Usage': "Exemples d'usage",
@@ -3506,6 +3508,7 @@ const es: Partial<Record<Phrase, string>> = {
   Details: 'Detalles',
   'More info': 'Más información',
   'Hide details': 'Ocultar detalles',
+  'Context & Practical Usage': 'Contexto y uso práctico',
   'Understanding the {{language}} {{wordClass}} "{{headword}}"':
     'Entendiendo el {{wordClass}} {{language}} "{{headword}}"',
   Usage: 'Uso',
@@ -4552,6 +4555,7 @@ const hi: Partial<Record<Phrase, string>> = {
   Details: 'विवरण',
   'More info': 'अधिक जानकारी',
   'Hide details': 'विवरण छुपाएं',
+  'Context & Practical Usage': 'संदर्भ और व्यावहारिक उपयोग',
   'Understanding the {{language}} {{wordClass}} "{{headword}}"':
     '{{language}} {{wordClass}} "{{headword}}" को समझना',
   Usage: 'उपयोग',

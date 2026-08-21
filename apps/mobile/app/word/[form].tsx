@@ -393,6 +393,11 @@ export default function WordDetailScreen(): JSX.Element {
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
   const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
+  // "More info" sheet content — additional context distinct from the meaning's own inline
+  // explanation, fetched on demand only (see generateMoreInfo below) and cached per cluster for
+  // the rest of this session so switching tabs and back doesn't re-fetch. Keyed by cluster id
+  // rather than a single value so a stale answer from a different sense never shows through.
+  const [moreInfoByCluster, setMoreInfoByCluster] = useState<Record<string, string[]>>({})
   const [editOpen, setEditOpen] = useState(false)
   const [editMeaning, setEditMeaning] = useState('')
   const [editExample, setEditExample] = useState('')
@@ -730,6 +735,26 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
+  // "More info" sheet content — see moreInfoByCluster's doc comment. Deliberately never fired
+  // automatically: only handleExplain's on-tap check below triggers this, and only the first time
+  // for a given cluster this session (moreInfoByCluster already has an entry after that).
+  const generateMoreInfo = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
+      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.explainWordDetail(
+        word.lemma.form,
+        { label: active.cluster.label, description: active.cluster.description },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
+      )
+      return result.data
+    },
+    onSuccess: (paragraphs) => {
+      if (activeClusterId) setMoreInfoByCluster((prev) => ({ ...prev, [activeClusterId]: paragraphs }))
+    },
+    onError: (error: unknown) => showError(t('Could not load more info'), error),
+  })
+
   // Regenerate — replaces every meaning cluster (meanings/examples/synonyms), phrase, and cloze
   // on this card with a fresh AI generation. Unlike generateExamples/generateExplanation above,
   // this is whole-card and destructive (old content is gone, not just supplemented), so it's
@@ -870,6 +895,9 @@ export default function WordDetailScreen(): JSX.Element {
     if (!headlineMeaning) return
     if (isAiCard) {
       setAiSheetOpen(true)
+      if (activeClusterId && !moreInfoByCluster[activeClusterId] && !generateMoreInfo.isPending && ai) {
+        generateMoreInfo.mutate()
+      }
       return
     }
     if (explainVisible || guideModalOpen) {
@@ -1726,11 +1754,8 @@ export default function WordDetailScreen(): JSX.Element {
           headword={word.lemma.form}
           partOfSpeech={word.lemma.partOfSpeech}
           language={word.lemma.language}
-          translation={headlineMeaning.translation}
-          explanation={headlineMeaning.explanation}
-          usage={headlineMeaning.usage ?? null}
-          loading={generateExplanation.isPending}
-          synonyms={active?.synonyms ?? []}
+          paragraphs={(activeClusterId && moreInfoByCluster[activeClusterId]) || []}
+          loading={generateMoreInfo.isPending}
           followUps={followUps}
           askLoading={askFollowUp.isPending}
           onAsk={(question) => askFollowUp.mutate(question)}

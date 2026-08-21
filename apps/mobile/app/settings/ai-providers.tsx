@@ -158,13 +158,14 @@ export default function AiProvidersScreen(): JSX.Element {
     if (!apiKey.trim()) return
     setValidating((prev) => ({ ...prev, [name]: true }))
     void VALIDATORS[name](apiKey, model)
-      .then((result) => {
+      .then(async (result) => {
         if (result.ok) {
-          void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${apiKey.trim()}:::${model}`)
+          await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${apiKey.trim()}:::${model}`)
         } else {
-          void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, '')
+          await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, 'invalid')
         }
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
+        await reloadServices()
         setNotice({
           title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
           message: result.message,
@@ -204,7 +205,7 @@ export default function AiProvidersScreen(): JSX.Element {
   }
 
   const configuredProviders = GENERATION_PROVIDERS.filter(
-    (name) => providers[name].enabled && providers[name].apiKey.trim() !== '',
+    (name) => providers[name].enabled && providers[name].apiKey.trim() !== '' && validated[name],
   )
   const activeGenerationProvider =
     generationProvider && configuredProviders.includes(generationProvider) ? generationProvider : configuredProviders[0]

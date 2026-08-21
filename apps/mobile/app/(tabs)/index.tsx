@@ -53,10 +53,10 @@ async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
 /** Morning/afternoon/evening greeting, computed once per render from the device clock — a static
  * "Guten Tag!" read the same at 7am and 11pm, which felt stale on a screen that's otherwise all
  * about "right now". */
-function greetingFor(hour: number): string {
-  if (hour < 12) return 'Guten Morgen!'
-  if (hour < 18) return 'Guten Tag!'
-  return 'Guten Abend!'
+function greetingFor(hour: number, t: (key: string) => string): string {
+  if (hour < 12) return t('Good morning!')
+  if (hour < 18) return t('Good afternoon!')
+  return t('Good evening!')
 }
 
 /**
@@ -91,7 +91,7 @@ export default function HomeScreen(): JSX.Element {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>{greetingFor(new Date().getHours())} 👋</Text>
+            <Text style={styles.greeting}>{greetingFor(new Date().getHours(), t)} 👋</Text>
             <Text style={styles.subGreeting}>
               {stats && stats.dueNow === 0
                 ? t('All caught up — nothing due right now.')

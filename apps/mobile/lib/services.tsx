@@ -250,22 +250,26 @@ interface ProviderConfig {
   key: string
   enabled: boolean
   model: string
+  validated: boolean
 }
 
 async function readProviderConfig(
   keyStoreKey: string,
   enabledStoreKey: string,
   modelStoreKey: string,
+  validatedStoreKey: string,
   defaultModel: string,
 ): Promise<ProviderConfig> {
-  const [key, enabledRaw, model] = await Promise.all([
+  const [key, enabledRaw, model, validatedKeyRaw] = await Promise.all([
     SecureStore.getItemAsync(keyStoreKey),
     SecureStore.getItemAsync(enabledStoreKey),
     SecureStore.getItemAsync(modelStoreKey),
+    SecureStore.getItemAsync(validatedStoreKey),
   ])
-  // No stored flag yet (pre-existing keys from before per-provider enable
-  // toggles existed) defaults to enabled — a saved key should keep working.
-  return { key: key ?? '', enabled: enabledRaw !== 'false', model: model ?? defaultModel }
+  const k = (key ?? '').trim()
+  const m = model ?? defaultModel
+  const validated = k !== '' && validatedKeyRaw !== 'invalid'
+  return { key: k, enabled: enabledRaw !== 'false', model: m, validated }
 }
 
 /** OpenAI, Mistral, Gemini, and Claude all implement both provider slots. */
@@ -304,18 +308,32 @@ async function buildAIServices(
     storedNativeLanguage,
     storedTargetLanguage,
   ] = await Promise.all([
-    readProviderConfig(STORE_KEYS.openaiKey, STORE_KEYS.openaiEnabled, STORE_KEYS.openaiModel, DEFAULT_MODELS.openai),
+    readProviderConfig(
+      STORE_KEYS.openaiKey,
+      STORE_KEYS.openaiEnabled,
+      STORE_KEYS.openaiModel,
+      STORE_KEYS.openaiValidatedKey,
+      DEFAULT_MODELS.openai,
+    ),
     readProviderConfig(
       STORE_KEYS.mistralKey,
       STORE_KEYS.mistralEnabled,
       STORE_KEYS.mistralModel,
+      STORE_KEYS.mistralValidatedKey,
       DEFAULT_MODELS.mistral,
     ),
-    readProviderConfig(STORE_KEYS.geminiKey, STORE_KEYS.geminiEnabled, STORE_KEYS.geminiModel, DEFAULT_MODELS.gemini),
+    readProviderConfig(
+      STORE_KEYS.geminiKey,
+      STORE_KEYS.geminiEnabled,
+      STORE_KEYS.geminiModel,
+      STORE_KEYS.geminiValidatedKey,
+      DEFAULT_MODELS.gemini,
+    ),
     readProviderConfig(
       STORE_KEYS.claudeKey,
       STORE_KEYS.claudeEnabled,
       STORE_KEYS.claudeModel,
+      STORE_KEYS.claudeValidatedKey,
       DEFAULT_MODELS.anthropic,
     ),
     SecureStore.getItemAsync(STORE_KEYS.deeplKey),
@@ -343,7 +361,7 @@ async function buildAIServices(
 
   const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude }
   const configured = GENERATION_PROVIDERS.filter(
-    (name) => configs[name].enabled && configs[name].key.trim() !== '',
+    (name) => configs[name].enabled && configs[name].key !== '' && configs[name].validated,
   )
   const preferred = (GENERATION_PROVIDERS as readonly string[]).includes(storedGenerationProvider ?? '')
     ? (storedGenerationProvider as GenerationProviderName)

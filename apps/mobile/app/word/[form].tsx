@@ -42,8 +42,10 @@ import {
   updateExampleText,
   updateMeaningText,
   updateSelectedExample,
+  updateSynonymNuance,
   type DatabaseAdapter,
 } from '@lingora/database'
+import { LANGUAGE_NAMES, PROMPTS, renderPrompt } from '@lingora/ai'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
@@ -303,7 +305,39 @@ export default function WordDetailScreen(): JSX.Element {
   const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings/ai-providers'))
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false)
+  const [expandedSynonyms, setExpandedSynonyms] = useState<Record<string, boolean>>({})
+  const [loadingSynonymNuance, setLoadingSynonymNuance] = useState<Record<string, boolean>>({})
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
+
+  const handleToggleSynonym = async (syn: Synonym, contextDescription?: string) => {
+    const nextState = !expandedSynonyms[syn.id]
+    setExpandedSynonyms((prev) => ({ ...prev, [syn.id]: nextState }))
+
+    if (nextState && (!syn.nuance || syn.nuance.trim() === '')) {
+      if (!ai || !form) return
+      setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: true }))
+      try {
+        const res = await ai.generateSynonyms(
+          form,
+          { label: contextDescription ?? 'general', description: '' },
+          { cefrLevel: defaultCefr, language: targetLanguage, nativeLanguage },
+        )
+        const match = res.data.find((item) => item.word.toLowerCase() === syn.word.toLowerCase()) ?? res.data[0]
+        if (match) {
+          const nuanceText = match.nuance ?? t('Used as a {{formality}} synonym for {{word}}.', {
+            formality: match.formality ?? 'general',
+            word: form,
+          })
+          await updateSynonymNuance(db, syn.id, nuanceText, match.formality)
+          await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+        }
+      } catch (err) {
+        log.error('word_detail.fetch_synonym_nuance_failed', err, { message: 'Failed to fetch synonym nuance on demand' })
+      } finally {
+        setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: false }))
+      }
+    }
+  }
 
   const autoEnrichMutation = useMutation({
     mutationFn: async () => {
@@ -1226,35 +1260,82 @@ export default function WordDetailScreen(): JSX.Element {
               <>
                 <SectionHeader title={t('Synonyms')} />
                 <Card>
-                  {active.synonyms.map((syn, i) => (
-                    <Pressable
-                      key={syn.id}
-                      style={({ pressed }) => [
-                        styles.synRow,
-                        i > 0 && styles.rowDivider,
-                        pressed && styles.synRowPressed,
-                      ]}
-                      onPress={() => router.push(`/word/${encodeURIComponent(syn.word)}`)}
-                    >
-                      <View style={styles.synText}>
-                        <View style={styles.synWordRow}>
-                          <Text style={styles.synWord} selectable>{syn.word}</Text>
-                          <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                  {active.synonyms.map((syn, i) => {
+                    const isExpanded = !!expandedSynonyms[syn.id]
+                    return (
+                      <View key={syn.id} style={[styles.synBlock, i > 0 && styles.rowDivider]}>
+                        <View style={styles.synMainRow}>
+                          <Text style={styles.synWord} selectable>
+                            {syn.word}
+                          </Text>
+
+                          <View style={styles.synActionsGroup}>
+                            <Pressable
+                              style={({ pressed }) => [
+                                styles.synAiSparkleBtn,
+                                isExpanded && styles.synAiSparkleBtnActive,
+                                pressed && styles.synAiSparkleBtnPressed,
+                              ]}
+                              onPress={() => handleToggleSynonym(syn, active?.cluster.description)}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('AI Usage & Nuance')}
+                            >
+                              <Ionicons
+                                name={isExpanded ? 'sparkles' : 'sparkles-outline'}
+                                size={15}
+                                color={isExpanded ? colors.surface : colors.primary}
+                              />
+                            </Pressable>
+
+                            <Pressable
+                              style={({ pressed }) => [
+                                styles.synOpenCardBtn,
+                                pressed && styles.synOpenCardBtnPressed,
+                              ]}
+                              onPress={() => router.push(`/word/${encodeURIComponent(syn.word)}`)}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('Open Flashcard')}
+                            >
+                              <Ionicons name="open-outline" size={16} color={colors.textSecondary} />
+                            </Pressable>
+                          </View>
                         </View>
-                        <Text style={styles.synNuance} selectable>
-                          {syn.formality}
-                          {syn.nuance ? ` · ${syn.nuance}` : ''}
-                        </Text>
+
+                        {isExpanded ? (
+                          <View style={styles.synInlineExplanationCard}>
+                            {loadingSynonymNuance[syn.id] ? (
+                              <View style={styles.synInlineHeader}>
+                                <ActivityIndicator size="small" color={colors.primary} />
+                                <Text style={styles.synInlineLoadingText}>
+                                  {t('Fetching AI usage & nuance for "{{synonym}}"…', { synonym: syn.word })}
+                                </Text>
+                              </View>
+                            ) : (
+                              <>
+                                <View style={styles.synInlineHeader}>
+                                  <Ionicons name="sparkles" size={13} color={colors.primary} />
+                                  <Text style={styles.synInlineTitle}>{t('AI Usage & Nuance')}</Text>
+                                </View>
+                                <Text style={styles.synInlineText} selectable>
+                                  {syn.nuance
+                                    ? syn.nuance
+                                    : t('Used as a {{formality}} synonym for {{word}}.', {
+                                        formality: syn.formality ?? 'general',
+                                        word: form,
+                                      })}
+                                </Text>
+                                {syn.formality ? (
+                                  <View style={styles.synTagRow}>
+                                    <Chip label={syn.formality} />
+                                  </View>
+                                ) : null}
+                              </>
+                            )}
+                          </View>
+                        ) : null}
                       </View>
-                      <CefrBadge level={syn.cefrLevel} />
-                      <EvalBar
-                        activeRating={ratingFor(syn.id)}
-                        onUp={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'up' })}
-                        onDown={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'down' })}
-                        onReport={() => setReportTarget({ targetType: 'synonym', targetId: syn.id })}
-                      />
-                    </Pressable>
-                  ))}
+                    )
+                  })}
                 </Card>
               </>
             ) : null}
@@ -1683,19 +1764,81 @@ const createStyles = (colors: ThemeColors) =>
     grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
     limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
     generateError: { fontSize: type.caption, color: colors.danger },
-    synRow: {
+    synBlock: {
+      paddingVertical: spacing.sm,
+    },
+    rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+    synMainRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: spacing.sm,
-      paddingVertical: spacing.sm,
     },
-    rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
-    synText: { flex: 1, marginRight: spacing.md },
-    synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
-    synNuance: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1 },
-    synRowPressed: { opacity: 0.7 },
-    synWordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    synWord: { flex: 1, fontSize: type.body, fontWeight: '700', color: colors.text },
+    synActionsGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    synAiSparkleBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    synAiSparkleBtnActive: {
+      backgroundColor: colors.primary,
+    },
+    synAiSparkleBtnPressed: {
+      opacity: 0.8,
+    },
+    synOpenCardBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.full,
+      backgroundColor: colors.surfaceMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    synOpenCardBtnPressed: {
+      opacity: 0.7,
+    },
+    synInlineExplanationCard: {
+      marginTop: spacing.sm,
+      padding: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.md,
+      gap: spacing.xs,
+    },
+    synInlineHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    synInlineTitle: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.primary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    synInlineLoadingText: {
+      flex: 1,
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    synInlineText: {
+      fontSize: type.caption,
+      color: colors.text,
+      lineHeight: 18,
+    },
+    synTagRow: {
+      flexDirection: 'row',
+      marginTop: 2,
+    },
     loadMorePhrasesBtn: {
       flexDirection: 'row',
       alignItems: 'center',

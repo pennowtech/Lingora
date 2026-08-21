@@ -113,6 +113,7 @@ SEMANTIC CLUSTERS
 - Group meanings by semantic context, one cluster per genuinely distinct context ("social going-out" vs "a lamp going out" vs "supplies running out").
 - Only create clusters that are real, established usages. One cluster is fine for unambiguous words; never invent contexts to fill space.
 - Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, 2–4 examples, and 0–4 synonyms.
+- SYNONYMS IN WORDPACKAGE: For each synonym item, provide only the target-language word and its cefrLevel. Set nuance to null and formality to "neutral" — never write nuance or usage explanations in wordPackage (they are fetched on-demand).
 - CRITICAL: every example, meaning and synonym inside a cluster must stay strictly within that cluster's semantic context. An example for the 'electricity' cluster must never describe a social evening.
 
 CEFR CALIBRATION — the learner's level is {{cefrLevel}}
@@ -203,6 +204,19 @@ ${ANTI_SWAP_WARNING}
 Learner level: {{cefrLevel}}. Each synonym: the {{targetLanguage}} word, its CEFR level, a formality tag (formal, neutral, colloquial or slang), and nuance — a short {{nativeLanguage}} note on how it differs from "{{word}}", or null if it's a near-exact match. Only established synonyms; an empty list is better than a forced one.
 
 Return strict JSON only: {"synonyms": [{"word": "...", "cefrLevel": "...", "formality": "...", "nuance": "... or null"}]}`,
+  },
+  /** On-demand explanation of how a specific synonym differs from the headword. */
+  synonymNuance: {
+    name: 'synonym_nuance',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor explaining the usage difference between two words to a learner in {{nativeLanguage}}.
+
+${ANTI_SWAP_WARNING}
+
+Explain how the synonym "{{synonym}}" differs from the word "{{word}}" in the semantic context: {{contextLabel}}.
+Write in a warm, conversational human voice in {{nativeLanguage}} (2–3 short sentences). Explain when a native speaker chooses "{{synonym}}" over "{{word}}", its register (formal/casual), and situational nuance.
+
+Return strict JSON only: {"nuance": "...", "formality": "formal|neutral|colloquial|slang"}`,
   },
   /** Phrases and idioms built on the word. */
   phrases: {

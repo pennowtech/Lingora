@@ -384,6 +384,12 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
       throw new AIProviderError('OpenAI response contained no content', this.name, true)
     }
 
+    log.info('ai.debug_raw_response', {
+      message: `[AI DEBUG RESPONSE - ${schemaName}]: ${message.content}`,
+      metadata: { schemaVersion: schemaName },
+    })
+    console.log(`\n==================== [AI DEBUG RESPONSE: ${schemaName}] ====================\n${message.content}\n=========================================================================\n`)
+
     return {
       text: message.content,
       tokensUsed: payload.usage?.total_tokens ?? 0,

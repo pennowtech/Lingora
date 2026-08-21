@@ -21,6 +21,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, Vi
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
@@ -663,9 +664,14 @@ export default function SearchScreen(): JSX.Element {
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.explainText} numberOfLines={5}>
-                        {quickExplain.data}
-                      </Text>
+                      <InlineMarkdown
+                        text={quickExplain.data}
+                        style={styles.explainText}
+                        boldStyle={styles.explainTextBold}
+                        italicStyle={styles.explainTextItalic}
+                        codeStyle={styles.explainTextCode}
+                        numberOfLines={5}
+                      />
                       <View style={styles.explainFooterRow}>
                         <View style={styles.explainCtaBtn}>
                           <Text style={styles.explainFooterText}>{t('Explore Full AI Flashcard')}</Text>
@@ -941,6 +947,14 @@ const createStyles = (colors: ThemeColors) =>
     },
     explainWord: { flex: 1, fontSize: type.body, fontWeight: '800', color: colors.text, textAlign: 'left' },
     explainText: { fontSize: type.body, color: colors.textSecondary, lineHeight: 21 },
+    explainTextBold: { fontWeight: '800', color: colors.text },
+    explainTextItalic: { fontStyle: 'italic' },
+    explainTextCode: {
+      fontFamily: 'monospace',
+      backgroundColor: colors.surfaceMuted,
+      color: colors.text,
+      fontSize: type.caption,
+    },
     explainFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: spacing.xs },
     explainCtaBtn: {
       flexDirection: 'row',

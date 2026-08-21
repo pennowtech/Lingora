@@ -205,6 +205,12 @@ const ENGLISH_PHRASES = [
   'Generate Full AI Flashcard',
   'AI Insights',
   'Getting AI insights for "{{word}}"…',
+  'Load more phrases with AI',
+  'Explore idioms and collocations with AI',
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.',
+  'Could not load more info',
+  'Add your AI provider key in Settings to generate more info.',
+  'No additional info available yet.',
   'Generate more examples',
   'Generating more examples…',
   'Advanced Grammar Options',
@@ -1100,6 +1106,14 @@ const de: Partial<Record<Phrase, string>> = {
   'Generate Full AI Flashcard': 'Vollständige KI-Karte generieren',
   'AI Insights': 'KI-Einblicke',
   'Getting AI insights for "{{word}}"…': 'Holt KI-Einblicke für „{{word}}“…',
+  'Load more phrases with AI': 'Weitere Wendungen mit KI laden',
+  'Explore idioms and collocations with AI': 'Redewendungen mit KI entdecken',
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.':
+    'Tippe oben auf das Funkeln, um Redewendungen, Ausdrücke und gängige Wortkombinationen zu entdecken.',
+  'Could not load more info': 'Weitere Infos konnten nicht geladen werden',
+  'Add your AI provider key in Settings to generate more info.':
+    'Füge deinen KI-Anbieter-Schlüssel in den Einstellungen hinzu, um weitere Infos zu generieren.',
+  'No additional info available yet.': 'Noch keine weiteren Infos verfügbar.',
   'Generate more examples': 'Weitere Beispiele generieren',
   'Generating more examples…': 'Weitere Beispiele werden generiert…',
   'Advanced Grammar Options': 'Erweiterte Grammatikoptionen',
@@ -2179,6 +2193,18 @@ const fr: Partial<Record<Phrase, string>> = {
     "Passez en revue vos captures. Ignorez ce dont vous n'avez pas besoin, puis générez des cartes pour le reste — aucun appel API n'est gaspillé sur un texte non demandé.",
   'Generate {{count}} cards with AI': "Générer {{count}} cartes avec l'IA",
   'Add your OpenAI key to generate cards': 'Ajoutez votre clé OpenAI pour générer des cartes',
+  'Explore Full AI Flashcard': "Découvrir la carte IA complète",
+  'Generate Full AI Flashcard': "Générer la carte IA complète",
+  'AI Insights': "Aperçus de l'IA",
+  'Getting AI insights for "{{word}}"…': 'Récupération des aperçus IA pour « {{word}} »…',
+  'Load more phrases with AI': "Charger plus d'expressions avec l'IA",
+  'Explore idioms and collocations with AI': "Découvrir des expressions avec l'IA",
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.':
+    "Touchez l'étincelle ci-dessus pour découvrir des expressions, locutions et combinaisons de mots courantes.",
+  'Could not load more info': "Impossible de charger plus d'informations",
+  'Add your AI provider key in Settings to generate more info.':
+    "Ajoutez votre clé de fournisseur IA dans les réglages pour générer plus d'informations.",
+  'No additional info available yet.': "Aucune information supplémentaire disponible pour l'instant.",
   'Add your OpenAI key in Settings to generate examples.':
     'Ajoutez votre clé OpenAI dans les réglages pour générer des exemples.',
   'This word has no card yet.': "Ce mot n'a pas encore de carte.",
@@ -3226,6 +3252,18 @@ const es: Partial<Record<Phrase, string>> = {
     'Revisa tus capturas. Descarta lo que no necesites y luego genera tarjetas para el resto — ninguna llamada a la API se desperdicia en texto que no pediste.',
   'Generate {{count}} cards with AI': 'Generar {{count}} tarjetas con IA',
   'Add your OpenAI key to generate cards': 'Añade tu clave de OpenAI para generar tarjetas',
+  'Explore Full AI Flashcard': 'Explorar tarjeta de IA completa',
+  'Generate Full AI Flashcard': 'Generar tarjeta de IA completa',
+  'AI Insights': 'Información de la IA',
+  'Getting AI insights for "{{word}}"…': 'Obteniendo información de la IA para "{{word}}"…',
+  'Load more phrases with AI': 'Cargar más frases con IA',
+  'Explore idioms and collocations with AI': 'Explorar modismos y colocaciones con IA',
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.':
+    'Toca el destello de arriba para explorar modismos, expresiones y combinaciones de palabras comunes.',
+  'Could not load more info': 'No se pudo cargar más información',
+  'Add your AI provider key in Settings to generate more info.':
+    'Añade tu clave de proveedor de IA en Ajustes para generar más información.',
+  'No additional info available yet.': 'Aún no hay información adicional disponible.',
   'Add your OpenAI key in Settings to generate examples.':
     'Añade tu clave de OpenAI en Ajustes para generar ejemplos.',
   'This word has no card yet.': 'Esta palabra aún no tiene tarjeta.',
@@ -4274,6 +4312,18 @@ const hi: Partial<Record<Phrase, string>> = {
     'अपने कैप्चर की समीक्षा करें। जिनकी ज़रूरत नहीं उन्हें हटाएं, फिर बाकी के लिए कार्ड बनाएं — जो टेक्स्ट आपने नहीं मांगा उस पर कोई API कॉल बर्बाद नहीं होती।',
   'Generate {{count}} cards with AI': 'AI से {{count}} कार्ड बनाएं',
   'Add your OpenAI key to generate cards': 'कार्ड बनाने के लिए अपनी OpenAI कुंजी जोड़ें',
+  'Explore Full AI Flashcard': 'पूरा AI फ्लैशकार्ड देखें',
+  'Generate Full AI Flashcard': 'पूरा AI फ्लैशकार्ड बनाएं',
+  'AI Insights': 'AI जानकारियां',
+  'Getting AI insights for "{{word}}"…': '"{{word}}" के लिए AI जानकारियां ला रहे हैं…',
+  'Load more phrases with AI': 'AI से और वाक्यांश लोड करें',
+  'Explore idioms and collocations with AI': 'AI से मुहावरे और संयोजन देखें',
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.':
+    'मुहावरे, अभिव्यक्तियां और आम शब्द-संयोजन देखने के लिए ऊपर चमकते आइकन पर टैप करें।',
+  'Could not load more info': 'अधिक जानकारी लोड नहीं हो सकी',
+  'Add your AI provider key in Settings to generate more info.':
+    'अधिक जानकारी बनाने के लिए सेटिंग्स में अपनी AI प्रोवाइडर कुंजी जोड़ें।',
+  'No additional info available yet.': 'अभी तक कोई अतिरिक्त जानकारी उपलब्ध नहीं है।',
   'Add your OpenAI key in Settings to generate examples.':
     'उदाहरण बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें।',
   'This word has no card yet.': 'इस शब्द का अभी तक कोई कार्ड नहीं है।',
@@ -5206,6 +5256,18 @@ const vi: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Thêm khóa OpenAI trong Cài đặt để tạo ví dụ theo yêu cầu.',
   'Add your OpenAI key to generate cards': 'Thêm khóa OpenAI để tạo thẻ',
+  'Explore Full AI Flashcard': 'Khám phá thẻ AI đầy đủ',
+  'Generate Full AI Flashcard': 'Tạo thẻ AI đầy đủ',
+  'AI Insights': 'Thông tin chi tiết AI',
+  'Getting AI insights for "{{word}}"…': 'Đang lấy thông tin AI cho "{{word}}"…',
+  'Load more phrases with AI': 'Tải thêm cụm từ bằng AI',
+  'Explore idioms and collocations with AI': 'Khám phá thành ngữ và cụm từ bằng AI',
+  'Tap the sparkle above to explore idioms, expressions, and common word combinations.':
+    'Chạm vào biểu tượng lấp lánh ở trên để khám phá thành ngữ, cách diễn đạt và các cụm từ thông dụng.',
+  'Could not load more info': 'Không thể tải thêm thông tin',
+  'Add your AI provider key in Settings to generate more info.':
+    'Thêm khóa nhà cung cấp AI trong Cài đặt để tạo thêm thông tin.',
+  'No additional info available yet.': 'Chưa có thông tin bổ sung nào.',
   'Added ✓ — add to another deck': 'Đã thêm ✓ — thêm vào bộ thẻ khác',
   'Adding from other apps': 'Thêm từ ứng dụng khác',
   'Adding to a deck': 'Thêm vào một bộ thẻ',

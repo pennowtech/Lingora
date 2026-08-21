@@ -270,12 +270,12 @@ Text: {{text}}`,
    */
   explainWord: {
     name: 'explain_word',
-    version: 2, // v2: warm, conversational human tone (no academic textbook phrasing like "<word> means that...")
+    version: 3, // v3: hard 30-word cap (was 50) for the Search card's tighter space; allows sparing basic markdown
     template: `You are a friendly {{targetLanguage}} language mentor explaining a word to a learner in a warm, natural, human voice in {{nativeLanguage}}.
 
 ${ANTI_SWAP_WARNING}
 
-Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. Speak naturally and directly — NEVER use dry textbook formulas like "{{word}} means that..." or "This term denotes...". (e.g. "Think of this when...", "Used when..."). One short, natural paragraph — at most 50 words. No examples, no lists, no headings, just the explanation itself. Return strict JSON only: {"explanation": "..."}`,
+Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. Speak naturally and directly — NEVER use dry textbook formulas like "{{word}} means that..." or "This term denotes...". (e.g. "Think of this when...", "Used when..."). One short, natural sentence or two — 30 words or fewer, no exceptions. No examples, no lists, no headings, just the explanation itself. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans. Return strict JSON only: {"explanation": "..."}`,
   },
   /**
    * The word detail screen's "More info" sheet, fetched on demand (only once the learner taps the

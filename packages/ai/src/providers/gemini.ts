@@ -76,7 +76,9 @@ const phrasesResponseSchema = z.object({ phrases: z.array(generatedPhraseSchema)
 const clozesResponseSchema = z.object({ clozes: z.array(generatedClozeSchema) })
 const clozesJsonTargetSchema = z.object({ clozes: z.array(generatedClozeBaseSchema) })
 const translateResponseSchema = z.object({ translation: z.string().min(1) })
-const explainWordResponseSchema = z.object({ explanation: z.string().min(1).max(400) })
+const explainWordResponseSchema = z.object({
+  explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+})
 const explainWordDetailResponseSchema = z.object({
   paragraphs: z
     .array(z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'))

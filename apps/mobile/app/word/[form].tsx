@@ -1176,18 +1176,6 @@ export default function WordDetailScreen(): JSX.Element {
               })}
             </View>
           ) : null}
-
-          {active ? (
-            <View style={styles.activeClusterBanner}>
-              <View style={styles.activeClusterHeader}>
-                <Text style={styles.activeClusterLabel}>{active.cluster.label}</Text>
-                <CefrBadge level={active.cluster.cefrLevel} />
-              </View>
-              {active.cluster.description ? (
-                <Text style={styles.activeClusterDescription}>{active.cluster.description}</Text>
-              ) : null}
-            </View>
-          ) : null}
         </View>
 
         {active ? (
@@ -1967,31 +1955,6 @@ const createStyles = (colors: ThemeColors) =>
     clusterTabLabelActive: {
       color: colors.primary,
       fontWeight: '700',
-    },
-    activeClusterBanner: {
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.md,
-      padding: spacing.md,
-      marginTop: spacing.xs,
-      gap: 4,
-    },
-    activeClusterHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.xs,
-    },
-    activeClusterLabel: {
-      fontSize: type.body,
-      fontWeight: '700',
-      color: colors.text,
-      textTransform: 'capitalize',
-    },
-    activeClusterDescription: {
-      fontSize: type.caption,
-      color: colors.textSecondary,
-      lineHeight: 18,
     },
     meaningCard: { marginTop: spacing.lg },
     primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },

@@ -50,6 +50,8 @@ const ENGLISH_PHRASES = [
   'Follow device',
   'Default CEFR level',
   'Examples and explanations are calibrated to this level.',
+  'Word of the Day reminder',
+  'When the daily notification for your Home screen word arrives.',
   'Import & export',
   'Anki, CSV, JSON backup',
   'Card templates',
@@ -977,6 +979,9 @@ const de: Partial<Record<Phrase, string>> = {
   'Default CEFR level': 'Standard-Niveaustufe (GER)',
   'Examples and explanations are calibrated to this level.':
     'Beispiele und Erklärungen sind auf dieses Niveau abgestimmt.',
+  'Word of the Day reminder': 'Erinnerung „Wort des Tages"',
+  'When the daily notification for your Home screen word arrives.':
+    'Wann die tägliche Benachrichtigung für dein Startbildschirm-Wort eintrifft.',
   'Import & export': 'Import & Export',
   'Anki, CSV, JSON backup': 'Anki, CSV, JSON-Sicherung',
   'Card templates': 'Kartenvorlagen',
@@ -2072,6 +2077,9 @@ const fr: Partial<Record<Phrase, string>> = {
   'Default CEFR level': 'Niveau CECRL par défaut',
   'Examples and explanations are calibrated to this level.':
     'Les exemples et explications sont calibrés sur ce niveau.',
+  'Word of the Day reminder': 'Rappel « Mot du jour »',
+  'When the daily notification for your Home screen word arrives.':
+    "Quand la notification quotidienne pour votre mot de l'écran d'accueil arrive.",
   'Import & export': 'Importer et exporter',
   'Anki, CSV, JSON backup': 'Anki, CSV, sauvegarde JSON',
   'Card templates': 'Modèles de cartes',
@@ -3153,6 +3161,9 @@ const es: Partial<Record<Phrase, string>> = {
   'Default CEFR level': 'Nivel MCER predeterminado',
   'Examples and explanations are calibrated to this level.':
     'Los ejemplos y explicaciones están calibrados para este nivel.',
+  'Word of the Day reminder': 'Recordatorio de "Palabra del día"',
+  'When the daily notification for your Home screen word arrives.':
+    'Cuándo llega la notificación diaria de tu palabra en la pantalla de inicio.',
   'Import & export': 'Importar y exportar',
   'Anki, CSV, JSON backup': 'Anki, CSV, copia de seguridad JSON',
   'Card templates': 'Plantillas de tarjetas',
@@ -4233,6 +4244,9 @@ const hi: Partial<Record<Phrase, string>> = {
   'Default CEFR level': 'डिफ़ॉल्ट CEFR स्तर',
   'Examples and explanations are calibrated to this level.':
     'उदाहरण और स्पष्टीकरण इसी स्तर के अनुसार तैयार किए गए हैं।',
+  'Word of the Day reminder': '"दिन का शब्द" रिमाइंडर',
+  'When the daily notification for your Home screen word arrives.':
+    'आपकी होम स्क्रीन के शब्द की दैनिक सूचना कब आती है।',
   'Import & export': 'आयात और निर्यात',
   'Anki, CSV, JSON backup': 'Anki, CSV, JSON बैकअप',
   'Card templates': 'कार्ड टेम्पलेट',
@@ -5537,6 +5551,9 @@ const vi: Partial<Record<Phrase, string>> = {
   'DeepL validation failed': 'Xác thực DeepL thất bại',
   Deepgram: 'Deepgram',
   'Default CEFR level': 'Cấp độ CEFR mặc định',
+  'Word of the Day reminder': 'Nhắc nhở "Từ trong ngày"',
+  'When the daily notification for your Home screen word arrives.':
+    'Khi nào thông báo hằng ngày cho từ ở màn hình chính của bạn xuất hiện.',
   'Default: {{voice}}': 'Mặc định: {{voice}}',
   Delete: 'Xóa',
   'Delete All AI Providers Keys': 'Xóa tất cả khóa nhà cung cấp AI',

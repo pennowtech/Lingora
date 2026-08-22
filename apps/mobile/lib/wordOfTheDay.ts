@@ -14,10 +14,49 @@ const log = logger.child({ feature: 'vocabulary', component: 'wordOfTheDay' })
 type TranslateFn = (key: string, options?: any) => string
 
 const STORE_KEY = 'lingora.word_of_the_day'
-/** Fixed local time the daily notification fires at — see scheduleNotification's doc comment for
- * why this is a repeating trigger rather than a fresh one-shot each day. */
-const NOTIFICATION_HOUR = 9
-const NOTIFICATION_MINUTE = 0
+const NOTIFICATION_TIME_KEY = 'lingora.wotd_notification_time'
+/** Default local time the daily notification fires at, until the learner picks their own in
+ * Settings → Learning (see getNotificationTime/setNotificationTime) — see scheduleNotification's
+ * doc comment for why this is a repeating trigger rather than a fresh one-shot each day. */
+const DEFAULT_NOTIFICATION_HOUR = 9
+const DEFAULT_NOTIFICATION_MINUTE = 0
+
+export interface NotificationTime {
+  hour: number
+  minute: number
+}
+
+/** The learner's chosen daily-notification time, falling back to the 9:00am default until they
+ * ever set one. Exposed so Settings → Learning can show/edit it without duplicating the storage
+ * key or the default. */
+export async function getNotificationTime(): Promise<NotificationTime> {
+  try {
+    const raw = await SecureStore.getItemAsync(NOTIFICATION_TIME_KEY)
+    if (!raw) return { hour: DEFAULT_NOTIFICATION_HOUR, minute: DEFAULT_NOTIFICATION_MINUTE }
+    const parsed = JSON.parse(raw) as Partial<NotificationTime>
+    if (typeof parsed.hour === 'number' && typeof parsed.minute === 'number') {
+      return { hour: parsed.hour, minute: parsed.minute }
+    }
+  } catch {
+    // Fall through to the default below.
+  }
+  return { hour: DEFAULT_NOTIFICATION_HOUR, minute: DEFAULT_NOTIFICATION_MINUTE }
+}
+
+/**
+ * Persists the learner's chosen notification time and, if today's word is already known,
+ * reschedules the standing notification to the new time immediately — otherwise the change would
+ * silently do nothing until the next refresh happened to run. Safe to call with no word generated
+ * yet (e.g. before the first one exists): the preference is still saved, and the next
+ * refreshWordOfTheDayIfNeeded call picks it up when it first schedules.
+ */
+export async function setNotificationTime(time: NotificationTime, t: TranslateFn): Promise<void> {
+  await SecureStore.setItemAsync(NOTIFICATION_TIME_KEY, JSON.stringify(time))
+  const existing = await readStored()
+  if (!existing) return
+  const notificationId = await scheduleNotification(existing.word, existing.explanation, existing.notificationId, t)
+  await writeStored({ ...existing, ...(notificationId && { notificationId }) })
+}
 
 export interface WordOfTheDay {
   word: string
@@ -99,6 +138,7 @@ async function scheduleNotification(
     if (previousNotificationId) {
       await Notifications.cancelScheduledNotificationAsync(previousNotificationId).catch(() => {})
     }
+    const { hour, minute } = await getNotificationTime()
     return await Notifications.scheduleNotificationAsync({
       content: {
         title: t('✨ Word of the Day: {{word}}', { word }),
@@ -107,8 +147,8 @@ async function scheduleNotification(
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour: NOTIFICATION_HOUR,
-        minute: NOTIFICATION_MINUTE,
+        hour,
+        minute,
       },
     })
   } catch (error) {

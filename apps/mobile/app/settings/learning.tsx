@@ -17,6 +17,20 @@ import {
 import { cefrColors, spacing, type } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+import { getNotificationTime, setNotificationTime, type NotificationTime } from '../../lib/wordOfTheDay'
+
+/** Every hour on the hour, 6am–10pm — plenty of granularity for "roughly when do you want your
+ * daily word," without a native time-picker dependency this app doesn't otherwise need. */
+const NOTIFICATION_TIME_OPTIONS: NotificationTime[] = Array.from({ length: 17 }, (_, i) => ({
+  hour: i + 6,
+  minute: 0,
+}))
+
+function formatHour(hour: number): string {
+  const period = hour < 12 ? 'AM' : 'PM'
+  const twelveHour = hour % 12 === 0 ? 12 : hour % 12
+  return `${twelveHour}:00 ${period}`
+}
 
 const log = logger.child({ feature: 'settings', screen: 'LearningScreen' })
 
@@ -39,12 +53,13 @@ const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
  * interface preference, not a learning preference. */
 export default function LearningScreen(): JSX.Element {
   const { t, i18n } = useTranslation()
-  const { reloadServices } = useServices()
+  const { reloadServices, tier } = useServices()
   const styles = useThemedStyles(createStyles)
 
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
+  const [wotdTime, setWotdTimeState] = useState<NotificationTime>({ hour: 9, minute: 0 })
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   // The "vice versa" half of general.tsx's app-language cross-prompt: offered right after a
   // native-language change actually applies, not on every render — see setNativeLanguage below.
@@ -74,12 +89,18 @@ export default function LearningScreen(): JSX.Element {
         if ((SUPPORTED_LANGUAGES as readonly string[]).includes(storedTargetLanguage ?? '')) {
           setTargetLanguageState(storedTargetLanguage as LanguageCode)
         }
+        setWotdTimeState(await getNotificationTime())
       } catch (error) {
         log.error('settings.load_failed', error, { message: 'Failed to load stored learning settings' })
       }
     }
     void load()
   }, [])
+
+  const setWotdTime = (time: NotificationTime): void => {
+    setWotdTimeState(time)
+    void setNotificationTime(time, t)
+  }
 
   const persist = (storeKey: string, value: string): void => {
     void SecureStore.setItemAsync(storeKey, value)
@@ -191,6 +212,25 @@ export default function LearningScreen(): JSX.Element {
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
       </Card>
+
+      {tier === 'full' ? (
+        <Card>
+          <Text style={styles.fieldLabel}>{t('Word of the Day reminder')}</Text>
+          <Text style={styles.fieldHint}>{t('When the daily notification for your Home screen word arrives.')}</Text>
+          <Dropdown
+            label={t('Word of the Day reminder')}
+            value={`${wotdTime.hour}:${wotdTime.minute}`}
+            onChange={(value) => {
+              const option = NOTIFICATION_TIME_OPTIONS.find((time) => `${time.hour}:${time.minute}` === value)
+              if (option) setWotdTime(option)
+            }}
+            options={NOTIFICATION_TIME_OPTIONS.map((time) => ({
+              label: formatHour(time.hour),
+              value: `${time.hour}:${time.minute}`,
+            }))}
+          />
+        </Card>
+      ) : null}
 
       <AlertModal
         visible={notice !== null}

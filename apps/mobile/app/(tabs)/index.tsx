@@ -349,7 +349,7 @@ const createStyles = (colors: ThemeColors) =>
     textTransform: 'uppercase',
   },
   wotdWord: { fontSize: type.body, fontWeight: '800', color: colors.text },
-  wotdExplanation: { fontSize: type.body, color: colors.textSecondary, lineHeight: 21 },
+  wotdExplanation: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19 },
   wotdFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing.xs },
   wotdFooterText: {
     fontSize: type.micro,

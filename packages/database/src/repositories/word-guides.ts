@@ -296,6 +296,14 @@ export async function persistWordGuideAsCard(
  * explanation → installed dictionary → live AI) then does the right thing
  * automatically the first time the user taps the book icon on this card.
  *
+ * @param deckId The card's "home" deck (`cards.deck_id`) — a value is always required, but whether
+ *        it actually shows up in that deck's list/due count is controlled separately by
+ *        `options.addToDeck`, exactly like `persistWordGeneration`.
+ * @param options.addToDeck Defaults to true. False skips the `deck_cards` membership row — the
+ *        card is still fully created and persisted, just not yet visible in any deck's list or due
+ *        count until a later explicit "Add to deck" action. Used by Search's "Generate with AI"
+ *        optimistic-card step, which shouldn't silently add a new word to "My Vocabulary" before
+ *        the user has actually chosen to.
  * @throws If a lemma with this form/language already exists.
  */
 export async function persistTranslationAsCard(
@@ -304,7 +312,9 @@ export async function persistTranslationAsCard(
   deckId: string,
   nativeLanguage: LanguageCode,
   cefrLevel: CefrLevel = 'unknown',
+  options?: { addToDeck?: boolean },
 ): Promise<{ lemma: Lemma; cardId: string }> {
+  const addToDeck = options?.addToDeck ?? true
   return db.transaction(async (tx) => {
     const existing = await getLemmaByForm(tx, args.form, args.language)
     if (existing) {
@@ -346,10 +356,12 @@ export async function persistTranslationAsCard(
        VALUES (?, 'new', 0, 0, 0, 0, NULL, ?)`,
       [card.id, now],
     )
-    await tx.execute(
-      `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
-      [crypto.randomUUID(), deckId, card.id, now],
-    )
+    if (addToDeck) {
+      await tx.execute(
+        `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
+        [crypto.randomUUID(), deckId, card.id, now],
+      )
+    }
 
     const clusterId = crypto.randomUUID()
     await createCluster(tx, {

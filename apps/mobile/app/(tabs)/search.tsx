@@ -252,27 +252,29 @@ export default function SearchScreen(): JSX.Element {
     staleTime: 5 * 60 * 1000,
   })
 
-  // Only offered when the term is already the target (learning) language — the repository needs
-  // the target-language form as the lemma, and when the user typed the native language instead,
-  // `quickTranslate.data.text` is the target-language translation, not `term` itself, and could
-  // ambiguously map to more than one target-language word, so there's no single correct
-  // lemma.form to create in that direction (that's what "Generate with AI" below is for).
+  // The repository needs the target-language spelling as the lemma. Whichever side of
+  // `quickTranslate.data` is actually in the target language becomes the lemma form; the other
+  // side (the native-language text) becomes the stored translation — so this works whether the
+  // user typed the target-language word (term → lemma, text → translation) or their native-
+  // language word (text → lemma, term → translation, since `text` is the target-language result
+  // in that direction).
+  const translationAsCardArgs = () => {
+    if (!quickTranslate.data) return null
+    const { source, text } = quickTranslate.data
+    const isNativeInput = source !== targetLanguage
+    return {
+      form: isNativeInput ? text : term,
+      language: targetLanguage,
+      translation: isNativeInput ? term : text,
+      provider: dictionaryNameToCardSource(dictionary.name),
+    } as const
+  }
+
   const addFromTranslation = useMutation({
     mutationFn: (deckId: string) => {
-      if (!quickTranslate.data || quickTranslate.data.source !== targetLanguage) {
-        throw new Error(t('No translation to add.'))
-      }
-      return persistTranslationAsCard(
-        db,
-        {
-          form: term,
-          language: targetLanguage,
-          translation: quickTranslate.data.text,
-          provider: dictionaryNameToCardSource(dictionary.name),
-        },
-        deckId,
-        nativeLanguage,
-      )
+      const args = translationAsCardArgs()
+      if (!args) throw new Error(t('No translation to add.'))
+      return persistTranslationAsCard(db, args, deckId, nativeLanguage)
     },
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
@@ -294,20 +296,9 @@ export default function SearchScreen(): JSX.Element {
         return persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
       }
       if (deckPickerFor === 'translation') {
-        if (!quickTranslate.data || quickTranslate.data.source !== targetLanguage) {
-          throw new Error(t('No translation to add.'))
-        }
-        return persistTranslationAsCard(
-          db,
-          {
-            form: term,
-            language: targetLanguage,
-            translation: quickTranslate.data.text,
-            provider: dictionaryNameToCardSource(dictionary.name),
-          },
-          id,
-          nativeLanguage,
-        )
+        const args = translationAsCardArgs()
+        if (!args) throw new Error(t('No translation to add.'))
+        return persistTranslationAsCard(db, args, id, nativeLanguage)
       }
       throw new Error(t('Nothing to add.'))
     },
@@ -378,6 +369,10 @@ export default function SearchScreen(): JSX.Element {
 
       const translation = (await dictionary.translate(targetWord, targetLanguage, nativeLanguage)).data
 
+      // addToDeck: false — this optimistic card exists purely so navigation can happen instantly;
+      // it must not silently add the word to "My Vocabulary" before the user has actually chosen
+      // to (see autoEnrichMutation below, which enriches this same card in place and also passes
+      // addToDeck: false so it stays un-added). Matches persistWordGeneration's addToDeck contract.
       const { lemma } = await persistTranslationAsCard(
         db,
         {
@@ -389,6 +384,8 @@ export default function SearchScreen(): JSX.Element {
         },
         DEFAULT_DECK_ID,
         nativeLanguage,
+        'unknown',
+        { addToDeck: false },
       )
 
       const totalFlowDurationMs = Date.now() - flowStart
@@ -451,11 +448,16 @@ export default function SearchScreen(): JSX.Element {
 
   // Only meaningful when alwaysShowTranslation (Google) shows the translate card above existing
   // results — the "Add to deck" button there would otherwise offer to add a word that's already
-  // in the library. `addFromTranslation` creates the new lemma as `term` itself (not the
-  // translated text — see its mutationFn below), so that's what has to match here too.
-  // Deliberately just a yes/no flag, not which deck(s) — that breakdown belongs on the word detail
-  // screen once a card is actually open, not in this preview card.
-  const existingResult = results.find((r) => r.lemma.form.toLowerCase() === term.trim().toLowerCase())
+  // in the library. `addFromTranslation` creates the new lemma as whichever side of
+  // `quickTranslate.data` is in the target language (see `translationAsCardArgs` above), so that's
+  // what has to match here too — not always `term` itself. Deliberately just a yes/no flag, not
+  // which deck(s) — that breakdown belongs on the word detail screen once a card is actually open,
+  // not in this preview card.
+  const resolvedTargetForm =
+    quickTranslate.data && quickTranslate.data.source !== targetLanguage ? quickTranslate.data.text : term
+  const existingResult = results.find(
+    (r) => r.lemma.form.toLowerCase() === resolvedTargetForm.trim().toLowerCase(),
+  )
 
   // Shared between the "new word" empty state and, when alwaysShowTranslation, the results list
   // above the FlatList — same card either way.

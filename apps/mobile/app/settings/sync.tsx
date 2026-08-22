@@ -125,10 +125,6 @@ export default function SyncScreen(): JSX.Element {
       />
       <SectionHeader title={t('Sync')} />
       <Card style={{ gap: spacing.md }}>
-        <Text style={styles.fieldHint}>
-          {t('Sync your decks, cards, and review progress to a Google account so they carry over to another device. API keys are never synced.')}
-        </Text>
-
         {sync.account ? (
           <View style={styles.accountRow}>
             <View style={styles.accountAvatar}>

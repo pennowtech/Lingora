@@ -64,6 +64,7 @@ import {
   type CardTemplateContext,
 } from '../../lib/templates'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
+import { getSessionCardLimit } from '../../lib/reviewSession'
 import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
@@ -326,21 +327,33 @@ async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boole
   }
 }
 
+/** What loadReviewQueue returns: the (possibly capped) cards to review, and whether more due cards
+ * exist beyond the cap — the done screen's "Practice more" button (see review/[deckId].tsx) uses
+ * `hasMore` to offer another session immediately, instead of making the rest wait for their own
+ * natural due date just because they didn't fit in this one sitting. */
+interface ReviewQueueResult {
+  views: ReviewCard[]
+  hasMore: boolean
+}
+
 /**
- * Loads every due card in a deck with the content the review session needs.
+ * Loads the due cards in a deck with the content the review session needs, capped at
+ * `sessionCardLimit` cards (0 = no cap) — applies to every review mode (plain/cloze/reverse/mixed).
  * `clozeOnly` switches to an entirely independent due query/FSRS state (cloze_states, migration
  * 0013) — cloze practice and word-meaning review of the same card are separately scheduled, so a
  * card can be due for one, both, or neither at any given moment. getClozeCardsDueForReview
  * already only returns cards with at least one cloze variant, so there's no need to filter that
- * again afterward the way this used to.
+ * again afterward the way this used to. Both due queries already sort most-overdue-first, so
+ * capping is just taking the front of that list — the cards that most need reviewing today.
  *
  * `cardId` — set when opened from the deck detail screen's card list (tapping a specific word),
  * not a practice session — builds a one-card "queue" for that exact card regardless of its due
- * status, so a card row always opens something to look at. A CSV/Anki import can put word-meaning
- * and cloze content on two separate sibling cards of the same lemma (import-shared.ts#importRow)
- * rather than one, so asking for `cardId` in cloze mode when *that* card has no cloze of its own
- * falls back to its cloze-type sibling if one exists — `hasVocabVariant`/`hasClozeVariant` (set
- * from every sibling, not just the resolved one) tell the screen whether a toggle makes sense.
+ * status (uncapped — a single card is never subject to the session cap), so a card row always
+ * opens something to look at. A CSV/Anki import can put word-meaning and cloze content on two
+ * separate sibling cards of the same lemma (import-shared.ts#importRow) rather than one, so asking
+ * for `cardId` in cloze mode when *that* card has no cloze of its own falls back to its cloze-type
+ * sibling if one exists — `hasVocabVariant`/`hasClozeVariant` (set from every sibling, not just the
+ * resolved one) tell the screen whether a toggle makes sense.
  *
  * `card.type` covers `basic`, `reverse`, `phrase`, and `image`, but nothing
  * in the generation/import pipeline creates anything other than `basic`
@@ -353,11 +366,12 @@ async function loadReviewQueue(
   db: DatabaseAdapter,
   deckId: string,
   clozeOnly: boolean,
+  sessionCardLimit: number,
   cardId?: string,
-): Promise<ReviewCard[]> {
+): Promise<ReviewQueueResult> {
   if (cardId) {
     const requested = await getCardById(db, cardId)
-    if (!requested) return []
+    if (!requested) return { views: [], hasMore: false }
 
     const siblings = await getCardsByLemma(db, requested.lemmaId)
     const clozeCounts = await Promise.all(siblings.map((c) => getClozesForCard(db, c.id)))
@@ -379,22 +393,24 @@ async function loadReviewQueue(
     }
 
     const view = await loadCardView(db, resolvedCard, clozeOnly)
-    if (!view) return []
-    return [{ ...view, hasVocabVariant, hasClozeVariant }]
+    if (!view) return { views: [], hasMore: false }
+    return { views: [{ ...view, hasVocabVariant, hasClozeVariant }], hasMore: false }
   }
 
   // ALL_DECKS_ID means "everywhere", not a real deck — the due-card queries treat an omitted
   // deckId as unfiltered, so translate the sentinel to undefined right at the query boundary.
   const scopeDeckId = deckId === ALL_DECKS_ID ? undefined : deckId
-  const cards = clozeOnly
+  const allDueCards = clozeOnly
     ? await getClozeCardsDueForReview(db, scopeDeckId)
     : await getCardsDueForReview(db, scopeDeckId)
+  const hasMore = sessionCardLimit > 0 && allDueCards.length > sessionCardLimit
+  const cards = sessionCardLimit > 0 ? allDueCards.slice(0, sessionCardLimit) : allDueCards
   const views: ReviewCard[] = []
   for (const card of cards) {
     const view = await loadCardView(db, card, clozeOnly)
     if (view) views.push(view)
   }
-  return views
+  return { views, hasMore }
 }
 
 /** "1 min" / "3 h" / "2 d" — coarse enough for a rating-button hint. */
@@ -552,10 +568,18 @@ export default function ReviewSessionScreen(): JSX.Element {
     setEditHistory((prev) => ({ ...prev, index: newIndex }))
   }
 
+  // How many due cards a single session pulls in — applies to every review mode, not just Mixed
+  // (see lib/reviewSession.ts). Fetched before queueQuery so the cap is already known by the time
+  // the due-card query runs, rather than refetching once it resolves.
+  const sessionLimitQuery = useQuery({
+    queryKey: ['session-card-limit'],
+    queryFn: getSessionCardLimit,
+  })
+  const sessionCardLimit = sessionLimitQuery.data
   const queueQuery = useQuery({
-    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId],
-    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, singleCardId),
-    enabled: (params.deckId ?? '') !== '',
+    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId, sessionCardLimit],
+    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, sessionCardLimit ?? 0, singleCardId),
+    enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
   })
 
   // Mixed practice's per-card question type needs: the user's enabled types (Settings — see
@@ -580,17 +604,24 @@ export default function ReviewSessionScreen(): JSX.Element {
     new Map(),
   )
 
-  // Toggling vocab<->cloze view for the same word (the header's icon button, single-card mode
-  // only) swaps the whole queue out from under the existing index/flipped state — without this, a
-  // card already rated (index past the end, "done") in one view stayed "done" the instant the
-  // other view's actually-unreviewed single card loaded.
-  useEffect(() => {
+  // Shared by the mode-change effect below and the done screen's "Practice more" button — resets
+  // every piece of per-session state so a fresh loadReviewQueue call (the cards just finished are
+  // rescheduled past "now" by then, so it naturally serves the next batch) starts clean.
+  const resetSession = (): void => {
     setIndex(0)
     setFlipped(false)
     setDurationsMs([])
     cardStartedAt.current = Date.now()
     setSessionOrder([])
     cardAggregation.current = new Map()
+  }
+
+  // Toggling vocab<->cloze view for the same word (the header's icon button, single-card mode
+  // only) swaps the whole queue out from under the existing index/flipped state — without this, a
+  // card already rated (index past the end, "done") in one view stayed "done" the instant the
+  // other view's actually-unreviewed single card loaded.
+  useEffect(() => {
+    resetSession()
   }, [clozeOnly, mixedOnly, singleCardId])
 
   /** One entry in the frozen session order: a due card presented in one specific format. A plain
@@ -616,13 +647,14 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [sessionOrder, setSessionOrder] = useState<SessionEntry[]>([])
   useEffect(() => {
     if (sessionOrder.length > 0) return
-    if (!queueQuery.data || queueQuery.data.length === 0) return
+    const dueCards = queueQuery.data?.views
+    if (!dueCards || dueCards.length === 0) return
     if (mixedOnly) {
       // Needs the user's enabled types and the distractor pool to know which formats are actually
       // eligible per card — both queries are `enabled: mixedOnly` above, so wait for them too.
       if (!enabledTypesQuery.data || distractorPoolQuery.isPending) return
       const entries: SessionEntry[] = []
-      for (const card of queueQuery.data) {
+      for (const card of dueCards) {
         const types = pickEligibleTypes(
           { cardId: card.card.id, hasClozeVariant: card.hasClozeVariant === true },
           enabledTypesQuery.data,
@@ -634,7 +666,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       setSessionOrder(shuffleArray(entries))
     } else {
       setSessionOrder(
-        queueQuery.data.map((card) => ({
+        dueCards.map((card) => ({
           cardId: card.card.id,
           questionType: clozeOnly ? 'cloze' : reverseOnly || card.card.type === 'reverse' ? 'reverse' : 'vocab',
         })),
@@ -671,7 +703,7 @@ export default function ReviewSessionScreen(): JSX.Element {
   }
 
   // Frozen order (sessionOrder), fresh content (queueQuery.data) — see the comment above sessionOrder.
-  const liveById = new Map((queueQuery.data ?? []).map((c) => [c.card.id, c]))
+  const liveById = new Map((queueQuery.data?.views ?? []).map((c) => [c.card.id, c]))
   const queue = sessionOrder.filter((entry) => liveById.has(entry.cardId))
   const activeEntry = queue[index]
   const view = activeEntry ? liveById.get(activeEntry.cardId) : undefined
@@ -757,6 +789,16 @@ export default function ReviewSessionScreen(): JSX.Element {
       showError(t('Could not save your rating'), error)
     },
   })
+
+  // "Practice more" (done screen, only shown when the due queue had more cards than the session
+  // cap — see loadReviewQueue's hasMore) — starts a fresh session immediately instead of making the
+  // rest wait for their own natural next-due date just because they didn't fit in this one sitting.
+  // The cards just finished are already rescheduled past "now", so a fresh loadReviewQueue call
+  // naturally serves the next batch, most-overdue-first, without needing to track "already shown".
+  const practiceMore = (): void => {
+    resetSession()
+    void queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+  }
 
   const openEdit = (): void => {
     if (!view) return
@@ -1109,16 +1151,36 @@ export default function ReviewSessionScreen(): JSX.Element {
             message={
               queue.length === 0
                 ? t('This deck has no cards due for review. Add words or check back later.')
-                : // Distinct cards, not queue.length — a Mixed session's queue can have several
-                  // entries per card (one per format tested), but "You reviewed 20 cards" for a
-                  // 4-card deck would be a confusing overcount.
-                  t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', {
-                    count: new Set(queue.map((entry) => entry.cardId)).size,
-                  })
+                : queueQuery.data?.hasMore
+                  ? // More due cards than fit in this session's cap (Settings > Learning > Cards
+                    // per session) — offered "Practice more" below instead of making them wait.
+                    t('You reviewed {{count}} cards. There are more cards due - keep going or come back later.', {
+                      count: new Set(queue.map((entry) => entry.cardId)).size,
+                    })
+                  : // Distinct cards, not queue.length — a Mixed session's queue can have several
+                    // entries per card (one per format tested), but "You reviewed 20 cards" for a
+                    // 4-card deck would be a confusing overcount.
+                    t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', {
+                      count: new Set(queue.map((entry) => entry.cardId)).size,
+                    })
             }
           />
-          <Pressable style={styles.doneButton} onPress={() => router.back()}>
-            <Text style={styles.doneButtonLabel}>{t('Back to deck')}</Text>
+          {queue.length > 0 && queueQuery.data?.hasMore ? (
+            <Pressable style={styles.doneButton} onPress={practiceMore}>
+              <Text style={styles.doneButtonLabel}>{t('Practice more')}</Text>
+            </Pressable>
+          ) : null}
+          <Pressable
+            style={queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondary : styles.doneButton}
+            onPress={() => router.back()}
+          >
+            <Text
+              style={
+                queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondaryLabel : styles.doneButtonLabel
+              }
+            >
+              {t('Back to deck')}
+            </Text>
           </Pressable>
         </View>
       ) : isAutoGraded && view.meaning ? (
@@ -1520,4 +1582,12 @@ const createStyles = (colors: ThemeColors) =>
       marginTop: -spacing.xl,
     },
     doneButtonLabel: { color: colors.textOnPrimary, fontSize: type.body, fontWeight: '700' },
+    doneButtonSecondary: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    doneButtonSecondaryLabel: { color: colors.text, fontSize: type.body, fontWeight: '700' },
   })

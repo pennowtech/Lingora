@@ -36,11 +36,16 @@ export function TrueFalseQuestion(props: TrueFalseQuestionProps): JSX.Element {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { statementIsTrue, shownMeaning } = useMemo(() => {
+    // A distractor whose meaning coincidentally matches the real one (synonyms, near-duplicate
+    // translations across cards) would make an intended-false statement actually true, grading the
+    // right answer as wrong — filter those out before picking one.
+    const normalizedMeaning = props.meaning.trim().toLowerCase()
+    const validDistractors = props.distractors.filter((d) => d.meaning.trim().toLowerCase() !== normalizedMeaning)
     const isTrue = Math.random() < 0.5
-    if (isTrue || props.distractors.length === 0) {
+    if (isTrue || validDistractors.length === 0) {
       return { statementIsTrue: true, shownMeaning: props.meaning }
     }
-    const distractor = props.distractors[Math.floor(Math.random() * props.distractors.length)]
+    const distractor = validDistractors[Math.floor(Math.random() * validDistractors.length)]
     return { statementIsTrue: false, shownMeaning: distractor?.meaning ?? props.meaning }
     // Rolled once per card, keyed by cardKey — not on every props.meaning/distractors identity change.
   }, [props.cardKey])

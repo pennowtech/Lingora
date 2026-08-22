@@ -34,9 +34,21 @@ export function MultipleChoiceQuestion(props: MultipleChoiceQuestionProps): JSX.
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const options = useMemo(() => {
-    const wrongOptions = shuffleArray(props.distractors)
-      .slice(0, OPTION_COUNT - 1)
-      .map((d) => d.meaning)
+    // Distractors come from other cards' meanings with no uniqueness guarantee — two different
+    // words can translate to the same text (synonyms, near-duplicates), or a distractor can
+    // coincidentally match the correct answer itself. Either produces a genuinely ambiguous
+    // question (two "correct" options) and, since selection below is compared by string value,
+    // duplicate option text also makes tapping one row visually select both. Dedupe case/whitespace-
+    // insensitively and always exclude anything matching the correct answer.
+    const seen = new Set<string>([props.meaning.trim().toLowerCase()])
+    const wrongOptions: string[] = []
+    for (const d of shuffleArray(props.distractors)) {
+      if (wrongOptions.length >= OPTION_COUNT - 1) break
+      const normalized = d.meaning.trim().toLowerCase()
+      if (seen.has(normalized)) continue
+      seen.add(normalized)
+      wrongOptions.push(d.meaning)
+    }
     return shuffleArray([props.meaning, ...wrongOptions])
     // Shuffled once per card, keyed by cardKey — not on every props.meaning/distractors identity change.
   }, [props.cardKey])
@@ -60,14 +72,16 @@ export function MultipleChoiceQuestion(props: MultipleChoiceQuestionProps): JSX.
       <Text style={styles.prompt}>{t('What does this mean?')}</Text>
       <Text style={styles.word}>{props.word}</Text>
       <View style={styles.optionList}>
-        {options.map((option) => {
+        {options.map((option, index) => {
           const isCorrectOption = option === props.meaning
           const isChosen = choice === option
           const showAsCorrect = answered && isCorrectOption
           const showAsWrong = answered && isChosen && !isCorrectOption
           return (
             <Pressable
-              key={option}
+              // Index, not just the option text — options are deduped above, but keying on the
+              // text alone would still collide if that guarantee ever slipped.
+              key={`${index}-${option}`}
               style={[
                 styles.option,
                 showAsCorrect && { borderColor: colors.success, backgroundColor: colors.successSoft },

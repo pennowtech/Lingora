@@ -16,6 +16,7 @@
     "@expo/config-plugins": "^57.0.6",
     "@expo/vector-icons": "^15.0.2",
     "@lingora/ai": "workspace:*",
+    "@lingora/core": "workspace:*",
     "@lingora/database": "workspace:*",
     "@lingora/observability": "workspace:*",
     "@lingora/types": "workspace:*",

@@ -78,6 +78,7 @@ import {
   SectionHeader,
   SpeakerButton,
   Spinner,
+  Toast,
 } from '../../components/ui'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
@@ -382,6 +383,10 @@ export default function WordDetailScreen(): JSX.Element {
     setCustomGrammarInput('')
   }
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
+  // "Added to My Vocabulary" / "Cloze added" — a brief confirmation for actions that otherwise
+  // leave no visible trace (adding an already-open word's card to another deck, or a cloze,
+  // doesn't navigate anywhere or change what's on screen). See components/ui.tsx#Toast.
+  const [toast, setToast] = useState<string | null>(null)
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
@@ -661,15 +666,16 @@ export default function WordDetailScreen(): JSX.Element {
   }
 
   const addToDeck = useMutation({
-    mutationFn: async (deckId: string) => {
-      const cardId = await resolveTargetCardId(deckId)
-      await addCardToDeck(db, deckId, cardId)
-      return cardId
+    mutationFn: async (deck: { id: string; name: string }) => {
+      const cardId = await resolveTargetCardId(deck.id)
+      await addCardToDeck(db, deck.id, cardId)
+      return { cardId, deckName: deck.name }
     },
-    onSuccess: async (cardId) => {
+    onSuccess: async ({ cardId, deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
       offerClozeEditor(cardId)
+      setToast(t('Added to {{deck}}', { deck: deckName }))
     },
   })
 
@@ -683,12 +689,13 @@ export default function WordDetailScreen(): JSX.Element {
       await createDeck(db, { id, name, createdAt: now, updatedAt: now })
       const cardId = await resolveTargetCardId(id)
       await addCardToDeck(db, id, cardId)
-      return cardId
+      return { cardId, deckName: name }
     },
-    onSuccess: async (cardId) => {
+    onSuccess: async ({ cardId, deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
       offerClozeEditor(cardId)
+      setToast(t('Added to {{deck}}', { deck: deckName }))
     },
     onError: (error: unknown) => showError(t('Could not create deck'), error),
   })
@@ -707,6 +714,7 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       setClozeEditor(null)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
+      setToast(t('Cloze added'))
     },
     onError: (error: unknown) => showError(t('Could not save the cloze card'), error),
   })
@@ -1690,7 +1698,7 @@ export default function WordDetailScreen(): JSX.Element {
         onClose={() => setDeckPickerOpen(false)}
         title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
-        onSelectDeck={(deck) => addToDeck.mutate(deck.id)}
+        onSelectDeck={(deck) => addToDeck.mutate(deck)}
         selecting={addToDeck.isPending}
         onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
         creating={createDeckAndAdd.isPending}
@@ -1917,6 +1925,8 @@ export default function WordDetailScreen(): JSX.Element {
         message={errorNotice?.message ?? ''}
         onClose={() => setErrorNotice(null)}
       />
+
+      <Toast message={toast} onHide={() => setToast(null)} />
     </>
   )
 }

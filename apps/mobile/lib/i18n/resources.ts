@@ -942,6 +942,45 @@ const ENGLISH_PHRASES = [
   'Type',
   'Part of speech',
   'CEFR',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning',
+  'Meaning -> Word',
+  'Fill in the blank',
+  'True or False',
+  'Multiple choice',
+  'mixed',
+  'true/false',
+  'multiple choice',
+  'Mixed practice',
+  'Practice more',
+  'Practice question types',
+  'Cards per session',
+  'No limit',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.',
+  'Added to {{deck}}',
+  'Cloze added',
+  '"{{word}}" means "{{meaning}}"',
+  'Not quite - "{{word}}" means "{{meaning}}".',
+  'True',
+  'False',
+  'Correct!',
+  'What does this mean?',
+  'True or false?',
+  'Language pair',
+  '"I speak": explanations and the "More info" follow-up use this language.',
+  '"I\'m learning": new words are looked up and generated in this language.',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.',
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.',
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.',
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
+  'How AI Providers works',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.',
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.",
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -2053,6 +2092,57 @@ const de: Partial<Record<Phrase, string>> = {
   Type: 'Typ',
   'Part of speech': 'Wortart',
   CEFR: 'GER-Niveau',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning': 'Wort -> Bedeutung',
+  'Meaning -> Word': 'Bedeutung -> Wort',
+  'Fill in the blank': 'Lückentext',
+  'True or False': 'Wahr oder Falsch',
+  'Multiple choice': 'Multiple-Choice',
+  mixed: 'gemischt',
+  'true/false': 'wahr/falsch',
+  'multiple choice': 'Multiple-Choice',
+  'Mixed practice': 'Gemischtes Üben',
+  'Practice more': 'Weiter üben',
+  'Practice question types': 'Übungsarten',
+  'Cards per session': 'Karten pro Sitzung',
+  'No limit': 'Kein Limit',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.':
+    'Du hast {{count}} Karten geübt. Es sind noch mehr Karten fällig - mach weiter oder komm später wieder.',
+  'Added to {{deck}}': 'Zu {{deck}} hinzugefügt',
+  'Cloze added': 'Lückentext hinzugefügt',
+  '"{{word}}" means "{{meaning}}"': '"{{word}}" bedeutet "{{meaning}}"',
+  'Not quite - "{{word}}" means "{{meaning}}".': 'Nicht ganz - "{{word}}" bedeutet "{{meaning}}".',
+  True: 'Wahr',
+  False: 'Falsch',
+  'Correct!': 'Richtig!',
+  'What does this mean?': 'Was bedeutet das?',
+  'True or false?': 'Wahr oder falsch?',
+  'Language pair': 'Sprachpaar',
+  '"I speak": explanations and the "More info" follow-up use this language.':
+    '"Ich spreche": Erklärungen und die Funktion "Mehr Infos" nutzen diese Sprache.',
+  '"I\'m learning": new words are looked up and generated in this language.':
+    '"Ich lerne": Neue Wörter werden in dieser Sprache nachgeschlagen und erstellt.',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.':
+    'Gemischtes Üben zeigt fällige Karten in einer zufälligen Mischung der hier aktivierten Formate.',
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.':
+    'Lückentext wird hier getrennt vom eigenen Lückentext-Übungsmodus bewertet.',
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.':
+    'Begrenzt, wie viele fällige Karten eine einzelne Übungssitzung lädt - die am längsten fälligen zuerst. Gilt für jeden Übungsmodus, nicht nur für Gemischt.',
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Sind noch mehr fällig, beende die Sitzung und tippe auf "Weiter üben" für eine weitere Runde, statt zu warten, bis sie erneut fällig werden.',
+  'How AI Providers works': 'So funktionieren KI-Anbieter',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
+    'Die Kartenerstellung (Bedeutungen, Beispiele, Cluster, Phrasen, Lückentext) nutzt den unten konfigurierten und aktivierten Anbieter.',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.':
+    'Nutze deinen eigenen API-Schlüssel - es wird nichts an einen Anbieter gesendet, bevor du eine Karte erstellst.',
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.":
+    'Die Antwort von {{providerName}} hatte für dieses Wort nicht das erwartete Format. Das kann gelegentlich vorkommen - versuche es erneut oder wähle einen anderen KI-Anbieter unter Einstellungen > KI-Anbieter.',
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} hat eine Antwort geliefert, die nicht gelesen werden konnte. Das kann gelegentlich vorkommen - versuche es erneut oder wähle einen anderen KI-Anbieter unter Einstellungen > KI-Anbieter.',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} konnte keine gültige Antwort für dieses Wort erzeugen. Das kann gelegentlich vorkommen - versuche es erneut oder wähle einen anderen KI-Anbieter unter Einstellungen > KI-Anbieter.',
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -3146,6 +3236,57 @@ const fr: Partial<Record<Phrase, string>> = {
   Type: 'Type',
   'Part of speech': 'Nature grammaticale',
   CEFR: 'Niveau CECRL',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning': 'Mot -> Sens',
+  'Meaning -> Word': 'Sens -> Mot',
+  'Fill in the blank': 'Texte à trous',
+  'True or False': 'Vrai ou faux',
+  'Multiple choice': 'Choix multiple',
+  mixed: 'mixte',
+  'true/false': 'vrai/faux',
+  'multiple choice': 'choix multiple',
+  'Mixed practice': 'Entraînement mixte',
+  'Practice more': 'Continuer',
+  'Practice question types': 'Types de questions',
+  'Cards per session': 'Cartes par session',
+  'No limit': 'Aucune limite',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.':
+    "Tu as révisé {{count}} cartes. D'autres cartes sont encore à réviser - continue ou reviens plus tard.",
+  'Added to {{deck}}': 'Ajouté à {{deck}}',
+  'Cloze added': 'Texte lacunaire ajouté',
+  '"{{word}}" means "{{meaning}}"': '« {{word}} » signifie « {{meaning}} »',
+  'Not quite - "{{word}}" means "{{meaning}}".': 'Pas tout à fait - « {{word}} » signifie « {{meaning}} ».',
+  True: 'Vrai',
+  False: 'Faux',
+  'Correct!': 'Correct !',
+  'What does this mean?': 'Que signifie ce mot ?',
+  'True or false?': 'Vrai ou faux ?',
+  'Language pair': 'Paire de langues',
+  '"I speak": explanations and the "More info" follow-up use this language.':
+    '« Je parle » : les explications et le suivi « Plus d\'infos » utilisent cette langue.',
+  '"I\'m learning": new words are looked up and generated in this language.':
+    '« J\'apprends » : les nouveaux mots sont recherchés et générés dans cette langue.',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.':
+    "L'entraînement mixte présente les cartes à réviser dans un mélange aléatoire des formats activés ici.",
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.':
+    "Le texte lacunaire est noté séparément du mode d'entraînement lacunaire dédié.",
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.':
+    "Limite le nombre de cartes à réviser chargées dans une seule session - les plus en retard d'abord. S'applique à tous les modes d'entraînement, pas seulement Mixte.",
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'S\'il en reste, termine la session et appuie sur « Continuer » pour une autre série tout de suite, plutôt que d\'attendre qu\'elles soient de nouveau dues.',
+  'How AI Providers works': 'Comment fonctionnent les fournisseurs IA',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
+    'La génération de cartes (sens, exemples, groupes, phrases, texte lacunaire) utilise le fournisseur configuré et activé ci-dessous.',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.':
+    "Utilise ta propre clé API - rien n'est envoyé à un fournisseur avant que tu génères une carte.",
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.":
+    "La réponse de {{providerName}} pour ce mot n'était pas dans le format attendu. Cela peut arriver occasionnellement - réessaie, ou choisis un autre fournisseur IA dans Réglages > Fournisseurs IA.",
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} a renvoyé une réponse illisible. Cela peut arriver occasionnellement - réessaie, ou choisis un autre fournisseur IA dans Réglages > Fournisseurs IA.',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    "{{providerName}} n'a pas pu générer de réponse valide pour ce mot. Cela peut arriver occasionnellement - réessaie, ou choisis un autre fournisseur IA dans Réglages > Fournisseurs IA.",
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -4238,6 +4379,57 @@ const es: Partial<Record<Phrase, string>> = {
   Type: 'Tipo',
   'Part of speech': 'Categoría gramatical',
   CEFR: 'Nivel MCER',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning': 'Palabra -> Significado',
+  'Meaning -> Word': 'Significado -> Palabra',
+  'Fill in the blank': 'Rellenar el hueco',
+  'True or False': 'Verdadero o falso',
+  'Multiple choice': 'Opción múltiple',
+  mixed: 'mixto',
+  'true/false': 'verdadero/falso',
+  'multiple choice': 'opción múltiple',
+  'Mixed practice': 'Práctica mixta',
+  'Practice more': 'Seguir practicando',
+  'Practice question types': 'Tipos de pregunta de práctica',
+  'Cards per session': 'Tarjetas por sesión',
+  'No limit': 'Sin límite',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.':
+    'Repasaste {{count}} tarjetas. Hay más tarjetas pendientes - continúa o vuelve más tarde.',
+  'Added to {{deck}}': 'Añadido a {{deck}}',
+  'Cloze added': 'Ejercicio de huecos añadido',
+  '"{{word}}" means "{{meaning}}"': '"{{word}}" significa "{{meaning}}"',
+  'Not quite - "{{word}}" means "{{meaning}}".': 'No exactamente - "{{word}}" significa "{{meaning}}".',
+  True: 'Verdadero',
+  False: 'Falso',
+  'Correct!': '¡Correcto!',
+  'What does this mean?': '¿Qué significa esto?',
+  'True or false?': '¿Verdadero o falso?',
+  'Language pair': 'Par de idiomas',
+  '"I speak": explanations and the "More info" follow-up use this language.':
+    '"Hablo": las explicaciones y el seguimiento "Más información" usan este idioma.',
+  '"I\'m learning": new words are looked up and generated in this language.':
+    '"Estoy aprendiendo": las palabras nuevas se buscan y se generan en este idioma.',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.':
+    'La práctica mixta presenta las tarjetas pendientes en una mezcla aleatoria de los formatos activados aquí.',
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.':
+    'Aquí, los huecos se puntúan por separado del modo dedicado de práctica de huecos.',
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.':
+    'Limita cuántas tarjetas pendientes carga una sola sesión de repaso - las más atrasadas primero. Se aplica a todos los modos de práctica, no solo a Mixta.',
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Si quedan más pendientes, termina la sesión y toca "Seguir practicando" para otra ronda enseguida, en lugar de esperar a que vuelvan a estar pendientes.',
+  'How AI Providers works': 'Cómo funcionan los proveedores de IA',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
+    'La generación de tarjetas (significados, ejemplos, grupos, frases, huecos) usa el proveedor configurado y activado abajo.',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.':
+    'Usa tu propia clave API - no se envía nada a un proveedor hasta que generes una tarjeta.',
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.":
+    'La respuesta de {{providerName}} para esta palabra no tenía el formato esperado. Esto puede ocurrir ocasionalmente - inténtalo de nuevo, o prueba otro proveedor de IA en Ajustes > Proveedores de IA.',
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} devolvió una respuesta que no se pudo leer. Esto puede ocurrir ocasionalmente - inténtalo de nuevo, o prueba otro proveedor de IA en Ajustes > Proveedores de IA.',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} no pudo generar una respuesta válida para esta palabra. Esto puede ocurrir ocasionalmente - inténtalo de nuevo, o prueba otro proveedor de IA en Ajustes > Proveedores de IA.',
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -5326,6 +5518,57 @@ const hi: Partial<Record<Phrase, string>> = {
   Type: 'प्रकार',
   'Part of speech': 'शब्द भेद',
   CEFR: 'CEFR स्तर',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning': 'शब्द -> अर्थ',
+  'Meaning -> Word': 'अर्थ -> शब्द',
+  'Fill in the blank': 'रिक्त स्थान भरें',
+  'True or False': 'सही या गलत',
+  'Multiple choice': 'बहुविकल्पीय',
+  mixed: 'मिश्रित',
+  'true/false': 'सही/गलत',
+  'multiple choice': 'बहुविकल्पीय',
+  'Mixed practice': 'मिश्रित अभ्यास',
+  'Practice more': 'और अभ्यास करें',
+  'Practice question types': 'अभ्यास प्रश्न प्रकार',
+  'Cards per session': 'प्रति सत्र कार्ड',
+  'No limit': 'कोई सीमा नहीं',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.':
+    'आपने {{count}} कार्ड दोहराए। और कार्ड बाकी हैं - जारी रखें या बाद में वापस आएं।',
+  'Added to {{deck}}': '{{deck}} में जोड़ा गया',
+  'Cloze added': 'क्लोज़ जोड़ा गया',
+  '"{{word}}" means "{{meaning}}"': '"{{word}}" का अर्थ है "{{meaning}}"',
+  'Not quite - "{{word}}" means "{{meaning}}".': 'सही नहीं - "{{word}}" का अर्थ है "{{meaning}}"।',
+  True: 'सही',
+  False: 'गलत',
+  'Correct!': 'सही!',
+  'What does this mean?': 'इसका क्या अर्थ है?',
+  'True or false?': 'सही या गलत?',
+  'Language pair': 'भाषा युग्म',
+  '"I speak": explanations and the "More info" follow-up use this language.':
+    '"मैं बोलता हूं": स्पष्टीकरण और "अधिक जानकारी" सुविधा इसी भाषा का उपयोग करती है।',
+  '"I\'m learning": new words are looked up and generated in this language.':
+    '"मैं सीख रहा हूं": नए शब्द इसी भाषा में खोजे और बनाए जाते हैं।',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.':
+    'मिश्रित अभ्यास बकाया कार्ड को यहां सक्षम किए गए प्रारूपों के यादृच्छिक मिश्रण में प्रस्तुत करता है।',
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.':
+    'यहां क्लोज़ को समर्पित क्लोज़ अभ्यास मोड से अलग स्कोर किया जाता है।',
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.':
+    'सीमित करता है कि एक अभ्यास सत्र में कितने बकाया कार्ड शामिल होंगे - सबसे अधिक विलंबित कार्ड पहले। यह हर अभ्यास मोड पर लागू होता है, केवल मिश्रित पर नहीं।',
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'अगर और कार्ड बाकी हैं, तो सत्र समाप्त करें और तुरंत एक और राउंड के लिए "और अभ्यास करें" पर टैप करें, फिर से बकाया होने का इंतज़ार करने के बजाय।',
+  'How AI Providers works': '"एआई प्रदाता" कैसे काम करता है',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
+    'कार्ड निर्माण (अर्थ, उदाहरण, क्लस्टर, वाक्यांश, क्लोज़) नीचे कॉन्फ़िगर और सक्षम किए गए प्रदाता का उपयोग करता है।',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.':
+    'अपनी खुद की एपीआई कुंजी लाएं - जब तक आप कार्ड नहीं बनाते, प्रदाता को कुछ भी नहीं भेजा जाता।',
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.":
+    'इस शब्द के लिए {{providerName}} की प्रतिक्रिया अपेक्षित प्रारूप में नहीं थी। यह कभी-कभी हो सकता है - फिर से प्रयास करें, या सेटिंग्स > एआई प्रदाता में कोई दूसरा एआई प्रदाता आज़माएं।',
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} ने ऐसी प्रतिक्रिया दी जिसे पढ़ा नहीं जा सका। यह कभी-कभी हो सकता है - फिर से प्रयास करें, या सेटिंग्स > एआई प्रदाता में कोई दूसरा एआई प्रदाता आज़माएं।',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} इस शब्द के लिए मान्य प्रतिक्रिया नहीं बना सका। यह कभी-कभी हो सकता है - फिर से प्रयास करें, या सेटिंग्स > एआई प्रदाता में कोई दूसरा एआई प्रदाता आज़माएं।',
 }
 
 const vi: Partial<Record<Phrase, string>> = {
@@ -6414,6 +6657,57 @@ const vi: Partial<Record<Phrase, string>> = {
   Type: 'Loại',
   'Part of speech': 'Từ loại',
   CEFR: 'Cấp độ CEFR',
+
+  // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
+  // sheet/error-message hardening that went with them
+  'Word -> Meaning': 'Từ -> Nghĩa',
+  'Meaning -> Word': 'Nghĩa -> Từ',
+  'Fill in the blank': 'Điền khuyết',
+  'True or False': 'Đúng hay sai',
+  'Multiple choice': 'Trắc nghiệm',
+  mixed: 'hỗn hợp',
+  'true/false': 'đúng/sai',
+  'multiple choice': 'trắc nghiệm',
+  'Mixed practice': 'Luyện tập hỗn hợp',
+  'Practice more': 'Luyện thêm',
+  'Practice question types': 'Loại câu hỏi luyện tập',
+  'Cards per session': 'Số thẻ mỗi phiên',
+  'No limit': 'Không giới hạn',
+  'You reviewed {{count}} cards. There are more cards due - keep going or come back later.':
+    'Bạn đã ôn {{count}} thẻ. Vẫn còn thẻ đến hạn - tiếp tục hoặc quay lại sau.',
+  'Added to {{deck}}': 'Đã thêm vào {{deck}}',
+  'Cloze added': 'Đã thêm bài điền khuyết',
+  '"{{word}}" means "{{meaning}}"': '"{{word}}" nghĩa là "{{meaning}}"',
+  'Not quite - "{{word}}" means "{{meaning}}".': 'Chưa đúng - "{{word}}" nghĩa là "{{meaning}}".',
+  True: 'Đúng',
+  False: 'Sai',
+  'Correct!': 'Chính xác!',
+  'What does this mean?': 'Từ này nghĩa là gì?',
+  'True or false?': 'Đúng hay sai?',
+  'Language pair': 'Cặp ngôn ngữ',
+  '"I speak": explanations and the "More info" follow-up use this language.':
+    '"Tôi nói": phần giải thích và mục "Thêm thông tin" dùng ngôn ngữ này.',
+  '"I\'m learning": new words are looked up and generated in this language.':
+    '"Tôi đang học": từ mới được tra cứu và tạo bằng ngôn ngữ này.',
+  'Mixed practice presents due cards in a random mix of whichever formats are enabled here.':
+    'Luyện tập hỗn hợp hiển thị các thẻ đến hạn theo cách trộn ngẫu nhiên các định dạng được bật ở đây.',
+  'Cloze here is scored separately from the dedicated Cloze Practice mode.':
+    'Điền khuyết ở đây được chấm điểm riêng biệt với chế độ Luyện điền khuyết chuyên biệt.',
+  'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.':
+    'Giới hạn số thẻ đến hạn mà một phiên ôn tập tải vào - thẻ quá hạn lâu nhất trước. Áp dụng cho mọi chế độ luyện tập, không chỉ Hỗn hợp.',
+  'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Nếu còn thẻ đến hạn, hãy hoàn thành phiên và nhấn "Luyện thêm" để có thêm một vòng ngay lập tức, thay vì chờ đến khi chúng đến hạn lần nữa.',
+  'How AI Providers works': 'Cách hoạt động của Nhà cung cấp AI',
+  'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
+    'Việc tạo thẻ (nghĩa, ví dụ, cụm, cụm từ, điền khuyết) sử dụng nhà cung cấp đã được cấu hình và bật bên dưới.',
+  'Bring your own API key - nothing is sent to a provider until you generate a card.':
+    'Dùng khóa API của riêng bạn - không có gì được gửi đến nhà cung cấp cho đến khi bạn tạo thẻ.',
+  "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.":
+    'Phản hồi của {{providerName}} cho từ này không đúng định dạng mong đợi. Điều này đôi khi có thể xảy ra - hãy thử lại, hoặc chọn nhà cung cấp AI khác trong Cài đặt > Nhà cung cấp AI.',
+  '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} đã trả về phản hồi không thể đọc được. Điều này đôi khi có thể xảy ra - hãy thử lại, hoặc chọn nhà cung cấp AI khác trong Cài đặt > Nhà cung cấp AI.',
+  '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
+    '{{providerName}} không thể tạo phản hồi hợp lệ cho từ này. Điều này đôi khi có thể xảy ra - hãy thử lại, hoặc chọn nhà cung cấp AI khác trong Cài đặt > Nhà cung cấp AI.',
 }
 
 export const resources = {

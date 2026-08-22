@@ -31,6 +31,7 @@ const PRIMARY_KEY: Record<BackupTableName, string> = {
   review_events: 'id',
   sentence_mining_queue: 'id',
   evaluations: 'id',
+  card_chat_messages: 'id',
 }
 
 async function readSnapshots(

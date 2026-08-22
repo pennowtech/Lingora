@@ -79,10 +79,10 @@ import {
   Spinner,
 } from '../../components/ui'
 import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
-import { AskAISheet } from '../../components/AskAISheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
@@ -959,14 +959,16 @@ export default function WordDetailScreen(): JSX.Element {
       }
       : null
 
-  // "Ask AI" is a separate, minimal affordance from Explain/More info — just the follow-up
-  // question composer (see AskAISheet), available on every card, AI-sourced or not (askFollowUp
-  // only needs the active cluster's label/description, which every card has).
+  // "Ask AI" opens a full chat window scoped to this card (see WordChatSheet) — separate from
+  // Explain/More info, available on every card, AI-sourced or not. `!word.card` never actually
+  // happens here in practice (the button only renders once headlineMeaning exists, which itself
+  // requires a card), but the guard keeps the sheet's `cardId` prop non-nullable.
   const handleAskAI = (): void => {
     if (!ai) {
-      aiRequiredAlert.show(t('ask a follow-up question'))
+      aiRequiredAlert.show(t('chat with your AI tutor'))
       return
     }
+    if (!word || !active || !word.card) return
     setAskAiOpen(true)
   }
 
@@ -1831,15 +1833,23 @@ export default function WordDetailScreen(): JSX.Element {
         />
       ) : null}
 
-      {/* "Ask AI" — every card, AI-sourced or not; just the question composer + Q&A thread. */}
-      <AskAISheet
-        visible={askAiOpen}
-        onClose={() => setAskAiOpen(false)}
-        followUps={followUps}
-        askLoading={askFollowUp.isPending}
-        onAsk={(question) => askFollowUp.mutate(question)}
-        onAskCancel={cancelAskFollowUp}
-      />
+      {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
+          not. Only mounted once everything it needs is actually available — handleAskAI already
+          guards opening it without those, so this is just keeping the type checker honest. */}
+      {ai && word?.card && active ? (
+        <WordChatSheet
+          visible={askAiOpen}
+          onClose={() => setAskAiOpen(false)}
+          db={db}
+          ai={ai}
+          cardId={word.card.id}
+          word={word.lemma.form}
+          cluster={{ label: active.cluster.label, description: active.cluster.description }}
+          cefrLevel={defaultCefr}
+          language={word.lemma.language}
+          nativeLanguage={nativeLanguage}
+        />
+      ) : null}
 
       {aiRequiredAlert.modal}
 

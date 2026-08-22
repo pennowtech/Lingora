@@ -34,8 +34,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
-import { AskAISheet } from '../../components/AskAISheet'
 import { CardRenderer } from '../../components/CardRenderer'
+import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import {
   AlertModal,
@@ -765,13 +765,14 @@ export default function ReviewSessionScreen(): JSX.Element {
     void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(view.form)}`)
   }
 
-  // Same "Ask AI" affordance as word/[form].tsx's handleAskAI — separate from Explain/More info,
+  // Same "Ask AI" chat window as word/[form].tsx's handleAskAI — separate from Explain/More info,
   // available on every card.
   const handleAskAI = (): void => {
     if (!ai) {
-      aiRequiredAlert.show(t('ask a follow-up question'))
+      aiRequiredAlert.show(t('chat with your AI tutor'))
       return
     }
+    if (!view?.clusterRef) return
     setAskAiOpen(true)
   }
 
@@ -1086,14 +1087,23 @@ export default function ReviewSessionScreen(): JSX.Element {
         />
       ) : null}
 
-      {/* "Ask AI" — every card, AI-sourced or not; just the question composer + Q&A thread. */}
-      <AskAISheet
-        visible={askAiOpen}
-        onClose={() => setAskAiOpen(false)}
-        followUps={followUps}
-        askLoading={askFollowUp.isPending}
-        onAsk={(question) => askFollowUp.mutate(question)}
-      />
+      {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
+          not. handleAskAI already guards opening it without `ai`/`view`; this just keeps the type
+          checker honest. */}
+      {ai && view?.clusterRef ? (
+        <WordChatSheet
+          visible={askAiOpen}
+          onClose={() => setAskAiOpen(false)}
+          db={db}
+          ai={ai}
+          cardId={view.card.id}
+          word={view.form}
+          cluster={view.clusterRef}
+          cefrLevel={defaultCefr}
+          language={view.language}
+          nativeLanguage={nativeLanguage}
+        />
+      ) : null}
 
       {aiRequiredAlert.modal}
 

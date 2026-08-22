@@ -15,6 +15,7 @@ import { clozeStates } from './0013_cloze_states'
 import { syncSnapshots } from './0014_sync_snapshots'
 import { updateDefaultTemplates } from './0015_update_default_templates'
 import { cardNativeLanguage } from './0017_card_native_language'
+import { cardChatMessages } from './0018_card_chat_messages'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -40,6 +41,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   syncSnapshots,
   updateDefaultTemplates,
   cardNativeLanguage,
+  cardChatMessages,
 ]
 
 /**

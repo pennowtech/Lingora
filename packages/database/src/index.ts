@@ -98,6 +98,7 @@ export {
 export * from './repositories/ai-cache'
 export * from './repositories/audio'
 export * from './repositories/cards'
+export * from './repositories/chat'
 export * from './repositories/cloze'
 export * from './repositories/clusters'
 export * from './repositories/decks'

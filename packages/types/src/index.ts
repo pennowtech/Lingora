@@ -463,3 +463,21 @@ export interface WordGuideEntry {
   synonyms: WordGuideSynonym[]
   examples: WordGuideExample[]
 }
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export type ChatRole = 'user' | 'assistant'
+
+/**
+ * One turn of the free-form "Ask AI" conversation about a specific card (see migration 0018,
+ * `card_chat_messages`) — deliberately separate from `Meaning`/`Example`: this is a running
+ * back-and-forth thread, not stored, curated card content. Scoped to one card, deleted with it via
+ * `ON DELETE CASCADE`, and never shown on any other word.
+ */
+export interface ChatMessage {
+  id: string
+  cardId: string
+  role: ChatRole
+  content: string
+  createdAt: number
+}

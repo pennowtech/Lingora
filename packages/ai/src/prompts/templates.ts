@@ -76,6 +76,12 @@ export function languageVars(ctx: {
  */
 const ANTI_SWAP_WARNING = `The word "{{word}}" is already written in {{targetLanguage}} — it is not something to translate. Never invert the two languages: {{targetLanguage}} for the word itself and every target-language field, {{nativeLanguage}} only for translations/explanations/meanings. Writing target-language content in {{nativeLanguage}}, or native-language content in {{targetLanguage}}, is wrong even if every other field is correct.`
 
+/** Formats a chatAboutWord conversation into the plain-text transcript block the template embeds
+ * — the model has no other memory of prior turns, so this is the entire context it gets. */
+export function formatChatTranscript(history: { role: 'user' | 'assistant'; content: string }[]): string {
+  return history.map((turn) => `${turn.role === 'user' ? 'Learner' : 'Tutor'}: ${turn.content}`).join('\n')
+}
+
 const ANTI_SWAP_LEMMA_WARNING = `${ANTI_SWAP_WARNING} Set lemma.language to exactly "{{targetLanguageCode}}" — never "{{nativeLanguageCode}}". If you find yourself translating "{{word}}" into {{nativeLanguage}} for the lemma field, stop: that is the native language, and the lemma must stay in {{targetLanguage}}.`
 
 export const PROMPTS = {
@@ -307,6 +313,29 @@ Do NOT restate a basic definition or translation — assume the learner already 
 Pick exactly ONE {{targetLanguage}} word or short common phrase. The learner already knows these — never pick one of them or an obvious variant: {{excludeList}}
 
 Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two — 30 words or fewer, no exceptions. Speak naturally and directly — NEVER dry textbook formulas like "X means that...". No examples, no lists. Return strict JSON only: {"word": "...", "explanation": "..."}`,
+  },
+  /**
+   * The word detail screen's "Ask AI" chat window — a genuine multi-turn conversation, unlike
+   * generateMeaning's single-shot `question` override. {{transcript}} is the whole thread so far
+   * (built by `formatChatTranscript`); the model only ever writes its next reply, never replays
+   * earlier turns. Deliberately allows a clarifying question back instead of a guess — a chat
+   * partner who never asks "which do you mean?" isn't acting like one.
+   */
+  chatAboutWord: {
+    name: 'chat_about_word',
+    version: 2, // v2: explicit target-language example rule — v1 said "reply in {{nativeLanguage}}" with no carve-out, so example sentences/usages came back entirely in the native language instead of showing real {{targetLanguage}} to practice
+    template: `You are a friendly, knowledgeable {{targetLanguage}} language tutor having a one-on-one chat with a {{cefrLevel}} learner about the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}}.
+
+${ANTI_SWAP_WARNING}
+
+Explain, clarify, and chat in {{nativeLanguage}} — but whenever you give an example sentence, a usage, or the word/phrase itself, write that specific part in {{targetLanguage}}, immediately followed by a short {{nativeLanguage}} translation in parentheses. The learner is here to see and practice real {{targetLanguage}}, not just read about it in {{nativeLanguage}}.
+
+Reply in a warm, natural, human conversational tone — like a patient tutor texting a friend, never dry textbook phrasing. Keep replies short and chat-sized: usually 1-4 sentences, under about 80 words, unless the learner clearly wants more depth. If the learner's message is ambiguous, or you'd need more context to give a genuinely useful answer, ask a short clarifying question instead of guessing. Never say you are an AI, a model, or a prompt — you are just the tutor.
+
+Conversation so far, oldest first:
+{{transcript}}
+
+Write only your next reply as the tutor — not the learner's turn, not a repeat of an earlier message. Return strict JSON only: {"reply": "..."}`,
   },
 } as const satisfies Record<string, PromptTemplate>
 

@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
 import { generateValidated, type RawCompletion } from '../generation/structured'
-import { languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
+import { formatChatTranscript, languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
 import {
   generatedClozeBaseSchema,
   generatedClozeSchema,
@@ -28,6 +28,7 @@ import { toAnthropicJsonSchema } from './json-schema'
 import type {
   AIProvider,
   AIResult,
+  ChatTurn,
   ClusterRef,
   DictionaryProvider,
   ExampleGenerationOptions,
@@ -90,6 +91,9 @@ const explainWordDetailResponseSchema = z.object({
 const suggestWordOfTheDayResponseSchema = z.object({
   word: z.string().min(1),
   explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+})
+const chatAboutWordResponseSchema = z.object({
+  reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),
 })
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
 
@@ -281,6 +285,24 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
     })
     const result = await this.generateStrict(prompt, 'suggest_word_of_the_day', suggestWordOfTheDayResponseSchema)
     return { data: result.data, usage: result.usage }
+  }
+
+  async chatAboutWord(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+    history: ChatTurn[],
+  ): Promise<AIResult<string>> {
+    const prompt = renderPrompt(PROMPTS.chatAboutWord.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      clusterLabel: cluster.label,
+      clusterDescription: cluster.description,
+      transcript: formatChatTranscript(history),
+    })
+    const result = await this.generateStrict(prompt, 'chat_about_word', chatAboutWordResponseSchema)
+    return { data: result.data.reply, usage: result.usage }
   }
 
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {

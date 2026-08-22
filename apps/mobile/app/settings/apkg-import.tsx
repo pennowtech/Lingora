@@ -445,7 +445,6 @@ export default function ApkgImportScreen(): JSX.Element {
 
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip

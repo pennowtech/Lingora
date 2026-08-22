@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons'
+import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
-import { AlertModal, Card, Chip, ConfirmModal } from '../../components/ui'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AlertModal, Card, Chip, ConfirmModal, IconButton } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
 import {
   emptyProviderState,
@@ -22,6 +24,20 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'AiProvidersScreen' })
 
+/** Behind a single "?" in the header instead of a paragraph at the top of the screen — same
+ * pattern as settings/learning.tsx and settings/tts.tsx (see components/HelpAccordion.tsx). */
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'overview',
+    title: 'How AI Providers works',
+    icon: 'sparkles-outline',
+    paragraphs: [
+      'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.',
+      'Bring your own API key - nothing is sent to a provider until you generate a card.',
+    ],
+  },
+]
+
 /**
  * The "AI Providers" sub-screen (formerly the Settings screen's own "Generation" section) —
  * split out so the top-level Settings menu isn't a single mega-scroll. Fully self-contained: loads
@@ -32,6 +48,7 @@ export default function AiProvidersScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const help = useHelpAccordion('overview')
 
   const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -213,6 +230,13 @@ export default function AiProvidersScreen(): JSX.Element {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+          ),
+        }}
+      />
       {loadError ? (
         <View style={styles.banner}>
           <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
@@ -224,10 +248,6 @@ export default function AiProvidersScreen(): JSX.Element {
       ) : null}
 
       <Card style={styles.providerCard}>
-        <Text style={styles.fieldHint}>
-          {t('Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled. Bring your own API key - nothing is sent until you generate a card.')}
-        </Text>
-
         {loaded && configuredProviders.length > 1 ? (
           <View style={{ marginTop: spacing.md }}>
             <Text style={styles.fieldLabel}>{t('Active provider')}</Text>
@@ -298,6 +318,16 @@ export default function AiProvidersScreen(): JSX.Element {
         title={notice?.title ?? ''}
         message={notice?.message ?? ''}
         onClose={() => setNotice(null)}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('AI Providers')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={help.setSectionId}
+        translate={t}
       />
     </ScrollView>
   )
@@ -516,6 +546,5 @@ const createStyles = (colors: ThemeColors) =>
   usageDetail: { fontSize: type.caption, color: colors.textSecondary },
   usageLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, marginTop: 2 },
   fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
   })

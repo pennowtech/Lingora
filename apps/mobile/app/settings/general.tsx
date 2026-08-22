@@ -170,7 +170,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
           onChange={(value) => value && setThemeKey(value as ThemeKey)}
           options={THEME_ORDER.map((key) => ({ label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`, value: key }))}
         />
-        <Text style={styles.hint}>{t('Applies across the app.')}</Text>
       </Card>
 
       <Card>
@@ -240,5 +239,4 @@ const createStyles = (colors: ThemeColors) =>
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-    hint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
   })

@@ -240,6 +240,14 @@ export interface AudioAsset {
 export type ReviewRating = 'again' | 'hard' | 'good' | 'easy'
 
 /**
+ * The presentation format a review question was asked in. 'vocab'/'reverse'/'cloze'
+ * can also be graded through the dedicated whole-session modes; when they occur
+ * inside a mixed session they're scored onto the same card_states schedule rather
+ * than cloze's own independent one — see mixed-session review docs.
+ */
+export type QuestionType = 'vocab' | 'reverse' | 'cloze' | 'trueFalse' | 'mcq'
+
+/**
  * An immutable record of a single review event.
  * Never update these rows — only insert.
  */
@@ -249,6 +257,7 @@ export interface ReviewEvent {
   rating: ReviewRating
   reviewedAt: number // unix timestamp
   durationMs: number // how long they looked at the card
+  questionType?: QuestionType
 }
 
 /**

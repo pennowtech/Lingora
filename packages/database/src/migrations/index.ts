@@ -18,6 +18,7 @@ import { cardNativeLanguage } from './0017_card_native_language'
 import { cardChatMessages } from './0018_card_chat_messages'
 import { smallerDefaultCardText } from './0019_smaller_default_card_text'
 import { clusterMoreInfo } from './0020_cluster_more_info'
+import { reviewEventQuestionType } from './0021_review_event_question_type'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -46,6 +47,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   cardChatMessages,
   smallerDefaultCardText,
   clusterMoreInfo,
+  reviewEventQuestionType,
 ]
 
 /**

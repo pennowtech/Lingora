@@ -111,7 +111,7 @@ export const TABLE_COLUMNS = {
     'reps',
     'learning_steps',
   ],
-  review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms'],
+  review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms', 'question_type'],
   sentence_mining_queue: [
     'id',
     'raw_text',

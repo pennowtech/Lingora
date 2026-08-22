@@ -1,11 +1,13 @@
-import type { CefrLevel, LanguageCode } from '@lingora/types'
+import type { CefrLevel, LanguageCode, QuestionType } from '@lingora/types'
 import { logger } from '@lingora/observability'
+import { useQueryClient } from '@tanstack/react-query'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { AlertModal, Card, Chip, ConfirmModal, Dropdown, SectionHeader } from '../../components/ui'
 import { isAppLanguage, setAppLanguagePreference, type AppLanguage } from '../../lib/i18n'
+import { ALL_QUESTION_TYPES, getEnabledQuestionTypes, QUESTION_TYPE_META, setEnabledQuestionTypes } from '../../lib/reviewTypes'
 import {
   DEFAULT_NATIVE_LANGUAGE,
   DEFAULT_TARGET_LANGUAGE,
@@ -54,12 +56,14 @@ const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 export default function LearningScreen(): JSX.Element {
   const { t, i18n } = useTranslation()
   const { reloadServices, tier } = useServices()
+  const queryClient = useQueryClient()
   const styles = useThemedStyles(createStyles)
 
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
   const [wotdTime, setWotdTimeState] = useState<NotificationTime>({ hour: 9, minute: 0 })
+  const [enabledTypes, setEnabledTypesState] = useState<QuestionType[]>(['vocab'])
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   // The "vice versa" half of general.tsx's app-language cross-prompt: offered right after a
   // native-language change actually applies, not on every render — see setNativeLanguage below.
@@ -90,6 +94,7 @@ export default function LearningScreen(): JSX.Element {
           setTargetLanguageState(storedTargetLanguage as LanguageCode)
         }
         setWotdTimeState(await getNotificationTime())
+        setEnabledTypesState(await getEnabledQuestionTypes())
       } catch (error) {
         log.error('settings.load_failed', error, { message: 'Failed to load stored learning settings' })
       }
@@ -121,6 +126,27 @@ export default function LearningScreen(): JSX.Element {
   const setCefr = (level: CefrLevel): void => {
     setCefrState(level)
     persist(STORE_KEYS.defaultCefr, level)
+  }
+
+  // At least one type must stay enabled — otherwise Mixed practice would have nothing eligible to
+  // present and silently fall back to plain vocab every time (see pickEligibleTypes), which reads
+  // as the setting doing nothing rather than as a real constraint.
+  const toggleQuestionType = (questionType: QuestionType): void => {
+    const next =
+      enabledTypes.includes(questionType) && enabledTypes.length > 1
+        ? enabledTypes.filter((qt) => qt !== questionType)
+        : enabledTypes.includes(questionType)
+          ? enabledTypes
+          : [...enabledTypes, questionType]
+    setEnabledTypesState(next)
+    void (async () => {
+      await setEnabledQuestionTypes(next)
+      // Mixed practice is deck-agnostic (one global setting, not per-deck), so invalidating this
+      // one query key is what makes "the next Mixed practice session, on any deck" pick up the
+      // change — without it, review/[deckId].tsx's own ['enabled-question-types'] query could keep
+      // serving a cached pre-change value for up to its 30s staleTime.
+      await queryClient.invalidateQueries({ queryKey: ['enabled-question-types'] })
+    })()
   }
 
   const warnUnsupportedLanguage = (language: LanguageCode): void => {
@@ -211,6 +237,23 @@ export default function LearningScreen(): JSX.Element {
           onChange={(value) => value && setTargetLanguage(value as LanguageCode)}
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
+      </Card>
+
+      <Card>
+        <Text style={styles.fieldLabel}>{t('Practice question types')}</Text>
+        <Text style={styles.fieldHint}>
+          {t('Mixed practice presents due cards in a random mix of these formats. Cloze here is scored separately from the dedicated Cloze Practice mode.')}
+        </Text>
+        <View style={styles.chipRow}>
+          {ALL_QUESTION_TYPES.map((questionType) => (
+            <Chip
+              key={questionType}
+              label={t(QUESTION_TYPE_META[questionType].label)}
+              selected={enabledTypes.includes(questionType)}
+              onPress={() => toggleQuestionType(questionType)}
+            />
+          ))}
+        </View>
       </Card>
 
       {tier === 'full' ? (

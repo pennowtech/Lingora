@@ -117,6 +117,7 @@ export const STORE_KEYS = {
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
   hasSeeded: 'lingora.has_seeded',
+  reviewQuestionTypes: 'lingora.review_question_types',
 } as const
 
 export const DEFAULT_DECK_ID = 'deck-default'

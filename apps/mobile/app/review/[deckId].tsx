@@ -29,7 +29,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -1097,6 +1097,14 @@ export default function ReviewSessionScreen(): JSX.Element {
                 <IconButton icon="close" onPress={() => setEditOpen(false)} />
               </View>
             </View>
+            {/* Capped + scrollable (see editSheet's maxHeight) — three multiline fields plus the
+                undo/redo header can grow taller than the screen, especially at large system
+                font/display scaling; header and Cancel/Save stay pinned outside the scroll. */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.editScrollContent}
+            >
             <Text style={styles.editLabel}>{t('Meaning')}</Text>
             <TextInput
               style={styles.editInput}
@@ -1148,6 +1156,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               })}
             </Text>
             {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
+            </ScrollView>
             <View style={styles.editActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
@@ -1307,7 +1316,12 @@ const createStyles = (colors: ThemeColors) =>
       borderTopRightRadius: radius.xl,
       padding: spacing.xl,
       gap: spacing.sm,
+      // At large system font/display scaling three multiline fields can grow taller than the
+      // screen — capped here and made scrollable (see the ScrollView around the fields) instead
+      // of silently overflowing the screen edge with no way to reach the rest.
+      maxHeight: '85%',
     },
+    editScrollContent: { gap: spacing.sm },
     editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
     editHeaderActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },

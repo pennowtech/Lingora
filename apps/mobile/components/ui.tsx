@@ -473,18 +473,20 @@ export function ExportFormatSheet(props: {
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
         <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as...'}</Text>
-        {EXPORT_FORMAT_OPTIONS.map((opt) => (
-          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
-            <View style={styles.exportOptionIcon}>
-              <Ionicons name={opt.icon} size={18} color={colors.primary} />
-            </View>
-            <View style={styles.exportOptionText}>
-              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
-              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </Pressable>
-        ))}
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {EXPORT_FORMAT_OPTIONS.map((opt) => (
+            <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+              <View style={styles.exportOptionIcon}>
+                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+              </View>
+              <View style={styles.exportOptionText}>
+                <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+                <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </Modal>
   )
@@ -522,18 +524,20 @@ export function ImportFormatSheet(props: {
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
         <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from...'}</Text>
-        {IMPORT_FORMAT_OPTIONS.map((opt) => (
-          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
-            <View style={styles.exportOptionIcon}>
-              <Ionicons name={opt.icon} size={18} color={colors.primary} />
-            </View>
-            <View style={styles.exportOptionText}>
-              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
-              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </Pressable>
-        ))}
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {IMPORT_FORMAT_OPTIONS.map((opt) => (
+            <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+              <View style={styles.exportOptionIcon}>
+                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+              </View>
+              <View style={styles.exportOptionText}>
+                <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+                <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </Modal>
   )

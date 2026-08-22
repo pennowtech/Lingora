@@ -1724,51 +1724,56 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t('Edit this card')}</Text>
-          <Text style={styles.editLabel}>{t('Meaning')}</Text>
-          <TextInput
-            testID="edit-meaning-input"
-            style={styles.editInput}
-            value={editMeaning}
-            onChangeText={setEditMeaning}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <View style={styles.editLabelRow}>
-            <Text style={styles.editLabel}>{t('Example sentence')}</Text>
-            {tier === 'full' ? (
-              <Pressable
-                style={styles.generateInlineButton}
-                onPress={() => generateEditExample.mutate()}
-                disabled={generateEditExample.isPending}
-              >
-                {generateEditExample.isPending ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <Ionicons name="sparkles" size={14} color={colors.primary} />
-                )}
-                <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
-              </Pressable>
-            ) : null}
-          </View>
-          <TextInput
-            style={styles.editInput}
-            value={editExample}
-            onChangeText={setEditExample}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <Text style={styles.editLabel}>{t('Example translation')}</Text>
-          <TextInput
-            style={styles.editInput}
-            value={editTranslation}
-            onChangeText={setEditTranslation}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
+          {/* Capped + scrollable (see modalSheet's maxHeight) — three multiline fields can grow
+              taller than the screen at large system font/display scaling; Cancel/Save stay
+              pinned outside the scroll. */}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <Text style={styles.editLabel}>{t('Meaning')}</Text>
+            <TextInput
+              testID="edit-meaning-input"
+              style={styles.editInput}
+              value={editMeaning}
+              onChangeText={setEditMeaning}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <View style={styles.editLabelRow}>
+              <Text style={styles.editLabel}>{t('Example sentence')}</Text>
+              {tier === 'full' ? (
+                <Pressable
+                  style={styles.generateInlineButton}
+                  onPress={() => generateEditExample.mutate()}
+                  disabled={generateEditExample.isPending}
+                >
+                  {generateEditExample.isPending ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : (
+                    <Ionicons name="sparkles" size={14} color={colors.primary} />
+                  )}
+                  <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+            <TextInput
+              style={styles.editInput}
+              value={editExample}
+              onChangeText={setEditExample}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Text style={styles.editLabel}>{t('Example translation')}</Text>
+            <TextInput
+              style={styles.editInput}
+              value={editTranslation}
+              onChangeText={setEditTranslation}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
+          </ScrollView>
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
             <Button
@@ -1792,25 +1797,27 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t("What's wrong with this?")}</Text>
-          <View style={styles.chipRow}>
-            {REPORT_REASONS.map((r) => (
-              <Chip
-                key={r.value}
-                label={t(r.label)}
-                selected={reportReason === r.value}
-                onPress={() => setReportReason(r.value)}
-              />
-            ))}
-          </View>
-          <TextInput
-            style={styles.reportNoteInput}
-            placeholder={t('Optional details...')}
-            placeholderTextColor={colors.textMuted}
-            multiline
-            value={reportNote}
-            onChangeText={setReportNote}
-          />
-          {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <View style={styles.chipRow}>
+              {REPORT_REASONS.map((r) => (
+                <Chip
+                  key={r.value}
+                  label={t(r.label)}
+                  selected={reportReason === r.value}
+                  onPress={() => setReportReason(r.value)}
+                />
+              ))}
+            </View>
+            <TextInput
+              style={styles.reportNoteInput}
+              placeholder={t('Optional details...')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+              value={reportNote}
+              onChangeText={setReportNote}
+            />
+            {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
+          </ScrollView>
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setReportTarget(null)} />
             <Button
@@ -2359,6 +2366,9 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.full,
       backgroundColor: colors.border,
       marginBottom: spacing.sm,
+    },
+    modalScrollContent: {
+      gap: spacing.sm,
     },
     modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
   })

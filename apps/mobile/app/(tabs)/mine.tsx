@@ -280,29 +280,34 @@ export default function MiningQueueScreen(): JSX.Element {
     <Modal visible={captureOpen} animationType="slide" transparent onRequestClose={closeCapture}>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
-          <Text style={styles.modalHint}>
-            {t('Paste or type a German sentence. It joins the queue below - nothing is sent to AI until you generate.')}
-          </Text>
-          <TextInput
-            testID="mine-capture-input"
-            style={styles.modalInput}
-            multiline
-            placeholder="Ich gehe heute Abend aus."
-            placeholderTextColor={colors.textMuted}
-            value={captureText}
-            onChangeText={(text) => {
-              setCaptureText(text)
-              setCaptureSource('manual')
-            }}
-          />
-          <Button
-            label={t('Paste from clipboard')}
-            variant="secondary"
-            icon="clipboard-outline"
-            onPress={handlePasteFromClipboard}
-            small
-          />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — the hint text plus the multiline
+              input can grow taller than the screen at large system font/display scaling; the
+              Cancel/Add row stays pinned outside the scroll. */}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
+            <Text style={styles.modalHint}>
+              {t('Paste or type a German sentence. It joins the queue below - nothing is sent to AI until you generate.')}
+            </Text>
+            <TextInput
+              testID="mine-capture-input"
+              style={styles.modalInput}
+              multiline
+              placeholder="Ich gehe heute Abend aus."
+              placeholderTextColor={colors.textMuted}
+              value={captureText}
+              onChangeText={(text) => {
+                setCaptureText(text)
+                setCaptureSource('manual')
+              }}
+            />
+            <Button
+              label={t('Paste from clipboard')}
+              variant="secondary"
+              icon="clipboard-outline"
+              onPress={handlePasteFromClipboard}
+              small
+            />
+          </ScrollView>
           <View style={styles.modalActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={closeCapture} />
             <Button
@@ -513,7 +518,12 @@ const createStyles = (colors: ThemeColors) =>
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.md,
+    // At large system font/display scaling this content can grow taller than the screen — capped
+    // here and made scrollable (see the ScrollView wrapping it) instead of silently overflowing
+    // the screen edge with no way to reach the rest.
+    maxHeight: '85%',
   },
+  modalScrollContent: { gap: spacing.md },
   modalTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
   modalHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
   modalInput: {

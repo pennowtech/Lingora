@@ -444,6 +444,7 @@ export default function DeckDetailScreen(): JSX.Element {
             <Text style={styles.menuSubtitle}>{t('{{count}} cards in deck', { count: cards.length })}</Text>
           </View>
 
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalSheetScrollContent}>
           {/* Quick Action Grid (2x2) */}
           <View style={styles.menuActionGrid}>
             <Pressable
@@ -540,6 +541,7 @@ export default function DeckDetailScreen(): JSX.Element {
               </Text>
             </Pressable>
           </View>
+          </ScrollView>
         </View>
       </Modal>
 
@@ -797,7 +799,9 @@ const createStyles = (colors: ThemeColors) =>
       borderTopRightRadius: radius.xl,
       padding: spacing.xl,
       gap: spacing.md,
+      maxHeight: '85%',
     },
+    modalSheetScrollContent: { gap: spacing.md },
     modalHandle: {
       alignSelf: 'center',
       width: 40,

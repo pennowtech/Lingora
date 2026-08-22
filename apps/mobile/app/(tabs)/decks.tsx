@@ -373,36 +373,41 @@ export default function DecksScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setActionMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Button
-            testID="action-menu-add-deck"
-            label={t('Add deck')}
-            icon="albums-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setCreateOpen(true)
-            }}
-          />
-          <Button
-            testID="action-menu-add-card"
-            label={t('Add card')}
-            icon="add-circle-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setAddCardPickerOpen(true)
-            }}
-          />
-          <Button
-            testID="action-menu-import"
-            label={t('Import file')}
-            icon="download-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setImportPickerOpen(true)
-            }}
-          />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — at large system font/display
+              scaling this content can grow taller than the screen, and without a scroll container
+              the overflow was simply unreachable, cut off at the screen edge. */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalSheetScrollContent}>
+            <Button
+              testID="action-menu-add-deck"
+              label={t('Add deck')}
+              icon="albums-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setCreateOpen(true)
+              }}
+            />
+            <Button
+              testID="action-menu-add-card"
+              label={t('Add card')}
+              icon="add-circle-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setAddCardPickerOpen(true)
+              }}
+            />
+            <Button
+              testID="action-menu-import"
+              label={t('Import file')}
+              icon="download-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setImportPickerOpen(true)
+              }}
+            />
+          </ScrollView>
         </View>
       </Modal>
 
@@ -480,6 +485,11 @@ export default function DecksScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuDeck(null)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — the 2x2 quick-action grid plus the
+              5-row list group is already a lot of vertical content, and at large system
+              font/display scaling it can grow taller than the screen. Without a scroll container
+              here the overflow was simply unreachable, cut off at the screen edge. */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalSheetScrollContent}>
           {menuDeck ? (
             <>
               <View style={styles.menuHeader}>
@@ -571,6 +581,7 @@ export default function DecksScreen(): JSX.Element {
               </View>
             </>
           ) : null}
+          </ScrollView>
         </View>
       </Modal>
 
@@ -873,7 +884,13 @@ const createStyles = (colors: ThemeColors) =>
     borderTopRightRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
+    // At large system font/display scaling this sheet's content (especially the per-deck menu's
+    // 2x2 grid + row list) can grow taller than the screen — capped here and made scrollable
+    // (see the ScrollView wrapping each sheet's content) instead of silently overflowing the
+    // screen edge with no way to reach the rest.
+    maxHeight: '85%',
   },
+  modalSheetScrollContent: { gap: spacing.md },
   modalHandle: {
     alignSelf: 'center',
     width: 40,

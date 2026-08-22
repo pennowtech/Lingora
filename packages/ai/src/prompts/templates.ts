@@ -287,18 +287,28 @@ Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, writ
    * The word detail screen's "More info" sheet, fetched on demand (only once the learner taps the
    * button, never on card generation) — deliberately distinct from meanings.explanation, which is
    * already shown inline on the card. Repeating that content, or listing synonyms (already shown
-   * in their own section), would make tapping "More info" pointless.
+   * in their own section), would make tapping "More info" pointless. Also doubles as the "Ask AI"
+   * follow-up question mechanism (see {{followUpSection}}) — one shape, one set of constraints,
+   * for both the unprompted and the learner-asked case.
    */
   explainWordDetail: {
     name: 'explain_word_detail',
-    version: 2, // v2: hard cap — at most 3 paragraphs, each at most 30 words (was 2-3 paragraphs/50-100 words total, which read as too dense)
-    template: `You are a friendly {{targetLanguage}} language mentor giving a learner ADDITIONAL practical context for a word they already have a basic definition for.
+    // v4: allows the same sparing basic-markdown spans explainWord's prompt already does (v3 had
+    // no markdown permission at all, so the UI's markdown rendering had nothing to actually render)
+    // v3: explicit what/where/why/who/how framing and an explicit anti-narrative instruction — v2
+    // read as a tidy little story about the word instead of a teacher directly answering "how do I
+    // actually use this"; also folds in the {{followUpSection}} question mechanism (previously a
+    // separate generateMeaning-with-question override with no length/paragraph constraints at all).
+    version: 4,
+    template: `You are a friendly, knowledgeable {{targetLanguage}} tutor giving a learner ADDITIONAL practical context for a word they already have a basic definition for — the way the best teacher would explain it face to face, directly and conversationally, never as a little story or scene.
 
 ${ANTI_SWAP_WARNING}
 
-For the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}} — explain, in {{nativeLanguage}}, practical things like when, why, how, or where it's typically used, and its natural real-world use-case in this sense. A {{cefrLevel}} learner should come away knowing how to actually use it, not just what it means.
+For the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}} — explain, in {{nativeLanguage}}, whichever of these actually matter here: what it really conveys beyond the bare translation, where/when it's typically used, why a speaker reaches for this word specifically (rather than a near-synonym), who tends to say it (formality, age group, setting), and how it's actually used in practice (paired with what, in what pattern). A {{cefrLevel}} learner should walk away knowing exactly how to use it themselves — concrete, usable information, not a mood piece.
 
-Do NOT restate a basic definition or translation — assume the learner already has one. Do NOT list or mention synonyms. Write at most 3 short paragraphs, in the same warm, conversational voice — never dry textbook phrasing. Each paragraph must be 30 words or fewer — short and scannable, not a dense block. Return strict JSON only: {"paragraphs": ["...", "..."]}`,
+Do NOT restate a basic definition or translation — assume the learner already has one. Do NOT list or mention synonyms. Do NOT write a narrative, scenario, or anecdote — give direct answers, like a teacher responding to a student's question, never scene-setting. Write at most 3 short paragraphs, in a warm, human, conversational voice — never dry textbook phrasing. Each paragraph must be 30 words or fewer — short and scannable, not a dense block. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans per paragraph.
+{{followUpSection}}
+Return strict JSON only: {"paragraphs": ["...", "..."]}`,
   },
   /**
    * "Word of the Day" (Home dashboard + daily notification) — the AI picks the word itself (no
@@ -323,14 +333,16 @@ Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two �
    */
   chatAboutWord: {
     name: 'chat_about_word',
-    version: 2, // v2: explicit target-language example rule — v1 said "reply in {{nativeLanguage}}" with no carve-out, so example sentences/usages came back entirely in the native language instead of showing real {{targetLanguage}} to practice
+    // v3: allows the same sparing basic-markdown spans explainWord's prompt already does — the
+    // chat UI can render **bold**/*italics*/`code`, but the model had no permission to use them yet
+    version: 3,
     template: `You are a friendly, knowledgeable {{targetLanguage}} language tutor having a one-on-one chat with a {{cefrLevel}} learner about the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}}.
 
 ${ANTI_SWAP_WARNING}
 
 Explain, clarify, and chat in {{nativeLanguage}} — but whenever you give an example sentence, a usage, or the word/phrase itself, write that specific part in {{targetLanguage}}, immediately followed by a short {{nativeLanguage}} translation in parentheses. The learner is here to see and practice real {{targetLanguage}}, not just read about it in {{nativeLanguage}}.
 
-Reply in a warm, natural, human conversational tone — like a patient tutor texting a friend, never dry textbook phrasing. Keep replies short and chat-sized: usually 1-4 sentences, under about 80 words, unless the learner clearly wants more depth. If the learner's message is ambiguous, or you'd need more context to give a genuinely useful answer, ask a short clarifying question instead of guessing. Never say you are an AI, a model, or a prompt — you are just the tutor.
+Reply in a warm, natural, human conversational tone — like a patient tutor texting a friend, never dry textbook phrasing. Keep replies short and chat-sized: usually 1-4 sentences, under about 80 words, unless the learner clearly wants more depth. If the learner's message is ambiguous, or you'd need more context to give a genuinely useful answer, ask a short clarifying question instead of guessing. Never say you are an AI, a model, or a prompt — you are just the tutor. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans.
 
 Conversation so far, oldest first:
 {{transcript}}

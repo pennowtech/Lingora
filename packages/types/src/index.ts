@@ -67,6 +67,12 @@ export interface MeaningCluster {
   description: string // 'financial charges, fees, costs'
   cefrLevel?: CefrLevel | null
   orderIndex: number // display order
+  /** The word detail/review "More info" sheet's additional-context paragraphs for this cluster
+   * (see explainWordDetail) — persisted here (migration 0020) instead of session-only state, so
+   * it's fetched from AI once per cluster ever, not once per app session. Undefined/null until the
+   * first successful fetch (optional so the many `createCluster` call sites creating a fresh
+   * cluster — which never has this yet — don't all need an explicit `moreInfo: null`). */
+  moreInfo?: string[] | null
 }
 
 // ─── Cards ────────────────────────────────────────────────────────────────────

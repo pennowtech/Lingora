@@ -264,6 +264,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     word: string,
     cluster: ClusterRef,
     ctx: GenerationContext,
+    question?: string,
   ): Promise<AIResult<string[]>> {
     const prompt = renderPrompt(PROMPTS.explainWordDetail.template, {
       word,
@@ -271,6 +272,9 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
       ...languageVars(ctx),
       clusterLabel: cluster.label,
       clusterDescription: cluster.description,
+      followUpSection: question
+        ? `\nThe learner also asked: "${question}" — address this directly, in the same short-paragraph format and constraints above.\n`
+        : '',
     })
     const result = await this.generateStrict(prompt, 'explain_word_detail', explainWordDetailResponseSchema)
     return { data: result.data.paragraphs, usage: result.usage }

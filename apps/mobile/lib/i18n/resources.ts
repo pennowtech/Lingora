@@ -260,6 +260,10 @@ const ENGLISH_PHRASES = [
   'chat with your AI tutor',
   'Ask about "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.',
+  "Couldn't load the explanation.",
+  "Couldn't load additional info.",
+  'Nothing to chat about yet',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.",
   'Give me another example',
   "What's a synonym for this?",
   'When would I use this?',
@@ -1205,6 +1209,11 @@ const de: Partial<Record<Phrase, string>> = {
   'Ask about "{{word}}"': 'Frag zu „{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
     'Chatte mit deinem KI-Tutor über dieses Wort - frag nach weiteren Beispielen, Nuancen oder allem Unklaren.',
+  "Couldn't load the explanation.": 'Die Erklärung konnte nicht geladen werden.',
+  "Couldn't load additional info.": 'Zusätzliche Infos konnten nicht geladen werden.',
+  'Nothing to chat about yet': 'Noch nichts zum Chatten',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.":
+    'Diese Karte hat noch keinen Bedeutungsinhalt, es gibt also nichts zu besprechen. Öffne sie auf der eigenen Wortseite und versuche es dort mit „Neu erzeugen".',
   'Give me another example': 'Gib mir ein weiteres Beispiel',
   "What's a synonym for this?": 'Was ist ein Synonym dafür?',
   'When would I use this?': 'Wann würde ich das benutzen?',
@@ -2294,6 +2303,11 @@ const fr: Partial<Record<Phrase, string>> = {
   'Ask about "{{word}}"': 'Posez une question sur « {{word}} »',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
     'Discutez avec votre tuteur IA à propos de ce mot - demandez plus d\'exemples, des nuances, ou tout ce qui n\'est pas clair.',
+  "Couldn't load the explanation.": "Impossible de charger l'explication.",
+  "Couldn't load additional info.": 'Impossible de charger des infos supplémentaires.',
+  'Nothing to chat about yet': 'Rien à discuter pour l\'instant',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.":
+    "Cette carte n'a pas encore de contenu de sens, il n'y a donc rien à discuter. Ouvrez-la depuis la page du mot et essayez « Régénérer » là-bas.",
   'Give me another example': 'Donne-moi un autre exemple',
   "What's a synonym for this?": 'Quel est un synonyme pour ça ?',
   'When would I use this?': 'Quand utiliserais-je ce mot ?',
@@ -3379,6 +3393,11 @@ const es: Partial<Record<Phrase, string>> = {
   'Ask about "{{word}}"': 'Pregunta sobre "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
     'Chatea con tu tutor de IA sobre esta palabra - pide más ejemplos, matices o cualquier duda.',
+  "Couldn't load the explanation.": 'No se pudo cargar la explicación.',
+  "Couldn't load additional info.": 'No se pudo cargar información adicional.',
+  'Nothing to chat about yet': 'Nada de qué hablar todavía',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.":
+    'Esta tarjeta aún no tiene contenido de significado, así que no hay nada que comentar. Ábrela desde la página propia de la palabra e intenta "Regenerar" allí.',
   'Give me another example': 'Dame otro ejemplo',
   "What's a synonym for this?": '¿Cuál es un sinónimo de esto?',
   'When would I use this?': '¿Cuándo usaría esto?',
@@ -4465,6 +4484,11 @@ const hi: Partial<Record<Phrase, string>> = {
   'Ask about "{{word}}"': '"{{word}}" के बारे में पूछें',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
     'इस शब्द के बारे में अपने AI ट्यूटर से बात करें - और उदाहरण, बारीकियाँ, या कोई भी अस्पष्ट बात पूछें।',
+  "Couldn't load the explanation.": 'स्पष्टीकरण लोड नहीं हो सका।',
+  "Couldn't load additional info.": 'अतिरिक्त जानकारी लोड नहीं हो सकी।',
+  'Nothing to chat about yet': 'अभी बात करने के लिए कुछ नहीं है',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.":
+    'इस कार्ड में अभी अर्थ की सामग्री नहीं है, इसलिए चर्चा करने के लिए कुछ नहीं है। इसे शब्द के अपने पेज से खोलें और वहाँ "दोबारा जनरेट करें" आज़माएं।',
   'Give me another example': 'मुझे एक और उदाहरण दें',
   "What's a synonym for this?": 'इसका समानार्थी शब्द क्या है?',
   'When would I use this?': 'मैं इसका उपयोग कब करूँगा?',
@@ -5389,6 +5413,11 @@ const vi: Partial<Record<Phrase, string>> = {
   'Ask about "{{word}}"': 'Hỏi về "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
     'Trò chuyện với gia sư AI của bạn về từ này - hỏi thêm ví dụ, sắc thái nghĩa, hoặc bất cứ điều gì chưa rõ.',
+  "Couldn't load the explanation.": 'Không thể tải phần giải thích.',
+  "Couldn't load additional info.": 'Không thể tải thêm thông tin.',
+  'Nothing to chat about yet': 'Chưa có gì để trò chuyện',
+  "This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there.":
+    'Thẻ này chưa có nội dung nghĩa, nên chưa có gì để bàn. Hãy mở nó từ trang riêng của từ và thử "Tạo lại" ở đó.',
   'Give me another example': 'Cho tôi một ví dụ khác',
   "What's a synonym for this?": 'Từ đồng nghĩa của từ này là gì?',
   'When would I use this?': 'Khi nào tôi nên dùng từ này?',

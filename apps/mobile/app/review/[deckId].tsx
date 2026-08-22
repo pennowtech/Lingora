@@ -18,6 +18,7 @@ import {
   recordClozeReview,
   recordReview,
   revealClozeSentence,
+  updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
   type DatabaseAdapter,
@@ -33,7 +34,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
+import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
 import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
@@ -238,6 +239,10 @@ interface ReviewCard {
   synonyms: Synonym[]
   /** The meaning's own cluster — needed to call ai.generateMeaning() for an on-demand explanation. */
   clusterRef: { label: string; description: string } | null
+  /** The same cluster's id and persisted "More info" paragraphs (see MeaningCluster.moreInfo) —
+   * kept separate from clusterRef since most callers only need label/description. */
+  clusterId: string | null
+  moreInfo: string[] | null
   exampleId: string | null
   example: string | null
   exampleTranslation: string | null
@@ -292,6 +297,8 @@ async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boole
     partOfSpeech: lemma.partOfSpeech,
     synonyms,
     clusterRef: meaningCluster ? { label: meaningCluster.label, description: meaningCluster.description } : null,
+    clusterId: meaningCluster?.id ?? null,
+    moreInfo: meaningCluster?.moreInfo ?? null,
     exampleId: selectedExample?.id ?? null,
     example: selectedExample?.sentence ?? null,
     exampleTranslation: selectedExample?.translation ?? null,
@@ -438,10 +445,15 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
-  const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
-  // "More info" sheet content — same on-demand, cached-per-card design as word/[form].tsx's
-  // moreInfoByCluster, keyed by card id instead of cluster id since review has no cluster tabs
-  // (one meaning per flipped card).
+  // A question typed into "More info"'s composer, waiting to be auto-sent the moment WordChatSheet
+  // opens (see bridgeToChat below) — cleared once WordChatSheet confirms it's been sent.
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | undefined>(undefined)
+  // "More info" sheet content — an instant, same-session overlay on top of the persisted value
+  // already loaded onto `view.moreInfo` (see MeaningCluster.moreInfo): showing this immediately on
+  // a successful fetch is faster than waiting for the queue to refetch and re-populate `view`, but
+  // `view.moreInfo` is what makes it available again on a future visit without re-asking AI at
+  // all. Keyed by card id instead of cluster id since review has no cluster tabs (one meaning per
+  // flipped card) — same shape as word/[form].tsx's moreInfoByCluster.
   const [moreInfoByCard, setMoreInfoByCard] = useState<Record<string, string[]>>({})
 
   // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
@@ -541,7 +553,6 @@ export default function ReviewSessionScreen(): JSX.Element {
       setExplainVisible(false)
       setGuideModalOpen(false)
       setAiSheetOpen(false)
-      setFollowUps([])
       setIndex((i) => i + 1)
       cardStartedAt.current = Date.now()
       // 'deck-counts' refreshes the Decks LIST screen's due badges; 'deck' (React Query prefix
@@ -608,9 +619,12 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const isAiCard = !!view?.card.source && AI_SOURCES.includes(view.card.source)
 
-  // AI cards: the base explanation is generated once (on first open, if missing — see the
-  // auto-generate effect below) and persisted, so it's free to re-show next time. Mirrors
-  // word/[form].tsx's identical mutation.
+  // AI cards: generated on demand (only when "More info" is tapped and nothing's stored yet — see
+  // handleExplain) and persisted via updateMeaningText, so it's free to re-show next time — never
+  // re-fetched for a meaning that already has one. Mirrors word/[form].tsx's identical mutation.
+  // A failure here surfaces as an inline retry row in the sheet itself (see AIExplanationSheet's
+  // explanationError), not a blocking alert — this is only one part of a sheet that may already be
+  // showing other perfectly good content (the paragraphs below can succeed independently).
   const generateExplanation = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
@@ -630,11 +644,12 @@ export default function ReviewSessionScreen(): JSX.Element {
       )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
-    onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
-  // "More info" sheet content — same on-demand, never-on-open design as word/[form].tsx's
-  // identical mutation, keyed by card id (see moreInfoByCard's doc comment).
+  // "More info" sheet content — on-demand only (see handleExplain), persisted per cluster via
+  // updateClusterMoreInfo so it's fetched from AI at most once per cluster ever, not once per app
+  // session — the queue's own next load already reads it back via getClustersForLemma, same as any
+  // other stored cluster content. Same non-blocking-failure reasoning as generateExplanation above.
   const generateMoreInfo = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
@@ -644,41 +659,24 @@ export default function ReviewSessionScreen(): JSX.Element {
         language: view.language,
         nativeLanguage,
       })
+      if (view.clusterId) await updateClusterMoreInfo(db, view.clusterId, result.data)
       return result.data
     },
-    onSuccess: (paragraphs) => {
+    onSuccess: async (paragraphs) => {
       if (view?.card.id) setMoreInfoByCard((prev) => ({ ...prev, [view.card.id]: paragraphs }))
+      await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
     },
-    onError: (error: unknown) => showError(t('Could not load more info'), error),
   })
 
-  // A follow-up question from the "More info" sheet's composer — ephemeral, not persisted (same
-  // decision as word/[form].tsx's identical mutation).
-  const askFollowUp = useMutation({
-    mutationFn: async (question: string) => {
-      if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
-      if (!view?.clusterRef) throw new Error(t('This word has no meaning yet.'))
-      const result = await ai.generateMeaning(
-        view.form,
-        view.clusterRef,
-        { cefrLevel: defaultCefr, language: view.language, nativeLanguage },
-        question,
-      )
-      const generated = result.data[0]
-      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null }
-    },
-    onSuccess: (entry) => setFollowUps((prev) => [...prev, entry]),
-    onError: (error: unknown) => showError(t('Could not get an answer'), error),
-  })
-
-  // Same auto-generate-once-on-open behavior as word/[form].tsx, scoped to the currently flipped
-  // card (view.card.id) so it fires again per new card, not just once for the whole session.
-  useEffect(() => {
-    if (!isAiCard || !view?.meaningId) return
-    if ((view.explanation ?? '').trim() !== '') return
-    if (tier !== 'full' || generateExplanation.isPending) return
-    generateExplanation.mutate()
-  }, [isAiCard, view?.card.id, view?.explanation, tier])
+  // A follow-up question typed into "More info"'s composer bridges straight to the persistent
+  // "Ask AI" chat instead of answering itself inline — same card, full prior history already
+  // there — so there's exactly one place a word's Q&A history actually lives. Same as
+  // word/[form].tsx's identical bridge.
+  const bridgeToChat = (question: string): void => {
+    setAiSheetOpen(false)
+    setPendingChatMessage(question)
+    setAskAiOpen(true)
+  }
 
   // Checked before AI generation, and on EVERY tap (not just when nothing is
   // stored yet): a bulk-installed, pre-generated dictionary (see
@@ -720,12 +718,19 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not look up an explanation'), error),
   })
 
-  // Same AI-vs-dictionary branch as word/[form].tsx's handleExplain.
+  // Same AI-vs-dictionary branch as word/[form].tsx's handleExplain. For an AI card, "More info"
+  // now covers both the meaning's own explanation and the additional-context paragraphs — neither
+  // shows on the back-card itself any more, both are fetched on demand only when this is actually
+  // tapped (the meaning's explanation used to auto-generate as soon as the card was flipped, whether
+  // or not the learner ever asked to see it).
   const handleExplain = (): void => {
     if (!view) return
     if (isAiCard) {
       setAiSheetOpen(true)
-      if (!moreInfoByCard[view.card.id] && !generateMoreInfo.isPending && ai) {
+      if ((view.explanation ?? '').trim() === '' && !generateExplanation.isPending && tier === 'full') {
+        generateExplanation.mutate()
+      }
+      if (!moreInfoByCard[view.card.id] && !view.moreInfo && !generateMoreInfo.isPending && ai) {
         generateMoreInfo.mutate()
       }
       return
@@ -772,7 +777,16 @@ export default function ReviewSessionScreen(): JSX.Element {
       aiRequiredAlert.show(t('chat with your AI tutor'))
       return
     }
-    if (!view?.clusterRef) return
+    // A card with no resolvable meaning/cluster (e.g. content removed via moderation, or an
+    // import that didn't attach one) has nothing for the chat to discuss — surfacing that
+    // explicitly instead of silently doing nothing when the button is tapped.
+    if (!view?.clusterRef) {
+      setErrorNotice({
+        title: t('Nothing to chat about yet'),
+        message: t("This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there."),
+      })
+      return
+    }
     setAskAiOpen(true)
   }
 
@@ -904,11 +918,14 @@ export default function ReviewSessionScreen(): JSX.Element {
           {/* Card — cloze and vocab cards both render through the same
               LiquidJS + WebView pipeline (lib/templates.ts), just with a
               different (fixed, for cloze) template — see isCloze above.
-              The action bar and explanation are native elements (not baked
-              into the customizable LiquidJS template, so they work
-              regardless of the user's own layout) but render INSIDE the
-              same bordered card box as the WebView content, below it,
-              rather than as a separate row outside it. */}
+              The action bar is a native element (not baked into the
+              customizable LiquidJS template, so it works regardless of the
+              user's own layout) but renders INSIDE the same bordered card
+              box as the WebView content, below it, rather than as a
+              separate row outside it. The meaning's explanation no longer
+              shows here at all — it's on-demand only, via "More info" (see
+              handleExplain/AIExplanationSheet), same as the additional-
+              context paragraphs it now sits alongside. */}
           {flipped ? (
             <SwipeableCard
               enabled={!rate.isPending && !singleCardId}
@@ -927,11 +944,6 @@ export default function ReviewSessionScreen(): JSX.Element {
 
               {!isCloze ? (
                 <>
-                  {isAiCard ? (
-                    <Text style={styles.explanationText}>
-                      {generateExplanation.isPending ? t('Generating...') : (view.explanation ?? '') || t('No explanation yet.')}
-                    </Text>
-                  ) : null}
                   <CardActionBar
                     {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
                     onExplain={handleExplain}
@@ -1079,17 +1091,22 @@ export default function ReviewSessionScreen(): JSX.Element {
           headword={view.form}
           partOfSpeech={view.partOfSpeech}
           language={view.language}
-          paragraphs={moreInfoByCard[view.card.id] ?? []}
+          explanation={view.explanation ?? ''}
+          explanationLoading={generateExplanation.isPending}
+          explanationError={generateExplanation.isError}
+          onRetryExplanation={() => generateExplanation.mutate()}
+          paragraphs={moreInfoByCard[view.card.id] ?? view.moreInfo ?? []}
+          paragraphsError={generateMoreInfo.isError}
+          onRetryParagraphs={() => generateMoreInfo.mutate()}
           loading={generateMoreInfo.isPending}
-          followUps={followUps}
-          askLoading={askFollowUp.isPending}
-          onAsk={(question) => askFollowUp.mutate(question)}
+          onAsk={bridgeToChat}
         />
       ) : null}
 
       {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
           not. handleAskAI already guards opening it without `ai`/`view`; this just keeps the type
-          checker honest. */}
+          checker honest. initialMessage carries over a question typed into "More info"'s composer
+          (see bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
       {ai && view?.clusterRef ? (
         <WordChatSheet
           visible={askAiOpen}
@@ -1102,6 +1119,8 @@ export default function ReviewSessionScreen(): JSX.Element {
           cefrLevel={defaultCefr}
           language={view.language}
           nativeLanguage={nativeLanguage}
+          {...(pendingChatMessage !== undefined && { initialMessage: pendingChatMessage })}
+          onInitialMessageSent={() => setPendingChatMessage(undefined)}
         />
       ) : null}
 
@@ -1173,13 +1192,6 @@ const createStyles = (colors: ThemeColors) =>
     swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
     swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
     tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
-    explanationText: {
-      fontSize: type.caption,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      paddingBottom: spacing.sm,
-      lineHeight: 18,
-    },
     ratingRow: { flexDirection: 'row', gap: spacing.xs, padding: spacing.md, paddingTop: 0 },
     ratingPlaceholder: { height: 76 },
     ratingButton: {

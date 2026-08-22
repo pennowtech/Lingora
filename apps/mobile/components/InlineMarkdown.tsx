@@ -15,10 +15,11 @@ export function InlineMarkdown(props: {
   italicStyle?: StyleProp<TextStyle>
   codeStyle?: StyleProp<TextStyle>
   numberOfLines?: number
+  selectable?: boolean
 }): JSX.Element {
   const parts = parseInlineMarkdown(props.text)
   return (
-    <Text style={props.style} numberOfLines={props.numberOfLines}>
+    <Text style={props.style} numberOfLines={props.numberOfLines} selectable={props.selectable}>
       {parts.map((part, index) => {
         if (part.kind === 'text') return part.value
         const style = part.kind === 'bold' ? props.boldStyle : part.kind === 'italic' ? props.italicStyle : props.codeStyle

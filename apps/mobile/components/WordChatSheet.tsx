@@ -21,6 +21,7 @@ import {
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { InlineMarkdown } from './InlineMarkdown'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -52,6 +53,12 @@ export function WordChatSheet(props: {
   cefrLevel: CefrLevel
   language: LanguageCode
   nativeLanguage: LanguageCode
+  /** A question typed elsewhere (the "More info" sheet's composer — see AIExplanationSheet) to
+   * send as soon as this sheet opens, on top of whatever chat history already exists here — lets
+   * "More info" bridge straight into this same persistent thread instead of answering itself
+   * inline. The caller clears it via onInitialMessageSent once sent, so it doesn't re-fire. */
+  initialMessage?: string
+  onInitialMessageSent?: () => void
 }): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
@@ -172,6 +179,17 @@ export function WordChatSheet(props: {
     if (props.visible) scrollRef.current?.scrollToEnd({ animated: false })
   }, [props.visible])
 
+  // Waits for messagesQuery to settle so the auto-sent message's AI call includes the full prior
+  // thread as context, not just this one message in isolation. Clears the caller's pending state
+  // up front (not in onSuccess) so a slow/failed send can't leave it re-firing on every re-render.
+  useEffect(() => {
+    if (props.visible && props.initialMessage && !messagesQuery.isPending) {
+      const message = props.initialMessage
+      props.onInitialMessageSent?.()
+      sendMessage.mutate(message)
+    }
+  }, [props.visible, props.initialMessage, messagesQuery.isPending])
+
   return (
     <Modal visible={props.visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={styles.modalRoot}>
@@ -238,9 +256,20 @@ export function WordChatSheet(props: {
                   ) : null}
                   <View style={styles.bubbleGroup}>
                     <View style={[styles.bubble, message.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant]}>
-                      <Text style={message.role === 'user' ? styles.bubbleTextUser : styles.bubbleTextAssistant}>
-                        {message.content}
-                      </Text>
+                      {message.role === 'assistant' ? (
+                        <InlineMarkdown
+                          text={message.content}
+                          style={styles.bubbleTextAssistant}
+                          boldStyle={styles.bubbleTextAssistantBold}
+                          italicStyle={styles.bubbleTextItalic}
+                          codeStyle={styles.bubbleTextCode}
+                          selectable
+                        />
+                      ) : (
+                        <Text style={styles.bubbleTextUser} selectable>
+                          {message.content}
+                        </Text>
+                      )}
                     </View>
                     <Text style={[styles.bubbleTime, message.role === 'user' && styles.bubbleTimeUser]}>
                       {formatTime(message.createdAt)}
@@ -386,6 +415,16 @@ const createStyles = (colors: ThemeColors) =>
     bubbleAssistant: { backgroundColor: colors.surfaceMuted, borderBottomLeftRadius: 4 },
     bubbleTextUser: { fontSize: type.body, color: colors.textOnPrimary, lineHeight: 21 },
     bubbleTextAssistant: { fontSize: type.body, color: colors.text, lineHeight: 21 },
+    // Minimal markdown support (see InlineMarkdown) — only the assistant's own messages, never the
+    // learner's typed text. Same three spans the Search screen's quick-explain card already renders.
+    bubbleTextAssistantBold: { fontWeight: '800' },
+    bubbleTextItalic: { fontStyle: 'italic' },
+    bubbleTextCode: {
+      fontFamily: 'monospace',
+      backgroundColor: colors.surface,
+      color: colors.text,
+      fontSize: type.caption,
+    },
     bubbleTime: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginLeft: 4 },
     bubbleTimeUser: { textAlign: 'right', marginRight: 4, marginLeft: 0 },
     typingBubble: { minWidth: 48, alignItems: 'center' },

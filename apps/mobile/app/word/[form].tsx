@@ -40,6 +40,7 @@ import {
   regenerateWordPackage,
   setCloze,
   setEvaluation,
+  updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
   updateSelectedExample,
@@ -49,7 +50,7 @@ import {
 import { LANGUAGE_NAMES, PROMPTS, renderPrompt } from '@lingora/ai'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -78,7 +79,7 @@ import {
   SpeakerButton,
   Spinner,
 } from '../../components/ui'
-import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
+import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
@@ -394,11 +395,16 @@ export default function WordDetailScreen(): JSX.Element {
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
-  const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
+  // A question typed into "More info"'s composer, waiting to be auto-sent the moment WordChatSheet
+  // opens (see bridgeToChat below) — cleared once WordChatSheet confirms it's been sent.
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | undefined>(undefined)
   // "More info" sheet content — additional context distinct from the meaning's own inline
-  // explanation, fetched on demand only (see generateMoreInfo below) and cached per cluster for
-  // the rest of this session so switching tabs and back doesn't re-fetch. Keyed by cluster id
-  // rather than a single value so a stale answer from a different sense never shows through.
+  // explanation, fetched on demand only (see generateMoreInfo below). An instant, same-session
+  // overlay on top of the persisted value already loaded onto active.cluster.moreInfo (see
+  // MeaningCluster.moreInfo) — showing this immediately on success is faster than waiting for the
+  // word query to refetch, but the persisted column is what makes it available again on a future
+  // visit without re-asking AI at all. Keyed by cluster id rather than a single value so a stale
+  // answer from a different sense never shows through.
   const [moreInfoByCluster, setMoreInfoByCluster] = useState<Record<string, string[]>>({})
   const [editOpen, setEditOpen] = useState(false)
   const [editMeaning, setEditMeaning] = useState('')
@@ -738,8 +744,11 @@ export default function WordDetailScreen(): JSX.Element {
   })
 
   // "More info" sheet content — see moreInfoByCluster's doc comment. Deliberately never fired
-  // automatically: only handleExplain's on-tap check below triggers this, and only the first time
-  // for a given cluster this session (moreInfoByCluster already has an entry after that).
+  // automatically: only handleExplain's on-tap check below triggers this, and only when neither
+  // moreInfoByCluster nor the persisted active.cluster.moreInfo already has an entry. Persisted via
+  // updateClusterMoreInfo so a future visit (this session or not) never re-asks AI for the same
+  // cluster. A failure surfaces as an inline retry row in the sheet (see AIExplanationSheet's
+  // paragraphsError), not a blocking alert.
   const generateMoreInfo = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
@@ -749,12 +758,13 @@ export default function WordDetailScreen(): JSX.Element {
         { label: active.cluster.label, description: active.cluster.description },
         { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
       )
+      await updateClusterMoreInfo(db, active.cluster.id, result.data)
       return result.data
     },
-    onSuccess: (paragraphs) => {
+    onSuccess: async (paragraphs) => {
       if (activeClusterId) setMoreInfoByCluster((prev) => ({ ...prev, [activeClusterId]: paragraphs }))
+      await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
     },
-    onError: (error: unknown) => showError(t('Could not load more info'), error),
   })
 
   // Regenerate — replaces every meaning cluster (meanings/examples/synonyms), phrase, and cloze
@@ -790,7 +800,6 @@ export default function WordDetailScreen(): JSX.Element {
       // The old explanation/synonyms/examples this thread referenced no longer exist, and so does
       // whichever cluster id was selected — the regenerated word gets entirely new cluster ids,
       // so a stale selection would find nothing and the Meanings section would render blank.
-      setFollowUps([])
       setClusterId(null)
       await queryClient.invalidateQueries()
     },
@@ -827,38 +836,14 @@ export default function WordDetailScreen(): JSX.Element {
     setDeleteConfirmOpen(true)
   }
 
-  // A follow-up question typed into the "More info" sheet's composer. Deliberately NOT persisted
-  // to the card's own explanation/usage — an ephemeral, session-only thread (see the "More info"
-  // design decision this session): the base explanation stays the one stored, reusable answer,
-  // and follow-ups just accumulate in `followUps` for as long as this sheet stays open.
-  // Same soft-cancel shape as search.tsx's "Generate with AI": there's no network-level abort
-  // (see ProgressOverlay's doc comment), so Cancel just bumps this id — the eventual response,
-  // if it still arrives, is dropped in onSuccess instead of being added to the thread.
-  const askFollowUpRequestId = useRef(0)
-  const askFollowUp = useMutation({
-    mutationFn: async (question: string) => {
-      if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
-      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
-      const myRequestId = ++askFollowUpRequestId.current
-      const result = await ai.generateMeaning(
-        word.lemma.form,
-        { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
-        question,
-      )
-      const generated = result.data[0]
-      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null, myRequestId }
-    },
-    onSuccess: ({ myRequestId, ...entry }) => {
-      if (myRequestId !== askFollowUpRequestId.current) return
-      setFollowUps((prev) => [...prev, entry])
-    },
-    onError: (error: unknown) => showError(t('Could not get an answer'), error),
-  })
-
-  const cancelAskFollowUp = (): void => {
-    askFollowUpRequestId.current += 1
-    askFollowUp.reset()
+  // A follow-up question typed into the "More info" sheet's composer no longer answers itself
+  // inline — it bridges straight to the persistent "Ask AI" chat instead (same card, full prior
+  // history already there), so there's exactly one place a word's Q&A history actually lives.
+  // Closing More Info first (rather than stacking both sheets) keeps only one modal on screen.
+  const bridgeToChat = (question: string): void => {
+    setAiSheetOpen(false)
+    setPendingChatMessage(question)
+    setAskAiOpen(true)
   }
 
   // AI cards show their explanation inline as soon as it exists — no tap required (see the
@@ -919,7 +904,13 @@ export default function WordDetailScreen(): JSX.Element {
     if (!headlineMeaning) return
     if (isAiCard) {
       setAiSheetOpen(true)
-      if (activeClusterId && !moreInfoByCluster[activeClusterId] && !generateMoreInfo.isPending && ai) {
+      if (
+        activeClusterId &&
+        !moreInfoByCluster[activeClusterId] &&
+        !active?.cluster.moreInfo &&
+        !generateMoreInfo.isPending &&
+        ai
+      ) {
         generateMoreInfo.mutate()
       }
       return
@@ -1853,18 +1844,21 @@ export default function WordDetailScreen(): JSX.Element {
           headword={word.lemma.form}
           partOfSpeech={word.lemma.partOfSpeech}
           language={word.lemma.language}
-          paragraphs={(activeClusterId && moreInfoByCluster[activeClusterId]) || []}
+          paragraphs={
+            (activeClusterId ? moreInfoByCluster[activeClusterId] : undefined) ?? active?.cluster.moreInfo ?? []
+          }
           loading={generateMoreInfo.isPending}
-          followUps={followUps}
-          askLoading={askFollowUp.isPending}
-          onAsk={(question) => askFollowUp.mutate(question)}
-          onAskCancel={cancelAskFollowUp}
+          paragraphsError={generateMoreInfo.isError}
+          onRetryParagraphs={() => generateMoreInfo.mutate()}
+          onAsk={bridgeToChat}
         />
       ) : null}
 
       {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
           not. Only mounted once everything it needs is actually available — handleAskAI already
-          guards opening it without those, so this is just keeping the type checker honest. */}
+          guards opening it without those, so this is just keeping the type checker honest.
+          initialMessage carries over a question typed into "More info"'s composer (see
+          bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
       {ai && word?.card && active ? (
         <WordChatSheet
           visible={askAiOpen}
@@ -1877,6 +1871,8 @@ export default function WordDetailScreen(): JSX.Element {
           cefrLevel={defaultCefr}
           language={word.lemma.language}
           nativeLanguage={nativeLanguage}
+          {...(pendingChatMessage !== undefined && { initialMessage: pendingChatMessage })}
+          onInitialMessageSent={() => setPendingChatMessage(undefined)}
         />
       ) : null}
 

@@ -139,12 +139,23 @@ export interface AIProvider {
   explainWord(word: string, ctx: GenerationContext): Promise<AIResult<string>>
 
   /**
-   * The word detail screen's "More info" sheet content (2-3 short paragraphs, 50-100 words) —
-   * additional practical context (when/why/how/where it's used) for a specific sense, distinct
-   * from generateMeaning's explanation/usage (already shown inline on the card) and never
-   * including synonyms. Fetched on demand only, never as part of initial card generation.
+   * The word detail screen's "More info" sheet content — at most 3 short paragraphs (30 words or
+   * fewer each), covering whichever of what/where/why/who/how actually matter for this sense, in
+   * a direct, conversational teacher's voice, distinct from generateMeaning's explanation/usage
+   * (already shown inline on the card) and never including synonyms. Fetched on demand only, never
+   * as part of initial card generation.
+   *
+   * @param question A learner-typed follow-up question — doubles as the "Ask AI" sheet's answer
+   *        mechanism, same voice and the same 3-paragraph/30-word constraints as the unprompted
+   *        case (previously a separate generateMeaning-with-question override with no length
+   *        constraints at all, which read as an inconsistent wall of text next to this).
    */
-  explainWordDetail(word: string, cluster: ClusterRef, ctx: GenerationContext): Promise<AIResult<string[]>>
+  explainWordDetail(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+    question?: string,
+  ): Promise<AIResult<string[]>>
 
   /**
    * Picks one word/short phrase worth learning today for the "Word of the Day" feature (Home

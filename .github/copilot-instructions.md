@@ -11,6 +11,10 @@ The core differentiators are:
 - **CEFR-calibrated generation** - every example and explanation is level-appropriate
 - **Offline-first** - the app works fully without internet; syncs when connected
 
+## Mandatory Git & PR Workflow
+- **NO DIRECT COMMITS OR PUSHES TO `main` OR `desktop/main` ARE ALLOWED FOR ANY AI AGENT**.
+- All code, fix, feature, and doc changes must be created on a dedicated feature branch (`feat/...`, `fix/...`) and merged via Pull Request (PR) only.
+
 ## Repository structure
 
 ```

@@ -157,3 +157,4 @@ from `@lingora/observability`, never a transport directly.
 - Shared row types go in `packages/types/src/index.ts`; don't redefine them locally.
 - Stub work in the UI shell carries `TODO(phase3|4|5)` comments naming the exact replacement call - follow that convention when adding stubs.
 - Commit messages follow `feat: ...` style (see `git log`).
+- **Git & PR Workflow**: **NO DIRECT COMMITS OR PUSHES TO `main` OR `desktop/main` ARE ALLOWED FOR ANY AI AGENT**. All changes must be created on a feature branch (`feat/...`, `fix/...`) and merged via Pull Request (PR).

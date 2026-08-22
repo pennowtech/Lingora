@@ -14,8 +14,8 @@ import type { LanguageCode } from '@lingora/types'
 
 const log = logger.child({ feature: 'search', component: 'search-screen' })
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
@@ -172,6 +172,13 @@ export default function SearchScreen(): JSX.Element {
     queryFn: () => getWordGuide(db, term, targetLanguage),
     enabled: term !== '' && (search.data?.length ?? 0) === 0,
   })
+
+  useFocusEffect(
+    useCallback(() => {
+      void search.refetch()
+      void wordGuide.refetch()
+    }, [search, wordGuide]),
+  )
 
   // A short (~50-word) AI gist of a not-yet-generated word, shown by default in place of the bare
   // "Generate with AI" button once it's ready — tapping it (like the plain button) generates the

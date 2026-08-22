@@ -89,6 +89,14 @@ export async function getAllLemmaFormsForLanguage(db: DatabaseAdapter, language:
 }
 
 /**
+ * Delete a lemma and all associated cards, meanings, clusters, examples, synonyms, phrases,
+ * cloze variants, and review history.
+ */
+export async function deleteLemma(db: DatabaseAdapter, lemmaId: string): Promise<void> {
+  await db.execute(`DELETE FROM lemmas WHERE id = ?`, [lemmaId])
+}
+
+/**
  * Full-text search across lemma forms AND meaning translations.
  * Called on every keystroke in the search bar, so a user finds
  * 'ausgehen' whether they type "ausgeh" (German) or "go out" (English).

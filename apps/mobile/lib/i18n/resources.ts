@@ -546,6 +546,9 @@ const ENGLISH_PHRASES = [
   'v0.0.1 · offline-first · your data stays on device',
   'offline-first · your data stays on device',
   'Build',
+  'Delete this card?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.',
+  'Could not delete this card',
   'Semantic Contexts',
   '{{count}} contexts',
 
@@ -1465,6 +1468,10 @@ const de: Partial<Record<Phrase, string>> = {
   'Validate key': 'Schlüssel prüfen',
   Clear: 'Leeren',
   'Semantic Contexts': 'Semantische Kontexte',
+  'Delete this card?': 'Diese Karte löschen?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.':
+    'Dies löscht diese Karte und alle ihre Bedeutungen, Beispiele, Synonyme, Redewendungen und Lückentexte dauerhaft. Dies kann nicht rückgängig gemacht werden.',
+  'Could not delete this card': 'Diese Karte konnte nicht gelöscht werden',
   '{{count}} contexts': '{{count}} Kontexte',
   'Device-observed usage': 'Auf dem Gerät beobachtete Nutzung',
   '{{count}} requests': '{{count}} Anfragen',
@@ -2557,6 +2564,10 @@ const fr: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': "Ouvrir l'utilisation DeepL ↗",
   'v0.0.1 · offline-first · your data stays on device':
     "v0.0.1 · hors ligne par défaut · vos données restent sur l'appareil",
+  'Delete this card?': 'Supprimer cette carte ?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.':
+    'Cela supprime définitivement cette carte et tous ses sens, exemples, synonymes, expressions et cartes lacunaires. Cette action est irréversible.',
+  'Could not delete this card': 'Impossible de supprimer cette carte',
   'Semantic Contexts': 'Contextes sémantiques',
   '{{count}} contexts': '{{count}} contextes',
   'Opening your vocabulary…': 'Ouverture de votre vocabulaire…',
@@ -3622,6 +3633,10 @@ const es: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': 'Abrir uso de DeepL ↗',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · sin conexión por defecto · tus datos permanecen en el dispositivo',
+  'Delete this card?': '¿Eliminar esta tarjeta?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.':
+    'Esto elimina permanentemente esta tarjeta y todos sus significados, ejemplos, sinónimos, frases y variaciones de huecos. Esto no se puede deshacer.',
+  'Could not delete this card': 'No se pudo eliminar esta tarjeta',
   'Semantic Contexts': 'Contextos semánticos',
   '{{count}} contexts': '{{count}} contextos',
   'Opening your vocabulary…': 'Abriendo tu vocabulario…',
@@ -4690,6 +4705,10 @@ const hi: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': 'DeepL उपयोग खोलें ↗',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · ऑफ़लाइन-फर्स्ट · आपका डेटा डिवाइस पर ही रहता है',
+  'Delete this card?': 'क्या इस कार्ड को मिटाएं?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.':
+    'यह इस कार्ड और इसके सभी अर्थों, उदाहरणों, समानार्थी शब्दों, वाक्यांशों और क्लोज़ रूपांतरों को स्थायी रूप से हटा देता है। इसे वापस नहीं किया जा सकता।',
+  'Could not delete this card': 'इस कार्ड को नहीं मिटाया जा सका',
   'Semantic Contexts': 'अर्थगत संदर्भ',
   '{{count}} contexts': '{{count}} संदर्भ',
   'Opening your vocabulary…': 'आपकी शब्दावली खोली जा रही है…',
@@ -6141,6 +6160,10 @@ const vi: Partial<Record<Phrase, string>> = {
   'use on flashcard': 'dùng trên thẻ ghi nhớ',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · ưu tiên ngoại tuyến · dữ liệu của bạn luôn ở trên thiết bị',
+  'Delete this card?': 'Xóa thẻ này?',
+  'This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.':
+    'Thao tác này sẽ xóa vĩnh viễn thẻ này cùng tất cả các nghĩa, ví dụ, từ đồng nghĩa, cụm từ và biến thể điền khuyết. Thao tác này không thể hoàn tác.',
+  'Could not delete this card': 'Không thể xóa thẻ này',
   'Semantic Contexts': 'Ngữ cảnh ngữ nghĩa',
   '{{count}} contexts': '{{count}} ngữ cảnh',
   'you@example.com': 'you@example.com',

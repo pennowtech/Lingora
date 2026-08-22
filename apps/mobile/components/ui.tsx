@@ -197,6 +197,9 @@ export function CardActionBar(props: {
    * AI-cards-only; the caller is responsible for confirming before calling this (destructive). */
   onRegenerate?: () => void
   regenerateLoading?: boolean
+  /** "Delete" — permanently deletes this generated card. */
+  onDelete?: () => void
+  deleteLoading?: boolean
 }): JSX.Element {
   const styles = useThemedStyles(createStyles)
   return (
@@ -225,6 +228,15 @@ export function CardActionBar(props: {
       {props.onEdit ? (
         <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
       ) : null}
+      {props.onDelete ? (
+        <CardActionButton
+          icon="trash-outline"
+          label="Delete"
+          destructive
+          onPress={props.onDelete}
+          {...(props.deleteLoading !== undefined && { loading: props.deleteLoading })}
+        />
+      ) : null}
       <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
     </View>
   )
@@ -234,19 +246,26 @@ function CardActionButton(props: {
   icon: keyof typeof Ionicons.glyphMap
   label: string
   active?: boolean
+  destructive?: boolean
   loading?: boolean
   onPress: () => void
 }): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const textColor = props.destructive
+    ? colors.danger
+    : props.active
+      ? colors.primary
+      : colors.textSecondary
+
   return (
     <Pressable style={styles.cardActionButton} onPress={props.onPress} disabled={props.loading} hitSlop={4}>
       {props.loading ? (
-        <ActivityIndicator size="small" color={colors.primary} />
+        <ActivityIndicator size="small" color={props.destructive ? colors.danger : colors.primary} />
       ) : (
-        <Ionicons name={props.icon} size={20} color={props.active ? colors.primary : colors.textSecondary} />
+        <Ionicons name={props.icon} size={20} color={textColor} />
       )}
-      <Text style={[styles.cardActionLabel, props.active && { color: colors.primary }]}>{props.label}</Text>
+      <Text style={[styles.cardActionLabel, { color: textColor }]}>{props.label}</Text>
     </Pressable>
   )
 }

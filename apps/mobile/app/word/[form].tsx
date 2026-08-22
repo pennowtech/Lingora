@@ -21,6 +21,7 @@ import {
   createCardForSense,
   createDeck,
   createPhrase,
+  deleteLemma,
   findLemmaBySurfaceForm,
   getActivePromptVersion,
   getCardsByLemma,
@@ -803,6 +804,28 @@ export default function WordDetailScreen(): JSX.Element {
     setRegenerateConfirmOpen(true)
   }
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
+  const deleteCardMutation = useMutation({
+    mutationFn: async () => {
+      if (!word) return
+      await deleteLemma(db, word.lemma.id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search'] })
+      queryClient.invalidateQueries({ queryKey: ['word'] })
+      queryClient.invalidateQueries({ queryKey: ['recent-words'] })
+      queryClient.invalidateQueries({ queryKey: ['home-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['deck'] })
+      router.back()
+    },
+    onError: (error: unknown) => showError(t('Could not delete this card'), error),
+  })
+
+  const handleDeleteCard = (): void => {
+    setDeleteConfirmOpen(true)
+  }
+
   // A follow-up question typed into the "More info" sheet's composer. Deliberately NOT persisted
   // to the card's own explanation/usage — an ephemeral, session-only thread (see the "More info"
   // design decision this session): the base explanation stays the one stored, reusable answer,
@@ -1207,6 +1230,8 @@ export default function WordDetailScreen(): JSX.Element {
                     onRegenerate: handleRegenerate,
                     regenerateLoading: regenerateCard.isPending,
                   })}
+                  onDelete={handleDeleteCard}
+                  deleteLoading={deleteCardMutation.isPending}
                 />
               </>
             ) : null}
@@ -1828,6 +1853,19 @@ export default function WordDetailScreen(): JSX.Element {
           regenerateCard.mutate()
         }}
         confirmLabel={t('Regenerate')}
+        destructive
+      />
+
+      <ConfirmModal
+        visible={deleteConfirmOpen}
+        title={t('Delete this card?')}
+        message={t('This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.')}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false)
+          deleteCardMutation.mutate()
+        }}
+        confirmLabel={t('Delete')}
         destructive
       />
 

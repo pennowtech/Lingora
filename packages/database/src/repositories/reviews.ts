@@ -2,7 +2,7 @@ import type { CardState, ReviewEvent } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /** The columns of a review event row, aliased to the camelCase names of the ReviewEvent type. */
-const REVIEW_EVENT_COLUMNS = `id, card_id AS cardId, rating, review_date AS reviewedAt, duration_ms AS durationMs`
+const REVIEW_EVENT_COLUMNS = `id, card_id AS cardId, rating, review_date AS reviewedAt, duration_ms AS durationMs, question_type AS questionType`
 
 /**
  * Record a review event and update the card's FSRS state.
@@ -27,9 +27,9 @@ export async function recordReview(
 ): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.execute(
-      `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms)
-       VALUES (?, ?, ?, ?, ?)`,
-      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs],
+      `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms, question_type)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs, event.questionType ?? null],
     )
 
     await tx.execute(
@@ -129,9 +129,9 @@ export async function recordClozeReview(
 ): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.execute(
-      `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms)
-       VALUES (?, ?, ?, ?, ?)`,
-      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs],
+      `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms, question_type)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs, event.questionType ?? null],
     )
 
     await tx.execute(

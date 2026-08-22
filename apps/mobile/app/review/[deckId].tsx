@@ -1,4 +1,4 @@
-import type { Card as CardRow, CardState, LanguageCode, ReviewRating, Synonym, Template, WordGuideEntry } from '@lingora/types'
+import type { Card as CardRow, CardState, LanguageCode, QuestionType, ReviewRating, Synonym, Template, WordGuideEntry } from '@lingora/types'
 import {
   getCardById,
   getCardsByLemma,
@@ -9,6 +9,7 @@ import {
   getClozeState,
   getClustersForLemma,
   getDefaultTemplate,
+  getDistractorMeanings,
   getExamplesForCard,
   getLemmaById,
   getMeaningsForCard,
@@ -36,6 +37,8 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTi
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
+import { MultipleChoiceQuestion } from '../../components/MultipleChoiceQuestion'
+import { TrueFalseQuestion } from '../../components/TrueFalseQuestion'
 import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import {
@@ -61,6 +64,7 @@ import {
   type CardTemplateContext,
 } from '../../lib/templates'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
+import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
@@ -304,6 +308,12 @@ async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boole
     exampleTranslation: selectedExample?.translation ?? null,
     clozeSentence: cloze?.sentence ?? null,
     clozeAnswer: cloze?.answer ?? null,
+    // Default from this card's own content — loadReviewQueue's single-card path overrides these
+    // with a sibling-aware value (a CSV/Anki import can put cloze/vocab content on a separate
+    // sibling card of the same lemma), but the normal due-queue path never did until mixed-session
+    // eligibility (see pickEligibleTypes) needed to know it per due card.
+    hasVocabVariant: meanings.length > 0,
+    hasClozeVariant: clozes.length > 0,
     templateContext: buildCardContext({
       lemma,
       meanings,
@@ -427,6 +437,12 @@ export default function ReviewSessionScreen(): JSX.Element {
   // the opposite direction, not a distinct skill the way cloze is. Only the rendering direction
   // (isReverse below) differs.
   const reverseOnly = params.mode === 'reverse'
+  // Mixed practice: each due card gets a random presentation (vocab/reverse/cloze/true-false/
+  // multiple-choice) from the user's enabled types (see lib/reviewTypes.ts), instead of one format
+  // for the whole session. Uses the exact same due queue/FSRS schedule as plain vocab review
+  // (clozeOnly stays false below) — every presentation, including a cloze-formatted one, is scored
+  // onto card_states, never cloze_states. Dedicated Cloze Practice (mode=cloze) is untouched.
+  const mixedOnly = params.mode === 'mixed'
   // Set when opened from the deck detail screen's card list — a specific word, not a practice
   // session — so loadReviewQueue builds a one-card "queue" for it regardless of due status.
   const singleCardId = params.cardId
@@ -537,10 +553,32 @@ export default function ReviewSessionScreen(): JSX.Element {
   }
 
   const queueQuery = useQuery({
-    queryKey: ['review-queue', params.deckId, clozeOnly, singleCardId],
+    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId],
     queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, singleCardId),
     enabled: (params.deckId ?? '') !== '',
   })
+
+  // Mixed practice's per-card question type needs: the user's enabled types (Settings — see
+  // lib/reviewTypes.ts) and a shared pool of other cards' meanings to build true/false and
+  // multiple-choice wrong answers from. Both fetched once per session, not once per card.
+  const enabledTypesQuery = useQuery({
+    queryKey: ['enabled-question-types'],
+    queryFn: getEnabledQuestionTypes,
+    enabled: mixedOnly,
+  })
+  const distractorScopeDeckId = params.deckId === ALL_DECKS_ID ? undefined : params.deckId
+  const distractorPoolQuery = useQuery({
+    queryKey: ['review-distractor-pool', params.deckId],
+    queryFn: () => getDistractorMeanings(db, '', distractorScopeDeckId, 30),
+    enabled: mixedOnly,
+  })
+  // Per-card rating aggregation for a session where the same card appears more than once (Mixed
+  // practice — every enabled+eligible format for a card is its own queue entry, see sessionOrder
+  // below). Only the LAST entry for a given card actually writes to card_states/review_events; see
+  // the rate mutation. Reset alongside sessionOrder whenever the session itself resets.
+  const cardAggregation = useRef<Map<string, { worst: ReviewRating; durationMs: number; answeredCount: number }>>(
+    new Map(),
+  )
 
   // Toggling vocab<->cloze view for the same word (the header's icon button, single-card mode
   // only) swaps the whole queue out from under the existing index/flipped state — without this, a
@@ -552,25 +590,57 @@ export default function ReviewSessionScreen(): JSX.Element {
     setDurationsMs([])
     cardStartedAt.current = Date.now()
     setSessionOrder([])
-  }, [clozeOnly, singleCardId])
+    cardAggregation.current = new Map()
+  }, [clozeOnly, mixedOnly, singleCardId])
 
-  // The session's card order is frozen the first time the queue loads for this (deck, mode) key —
-  // `index` only ever moves through *this* list, never through `queueQuery.data` directly. This is
-  // what actually fixes the "explain sometimes jumps to the next card" bug: `queueQuery.data`
-  // refetches mid-session (e.g. after generating an on-demand AI explanation, which invalidates
-  // ['review-queue']), and a plain `queue[index]` read against that live, refetched array is only
-  // as stable as the array's own row order — which even a deterministic SQL ORDER BY can't fully
-  // guarantee across two separate fetches once real time has passed (a card can newly become due
-  // and get inserted mid-array). Freezing *which cards, in which order* once, and only ever
-  // refreshing each frozen card's own *content* from the live query, removes the failure mode
-  // entirely: `index` always means the same card, for the whole session, no matter how many times
-  // the underlying query refetches in between.
-  const [sessionOrder, setSessionOrder] = useState<string[]>([])
+  /** One entry in the frozen session order: a due card presented in one specific format. A plain
+   * vocab/reverse/cloze session has exactly one entry per due card (the session's own mode decides
+   * the format); a Mixed session has one entry per (card, enabled+eligible format) pair — a card
+   * enabled for all 5 formats and eligible for all of them appears 5 times. */
+  interface SessionEntry {
+    cardId: string
+    questionType: QuestionType
+  }
+
+  // The session's order is frozen the first time everything it depends on is ready for this (deck,
+  // mode) key — `index` only ever moves through *this* list, never through `queueQuery.data`
+  // directly. This is what actually fixes the "explain sometimes jumps to the next card" bug:
+  // `queueQuery.data` refetches mid-session (e.g. after generating an on-demand AI explanation,
+  // which invalidates ['review-queue']), and a plain `queue[index]` read against that live,
+  // refetched array is only as stable as the array's own row order — which even a deterministic SQL
+  // ORDER BY can't fully guarantee across two separate fetches once real time has passed (a card
+  // can newly become due and get inserted mid-array). Freezing *which (card, format) pairs, in
+  // which order* once, and only ever refreshing each frozen card's own *content* from the live
+  // query, removes the failure mode entirely: `index` always means the same entry, for the whole
+  // session, no matter how many times the underlying query refetches in between.
+  const [sessionOrder, setSessionOrder] = useState<SessionEntry[]>([])
   useEffect(() => {
-    if (sessionOrder.length === 0 && queueQuery.data && queueQuery.data.length > 0) {
-      setSessionOrder(queueQuery.data.map((c) => c.card.id))
+    if (sessionOrder.length > 0) return
+    if (!queueQuery.data || queueQuery.data.length === 0) return
+    if (mixedOnly) {
+      // Needs the user's enabled types and the distractor pool to know which formats are actually
+      // eligible per card — both queries are `enabled: mixedOnly` above, so wait for them too.
+      if (!enabledTypesQuery.data || distractorPoolQuery.isPending) return
+      const entries: SessionEntry[] = []
+      for (const card of queueQuery.data) {
+        const types = pickEligibleTypes(
+          { cardId: card.card.id, hasClozeVariant: card.hasClozeVariant === true },
+          enabledTypesQuery.data,
+          distractorPoolQuery.data ?? [],
+        )
+        for (const questionType of types) entries.push({ cardId: card.card.id, questionType })
+      }
+      // Interleaved across the whole session, not grouped by card — see shuffleArray's own comment.
+      setSessionOrder(shuffleArray(entries))
+    } else {
+      setSessionOrder(
+        queueQuery.data.map((card) => ({
+          cardId: card.card.id,
+          questionType: clozeOnly ? 'cloze' : reverseOnly || card.card.type === 'reverse' ? 'reverse' : 'vocab',
+        })),
+      )
     }
-  }, [queueQuery.data, sessionOrder.length])
+  }, [queueQuery.data, sessionOrder.length, mixedOnly, clozeOnly, reverseOnly, enabledTypesQuery.data, distractorPoolQuery.data, distractorPoolQuery.isPending])
 
   // The card's own LiquidJS template — vocab (basic/reverse) and cloze
   // sessions each fetch their type's default template, matching the fact
@@ -586,36 +656,85 @@ export default function ReviewSessionScreen(): JSX.Element {
     backTemplate: clozeOnly ? CLOZE_BACK_TEMPLATE : DEFAULT_BACK_TEMPLATE,
     styles: clozeOnly ? CLOZE_STYLES : DEFAULT_STYLES,
   }
+  // A mixed session isn't "all cloze" (that's dedicated Cloze Practice, clozeOnly above), but any
+  // given due card can still be presented in cloze format — fetch cloze's own default template
+  // separately so that presentation still uses the user's actual cloze card design, not vocab's.
+  const mixedClozeTemplateQuery = useQuery({
+    queryKey: ['default-template', 'cloze'],
+    queryFn: () => getDefaultTemplate(db, 'cloze'),
+    enabled: mixedOnly,
+  })
+  const mixedClozeTemplate: Pick<Template, 'frontTemplate' | 'backTemplate' | 'styles'> = mixedClozeTemplateQuery.data ?? {
+    frontTemplate: CLOZE_FRONT_TEMPLATE,
+    backTemplate: CLOZE_BACK_TEMPLATE,
+    styles: CLOZE_STYLES,
+  }
 
   // Frozen order (sessionOrder), fresh content (queueQuery.data) — see the comment above sessionOrder.
   const liveById = new Map((queueQuery.data ?? []).map((c) => [c.card.id, c]))
-  const queue =
-    sessionOrder.length > 0
-      ? sessionOrder.map((id) => liveById.get(id)).filter((c): c is ReviewCard => c !== undefined)
-      : (queueQuery.data ?? [])
-  const view = queue[index]
+  const queue = sessionOrder.filter((entry) => liveById.has(entry.cardId))
+  const activeEntry = queue[index]
+  const view = activeEntry ? liveById.get(activeEntry.cardId) : undefined
   const done = index >= queue.length
+  const activeQuestionType: QuestionType | null = activeEntry?.questionType ?? null
+
+  const isReverse = activeQuestionType === 'reverse'
+  const isCloze = activeQuestionType === 'cloze'
+  const isTrueFalse = activeQuestionType === 'trueFalse'
+  const isMcq = activeQuestionType === 'mcq'
+  // mcq/trueFalse are auto-graded (see TrueFalseQuestion/MultipleChoiceQuestion below) — no manual
+  // rating buttons/swipe, so the flip/rating chrome further down is skipped entirely for them.
+  const isAutoGraded = isTrueFalse || isMcq
+
+  // How many total entries this specific card has in the whole (frozen) session — 1 outside mixed
+  // mode, or when a mixed card only had one enabled+eligible format; more than 1 when the same card
+  // is being tested in several formats this session (Mixed practice with several types enabled).
+  const totalFormatsForCard = view ? queue.filter((entry) => entry.cardId === view.card.id).length : 0
 
   const rate = useMutation({
     mutationFn: async (rating: ReviewRating) => {
-      if (!view) throw new Error(t('No card to rate.'))
+      if (!view || !activeEntry) throw new Error(t('No card to rate.'))
       const now = Date.now()
-      const newState = schedule(view.cardState, rating, now)
+      const cardId = view.card.id
+      const elapsed = now - cardStartedAt.current
+      const prior = cardAggregation.current.get(cardId)
+      // A card tested in several formats this session (Mixed practice) gets exactly one FSRS
+      // update, using the WORST rating across every format it was tested in — see worstRating's
+      // own doc comment for why (a word isn't "known" if it failed even one presentation of it).
+      const worst = prior ? worstRating(prior.worst, rating) : rating
+      const totalDuration = (prior?.durationMs ?? 0) + elapsed
+      const answeredCount = (prior?.answeredCount ?? 0) + 1
+      const totalForCard = queue.filter((entry) => entry.cardId === cardId).length
+      const isFinalAttemptForCard = answeredCount >= totalForCard
+
+      if (!isFinalAttemptForCard) {
+        cardAggregation.current.set(cardId, { worst, durationMs: totalDuration, answeredCount })
+        return { wrote: false, durationMs: elapsed }
+      }
+
+      cardAggregation.current.delete(cardId)
+      const newState = schedule(view.cardState, worst, now)
+      // Mixed sessions never touch cloze_states, even when a card happens to be presented in cloze
+      // format — see the mixedOnly comment above. Only dedicated Cloze Practice (clozeOnly) does.
       const recordFn = clozeOnly ? recordClozeReview : recordReview
       await recordFn(
         db,
         {
           id: crypto.randomUUID(),
-          cardId: view.card.id,
-          rating,
+          cardId,
+          rating: worst,
           reviewedAt: now,
-          durationMs: now - cardStartedAt.current,
+          durationMs: totalDuration,
+          // Only attributable to one format when the card was tested in exactly one format this
+          // session (every non-mixed session, or a mixed card with just one enabled/eligible type)
+          // — an aggregate across several formats has no single format to name.
+          ...(totalForCard === 1 && { questionType: activeEntry.questionType }),
         },
         newState,
       )
-      return now - cardStartedAt.current
+      return { wrote: true, durationMs: elapsed }
     },
-    onSuccess: async (durationMs) => {
+    onSuccess: async ({ durationMs, wrote }) => {
       setDurationsMs((prev) => [...prev, durationMs])
       setFlipped(false)
       setExplainVisible(false)
@@ -623,6 +742,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       setAiSheetOpen(false)
       setIndex((i) => i + 1)
       cardStartedAt.current = Date.now()
+      if (!wrote) return
       // 'deck-counts' refreshes the Decks LIST screen's due badges; 'deck' (React Query prefix
       // -matches every ['deck', id] query) refreshes the deck DETAIL screen's own due count and
       // "Review N due cards" button — without this, rating a card here left that screen showing
@@ -884,16 +1004,6 @@ export default function ReviewSessionScreen(): JSX.Element {
     )
   }
 
-  // 'reverse' cards show the meaning first and rate recall of the word —
-  // swapped at the template-context level (word <-> meaning) so the same
-  // stored template naturally renders meaning-first, rather than needing a
-  // second template. Nothing yet produces 'phrase'/'image' cards for a
-  // dedicated layout to matter for either. Cloze cards never reverse.
-  const isReverse = !clozeOnly && (reverseOnly || view?.card.type === 'reverse')
-  // Every card in this session is the same kind (see loadReviewQueue), so
-  // `clozeOnly` alone tells us which template/layout applies.
-  const isCloze = clozeOnly
-
   // What the speaker button (below) reads aloud — the example sentence for a vocab card, or the
   // complete cloze sentence (blank filled back in with its answer, not the "[...]" placeholder)
   // for a cloze card. Null when there's nothing to speak, which is also what hides the button —
@@ -915,19 +1025,23 @@ export default function ReviewSessionScreen(): JSX.Element {
   // (same reasoning as word/[form].tsx's identical change: hiding either was never actually
   // useful).
   const backContext = renderedContext
-  const templateStyles = template.styles ?? ''
+  // Dedicated Cloze Practice (clozeOnly) already fetched cloze's own default via `template` above;
+  // a mixed session's cloze-formatted card needs mixedClozeTemplate instead, since `template` there
+  // is the session's vocab default (see the mixedClozeTemplateQuery comment above).
+  const activeTemplate = isCloze && mixedOnly ? mixedClozeTemplate : template
+  const templateStyles = activeTemplate.styles ?? ''
   const frontHtml = !view
     ? ''
-    : renderCardHtml(template.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front', colors)
+    : renderCardHtml(activeTemplate.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front', colors)
   // Vocab's back stacks front+back (word recap above the meaning); cloze's
   // back template is the complete revealed-sentence layout on its own — the
   // front's blanked sentence has no reason to repeat above it.
   const backHtml = !view
     ? ''
     : isCloze
-      ? renderCardHtml(template.backTemplate, templateStyles, view.templateContext, 'back', colors)
+      ? renderCardHtml(activeTemplate.backTemplate, templateStyles, view.templateContext, 'back', colors)
       : renderCardHtml(
-          `${template.frontTemplate}<hr/>${template.backTemplate}`,
+          `${activeTemplate.frontTemplate}<hr/>${activeTemplate.backTemplate}`,
           templateStyles,
           backContext ?? view.templateContext,
           'back',
@@ -942,6 +1056,11 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
+        {mixedOnly && !done && view ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('mixed')}</Text>
+          </View>
+        ) : null}
         {isCloze ? (
           <View style={styles.modePill}>
             <Text style={styles.modePillLabel}>{t('cloze')}</Text>
@@ -950,6 +1069,16 @@ export default function ReviewSessionScreen(): JSX.Element {
         {isReverse ? (
           <View style={styles.modePill}>
             <Text style={styles.modePillLabel}>{t('reverse')}</Text>
+          </View>
+        ) : null}
+        {isTrueFalse ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('true/false')}</Text>
+          </View>
+        ) : null}
+        {isMcq ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('multiple choice')}</Text>
           </View>
         ) : null}
         {/* Previewing one specific word from the deck's card list, not a practice session — a
@@ -980,13 +1109,47 @@ export default function ReviewSessionScreen(): JSX.Element {
             message={
               queue.length === 0
                 ? t('This deck has no cards due for review. Add words or check back later.')
-                : t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', { count: queue.length })
+                : // Distinct cards, not queue.length — a Mixed session's queue can have several
+                  // entries per card (one per format tested), but "You reviewed 20 cards" for a
+                  // 4-card deck would be a confusing overcount.
+                  t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', {
+                    count: new Set(queue.map((entry) => entry.cardId)).size,
+                  })
             }
           />
           <Pressable style={styles.doneButton} onPress={() => router.back()}>
             <Text style={styles.doneButtonLabel}>{t('Back to deck')}</Text>
           </Pressable>
         </View>
+      ) : isAutoGraded && view.meaning ? (
+        <>
+          {/* True/false and multiple-choice bypass the LiquidJS/WebView template pipeline entirely
+              — a system-defined interaction, not a user-customizable card layout (see
+              components/TrueFalseQuestion.tsx / MultipleChoiceQuestion.tsx). Auto-graded: no flip,
+              no manual rating buttons/swipe — onAnswered maps correct/incorrect straight onto
+              'good'/'again' and calls the same rate mutation every other format uses. */}
+          <View style={styles.card}>
+            {isTrueFalse ? (
+              <TrueFalseQuestion
+                cardKey={view.card.id}
+                word={view.form}
+                meaning={view.meaning}
+                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+              />
+            ) : (
+              <MultipleChoiceQuestion
+                cardKey={view.card.id}
+                word={view.form}
+                meaning={view.meaning}
+                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+              />
+            )}
+          </View>
+          <View style={styles.ratingPlaceholder} />
+          {rate.isError ? <Text style={styles.errorLabel}>{String(rate.error)}</Text> : null}
+        </>
       ) : (
         <>
           {/* Card — cloze and vocab cards both render through the same
@@ -1045,7 +1208,13 @@ export default function ReviewSessionScreen(): JSX.Element {
           {singleCardId ? null : flipped ? (
             <View style={styles.ratingRow}>
               {RATINGS.map(({ rating, label }) => {
-                const preview = schedule(view.cardState, rating, Date.now())
+                // This word being tested in more than one format this session (Mixed practice)
+                // means the interval preview would be misleading: it previews *this* rating
+                // applied fresh to the persisted schedule, but the real update only lands once
+                // every format for this card is answered, using the worst rating across all of
+                // them — see the rate mutation. No visible explanation for the omission (tried
+                // one, it read as clutter) — the buttons just quietly skip the interval text.
+                const preview = totalFormatsForCard <= 1 ? schedule(view.cardState, rating, Date.now()) : null
                 return (
                   <Pressable
                     key={rating}
@@ -1061,9 +1230,11 @@ export default function ReviewSessionScreen(): JSX.Element {
                     disabled={rate.isPending}
                   >
                     <Text style={[styles.ratingLabel, { color: activeRatingColors[rating].fg }]}>{t(label)}</Text>
-                    <Text style={[styles.ratingInterval, { color: activeRatingColors[rating].fg }]}>
-                      {formatInterval(Date.now(), preview.nextReviewAt)}
-                    </Text>
+                    {preview ? (
+                      <Text style={[styles.ratingInterval, { color: activeRatingColors[rating].fg }]}>
+                        {formatInterval(Date.now(), preview.nextReviewAt)}
+                      </Text>
+                    ) : null}
                   </Pressable>
                 )
               })}

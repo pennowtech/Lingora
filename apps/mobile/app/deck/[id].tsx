@@ -358,6 +358,21 @@ export default function DeckDetailScreen(): JSX.Element {
             style={styles.clozeButton}
           />
         ) : null}
+        {/* Also the same due queue/schedule as "Review N words" — every presentation it picks
+            (including a cloze-formatted one) is scored the same way reverse is, never touching
+            cloze's own independent schedule. Which formats it draws from is set in
+            Settings > Learning > Practice question types. */}
+        {cardCount > 0 ? (
+          <Button
+            label={t('Mixed practice')}
+            icon="shuffle"
+            variant="secondary"
+            onPress={() =>
+              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
+            }
+            style={styles.clozeButton}
+          />
+        ) : null}
 
         <SectionHeader
           title={selectMode ? t('{{count}} selected', { count: selectedCardIds.size }) : t('Cards')}

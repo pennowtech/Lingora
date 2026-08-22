@@ -5,6 +5,7 @@ import {
   getCardsDueForReview,
   getCardsForDeck,
   getClozeCardCountForDeck,
+  getDistractorMeanings,
   getDueCardsCount,
   getRecentlyAddedWords,
 } from './repositories/cards'
@@ -113,5 +114,74 @@ describe('due-card queries ignore orphaned deck memberships', () => {
 
     expect(await getDueCardsCount(db)).toBe(0)
     expect(await getCardsDueForReview(db)).toHaveLength(0)
+  })
+})
+
+describe('getDistractorMeanings', () => {
+  let db: NodeSqliteAdapter
+  let deckId: string
+  let otherDeckId: string
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+    const now = Date.now()
+    deckId = 'distractor-deck'
+    otherDeckId = 'other-deck'
+    await createDeck(db, { id: deckId, name: 'Distractor test deck', createdAt: now, updatedAt: now })
+    await createDeck(db, { id: otherDeckId, name: 'Other deck', createdAt: now, updatedAt: now })
+
+    const { rows } = parseCsv(
+      'word,meaning,example,exampleTranslation\n' +
+        'Haus,house,Das ist mein Haus.,This is my house.\n' +
+        'laufen,to run,Ich laufe jeden Tag.,I run every day.\n' +
+        'Buch,book,Ich lese ein Buch.,I am reading a book.\n',
+    )
+    const previews = await buildCsvImportPreview(db, rows, {
+      mapping: { word: 0, meaning: 1, example: 2, exampleTranslation: 3 },
+      language: 'de',
+    })
+    await importCsvRows(db, previews, deckId, 'de', 'en', 'skip', 'basic')
+
+    const { rows: otherRows } = parseCsv('word,meaning\nKatze,cat\n')
+    const otherPreviews = await buildCsvImportPreview(db, otherRows, {
+      mapping: { word: 0, meaning: 1 },
+      language: 'de',
+    })
+    await importCsvRows(db, otherPreviews, otherDeckId, 'de', 'en', 'skip', 'basic')
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  it('excludes the card being tested and returns other cards primary meanings', async () => {
+    const cards = await getCardsForDeck(db, deckId)
+    const haus = cards.find((c) => c.form === 'Haus')
+    if (!haus) throw new Error('expected Haus card')
+
+    const distractors = await getDistractorMeanings(db, haus.cardId, undefined, 10)
+    expect(distractors.every((d) => d.cardId !== haus.cardId)).toBe(true)
+    // Everything across both decks except Haus itself: laufen, Buch, Katze.
+    expect(distractors).toHaveLength(3)
+    expect(distractors.map((d) => d.word).sort()).toEqual(['Buch', 'Katze', 'laufen'])
+  })
+
+  it('scopes to a single deck when deckId is provided', async () => {
+    const cards = await getCardsForDeck(db, deckId)
+    const haus = cards.find((c) => c.form === 'Haus')
+    if (!haus) throw new Error('expected Haus card')
+
+    const distractors = await getDistractorMeanings(db, haus.cardId, deckId, 10)
+    expect(distractors.map((d) => d.word).sort()).toEqual(['Buch', 'laufen'])
+  })
+
+  it('respects the limit', async () => {
+    const cards = await getCardsForDeck(db, deckId)
+    const haus = cards.find((c) => c.form === 'Haus')
+    if (!haus) throw new Error('expected Haus card')
+
+    const distractors = await getDistractorMeanings(db, haus.cardId, undefined, 1)
+    expect(distractors).toHaveLength(1)
   })
 })

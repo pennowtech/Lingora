@@ -249,7 +249,7 @@ export default function HomeScreen(): JSX.Element {
         </View>
 
         {/* Recently searched */}
-        <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/decks')} />
+        <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/recent-words')} />
         {recent.length === 0 && recentQuery.isSuccess ? (
           <EmptyState
             icon="sparkles-outline"

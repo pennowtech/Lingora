@@ -89,6 +89,7 @@ function AppStack(): JSX.Element {
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="word/[form]" options={{ title: '' }} />
+            <Stack.Screen name="recent-words" options={{ title: t('Recently searched') }} />
             <Stack.Screen name="deck/[id]" options={{ title: t('Deck') }} />
             <Stack.Screen name="deck/add-card" options={{ title: t('Add card') }} />
             <Stack.Screen name="deck/table" options={{ title: t('All cards') }} />

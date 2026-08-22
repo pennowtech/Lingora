@@ -616,6 +616,19 @@ export default function ReviewSessionScreen(): JSX.Element {
     cardAggregation.current = new Map()
   }
 
+  // "Practice more" invalidates+refetches ['review-queue'] under the *same* query key (deckId/mode/
+  // cap all unchanged) — React Query keeps serving the previous (now-stale) `data` while that
+  // refetch is in flight, it doesn't clear to undefined. Without this flag, the sessionOrder-build
+  // effect below would see that stale data (the batch that was JUST fully rated), rebuild
+  // sessionOrder from it immediately, and then — once the real fresh data lands moments later — its
+  // own `sessionOrder.length > 0` guard would block it from ever using that fresh data. The live
+  // queue (built by cross-referencing sessionOrder against the fresh, now-correct liveById) would
+  // then filter out every one of those stale entries (they're no longer due), leaving an empty
+  // queue that misreports as "Nothing due right now" even though the deck genuinely has more due
+  // cards. This flag closes that window: set before the refetch starts, cleared only once
+  // invalidateQueries' returned promise confirms the refetch actually completed.
+  const [awaitingFreshQueue, setAwaitingFreshQueue] = useState(false)
+
   // Toggling vocab<->cloze view for the same word (the header's icon button, single-card mode
   // only) swaps the whole queue out from under the existing index/flipped state — without this, a
   // card already rated (index past the end, "done") in one view stayed "done" the instant the
@@ -647,6 +660,9 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [sessionOrder, setSessionOrder] = useState<SessionEntry[]>([])
   useEffect(() => {
     if (sessionOrder.length > 0) return
+    // See awaitingFreshQueue's own comment — don't build from queueQuery.data while a "Practice
+    // more" refetch might still be serving the previous (already fully-rated) batch.
+    if (awaitingFreshQueue) return
     const dueCards = queueQuery.data?.views
     if (!dueCards || dueCards.length === 0) return
     if (mixedOnly) {
@@ -672,7 +688,17 @@ export default function ReviewSessionScreen(): JSX.Element {
         })),
       )
     }
-  }, [queueQuery.data, sessionOrder.length, mixedOnly, clozeOnly, reverseOnly, enabledTypesQuery.data, distractorPoolQuery.data, distractorPoolQuery.isPending])
+  }, [
+    queueQuery.data,
+    sessionOrder.length,
+    awaitingFreshQueue,
+    mixedOnly,
+    clozeOnly,
+    reverseOnly,
+    enabledTypesQuery.data,
+    distractorPoolQuery.data,
+    distractorPoolQuery.isPending,
+  ])
 
   // The card's own LiquidJS template — vocab (basic/reverse) and cloze
   // sessions each fetch their type's default template, matching the fact
@@ -797,7 +823,10 @@ export default function ReviewSessionScreen(): JSX.Element {
   // naturally serves the next batch, most-overdue-first, without needing to track "already shown".
   const practiceMore = (): void => {
     resetSession()
-    void queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+    setAwaitingFreshQueue(true)
+    void queryClient
+      .invalidateQueries({ queryKey: ['review-queue'] })
+      .finally(() => setAwaitingFreshQueue(false))
   }
 
   const openEdit = (): void => {
@@ -1143,7 +1172,11 @@ export default function ReviewSessionScreen(): JSX.Element {
       </View>
       {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
-      {done || !view ? (
+      {awaitingFreshQueue ? (
+        <View style={styles.doneWrap}>
+          <Spinner />
+        </View>
+      ) : done || !view ? (
         <View style={styles.doneWrap}>
           <EmptyState
             icon={queue.length === 0 ? 'checkmark-done' : 'trophy'}
@@ -1193,6 +1226,12 @@ export default function ReviewSessionScreen(): JSX.Element {
           <View style={styles.card}>
             {isTrueFalse ? (
               <TrueFalseQuestion
+                // Keyed to this exact (card, format) entry — without it, two consecutive
+                // auto-graded questions of the same type reuse one component instance, and its
+                // internal `choice` state ("already answered") carries over onto the new question,
+                // locking out taps and silently dropping onAnswered. See MultipleChoiceQuestion
+                // below for the identical failure mode.
+                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
                 cardKey={view.card.id}
                 word={view.form}
                 meaning={view.meaning}
@@ -1201,6 +1240,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               />
             ) : (
               <MultipleChoiceQuestion
+                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
                 cardKey={view.card.id}
                 word={view.form}
                 meaning={view.meaning}
@@ -1208,6 +1248,19 @@ export default function ReviewSessionScreen(): JSX.Element {
                 onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
               />
             )}
+            {/* Same action bar as every other card format (word/[form].tsx's identical reasoning) —
+                the question type is just a different way of testing this word, not a different
+                word, so Explain/More info, Ask AI, and Look up all still apply to it. */}
+            <CardActionBar
+              {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
+              onExplain={handleExplain}
+              explainVisible={isAiCard || explainVisible}
+              explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
+              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+              onEdit={openEdit}
+              onLookup={handleLookup}
+              onAskAI={handleAskAI}
+            />
           </View>
           <View style={styles.ratingPlaceholder} />
           {rate.isError ? <Text style={styles.errorLabel}>{String(rate.error)}</Text> : null}
@@ -1241,20 +1294,19 @@ export default function ReviewSessionScreen(): JSX.Element {
                 })}
               />
 
-              {!isCloze ? (
-                <>
-                  <CardActionBar
-                    {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
-                    onExplain={handleExplain}
-                    explainVisible={isAiCard || explainVisible}
-                    explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                    {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
-                    onEdit={openEdit}
-                    onLookup={handleLookup}
-                    onAskAI={handleAskAI}
-                  />
-                </>
-              ) : null}
+              {/* Shown for cloze too now (dedicated Cloze Practice and Mixed practice's
+                  cloze-formatted cards alike) — a cloze presentation is still testing the same
+                  underlying word, so Explain/More info/Ask AI/Look up/Edit all still apply. */}
+              <CardActionBar
+                {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
+                onExplain={handleExplain}
+                explainVisible={isAiCard || explainVisible}
+                explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
+                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+                onEdit={openEdit}
+                onLookup={handleLookup}
+                onAskAI={handleAskAI}
+              />
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>

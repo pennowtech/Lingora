@@ -24,10 +24,12 @@ pnpm --filter @lingora/mobile run typecheck    # tsc --noEmit for the app
 ./node_modules/.bin/tsc -p packages/ai/tsconfig.json --noEmit
 ./node_modules/.bin/tsc -p packages/observability/tsconfig.json --noEmit
 ./node_modules/.bin/tsc -p packages/srs/tsconfig.json --noEmit
+./node_modules/.bin/tsc -p packages/core/tsconfig.json --noEmit
 pnpm --filter @lingora/ai run test             # Vitest (node:sqlite in-memory, mocked fetch)
 pnpm --filter @lingora/database run test       # Vitest (node:sqlite - backup/restore round-trip)
 pnpm --filter @lingora/observability run test  # Vitest (schema/privacy/policy/transport contracts)
 pnpm --filter @lingora/srs run test            # Vitest (pure FSRS scheduler - deterministic, no I/O)
+pnpm --filter @lingora/core run test           # Vitest (pure platform-agnostic logic - no I/O)
 ```
 
 There is no root tsconfig; the root `pnpm typecheck` script (`tsc --build`) does not work - typecheck per package/app as above. Vitest is the test runner, scoped to `packages/ai`, `packages/database`, `packages/observability`, and `packages/srs` (tests co-located as `src/**/*.test.ts`; every provider has an opt-in live smoke test - `src/providers/{openai,mistral,gemini,anthropic,deepl}.live.test.ts` - each `describe.skipIf`-gated on its own real API key, e.g. `OPENAI_API_KEY`). Copy `packages/ai/.env.example` to `packages/ai/.env` (gitignored, loaded automatically by `vitest.setup.ts` via `dotenv` - never export keys by hand or put them anywhere else) and fill in whichever keys you have; `pnpm --filter @lingora/ai run test` then runs live tests for those providers and skips the rest. Most of the Phase 2 data layer predates Vitest and was verified with a scratch smoke test via `tsx` (see `3_phase2_database_design.md` §11); `packages/database/src/testing/node-sqlite-adapter.ts` is a standalone copy of `packages/ai`'s test adapter (can't import it directly - dependency direction runs the other way).
@@ -72,7 +74,11 @@ packages/ai        Phase 3 engine: provider slots, OpenAI/Mistral/Gemini/Claude 
 packages/observability  Structured logging facade - see "Observability & logging" below
 packages/srs        Phase 5: pure FSRS scheduler (`schedule`, `createInitialCardState`),
                    wraps `ts-fsrs` - no database/React/Expo dependency
-packages/core       Empty workspace stub reserved for future shared logic (not yet used)
+packages/core       Platform-agnostic app logic shared by mobile and (from Phase 6) desktop - no
+                   React Native/Expo/DOM. Currently: Mixed-practice question-type eligibility,
+                   shuffling, FSRS rating aggregation (see apps/mobile/lib/reviewTypes.ts, its
+                   thin SecureStore/Ionicons wrapper). New platform-agnostic logic lands here from
+                   the start, not retrofitted later.
 packages/ui         Empty workspace stub reserved for Phase 6 desktop-shared components (not yet used)
 ```
 

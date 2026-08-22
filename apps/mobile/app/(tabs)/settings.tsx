@@ -206,7 +206,7 @@ export default function SettingsScreen(): JSX.Element {
       ? t('No provider configured - AI generation disabled')
       : t('{{count}} of {{total}} configured', { count: summary.configuredCount, total: GENERATION_PROVIDERS.length })
 
-  const learningDetail = t('{{cefr}} · {{native}} -> {{target}}', {
+  const learningDetail = t('{{cefr}} · {{native}} > {{target}}', {
     cefr: summary.cefr,
     native: t(VOCAB_LANGUAGE_LABELS[summary.nativeLanguage]),
     target: t(VOCAB_LANGUAGE_LABELS[summary.targetLanguage]),

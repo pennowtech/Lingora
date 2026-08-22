@@ -28,6 +28,7 @@ import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage } from '../../lib/languageDetection'
 import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
+import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useCyclingIndex } from '../../lib/useCyclingIndex'
@@ -93,6 +94,15 @@ const HELP_SECTIONS: HelpSection[] = [
  * every time — this survives remounts for the rest of the app session, resetting only on a full
  * app restart, which is the expected "last search" lifetime. */
 let lastSearchQuery = ''
+
+/** A dictionary provider's `.name` ('google-translate', 'deepl', or one of the four AI providers
+ * when it fills this slot too) isn't a label fit for an error message — reused for the quick-
+ * translate error card so a technical exception doesn't leak provider internals to the user. */
+function dictionaryProviderLabel(name: string): string {
+  if (name === 'google-translate') return 'Google Translate'
+  if (name === 'deepl') return 'DeepL'
+  return PROVIDER_META[name as GenerationProviderName]?.label ?? name
+}
 
 /** Debounce the raw input so FTS5 runs per pause, not per keystroke. */
 function useDebounced(value: string, delayMs: number): string {
@@ -480,7 +490,7 @@ export default function SearchScreen(): JSX.Element {
           <Text style={styles.guideHeadword}>{term}</Text>
           <Text style={styles.guidePosText}>
             {quickTranslate.data.source.toUpperCase()}
-            {' -> '}
+            {' > '}
             {quickTranslate.data.target.toUpperCase()}
           </Text>
         </View>
@@ -525,7 +535,9 @@ export default function SearchScreen(): JSX.Element {
       <View style={styles.translateErrorRow}>
         <Ionicons name="cloud-offline-outline" size={16} color={colors.textMuted} />
         <Text style={styles.translateErrorText}>
-          {isNetworkError(quickTranslate.error) ? networkErrorMessage(t) : String(quickTranslate.error)}
+          {isNetworkError(quickTranslate.error)
+            ? networkErrorMessage(t)
+            : formatUserFriendlyProviderError(dictionaryProviderLabel(dictionary.name), quickTranslate.error, t)}
         </Text>
       </View>
       <Button
@@ -723,7 +735,11 @@ export default function SearchScreen(): JSX.Element {
               <Text style={styles.generateError}>
                 {isNetworkError(generate.error)
                   ? networkErrorMessage(t)
-                  : String(generate.error)}
+                  : formatUserFriendlyProviderError(
+                      ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI',
+                      generate.error,
+                      t,
+                    )}
               </Text>
             ) : null}
 

@@ -233,7 +233,7 @@ export function buildCardContext(args: {
     phrases: args.phrases.map((p) => ({ expression: p.expression, meaning: p.meaning })),
     audio: '',
     image: '',
-    cloze: args.cloze ? `${args.cloze.sentence} -> ${args.cloze.answer}` : '',
+    cloze: args.cloze ? `${args.cloze.sentence} > ${args.cloze.answer}` : '',
     cloze_blanked: args.cloze ? renderClozeBlanked(args.cloze.sentence) : '',
     cloze_revealed: args.cloze ? renderClozeRevealed(args.cloze.sentence, args.cloze.answer) : '',
     context_hint: genderLabel || null,

@@ -193,10 +193,17 @@ export function CardActionBar(props: {
   /** "Ask AI" — a follow-up question popup, separate from Explain/More info. Optional because not
    * every card-rendering context (e.g. a bare preview) wants it. */
   onAskAI?: () => void
-  /** "Regenerate" — replaces the whole card's AI-generated content from scratch. Optional and
-   * AI-cards-only; the caller is responsible for confirming before calling this (destructive). */
+  /** "Regenerate" — replaces the whole card's AI-generated content from scratch. Optional; the
+   * caller is responsible for confirming before calling this (destructive). Available on every
+   * card, not just already-AI ones — regenerating a dictionary/word-guide card upgrades it to a
+   * full AI card in place. */
   onRegenerate?: () => void
   regenerateLoading?: boolean
+  /** Disables Explain/More info, Ask AI, and Regenerate together — the three actions that read or
+   * rewrite this card's AI content — while some other AI write is already in flight for it (e.g.
+   * background auto-enrichment just after creation). Doesn't affect Listen/Edit/Delete/Look up,
+   * which don't touch AI-generated content. */
+  aiActionsDisabled?: boolean
   /** "Delete" — permanently deletes this generated card. */
   onDelete?: () => void
   deleteLoading?: boolean
@@ -213,9 +220,15 @@ export function CardActionBar(props: {
         active={props.explainVisible}
         onPress={props.onExplain}
         {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
+        {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
       />
       {props.onAskAI ? (
-        <CardActionButton icon="chatbubble-ellipses-outline" label="Ask AI" onPress={props.onAskAI} />
+        <CardActionButton
+          icon="chatbubble-ellipses-outline"
+          label="Ask AI"
+          onPress={props.onAskAI}
+          {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
+        />
       ) : null}
       {props.onRegenerate ? (
         <CardActionButton
@@ -223,6 +236,7 @@ export function CardActionBar(props: {
           label="Regenerate"
           onPress={props.onRegenerate}
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
+          {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
       ) : null}
       {props.onEdit ? (
@@ -248,6 +262,7 @@ function CardActionButton(props: {
   active?: boolean
   destructive?: boolean
   loading?: boolean
+  disabled?: boolean
   onPress: () => void
 }): JSX.Element {
   const colors = useColors()
@@ -257,9 +272,15 @@ function CardActionButton(props: {
     : props.active
       ? colors.primary
       : colors.textSecondary
+  const isDisabled = props.loading === true || props.disabled === true
 
   return (
-    <Pressable style={styles.cardActionButton} onPress={props.onPress} disabled={props.loading} hitSlop={4}>
+    <Pressable
+      style={[styles.cardActionButton, isDisabled && styles.cardActionButtonDisabled]}
+      onPress={props.onPress}
+      disabled={isDisabled}
+      hitSlop={4}
+    >
       {props.loading ? (
         <ActivityIndicator size="small" color={props.destructive ? colors.danger : colors.primary} />
       ) : (
@@ -779,6 +800,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
     },
     cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    cardActionButtonDisabled: { opacity: 0.4 },
     cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
     sectionHeader: {
       flexDirection: 'row',

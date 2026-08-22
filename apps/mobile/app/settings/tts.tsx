@@ -114,7 +114,7 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI\'s newest, most natural-sounding voices.',
       'If Validate says a project doesn\'t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn\'t enabled it.',
-      'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.',
+      'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.',
       'Alternatively, generate a new key from a project that already has it enabled (or the "Default project" if you have one).',
     ],
   },

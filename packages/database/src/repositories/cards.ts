@@ -353,10 +353,19 @@ export async function getCardsForDeck(
 }
 
 /**
- * Total number of cards. Home screen stat strip.
+ * Total number of cards actually in a deck — Home/Stats screen stat strip. Deliberately not
+ * `COUNT(*) FROM cards`: a card can exist with no deck_cards row at all (e.g. Search's
+ * "Generate with AI" and Word of the Day both create the card with `addToDeck: false`, see
+ * persistWordGeneration/persistTranslationAsCard, so the learner can explore/regenerate it before
+ * ever choosing to add it to a deck) — counting those inflated this stat well above what summing
+ * every deck's own card count would show, which is confusing on a screen whose whole point is "how
+ * many cards do I actually have." Counts distinct cards, not deck_cards rows, so a card added to
+ * more than one deck is still only counted once.
  */
 export async function getTotalCardCount(db: DatabaseAdapter): Promise<number> {
-  const result = await db.querySingle<{ count: number }>(`SELECT COUNT(*) AS count FROM cards`)
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(DISTINCT card_id) AS count FROM deck_cards`,
+  )
   return result?.count ?? 0
 }
 

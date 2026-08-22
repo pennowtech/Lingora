@@ -155,15 +155,25 @@ export default function HomeScreen(): JSX.Element {
             <Text style={styles.statValue}>{stats?.reviewedToday ?? '-'}</Text>
             <Text style={styles.statLabel}>{t('reviewed today')}</Text>
           </Card>
-          <Card style={styles.statCard}>
+          <Card style={styles.statCard} onPress={() => router.push('/stats')}>
             <Text style={styles.statValue}>
               {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
             </Text>
-            <Text style={styles.statLabel}>{t('retention')}</Text>
+            {/* "Retention" is SRS jargon — this is plainly the share of your last-30-days reviews
+                where you actually remembered the word (rated it above "Again"), so say that
+                instead. Tappable to /stats like "total cards" for the fuller explanation — a real
+                chevron icon signals that, not an ASCII "->" glued onto the label text. */}
+            <View style={styles.statLabelRow}>
+              <Text style={styles.statLabel}>{t('remembered')}</Text>
+              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+            </View>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
             <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
-            <Text style={styles.statLabel}>{t('total cards ->')}</Text>
+            <View style={styles.statLabelRow}>
+              <Text style={styles.statLabel}>{t('total cards')}</Text>
+              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+            </View>
           </Card>
         </View>
 
@@ -332,7 +342,8 @@ const createStyles = (colors: ThemeColors) =>
   statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   statCard: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center' },
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
+  statLabel: { fontSize: type.micro, color: colors.textSecondary, textAlign: 'center' },
+  statLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 1, marginTop: 2, opacity: 0.85 },
   // Word of the Day — primarySoft-tinted, matching this session's other AI-content cards (Search's
   // quick-explain preview), so it reads as the same "AI, actionable" family rather than a new motif.
   wotdCard: { gap: spacing.sm, backgroundColor: colors.primarySoft, borderColor: colors.primarySoft },

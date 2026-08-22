@@ -79,8 +79,7 @@ const ENGLISH_PHRASES = [
   'cards due for review',
   'Start review',
   'reviewed today',
-  'retention',
-  'total cards ->',
+  'remembered',
   'Quick actions',
   'Look up a word',
   'Mining queue',
@@ -227,10 +226,10 @@ const ENGLISH_PHRASES = [
   'e.g. Past perfect continuous, reported speech...',
   '✨ AI enriching meanings & examples...',
   'AI Enrichment Failed',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.",
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.',
   'Add your OpenAI key in Settings to generate examples.',
@@ -256,6 +255,8 @@ const ENGLISH_PHRASES = [
   'Generate examples',
   'Add your OpenAI key in Settings to generate targeted examples.',
   'Meanings in this word',
+  'Grammar info',
+  'Hide grammar info',
   'chat with your AI tutor',
   'Ask about "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.',
@@ -312,7 +313,8 @@ const ENGLISH_PHRASES = [
   // Stats
   'No stats yet',
   'Add and review some words to see your learning statistics here.',
-  'retention (30 d)',
+  'remembered (30 d)',
+  'How often you recalled a word correctly',
   'day streak',
   'total cards',
   'new this week',
@@ -664,7 +666,7 @@ const ENGLISH_PHRASES = [
   'Generated with AI - not from your installed dictionary.',
   'Generating your card...',
   'Generation came back incomplete - nothing was changed. Try again.',
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.',
   'Hide DeepL API key',
   'How Audio Settings works',
   'I speak',
@@ -849,7 +851,7 @@ const ENGLISH_PHRASES = [
   'this deck',
   'you@example.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.',
-  '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}',
   '{{count}} of {{total}} configured',
   '{{count}} selected',
   '{{count}}h',
@@ -1009,8 +1011,7 @@ const de: Partial<Record<Phrase, string>> = {
   'cards due for review': 'Karten zur Wiederholung fällig',
   'Start review': 'Wiederholung starten',
   'reviewed today': 'heute wiederholt',
-  retention: 'Behaltensrate',
-  'total cards ->': 'Karten insgesamt ->',
+  remembered: 'gemerkt',
   'Quick actions': 'Schnellzugriff',
   'Look up a word': 'Ein Wort nachschlagen',
   'Mining queue': 'Sammel-Warteschlange',
@@ -1152,14 +1153,14 @@ const de: Partial<Record<Phrase, string>> = {
   'e.g. Past perfect continuous, reported speech...': 'z. B. Plusquamperfekt, indirekte Rede...',
   '✨ AI enriching meanings & examples...': '✨ KI ergänzt Bedeutungen & Beispiele...',
   'AI Enrichment Failed': 'KI-Anreicherung fehlgeschlagen',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.':
-    'Das ausgewählte Modell ist mit Ihrem {{providerName}}-Schlüssel/Projekt nicht zugänglich. Versuchen Sie, ein anderes Modell in Einstellungen -> KI-Anbieter auszuwählen.',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.':
+    'Das ausgewählte Modell ist mit Ihrem {{providerName}}-Schlüssel/Projekt nicht zugänglich. Versuchen Sie, ein anderes Modell in Einstellungen > KI-Anbieter auszuwählen.',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
     'Guthaben oder Kontingent von {{providerName}} überschritten. Bitte überprüfen Sie Ihren Tarif und Ihre Abrechnungsdaten.',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
     'Ratenlimit von {{providerName}} erreicht. Bitte warten Sie einige Sekunden und versuchen Sie es erneut.',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.':
-    'Ungültiger {{providerName}}-API-Schlüssel oder Zugriff verweigert. Bitte überprüfen Sie Ihren Schlüssel in Einstellungen -> KI-Anbieter.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.':
+    'Ungültiger {{providerName}}-API-Schlüssel oder Zugriff verweigert. Bitte überprüfen Sie Ihren Schlüssel in Einstellungen > KI-Anbieter.',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.":
     '{{providerName}} konnte nicht erreicht werden - überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.',
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
@@ -1198,6 +1199,8 @@ const de: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Füge deinen OpenAI-Schlüssel in den Einstellungen hinzu, um gezielte Beispiele zu erzeugen.',
   'Meanings in this word': 'Bedeutungen dieses Wortes',
+  'Grammar info': 'Grammatikinfo',
+  'Hide grammar info': 'Grammatikinfo ausblenden',
   'chat with your AI tutor': 'mit deinem KI-Tutor zu chatten',
   'Ask about "{{word}}"': 'Frag zu „{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
@@ -1255,7 +1258,8 @@ const de: Partial<Record<Phrase, string>> = {
   'No stats yet': 'Noch keine Statistiken',
   'Add and review some words to see your learning statistics here.':
     'Füge Wörter hinzu und wiederhole sie, um hier deine Lernstatistiken zu sehen.',
-  'retention (30 d)': 'Behaltensrate (30 T.)',
+  'remembered (30 d)': 'gemerkt (30 T.)',
+  'How often you recalled a word correctly': 'Wie oft du dich richtig an ein Wort erinnert hast',
   'day streak': 'Tage-Serie',
   'total cards': 'Karten insgesamt',
   'new this week': 'neu diese Woche',
@@ -1658,8 +1662,8 @@ const de: Partial<Record<Phrase, string>> = {
   'Generating your card...': 'Deine Karte wird erzeugt...',
   'Generation came back incomplete - nothing was changed. Try again.':
     'Die Generierung kam unvollständig zurück - es wurde nichts geändert. Versuche es erneut.',
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.':
-    'Gehe zu platform.openai.com -> Settings -> Projects -> wähle das Projekt, zu dem dieser Schlüssel gehört -> Models -> aktiviere gpt-4o-mini-tts für dieses Projekt.',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
+    'Gehe zu platform.openai.com > Settings > Projects > wähle das Projekt, zu dem dieser Schlüssel gehört > Models > aktiviere gpt-4o-mini-tts für dieses Projekt.',
   'Hide DeepL API key': 'DeepL-API-Schlüssel ausblenden',
   Hindi: 'Hindi',
   'How Audio Settings works': 'Wie Audio-Einstellungen funktioniert',
@@ -1936,7 +1940,7 @@ const de: Partial<Record<Phrase, string>> = {
   'you@example.com': 'you@example.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} gibt einen Wert aus. {% if gender %}...{% endif %} zeigt Inhalt nur an, wenn ein Feld einen Wert hat - gut für optionale Felder. {% for s in synonyms %}...{% endfor %} durchläuft eine Liste; füge „limit:2" hinzu, um sie zu begrenzen, und {% unless forloop.last %}...{% endunless %}, um zwischen Elementen einen Trenner einzufügen, aber nicht nach dem letzten.',
-  '{{cefr}} · {{native}} -> {{target}}': '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}': '{{cefr}} · {{native}} > {{target}}',
   '{{count}} of {{total}} configured': '{{count}} von {{total}} konfiguriert',
   '{{count}} selected': '{{count}} ausgewählt',
   '{{count}}h': '{{count}}h',
@@ -2107,8 +2111,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'cards due for review': 'cartes à réviser',
   'Start review': 'Commencer la révision',
   'reviewed today': "révisées aujourd'hui",
-  retention: 'rétention',
-  'total cards ->': 'total des cartes ->',
+  remembered: 'mémorisé',
   'Quick actions': 'Actions rapides',
   'Look up a word': 'Chercher un mot',
   'Mining queue': 'File de minage',
@@ -2216,14 +2219,14 @@ const fr: Partial<Record<Phrase, string>> = {
   'Could not read clipboard': 'Impossible de lire le presse-papiers',
   '✨ AI enriching meanings & examples...': '✨ L\'IA enrichit les significations et exemples...',
   'AI Enrichment Failed': 'Échec de l\'enrichissement IA',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.':
-    'Le modèle sélectionné n\'est pas accessible avec votre clé/projet {{providerName}}. Essayez de choisir un autre modèle dans Paramètres -> Fournisseurs IA.',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.':
+    'Le modèle sélectionné n\'est pas accessible avec votre clé/projet {{providerName}}. Essayez de choisir un autre modèle dans Paramètres > Fournisseurs IA.',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
     'Solde de crédit ou quota {{providerName}} dépassé. Veuillez vérifier votre abonnement et vos coordonnées de facturation.',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
     'Limite de fréquence {{providerName}} atteinte. Veuillez patienter quelques secondes et réessayer.',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.':
-    'Clé d\'API {{providerName}} non valide ou autorisation refusée. Veuillez vérifier votre clé dans Paramètres -> Fournisseurs IA.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.':
+    'Clé d\'API {{providerName}} non valide ou autorisation refusée. Veuillez vérifier votre clé dans Paramètres > Fournisseurs IA.',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.":
     'Impossible d\'atteindre {{providerName}} - vérifiez la connexion Internet de votre appareil et réessayez.',
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
@@ -2285,6 +2288,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Ajoutez votre clé OpenAI dans les réglages pour générer des exemples ciblés.',
   'Meanings in this word': 'Sens de ce mot',
+  'Grammar info': 'Infos grammaticales',
+  'Hide grammar info': 'Masquer les infos grammaticales',
   'chat with your AI tutor': 'discuter avec votre tuteur IA',
   'Ask about "{{word}}"': 'Posez une question sur « {{word}} »',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
@@ -2342,7 +2347,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'No stats yet': 'Aucune statistique pour le moment',
   'Add and review some words to see your learning statistics here.':
     'Ajoutez et révisez des mots pour voir vos statistiques ici.',
-  'retention (30 d)': 'rétention (30 j)',
+  'remembered (30 d)': 'mémorisé (30 j)',
+  'How often you recalled a word correctly': 'À quelle fréquence vous vous souvenez correctement d\'un mot',
   'day streak': 'série de jours',
   'total cards': 'total des cartes',
   'new this week': 'nouveaux cette semaine',
@@ -2747,8 +2753,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'Generating your card...': 'Génération de ta carte...',
   'Generation came back incomplete - nothing was changed. Try again.':
     "La génération est revenue incomplète - rien n'a été modifié. Réessaie.",
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.':
-    'Va sur platform.openai.com -> Settings -> Projects -> sélectionne le projet auquel appartient cette clé -> Models -> active gpt-4o-mini-tts pour ce projet.',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
+    'Va sur platform.openai.com > Settings > Projects > sélectionne le projet auquel appartient cette clé > Models > active gpt-4o-mini-tts pour ce projet.',
   'Hide DeepL API key': 'Masquer la clé API DeepL',
   Hindi: 'Hindi',
   'How Audio Settings works': 'Comment fonctionnent les réglages audio',
@@ -3020,7 +3026,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'you@example.com': 'toi@exemple.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} affiche une valeur. {% if gender %}...{% endif %} affiche du contenu seulement quand un champ en a un - utile pour les champs facultatifs. {% for s in synonyms %}...{% endfor %} parcourt une liste ; ajoute « limit:2 » pour la limiter, et {% unless forloop.last %}...{% endunless %} pour ajouter un séparateur entre les éléments mais pas après le dernier.',
-  '{{cefr}} · {{native}} -> {{target}}': '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}': '{{cefr}} · {{native}} > {{target}}',
   '{{count}} of {{total}} configured': '{{count}} sur {{total}} configuré(s)',
   '{{count}} selected': '{{count}} sélectionné(s)',
   '{{count}}h': '{{count}} h',
@@ -3191,8 +3197,7 @@ const es: Partial<Record<Phrase, string>> = {
   'cards due for review': 'tarjetas pendientes de repaso',
   'Start review': 'Iniciar repaso',
   'reviewed today': 'repasadas hoy',
-  retention: 'retención',
-  'total cards ->': 'tarjetas totales ->',
+  remembered: 'recordado',
   'Quick actions': 'Acciones rápidas',
   'Look up a word': 'Buscar una palabra',
   'Mining queue': 'Cola de minería',
@@ -3299,14 +3304,14 @@ const es: Partial<Record<Phrase, string>> = {
   'Could not read clipboard': 'No se pudo leer el portapapeles',
   '✨ AI enriching meanings & examples...': '✨ IA enriqueciendo significados y ejemplos...',
   'AI Enrichment Failed': 'Error en el enriquecimiento de IA',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.':
-    'El modelo seleccionado no está accesible con tu clave/proyecto de {{providerName}}. Intenta seleccionar otro modelo en Ajustes -> Proveedores de IA.',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.':
+    'El modelo seleccionado no está accesible con tu clave/proyecto de {{providerName}}. Intenta seleccionar otro modelo en Ajustes > Proveedores de IA.',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
     'Saldo o cuota de {{providerName}} superados. Consulta tu plan de cuenta y datos de facturación.',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
     'Límite de solicitudes de {{providerName}} alcanzado. Espera unos segundos e inténtalo de nuevo.',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.':
-    'Clave API de {{providerName}} no válida o permiso denegado. Revisa tu clave en Ajustes -> Proveedores de IA.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.':
+    'Clave API de {{providerName}} no válida o permiso denegado. Revisa tu clave en Ajustes > Proveedores de IA.',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.":
     'No se pudo acceder a {{providerName}}: comprueba la conexión a Internet e inténtalo de nuevo.',
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
@@ -3368,6 +3373,8 @@ const es: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Añade tu clave de OpenAI en Ajustes para generar ejemplos específicos.',
   'Meanings in this word': 'Significados de esta palabra',
+  'Grammar info': 'Información gramatical',
+  'Hide grammar info': 'Ocultar información gramatical',
   'chat with your AI tutor': 'chatear con tu tutor de IA',
   'Ask about "{{word}}"': 'Pregunta sobre "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
@@ -3425,7 +3432,8 @@ const es: Partial<Record<Phrase, string>> = {
   'No stats yet': 'Aún no hay estadísticas',
   'Add and review some words to see your learning statistics here.':
     'Añade y repasa algunas palabras para ver aquí tus estadísticas de aprendizaje.',
-  'retention (30 d)': 'retención (30 d)',
+  'remembered (30 d)': 'recordado (30 d)',
+  'How often you recalled a word correctly': 'Con qué frecuencia recuerdas correctamente una palabra',
   'day streak': 'racha de días',
   'total cards': 'tarjetas totales',
   'new this week': 'nuevas esta semana',
@@ -3829,8 +3837,8 @@ const es: Partial<Record<Phrase, string>> = {
   'Generating your card...': 'Generando tu tarjeta...',
   'Generation came back incomplete - nothing was changed. Try again.':
     'La generación volvió incompleta; no se cambió nada. Inténtalo de nuevo.',
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.':
-    'Ve a platform.openai.com -> Settings -> Projects -> selecciona el proyecto al que pertenece esta clave -> Models -> activa gpt-4o-mini-tts para ese proyecto.',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
+    'Ve a platform.openai.com > Settings > Projects > selecciona el proyecto al que pertenece esta clave > Models > activa gpt-4o-mini-tts para ese proyecto.',
   'Google Translate': 'Google Translate',
   'Hide DeepL API key': 'Ocultar clave de API de DeepL',
   Hindi: 'Hindi',
@@ -4102,7 +4110,7 @@ const es: Partial<Record<Phrase, string>> = {
   'you@example.com': 'tu@ejemplo.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} imprime un valor. {% if gender %}...{% endif %} muestra contenido solo cuando un campo lo tiene; útil para campos opcionales. {% for s in synonyms %}...{% endfor %} recorre una lista; añade "limit:2" para limitarla, y {% unless forloop.last %}...{% endunless %} para añadir un separador entre elementos pero no después del último.',
-  '{{cefr}} · {{native}} -> {{target}}': '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}': '{{cefr}} · {{native}} > {{target}}',
   '{{count}} of {{total}} configured': '{{count}} de {{total}} configurados',
   '{{count}} selected': '{{count}} seleccionados',
   '{{count}} tokens': '{{count}} tokens',
@@ -4274,8 +4282,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'cards due for review': 'दोहराने के लिए कार्ड बाकी',
   'Start review': 'दोहराव शुरू करें',
   'reviewed today': 'आज दोहराए गए',
-  retention: 'अवधारण दर',
-  'total cards ->': 'कुल कार्ड ->',
+  remembered: 'याद रखा',
   'Quick actions': 'त्वरित कार्य',
   'Look up a word': 'एक शब्द खोजें',
   'Mining queue': 'माइनिंग कतार',
@@ -4383,14 +4390,14 @@ const hi: Partial<Record<Phrase, string>> = {
   'Could not read clipboard': 'क्लिपबोर्ड पढ़ा नहीं जा सका',
   '✨ AI enriching meanings & examples...': '✨ AI अर्थ और उदाहरण जोड़ रहा है...',
   'AI Enrichment Failed': 'AI संवर्धन विफल रहा',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.':
-    'चयनित मॉडल आपकी {{providerName}} कुंजी/प्रोजेक्ट के साथ उपलब्ध नहीं है। सेटिंग्स -> AI प्रदाता में दूसरा मॉडल चुनें।',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.':
+    'चयनित मॉडल आपकी {{providerName}} कुंजी/प्रोजेक्ट के साथ उपलब्ध नहीं है। सेटिंग्स > AI प्रदाता में दूसरा मॉडल चुनें।',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
     '{{providerName}} क्रेडिट शेष या कोटा समाप्त हो गया है। कृपया अपना खाता प्लान और बिलिंग विवरण जांचें।',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
     '{{providerName}} दर सीमा समाप्त हो गई है। कृपया कुछ सेकंड प्रतीक्षा करें और पुनः प्रयास करें।',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.':
-    'अमान्य {{providerName}} API कुंजी या अनुमति अस्वीकृत। सेटिंग्स -> AI प्रदाता में अपनी कुंजी जांचें।',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.':
+    'अमान्य {{providerName}} API कुंजी या अनुमति अस्वीकृत। सेटिंग्स > AI प्रदाता में अपनी कुंजी जांचें।',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.":
     '{{providerName}} तक पहुंच नहीं हो सकी - अपने डिवाइस का इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।',
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
@@ -4452,6 +4459,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'लक्षित उदाहरण बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें।',
   'Meanings in this word': 'इस शब्द के अर्थ',
+  'Grammar info': 'व्याकरण जानकारी',
+  'Hide grammar info': 'व्याकरण जानकारी छिपाएं',
   'chat with your AI tutor': 'अपने AI ट्यूटर से बात करने',
   'Ask about "{{word}}"': '"{{word}}" के बारे में पूछें',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
@@ -4509,7 +4518,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'No stats yet': 'अभी तक कोई आँकड़े नहीं',
   'Add and review some words to see your learning statistics here.':
     'यहाँ अपने सीखने के आँकड़े देखने के लिए कुछ शब्द जोड़ें और दोहराएं।',
-  'retention (30 d)': 'अवधारण (30 दिन)',
+  'remembered (30 d)': 'याद रखा (30 दिन)',
+  'How often you recalled a word correctly': 'आप किसी शब्द को कितनी बार सही याद कर पाते हैं',
   'day streak': 'दिनों की लड़ी',
   'total cards': 'कुल कार्ड',
   'new this week': 'इस सप्ताह नए',
@@ -4914,8 +4924,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'Generating your card...': 'आपका कार्ड जनरेट हो रहा है...',
   'Generation came back incomplete - nothing was changed. Try again.':
     'जनरेशन अधूरा आया - कुछ भी नहीं बदला गया। दोबारा कोशिश करें।',
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.':
-    'platform.openai.com पर जाएं -> Settings -> Projects -> वह प्रोजेक्ट चुनें जिससे यह key जुड़ी है -> Models -> उस प्रोजेक्ट के लिए gpt-4o-mini-tts चालू करें।',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
+    'platform.openai.com पर जाएं > Settings > Projects > वह प्रोजेक्ट चुनें जिससे यह key जुड़ी है > Models > उस प्रोजेक्ट के लिए gpt-4o-mini-tts चालू करें।',
   'Hide DeepL API key': 'DeepL API key छुपाएं',
   'How Audio Settings works': 'ऑडियो सेटिंग्स कैसे काम करती हैं',
   'I speak': 'मैं बोलता/बोलती हूं',
@@ -5183,7 +5193,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'you@example.com': 'you@example.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} एक वैल्यू प्रिंट करता है। {% if gender %}...{% endif %} तभी कंटेंट दिखाता है जब किसी फ़ील्ड में कोई वैल्यू हो - यह वैकल्पिक फ़ील्ड के लिए अच्छा है। {% for s in synonyms %}...{% endfor %} किसी लिस्ट पर लूप चलाता है; उसे सीमित करने के लिए "limit:2" जोड़ें, और आख़िरी को छोड़कर बाकी आइटम के बीच सेपरेटर जोड़ने के लिए {% unless forloop.last %}...{% endunless %} इस्तेमाल करें।',
-  '{{cefr}} · {{native}} -> {{target}}': '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}': '{{cefr}} · {{native}} > {{target}}',
   '{{count}} of {{total}} configured': '{{total}} में से {{count}} कॉन्फ़िगर किए गए',
   '{{count}} selected': '{{count}} चुने गए',
   '{{count}}h': '{{count}}घं',
@@ -5373,6 +5383,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Thêm khóa OpenAI trong Cài đặt để tạo ví dụ theo yêu cầu.',
   'Meanings in this word': 'Các nghĩa của từ này',
+  'Grammar info': 'Thông tin ngữ pháp',
+  'Hide grammar info': 'Ẩn thông tin ngữ pháp',
   'chat with your AI tutor': 'trò chuyện với gia sư AI của bạn',
   'Ask about "{{word}}"': 'Hỏi về "{{word}}"',
   'Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.':
@@ -5504,14 +5516,14 @@ const vi: Partial<Record<Phrase, string>> = {
   'Could not read clipboard': 'Không thể đọc khay nhớ tạm',
   '✨ AI enriching meanings & examples...': '✨ AI đang bổ sung nghĩa và ví dụ...',
   'AI Enrichment Failed': 'Bổ sung AI thất bại',
-  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.':
-    'Mô hình đã chọn không thể truy cập bằng khóa/dự án {{providerName}} của bạn. Thử chọn mô hình khác trong Cài đặt -> Nhà cung cấp AI.',
+  'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.':
+    'Mô hình đã chọn không thể truy cập bằng khóa/dự án {{providerName}} của bạn. Thử chọn mô hình khác trong Cài đặt > Nhà cung cấp AI.',
   '{{providerName}} credit balance or quota exceeded. Please check your account plan and billing details.':
     'Hạn ngạch hoặc số dư {{providerName}} đã hết. Vui lòng kiểm tra gói tài khoản và thông tin thanh toán.',
   '{{providerName}} rate limit reached. Please wait a few seconds and try again.':
     'Đã đạt giới hạn yêu cầu của {{providerName}}. Vui lòng đợi vài giây và thử lại.',
-  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.':
-    'Khóa API {{providerName}} không hợp lệ hoặc bị từ chối quyền. Vui lòng kiểm tra khóa trong Cài đặt -> Nhà cung cấp AI.',
+  'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.':
+    'Khóa API {{providerName}} không hợp lệ hoặc bị từ chối quyền. Vui lòng kiểm tra khóa trong Cài đặt > Nhà cung cấp AI.',
   "Couldn't reach {{providerName}} - check your device's internet connection and try again.":
     'Không thể kết nối tới {{providerName}} - kiểm tra kết nối internet của thiết bị và thử lại.',
   '{{providerName}} servers are temporarily unavailable ({{status}}). Please try again shortly.':
@@ -5677,8 +5689,8 @@ const vi: Partial<Record<Phrase, string>> = {
   German: 'Tiếng Đức',
   '{{language}}-English Dictionary': 'Từ điển {{language}}-Anh',
   'Give the deck a name.': 'Đặt tên cho bộ thẻ.',
-  'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.':
-    'Vào platform.openai.com -> Settings -> Projects -> chọn dự án mà khóa này thuộc về -> Models -> bật gpt-4o-mini-tts cho dự án đó.',
+  'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
+    'Vào platform.openai.com > Settings > Projects > chọn dự án mà khóa này thuộc về > Models > bật gpt-4o-mini-tts cho dự án đó.',
   'Google Translate': 'Google Dịch',
   'Grammar error': 'Lỗi ngữ pháp',
   HARD: 'KHÓ',
@@ -6221,8 +6233,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'new this week': 'mới trong tuần này',
   'new words per week': 'từ mới mỗi tuần',
   'regenerate this card': 'tạo lại thẻ này',
-  retention: 'tỷ lệ ghi nhớ',
-  'retention (30 d)': 'tỷ lệ ghi nhớ (30 ngày)',
+  'remembered (30 d)': 'đã nhớ (30 ngày)',
+  'How often you recalled a word correctly': 'Tần suất bạn nhớ đúng một từ',
   reverse: 'chiều ngược lại',
   'reviewed today': 'đã ôn hôm nay',
   'rule - reference it in your CSS below as':
@@ -6232,7 +6244,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'tap to reveal': 'chạm để hiện đáp án',
   'this deck': 'bộ thẻ này',
   'total cards': 'tổng số thẻ',
-  'total cards ->': 'tổng số thẻ ->',
+  remembered: 'đã nhớ',
   'use on flashcard': 'dùng trên thẻ ghi nhớ',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · ưu tiên ngoại tuyến · dữ liệu của bạn luôn ở trên thiết bị',
@@ -6245,7 +6257,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'you@example.com': 'you@example.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} in ra một giá trị. {% if gender %}...{% endif %} chỉ hiển thị nội dung khi trường đó có giá trị - hữu ích cho các trường không bắt buộc. {% for s in synonyms %}...{% endfor %} lặp qua một danh sách; thêm "limit:2" để giới hạn số lượng, và {% unless forloop.last %}...{% endunless %} để thêm dấu phân cách giữa các mục nhưng không thêm sau mục cuối cùng.',
-  '{{cefr}} · {{native}} -> {{target}}': '{{cefr}} · {{native}} -> {{target}}',
+  '{{cefr}} · {{native}} > {{target}}': '{{cefr}} · {{native}} > {{target}}',
   '{{count}} days': '{{count}} ngày',
   '{{count}} due': '{{count}} đến hạn',
   '{{count}} failed': '{{count}} thất bại',

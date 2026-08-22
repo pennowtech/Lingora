@@ -100,7 +100,8 @@ export default function StatsScreen(): JSX.Element {
       <View style={styles.grid}>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>{Math.round(stats.retention30d * 100)}%</Text>
-          <Text style={styles.gridLabel}>{t('retention (30 d)')}</Text>
+          <Text style={styles.gridLabel}>{t('remembered (30 d)')}</Text>
+          <Text style={styles.gridHint}>{t('How often you recalled a word correctly')}</Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>🔥 {stats.streakDays}</Text>
@@ -210,6 +211,13 @@ const createStyles = (colors: ThemeColors) =>
     gridCard: { width: '48%', flexGrow: 1, alignItems: 'center', paddingVertical: spacing.lg },
     gridValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
     gridLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
+    gridHint: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+      marginTop: 4,
+      textAlign: 'center',
+      lineHeight: 15,
+    },
     heatmap: { gap: 4 },
     heatRow: { flexDirection: 'row', gap: 4 },
     heatCell: { flex: 1, aspectRatio: 1, borderRadius: 4 },

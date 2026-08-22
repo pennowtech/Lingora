@@ -303,7 +303,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
           </View>
           <Text style={styles.comingSoonText}>
             {LANG_LABELS[nativeLang]} ({t('Native')})
-            {' -> '}
+            {' > '}
             {LANG_LABELS[targetLang]} ({t('Learning')})
           </Text>
 

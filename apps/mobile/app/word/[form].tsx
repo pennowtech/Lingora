@@ -366,6 +366,7 @@ export default function WordDetailScreen(): JSX.Element {
   })
 
   const [clusterId, setClusterId] = useState<string | null>(null)
+  const [formsExpanded, setFormsExpanded] = useState(false)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
@@ -1097,10 +1098,22 @@ export default function WordDetailScreen(): JSX.Element {
   ]
     .filter(Boolean)
     .join(' · ')
-  const inflectionMeta = word.inflections
+  const inflectionForms = word.inflections
     .filter((inf) => inf.surface !== word.lemma.form)
     .map((inf) => inf.surface)
-    .join(' · ')
+  const grammarInfo = [lemmaMeta, ...inflectionForms].filter(Boolean).join(' · ')
+
+  // A card opened via "Generate with AI" (search.tsx) starts life with a dictionary source — the
+  // optimistic card is created before the AI call even starts, see search.tsx's generate mutation
+  // — so isAiCard alone stays false for the whole window between navigation and a successful
+  // autoEnrichMutation, including forever if that enrichment fails. That's not a dictionary card
+  // by intent, so Edit shouldn't appear on it just because enrichment hasn't landed yet — autoEnrich
+  // (set for exactly this flow, see the effect above) is the signal that distinguishes "AI content
+  // hasn't arrived yet" from "this really is a plain dictionary/word-guide card."
+  const aiIntended = isAiCard || autoEnrich === 'true'
+  // Regenerate/More info/Ask AI all read or rewrite this card's AI content — disabled while some
+  // other AI write for it is already in flight, so a tap can't race a background one.
+  const aiEnriching = autoEnrichMutation.isPending || regenerateCard.isPending
 
   return (
     <>
@@ -1137,10 +1150,31 @@ export default function WordDetailScreen(): JSX.Element {
                 <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples...')}</Text>
               </View>
             ) : null}
-            <Text style={styles.wordMeta}>
-              {lemmaMeta}
-              {inflectionMeta ? ` · ${inflectionMeta}` : ''}
-            </Text>
+            {/* Part of speech/gender/plural and inflected forms both collapsed behind one tap by
+                default — neither is needed to judge whether this is the right word before reading
+                its meaning, and a verb's full conjugation set dumped inline right under the
+                headword was the actual clutter. One combined toggle rather than two, since both
+                are the same kind of thing (grammar metadata) and showing "verb" without a way to
+                see its forms (or vice versa) would be an arbitrary split. */}
+            {grammarInfo !== '' ? (
+              <>
+                <Pressable
+                  style={styles.formsToggle}
+                  onPress={() => setFormsExpanded((prev) => !prev)}
+                  hitSlop={8}
+                >
+                  <Text style={styles.formsToggleLabel}>
+                    {formsExpanded ? t('Hide grammar info') : t('Grammar info')}
+                  </Text>
+                  <Ionicons
+                    name={formsExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={13}
+                    color={colors.primary}
+                  />
+                </Pressable>
+                {formsExpanded ? <Text style={styles.wordMeta}>{grammarInfo}</Text> : null}
+              </>
+            ) : null}
           </View>
           <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
         </View>
@@ -1221,13 +1255,12 @@ export default function WordDetailScreen(): JSX.Element {
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
                   {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
-                  {...(!isAiCard && { onEdit: openEdit })}
+                  {...(!aiIntended && { onEdit: openEdit })}
                   onLookup={handleLookup}
                   onAskAI={handleAskAI}
-                  {...(isAiCard && {
-                    onRegenerate: handleRegenerate,
-                    regenerateLoading: regenerateCard.isPending,
-                  })}
+                  onRegenerate={handleRegenerate}
+                  regenerateLoading={regenerateCard.isPending}
+                  aiActionsDisabled={aiEnriching}
                   onDelete={handleDeleteCard}
                   deleteLoading={deleteCardMutation.isPending}
                 />
@@ -1893,7 +1926,15 @@ const createStyles = (colors: ThemeColors) =>
     headerText: { flex: 1, marginRight: spacing.md },
     wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
-    wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
+    wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.xs },
+    formsToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginTop: 2,
+      alignSelf: 'flex-start',
+    },
+    formsToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
     aiEnrichingBadge: {
       flexDirection: 'row',
       alignItems: 'center',

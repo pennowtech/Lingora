@@ -72,7 +72,7 @@ export function formatUserFriendlyProviderError(
     lower.includes('unsupported model')
   ) {
     return tr(
-      'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.',
+      'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings > AI Providers.',
       { providerName },
     )
   }
@@ -111,7 +111,7 @@ export function formatUserFriendlyProviderError(
     lower.includes('forbidden')
   ) {
     return tr(
-      'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.',
+      'Invalid {{providerName}} API key or permission denied. Please check your key in Settings > AI Providers.',
       { providerName },
     )
   }

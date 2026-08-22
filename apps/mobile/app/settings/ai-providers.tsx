@@ -225,7 +225,7 @@ export default function AiProvidersScreen(): JSX.Element {
 
       <Card style={styles.providerCard}>
         <Text style={styles.fieldHint}>
-          {t('Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled. Bring your own API key — nothing is sent until you generate a card.')}
+          {t('Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled. Bring your own API key - nothing is sent until you generate a card.')}
         </Text>
 
         {loaded && configuredProviders.length > 1 ? (
@@ -382,7 +382,7 @@ function ProviderCard(props: {
             <TextInput
               testID={`provider-key-input-${name}`}
               style={styles.keyInputWithIcon}
-              placeholder={t('Paste your {{provider}} API key…', { provider: meta.label })}
+              placeholder={t('Paste your {{provider}} API key...', { provider: meta.label })}
               placeholderTextColor={colors.textMuted}
               value={state.apiKey}
               onChangeText={props.onChangeApiKey}

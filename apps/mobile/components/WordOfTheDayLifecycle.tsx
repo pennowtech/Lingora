@@ -35,9 +35,14 @@ export function WordOfTheDayLifecycle(): JSX.Element | null {
   // before the root navigator has finished mounting on a cold start from the notification itself.
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const path = response.notification.request.content.data?.path
+      const data = response.notification.request.content.data
+      const path = data?.path
       if (typeof path !== 'string') return
-      const url = Linking.createURL(path)
+      // Carries the notification's own explanation text through so word/[form].tsx can show it
+      // right away (its isGeneratingNewWord skeleton) instead of a bare loading badge while the
+      // full AI card generates in the background.
+      const initialExplanation = typeof data?.initialExplanation === 'string' ? data.initialExplanation : undefined
+      const url = Linking.createURL(path, { ...(initialExplanation && { queryParams: { initialExplanation } }) })
       Linking.openURL(url).catch((error: unknown) => {
         log.error('vocabulary.word_of_the_day_notification_navigation_failed', error, {
           message: 'Failed to open Word of the Day notification',

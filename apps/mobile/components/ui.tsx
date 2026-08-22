@@ -340,7 +340,7 @@ export function Dropdown(props: {
             </View>
           ) : null}
           <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
-            {selected?.label ?? props.placeholder ?? 'Select…'}
+            {selected?.label ?? props.placeholder ?? 'Select...'}
           </Text>
           {selected?.badgeCount !== undefined ? (
             <View style={styles.dropdownBadge}>
@@ -421,9 +421,9 @@ interface ExportFormatOption {
 }
 
 const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
-  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet — word, meaning, example, and more.', icon: 'grid' },
+  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'grid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'albums' },
-  { format: 'markdown', label: 'Markdown', description: 'A readable word — meaning — example list. Not re-importable.', icon: 'document-text' },
+  { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'document-text' },
   { format: 'lin', label: 'Lemmory (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
 ]
 
@@ -446,7 +446,7 @@ export function ExportFormatSheet(props: {
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
-        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as…'}</Text>
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as...'}</Text>
         {EXPORT_FORMAT_OPTIONS.map((opt) => (
           <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
             <View style={styles.exportOptionIcon}>
@@ -477,8 +477,8 @@ interface ImportFormatOption {
 
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
-  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck — including Cloze notes.', icon: 'albums' },
-  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory — full fidelity, including review history.', icon: 'sparkles' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'albums' },
+  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */
@@ -495,7 +495,7 @@ export function ImportFormatSheet(props: {
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
-        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from…'}</Text>
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from...'}</Text>
         {IMPORT_FORMAT_OPTIONS.map((opt) => (
           <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
             <View style={styles.exportOptionIcon}>

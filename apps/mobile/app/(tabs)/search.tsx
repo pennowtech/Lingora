@@ -52,7 +52,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Instant lookup',
     icon: 'search-outline',
     paragraphs: [
-      'Type a word in either language you\'ve set up under Learning — your own vocabulary is searched instantly as you type.',
+      'Type a word in either language you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
       'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
     ],
   },
@@ -61,7 +61,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'When a word is new to you',
     icon: 'sparkles-outline',
     paragraphs: [
-      'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview — both are read-only until you choose to add one to a deck.',
+      'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview - both are read-only until you choose to add one to a deck.',
       '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
     ],
   },
@@ -79,7 +79,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Search from anywhere',
     icon: 'share-outline',
     paragraphs: [
-      'Long-press a word in any app — your browser, messages, anywhere — and pick "Search in Lemmory." It opens right here with that word ready to go.',
+      'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemmory." It opens right here with that word ready to go.',
       'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
       'Want it to work a bit differently? There\'s a setting for that in Settings, under "Share & Search."',
     ],
@@ -397,7 +397,7 @@ export default function SearchScreen(): JSX.Element {
 
       const totalFlowDurationMs = Date.now() - flowStart
       log.info('search.ai_generation_optimistic_created', {
-        message: `Optimistic card created in ${totalFlowDurationMs}ms for "${lemma.form}" — navigating instantly!`,
+        message: `Optimistic card created in ${totalFlowDurationMs}ms for "${lemma.form}" - navigating instantly!`,
         durationMs: totalFlowDurationMs,
       })
 
@@ -439,9 +439,9 @@ export default function SearchScreen(): JSX.Element {
   // phrases) in one AI round-trip with no real partial-progress signal — cycling the overlay's
   // message is purely about making the wait feel legible, not reporting actual progress.
   const generatingMessages = [
-    t('Looking up "{{word}}"…', { word: term }),
-    t('Writing meanings and examples…'),
-    t('Almost done…'),
+    t('Looking up "{{word}}"...', { word: term }),
+    t('Writing meanings and examples...'),
+    t('Almost done...'),
   ]
   const generatingMessageIndex = useCyclingIndex(generate.isPending, generatingMessages.length)
 
@@ -471,7 +471,7 @@ export default function SearchScreen(): JSX.Element {
   const quickTranslatePreview = quickTranslate.isPending ? (
     <Card style={styles.translateCard}>
       <ActivityIndicator size="small" color={colors.textSecondary} />
-      <Text style={styles.translateLabel}>{t('Translating…')}</Text>
+      <Text style={styles.translateLabel}>{t('Translating...')}</Text>
     </Card>
   ) : quickTranslate.data ? (
     <Card style={styles.translateCard}>
@@ -479,7 +479,9 @@ export default function SearchScreen(): JSX.Element {
         <View style={styles.guideTitleGroup}>
           <Text style={styles.guideHeadword}>{term}</Text>
           <Text style={styles.guidePosText}>
-            {quickTranslate.data.source.toUpperCase()} → {quickTranslate.data.target.toUpperCase()}
+            {quickTranslate.data.source.toUpperCase()}
+            {' -> '}
+            {quickTranslate.data.target.toUpperCase()}
           </Text>
         </View>
         <View style={styles.guideActionIcons}>
@@ -554,7 +556,7 @@ export default function SearchScreen(): JSX.Element {
           <TextInput
             testID="search-input"
             style={styles.input}
-            placeholder={t('Type a {{target}} or {{native}} word…', {
+            placeholder={t('Type a {{target}} or {{native}} word...', {
               target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
               native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
             })}
@@ -655,7 +657,7 @@ export default function SearchScreen(): JSX.Element {
             {generate.isPending ? (
               <Card style={styles.generateCard}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.generateLabel}>{t('Generating…')}</Text>
+                <Text style={styles.generateLabel}>{t('Generating...')}</Text>
               </Card>
             ) : tier === 'full' ? (
               explainReady && quickExplain.data ? (
@@ -696,7 +698,7 @@ export default function SearchScreen(): JSX.Element {
                     <View style={styles.explainHeaderRow}>
                       <ActivityIndicator size="small" color={colors.primary} />
                       <Text style={styles.explainLoadingLabel} numberOfLines={1}>
-                        {t('Getting AI insights for "{{word}}"…', { word: term })}
+                        {t('Getting AI insights for "{{word}}"...', { word: term })}
                       </Text>
                     </View>
                   </Card>
@@ -712,7 +714,7 @@ export default function SearchScreen(): JSX.Element {
                 <Card style={styles.limitedCard}>
                   <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
                   <Text style={styles.limitedLabel}>
-                    {t('No AI provider is active — add and enable one in Settings to generate new words')}
+                    {t('No AI provider is active - add and enable one in Settings to generate new words')}
                   </Text>
                 </Card>
               </Pressable>
@@ -763,7 +765,7 @@ export default function SearchScreen(): JSX.Element {
         db={db}
         visible={deckPickerFor !== null}
         onClose={() => setDeckPickerFor(null)}
-        title={t('Add "{{term}}" to…', { term })}
+        title={t('Add "{{term}}" to...', { term })}
         onSelectDeck={(deck) => {
           if (deckPickerFor === 'guide') addFromGuide.mutate(deck.id)
           else if (deckPickerFor === 'translation') addFromTranslation.mutate(deck.id)
@@ -789,7 +791,7 @@ export default function SearchScreen(): JSX.Element {
 
       <ProgressOverlay
         visible={generate.isPending}
-        message={generatingMessages[generatingMessageIndex] ?? t('Generating your card…')}
+        message={generatingMessages[generatingMessageIndex] ?? t('Generating your card...')}
         onCancel={cancelGenerate}
       />
     </View>

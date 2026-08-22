@@ -43,7 +43,7 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
   {
     name: 'example_highlighted',
     label: 'Example (word highlighted)',
-    description: 'Same example, with the word marked — works for separable verbs too',
+    description: 'Same example, with the word marked - works for separable verbs too',
     icon: 'color-wand',
   },
   { name: 'translation', label: 'Example translation', description: 'Translation of the example', icon: 'swap-horizontal' },
@@ -61,8 +61,8 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
  * gets its own short list rather than the vocab TEMPLATE_VARIABLES above.
  */
 export const CLOZE_TEMPLATE_VARIABLES: TemplateVariable[] = [
-  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder — the front', icon: 'create' },
-  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted — the back', icon: 'eye' },
+  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder - the front', icon: 'create' },
+  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted - the back', icon: 'eye' },
   { name: 'translation', label: 'Sentence translation', description: 'Translation of the cloze sentence', icon: 'swap-horizontal' },
 ]
 
@@ -233,7 +233,7 @@ export function buildCardContext(args: {
     phrases: args.phrases.map((p) => ({ expression: p.expression, meaning: p.meaning })),
     audio: '',
     image: '',
-    cloze: args.cloze ? `${args.cloze.sentence} → ${args.cloze.answer}` : '',
+    cloze: args.cloze ? `${args.cloze.sentence} -> ${args.cloze.answer}` : '',
     cloze_blanked: args.cloze ? renderClozeBlanked(args.cloze.sentence) : '',
     cloze_revealed: args.cloze ? renderClozeRevealed(args.cloze.sentence, args.cloze.answer) : '',
     context_hint: genderLabel || null,
@@ -416,7 +416,7 @@ export function renderCardHtml(
     body = engine.parseAndRenderSync(liquidTemplate, context) as string
   } catch (error) {
     log.warn('srs.template_render_failed', {
-      message: 'Liquid template failed to render — showing a fallback message instead',
+      message: 'Liquid template failed to render - showing a fallback message instead',
     })
     body = `<p style="color:#D64545">Template error: ${escapeHtmlShell(String(error))}</p>`
   }

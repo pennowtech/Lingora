@@ -84,7 +84,7 @@ export async function saveExportFile(options: SaveFileOptions): Promise<SaveOutc
 
   const result = await StorageAccessFramework.requestDirectoryPermissionsAsync()
   if (!result.granted) {
-    log.info('export.save_folder_declined', { message: 'User did not grant a save folder — falling back to the share sheet' })
+    log.info('export.save_folder_declined', { message: 'User did not grant a save folder - falling back to the share sheet' })
     return saveViaShareSheet(options)
   }
 

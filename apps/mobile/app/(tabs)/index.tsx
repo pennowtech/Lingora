@@ -106,7 +106,7 @@ export default function HomeScreen(): JSX.Element {
             <Text style={styles.greeting}>{greetingFor(new Date().getHours(), t)} 👋</Text>
             <Text style={styles.subGreeting}>
               {stats && stats.dueNow === 0
-                ? t('All caught up — nothing due right now.')
+                ? t('All caught up - nothing due right now.')
                 : t('Nice to see you back.')}
             </Text>
           </View>
@@ -136,7 +136,7 @@ export default function HomeScreen(): JSX.Element {
             one — the count above the button and the cards the button actually opens always match,
             whatever decks exist right now. */}
         <Card style={styles.heroCard}>
-          <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
+          <Text style={styles.heroCount}>{stats?.dueNow ?? '-'}</Text>
           <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
           <Button
             label={t('Start review')}
@@ -152,18 +152,18 @@ export default function HomeScreen(): JSX.Element {
         {/* Stats strip */}
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.reviewedToday ?? '–'}</Text>
+            <Text style={styles.statValue}>{stats?.reviewedToday ?? '-'}</Text>
             <Text style={styles.statLabel}>{t('reviewed today')}</Text>
           </Card>
           <Card style={styles.statCard}>
             <Text style={styles.statValue}>
-              {stats ? `${Math.round(stats.retention30d * 100)}%` : '–'}
+              {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
             </Text>
             <Text style={styles.statLabel}>{t('retention')}</Text>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
-            <Text style={styles.statValue}>{stats?.totalCards ?? '–'}</Text>
-            <Text style={styles.statLabel}>{t('total cards →')}</Text>
+            <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
+            <Text style={styles.statLabel}>{t('total cards ->')}</Text>
           </Card>
         </View>
 
@@ -177,7 +177,12 @@ export default function HomeScreen(): JSX.Element {
             <Pressable
               disabled={!wordOfTheDay}
               onPress={() => {
-                if (wordOfTheDay) router.push({ pathname: '/word/[form]', params: { form: wordOfTheDay.word } })
+                if (wordOfTheDay) {
+                  router.push({
+                    pathname: '/word/[form]',
+                    params: { form: wordOfTheDay.word, initialExplanation: wordOfTheDay.explanation },
+                  })
+                }
               }}
             >
               {({ pressed }) => (
@@ -196,7 +201,7 @@ export default function HomeScreen(): JSX.Element {
                   ) : (
                     <View style={styles.wotdLoadingRow}>
                       <ActivityIndicator color={colors.primary} />
-                      <Text style={styles.wotdLoadingText}>{t("Finding today's word…")}</Text>
+                      <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
                     </View>
                   )}
                 </Card>

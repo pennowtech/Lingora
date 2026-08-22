@@ -1,15 +1,15 @@
 cat > /mnt/user-data/outputs/copilot-instructions.md << 'ENDOFFILE'
-# LangApp — GitHub Copilot Instructions
+# LangApp - GitHub Copilot Instructions
 
 ## Project overview
 
-LangApp is a mobile-first, AI-native German→English vocabulary learning app. It combines spaced repetition flashcards with AI-generated context-aware vocabulary entries. The app runs on Android and iOS (React Native + Expo), desktop (Tauri v2 + React), and has a browser extension and cloud sync backend planned for later phases.
+LangApp is a mobile-first, AI-native German->English vocabulary learning app. It combines spaced repetition flashcards with AI-generated context-aware vocabulary entries. The app runs on Android and iOS (React Native + Expo), desktop (Tauri v2 + React), and has a browser extension and cloud sync backend planned for later phases.
 
 The core differentiators are:
-- **Semantic context clustering** — meanings are grouped by context, never flattened
-- **German morphology normalisation** — "ging aus" resolves to "ausgehen" automatically
-- **CEFR-calibrated generation** — every example and explanation is level-appropriate
-- **Offline-first** — the app works fully without internet; syncs when connected
+- **Semantic context clustering** - meanings are grouped by context, never flattened
+- **German morphology normalisation** - "ging aus" resolves to "ausgehen" automatically
+- **CEFR-calibrated generation** - every example and explanation is level-appropriate
+- **Offline-first** - the app works fully without internet; syncs when connected
 
 ## Repository structure
 
@@ -21,11 +21,11 @@ langapp/
 │   ├── server/       Hono + PostgreSQL (Phase 7)
 │   └── extension/    Browser extension, MV3 (Phase 7)
 ├── packages/
-│   ├── types/        Shared TypeScript interfaces — zero dependencies
-│   ├── core/         Business logic — no UI, no DB calls
+│   ├── types/        Shared TypeScript interfaces - zero dependencies
+│   ├── core/         Business logic - no UI, no DB calls
 │   ├── database/     Drizzle schema, migrations, FTS5, adapters, repositories
 │   ├── ai/           AI providers, prompt versioning, repair layer, cache
-│   ├── srs/          FSRS algorithm — pure functions only
+│   ├── srs/          FSRS algorithm - pure functions only
 │   └── ui/           Shared React Native + Web components
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
@@ -55,20 +55,20 @@ When generating import statements, always use the correct workspace package name
 | Package manager | pnpm workspaces |
 | Language | TypeScript 5.4 strict mode throughout |
 
-## TypeScript rules — always follow these
+## TypeScript rules - always follow these
 
 - Strict mode is enabled with `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess`
-- Never use `any` — use `unknown` and narrow it, or define a proper type
+- Never use `any` - use `unknown` and narrow it, or define a proper type
 - Always use `import type` for type-only imports: `import type { Card } from '@langapp/types'`
 - Optional chaining always preferred over null checks: `user?.address?.city` not `user && user.address && user.address.city`
 - Nullish coalescing over `||` for defaults: `value ?? 'default'` not `value || 'default'`
-- Array index access returns `T | undefined` — always handle the undefined case
-- No implicit returns on functions — every code path must return explicitly
+- Array index access returns `T | undefined` - always handle the undefined case
+- No implicit returns on functions - every code path must return explicitly
 - All function parameters and return types must be explicitly typed.
 - Prefer `type` over `interface` for object shapes unless the type needs to be extended by a class.
-- Use Drizzle's inferred types for database row shapes — do not manually re-type what Drizzle already knows. Example: `type Lesson = typeof lessons.$inferSelect`.
+- Use Drizzle's inferred types for database row shapes - do not manually re-type what Drizzle already knows. Example: `type Lesson = typeof lessons.$inferSelect`.
 - Never use non-null assertion (`!`) unless there is a comment explaining why it is safe.
-- Enums should be `const` enums or plain string union types — avoid regular TypeScript enums.
+- Enums should be `const` enums or plain string union types - avoid regular TypeScript enums.
 
 ## Package naming and imports
 
@@ -83,7 +83,7 @@ import { schedule } from '@langapp/srs'
 
 Never import directly from another app. `apps/mobile` can import from `packages/*` but never from `apps/desktop`.
 
-## Core domain types — know these
+## Core domain types - know these
 
 These live in `packages/types/src/index.ts`. Copilot should use them correctly and never redefine them.
 
@@ -154,7 +154,7 @@ async function doSomething(db: DatabaseAdapter): Promise<void> {
   await db.execute('INSERT INTO ...', [...params])
 }
 
-// WRONG — ties code to a specific platform
+// WRONG - ties code to a specific platform
 import Database from 'better-sqlite3'
 const db = new Database('./dev.db')
 ```
@@ -170,16 +170,16 @@ await db.transaction(async (tx) => {
 })
 ```
 
-### Repository pattern — all SQL lives in repositories
+### Repository pattern - all SQL lives in repositories
 
 Never write raw SQL outside of `packages/database/src/repositories/`. If a query doesn't have a repository function, create one there.
 
 ```typescript
-// CORRECT — use repository functions
+// CORRECT - use repository functions
 import { createCard, getDueCards } from '@langapp/database'
 const dueCards = await getDueCards(db, deckId)
 
-// WRONG — raw SQL scattered in UI code
+// WRONG - raw SQL scattered in UI code
 const cards = await db.query('SELECT * FROM cards WHERE ...')
 ```
 
@@ -193,8 +193,8 @@ const id = Math.random().toString()  // never do this
 ### Timestamps are always Unix milliseconds
 
 ```typescript
-const now = Date.now()  // correct — milliseconds
-const now = new Date().toISOString()  // wrong — use numbers not strings
+const now = Date.now()  // correct - milliseconds
+const now = new Date().toISOString()  // wrong - use numbers not strings
 ```
 
 ### Schema conventions
@@ -207,14 +207,14 @@ const now = new Date().toISOString()  // wrong — use numbers not strings
   id: text("id").primaryKey()
   ```
 
-  IDs are `nanoid`-generated strings — never auto-increment integers.
+  IDs are `nanoid`-generated strings - never auto-increment integers.
 - Foreign key columns must end in `_id` and use `.references()`.
 - Add an `index()` on every foreign key column and any column that will be filtered or sorted frequently.
 
 ### Query function conventions
  
 - Every query function is async and returns a typed Promise.
-- Query functions use the database adapter injected via context — they never import a db instance directly.
+- Query functions use the database adapter injected via context - they never import a db instance directly.
 - Name functions clearly: `getVocabularyCardById`, `createReviewSession`, `updateCardProgress`, `deleteCard`.
 - CRUD pattern: `get*` for reads, `create*` for inserts, `update*` for updates, `delete*` for deletes.
 - Never write raw SQL strings. Use Drizzle's query builder exclusively.
@@ -224,15 +224,15 @@ const now = new Date().toISOString()  // wrong — use numbers not strings
  
 - Never edit an existing migration file. Always generate a new one with `pnpm drizzle-kit generate`.
 - After changing the schema, run `pnpm drizzle-kit generate` from `packages/database` before writing any query code that depends on the new columns.
-- Migration files are committed to the repo — never gitignored.
+- Migration files are committed to the repo - never gitignored.
 
 ## AI provider patterns
 
-### Two provider interfaces — never confuse them
+### Two provider interfaces - never confuse them
 
-`DictionaryProvider` — translation and language detection. DeepL, Google, or OpenAI fallback. No LLM required.
+`DictionaryProvider` - translation and language detection. DeepL, Google, or OpenAI fallback. No LLM required.
 
-`AIProvider` — vocabulary generation. Requires a language model. Currently OpenAI only.
+`AIProvider` - vocabulary generation. Requires a language model. Currently OpenAI only.
 
 ```typescript
 import type { DictionaryProvider, AIProvider } from '@langapp/ai'
@@ -263,7 +263,7 @@ const parsed = repairAndParseJSON(rawResponse)
 const result = GenerationResultSchema.safeParse(parsed)
 
 if (!result.success) {
-  // handle validation failure — log, retry, or return partial fallback
+  // handle validation failure - log, retry, or return partial fallback
 }
 ```
 
@@ -308,14 +308,14 @@ When generating examples with specific grammar structures, pass them as strings 
 'Modalpartikeln'
 ```
 
-## Database schema — complete table list
+## Database schema - complete table list
 
 Know what exists before creating new tables.
 
 | Table | Purpose | Phase |
 |---|---|---|
 | `lemmas` | Root word forms | 2 |
-| `inflections` | Surface forms → lemmas | 2 |
+| `inflections` | Surface forms -> lemmas | 2 |
 | `meaning_clusters` | Semantic context groups | 2 |
 | `cards` | One card per lemma per user | 2 |
 | `meanings` | Translations scoped to clusters | 2 |
@@ -345,7 +345,7 @@ Know what exists before creating new tables.
 
 `lemmas.form` is unique. Before inserting a new lemma, always check if it exists with `getLemmaByForm()`.
 
-`inflections.surface` is indexed. The morphology lookup (`getLemmaByInflection`) is the most performance-critical query in the app — always go through the repository function.
+`inflections.surface` is indexed. The morphology lookup (`getLemmaByInflection`) is the most performance-critical query in the app - always go through the repository function.
 
 Foreign keys have `onDelete: 'cascade'`. Deleting a lemma deletes its inflections, clusters, and all cards. This is intentional.
 
@@ -360,13 +360,13 @@ const styles = StyleSheet.create({
 })
 <View style={styles.container} />
 
-// WRONG — inline objects create new objects on every render
+// WRONG - inline objects create new objects on every render
 <View style={{ flex: 1, padding: 16 }} />
 ```
 
 ### Always use the shared colour tokens
 
-The app uses a warm notebook palette. Never hardcode hex values — use the token constants from `packages/ui/src/tokens.ts` once that file exists. Until Phase 4 completes, use these values consistently:
+The app uses a warm notebook palette. Never hardcode hex values - use the token constants from `packages/ui/src/tokens.ts` once that file exists. Until Phase 4 completes, use these values consistently:
 
 ```typescript
 const colors = {
@@ -393,16 +393,16 @@ Routes are defined by file structure in `apps/mobile/app/`:
 
 ```
 app/
-├── index.tsx          → /  (home/dashboard)
+├── index.tsx          -> /  (home/dashboard)
 ├── lookup/
-│   └── [word].tsx     → /lookup/ausgehen
+│   └── [word].tsx     -> /lookup/ausgehen
 ├── review/
-│   └── index.tsx      → /review
+│   └── index.tsx      -> /review
 ├── decks/
-│   ├── index.tsx      → /decks
-│   └── [id].tsx       → /decks/abc123
+│   ├── index.tsx      -> /decks
+│   └── [id].tsx       -> /decks/abc123
 └── stats/
-    └── index.tsx      → /stats
+    └── index.tsx      -> /stats
 ```
 
 Navigation:
@@ -422,7 +422,7 @@ Components call repository functions through a service layer or React Query hook
 - Store files live in the app that uses them: `apps/mobile/src/stores/` or `apps/desktop/src/stores/`.
 - If a store is needed on multiple platforms, it goes in `packages/core/src/stores/`.
 - Store naming convention: `use[Feature]Store` (e.g. `useReviewStore`, `useDeckStore`, `useSettingsStore`).
-- Stores hold UI state and in-memory app state. They do not call the database directly — that goes through query functions in `packages/database`.
+- Stores hold UI state and in-memory app state. They do not call the database directly - that goes through query functions in `packages/database`.
 - Keep actions inside the store definition using the `set` and `get` pattern:
 
   ```ts
@@ -449,7 +449,7 @@ const newState = schedule(currentCardState, rating, reviewedAt)
 // newState contains updated stability, difficulty, retrievability, nextReviewAt
 ```
 
-Never implement scheduling logic outside of `packages/srs`. Never call `Date.now()` inside the FSRS functions — pass timestamps as parameters so the functions are testable.
+Never implement scheduling logic outside of `packages/srs`. Never call `Date.now()` inside the FSRS functions - pass timestamps as parameters so the functions are testable.
 
 `review_events` and `card_states` must always be written together in a transaction using `recordReview()` from the database repositories.
 
@@ -468,10 +468,10 @@ Every call to `aiProvider.generateFull()` must include a `cefrLevel`. It is neve
 Once a prompt version has generated real user data, never edit it. Add a new version and deprecate the old one:
 
 ```typescript
-// WRONG — editing existing entry
+// WRONG - editing existing entry
 { name: 'generate_full_de', version: 'v1', template: 'new content' }
 
-// CORRECT — add new version, deprecate old
+// CORRECT - add new version, deprecate old
 { name: 'generate_full_de', version: 'v1', deprecated: true, template: '...' },
 { name: 'generate_full_de', version: 'v2', deprecated: false, template: 'new content' },
 ```
@@ -484,9 +484,9 @@ Once a prompt version has generated real user data, never edit it. Add a new ver
 - Hook file names: `useCamelCase.ts`.
 - One component per file. No exporting multiple components from a single file.
 - No inline styles on React Native components. Use `StyleSheet.create()` at the bottom of the file or a separate `styles.ts` file.
-- For web (Tauri desktop and web app), use Tailwind CSS utility classes — no inline style objects.
-- All lists use `FlatList` in React Native — never `ScrollView` with `.map()` for lists longer than ~10 items.
-- Tappable elements use `TouchableOpacity` or `Pressable` — never plain `View` with `onPress`.
+- For web (Tauri desktop and web app), use Tailwind CSS utility classes - no inline style objects.
+- All lists use `FlatList` in React Native - never `ScrollView` with `.map()` for lists longer than ~10 items.
+- Tappable elements use `TouchableOpacity` or `Pressable` - never plain `View` with `onPress`.
 - `useEffect` must always declare all dependencies in the dependency array. Do not suppress the exhaustive-deps lint rule.
 - Data fetching always lives in custom hooks, never directly inside component bodies.
 
@@ -549,7 +549,7 @@ packages/ui/src/
   tokens.ts          ← colors, spacing, typography constants
 ```
 
-## Naming conventions — complete reference
+## Naming conventions - complete reference
  
 | Thing | Convention | Example |
 |---|---|---|
@@ -571,7 +571,7 @@ packages/ui/src/
 
 - Never swallow errors silently. Every `catch` block must either rethrow, log, or set an error state.
 - Database errors must be caught at the query function level and rethrown as typed errors with a message that includes the operation name.
-- In React components and hooks, store errors in state and display them — never `console.error` as the only handling.
+- In React components and hooks, store errors in state and display them - never `console.error` as the only handling.
 - Use this pattern in custom hooks:
 
   ```ts
@@ -587,18 +587,18 @@ packages/ui/src/
 
 ### Never do these things
 
-- Do not use `any` type — ever
+- Do not use `any` type - ever
 - Do not write SQL outside of repository files in `packages/database/src/repositories/`
 - Do not create new tables without adding them to the schema in `packages/database/src/schema/`
 - Do not call `JSON.parse()` directly on AI responses
-- Do not hardcode API keys — they come from SecureStorage via `STORAGE_KEYS` constants
+- Do not hardcode API keys - they come from SecureStorage via `STORAGE_KEYS` constants
 - Do not import from `apps/*` packages in other `apps/*` packages
-- Do not use `Math.random()` for IDs — use `crypto.randomUUID()`
-- Do not store dates as ISO strings in SQLite — use Unix milliseconds (numbers)
+- Do not use `Math.random()` for IDs - use `crypto.randomUUID()`
+- Do not store dates as ISO strings in SQLite - use Unix milliseconds (numbers)
 - Do not UPDATE or DELETE rows in `review_events`
 - Do not write FSRS scheduling logic outside of `packages/srs`
 - Do not use `||` for default values when `??` is more correct
-- Do not hardcode colour hex values in components — use the token system
+- Do not hardcode colour hex values in components - use the token system
 - Do not write inline styles in React Native components
 
 ### Never generate these anti-patterns
@@ -631,9 +631,9 @@ const count = responseCount ?? 10
 ## Testing conventions
 
 - Test files are colocated: `foo.ts` is tested by `foo.test.ts`
-- `packages/srs` must have 100% test coverage — it is pure functions with no side effects
+- `packages/srs` must have 100% test coverage - it is pure functions with no side effects
 - Repository functions are tested with an in-memory SQLite database
-- AI provider tests mock the HTTP calls — never make real API calls in tests
+- AI provider tests mock the HTTP calls - never make real API calls in tests
 - Use `describe` blocks per function, `it` blocks per behaviour
 - Test filenames: `lemmas.test.ts`, `repair.test.ts`, `schedule.test.ts`
 
@@ -673,18 +673,18 @@ pnpm test
 ## Current development phase
 
 **Completed phases:**
-- Phase 1 — Monorepo setup, TypeScript config, Expo mobile scaffold
-- Phase 2 — SQLite schema, morphology tables, FTS5, adapters, repositories
-- Phase 3 — AI provider abstraction, DictionaryProvider, AIProvider, repair layer, cache, prompt versioning
+- Phase 1 - Monorepo setup, TypeScript config, Expo mobile scaffold
+- Phase 2 - SQLite schema, morphology tables, FTS5, adapters, repositories
+- Phase 3 - AI provider abstraction, DictionaryProvider, AIProvider, repair layer, cache, prompt versioning
 
 **Current phase:**
-- Phase 4 — Mobile UI (word lookup screen, meanings, examples with grammar controls, sentence mining queue, import/export, evaluation tools)
+- Phase 4 - Mobile UI (word lookup screen, meanings, examples with grammar controls, sentence mining queue, import/export, evaluation tools)
 
 **Upcoming:**
-- Phase 5 — Flashcard system and FSRS review interface
-- Phase 6 — Desktop app (Tauri) with clipboard capture
-- Phase 7 — Browser extension, cloud sync, Hono backend
-- Phase 8 — Distribution to desktop, Play Store, App Store
+- Phase 5 - Flashcard system and FSRS review interface
+- Phase 6 - Desktop app (Tauri) with clipboard capture
+- Phase 7 - Browser extension, cloud sync, Hono backend
+- Phase 8 - Distribution to desktop, Play Store, App Store
 
 ## Key architectural decisions to respect
 
@@ -692,7 +692,7 @@ pnpm test
 
 **Morphology before everything:** Every word lookup goes through `getLemmaByInflection()` first. If the surface form is in the `inflections` table, load the existing lemma. Only call the AI if the word is genuinely new.
 
-**Clusters are first-class:** `meaning_clusters` is not a label — it is the primary organisational entity for all generated content. Examples, synonyms, phrases, and cloze cards are all scoped to a cluster. Never generate content for a word without a cluster context.
+**Clusters are first-class:** `meaning_clusters` is not a label - it is the primary organisational entity for all generated content. Examples, synonyms, phrases, and cloze cards are all scoped to a cluster. Never generate content for a word without a cluster context.
 
 **Packages over apps:** Business logic belongs in `packages/`, not in `apps/`. If the same logic would be needed in both mobile and desktop, it belongs in `packages/core`. Apps are thin shells over shared logic.
 
@@ -728,9 +728,9 @@ user input: 'ging aus'
      ↓
 getLemmaByInflection(db, 'ging aus')
      ↓
-inflections table: surface='ging aus' → lemma_id='lemma-ausgehen'
+inflections table: surface='ging aus' -> lemma_id='lemma-ausgehen'
      ↓
-lemmas table: id='lemma-ausgehen' → form='ausgehen'
+lemmas table: id='lemma-ausgehen' -> form='ausgehen'
      ↓
 load card for 'ausgehen'
 ```

@@ -20,12 +20,12 @@ interface StartupScreenProps {
 }
 
 const CEFR_LEVELS: { level: CefrLevel; titleKey: string; descKey: string }[] = [
-  { level: 'A1', titleKey: 'A1 — Beginner', descKey: 'Basic phrases and everyday expressions.' },
-  { level: 'A2', titleKey: 'A2 — Elementary', descKey: 'Simple routine tasks and familiar topics.' },
-  { level: 'B1', titleKey: 'B1 — Intermediate', descKey: 'Main points of clear speech and travel situations.' },
-  { level: 'B2', titleKey: 'B2 — Upper Intermediate', descKey: 'Complex texts, technical discussions, and fluent conversation.' },
-  { level: 'C1', titleKey: 'C1 — Advanced', descKey: 'Wide range of demanding texts and flexible language use.' },
-  { level: 'C2', titleKey: 'C2 — Mastery', descKey: 'Effortless understanding, precise expression in complex situations.' },
+  { level: 'A1', titleKey: 'A1 - Beginner', descKey: 'Basic phrases and everyday expressions.' },
+  { level: 'A2', titleKey: 'A2 - Elementary', descKey: 'Simple routine tasks and familiar topics.' },
+  { level: 'B1', titleKey: 'B1 - Intermediate', descKey: 'Main points of clear speech and travel situations.' },
+  { level: 'B2', titleKey: 'B2 - Upper Intermediate', descKey: 'Complex texts, technical discussions, and fluent conversation.' },
+  { level: 'C1', titleKey: 'C1 - Advanced', descKey: 'Wide range of demanding texts and flexible language use.' },
+  { level: 'C2', titleKey: 'C2 - Mastery', descKey: 'Effortless understanding, precise expression in complex situations.' },
 ]
 
 const LANG_OPTIONS: { code: LanguageCode; label: string; flag: string }[] = [
@@ -279,7 +279,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
           {/* Title & Subtitle */}
           <Text style={styles.title}>{t('Welcome to Lemmory')}</Text>
           <Text style={styles.subtitle}>
-            {t('Learn German the way it actually works — in context, at your level, with real examples.')}
+            {t('Learn German the way it actually works - in context, at your level, with real examples.')}
           </Text>
 
           {/* Language Pair Selector (Native Left -> Target Right) */}
@@ -302,7 +302,9 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
             </Pressable>
           </View>
           <Text style={styles.comingSoonText}>
-            {LANG_LABELS[nativeLang]} ({t('Native')}) → {LANG_LABELS[targetLang]} ({t('Learning')})
+            {LANG_LABELS[nativeLang]} ({t('Native')})
+            {' -> '}
+            {LANG_LABELS[targetLang]} ({t('Learning')})
           </Text>
 
           {/* CEFR Level Selector */}
@@ -334,7 +336,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
 
           {/* CTA Buttons */}
           <Button
-            label={saving ? t('Saving…') : t('Continue')}
+            label={saving ? t('Saving...') : t('Continue')}
             icon="arrow-forward"
             onPress={handleContinue}
             disabled={saving}

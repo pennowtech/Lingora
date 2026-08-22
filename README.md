@@ -22,7 +22,7 @@
   - [Tech stack](#tech-stack)
   - [Repository structure](#repository-structure)
   - [Development Roadmap](#development-roadmap)
-  - [Phase 3 status — AI engine (core implemented)](#phase-3-status--ai-engine-core-implemented)
+  - [Phase 3 status - AI engine (core implemented)](#phase-3-status--ai-engine-core-implemented)
   - [Getting started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Clone and install](#clone-and-install)
@@ -54,11 +54,11 @@
 
 Lemmory is not just a translation app or a flashcard app. It is built around two ideas most language apps get wrong.
 
-The first is **semantic context**. Most apps store a flat list of meanings for a word. Lemmory groups meanings into clusters — the word _charge_ in a financial context is a fundamentally different word from _charge_ in an electrical context. Every example sentence, synonym, and generated card is scoped to a specific cluster. You never get an example about courtrooms when you were studying batteries.
+The first is **semantic context**. Most apps store a flat list of meanings for a word. Lemmory groups meanings into clusters - the word _charge_ in a financial context is a fundamentally different word from _charge_ in an electrical context. Every example sentence, synonym, and generated card is scoped to a specific cluster. You never get an example about courtrooms when you were studying batteries.
 
 The second is **morphological awareness**. German is an inflected language. _Ging aus_, _geht aus_, and _ausgegangen_ are all forms of the same verb. Lemmory normalises every surface form to its root before anything else happens, so you never end up with duplicate cards for the same word.
 
-Everything else — AI generation, spaced repetition, cross-device sync, the browser extension — builds on top of those two foundations.
+Everything else - AI generation, spaced repetition, cross-device sync, the browser extension - builds on top of those two foundations.
 
 ---
 
@@ -66,45 +66,45 @@ Everything else — AI generation, spaced repetition, cross-device sync, the bro
 
 ### Core vocabulary
 
-- **FTS5-powered search** across words, meanings, examples, phrases, and synonyms — results appear as you type. FTS5 is:
+- **FTS5-powered search** across words, meanings, examples, phrases, and synonyms - results appear as you type. FTS5 is:
 
 * extremely fast
 * offline capable
 * lightweight
 * built directly into SQLite
 
-- **Contextual semantic clustering** — meanings grouped by semantic context, never flattened into a list. For example, same word `ausgehen` can generate:
+- **Contextual semantic clustering** - meanings grouped by semantic context, never flattened into a list. For example, same word `ausgehen` can generate:
   - to go out socially
   - to turn off
   - to assume
   - to run out
     with separate examples and contexts.
-- **German morphology engine** — surface forms (_läuft_, _Häuser_, _ging aus_) normalise to their lemma automatically
-- **CEFR-calibrated generation** — examples and explanations matched to your level (A1 through C2)
-- **AI provider abstraction** — currently OpenAI, (Future support for: Anthropic, Gemini, or local models)
+- **German morphology engine** - surface forms (_läuft_, _Häuser_, _ging aus_) normalise to their lemma automatically
+- **CEFR-calibrated generation** - examples and explanations matched to your level (A1 through C2)
+- **AI provider abstraction** - currently OpenAI, (Future support for: Anthropic, Gemini, or local models)
 
 ### Flashcards and review
 
-- **FSRS spaced repetition** — modern algorithm that predicts forgetting and schedules reviews at the optimal moment
-- **Multiple card types** — basic, reverse, cloze, phrase, (image-ready in future)
-- **customizable flashcards** — fully customisable card layouts with conditional logic and loops through "LiquidJS template engine"
-- **Swipe review interface** — Again / Hard / Good / Easy
-- **Review stats** — retention heatmap, daily streak, vocabulary growth, difficult word tracking
+- **FSRS spaced repetition** - modern algorithm that predicts forgetting and schedules reviews at the optimal moment
+- **Multiple card types** - basic, reverse, cloze, phrase, (image-ready in future)
+- **customizable flashcards** - fully customisable card layouts with conditional logic and loops through "LiquidJS template engine"
+- **Swipe review interface** - Again / Hard / Good / Easy
+- **Review stats** - retention heatmap, daily streak, vocabulary growth, difficult word tracking
 
 ### Capture and import
 
-- **Sentence mining queue** — captured text is held for review before AI generation, with full source metadata
-- **Clipboard monitoring** (desktop) — detects German text automatically
-- **Global hotkey** (desktop) — configurable shortcut opens the lookup popup
-- **Browser extension** — highlight any word on any page, save to deck instantly
-- **Subtitle capture** — YouTube (and Netflix where DRM allows)
-- **Import/export** — Anki `.apkg`, CSV with column mapping, JSON backup
+- **Sentence mining queue** - captured text is held for review before AI generation, with full source metadata
+- **Clipboard monitoring** (desktop) - detects German text automatically
+- **Global hotkey** (desktop) - configurable shortcut opens the lookup popup
+- **Browser extension** - highlight any word on any page, save to deck instantly
+- **Subtitle capture** - YouTube (and Netflix where DRM allows)
+- **Import/export** - Anki `.apkg`, CSV with column mapping, JSON backup
 
 ### Infrastructure
 
-- **Offline-first** — the full app works without internet; changes sync when connectivity returns
-- **Cross-device sync** — mobile and desktop stay in sync via the cloud backend
-- **Prompt versioning** — every generated card records which AI model, provider, and prompt version produced it. Prompts are treated as application logic. This allows:
+- **Offline-first** - the full app works without internet; changes sync when connectivity returns
+- **Cross-device sync** - mobile and desktop stay in sync via the cloud backend
+- **Prompt versioning** - every generated card records which AI model, provider, and prompt version produced it. Prompts are treated as application logic. This allows:
 
 * card regeneration
 * debugging
@@ -112,7 +112,7 @@ Everything else — AI generation, spaced repetition, cross-device sync, the bro
 * rollback
 * consistency tracking
 
-- **Internal quality evaluation** — thumbs up/down on examples and synonyms, regenerate button, report bad output
+- **Internal quality evaluation** - thumbs up/down on examples and synonyms, regenerate button, report bad output
 
 ---
 
@@ -122,9 +122,9 @@ Everything else — AI generation, spaced repetition, cross-device sync, the bro
 | -------------------- | --------------------------------------------------------- |
 | Mobile               | React Native + Expo (managed workflow)                    |
 | Desktop              | Tauri v2 + React                                          |
-| Shared UI            | `@Lingora/ui` — React Native Web compatible               |
+| Shared UI            | `@Lingora/ui` - React Native Web compatible               |
 | Cloud server and DB  | Hono (Node.js) + PostgreSQL                               |
-| Browser extension    | Manifest V3 — Chrome, Firefox, Edge (Alternative: Plasmo) |
+| Browser extension    | Manifest V3 - Chrome, Firefox, Edge (Alternative: Plasmo) |
 | Shared Language      | TypeScript strict mode                                    |
 | State                | Zustand                                                   |
 | Async Data           | React Query                                               |
@@ -153,17 +153,17 @@ Important logic should NOT live inside:
 ```
 Lingora/
 ├── apps/
-│   ├── mobile/          # React Native + Expo — primary client
+│   ├── mobile/          # React Native + Expo - primary client
 │   ├── desktop/         # Tauri v2 + React
 │   ├── server/          # Hono API + PostgreSQL (Phase 7)
 │   └── extension/       # Browser extension, Manifest V3 (Phase 7)
 │
 ├── packages/
-│   ├── types/           # Shared TypeScript interfaces — zero dependencies
+│   ├── types/           # Shared TypeScript interfaces - zero dependencies
 │   ├── core/            # Business logic: deck ops, card ops, CEFR rules, scheduling
 │   ├── database/        # Drizzle schema, migrations, FTS5, platform adapters
 │   ├── ai/              # AI providers, prompt versioning, repair layer
-│   ├── srs/             # FSRS algorithm — pure functions, no side effects
+│   ├── srs/             # FSRS algorithm - pure functions, no side effects
 │   └── ui/              # Shared components used by mobile and desktop
 │
 ├── pnpm-workspace.yaml
@@ -190,17 +190,17 @@ Right now, there are two docs with different plans and overlapping requirements.
 
 ---
 
-## Phase 3 status — AI engine (core implemented)
+## Phase 3 status - AI engine (core implemented)
 
 Branch `feature/9-phase3-ai-engine`. Full details: the Phase 3 status block in the development roadmap and the design doc `3_phase3_ai_engine_design.md` (LingoraDocs folder).
 
-**Implemented** — `packages/ai`, the complete generation engine, plus its database layer:
+**Implemented** - `packages/ai`, the complete generation engine, plus its database layer:
 
 - Split provider slots: `DictionaryProvider` (translate/detect) and `AIProvider` (generation)
 - `OpenAIProvider` (both slots; fetch + strict structured outputs) and `GoogleTranslateProvider` (dictionary slot, **keyless free tier**)
-- Response pipeline on every call: JSON repair → Zod validation → one retry → partial salvage (never persisted)
+- Response pipeline on every call: JSON repair -> Zod validation -> one retry -> partial salvage (never persisted)
 - Prompt versioning (`prompt_versions` seeded from code), generation metadata, two-level cache (memory LRU + `ai_cache` table, migration 0003)
-- `createAIPipeline(...).lookupOrGenerate(word, { cefrLevel, deckId })` → `existing | generated | partial`, ending in a single-transaction `persistWordGeneration` across all 12 tables
+- `createAIPipeline(...).lookupOrGenerate(word, { cefrLevel, deckId })` -> `existing | generated | partial`, ending in a single-transaction `persistWordGeneration` across all 12 tables
 
 **Pending**: DeepL/Wiktionary adapters, secure key storage (SecureStore/Tauri Store), wiring into the mobile screens (`grep -rn "TODO(phase3" apps/mobile`).
 
@@ -222,9 +222,9 @@ pnpm --filter @lingora/ai exec vitest run src/providers/openai.live.test.ts
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 20+
-- [pnpm](https://pnpm.io/) 9+ — `npm install -g pnpm`
+- [pnpm](https://pnpm.io/) 9+ - `npm install -g pnpm`
 - [Rust](https://rustup.rs/) (for Tauri desktop builds)
-- [Expo CLI](https://docs.expo.dev/get-started/installation/) — `pnpm add -g expo-cli`
+- [Expo CLI](https://docs.expo.dev/get-started/installation/) - `pnpm add -g expo-cli`
 - An [OpenAI API key](https://platform.openai.com/)
 
 ### Clone and install
@@ -293,7 +293,7 @@ pnpm drizzle-kit migrate   # applies to local SQLite
 
 ### Working with the AI layer
 
-The `@lingora/ai` package exports two provider interfaces: `DictionaryProvider` (translation/detection — DeepL, Google Translate, OpenAI) and `AIProvider` (generation — LLMs only). Providers are plain classes injected at construction time:
+The `@lingora/ai` package exports two provider interfaces: `DictionaryProvider` (translation/detection - DeepL, Google Translate, OpenAI) and `AIProvider` (generation - LLMs only). Providers are plain classes injected at construction time:
 
 ```typescript
 const pipeline = await createAIPipeline({
@@ -303,15 +303,15 @@ const pipeline = await createAIPipeline({
 })
 ```
 
-To add a new provider, implement the matching interface in `packages/ai/src/providers/` (follow `google-translate.ts` as the template: injectable `fetchFn`, errors mapped to `AIProviderError`, usage capture) and pass it into `createAIPipeline` — there is no registry to update.
+To add a new provider, implement the matching interface in `packages/ai/src/providers/` (follow `google-translate.ts` as the template: injectable `fetchFn`, errors mapped to `AIProviderError`, usage capture) and pass it into `createAIPipeline` - there is no registry to update.
 
 ---
 
 ## Architecture decisions
 
-**Local-first.** The SQLite database is the source of truth, not the server. The server is a sync relay and backup. The full app works offline — review sessions, card creation, deck management — and syncs when connectivity returns.
+**Local-first.** The SQLite database is the source of truth, not the server. The server is a sync relay and backup. The full app works offline - review sessions, card creation, deck management - and syncs when connectivity returns.
 
-**Morphology before lookup.** Every captured word goes through the inflections table before any AI call. _Ging aus_ → _ausgehen_. This is fast (indexed SQL lookup), deterministic, and costs no API tokens. Duplicate cards for inflected forms are architecturally impossible.
+**Morphology before lookup.** Every captured word goes through the inflections table before any AI call. _Ging aus_ -> _ausgehen_. This is fast (indexed SQL lookup), deterministic, and costs no API tokens. Duplicate cards for inflected forms are architecturally impossible.
 Example:
 
 | Input    | Lemma    |
@@ -320,7 +320,7 @@ Example:
 | läuft    | laufen   |
 | Häuser   | Haus     |
 
-**Semantic clusters as a first-class entity.** The `meaning_clusters` table drives example generation, synonym filtering, image prompts, and eventually semantic deck organisation. It is not a UI label — it is a data model that constrains everything downstream.
+**Semantic clusters as a first-class entity.** The `meaning_clusters` table drives example generation, synonym filtering, image prompts, and eventually semantic deck organisation. It is not a UI label - it is a data model that constrains everything downstream.
 
 **Prompt versions are immutable.** Improvements create new versions; old versions are deprecated, never edited. Every card records which prompt version generated it. Reproducing or batch-regenerating old cards is always possible.
 
@@ -333,7 +333,7 @@ Example:
 All 24 tables, in the phase they are introduced:
 
 <details>
-<summary>Phase 2 — Core schema</summary>
+<summary>Phase 2 - Core schema</summary>
 
 | Table                 | Purpose                                                           |
 | --------------------- | ----------------------------------------------------------------- |
@@ -360,7 +360,7 @@ All 24 tables, in the phase they are introduced:
 </details>
 
 <details>
-<summary>Phase 3 — AI layer</summary>
+<summary>Phase 3 - AI layer</summary>
 
 | Table                 | Purpose                                                                 |
 | --------------------- | ----------------------------------------------------------------------- |
@@ -370,7 +370,7 @@ All 24 tables, in the phase they are introduced:
 </details>
 
 <details>
-<summary>Phase 4 — Evaluation</summary>
+<summary>Phase 4 - Evaluation</summary>
 
 | Table         | Purpose                                         |
 | ------------- | ----------------------------------------------- |
@@ -379,7 +379,7 @@ All 24 tables, in the phase they are introduced:
 </details>
 
 <details>
-<summary>Phase 7 — Sync</summary>
+<summary>Phase 7 - Sync</summary>
 
 | Table        | Purpose                                  |
 | ------------ | ---------------------------------------- |
@@ -427,9 +427,9 @@ Pipeline:
 
 ```txt
 raw AI response
-→ repair malformed JSON
-→ validate with Zod
-→ retry if validation fails
+-> repair malformed JSON
+-> validate with Zod
+-> retry if validation fails
 ```
 
 This prevents malformed AI data from reaching the database.
@@ -513,14 +513,14 @@ The most notable parts are:
 
 Divided into 8 phases:
 
-- [x] Phase 1 — Monorepo setup, TypeScript, Expo, Tauri
-- [x] Phase 2 — SQLite schema, FTS5, German morphology engine
-- [ ] Phase 3 — AI abstraction, prompt versioning, context clustering _(core engine done — see [Phase 3 status](#phase-3-status--ai-engine-core-implemented))_
-- [ ] Phase 4 — Mobile UI, sentence mining, import/export, evaluation tools _(UI shells built with dummy data)_
-- [ ] Phase 5 — Flashcard system, FSRS, LiquidJS templates _(UI shells built with dummy data)_
-- [ ] Phase 6 — Desktop app, clipboard capture, hotkey popup
-- [ ] Phase 7 — Browser extension, cloud sync, Hono backend
-- [ ] Phase 8 — Distribution (desktop installers, Play Store, App Store)
+- [x] Phase 1 - Monorepo setup, TypeScript, Expo, Tauri
+- [x] Phase 2 - SQLite schema, FTS5, German morphology engine
+- [ ] Phase 3 - AI abstraction, prompt versioning, context clustering _(core engine done - see [Phase 3 status](#phase-3-status--ai-engine-core-implemented))_
+- [ ] Phase 4 - Mobile UI, sentence mining, import/export, evaluation tools _(UI shells built with dummy data)_
+- [ ] Phase 5 - Flashcard system, FSRS, LiquidJS templates _(UI shells built with dummy data)_
+- [ ] Phase 6 - Desktop app, clipboard capture, hotkey popup
+- [ ] Phase 7 - Browser extension, cloud sync, Hono backend
+- [ ] Phase 8 - Distribution (desktop installers, Play Store, App Store)
 
 ### Post-v1 (Future Plans)
 
@@ -529,7 +529,7 @@ Listed in order of priority:
 - [ ] Semantic cache with embeddings (gehen/geht/ging share context intelligently)
 - [ ] Audio pronunciation with regional accents (Standard, Austrian, Swiss)
 - [ ] In-app PDF and EPUB reader with tap-to-look-up
-- [ ] Additional languages (Japanese, Spanish, French — architecture already supports this)
+- [ ] Additional languages (Japanese, Spanish, French - architecture already supports this)
 - [ ] Additional AI providers (Anthropic Claude, Google Gemini, local Ollama)
 - [ ] OCR vocabulary extraction
 - [ ] More cloze support. Right now, it supports only _word_ cloze. However, in Future:
@@ -545,7 +545,7 @@ Listed in order of priority:
 
 ## Contributing
 
-This project is in active development. If you want to contribute, please open an issue first to discuss the change — especially for anything touching `packages/database/schema.ts`, the AI abstraction layer, or the FSRS implementation, since those have downstream effects across the whole codebase.
+This project is in active development. If you want to contribute, please open an issue first to discuss the change - especially for anything touching `packages/database/schema.ts`, the AI abstraction layer, or the FSRS implementation, since those have downstream effects across the whole codebase.
 
 ### Before submitting a PR
 
@@ -561,11 +561,11 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
-*Lemmory — for people who want to actually learn, not just feel like they're learning.*
+*Lemmory - for people who want to actually learn, not just feel like they're learning.*
 <sub>Built with React Native, Tauri, SQLite, and a lot of German vocabulary.</sub>
 </div>

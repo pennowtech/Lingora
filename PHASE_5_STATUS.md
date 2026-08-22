@@ -1,24 +1,24 @@
 # Phase 5 Implementation Status
 
-> AI-agent handoff document for **Phase 5 — Flashcard & Spaced Repetition
+> AI-agent handoff document for **Phase 5 - Flashcard & Spaced Repetition
 > System (FSRS scheduler, review workflow, card templates, cloze rendering,
 > learning statistics, deck management)**.
 
 ## Snapshot
 
 - **Assessment date:** 2026-07-26 (original) · **updated:** 2026-07-26 (Work
-  packages 1–4 shipped)
+  packages 1-4 shipped)
 - **Assessed branch:** `main`
-- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) → `30c2207`
+- **Assessed commit:** `d101a36` (tag `v0.4`, Phase 4 complete) -> `30c2207`
   (Work package 4 merged, PR #32)
 - **Overall status:** **Code-complete, AVD acceptance pass pending
-  (approximately 95%)** — every planned work package (1–7: FSRS scheduler,
+  (approximately 95%)** - every planned work package (1-7: FSRS scheduler,
   review session data/scheduling, swipe gestures, LiquidJS template engine +
   editor, learning statistics, deck move/merge, deck-scoped `.lin` import)
-  is implemented, typecheck/lint-clean, and test-covered. Work packages 1–4
+  is implemented, typecheck/lint-clean, and test-covered. Work packages 1-4
   are AVD-verified from earlier in Phase 5; 5, 6, and 7 (plus the card
   action bar / TTS settings feature added alongside them) are not yet
-  AVD-verified — see `PENDING_MANUAL_TESTS.md` for the full outstanding
+  AVD-verified - see `PENDING_MANUAL_TESTS.md` for the full outstanding
   checklist. That manual pass is the only thing left before Phase 5 can be
   called done.
 - **Runtime status:** The merged `main` branch builds, installs, and runs on
@@ -30,16 +30,16 @@
 This report compares the implementation with:
 
 `/Users/sukhdeep.singh/Library/CloudStorage/OneDrive-CarlZeissAG/Per/Totorials_and_AppsDocs/LingoraDocs/1_development_roadmap.md`
-(§ Phase 5 — Flashcard & Spaced Repetition System)
+(§ Phase 5 - Flashcard & Spaced Repetition System)
 
-Design references for the card template editor (not yet built — see Work
+Design references for the card template editor (not yet built - see Work
 package 4): `LingoraDocs/images/FlashCardTemplate.png` and
 `FlashCardTemplate_2.png`. Both sketches show the same intended shape: a
 Fields/Style/Preview/Code-tabbed editor with per-field front/back toggles
 (drag-reorderable), an "available template variables" reference panel, a
 conditional-Liquid-syntax example, an accent-color picker, and a live
 preview that matches the real review-session card rendering exactly (not an
-approximation) — see Work package 4 for how this maps to concrete tasks.
+approximation) - see Work package 4 for how this maps to concrete tasks.
 
 The roadmap is the product-scope authority. The repository and its tests are
 the implementation authority when documentation and code disagree.
@@ -54,7 +54,7 @@ review system itself:
 - `packages/database/src/repositories/reviews.ts` already has
   `recordReview` (one transaction: insert the event, overwrite the state),
   `getCardState`, `getCardReviewHistory`, `getTodayReviewCount`,
-  `getReviewedDayIndexes` (streak source data), and `getRetentionRate` —
+  `getReviewedDayIndexes` (streak source data), and `getRetentionRate` -
   all written, typed, and ready to call;
 - `packages/database/src/repositories/templates.ts` has full CRUD
   (`getAllTemplates`, `getTemplateById`, `getDefaultTemplate`,
@@ -65,7 +65,7 @@ review system itself:
 - `packages/srs` and `packages/core` exist as registered pnpm workspace
   packages but are empty stubs (`export {}`); `packages/core/package.json`
   is additionally misnamed (`"name": "@lingora/types"`, colliding with the
-  real `packages/types` package — flagged as a bug to fix in Work package 1,
+  real `packages/types` package - flagged as a bug to fix in Work package 1,
   not a design decision).
 
 None of the three Phase 5 screens (`apps/mobile/app/review/[deckId].tsx`,
@@ -77,7 +77,7 @@ state. Neither `liquidjs` nor a WebView package is a dependency yet, so
 templates cannot actually render as HTML/CSS. `react-native-reanimated` and
 `react-native-gesture-handler` are present as **transitive** dependencies
 (pulled in by `expo-router`) and already compiled into the current native
-dev client — confirmed from the Work package 4 (Phase 4) Gradle build log —
+dev client - confirmed from the Work package 4 (Phase 4) Gradle build log -
 so the swipe gesture interface should not require a fresh
 `expo run:android` the first time it's used, but this has not been verified
 directly and should not be assumed without a build.
@@ -103,18 +103,18 @@ facing feature.
 | Roadmap requirement                         | Status      | Implementation and remaining work                                                                                                                                                                                                                        |
 | -------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | FSRS scheduler (`packages/srs`)              | Complete    | `schedule(state, rating, now)` and `createInitialCardState(cardId, now)` wrap `ts-fsrs`, pure and synchronous, no `@lingora/database`/React/Expo dependency. `CardState` gained `reps`/`learningSteps` (migration 0006) so scheduling is correct across the full lifecycle, not just an approximation. 8 Vitest tests incl. a golden-value regression.       |
-| Card state machine (new→learning→review→relearning) | Complete (scheduler) / not yet wired to UI | `packages/srs#schedule` drives all four transitions correctly (verified by test); the review session screen doesn't call it yet — see Work package 2.                                                                                                    |
+| Card state machine (new->learning->review->relearning) | Complete (scheduler) / not yet wired to UI | `packages/srs#schedule` drives all four transitions correctly (verified by test); the review session screen doesn't call it yet - see Work package 2.                                                                                                    |
 | Review event log                             | Complete (Phase 2) | `review_events` is insert-only; `recordReview` writes it and the new `card_states` row in one transaction. Nothing calls it yet.                                                                                                                          |
-| Review session screen                        | Complete    | `apps/mobile/app/review/[deckId].tsx` loads real due cards (`getCardsDueForReview` + a per-card content loader), tap-to-flip, and rating buttons showing real `packages/srs#schedule` interval previews. `rate()` calls `schedule()` then `recordReview()` — verified end-to-end on the AVD (`review_events` insert + `card_states` transition to `learning` with real stability/reps/learning_steps).                        |
+| Review session screen                        | Complete    | `apps/mobile/app/review/[deckId].tsx` loads real due cards (`getCardsDueForReview` + a per-card content loader), tap-to-flip, and rating buttons showing real `packages/srs#schedule` interval previews. `rate()` calls `schedule()` then `recordReview()` - verified end-to-end on the AVD (`review_events` insert + `card_states` transition to `learning` with real stability/reps/learning_steps).                        |
 | Cloze-mode review                            | Complete    | `mode=cloze` filters to cards with a real `cloze_cards` row and shows the cloze sentence/answer instead of the word/meaning.                                                                                                                              |
-| Multiple card types (basic/reverse/cloze/phrase/image) | Mostly complete | `reverse` swaps which side (word vs. meaning) shows first; `phrase`/`image` fall back to the basic layout since nothing in the generation/import pipeline produces either yet (documented in the loader's own comment) — not silently ignored, just honestly deferred until real data exists to render differently.       |
+| Multiple card types (basic/reverse/cloze/phrase/image) | Mostly complete | `reverse` swaps which side (word vs. meaning) shows first; `phrase`/`image` fall back to the basic layout since nothing in the generation/import pipeline produces either yet (documented in the loader's own comment) - not silently ignored, just honestly deferred until real data exists to render differently.       |
 | Swipe gesture review interface               | Complete    | The flipped card is a draggable `SwipeableCard` (right/left/up/down = Good/Again/Easy/Hard, with a fading direction-label overlay); releasing past a threshold commits that rating through the same `schedule()`/`recordReview()` path the tap buttons use. The four rating buttons remain the always-available accessible fallback. Required adding `react-native-gesture-handler`, `react-native-reanimated` 4.x, and its new `react-native-worklets` peer as direct dependencies plus a `babel.config.js` (didn't exist before) and `GestureHandlerRootView` at the app root.        |
 | Flashcard renderer (LiquidJS + HTML/CSS)     | Complete    | `liquidjs`'s `parseAndRenderSync` + `react-native-webview` render real `{{ placeholders }}`, `{% if %}` conditionals, and `{% for %}` loops to HTML/CSS in `lib/templates.ts#renderCardHtml`, used by both the review session and the editor's live preview. `<body class="front"|"back">` is stamped on automatically so a shared stylesheet can still target one side (`.front { ... }`) without any hand-authored wrapper element. |
 | Customizable card template system            | Complete    | `templates` table + full repository CRUD wired for real (`getAllTemplates`/`createTemplate`/`updateTemplate`/`deleteTemplate`); the seeded default template no longer auto-wraps fields in `<div>`.                                                        |
-| Template editor (field visibility, order, style) | Mostly complete | Fields/Style/Preview/Code tabs match the referenced sketches: a consolidated field list with Front/Back toggles (icon + label + description, no reorder — documented v1 simplification), an accent-color picker, a live Preview tab (separate Front/Back sub-tabs, zero-scroll, `onLayout`-measured real card dimensions), and a Code tab with a full variables reference + conditional-Liquid example. Drag-to-reorder is not implemented (roadmap sketch shows it; deferred, not silently dropped — edit the Code tab directly to reorder). |
+| Template editor (field visibility, order, style) | Mostly complete | Fields/Style/Preview/Code tabs match the referenced sketches: a consolidated field list with Front/Back toggles (icon + label + description, no reorder - documented v1 simplification), an accent-color picker, a live Preview tab (separate Front/Back sub-tabs, zero-scroll, `onLayout`-measured real card dimensions), and a Code tab with a full variables reference + conditional-Liquid example. Drag-to-reorder is not implemented (roadmap sketch shows it; deferred, not silently dropped - edit the Code tab directly to reorder). |
 | Deck management: create/rename/delete/nest   | Complete (Phase 4) | `apps/mobile/app/(tabs)/decks.tsx` and `app/deck/[id].tsx` already call `createDeck`/`renameDeck`/`deleteDeck`; nesting renders via `parentId`.                                                                                                            |
 | Deck management: move                        | Partial     | `moveDeck` repository function exists and is untested by any screen; no UI calls it. See Work package 6.                                                                                                                                                  |
-| Deck management: merge                       | Missing     | No repository function or UI exists to merge two decks' cards. Not mentioned as a data-layer primitive anywhere in Phase 2 either — likely needs a new repository function. See Work package 6 for a scope decision.                                     |
+| Deck management: merge                       | Missing     | No repository function or UI exists to merge two decks' cards. Not mentioned as a data-layer primitive anywhere in Phase 2 either - likely needs a new repository function. See Work package 6 for a scope decision.                                     |
 | Statistics: retention rate                   | Complete    | `getRetentionRate(db, 30)` is wired into `stats.tsx`'s overview grid.                                                                                                                                                                                      |
 | Statistics: streak heatmap                   | Complete    | New `getReviewCountsByDay(db, 35)` returns a real per-day count (including zero-count days, unlike the pre-existing `getReviewedDayIndexes`); `lib/stats.ts#buildHeatmap` buckets it into a 5×7 intensity grid relative to the user's own busiest day.   |
 | Statistics: vocabulary growth                | Complete    | New `getVocabularyGrowth(db, weeks)` buckets **lemma** `created_at` (not card `created_at`, to avoid double-counting a word that got both a basic and cloze card from one import row) into weekly windows, wired into the growth chart.                  |
@@ -125,12 +125,12 @@ facing feature.
 
 ### Review session and templates are real (Work packages 2 & 4); stats is still fully dummy
 
-`review/[deckId].tsx` no longer imports from `apps/mobile/lib/dummy.ts` —
+`review/[deckId].tsx` no longer imports from `apps/mobile/lib/dummy.ts` -
 it loads real due cards, schedules ratings through `packages/srs`, and
 persists them via `recordReview`, rendering front/back through the real
 LiquidJS + WebView pipeline. `settings/templates.tsx` is likewise real:
 full CRUD against the `templates` table, live preview through the same
-renderer. `stats.tsx` is now real too (Work package 5, below) — every
+renderer. `stats.tsx` is now real too (Work package 5, below) - every
 number on the screen traces to `getRetentionRate`/`getTotalCardCount`/
 `getReviewCountsByDay`/`getVocabularyGrowth`/`getDifficultWords`, with
 loading/error/empty states for a fresh install with zero review history.
@@ -138,27 +138,27 @@ loading/error/empty states for a fresh install with zero review history.
 stopped using it, so the file was deleted rather than left as an unused
 stub.
 
-### `packages/core` naming collision — fixed (Work package 1)
+### `packages/core` naming collision - fixed (Work package 1)
 
-`packages/core/package.json` declared `"name": "@lingora/types"` — the same
+`packages/core/package.json` declared `"name": "@lingora/types"` - the same
 package name as the real `packages/types`, a naming collision waiting to
 break `pnpm install` resolution the moment anything imported
 `@lingora/core`. Fixed in Work package 1; `packages/core` remains an empty,
 correctly-named stub reserved for future shared logic.
 
-### FSRS: hand-roll vs. a maintained library — decided (Work package 1)
+### FSRS: hand-roll vs. a maintained library - decided (Work package 1)
 
 The roadmap describes `packages/srs` as "a complete FSRS scheduler
 implementation" with zero dependencies outside `@lingora/types`, which reads
 as "hand-roll it." Work package 1 wraps `ts-fsrs` (pure TypeScript, the same
 published FSRS algorithm Anki itself now ships) instead of re-deriving the
-numerically subtle stability/difficulty math from scratch — `packages/srs`'s
+numerically subtle stability/difficulty math from scratch - `packages/srs`'s
 public surface stays exactly the pure function the roadmap asked for
-(`schedule(state, rating, now) → state`), it just doesn't hand-roll the
+(`schedule(state, rating, now) -> state`), it just doesn't hand-roll the
 internals. `ts-fsrs` and `@lingora/observability` (zero-Expo logging, not a
 UI/DB dependency) are the only two dependencies beyond `@lingora/types`.
 
-### Swipe gesture native setup — resolved (Work package 3)
+### Swipe gesture native setup - resolved (Work package 3)
 
 The earlier inference (transitive `react-native-reanimated`/
 `react-native-gesture-handler` meaning no rebuild needed) turned out
@@ -166,7 +166,7 @@ partly right and partly wrong: a native rebuild **was** required (per the
 `expo-clipboard` precedent, confirmed rather than just assumed), and
 `expo install` resolved `react-native-reanimated@4.5.0`, which needs a
 *separate* new peer package (`react-native-worklets@0.10.x`) that the
-transitive install hadn't pulled in at a matching version — Reanimated 4
+transitive install hadn't pulled in at a matching version - Reanimated 4
 delegates worklet compilation to `react-native-worklets` rather than
 bundling its own Babel plugin. Symptom: an "Uncaught Error: [Worklets]
 Mismatch between JavaScript code version and Worklets Babel plugin
@@ -175,7 +175,7 @@ version the compiled native module was built against (`0.10.2`, checked
 via the installed native `.so`/Gradle output, not just the npm registry's
 "latest"), then a plain Metro cache clear (no second native rebuild
 needed). Also required creating `apps/mobile/babel.config.js` (didn't
-exist before — Metro was relying entirely on `babel-preset-expo`'s
+exist before - Metro was relying entirely on `babel-preset-expo`'s
 defaults with no custom plugins) with `react-native-worklets/plugin` as
 the last plugin, and wrapping the app root in `GestureHandlerRootView`.
 
@@ -183,10 +183,10 @@ the last plugin, and wrapping the app root in `GestureHandlerRootView`.
 
 1. FSRS scheduler foundation (`packages/srs`), including the `packages/core`
    naming fix.
-2. Review session data + scheduling wiring (real queue, real rating →
+2. Review session data + scheduling wiring (real queue, real rating ->
    `recordReview`, all card types minimally presentable).
 3. Swipe gesture interface.
-4. LiquidJS template engine + template editor (the largest work package —
+4. LiquidJS template engine + template editor (the largest work package -
    depends on the review session already rendering real card data from #2).
 5. Learning statistics (mostly wiring existing repository functions, plus
    two new aggregation queries).
@@ -194,25 +194,25 @@ the last plugin, and wrapping the app root in `GestureHandlerRootView`.
 
 FSRS comes first because the review session, statistics, and even the
 template preview's "next review" hint all need a real `CardState` to work
-against — building the scheduler after the screens that consume it would
+against - building the scheduler after the screens that consume it would
 mean redoing their rating-button wiring twice. The template engine is
 sequenced after review-session wiring rather than before it because a
 LiquidJS renderer is much easier to build and test against real card data
 than against the dummy queue's ad hoc fields.
 
-### Work package 1: FSRS scheduler foundation — ✅ Complete
+### Work package 1: FSRS scheduler foundation - ✅ Complete
 
-- Fix `packages/core/package.json`'s name collision (`@lingora/types` →
+- Fix `packages/core/package.json`'s name collision (`@lingora/types` ->
   `@lingora/core`) before either package is used for real, so a later
-  `pnpm install` doesn't silently resolve the wrong package. → done.
-- Decide and document: hand-rolled FSRS vs. wrapping `ts-fsrs`. → wraps
+  `pnpm install` doesn't silently resolve the wrong package. -> done.
+- Decide and document: hand-rolled FSRS vs. wrapping `ts-fsrs`. -> wraps
   `ts-fsrs`; `packages/srs`'s public surface is exactly `schedule(state:
   CardState, rating: ReviewRating, now?: number): CardState` plus
-  `createInitialCardState(cardId, now?)` — no `DatabaseAdapter`, no React,
+  `createInitialCardState(cardId, now?)` - no `DatabaseAdapter`, no React,
   no Expo imports (only `ts-fsrs` and the zero-Expo `@lingora/observability`
   logging facade beyond `@lingora/types`).
-- Implement the four-state machine (new → learning → review → relearning)
-  and interval/stability/difficulty/retrievability math per FSRS. → done via
+- Implement the four-state machine (new -> learning -> review -> relearning)
+  and interval/stability/difficulty/retrievability math per FSRS. -> done via
   `ts-fsrs`; `CardState` gained `reps`/`learningSteps` (migration 0006,
   `card_states` columns default 0) since FSRS needs both to schedule
   correctly across the full lifecycle rather than treating every review as
@@ -220,110 +220,110 @@ than against the dummy queue's ad hoc fields.
 - Unit tests: interval growth across repeated "good" ratings, a lapse
   ("again") dropping a review-state card back to relearning, difficulty
   bounds, and a deterministic golden-value test against known FSRS
-  reference output. → 8 Vitest tests in `packages/srs/src/index.test.ts`,
+  reference output. -> 8 Vitest tests in `packages/srs/src/index.test.ts`,
   including a golden-value regression over a full
-  new→learning→review→lapse→relearning cycle with fuzz disabled for
+  new->learning->review->lapse->relearning cycle with fuzz disabled for
   determinism.
 
 Acceptance criteria:
 
 - `schedule()` is pure, synchronous, and has no dependency beyond
-  `@lingora/types`. — met (plus `ts-fsrs`/`@lingora/observability`, neither
+  `@lingora/types`. - met (plus `ts-fsrs`/`@lingora/observability`, neither
   a DB/UI dependency).
-- Vitest coverage includes at least one full new→learning→review→lapse→
-  relearning cycle. — met, verified end-to-end on the AVD that migration
+- Vitest coverage includes at least one full new->learning->review->lapse->
+  relearning cycle. - met, verified end-to-end on the AVD that migration
   0006 applies cleanly with no fatal/Scudo/SIGABRT errors.
 - `pnpm install` no longer has two packages claiming the name
   `@lingora/types`.
 
-### Work package 2: Review session data + scheduling wiring — ✅ Complete
+### Work package 2: Review session data + scheduling wiring - ✅ Complete
 
 - Replace `dummyReviewQueue` with `getCardsDueForReview(db, deckId)`
-  (cloze mode narrows further, e.g. by joining `cloze_cards`). → done;
+  (cloze mode narrows further, e.g. by joining `cloze_cards`). -> done;
   `loadReviewQueue` in `review/[deckId].tsx` skips cards with no matching
   cloze row when `mode=cloze`.
 - Build a "review card view" loader analogous to `word/[form].tsx`'s
-  `loadWord` — one card's lemma, primary meaning, selected example, and
-  (for cloze mode) its cloze row, in the shape the renderer needs. → done
-  (added `getLemmaById` to `packages/database` — the loader had a card's
+  `loadWord` - one card's lemma, primary meaning, selected example, and
+  (for cloze mode) its cloze row, in the shape the renderer needs. -> done
+  (added `getLemmaById` to `packages/database` - the loader had a card's
   `lemmaId` but no by-ID lookup existed yet).
-- Wire the rating buttons to `packages/srs#schedule()` → `recordReview(db,
+- Wire the rating buttons to `packages/srs#schedule()` -> `recordReview(db,
   event, newState)`, replacing the static `dummyIntervals` display with the
-  scheduler's real next-interval preview per rating. → done; verified on
+  scheduler's real next-interval preview per rating. -> done; verified on
   the AVD that a rating both inserts a `review_events` row and transitions
-  `card_states` (`new` → `learning`, real `stability`/`reps`/
+  `card_states` (`new` -> `learning`, real `stability`/`reps`/
   `learning_steps`/`next_review_date`).
 - Give every `CardType` at least a minimally correct front/back
-  presentation. → `basic` is the real case (everything the pipeline
+  presentation. -> `basic` is the real case (everything the pipeline
   currently produces); `reverse` swaps which side shows first using the
   same data; `phrase`/`image` fall back to the basic layout since nothing
-  produces either type yet — documented in the loader's docstring as
+  produces either type yet - documented in the loader's docstring as
   defensive/future-proof rather than a claim of real content.
-- Add a session-time-remaining estimate. → done; `formatTimeRemaining`
+- Add a session-time-remaining estimate. -> done; `formatTimeRemaining`
   uses the session's own average ms/card so far (seeded with an 8s
   default before the first rating).
 
 Acceptance criteria:
 
 - A real due card, rated, updates its `card_states` row and inserts a
-  `review_events` row. — verified on the AVD by querying both tables
+  `review_events` row. - verified on the AVD by querying both tables
   directly after rating a card.
 - Every `CardType` in a representative deck can be reviewed without a
-  runtime error, even if visually plain. — met; only `basic` cards exist
+  runtime error, even if visually plain. - met; only `basic` cards exist
   in any seeded/imported data to test against, so `reverse`/`phrase`/
   `image` are exercised by the exhaustive switch/fallback logic, not by
   real due cards of those types (none exist yet to test with).
-- No dummy data remains in the review session's data path. — met;
+- No dummy data remains in the review session's data path. - met;
   `dummyReviewQueue`/`dummyIntervals` deleted from `lib/dummy.ts`.
 
-### Work package 3: Swipe gesture interface — ✅ Complete
+### Work package 3: Swipe gesture interface - ✅ Complete
 
 - Replace (or augment) tap-to-flip and button-tap rating with swipe
-  gestures. → augmented, not replaced (see below); `SwipeableCard` in
+  gestures. -> augmented, not replaced (see below); `SwipeableCard` in
   `review/[deckId].tsx` maps right/left/up/down to Good/Again/Easy/Hard,
   with a fading colored label per direction during the drag and a fling-off
   animation on commit. Tap-to-flip is unchanged for revealing the back.
 - Verify whether the already-transitively-linked native modules need a
-  fresh `expo run:android`. → confirmed yes, a rebuild was required — see
+  fresh `expo run:android`. -> confirmed yes, a rebuild was required - see
   "Known incomplete or misleading behavior" above for the version-mismatch
   detour that surfaced along the way (Reanimated 4's new
   `react-native-worklets` peer package).
 - Decide and document whether the four rating buttons remain alongside
-  swipe. → kept; buttons are the accessible, always-available path, swipe
+  swipe. -> kept; buttons are the accessible, always-available path, swipe
   is additive.
 
 Acceptance criteria:
 
-- A card can be rated via a swipe gesture end-to-end. — the gesture calls
+- A card can be rated via a swipe gesture end-to-end. - the gesture calls
   the identical `rate.mutate(rating)` path the buttons use, so it shares
   Work package 2's already-AVD-verified `schedule()`/`recordReview()` wiring.
-- The rating mechanism remains usable via tap/press for accessibility. — met;
+- The rating mechanism remains usable via tap/press for accessibility. - met;
   buttons unchanged.
-- Verified on the AVD. — met (app boots cleanly post-fix, no fatal/Scudo/
+- Verified on the AVD. - met (app boots cleanly post-fix, no fatal/Scudo/
   SIGABRT errors, `GestureHandlerRootView` + `SwipeableCard` mount without
-  throwing — confirmed via the flipped-card UI rendering correctly and a
+  throwing - confirmed via the flipped-card UI rendering correctly and a
   real rating persisting, moving a card from due to not-due with 100%
   retention).
 
-### Work package 4: LiquidJS template engine + template editor — ✅ Complete
+### Work package 4: LiquidJS template engine + template editor - ✅ Complete
 
 - Add `liquidjs` (pure JS, no native dependency) and a WebView renderer
-  (`react-native-webview` — a native module, will need an `expo run:android`
-  rebuild the first time it's added, per the `expo-clipboard` precedent). →
+  (`react-native-webview` - a native module, will need an `expo run:android`
+  rebuild the first time it's added, per the `expo-clipboard` precedent). ->
   done; a fresh native rebuild was required, confirmed rather than assumed
   (see the `react-native-worklets` version-mismatch note from Work package 3
-  — re-verified stable after this rebuild too).
+  - re-verified stable after this rebuild too).
 - Build the render function: `Template.frontTemplate`/`backTemplate` (Liquid
-  syntax) + `Template.styles` (CSS) + a card-data context object → HTML
+  syntax) + `Template.styles` (CSS) + a card-data context object -> HTML
   string, loaded into a WebView so CSS actually applies (replacing
-  `templates.tsx`'s documented "plain-text approximation"). → done,
+  `templates.tsx`'s documented "plain-text approximation"). -> done,
   `apps/mobile/lib/templates.ts#renderCardHtml`/`buildCardContext`; renders
   a full HTML document via `engine.parseAndRenderSync` with a fallback error
   message instead of throwing on malformed Liquid.
 - Support the syntax the roadmap and prompt code samples call out:
   `{{ placeholders }}`, `{% if %}` conditionals (e.g. gender only on noun
-  cards), and `{% for %}` loops (e.g. first two synonyms) — not just flat
-  substitution. → done, LiquidJS handles all three natively; verified with
+  cards), and `{% for %}` loops (e.g. first two synonyms) - not just flat
+  substitution. -> done, LiquidJS handles all three natively; verified with
   `CONDITIONAL_EXAMPLE`'s worked `{% if %}`/`{% for ... limit %}` snippet.
 - Rebuild the template editor screen against the two design references
   (`LingoraDocs/images/FlashCardTemplate.png`, `FlashCardTemplate_2.png`):
@@ -337,8 +337,8 @@ Acceptance criteria:
   snippet in the Code tab; an accent-color picker
   (`FlashCardTemplate_2.png`); and a live preview that renders through the
   *same* WebView renderer the real review session uses, not a separate
-  approximation, so what the user sees while editing is what they get. →
-  done, except drag-to-reorder (deferred — see below). Per iterative UX
+  approximation, so what the user sees while editing is what they get. ->
+  done, except drag-to-reorder (deferred - see below). Per iterative UX
   feedback: field toggles show a friendly label/description/icon per field
   rather than raw variable names; no field is auto-wrapped in `<div>` (only
   array-typed fields get the structurally-required `{% for %}` loop; the
@@ -352,27 +352,27 @@ Acceptance criteria:
   when "?" was pressed.
 - Wire `getAllTemplates`/`createTemplate`/`updateTemplate`/
   `getDefaultTemplate` for real persistence, including the
-  default-template-swap transaction the repository already provides. → done.
+  default-template-swap transaction the repository already provides. -> done.
 - Use the review session (Work package 2) as the render target once this
-  lands — swap its plain-`Text` card rendering for the WebView renderer. →
+  lands - swap its plain-`Text` card rendering for the WebView renderer. ->
   done; `review/[deckId].tsx` renders front/back through `CardRenderer`
-  (cloze mode intentionally kept as plain `Text` — a fixed built-in layout,
+  (cloze mode intentionally kept as plain `Text` - a fixed built-in layout,
   not yet part of the customizable template system, documented in-code as a
   v1 scope boundary).
 
 Acceptance criteria:
 
 - A template with a conditional block (e.g. gender shown only for nouns)
-  renders correctly for both a noun and non-noun card. — met.
+  renders correctly for both a noun and non-noun card. - met.
 - CSS in `Template.styles` visibly applies in both the editor's live
-  preview and the actual review session — not just stored. — met, verified
+  preview and the actual review session - not just stored. - met, verified
   on the AVD with the accent-color picker and `.front`/`.back` selectors.
 - The field-toggle/reorder editor UX matches the referenced sketches'
   shape (tabs, field list with toggles, variables reference, live
-  preview) — exact pixels don't need to match, but no editor concept in
+  preview) - exact pixels don't need to match, but no editor concept in
   the sketches (Fields/Style/Preview/Code tabs, variable reference,
   conditional example) should be silently dropped from scope without a
-  documented reason. — met; drag-to-reorder is the one explicitly deferred
+  documented reason. - met; drag-to-reorder is the one explicitly deferred
   concept (edit the Code tab directly to reorder in the interim).
 
 ### Post-WP4 polish: default card design, quick translate, per-card editing
@@ -383,14 +383,14 @@ AVD testing and user feedback, before starting WP5:
 - **Corporate-proxy TLS trust for the dev client.** AI provider key
   validation (Mistral, confirmed; applies to all four LLM providers plus
   Google Translate/DeepL) was failing with `net::ERR_CERT_AUTHORITY_INVALID`
-  on this machine's Zscaler-intercepted network — the AVD didn't trust the
+  on this machine's Zscaler-intercepted network - the AVD didn't trust the
   Zscaler root CA the way the host machine does. Fixed with a debug-only
   Expo config plugin, `apps/mobile/plugins/withDebugUserCaTrust.js`
   (registered in `app.json`), which writes an `android/app/src/debug`
   network security config trusting user-installed CAs in addition to the
-  system store — release builds are untouched. The Zscaler root CA itself
-  still has to be installed once per AVD via Settings → Security & privacy →
-  Encryption & credentials → Install a certificate (documented precedent:
+  system store - release builds are untouched. The Zscaler root CA itself
+  still has to be installed once per AVD via Settings -> Security & privacy ->
+  Encryption & credentials -> Install a certificate (documented precedent:
   the sister Shelfie project's `Expo-Android-Run-Troubleshooting.md` §11).
 - **Duocards-style default card template.** The seeded "Default" template
   (`packages/database/src/seed_dummy_data.ts`) and the template editor's
@@ -399,13 +399,13 @@ AVD testing and user feedback, before starting WP5:
   replaced the old bare-text layout with a real design: a large centered
   word + part-of-speech pill on the front; on the back, the word, meaning,
   a bordered/centered example+translation card, and a synonym pill row
-  (positioned after the example, not before — iterated on user feedback).
+  (positioned after the example, not before - iterated on user feedback).
   `<body class="front"|"back">` is stamped on automatically by
   `renderCardHtml` so a single shared stylesheet can still target one side
   (`.front`/`.back` selectors) without any hand-authored wrapper element.
 - **Reset to default (layout & style).** `settings/templates.tsx`'s Style
   tab gained a "Reset to default" action (with a confirm dialog) that
-  restores `frontTemplate`/`backTemplate`/`styles` to the shipped default —
+  restores `frontTemplate`/`backTemplate`/`styles` to the shipped default -
   still requires tapping "Save changes" afterward like any other edit; it
   only touches editor state, not the database, until saved.
 - **Word highlighting in the example sentence.** `lib/templates.ts#highlightWord`
@@ -413,12 +413,12 @@ AVD testing and user feedback, before starting WP5:
   a heuristic separable-verb split (common prefixes list + a crude
   infinitive-ending strip) so e.g. "ausgehen" highlights both "aus" and
   "gehen" inside "Wir gehen heute Abend aus." `buildCardContext` exposes
-  this as a new `example_highlighted` context field/template variable —
+  this as a new `example_highlighted` context field/template variable -
   `example` itself stays plain text for templates that don't want markup.
 - **Quick translate in Search.** `useServices()` now exposes `dictionary`
   (previously only reachable through the full `pipeline`) so
   `app/(tabs)/search.tsx` can show a plain Google Translate/DeepL/etc.
-  translation for an unrecognized word immediately — independent of `tier`,
+  translation for an unrecognized word immediately - independent of `tier`,
   so it works in Limited mode with no generation key, and appears alongside
   "Generate with AI" when one is configured. Previously the translation
   provider picked in Settings had no visible effect anywhere in the UI.
@@ -426,7 +426,7 @@ AVD testing and user feedback, before starting WP5:
   affordance: a pencil icon appears in the review header once a card is
   flipped, opening a modal to edit that card's real meaning/example/
   translation text (not template layout, and not the AI-candidate-picking
-  evaluation flow in `word/[form].tsx` — genuinely freeform text, including
+  evaluation flow in `word/[form].tsx` - genuinely freeform text, including
   basic inline HTML like `<b>`/`<i>`/`<span style="color:...">` since these
   fields render through the same unescaped-by-default LiquidJS pipeline as
   any other card content). New repository functions
@@ -444,32 +444,32 @@ files, landing after the round documented above and before WP4.5:
 
 - **CSV/apkg preview table OOM crash, fixed.** The preview table rendered
   *every* row (10+ cells each) as real native views inside a plain
-  `ScrollView`, not virtualized — importing a real-world 413-note Anki
+  `ScrollView`, not virtualized - importing a real-world 413-note Anki
   collection exhausted the AVD's heap during Fabric's mount phase
   (`OutOfMemoryError`, a hard crash with no JS-catchable error or visible
   warning). Fixed by swapping the row body for a `FlatList` in both
   `settings/csv-import.tsx` and `settings/apkg-import.tsx` (same frozen-
   header layout, only ~20 rows mounted at a time regardless of file size).
 - **Cloze notes no longer require a "word"/"meaning" field.** A real Anki
-  Cloze note has no standalone word field — the fill-in-the-blank sentence
+  Cloze note has no standalone word field - the fill-in-the-blank sentence
   *is* the card. `resolveWordAndMeaning` (`packages/database/src/import-
   shared.ts`) now derives an empty word from the cloze answer(s) and an
   empty meaning from the example's translation when the example field
-  carries `{{c1::…}}` markup, only erroring when there's truly nothing to
+  carries `{{c1::...}}` markup, only erroring when there's truly nothing to
   fall back to. `CsvImportOptions`/`ApkgImportOptions` also dropped
-  `defaultPartOfSpeech`/`defaultCefrLevel` — no picker for these in the UI
+  `defaultPartOfSpeech`/`defaultCefrLevel` - no picker for these in the UI
   anymore, just a hardcoded `noun`/`A1` fallback when a mapped column/field
   is missing or unrecognized.
 - **Field mapping is a dropdown, not a wrapping row of chips.** Every
   CSV/apkg field is optional now (was: word/meaning hard-required) and maps
-  through the new `Dropdown` component (`components/ui.tsx` — a tappable
-  field opening a bottom-sheet option list, `clearable` for a "None" row) —
+  through the new `Dropdown` component (`components/ui.tsx` - a tappable
+  field opening a bottom-sheet option list, `clearable` for a "None" row) -
   cleaner than a `Chip` row once every field can point at any column.
 - **`.apkg` field-mapping chips no longer show columns that don't exist for
   the actual notes being imported.** `fieldIndices` used to span the max
   field count across *every* note type in the collection (Anki bundles a
   user's whole note-type library in an export's metadata, even for a
-  single-deck export) — a collection mixing a 3-field Cloze type with, say,
+  single-deck export) - a collection mixing a 3-field Cloze type with, say,
   a 7-field Image Occlusion type showed "Field 4".."Field 7" chips empty on
   nearly every row. Now bounded to the dominant note type's own field count.
 - **Deck-scoped import, and a `⋮` action menu on every deck.** Both
@@ -481,7 +481,7 @@ files, landing after the round documented above and before WP4.5:
   different one). Both screens' "Import into deck" step also gained a
   "+ New deck" chip (inline `createDeck` + auto-select, no need to back out
   to the Decks tab first). "Export this deck" is present in both menus but
-  explicitly deferred (see Work package 4.5) — an alert explaining why plus
+  explicitly deferred (see Work package 4.5) - an alert explaining why plus
   a link to Settings' whole-library JSON backup, not a silently-missing
   button.
 - **Deck row due/card count is one line.** `decks.tsx`'s per-row subtitle
@@ -490,11 +490,11 @@ files, landing after the round documented above and before WP4.5:
   always shown; the pressable due-count pill (navigates straight to review)
   is unchanged alongside it.
 
-### Work package 4.5: Export formats — ✅ Complete (pending real-Anki verification)
+### Work package 4.5: Export formats - ✅ Complete (pending real-Anki verification)
 
-All four formats are implemented, deck-scoped (via each deck's `⋮` menu →
-"Export this deck" → format picker) and whole-library (Settings → Import &
-Export). The picker itself is `components/ui.tsx#ExportFormatSheet` — a real
+All four formats are implemented, deck-scoped (via each deck's `⋮` menu ->
+"Export this deck" -> format picker) and whole-library (Settings -> Import &
+Export). The picker itself is `components/ui.tsx#ExportFormatSheet` - a real
 bottom-sheet list (icon + label + description per format), replacing an
 earlier `Alert.alert`-with-one-button-per-format that silently dropped
 Markdown past Android's practical ~3-button limit and read as a bare
@@ -502,55 +502,55 @@ message box rather than a menu (both real problems, reported after the
 first cut of this work package shipped). Shared query:
 `packages/database/src/export-shared.ts#getExportableCards`
 (optionally narrowed to one deck via `deck_cards`, same table `getCardsForDeck`
-reads) — every card's word/primary meaning/selected-or-cloze example/
+reads) - every card's word/primary meaning/selected-or-cloze example/
 synonyms/tags, with a cloze card's `example` carrying real `{{c1::answer}}`
 markup re-embedded by `cloze-parse.ts#buildClozeMarkup` (the reverse of
 `parseClozeMarkup`), so a cloze card round-trips as a real fill-in-the-blank
 rather than exporting as a blank-less plain sentence.
 
-1. **JSON → renamed to Lingora format, `.lin`.** Whole-library export still
+1. **JSON -> renamed to Lingora format, `.lin`.** Whole-library export still
    exactly the same `BackupPayload` JSON content (`packages/database/src/backup.ts`'s
-   `createBackup` unchanged) — this was a naming/branding decision only ("a
+   `createBackup` unchanged) - this was a naming/branding decision only ("a
    Lingora file", not "a JSON file"), not a new serialization.
    `apps/mobile/lib/backup.ts`'s `backupFileName` now writes `.lin`; the
    share sheet and restore file picker use `application/octet-stream`
    instead of `application/json` since `.lin` has no registered system MIME
    type. Remains the only full-fidelity format (meaning clusters, multiple
    meanings/examples, synonyms, phrases, FSRS state, cloze cards).
-   Also gained a **deck-scoped variant**, `backup.ts#createDeckBackup` —
+   Also gained a **deck-scoped variant**, `backup.ts#createDeckBackup` -
    same payload shape, filtered to one deck's own cards (and their
    meanings/examples/synonyms/phrases/cloze/tags/FSRS state/review history,
-   resolved via `deck_cards` → `cards.lemma_id` → `lemmas`/`meaning_clusters`;
+   resolved via `deck_cards` -> `cards.lemma_id` -> `lemmas`/`meaning_clusters`;
    `templates`/`prompt_versions` included in full as small reference tables;
    `sentence_mining_queue`/`evaluations` omitted as not deck-scoped data).
    Was export-only through Work package 6; Work package 7 (below) added a
-   matching **additive** deck `.lin` importer (`lin-import.ts`) — distinct
+   matching **additive** deck `.lin` importer (`lin-import.ts`) - distinct
    from `restoreBackup`'s full-replace whole-library restore, which remains
    the only *replacing* restore path. A deck `.lin` import never deletes
    anything already on the device.
-2. **CSV export** (`csv-export.ts#buildCsvExport`) — same header names as
+2. **CSV export** (`csv-export.ts#buildCsvExport`) - same header names as
    `CsvField`, so a file exported here re-imports through
    `buildCsvImportPreview` with zero manual remapping (verified by a round-
    trip test in `export.test.ts`: export, then re-parse and preview the
-   result, every row comes back as `'duplicate'` — the already-imported
+   result, every row comes back as `'duplicate'` - the already-imported
    card, correctly recognized). RFC4180 field escaping (`csv-export.ts#csvField`).
-3. **Markdown export** (`markdown-export.ts#buildMarkdownExport`) — one
+3. **Markdown export** (`markdown-export.ts#buildMarkdownExport`) - one
    `### word` block per card with meaning/example/synonyms/tags. Not meant
-   to round-trip (no importer reads it back) — a "paste into Notes/a doc"
+   to round-trip (no importer reads it back) - a "paste into Notes/a doc"
    convenience, matching the original plan.
 4. **Anki `.apkg` export** (`apkg-export.ts#buildApkgExport` +
-   `apps/mobile/lib/export.ts#exportApkgToFile`) — writes a legacy-schema
+   `apps/mobile/lib/export.ts#exportApkgToFile`) - writes a legacy-schema
    Anki collection (`collection.anki2`, the same format
    `readAnkiCollection`'s fallback path already reads, and the format real
    Anki has kept backward-compatible support for since old exports use it
    too) into a real temp SQLite file (`openDatabaseAsync`, mirroring
-   `lib/apkg.ts`'s importer — a deserialized in-memory database can't back
+   `lib/apkg.ts`'s importer - a deserialized in-memory database can't back
    the disk-spilled temp b-trees a multi-table write needs), then zips it
    with `jszip` (`collection.anki2` + an empty `media` manifest, `{}`, since
    Lingora doesn't export audio/images) into a `.apkg` and opens the share
    sheet. Two note types are fabricated: "Lingora Basic" (plain front/back)
    and "Lingora Cloze" (Anki's own `type: 1` cloze note type, using
-   `{{cloze:Text}}` in its template) — a card's `{{c1::answer}}` markup
+   `{{cloze:Text}}` in its template) - a card's `{{c1::answer}}` markup
    (see above) makes it a real, natively-rendered fill-in-the-blank in
    Anki's own cloze engine, not a plain sentence with visible brackets.
    **Caveat, not yet closed out:** built from the documented/long-stable
@@ -558,7 +558,7 @@ rather than exporting as a blank-less plain sentence.
    `col.decks`/`col.dconf`/`col.conf` JSON shapes) and covered by a Vitest
    check that the written SQLite rows/JSON have the right shape
    (`export.test.ts`), but **not verified by actually opening an export in
-   real Anki/AnkiDroid/AnkiMobile** — no Anki client is available in this
+   real Anki/AnkiDroid/AnkiMobile** - no Anki client is available in this
    development environment. Before relying on this for real deck sharing,
    export a file and confirm it opens cleanly (no "corrupt collection"
    error) in an actual Anki client; report back with the exact error if it
@@ -569,57 +569,57 @@ Acceptance criteria:
 - [x] CSV export produces a file `csv-import.ts` can re-import without
       manual column remapping (verified by an automated round-trip test).
 - [ ] `.apkg` export opens in real Anki (or AnkiDroid/AnkiMobile) without a
-      "corrupt collection" error — **verification against actual Anki is
+      "corrupt collection" error - **verification against actual Anki is
       still pending**, see the caveat above.
 - [x] Every export format is reachable from both the deck-row `⋮` menu
-      (deck-scoped) and Settings → Import & Export (whole-library).
+      (deck-scoped) and Settings -> Import & Export (whole-library).
 
 **Post-ship fix: exports save directly to a chosen folder, not just a share
 sheet.** Every export previously always opened the OS share sheet
-(`Sharing.shareAsync`) — reported as bad UX, since a share sheet is for
+(`Sharing.shareAsync`) - reported as bad UX, since a share sheet is for
 sending to another app, not for "save this file somewhere on my device."
 `apps/mobile/lib/save-file.ts#saveExportFile` now uses Android's Storage
 Access Framework on Android (`StorageAccessFramework.requestDirectoryPermissionsAsync`
-— a real native folder-browser dialog, granted once and reused via a
+- a real native folder-browser dialog, granted once and reused via a
 SecureStore-persisted URI, re-prompted if a write against the stored URI
-ever fails) and falls back to the share sheet only on iOS (no SAF there —
+ever fails) and falls back to the share sheet only on iOS (no SAF there -
 its share sheet's own "Save to Files" is the iOS equivalent) or if the user
 declines the Android folder prompt. Binary content (the `.apkg` zip bytes)
 goes through `base64-js` (added as a direct `apps/mobile` dependency) for
 the SAF write path, since `writeAsStringAsync` only accepts a string and
 Hermes doesn't reliably provide `atob`/`btoa`.
 **Caveat, not yet closed out:** like the `.apkg` schema above, this has not
-been exercised on a real device/AVD yet — verify the Android folder picker
+been exercised on a real device/AVD yet - verify the Android folder picker
 actually appears and the saved file lands in the chosen folder with the
 correct name/extension (note `StorageAccessFramework.createFileAsync`'s
 `fileName` parameter is documented as "without the extension," but the
 implementation here passes the full name including it, since Android's
 extension-guessing from a generic `application/octet-stream` MIME type for
-`.lin`/`.apkg` is unreliable — report back if the saved file's name/extension
+`.lin`/`.apkg` is unreliable - report back if the saved file's name/extension
 comes out wrong).
 
 **Post-ship fix: two real export-count/scope bugs, found via on-device
 testing.**
 
-- **"Meaning" duplicated "Example translation" in every export format —
+- **"Meaning" duplicated "Example translation" in every export format -
   for any card, not just cloze ones.** Root cause: `resolveWordAndMeaning`'s
   meaning-fallback (see the WP4/import section above) applies to *any* row
-  with Meaning left unmapped/empty, cloze or plain vocab — not gated on
+  with Meaning left unmapped/empty, cloze or plain vocab - not gated on
   cloze markup the way the word-fallback is. The first fix only blanked
   the duplicate for `isCloze` cards; `export-shared.ts#getExportableCards`
   now blanks `meaning` whenever it exactly equals the example translation,
-  regardless of card type — the same result a fresh import with no meaning
+  regardless of card type - the same result a fresh import with no meaning
   mapped would produce, so round-tripping is unaffected. Covered by both a
   cloze and a non-cloze regression test in `export.test.ts`.
 - **`.lin` export reported a wildly inflated "cards exported" count** (a
   real 49-card deck showed "417 cards exported"), which read as if the
-  export had pulled in other decks' data too. It hadn't — `createDeckBackup`'s
+  export had pulled in other decks' data too. It hadn't - `createDeckBackup`'s
   SQL scoping was verified correct by a new test (`backup.test.ts`: a
   second deck's lemma/card is asserted absent from the first deck's
   export). The actual bug was `apps/mobile/lib/backup.ts#exportBackupToFile`'s
   `itemCount`, which summed row counts across *every* table in the payload
   (lemmas + meanings + examples + synonyms + tags + `card_states` +
-  `review_events` + ... ) rather than counting cards — a deck with review
+  `review_events` + ... ) rather than counting cards - a deck with review
   history and multiple meanings/examples per card easily inflates past the
   real card count. Fixed to `backup.tables.cards?.length`, matching what
   CSV/Markdown/Anki export already report as "N cards exported." The
@@ -628,11 +628,11 @@ testing.**
 
 **Post-ship feature: a dedicated "Cloze sentence" import field, separate
 from "Example sentence."** Cloze detection used to only look at whatever
-was mapped to Example — meaning the natural-seeming mapping ("this Anki
-note's cloze-marked Text field → Example sentence") produced exported CSV/
+was mapped to Example - meaning the natural-seeming mapping ("this Anki
+note's cloze-marked Text field -> Example sentence") produced exported CSV/
 Markdown files that showed raw `{{c1::word}}` syntax under an "Example"
 heading, confusing on its own and conflating two different concepts (a
-cloze card has no separate plain example — the cloze sentence *is* the
+cloze card has no separate plain example - the cloze sentence *is* the
 example). Now:
 
 - `CsvField`/`ApkgField` gained a `cloze` value, with its own dropdown row
@@ -641,13 +641,13 @@ example). Now:
 - `import-shared.ts#resolveWordAndMeaning`/`importRow` prefer the dedicated
   `cloze` field when present, still falling back to scanning `example` for
   `{{c1::...}}` markup when it isn't (backward compatible with a mapping
-  that puts cloze text there instead — the only option before this).
+  that puts cloze text there instead - the only option before this).
 - `ExportableCard` gained its own `cloze` field, mutually exclusive with
   `example` (a cloze card's `example` is now always `null`, and vice
-  versa) — `csv-export.ts` writes a dedicated `cloze` CSV column (round-
+  versa) - `csv-export.ts` writes a dedicated `cloze` CSV column (round-
   trips onto the new mapping), and `markdown-export.ts` shows the cloze
   sentence fully revealed via a new `cloze-parse.ts#revealClozeMarkup`
-  (`{{c1::aus}}` → `aus`, inline — readable prose, not Anki markup) instead
+  (`{{c1::aus}}` -> `aus`, inline - readable prose, not Anki markup) instead
   of raw `{{c1::...}}` syntax. `apkg-export.ts` reads the new `card.cloze`
   field for the Anki Cloze note type's Text field (unchanged in substance,
   just reading from the right field now).
@@ -655,19 +655,19 @@ example). Now:
 **Post-ship fix: a row with both real vocab content and cloze content now
 creates two cards, not one.** Reported after the dedicated Cloze field
 shipped: a CSV with word/meaning/example/translation *and* a mapped Cloze
-column only ever produced a single card typed `'cloze'` — which the
+column only ever produced a single card typed `'cloze'` - which the
 regular review queue explicitly excludes (Practice Cloze cards never mix
-into normal review, an earlier deliberate fix) — so the word/meaning
+into normal review, an earlier deliberate fix) - so the word/meaning
 content was stored but never surfaced anywhere reachable. `import-shared.ts#importRow`
 now creates a **basic** card (word/meaning/example/synonyms/tags, for
 ordinary review) *and* a separate **cloze** card (for Practice Cloze)
 under the same lemma whenever a row has both genuine word/meaning content
 (`ImportableRow.hasOwnVocab`, set by the caller from the *raw* mapped
-cells before `resolveWordAndMeaning`'s fallback runs — needed since
+cells before `resolveWordAndMeaning`'s fallback runs - needed since
 `importRow` can't otherwise tell "the user provided this" from "this was
 derived from the cloze answer/translation") *and* cloze markup from the
 **dedicated** `cloze` field specifically. Cloze markup merely detected
-inside `example` (no separate field mapped — the older, single-field
+inside `example` (no separate field mapped - the older, single-field
 behavior) still produces exactly one, cloze-only card as before, since in
 that case `example` *is* the raw markup with nothing clean to put on a
 basic card. The per-card creation/merge logic was factored into a new
@@ -682,55 +682,55 @@ cloze row and its own meaning.
 Immediate follow-on from the two-card import above: creating two cards for
 one word means the deck detail screen and CSV/Markdown export (both of
 which list/export one row per *card*) started showing the same word
-twice — read as an accidental duplicate rather than "this word has a
+twice - read as an accidental duplicate rather than "this word has a
 cloze variant too."
 
 - `repositories/cards.ts#getCardsForDeck`/`getRecentlyAddedWords` now
   fetch every card row and collapse them to one row per lemma in
   application code (`collapseByLemma`) rather than SQL `GROUP BY`/window
-  functions — preferring the `'basic'` card's own fields for display, and
+  functions - preferring the `'basic'` card's own fields for display, and
   adding a new `CardListItem.hasCloze` boolean. Both screens (deck detail,
   Home "Recently added") show a small `create-outline` badge next to a
   word that has a cloze variant; tapping the row still navigates to
   `/word/[form]` either way, so which specific card was picked as
   "representative" doesn't affect navigation.
 - `export-shared.ts#mergeCardsByWord` does the equivalent for CSV/Markdown
-  export — merges a word's basic + cloze `ExportableCard`s into one row
+  export - merges a word's basic + cloze `ExportableCard`s into one row
   (word/meaning/example from the basic card, `cloze` folded in from the
   cloze card), called by `csv-export.ts`/`markdown-export.ts` right after
   `getExportableCards`. **Deliberately not applied to Anki `.apkg`
-  export** — real Anki's own data model wants a separate Basic note and
+  export** - real Anki's own data model wants a separate Basic note and
   Cloze note for a word studied both ways, so `apkg-export.ts` keeps
   consuming `getExportableCards`'s raw, unmerged, one-row-per-card list
   (`lemmas.form` being globally UNIQUE is what makes grouping by `word`
-  safe in the first place — it's exactly grouping by lemma).
+  safe in the first place - it's exactly grouping by lemma).
 - Covered by `cards.test.ts` (new) and new cases in `export.test.ts`.
 
 **Post-ship fix: two real data-integrity bugs behind "too many 'General
 A1' clusters on a word's detail page."**
 
 - **`importRow` created a brand-new "General" meaning cluster on *every*
-  call** — once per `upsertCard` invocation, meaning a single row that
+  call** - once per `upsertCard` invocation, meaning a single row that
   produces both a basic and a cloze card (the feature above) created
   *two* clusters for one word in one import, and any `'merge'`/
   `'duplicate'` re-import of an existing word created yet another one on
-  top (this part predates the dual-card feature — always true). A
-  cluster is now resolved *once* per `importRow` call — reusing the
+  top (this part predates the dual-card feature - always true). A
+  cluster is now resolved *once* per `importRow` call - reusing the
   lemma's existing cluster via `getClustersForLemma` when
   `existingLemmaId` is set (merge/duplicate), otherwise creating exactly
-  one new cluster — and passed into both `upsertCard` calls instead of
+  one new cluster - and passed into both `upsertCard` calls instead of
   each creating its own. Covered by two new `csv-import.test.ts` cases
   (merge reuses the existing cluster; a dual-card row shares one cluster).
 - **`deleteDeck` never actually deleted cards, only the `decks` row and
-  (via a real `ON DELETE CASCADE`) the `deck_cards` membership rows** —
+  (via a real `ON DELETE CASCADE`) the `deck_cards` membership rows** -
   its own doc comment claimed "cards that are only in this deck are also
   deleted," but `cards.deck_id` has no foreign key at all (a card's "home"
   deck at creation is a different thing from its `deck_cards`
   memberships), so nothing ever cascaded that far. The card, its lemma,
   and every dependent row (meanings/examples/synonyms/cloze/card_states/
-  review_events/tags — all `ON DELETE CASCADE` from `cards`) lived on
+  review_events/tags - all `ON DELETE CASCADE` from `cards`) lived on
   forever, orphaned and invisible in the UI but still present to
-  `getLemmaByForm` — so re-importing/re-adding the same word after
+  `getLemmaByForm` - so re-importing/re-adding the same word after
   "deleting" its deck always came back as `'duplicate'`, and a merge/
   duplicate re-import kept adding content onto that invisible orphan
   (piling up more clusters on top of the first bug). `deleteDeck` now
@@ -745,24 +745,24 @@ A1' clusters on a word's detail page."**
 
 **Post-ship change: part of speech, CEFR level, and tags removed from
 CSV/Anki import mapping.** Per-row product-name reserved from feedback:
-these three were never worth a mapping step — every imported row got the
+these three were never worth a mapping step - every imported row got the
 same fallback part of speech/CEFR level regardless (the earlier "default
 part of speech/CEFR" pickers were already removed, see the WP4/import
 section above), and a per-row PoS/CEFR/tags column added mapping-step
 clutter for something that didn't vary. `CsvField`/`ApkgField` dropped
 `'partOfSpeech' | 'cefrLevel' | 'tags'` entirely (CSV) / `'partOfSpeech' |
-'cefrLevel'` (Anki — tags were never mappable there either, they already
+'cefrLevel'` (Anki - tags were never mappable there either, they already
 come free from the Anki note's own `tags`); `buildCsvImportPreview`/
 `buildApkgImportPreview` now always use the fallback constants directly,
 and CSV import no longer captures tags at all. The mapping-step UI and
 preview-table columns for all three were removed from both import
-screens (Anki's Tags preview column stays — it's real note data, just
+screens (Anki's Tags preview column stays - it's real note data, just
 never had a mapping dropdown).
 
 CSV **export** also dropped part of speech/CEFR level entirely (nothing
 would round-trip onto them now that they're unmappable) and made every
 other optional column (`cloze`/`example`/`exampleTranslation`/`synonyms`/
-`tags`) **conditional** — `csv-export.ts` only includes a column if at
+`tags`) **conditional** - `csv-export.ts` only includes a column if at
 least one exported card actually has a value for it, so an unused column
 doesn't clutter the file. `word`/`meaning` are always present. Covered by
 new `export.test.ts` cases (a column with zero cards using it is fully
@@ -771,11 +771,11 @@ cases (tags no longer land on an imported card even when the CSV happens
 to have a "tags" column, since there's no mapping for it anymore).
 
 **Post-ship migration: the two bugs above (duplicate clusters,
-`deleteDeck` not deleting) only had their *code* fixed — the *data* they
+`deleteDeck` not deleting) only had their *code* fixed - the *data* they
 already wrote stayed corrupted.** Reported back after the code fixes
 landed: "General A1" duplication and "duplicate" false-positives on
 re-import were still visible, because every fix up to this point only
-stops *new* corruption — it does nothing for cluster/lemma rows already
+stops *new* corruption - it does nothing for cluster/lemma rows already
 written by the old, buggy code during this session's (and any other
 device's) earlier testing. Migration `0008_dedupe_clusters_and_orphans`
 is a one-time repair that runs automatically for every existing install
@@ -784,26 +784,26 @@ needed).
 
 Verified directly against the live AVD database (pulled via `adb`/
 `run-as`, inspected with `node:sqlite`) before considering this closed:
-2,932 lemmas, 0 with zero `cards` rows — but **329 cards with zero
-`deck_cards` membership anywhere**, and 34 lemmas still holding 2–19
+2,932 lemmas, 0 with zero `cards` rows - but **329 cards with zero
+`deck_cards` membership anywhere**, and 34 lemmas still holding 2-19
 duplicate clusters. That's a real gap the first version of this migration
 missed: it only deleted a lemma when it had zero *cards*, but a card
-orphaned by the old `deleteDeck` bug still has a `cards` row — it's just
-invisible in every deck's UI (zero `deck_cards` rows) — so it was never
+orphaned by the old `deleteDeck` bug still has a `cards` row - it's just
+invisible in every deck's UI (zero `deck_cards` rows) - so it was never
 "zero cards" from the lemma's point of view and slipped through. Fixed by
 adding a first step, `DELETE FROM cards WHERE id NOT IN (SELECT DISTINCT
 card_id FROM deck_cards)` (cascading to that card's meanings/examples/
 synonyms/cloze/card_states/review_events/tags), confirmed safe because
 every current card-creation path (CSV/Anki import, AI generation) inserts
 a `deck_cards` row atomically with the card, and `removeCardFromDeck`
-exists but is never called from any UI action — so on this codebase,
+exists but is never called from any UI action - so on this codebase,
 today, a zero-`deck_cards` card can only be old-`deleteDeck` leftovers.
 Runs *before* the cluster-merge/orphaned-lemma steps, so a lemma whose
 only cards were exactly these becomes genuinely orphaned and gets caught
 by the existing "zero cards anywhere" cleanup, rather than surviving
 because it technically still had an invisible card row.
 
-Picks the oldest meaning cluster per lemma (`MIN(rowid)` — SQLite's
+Picks the oldest meaning cluster per lemma (`MIN(rowid)` - SQLite's
 documented bare-column-alongside-a-single-MIN/MAX-aggregate behavior,
 verified empirically before relying on it for real user data) as
 canonical, repoints every meanings/examples/synonyms row from a duplicate
@@ -814,39 +814,39 @@ rather than silently claiming to undo data deletion it can't. Covered by
 four `migrations/dedupe-clusters.test.ts` cases (duplicate clusters
 merged and child rows repointed; a zero-card lemma deleted; already-clean
 data with a real `deck_cards` row left untouched; a card with zero
-`deck_cards` membership — the actual live-device shape — deleted along
-with its lemma/cluster/meaning) — run against manually-seeded pre-fix-
+`deck_cards` membership - the actual live-device shape - deleted along
+with its lemma/cluster/meaning) - run against manually-seeded pre-fix-
 shaped corrupt data, since a fresh database never has this corruption for
 `migrate()`'s normal run of migration 0008 to actually exercise.
 
-### Work package 5: Learning statistics — done
+### Work package 5: Learning statistics - done
 
 - `stats.tsx`'s retention card is wired to `getRetentionRate(db, 30)`.
 - The streak heatmap is wired to a new `getReviewCountsByDay(db, days = 35)`
-  (`packages/database/src/repositories/reviews.ts`) — a per-UTC-day-index
+  (`packages/database/src/repositories/reviews.ts`) - a per-UTC-day-index
   review count for the trailing N days, explicitly filling in zero-count
   days (unlike the pre-existing `getReviewedDayIndexes`, which only returns
   days that had at least one review and is still used, unchanged, for the
   streak number itself). A new `apps/mobile/lib/stats.ts#buildHeatmap`
-  buckets those counts into a 5×7 intensity grid (0–4) scaled to the user's
-  own busiest day in range, not a fixed absolute threshold — an active
+  buckets those counts into a 5×7 intensity grid (0-4) scaled to the user's
+  own busiest day in range, not a fixed absolute threshold - an active
   long-time user and a light new user both get a legible gradient.
 - A new `getVocabularyGrowth(db, weeks = 7)`
   (`packages/database/src/repositories/cards.ts`) buckets **lemma**
-  `created_at` (not `cards.created_at` — a single import row can create both
+  `created_at` (not `cards.created_at` - a single import row can create both
   a basic and a cloze card for one word at once, so counting cards would
   show "2 new words" the day one word is added) into weekly windows, oldest
   first.
 - A new `getDifficultWords(db, limit = 10)`
   (`packages/database/src/repositories/reviews.ts`) sums `card_states.lapses`
-  per lemma (a lemma with a basic+cloze pair sums both cards' lapses — the
+  per lemma (a lemma with a basic+cloze pair sums both cards' lapses - the
   word is what's difficult, not one specific card of it), excludes
   zero-lapse words, ordered descending.
 - `apps/mobile/app/(tabs)/index.tsx`'s local `streakFromDayIndexes` was
   extracted unchanged into the new `lib/stats.ts` so both the home screen
   and the stats screen share one implementation.
 - The card layout (overview grid, heatmap, growth chart, difficult-words
-  list) is unchanged from the dummy version — only the data source changed.
+  list) is unchanged from the dummy version - only the data source changed.
 - `apps/mobile/lib/dummy.ts` is deleted (nothing left to export once
   `stats.tsx` stopped using `dummyStats`).
 
@@ -857,7 +857,7 @@ Acceptance criteria:
 - ✅ The screen has loading/error/empty states for a fresh install with zero
   review history: a `Spinner` while the combined query is pending, an
   `ErrorState` with retry on failure, and an `EmptyState` ("No stats yet")
-  when `getTotalCardCount` is zero — matches the Phase 4 Work package 6
+  when `getTotalCardCount` is zero - matches the Phase 4 Work package 6
   loading/error/empty-state standard.
 
 Covered by three new `packages/database/src/stats.test.ts` cases
@@ -866,12 +866,12 @@ Covered by three new `packages/database/src/stats.test.ts` cases
 typecheck, `pnpm lint`, and the full `@lingora/database` Vitest suite
 (86 tests). Not yet verified on the AVD.
 
-### Work package 6: Deck move/merge completion and final acceptance pass — done (AVD pass still pending)
+### Work package 6: Deck move/merge completion and final acceptance pass - done (AVD pass still pending)
 
 - `moveDeck` (re-parents a deck, already existed since Phase 2) is now
   reachable from both deck-management surfaces: deck detail's `⋮` menu
   (`deck/[id].tsx`) and the Decks tab's per-deck `⋮` menu (`(tabs)/decks.tsx`)
-  each gained a "Move to…" button opening a deck picker (a "Top level (no
+  each gained a "Move to..." button opening a deck picker (a "Top level (no
   parent)" row plus every other eligible deck, disabled while already
   top-level).
 - Deck merge is implemented for real, not deferred: a new
@@ -881,13 +881,13 @@ typecheck, `pnpm lint`, and the full `@lingora/database` Vitest suite
   for any card already in both, to satisfy `deck_cards`' unique
   `(deck_id, card_id)` index rather than violate it), re-parents any deck
   nested under the source onto the target instead of orphaning it, then
-  deletes the source deck. Cards are never deleted by a merge — only
-  reassigned. Reachable via the same two `⋮` menus' new "Merge into…"
+  deletes the source deck. Cards are never deleted by a merge - only
+  reassigned. Reachable via the same two `⋮` menus' new "Merge into..."
   button, with a destructive-action confirmation naming both decks and the
   card count before it runs.
 - **Cycle safety**: both pickers exclude the deck being acted on and every
   one of its own descendants (`apps/mobile/lib/deckTree.ts#collectDescendantIds`,
-  shared between `deck/[id].tsx` and `(tabs)/decks.tsx`) — moving or
+  shared between `deck/[id].tsx` and `(tabs)/decks.tsx`) - moving or
   merging a deck into its own child would otherwise create a parent-id
   cycle (move) or try to re-parent the target onto itself (merge, since
   the "re-parent source's children onto target" step would hit the target
@@ -901,77 +901,77 @@ typecheck, `pnpm lint`, and the full `@lingora/database` Vitest suite
 Acceptance criteria:
 
 - ✅ `moveDeck` is reachable from the UI (deck detail and Decks tab).
-- ✅ Deck merge works end-to-end (not deferred) — reachable from the UI,
+- ✅ Deck merge works end-to-end (not deferred) - reachable from the UI,
   destructive-confirmed, cycle-safe.
 - ⬜ Every item in the Phase 5 completion checklist below is checked with
-  evidence — the code/test/typecheck/lint side is done for every work
+  evidence - the code/test/typecheck/lint side is done for every work
   package, but the AVD cold-start check and a full review-session-to-stats
   walkthrough on a real seeded deck are still outstanding. See
   `PENDING_MANUAL_TESTS.md` for the consolidated list across all of
-  Phase 5 — that manual pass, not any remaining code, is what's left to
+  Phase 5 - that manual pass, not any remaining code, is what's left to
   close out Phase 5.
 
-### Work package 7: deck-scoped `.lin` import — done
+### Work package 7: deck-scoped `.lin` import - done
 
-Added after Work packages 1–6 were already planned, at the user's explicit
+Added after Work packages 1-6 were already planned, at the user's explicit
 request: `createDeckBackup` (Work package 4) was export-only; this adds the
-matching import path, in the same pick → map → preview → confirm wizard
+matching import path, in the same pick -> map -> preview -> confirm wizard
 shape as CSV/Anki import (explicitly requested, rather than a bespoke flow).
 
-- `packages/database/src/lin-import.ts` — new module, three phases:
+- `packages/database/src/lin-import.ts` - new module, three phases:
   `parseLinImportFile`/`getDecksInPayload` (parse + list the deck(s) in the
-  file — a deck-scoped `.lin` always has exactly one; a whole-library `.lin`
+  file - a deck-scoped `.lin` always has exactly one; a whole-library `.lin`
   used as an import source may have several, and the user picks),
   `buildLinImportPreview` (one row per lemma in the chosen source deck,
   flagged 'ok'/'duplicate' against this device's existing lemmas via the
-  same `getLemmaByForm` the CSV/Anki importers use — nothing written yet),
+  same `getLemmaByForm` the CSV/Anki importers use - nothing written yet),
   `importLinDeck` (imports every non-skipped lemma's full subgraph in one
   transaction).
 - **Additive, never a replace**: unlike `restoreBackup`, nothing already on
-  the device is ever deleted. Every imported row gets a fresh ID — no
+  the device is ever deleted. Every imported row gets a fresh ID - no
   attempt to preserve the source file's IDs, both to dodge any FK collision
   and because re-importing the same file (skip or duplicate policy) needs
   to behave predictably either way.
 - **Duplicate handling matches CSV/Anki's established semantics**, per an
   explicit user decision (skip vs. keep-both, with a preview table
-  regardless of duplicate status — same shape as CSV/Anki import, not a
+  regardless of duplicate status - same shape as CSV/Anki import, not a
   bespoke flow): `LinDuplicatePolicy` is `'skip'` or `'duplicate'`. Because
   `lemmas.form` is globally UNIQUE (see `import-shared.ts`'s
   `DuplicatePolicy` doc comment), "keep both" attaches a second card under
-  the *existing local* lemma rather than creating a second lemma — never
+  the *existing local* lemma rather than creating a second lemma - never
   reintroducing the "General A1" duplicate-cluster bug fixed earlier this
   phase.
 - **What carries over**: inflections, meaning clusters, meanings, examples,
   synonyms, phrases, cloze cards, FSRS card state, review history
   (`review_events`), and tags (resolved by name via `getOrCreateTag`, not
   by the file's tag IDs). **What's deliberately dropped**: `audio` (file
-  paths point at the source device's filesystem — meaningless on this
+  paths point at the source device's filesystem - meaningless on this
   one), `generation_metadata` (provenance only), and
   `templates`/`prompt_versions`/`sentence_mining_queue`/`evaluations`
-  (global or not deck-scoped — importing one deck shouldn't change this
+  (global or not deck-scoped - importing one deck shouldn't change this
   device's template list or mining queue).
 - Insert order respects the same "card before its meanings" constraint
   `persistWordGeneration` and `import-shared.ts#importRow` already follow
-  (`cards.primary_meaning_id` is nullable by design, see CLAUDE.md) — cards
+  (`cards.primary_meaning_id` is nullable by design, see CLAUDE.md) - cards
   are written first with `primary_meaning_id` unset, then
   meanings/examples/synonyms/phrases/cloze rows, then a final
   `updateCardPrimaryMeaning` pass. Cards/state/deck-membership are written
   with raw `tx.execute` rather than the `createCardWithState` repository
   helper, since that helper opens its own transaction and the whole import
   already runs inside one (`NodeSqliteAdapter` doesn't support nested
-  transactions — caught by a first test run).
-- `apps/mobile/app/settings/lin-import.tsx` — new screen, same wizard shape
-  as `csv-import.tsx`/`apkg-import.tsx` (pick file → pick source deck when
-  the file has more than one → pick target deck + duplicate policy →
+  transactions - caught by a first test run).
+- `apps/mobile/app/settings/lin-import.tsx` - new screen, same wizard shape
+  as `csv-import.tsx`/`apkg-import.tsx` (pick file -> pick source deck when
+  the file has more than one -> pick target deck + duplicate policy ->
   preview table, one row per lemma with a Word/Meaning/Cards/Status column
   and a checkbox, all rows shown regardless of duplicate status per the
-  user's explicit request → confirm). Reuses `pickAndParseBackupFile` from
+  user's explicit request -> confirm). Reuses `pickAndParseBackupFile` from
   `lib/backup.ts` (identical `.lin` parsing/validation, already built for
   whole-library restore). Reachable two ways: `ImportFormatSheet` (now a
-  three-option sheet — CSV/Anki/Lingora, `components/ui.tsx`) from a deck's
+  three-option sheet - CSV/Anki/Lingora, `components/ui.tsx`) from a deck's
   own `⋮` menu (`deck/[id].tsx`, `(tabs)/decks.tsx`, `deckId` param
   pre-selects the target deck), and a new "A shared deck (.lin)" accordion
-  in Settings → Import & Export (whole-library, no deck pre-selected).
+  in Settings -> Import & Export (whole-library, no deck pre-selected).
 - Covered by 6 new `packages/database/src/lin-import.test.ts` cases,
   including an FSRS-state/review-history carryover check and a two-deck
   exclusion test (mirroring the one already written for
@@ -989,7 +989,7 @@ Acceptance criteria:
   `@lingora/database` Vitest suite passes (92 tests after this work
   package, including the new `lin-import.test.ts`).
 
-Not yet AVD-verified — see `PENDING_MANUAL_TESTS.md`.
+Not yet AVD-verified - see `PENDING_MANUAL_TESTS.md`.
 
 ## Validation baseline
 
@@ -1025,7 +1025,7 @@ Phase 5 can be marked complete only when all applicable items below are true:
 - [x] LiquidJS rendering with conditionals and loops (not flat substitution)
 - [x] Template CSS visibly applies in both editor preview and review session
 - [x] Template editor matches the referenced sketches' shape (tabs, field
-      toggles, variables reference, live preview — reorder deferred, see WP4)
+      toggles, variables reference, live preview - reorder deferred, see WP4)
 - [x] Template CRUD persists for real (`createTemplate`/`updateTemplate`)
 - [ ] Statistics screen backed entirely by real queries
 - [ ] Loading/error/empty states on the statistics screen
@@ -1041,23 +1041,23 @@ Phase 5 can be marked complete only when all applicable items below are true:
 2. Read `apps/mobile/AGENTS.md` before modifying Expo code and consult the
    exact versioned Expo documentation it requires.
 3. Verify the current branch and working tree before editing.
-4. Every Phase 5 screen is currently 100% dummy data — feel free to rewrite
+4. Every Phase 5 screen is currently 100% dummy data - feel free to rewrite
    them wholesale rather than patch around the dummy arrays.
 5. Fix `packages/core`'s package-name collision before writing code into it.
 6. Keep `packages/srs` a pure, dependency-free (beyond `@lingora/types`)
-   package — no `DatabaseAdapter`, no React, no Expo imports.
+   package - no `DatabaseAdapter`, no React, no Expo imports.
 7. Preserve the immutability invariant: `review_events` is insert-only;
    `card_states` is the only mutable scheduling row, and it's always
    updated in the same transaction as the event that produced it
-   (`recordReview` already does this — don't bypass it).
+   (`recordReview` already does this - don't bypass it).
 8. A new *direct* native dependency (e.g. `react-native-webview`,
    `react-native-gesture-handler` once used directly) needs a fresh
-   `expo run:android`, not just a Metro reload — verify, don't assume.
+   `expo run:android`, not just a Metro reload - verify, don't assume.
 9. Reference `LingoraDocs/images/FlashCardTemplate.png` and
    `FlashCardTemplate_2.png` when building the template editor; don't
    silently drop a concept shown in them (tabs, field toggles, variable
    reference, conditional example, accent color) without documenting why.
-10. Add tests in proportion to scheduling-correctness and data-loss risk —
+10. Add tests in proportion to scheduling-correctness and data-loss risk -
     the FSRS scheduler and template rendering are the highest-value places
     for coverage.
 11. Update this report as each completion item lands.

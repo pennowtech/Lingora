@@ -892,7 +892,7 @@ export default function ReviewSessionScreen(): JSX.Element {
             message={
               queue.length === 0
                 ? t('This deck has no cards due for review. Add words or check back later.')
-                : t('You reviewed {{count}} cards. Great work — come back when the next cards are due.', { count: queue.length })
+                : t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', { count: queue.length })
             }
           />
           <Pressable style={styles.doneButton} onPress={() => router.back()}>
@@ -929,7 +929,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                 <>
                   {isAiCard ? (
                     <Text style={styles.explanationText}>
-                      {generateExplanation.isPending ? t('Generating…') : (view.explanation ?? '') || t('No explanation yet.')}
+                      {generateExplanation.isPending ? t('Generating...') : (view.explanation ?? '') || t('No explanation yet.')}
                     </Text>
                   ) : null}
                   <CardActionBar
@@ -1041,7 +1041,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCorrect={false}
             />
             <Text style={styles.editHint}>
-              {t('Basic inline HTML works too — {{bold}}, {{italic}}, {{colored}}.', {
+              {t('Basic inline HTML works too - {{bold}}, {{italic}}, {{colored}}.', {
                 bold: '<b>bold</b>',
                 italic: '<i>italic</i>',
                 colored: '<span style="color:#D64545">red</span>',
@@ -1051,7 +1051,7 @@ export default function ReviewSessionScreen(): JSX.Element {
             <View style={styles.editActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
-                label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
+                label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
                 icon="save"
                 onPress={() => saveEdit.mutate()}
                 disabled={saveEdit.isPending}
@@ -1068,7 +1068,7 @@ export default function ReviewSessionScreen(): JSX.Element {
           setGuideModalOpen(false)
           setExplainVisible(false)
         }}
-        {...(!guideModalOpen && { footnote: t('Generated with AI — not from your installed dictionary.') })}
+        {...(!guideModalOpen && { footnote: t('Generated with AI - not from your installed dictionary.') })}
       />
 
       {/* "More info" — AI cards only, the rich explanation/synonyms/usage sheet. */}

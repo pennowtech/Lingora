@@ -26,7 +26,7 @@ export function useAIProviderRequiredAlert(openSettings: () => void): {
       visible={action !== null}
       title={t('AI not configured')}
       message={t(
-        'No AI provider is active. Add a key for OpenAI, Mistral, Gemini, or Claude in Settings — and make sure one is turned on — to {{action}}.',
+        'No AI provider is active. Add a key for OpenAI, Mistral, Gemini, or Claude in Settings - and make sure one is turned on - to {{action}}.',
         { action: action ?? '' },
       )}
       onCancel={() => setAction(null)}

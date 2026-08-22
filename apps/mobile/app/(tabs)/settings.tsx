@@ -82,7 +82,7 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'deepl', label: 'DeepL', group: 'Translation', keywords: ['translate', 'api key'], route: '/settings/translation', icon: 'language-outline' },
   { key: 'learning', label: 'Learning', group: 'Learning', keywords: ['cefr', 'level', 'language'], route: '/settings/learning', icon: 'school-outline' },
   { key: 'cefr', label: 'Default CEFR level', group: 'Learning', keywords: ['a1', 'a2', 'b1', 'b2', 'c1', 'c2', 'level'], route: '/settings/learning', icon: 'school-outline' },
-  { key: 'vocab-languages', label: 'I speak / I’m learning', group: 'Learning', keywords: ['native', 'target', 'language', 'speak', 'learning'], route: '/settings/learning', icon: 'globe-outline' },
+  { key: 'vocab-languages', label: 'I speak / I\'m learning', group: 'Learning', keywords: ['native', 'target', 'language', 'speak', 'learning'], route: '/settings/learning', icon: 'globe-outline' },
   { key: 'general', label: 'General', group: 'General', keywords: ['audio', 'pronunciation', 'app language', 'locale', 'ui'], route: '/settings/general', icon: 'options-outline' },
   { key: 'audio-settings', label: 'Audio Settings', group: 'General', keywords: ['tts', 'voice', 'rate', 'pitch', 'speech', 'pronunciation'], route: '/settings/tts', icon: 'volume-high' },
   { key: 'app-language', label: 'App Language', group: 'General', keywords: ['locale', 'ui', 'interface'], route: '/settings/general', icon: 'globe-outline' },
@@ -203,10 +203,10 @@ export default function SettingsScreen(): JSX.Element {
 
   const aiProvidersDetail =
     summary.configuredCount === 0
-      ? t('No provider configured — AI generation disabled')
+      ? t('No provider configured - AI generation disabled')
       : t('{{count}} of {{total}} configured', { count: summary.configuredCount, total: GENERATION_PROVIDERS.length })
 
-  const learningDetail = t('{{cefr}} · {{native}} → {{target}}', {
+  const learningDetail = t('{{cefr}} · {{native}} -> {{target}}', {
     cefr: summary.cefr,
     native: t(VOCAB_LANGUAGE_LABELS[summary.nativeLanguage]),
     target: t(VOCAB_LANGUAGE_LABELS[summary.targetLanguage]),
@@ -244,7 +244,7 @@ export default function SettingsScreen(): JSX.Element {
       {searchResults ? (
         <Card style={styles.menuCard}>
           {searchResults.length === 0 ? (
-            <Text style={styles.noResults}>{t('No settings match “{{query}}”', { query: query.trim() })}</Text>
+            <Text style={styles.noResults}>{t('No settings match "{{query}}"', { query: query.trim() })}</Text>
           ) : (
             searchResults.map((item, index) => (
               <LinkRow

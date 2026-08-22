@@ -12,17 +12,17 @@ the app, where users can request their synced data be deleted.
 ## Deploying
 
 This repo's Firebase project already hosts Firestore for cloud sync (see `firestore.rules`), so
-Firebase Hosting is the path of least resistance — `firebase.json`'s `hosting.public` already
+Firebase Hosting is the path of least resistance - `firebase.json`'s `hosting.public` already
 points at this folder:
 
 ```
 firebase deploy --only hosting
 ```
 
-Any other static host (GitHub Pages, Netlify, ...) works too — it's a single self-contained HTML
+Any other static host (GitHub Pages, Netlify, ...) works too - it's a single self-contained HTML
 file with no build step.
 
 ## Play Store listing
 
-Once deployed, add the resulting URL to the Play Console listing's **Data safety → Data deletion**
+Once deployed, add the resulting URL to the Play Console listing's **Data safety -> Data deletion**
 section (and as the app's Privacy Policy URL, if it doesn't already have one).

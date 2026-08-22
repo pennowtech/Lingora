@@ -395,7 +395,7 @@ async function buildAIServices(
   if (!generationProviderName) {
     aiLog.info('ai.pipeline_locked', {
       metadata: { itemCount: configured.length },
-      message: 'No generation provider configured — tier is translation-only',
+      message: 'No generation provider configured - tier is translation-only',
     })
     return { ai: null, pipeline: null, tier: 'translation', defaultCefr, dictionary, nativeLanguage, targetLanguage }
   }

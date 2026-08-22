@@ -209,7 +209,7 @@ export function WordChatSheet(props: {
                   </View>
                   <Text style={styles.emptyTitle}>{t('Ask about "{{word}}"', { word: props.word })}</Text>
                   <Text style={styles.emptySubtitle}>
-                    {t('Chat with your AI tutor about this word — ask for more examples, nuance, or anything unclear.')}
+                    {t('Chat with your AI tutor about this word - ask for more examples, nuance, or anything unclear.')}
                   </Text>
                   <View style={styles.suggestionRow}>
                     {suggestions.map((suggestion) => (
@@ -277,7 +277,7 @@ export function WordChatSheet(props: {
                 style={styles.input}
                 value={draft}
                 onChangeText={setDraft}
-                placeholder={t('Message your AI tutor…')}
+                placeholder={t('Message your AI tutor...')}
                 placeholderTextColor={colors.textMuted}
                 multiline
                 maxLength={MAX_LENGTH}

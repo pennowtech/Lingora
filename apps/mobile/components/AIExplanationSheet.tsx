@@ -82,7 +82,7 @@ export function AIExplanationSheet(props: {
             {props.loading ? (
               <View style={styles.loadingRow}>
                 <ActivityIndicator color={colors.primary} />
-                <Text style={styles.loadingLabel}>{t('Generating…')}</Text>
+                <Text style={styles.loadingLabel}>{t('Generating...')}</Text>
               </View>
             ) : (
               <>
@@ -108,7 +108,7 @@ export function AIExplanationSheet(props: {
                 ))}
 
                 <Text style={styles.footnote}>
-                  {t('AI-generated — explanations can be inaccurate. Check important details against a trusted reference.')}
+                  {t('AI-generated - explanations can be inaccurate. Check important details against a trusted reference.')}
                 </Text>
               </>
             )}

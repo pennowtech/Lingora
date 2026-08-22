@@ -30,19 +30,19 @@ interface TableColumn {
 function buildTableColumns(existingDeckNames: Map<string, string[]>): TableColumn[] {
   return [
     { label: 'Word', width: 160, cell: (p) => p.form },
-    { label: 'Meaning', width: 200, cell: (p) => p.cards[0]?.translation ?? '—' },
-    { label: 'Example', width: 260, cell: (p) => p.cards[0]?.example ?? '—' },
-    { label: 'Example translation', width: 220, cell: (p) => p.cards[0]?.exampleTranslation ?? '—' },
+    { label: 'Meaning', width: 200, cell: (p) => p.cards[0]?.translation ?? '-' },
+    { label: 'Example', width: 260, cell: (p) => p.cards[0]?.example ?? '-' },
+    { label: 'Example translation', width: 220, cell: (p) => p.cards[0]?.exampleTranslation ?? '-' },
     // `join(', ')` always returns a string (never null/undefined) — `??` would never fall through
     // to the placeholder for an empty list, so `||` (empty string counts too) is deliberate here.
     /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-    { label: 'Synonyms', width: 200, cell: (p) => p.cards[0]?.synonyms.join(', ') || '—' },
-    { label: 'Cards', width: 160, cell: (p) => p.cards.map((c) => c.type).join(', ') || '—' },
+    { label: 'Synonyms', width: 200, cell: (p) => p.cards[0]?.synonyms.join(', ') || '-' },
+    { label: 'Cards', width: 160, cell: (p) => p.cards.map((c) => c.type).join(', ') || '-' },
     /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
     {
       label: 'Existing deck',
       width: 160,
-      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '-') : '-'),
     },
     { label: 'Status', width: 110, cell: (p) => p.status },
   ]
@@ -395,7 +395,7 @@ export default function LinImportScreen(): JSX.Element {
           <View style={styles.centerModalContainer}>
             <View style={styles.centerModalCard}>
               {result === null ? (
-                <Spinner message={t('Importing…')} />
+                <Spinner message={t('Importing...')} />
               ) : (
                 <>
                   <EmptyState
@@ -434,7 +434,7 @@ export default function LinImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <Text style={styles.title}>{t('Import from a .lin file')}</Text>
           <Text style={styles.body}>
-            {t('Choose a Lemmory `.lin` file — a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
+            {t('Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
           <Button label={t('Choose .lin file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
@@ -485,7 +485,7 @@ export default function LinImportScreen(): JSX.Element {
 
           <View style={styles.actions}>
             <Button
-              label={previewLoading ? t('Checking…') : t('Preview import')}
+              label={previewLoading ? t('Checking...') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!targetDeckId || previewLoading}
             />

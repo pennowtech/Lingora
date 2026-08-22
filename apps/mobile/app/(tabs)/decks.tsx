@@ -465,7 +465,7 @@ export default function DecksScreen(): JSX.Element {
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
               <Button
-                label={create.isPending ? t('Creating…') : t('Create deck')}
+                label={create.isPending ? t('Creating...') : t('Create deck')}
                 icon="add"
                 disabled={create.isPending}
                 onPress={() => create.mutate()}
@@ -593,7 +593,7 @@ export default function DecksScreen(): JSX.Element {
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setRenameDeckTarget(null)} disabled={rename.isPending} />
               <Button
-                label={rename.isPending ? t('Saving…') : t('Save')}
+                label={rename.isPending ? t('Saving...') : t('Save')}
                 disabled={rename.isPending || renameValue.trim() === ''}
                 onPress={() => rename.mutate()}
               />
@@ -628,8 +628,8 @@ export default function DecksScreen(): JSX.Element {
               <>
                 <Text style={styles.modalTitle}>
                   {pickerMode === 'move'
-                    ? t('Move "{{name}}" to…', { name: pickerDeck.name })
-                    : t('Merge "{{name}}" into…', { name: pickerDeck.name })}
+                    ? t('Move "{{name}}" to...', { name: pickerDeck.name })
+                    : t('Merge "{{name}}" into...', { name: pickerDeck.name })}
                 </Text>
                 <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
                   {pickerMode === 'move' ? (
@@ -733,7 +733,7 @@ export default function DecksScreen(): JSX.Element {
         title={t('Reset progress?')}
         message={
           resetConfirmDeck
-            ? t('Every card in "{{name}}" goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
+            ? t('Every card in "{{name}}" goes back to "new" - word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
                 name: resetConfirmDeck.name,
               })
             : ''

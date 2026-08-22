@@ -328,7 +328,7 @@ export default function DeckDetailScreen(): JSX.Element {
             a deck with no cloze cards at all, would just open an empty review session. */}
         {cardCount > 0 ? (
           <Button
-            label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due — study ahead')}
+            label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due - study ahead')}
             icon="play"
             onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
             style={styles.reviewButton}
@@ -402,7 +402,7 @@ export default function DeckDetailScreen(): JSX.Element {
           )
         })}
         {cards.length === 0 ? (
-          <Text style={styles.footnote}>{t('No cards yet — add words from Search.')}</Text>
+          <Text style={styles.footnote}>{t('No cards yet - add words from Search.')}</Text>
         ) : null}
       </ScrollView>
 
@@ -413,7 +413,7 @@ export default function DeckDetailScreen(): JSX.Element {
           </Pressable>
           <Button
             testID="bulk-delete-cards-button"
-            label={removeCards.isPending ? t('Removing…') : t('Remove {{count}}', { count: selectedCardIds.size })}
+            label={removeCards.isPending ? t('Removing...') : t('Remove {{count}}', { count: selectedCardIds.size })}
             icon="trash"
             variant="danger"
             small
@@ -529,14 +529,14 @@ export default function DeckDetailScreen(): JSX.Element {
             <Pressable style={styles.menuRowItem} onPress={confirmResetProgress} disabled={resetProgress.isPending}>
               <Ionicons name="refresh-outline" size={18} color={colors.warning} />
               <Text style={[styles.menuRowLabel, { color: colors.warning }]}>
-                {resetProgress.isPending ? t('Resetting…') : t('Reset progress')}
+                {resetProgress.isPending ? t('Resetting...') : t('Reset progress')}
               </Text>
             </Pressable>
 
             <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={confirmDelete} disabled={remove.isPending}>
               <Ionicons name="trash-outline" size={18} color={colors.danger} />
               <Text style={[styles.menuRowLabel, { color: colors.danger }]}>
-                {remove.isPending ? t('Deleting…') : t('Delete deck')}
+                {remove.isPending ? t('Deleting...') : t('Delete deck')}
               </Text>
             </Pressable>
           </View>
@@ -563,7 +563,7 @@ export default function DeckDetailScreen(): JSX.Element {
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setRenameOpen(false)} disabled={rename.isPending} />
               <Button
-                label={rename.isPending ? t('Saving…') : t('Save')}
+                label={rename.isPending ? t('Saving...') : t('Save')}
                 disabled={rename.isPending || renameValue.trim() === ''}
                 onPress={() => rename.mutate()}
               />
@@ -582,8 +582,8 @@ export default function DeckDetailScreen(): JSX.Element {
           <View style={styles.centerModalCard}>
             <Text style={styles.modalTitle}>
               {pickerMode === 'move'
-                ? t('Move "{{name}}" to…', { name: deck.name })
-                : t('Merge "{{name}}" into…', { name: deck.name })}
+                ? t('Move "{{name}}" to...', { name: deck.name })
+                : t('Merge "{{name}}" into...', { name: deck.name })}
             </Text>
             <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
               {pickerMode === 'move' ? (
@@ -677,7 +677,7 @@ export default function DeckDetailScreen(): JSX.Element {
       <ConfirmModal
         visible={resetConfirmOpen}
         title={t('Reset progress?')}
-        message={t('Every card in this deck goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.')}
+        message={t('Every card in this deck goes back to "new" - word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.')}
         onCancel={() => setResetConfirmOpen(false)}
         onConfirm={() => {
           setResetConfirmOpen(false)
@@ -690,7 +690,7 @@ export default function DeckDetailScreen(): JSX.Element {
       <ConfirmModal
         visible={removeSelectedConfirmOpen}
         title={t('Remove {{count}} cards from this deck?', { count: selectedCardIds.size })}
-        message={t('This only removes them from this deck — cards that live in other decks too stay there.')}
+        message={t('This only removes them from this deck - cards that live in other decks too stay there.')}
         onCancel={() => setRemoveSelectedConfirmOpen(false)}
         onConfirm={() => {
           setRemoveSelectedConfirmOpen(false)

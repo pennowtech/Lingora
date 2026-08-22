@@ -36,7 +36,7 @@ async function canReachProviderHost(url: string): Promise<boolean> {
 }
 
 function offlineMessage(providerName: string): string {
-  return `Couldn't reach ${providerName} — check the device's internet connection and try again.`
+  return `Couldn't reach ${providerName} - check the device's internet connection and try again.`
 }
 
 /**
@@ -72,7 +72,7 @@ export function formatUserFriendlyProviderError(
     lower.includes('unsupported model')
   ) {
     return tr(
-      'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings → AI Providers.',
+      'Selected model is not accessible with your {{providerName}} key/project. Try selecting a different model in Settings -> AI Providers.',
       { providerName },
     )
   }
@@ -111,7 +111,7 @@ export function formatUserFriendlyProviderError(
     lower.includes('forbidden')
   ) {
     return tr(
-      'Invalid {{providerName}} API key or permission denied. Please check your key in Settings → AI Providers.',
+      'Invalid {{providerName}} API key or permission denied. Please check your key in Settings -> AI Providers.',
       { providerName },
     )
   }
@@ -124,7 +124,7 @@ export function formatUserFriendlyProviderError(
     lower.includes('fetch failed') ||
     lower.includes('network')
   ) {
-    return tr("Couldn't reach {{providerName}} — check your device's internet connection and try again.", {
+    return tr("Couldn't reach {{providerName}} - check your device's internet connection and try again.", {
       providerName,
     })
   }
@@ -167,7 +167,7 @@ async function runValidation(
   })
   if (!(await canReachProviderHost(hostUrl))) {
     log.warn('settings.provider_validation_failed', {
-      message: 'Provider host unreachable — device appears offline',
+      message: 'Provider host unreachable - device appears offline',
       durationMs: Date.now() - startedAt,
       metadata: { provider: providerName, networkType: 'unavailable' },
     })
@@ -181,7 +181,7 @@ async function runValidation(
       durationMs: Date.now() - startedAt,
       metadata: { provider: providerName },
     })
-    return { ok: true, message: `Connected — ${detail}` }
+    return { ok: true, message: `Connected - ${detail}` }
   } catch (error) {
     const providerError = error instanceof AIProviderError ? error : undefined
     log.warn('settings.provider_validation_failed', {

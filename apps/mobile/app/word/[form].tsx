@@ -133,7 +133,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'book-outline',
     paragraphs: [
       'The translation at the top is what actually appears on your flashcard.',
-      'If this word has more than one distinct sense — say, a casual meaning and a business one — you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
+      'If this word has more than one distinct sense - say, a casual meaning and a business one - you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
     ],
   },
   {
@@ -142,7 +142,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'chatbubble-outline',
     paragraphs: [
       'Example sentences show the word used in context, with a translation underneath.',
-      'Tap the star on any example to choose which one appears on your flashcard — only one shows at a time.',
+      'Tap the star on any example to choose which one appears on your flashcard - only one shows at a time.',
       'The dropdown above the examples ("all", "travel", "business", and so on) filters them down to a particular tone or situation, if you only want to see those.',
       'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense.',
     ],
@@ -152,7 +152,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Advanced grammar options',
     icon: 'options-outline',
     paragraphs: [
-      'This collapsible panel below the examples lets you pick a specific grammar pattern — a tense, a sentence structure, a particular conjunction — that you want the next batch of examples to practice, instead of leaving it to chance.',
+      'This collapsible panel below the examples lets you pick a specific grammar pattern - a tense, a sentence structure, a particular conjunction - that you want the next batch of examples to practice, instead of leaving it to chance.',
       'Examples generated from a selected option get a highlighted background, so you can tell which ones came from your request.',
     ],
   },
@@ -164,7 +164,7 @@ const HELP_SECTIONS: HelpSection[] = [
       'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
       '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.',
       '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
-      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh — useful if the current version isn\'t working for you. This can\'t be undone.',
+      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn\'t working for you. This can\'t be undone.',
       'The pencil icon lets you edit the meaning or example text directly. The last icon opens a quick web search for the word, for a second opinion outside the app.',
     ],
   },
@@ -181,14 +181,14 @@ const HELP_SECTIONS: HelpSection[] = [
     id: 'cloze',
     title: 'Cloze cards',
     icon: 'create-outline',
-    paragraphs: ['A cloze card blanks out part of a sentence for you to fill in — a different way of practicing the same word.'],
+    paragraphs: ['A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.'],
   },
   {
     id: 'deck',
     title: 'Adding to a deck',
     icon: 'albums-outline',
     paragraphs: [
-      '"Add to deck" at the bottom is how you start reviewing this word — you can add it to more than one deck, or create a new one on the spot.',
+      '"Add to deck" at the bottom is how you start reviewing this word - you can add it to more than one deck, or create a new one on the spot.',
       'Whatever translation at this moment is selected/shown will be added to deck along with its relevant example.',
       'You can add your cards to multiple decks even if it is added before.'
     ],
@@ -211,26 +211,26 @@ const GRAMMAR_GROUPS_BY_LANGUAGE: Partial<Record<LanguageCode, Array<{ title: st
   de: [
     { title: 'Tense & mood', options: ['Konjunktiv II', 'Präteritum', 'Perfekt', 'Futur I', 'Plusquamperfekt'] },
     { title: 'Sentence structure', options: ['Passive voice', 'Relative clause', 'Indirect speech', 'Question form'] },
-    { title: 'Conjunctions', options: ['als ob / als hätte', 'obwohl', 'damit', 'weil / da', 'nicht nur … sondern auch'] },
+    { title: 'Conjunctions', options: ['als ob / als hätte', 'obwohl', 'damit', 'weil / da', 'nicht nur ... sondern auch'] },
     { title: 'Focus words', options: ['selbst / sogar', 'jemals', 'Modalpartikeln (doch, ja, halt)'] },
   ],
   en: [
     { title: 'Tense & aspect', options: ['Present perfect', 'Past perfect', 'Future continuous', 'Present perfect continuous', 'Third conditional'] },
     { title: 'Sentence structure', options: ['Passive voice', 'Relative clause', 'Reported speech', 'Question tags'] },
-    { title: 'Conjunctions', options: ['although / even though', 'in spite of / despite', 'so that', 'not only … but also', 'whereas'] },
+    { title: 'Conjunctions', options: ['although / even though', 'in spite of / despite', 'so that', 'not only ... but also', 'whereas'] },
     { title: 'Modality & nuance', options: ['must have / might have', 'used to / would rather', 'phrasal verbs', 'hedging (sort of, kind of)'] },
   ],
   fr: [
     { title: 'Tense & mood', options: ['Subjonctif', 'Imparfait', 'Passé composé', 'Plus-que-parfait', 'Conditionnel'] },
     { title: 'Sentence structure', options: ['Voix passive', 'Proposition relative', 'Discours indirect', 'Forme interrogative'] },
-    { title: 'Conjunctions', options: ['bien que / quoique', 'afin que', 'non seulement … mais aussi', 'tandis que'] },
+    { title: 'Conjunctions', options: ['bien que / quoique', 'afin que', 'non seulement ... mais aussi', 'tandis que'] },
     { title: 'Pronouns & agreement', options: ['Pronoms relatifs (qui/que/dont/où)', 'Accord du participe passé', 'Pronoms COD/COI', 'Négation (ne...que, ne...plus)'] },
   ],
   hi: [
     { title: 'Tense & aspect', options: ['Perfect past (पूर्ण भूतकाल)', 'Imperfect past (अपूर्ण भूतकाल)', 'Presumptive future (संभाव्य भविष्यत्)', 'Subjunctive/optative (विध्यर्थ)'] },
-    { title: 'Sentence structure', options: ['Passive voice (कर्मवाच्य)', 'Relative clause (जो … वह)', 'Indirect speech (अप्रत्यक्ष कथन)', 'Question form (प्रश्नवाचक)'] },
+    { title: 'Sentence structure', options: ['Passive voice (कर्मवाच्य)', 'Relative clause (जो ... वह)', 'Indirect speech (अप्रत्यक्ष कथन)', 'Question form (प्रश्नवाचक)'] },
     { title: 'Postpositions & case', options: ['Ergative ने', 'Dative/accusative को', 'Instrumental/ablative से', 'Genitive agreement का/की/के'] },
-    { title: 'Conjunctions', options: ['यद्यपि … तथापि (although … yet)', 'चूँकि (since)', 'न केवल … बल्कि भी (not only … but also)', 'जैसे कि (as if)'] },
+    { title: 'Conjunctions', options: ['यद्यपि ... तथापि (although ... yet)', 'चूँकि (since)', 'न केवल ... बल्कि भी (not only ... but also)', 'जैसे कि (as if)'] },
   ],
 }
 
@@ -772,7 +772,7 @@ export default function WordDetailScreen(): JSX.Element {
         nativeLanguage,
       })
       if (result.kind === 'partial') {
-        throw new Error(t('Generation came back incomplete — nothing was changed. Try again.'))
+        throw new Error(t('Generation came back incomplete - nothing was changed. Try again.'))
       }
       const promptVersion = await getActivePromptVersion(db, 'word_package')
       if (!promptVersion) throw new Error('Prompt versions are not seeded yet.')
@@ -1025,17 +1025,20 @@ export default function WordDetailScreen(): JSX.Element {
     return (
       <>
         <Stack.Screen options={{ title: form ?? '' }} />
-        <Spinner message={t('Loading…')} />
+        <Spinner message={t('Loading...')} />
       </>
     )
   }
 
-  // Landing here for a word with no local card yet (deep link, share intent, or any direct
-  // navigation not already covered by the optimistic-card flow in search.tsx) auto-generates via
-  // generateMissingWord below. Show the real screen shell immediately with just the headword and
-  // the same AI-enriching badge autoEnrichMutation uses further down, instead of a full-screen
-  // blocking spinner — an instant, near-empty page beats staring at a spinner for the whole AI
-  // round-trip, and reusing the badge keeps both "upgrading" cases on this screen consistent.
+  // Landing here for a word with no local card yet (deep link, share intent, Word of the Day, or
+  // any direct navigation not already covered by the optimistic-card flow in search.tsx)
+  // auto-generates via generateMissingWord below. Show the real screen shell immediately with
+  // just the headword and the same AI-enriching badge autoEnrichMutation uses further down,
+  // instead of a full-screen blocking spinner — an instant, near-empty page beats staring at a
+  // spinner for the whole AI round-trip, and reusing the badge keeps both "upgrading" cases on
+  // this screen consistent. When the caller already knows a short gist (Word of the Day's
+  // dashboard card/notification both show one), initialExplanation shows that here too instead of
+  // leaving the learner with nothing but a spinner until the full card lands.
   const isGeneratingNewWord = !word && !wordQuery.isError && !!pipeline && !generateMissingWord.isError
   if (isGeneratingNewWord) {
     return (
@@ -1045,9 +1048,14 @@ export default function WordDetailScreen(): JSX.Element {
           <Text style={styles.wordForm} selectable>
             {nativeTerm ?? form}
           </Text>
+          {initialExplanation ? (
+            <Text style={styles.explanation} selectable>
+              {initialExplanation}
+            </Text>
+          ) : null}
           <View style={styles.aiEnrichingBadge}>
             <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples…')}</Text>
+            <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples...')}</Text>
           </View>
         </View>
       </>
@@ -1126,7 +1134,7 @@ export default function WordDetailScreen(): JSX.Element {
             {autoEnrichMutation.isPending ? (
               <View style={styles.aiEnrichingBadge}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples…')}</Text>
+                <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples...')}</Text>
               </View>
             ) : null}
             <Text style={styles.wordMeta}>
@@ -1203,7 +1211,7 @@ export default function WordDetailScreen(): JSX.Element {
                     return explanationToDisplay || isAiCard ? (
                       <Text style={styles.explanation} selectable>
                         {explanationToDisplay ??
-                          (generateExplanation.isPending ? t('Generating…') : isAiCard ? t('No explanation yet.') : null)}
+                          (generateExplanation.isPending ? t('Generating...') : isAiCard ? t('No explanation yet.') : null)}
                       </Text>
                     ) : null
                   })()}
@@ -1298,7 +1306,7 @@ export default function WordDetailScreen(): JSX.Element {
             {tier === 'full' && active.examples.length > 0 && (
               <View style={styles.moreExamplesContainer}>
                 <Button
-                  label={generateExamples.isPending ? t('Generating more examples…') : t('Generate more examples')}
+                  label={generateExamples.isPending ? t('Generating more examples...') : t('Generate more examples')}
                   icon="sparkles"
                   variant="secondary"
                   small
@@ -1373,7 +1381,7 @@ export default function WordDetailScreen(): JSX.Element {
                       <View style={styles.customGrammarInputRow}>
                         <TextInput
                           style={styles.customGrammarInput}
-                          placeholder={t('e.g. Past perfect continuous, reported speech…')}
+                          placeholder={t('e.g. Past perfect continuous, reported speech...')}
                           placeholderTextColor={colors.textMuted}
                           value={customGrammarInput}
                           onChangeText={setCustomGrammarInput}
@@ -1410,7 +1418,7 @@ export default function WordDetailScreen(): JSX.Element {
                   <View style={styles.grammarModalFooter}>
                     {tier === 'full' ? (
                       <Button
-                        label={generateExamples.isPending ? t('Generating examples…') : t('Generate targeted examples')}
+                        label={generateExamples.isPending ? t('Generating examples...') : t('Generate targeted examples')}
                         icon="sparkles"
                         disabled={generateExamples.isPending}
                         onPress={() => {
@@ -1421,7 +1429,7 @@ export default function WordDetailScreen(): JSX.Element {
                     ) : (
                       <View style={styles.grammarModalNoAi}>
                         <Text style={styles.limitedHint}>
-                          {t('No AI provider is active — add and enable one to generate targeted examples.')}
+                          {t('No AI provider is active - add and enable one to generate targeted examples.')}
                         </Text>
                         <Button
                           label={t('Open Settings')}
@@ -1492,7 +1500,7 @@ export default function WordDetailScreen(): JSX.Element {
                               <View style={styles.synInlineHeader}>
                                 <ActivityIndicator size="small" color={colors.primary} />
                                 <Text style={styles.synInlineLoadingText}>
-                                  {t('Fetching AI usage & nuance for "{{synonym}}"…', { synonym: syn.word })}
+                                  {t('Fetching AI usage & nuance for "{{synonym}}"...', { synonym: syn.word })}
                                 </Text>
                               </View>
                             ) : (
@@ -1568,7 +1576,7 @@ export default function WordDetailScreen(): JSX.Element {
                 <Ionicons name="sparkles" size={15} color={colors.textOnPrimary} />
               )}
               <Text style={styles.phrasesPillLabel}>
-                {generatePhrases.isPending ? t('Generating…') : t('Load more with AI')}
+                {generatePhrases.isPending ? t('Generating...') : t('Load more with AI')}
               </Text>
             </Pressable>
           </>
@@ -1596,7 +1604,7 @@ export default function WordDetailScreen(): JSX.Element {
                 <Ionicons name="sparkles" size={16} color={colors.textOnPrimary} />
               )}
               <Text style={styles.phrasesPillLabel}>
-                {generatePhrases.isPending ? t('Generating…') : t('Explore with AI')}
+                {generatePhrases.isPending ? t('Generating...') : t('Explore with AI')}
               </Text>
             </Pressable>
           </Card>
@@ -1656,7 +1664,7 @@ export default function WordDetailScreen(): JSX.Element {
         db={db}
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
-        title={t('Add "{{form}}" to…', { form: word.lemma.form })}
+        title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
         onSelectDeck={(deck) => addToDeck.mutate(deck.id)}
         selecting={addToDeck.isPending}
@@ -1740,7 +1748,7 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
             <Button
-              label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
+              label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
               icon="save"
               onPress={() => saveEdit.mutate()}
               disabled={saveEdit.isPending}
@@ -1772,7 +1780,7 @@ export default function WordDetailScreen(): JSX.Element {
           </View>
           <TextInput
             style={styles.reportNoteInput}
-            placeholder={t('Optional details…')}
+            placeholder={t('Optional details...')}
             placeholderTextColor={colors.textMuted}
             multiline
             value={reportNote}
@@ -1782,7 +1790,7 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setReportTarget(null)} />
             <Button
-              label={report.isPending ? t('Sending…') : t('Send report')}
+              label={report.isPending ? t('Sending...') : t('Send report')}
               disabled={reportReason === null || report.isPending}
               onPress={() =>
                 reportTarget &&
@@ -1801,7 +1809,7 @@ export default function WordDetailScreen(): JSX.Element {
           setGuideModalOpen(false)
           setExplainVisible(false)
         }}
-        {...(!guideModalOpen && { footnote: t('Generated with AI — not from your installed dictionary.') })}
+        {...(!guideModalOpen && { footnote: t('Generated with AI - not from your installed dictionary.') })}
       />
 
       {/* "More info" — AI cards only, the rich explanation/synonyms/usage sheet. */}

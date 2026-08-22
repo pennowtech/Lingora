@@ -46,7 +46,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'color-palette-outline',
     paragraphs: [
       'Pick a look for the whole app, from bright to dark and everything between.',
-      'This only changes colors — nothing about how the app works.',
+      'This only changes colors - nothing about how the app works.',
     ],
   },
   {
@@ -60,7 +60,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'App Language',
     icon: 'language-outline',
     paragraphs: [
-      'This changes the language of the app itself — its buttons and menus — not the language you\'re learning.',
+      'This changes the language of the app itself - its buttons and menus - not the language you\'re learning.',
       '"Follow device" just matches whatever language your phone is already set to.',
     ],
   },

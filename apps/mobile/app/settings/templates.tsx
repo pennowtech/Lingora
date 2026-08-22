@@ -83,10 +83,10 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Fields tab',
     icon: 'list',
     paragraphs: [
-      { text: 'Each row is one piece of card data. Tap "Front" or "Back" to show that field on that side — a field can appear on both, on neither, or on just one.' },
+      { text: 'Each row is one piece of card data. Tap "Front" or "Back" to show that field on that side - a field can appear on both, on neither, or on just one.' },
       { text: 'Turning a field on inserts the minimum Liquid needed for it at the end of that side\'s template: a plain field becomes {{ word }}; a list field (Other meanings, Synonyms, Related phrases) becomes a {% for %} loop, because a list can\'t be printed directly.' },
-      { text: 'Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears — nothing else in the template is touched.' },
-      { text: 'The toggles read the template text itself (no hidden markers) — they work reliably for templates built through the toggles. If you hand-write unusual formatting in the Code tab, a toggle may not detect it; edit the Code tab directly in that case.' },
+      { text: 'Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears - nothing else in the template is touched.' },
+      { text: 'The toggles read the template text itself (no hidden markers) - they work reliably for templates built through the toggles. If you hand-write unusual formatting in the Code tab, a toggle may not detect it; edit the Code tab directly in that case.' },
     ],
   },
   {
@@ -94,12 +94,12 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Style tab',
     icon: 'color-palette',
     paragraphs: [
-      { text: 'The CSS box applies to both the front and back — there is one stylesheet per template, not one per side.' },
+      { text: 'The CSS box applies to both the front and back - there is one stylesheet per template, not one per side.' },
       { text: 'Accent color swatches write a custom property at the top of your CSS:' },
       { text: ':root{--accent:#534AB7;}', code: true },
       { text: 'Reference it anywhere in your own CSS rules, e.g.:' },
       { text: 'color: var(--accent);\nborder-color: var(--accent);', code: true },
-      { text: 'Picking a swatch again (or none) removes the line — it never conflicts with CSS you write by hand elsewhere in the box.' },
+      { text: 'Picking a swatch again (or none) removes the line - it never conflicts with CSS you write by hand elsewhere in the box.' },
     ],
   },
   {
@@ -107,8 +107,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Preview tab',
     icon: 'eye',
     paragraphs: [
-      { text: 'Front and Back are separate — the chip above the card switches which side is rendered, so you always know exactly which side you\'re looking at.' },
-      { text: 'The card fills the available screen space exactly (no scrolling) and the caption above it shows its real, on-device measured width and height in points — the same size a card gets during an actual review session.' },
+      { text: 'Front and Back are separate - the chip above the card switches which side is rendered, so you always know exactly which side you\'re looking at.' },
+      { text: 'The card fills the available screen space exactly (no scrolling) and the caption above it shows its real, on-device measured width and height in points - the same size a card gets during an actual review session.' },
       { text: 'Rendering goes through the exact same LiquidJS + WebView pipeline the review session uses, with one fixed sample word ("ausgehen") standing in for your real vocabulary.' },
     ],
   },
@@ -117,8 +117,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Code tab',
     icon: 'code-slash',
     paragraphs: [
-      { text: 'Front and Back are raw Liquid templates — anything valid Liquid works here, not just what the Fields toggles generate.' },
-      { text: '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one — good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.', code: true },
+      { text: 'Front and Back are raw Liquid templates - anything valid Liquid works here, not just what the Fields toggles generate.' },
+      { text: '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.', code: true },
       { text: 'The "Available template variables" card lists every field name you can reference, with a one-line description of what it holds.' },
       { text: 'The conditional example at the bottom is a worked, copy-pasteable snippet combining {% if %} and {% for ... limit %}.' },
     ],
@@ -128,15 +128,15 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'HTML & CSS without extra elements',
     icon: 'construct',
     paragraphs: [
-      { text: 'Fields added via the toggles are never auto-wrapped in a <div> or <span> — {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.' },
+      { text: 'Fields added via the toggles are never auto-wrapped in a <div> or <span> - {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.' },
       { text: 'Selectors that work with zero extra markup (they target the card body itself or elements this app already emits):' },
-      { text: '.front { ... }         — everything on the front, only\n.back { ... }          — everything on the back, only\nbody { ... }           — both sides at once\nhr { ... }             — the divider some starter templates use\n:root { --accent: }    — the custom property the accent picker sets\n* { ... }               — every element, including bare text runs', code: true },
-      { text: '.front and .back work because this app stamps that class onto the card\'s own outer container automatically — the same one CSS box styles both sides, and .front/.back is how you tell them apart without adding a wrapper element yourself.' },
-      { text: 'To style one field on its own — e.g. make the word bigger than the rest — wrap just that field in your own element in the Code tab, then target the class you chose:' },
+      { text: '.front { ... }         - everything on the front, only\n.back { ... }          - everything on the back, only\nbody { ... }           - both sides at once\nhr { ... }             - the divider some starter templates use\n:root { --accent: }    - the custom property the accent picker sets\n* { ... }               - every element, including bare text runs', code: true },
+      { text: '.front and .back work because this app stamps that class onto the card\'s own outer container automatically - the same one CSS box styles both sides, and .front/.back is how you tell them apart without adding a wrapper element yourself.' },
+      { text: 'To style one field on its own - e.g. make the word bigger than the rest - wrap just that field in your own element in the Code tab, then target the class you chose:' },
       { text: '<span class="word">{{ word }}</span>\n\n/* in the CSS box: */\n.word { font-size: 2rem; font-weight: 800; color: var(--accent); }', code: true },
-      { text: 'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all — that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:' },
+      { text: 'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:' },
       { text: '{% for s in synonyms %}<span class="syn">{{ s.word }}</span>{% unless forloop.last %}, {% endunless %}{% endfor %}\n\n.syn { color: var(--accent); }', code: true },
-      { text: 'Everything renders inside a real WebView, so standard CSS applies as on any web page — flexbox, custom fonts via @font-face, transitions, etc. all work; there is no special "app CSS" subset to learn beyond this.' },
+      { text: 'Everything renders inside a real WebView, so standard CSS applies as on any web page - flexbox, custom fonts via @font-face, transitions, etc. all work; there is no special "app CSS" subset to learn beyond this.' },
     ],
   },
 ]
@@ -154,7 +154,7 @@ function fieldSnippet(variable: string): string {
     case 'synonyms':
       return '{% for s in synonyms %}{{ s.word }}{% unless forloop.last %}, {% endunless %}{% endfor %}'
     case 'phrases':
-      return '{% for p in phrases %}{{ p.expression }} — {{ p.meaning }}{% unless forloop.last %}<br/>{% endunless %}{% endfor %}'
+      return '{% for p in phrases %}{{ p.expression }} - {{ p.meaning }}{% unless forloop.last %}<br/>{% endunless %}{% endfor %}'
     default:
       return `{{ ${variable} }}`
   }
@@ -334,8 +334,8 @@ export default function TemplatesScreen(): JSX.Element {
             <Chip label={t('Back')} selected={previewSide === 'back'} onPress={() => setPreviewSide('back')} />
           </View>
           <Text style={styles.dimensionCaption}>
-            {previewCardSize ? `${Math.round(previewCardSize.width)} × ${Math.round(previewCardSize.height)} pt` : '—'}
-            {' — '}
+            {previewCardSize ? `${Math.round(previewCardSize.width)} × ${Math.round(previewCardSize.height)} pt` : '-'}
+            {' - '}
             {t('actual review card size on this device')}
           </Text>
           <Card
@@ -356,7 +356,7 @@ export default function TemplatesScreen(): JSX.Element {
           <>
             <SectionHeader title={t('Fields')} />
             <Text style={styles.fieldsHint}>
-              {t('Tap "Front" or "Back" to show a field on that side — a field can appear on both, or neither.')}
+              {t('Tap "Front" or "Back" to show a field on that side - a field can appear on both, or neither.')}
             </Text>
             <Card style={styles.fieldList}>
               {templateVariables.map((v, i) => {
@@ -407,7 +407,7 @@ export default function TemplatesScreen(): JSX.Element {
                 ))}
               </View>
               <Text style={styles.editorHint}>
-                {t('Stored as a')} <Text style={styles.mono}>:root{'{--accent:...}'}</Text> {t('rule — reference it in your CSS below as')} <Text style={styles.mono}>var(--accent)</Text>.
+                {t('Stored as a')} <Text style={styles.mono}>:root{'{--accent:...}'}</Text> {t('rule - reference it in your CSS below as')} <Text style={styles.mono}>var(--accent)</Text>.
               </Text>
             </Card>
 
@@ -458,7 +458,7 @@ export default function TemplatesScreen(): JSX.Element {
                 <View key={v.name} style={[styles.variableRow, i > 0 && styles.rowDivider]}>
                   <Text style={styles.mono}>{`{{ ${v.name} }}`}</Text>
                   <Text style={styles.fieldDescription}>
-                    {v.label} — {v.description}
+                    {v.label} - {v.description}
                   </Text>
                 </View>
               ))}
@@ -482,7 +482,7 @@ export default function TemplatesScreen(): JSX.Element {
           disabled={persistTemplate.isPending}
         />
         <Button
-          label={persistTemplate.isPending ? t('Saving…') : t('Save changes')}
+          label={persistTemplate.isPending ? t('Saving...') : t('Save changes')}
           icon="save"
           small
           onPress={() => persistTemplate.mutate({ front: frontTemplate, back: backTemplate, styles: styles_ })}

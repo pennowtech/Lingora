@@ -84,8 +84,8 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'information-circle',
     paragraphs: [
       'Every speaker button in the app uses whichever engine is marked Active below.',
-      'Cloud providers are bring-your-own-key — nothing is sent to them until you tap a speaker icon or press Test.',
-      'If a cloud key is invalid, the provider is unreachable, or a request fails, playback falls back to the device voice automatically — you’re never left with silence.',
+      'Cloud providers are bring-your-own-key - nothing is sent to them until you tap a speaker icon or press Test.',
+      'If a cloud key is invalid, the provider is unreachable, or a request fails, playback falls back to the device voice automatically - you\'re never left with silence.',
     ],
   },
   {
@@ -93,8 +93,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Testing a voice',
     icon: 'volume-high',
     paragraphs: [
-      '"Test active engine" plays the Test phrase through whichever engine is marked Active — the same thing any real speaker button in the app does.',
-      'Each provider’s own "Test this provider" button plays through that card’s current key/voice/speed directly, regardless of which engine is Active — use it to check a setup before switching to it.',
+      '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.',
+      'Each provider\'s own "Test this provider" button plays through that card\'s current key/voice/speed directly, regardless of which engine is Active - use it to check a setup before switching to it.',
     ],
   },
   {
@@ -102,9 +102,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Device (built-in)',
     icon: 'phone-portrait',
     paragraphs: [
-      'Uses your phone’s own text-to-speech engine — offline, free, no API key.',
-      'The voice list follows whatever language is set under Settings > Learning > "I’m learning".',
-      'Install more voices from your phone’s system settings if the one you want isn’t listed.',
+      'Uses your phone\'s own text-to-speech engine - offline, free, no API key.',
+      'The voice list follows whatever language is set under Settings > Learning > "I\'m learning".',
+      'Install more voices from your phone\'s system settings if the one you want isn\'t listed.',
     ],
   },
   {
@@ -112,9 +112,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'OpenAI',
     icon: 'sparkles',
     paragraphs: [
-      'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI’s newest, most natural-sounding voices.',
-      'If Validate says a project doesn’t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn’t enabled it.',
-      'Go to platform.openai.com → Settings → Projects → select the project this key belongs to → Models → enable gpt-4o-mini-tts for that project.',
+      'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI\'s newest, most natural-sounding voices.',
+      'If Validate says a project doesn\'t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn\'t enabled it.',
+      'Go to platform.openai.com -> Settings -> Projects -> select the project this key belongs to -> Models -> enable gpt-4o-mini-tts for that project.',
       'Alternatively, generate a new key from a project that already has it enabled (or the "Default project" if you have one).',
     ],
   },
@@ -132,8 +132,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Deepgram',
     icon: 'radio',
     paragraphs: [
-      'Aura-2. Once your key is entered, choose from Deepgram’s available models, or switch to manual entry to enter a model name directly (see Deepgram’s docs for exact names).',
-      'If no model is picked, a default is chosen to match whatever language is set under Settings > Learning > "I’m learning" (English, German, Spanish, or French) — other languages fall back to an English voice until you pick one manually.',
+      'Aura-2. Once your key is entered, choose from Deepgram\'s available models, or switch to manual entry to enter a model name directly (see Deepgram\'s docs for exact names).',
+      'If no model is picked, a default is chosen to match whatever language is set under Settings > Learning > "I\'m learning" (English, German, Spanish, or French) - other languages fall back to an English voice until you pick one manually.',
     ],
   },
 ]
@@ -424,7 +424,7 @@ export default function AudioSettingsScreen(): JSX.Element {
       </Card>
 
       <Button
-        label={testing ? t('Playing…') : t('Test active engine')}
+        label={testing ? t('Playing...') : t('Test active engine')}
         icon="volume-high"
         variant="secondary"
         onPress={handleTest}
@@ -592,7 +592,7 @@ function AudioProviderCard(props: {
             <TextInput
               testID={`audio-provider-key-input-${name}`}
               style={styles.keyInputWithIcon}
-              placeholder={t('Paste your {{provider}} API key…', { provider: t(meta.label) })}
+              placeholder={t('Paste your {{provider}} API key...', { provider: t(meta.label) })}
               placeholderTextColor={colors.textMuted}
               value={props.cloud.state.apiKey}
               onChangeText={props.cloud.onChangeApiKey}
@@ -638,11 +638,11 @@ function AudioProviderCard(props: {
                 return (
                   <>
                     <Dropdown
-                      placeholder={t('Choose a voice…')}
+                      placeholder={t('Choose a voice...')}
                       value={displayValue}
                       onChange={(value) => props.cloud?.onChangeVoice(value ?? '')}
                       options={fetched.map((v) => ({
-                        label: v.description ? `${v.label} — ${v.description}` : v.label,
+                        label: v.description ? `${v.label} - ${v.description}` : v.label,
                         value: v.id,
                       }))}
                     />
@@ -690,7 +690,7 @@ function AudioProviderCard(props: {
               </View>
             </>
           ) : (
-            <Text style={styles.hint}>{t('Speaking speed isn’t configurable for this provider yet.')}</Text>
+            <Text style={styles.hint}>{t('Speaking speed isn\'t configurable for this provider yet.')}</Text>
           )}
 
           <View style={styles.providerActionsRow}>

@@ -70,7 +70,7 @@ function AppStack(): JSX.Element {
 
   return (
     <ServicesProvider
-      loading={<Spinner message={t('Opening your vocabulary…')} />}
+      loading={<Spinner message={t('Opening your vocabulary...')} />}
       renderError={(message, retry) => <ErrorState message={message} onRetry={retry} />}
     >
       <QueryClientProvider client={queryClient}>

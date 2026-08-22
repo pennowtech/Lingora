@@ -167,7 +167,7 @@ export async function deleteCloudAccountAndData(db: DatabaseAdapter): Promise<vo
       await getCloudAuthService().revokeAccess(account.email)
     } catch {
       log.warn('sync.account_revoke_failed', {
-        message: 'Revoking the Google OAuth grant failed — data was deleted and the local session will still be signed out',
+        message: 'Revoking the Google OAuth grant failed - data was deleted and the local session will still be signed out',
       })
     }
     await getCloudAuthService().signOut()

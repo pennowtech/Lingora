@@ -36,8 +36,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'How sync works',
     icon: 'sync-circle',
     paragraphs: [
-      'Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress — so if you get a new phone, or use Lemmory on two devices, you\'re not starting from zero on the second one.',
-      'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites — if you added a card here and reviewed one on your other phone, both survive.',
+      'Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemmory on two devices, you\'re not starting from zero on the second one.',
+      'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.',
       'Your AI provider API keys are never synced. They live only in this device\'s secure storage, so you\'ll need to re-enter them if you set up a new device.',
     ],
   },
@@ -46,9 +46,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Automatic sync',
     icon: 'time',
     paragraphs: [
-      'When this is on, Lemmory quietly syncs in the background whenever you leave the app — no need to remember to tap "Sync now" yourself.',
-      '"At most every" is a cooldown, not a schedule — it won\'t sync more often than that, but it also won\'t force a sync if you haven\'t opened the app in the meantime.',
-      'It runs over whatever connection you\'ve got, Wi-Fi or mobile data — there\'s no Wi-Fi-only toggle.',
+      'When this is on, Lemmory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.',
+      '"At most every" is a cooldown, not a schedule - it won\'t sync more often than that, but it also won\'t force a sync if you haven\'t opened the app in the meantime.',
+      'It runs over whatever connection you\'ve got, Wi-Fi or mobile data - there\'s no Wi-Fi-only toggle.',
     ],
   },
   {
@@ -56,10 +56,10 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Deleting your account & data',
     icon: 'trash',
     paragraphs: [
-      { text: 'This is the one action here you genuinely can\'t undo — read this before you tap it.', bold: true },
+      { text: 'This is the one action here you genuinely can\'t undo - read this before you tap it.', bold: true },
       'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.',
-      'Your decks, cards, and progress on THIS device are completely untouched — they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.',
-      'If you sign back in with the same Google account afterward, syncing starts fresh — nothing comes back automatically.',
+      'Your decks, cards, and progress on THIS device are completely untouched - they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.',
+      'If you sign back in with the same Google account afterward, syncing starts fresh - nothing comes back automatically.',
     ],
   },
 ]
@@ -144,7 +144,7 @@ export default function SyncScreen(): JSX.Element {
           </View>
         ) : (
           <Button
-            label={signingIn ? t('Signing in…') : t('Sign in with Google')}
+            label={signingIn ? t('Signing in...') : t('Sign in with Google')}
             icon="logo-google"
             variant="secondary"
             onPress={handleSignIn}
@@ -154,7 +154,7 @@ export default function SyncScreen(): JSX.Element {
 
         <Button
           testID="sync-now-button"
-          label={sync.phase === 'syncing' ? t('Syncing…') : t('Sync now')}
+          label={sync.phase === 'syncing' ? t('Syncing...') : t('Sync now')}
           icon="sync"
           onPress={handleSyncNow}
           disabled={sync.phase === 'syncing' || !sync.account}
@@ -164,7 +164,7 @@ export default function SyncScreen(): JSX.Element {
           {sync.phase === 'syncing' ? (
             <View style={styles.statusRow}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.statusText}>{t('Syncing…')}</Text>
+              <Text style={styles.statusText}>{t('Syncing...')}</Text>
             </View>
           ) : (
             <Text style={styles.statusText}>{t('Last synced: {{when}}', { when: lastSyncedLabel })}</Text>
@@ -219,7 +219,7 @@ export default function SyncScreen(): JSX.Element {
             <Text style={styles.helpLink}>{t('What does this actually delete?')}</Text>
           </Pressable>
           <Button
-            label={deleting ? t('Deleting…') : t('Delete account & sync data')}
+            label={deleting ? t('Deleting...') : t('Delete account & sync data')}
             icon="trash"
             variant="danger"
             onPress={() => setDeleteConfirmOpen(true)}
@@ -232,7 +232,7 @@ export default function SyncScreen(): JSX.Element {
         visible={deleteConfirmOpen}
         title={t('Delete account & sync data?')}
         message={t(
-          'This permanently erases everything you’ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can’t be undone.',
+          'This permanently erases everything you\'ve synced to the cloud and signs you out. Your decks and cards on this device are not affected. This can\'t be undone.',
         )}
         onCancel={() => setDeleteConfirmOpen(false)}
         onConfirm={() => {

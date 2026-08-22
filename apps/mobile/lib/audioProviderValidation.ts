@@ -46,7 +46,7 @@ export async function validateAudioProviderKey(
       durationMs: Date.now() - startedAt,
       metadata: { provider },
     })
-    return { ok: true, message: `Connected — ${label} is ready to speak.` }
+    return { ok: true, message: `Connected - ${label} is ready to speak.` }
   } catch (error) {
     if (error instanceof CloudTtsError) {
       log.warn('settings.audio_provider_validation_failed', {
@@ -67,10 +67,10 @@ export async function validateAudioProviderKey(
       return { ok: false, message: error.message }
     }
     log.warn('settings.audio_provider_validation_failed', {
-      message: 'Audio provider host unreachable — device appears offline',
+      message: 'Audio provider host unreachable - device appears offline',
       durationMs: Date.now() - startedAt,
       metadata: { provider, networkType: 'unavailable' },
     })
-    return { ok: false, networkUnavailable: true, message: `Couldn't reach ${label} — check the device's internet connection and try again.` }
+    return { ok: false, networkUnavailable: true, message: `Couldn't reach ${label} - check the device's internet connection and try again.` }
   }
 }

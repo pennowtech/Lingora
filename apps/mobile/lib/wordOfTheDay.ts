@@ -143,7 +143,13 @@ async function scheduleNotification(
       content: {
         title: t('✨ Word of the Day: {{word}}', { word }),
         body: explanation,
-        data: { path: `/word/${encodeURIComponent(word)}` },
+        // `explanation` here lets word/[form].tsx show this same text immediately (see its
+        // isGeneratingNewWord skeleton) instead of a bare loading badge while the full AI card
+        // generates in the background — the notification already told the learner what this word
+        // means, so the tap shouldn't throw that away and show nothing until enrichment finishes.
+        // Kept as a separate field (not baked into `path`) so WordOfTheDayLifecycle's tap handler
+        // can pass it through Linking.createURL's own `queryParams` option, which handles encoding.
+        data: { path: `/word/${encodeURIComponent(word)}`, initialExplanation: explanation },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,

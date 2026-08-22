@@ -173,7 +173,7 @@ export default function StatsScreen(): JSX.Element {
       <SectionHeader title={t('Difficult words')} />
       {stats.difficultWords.length === 0 ? (
         <Card>
-          <Text style={styles.chartCaption}>{t('No lapses yet — nothing difficult to show.')}</Text>
+          <Text style={styles.chartCaption}>{t('No lapses yet - nothing difficult to show.')}</Text>
         </Card>
       ) : (
         <Card style={styles.difficultCard}>

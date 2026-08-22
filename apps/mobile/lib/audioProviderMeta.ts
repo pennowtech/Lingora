@@ -41,7 +41,7 @@ export const AUDIO_PROVIDER_META: Record<AudioProviderName, AudioProviderMeta> =
   device: {
     label: 'Device (built-in)',
     icon: 'phone-portrait-outline',
-    description: 'Your phone’s own text-to-speech engine. Offline, no API key, no per-word cost.',
+    description: 'Your phone\'s own text-to-speech engine. Offline, no API key, no per-word cost.',
   },
   openai: {
     label: 'OpenAI',
@@ -56,7 +56,7 @@ export const AUDIO_PROVIDER_META: Record<AudioProviderName, AudioProviderMeta> =
   deepgram: {
     label: 'Deepgram',
     icon: 'radio-outline',
-    description: 'Aura-2. Enter the exact model name for the voice/language you want (see Deepgram’s docs).',
+    description: 'Aura-2. Enter the exact model name for the voice/language you want (see Deepgram\'s docs).',
   },
 }
 

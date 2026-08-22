@@ -607,8 +607,8 @@ export default function WordDetailScreen(): JSX.Element {
   // just syncing the selected example if it changed within the same sense. A DIFFERENT sense:
   // rather than overwriting that existing card's meaning/example — which would silently change
   // what a card already sitting in some other deck shows — this creates a genuinely new card for
-  // the lemma (createCardForSense). Cloze content is never touched here — see offerClozeEditor,
-  // called after the card is resolved, which asks the user rather than guessing.
+  // the lemma (createCardForSense). Cloze content is never touched here — that's the sticky bottom
+  // bar's separate "Add to Cloze" button's job entirely, deliberately not chained off this action.
   const resolveTargetCardId = async (deckId: string): Promise<string> => {
     if (!word?.card || !active) throw new Error(t('This word has no card yet.'))
     const senseChanged = headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId
@@ -639,10 +639,10 @@ export default function WordDetailScreen(): JSX.Element {
     await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
   }
 
-  // The manual cloze editor's target — set to open it, either from "Add to deck" (offerClozeEditor
-  // below) or the Cloze section's standalone button. Holding the target card id here (rather than
-  // always assuming word.card.id) is what lets the same sheet serve both a brand-new card from a
-  // sense change and the current one.
+  // The manual cloze editor's target — set to open it from the Cloze section's own "Add to
+  // Cloze"/"Edit Cloze" button. Holding the target card id here (rather than always assuming
+  // word.card.id) is what lets the same sheet serve both a brand-new card from a sense change and
+  // the current one.
   const [clozeEditor, setClozeEditor] = useState<{
     cardId: string
     sentence: string
@@ -650,31 +650,21 @@ export default function WordDetailScreen(): JSX.Element {
     cefrLevel: CefrLevel
   } | null>(null)
 
-  // Opens the cloze editor straight from "Add to deck", pre-filled with whatever example was just
-  // selected — cloze content is always opt-in and user-authored (see ClozeEditorSheet's doc
-  // comment for why automatic derivation didn't hold up), and the sheet's own Cancel button is
-  // already the "skip" affordance, so a confirm-first Alert here was just one extra tap with no
-  // extra information in it.
-  const offerClozeEditor = (cardId: string): void => {
-    if (!selectedExample || !active) return
-    setClozeEditor({
-      cardId,
-      sentence: selectedExample.sentence,
-      translation: selectedExample.translation,
-      cefrLevel: active.cluster.cefrLevel ?? defaultCefr,
-    })
-  }
-
   const addToDeck = useMutation({
     mutationFn: async (deck: { id: string; name: string }) => {
       const cardId = await resolveTargetCardId(deck.id)
       await addCardToDeck(db, deck.id, cardId)
       return { cardId, deckName: deck.name }
     },
-    onSuccess: async ({ cardId, deckName }) => {
+    // "Add to deck" only ever adds to the deck — it used to also auto-open the cloze editor, but
+    // that conflated two separate, deliberately opt-in actions (see the sticky bottom bar's own
+    // "Add to Cloze" button below, which is the one place cloze content actually gets created).
+    // Every review format except cloze (word->meaning, reverse, true/false, multiple choice) is
+    // already available for this card the moment it's in a deck; cloze only joins the rotation
+    // once its own button is used.
+    onSuccess: async ({ deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
-      offerClozeEditor(cardId)
       setToast(t('Added to {{deck}}', { deck: deckName }))
     },
   })
@@ -691,10 +681,9 @@ export default function WordDetailScreen(): JSX.Element {
       await addCardToDeck(db, id, cardId)
       return { cardId, deckName: name }
     },
-    onSuccess: async ({ cardId, deckName }) => {
+    onSuccess: async ({ deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
-      offerClozeEditor(cardId)
       setToast(t('Added to {{deck}}', { deck: deckName }))
     },
     onError: (error: unknown) => showError(t('Could not create deck'), error),
@@ -714,7 +703,23 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       setClozeEditor(null)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
-      setToast(t('Cloze added'))
+      // Name the deck when it's unambiguous (already in exactly one) — same "which deck" feedback
+      // "Added to {{deck}}" already gives elsewhere. Left generic for zero decks (nothing to name
+      // yet — the picker opening right below is what actually answers that) or more than one
+      // (no single right answer to name).
+      const existingDecks = existingDecksQuery.data ?? []
+      setToast(existingDecks.length === 1 ? t('Cloze added to {{deck}}', { deck: existingDecks[0]!.name }) : t('Cloze added'))
+      // Cloze practice (standalone or as one of Mixed practice's rotating formats) only ever pulls
+      // from cards that are actually in a deck — the same rule every other format already follows.
+      // A card can reach this button before ever being added to one (cloze is available from the
+      // very first visit, not gated behind "Add to deck" first), so without this, the cloze content
+      // just saved would silently never be reviewable until the user separately remembered to add
+      // the word to a deck. existingDecksQuery is lemma-scoped, not card-scoped, but every path that
+      // reaches this button targets the lemma's one card in this native language, so "does this
+      // lemma have a deck yet" is the right question here.
+      if (existingDecks.length === 0) {
+        setDeckPickerOpen(true)
+      }
     },
     onError: (error: unknown) => showError(t('Could not save the cloze card'), error),
   })
@@ -1710,6 +1715,7 @@ export default function WordDetailScreen(): JSX.Element {
         visible={clozeEditor !== null}
         initialSentence={clozeEditor?.sentence ?? ''}
         initialTranslation={clozeEditor?.translation ?? ''}
+        word={word.lemma.form}
         onCancel={() => setClozeEditor(null)}
         onSave={(result) => saveCloze.mutate(result)}
         saving={saveCloze.isPending}

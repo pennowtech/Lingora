@@ -981,6 +981,22 @@ const ENGLISH_PHRASES = [
   "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.",
   '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
+
+  // Newly added — the cloze editor's default-blank-the-word behavior
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.',
+
+  // Newly added — naming the deck in the "Cloze added" toast when it's unambiguous
+  'Cloze added to {{deck}}',
+
+  // Newly added — the rest of the manual cloze editor (ClozeMarkupEditor/ClozeEditorSheet) had no
+  // i18n coverage at all before this, pre-existing gap closed while already in this file
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.',
+  'Sentence',
+  'Mark as cloze',
+  'Nothing to preview yet.',
+  'English translation',
+  'Add cloze card',
+  'Save cloze card',
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -2143,6 +2159,17 @@ const de: Partial<Record<Phrase, string>> = {
     '{{providerName}} hat eine Antwort geliefert, die nicht gelesen werden konnte. Das kann gelegentlich vorkommen - versuche es erneut oder wähle einen anderen KI-Anbieter unter Einstellungen > KI-Anbieter.',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
     '{{providerName}} konnte keine gültige Antwort für dieses Wort erzeugen. Das kann gelegentlich vorkommen - versuche es erneut oder wähle einen anderen KI-Anbieter unter Einstellungen > KI-Anbieter.',
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.':
+    'Das Wort ist unten bereits ausgeblendet - wähle ein anderes Wort oder eine andere Phrase und tippe auf "Als Lücke markieren", um es zu ändern.',
+  'Cloze added to {{deck}}': 'Lückentext zu {{deck}} hinzugefügt',
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.':
+    'Wähle ein Wort oder eine Phrase im Satz unten aus und tippe dann auf "Als Lücke markieren", um es auszublenden.',
+  Sentence: 'Satz',
+  'Mark as cloze': 'Als Lücke markieren',
+  'Nothing to preview yet.': 'Noch nichts zum Anzeigen.',
+  'English translation': 'Englische Übersetzung',
+  'Add cloze card': 'Lückentext-Karte hinzufügen',
+  'Save cloze card': 'Lückentext-Karte speichern',
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -3287,6 +3314,17 @@ const fr: Partial<Record<Phrase, string>> = {
     '{{providerName}} a renvoyé une réponse illisible. Cela peut arriver occasionnellement - réessaie, ou choisis un autre fournisseur IA dans Réglages > Fournisseurs IA.',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
     "{{providerName}} n'a pas pu générer de réponse valide pour ce mot. Cela peut arriver occasionnellement - réessaie, ou choisis un autre fournisseur IA dans Réglages > Fournisseurs IA.",
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.':
+    'Le mot est déjà masqué ci-dessous - sélectionne un autre mot ou une autre expression et appuie sur « Marquer comme lacune » pour le changer.',
+  'Cloze added to {{deck}}': 'Texte lacunaire ajouté à {{deck}}',
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.':
+    'Sélectionne un mot ou une expression dans la phrase ci-dessous, puis appuie sur « Marquer comme lacune » pour le masquer.',
+  Sentence: 'Phrase',
+  'Mark as cloze': 'Marquer comme lacune',
+  'Nothing to preview yet.': 'Encore rien à afficher.',
+  'English translation': 'Traduction anglaise',
+  'Add cloze card': 'Ajouter une carte lacunaire',
+  'Save cloze card': 'Enregistrer la carte lacunaire',
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -4430,6 +4468,17 @@ const es: Partial<Record<Phrase, string>> = {
     '{{providerName}} devolvió una respuesta que no se pudo leer. Esto puede ocurrir ocasionalmente - inténtalo de nuevo, o prueba otro proveedor de IA en Ajustes > Proveedores de IA.',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
     '{{providerName}} no pudo generar una respuesta válida para esta palabra. Esto puede ocurrir ocasionalmente - inténtalo de nuevo, o prueba otro proveedor de IA en Ajustes > Proveedores de IA.',
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.':
+    'La palabra ya está oculta abajo - selecciona otra palabra o frase y toca "Marcar como hueco" para cambiarla.',
+  'Cloze added to {{deck}}': 'Ejercicio de huecos añadido a {{deck}}',
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.':
+    'Selecciona una palabra o frase en la oración de abajo y luego toca "Marcar como hueco" para ocultarla.',
+  Sentence: 'Oración',
+  'Mark as cloze': 'Marcar como hueco',
+  'Nothing to preview yet.': 'Aún no hay nada que previsualizar.',
+  'English translation': 'Traducción al inglés',
+  'Add cloze card': 'Añadir tarjeta de huecos',
+  'Save cloze card': 'Guardar tarjeta de huecos',
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -5569,6 +5618,17 @@ const hi: Partial<Record<Phrase, string>> = {
     '{{providerName}} ने ऐसी प्रतिक्रिया दी जिसे पढ़ा नहीं जा सका। यह कभी-कभी हो सकता है - फिर से प्रयास करें, या सेटिंग्स > एआई प्रदाता में कोई दूसरा एआई प्रदाता आज़माएं।',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
     '{{providerName}} इस शब्द के लिए मान्य प्रतिक्रिया नहीं बना सका। यह कभी-कभी हो सकता है - फिर से प्रयास करें, या सेटिंग्स > एआई प्रदाता में कोई दूसरा एआई प्रदाता आज़माएं।',
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.':
+    'शब्द नीचे पहले से छिपा हुआ है - इसे बदलने के लिए कोई दूसरा शब्द या वाक्यांश चुनें और "क्लोज़ के रूप में चिह्नित करें" पर टैप करें।',
+  'Cloze added to {{deck}}': '{{deck}} में क्लोज़ जोड़ा गया',
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.':
+    'नीचे दिए गए वाक्य में कोई शब्द या वाक्यांश चुनें, फिर उसे छिपाने के लिए "क्लोज़ के रूप में चिह्नित करें" पर टैप करें।',
+  Sentence: 'वाक्य',
+  'Mark as cloze': 'क्लोज़ के रूप में चिह्नित करें',
+  'Nothing to preview yet.': 'अभी दिखाने के लिए कुछ नहीं है।',
+  'English translation': 'अंग्रेज़ी अनुवाद',
+  'Add cloze card': 'क्लोज़ कार्ड जोड़ें',
+  'Save cloze card': 'क्लोज़ कार्ड सहेजें',
 }
 
 const vi: Partial<Record<Phrase, string>> = {
@@ -6708,6 +6768,17 @@ const vi: Partial<Record<Phrase, string>> = {
     '{{providerName}} đã trả về phản hồi không thể đọc được. Điều này đôi khi có thể xảy ra - hãy thử lại, hoặc chọn nhà cung cấp AI khác trong Cài đặt > Nhà cung cấp AI.',
   '{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.':
     '{{providerName}} không thể tạo phản hồi hợp lệ cho từ này. Điều này đôi khi có thể xảy ra - hãy thử lại, hoặc chọn nhà cung cấp AI khác trong Cài đặt > Nhà cung cấp AI.',
+  'The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.':
+    'Từ đã được ẩn bên dưới - chọn một từ hoặc cụm từ khác và nhấn "Đánh dấu là điền khuyết" để thay đổi.',
+  'Cloze added to {{deck}}': 'Đã thêm bài điền khuyết vào {{deck}}',
+  'Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.':
+    'Chọn một từ hoặc cụm từ trong câu bên dưới, sau đó nhấn "Đánh dấu là điền khuyết" để ẩn nó.',
+  Sentence: 'Câu',
+  'Mark as cloze': 'Đánh dấu là điền khuyết',
+  'Nothing to preview yet.': 'Chưa có gì để xem trước.',
+  'English translation': 'Bản dịch tiếng Anh',
+  'Add cloze card': 'Thêm thẻ điền khuyết',
+  'Save cloze card': 'Lưu thẻ điền khuyết',
 }
 
 export const resources = {

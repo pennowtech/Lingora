@@ -50,6 +50,7 @@ export {
   CLOZE_BLANK,
   hasClozeMarkup,
   markSelectionAsCloze,
+  markWordAsCloze,
   parseClozeMarkup,
   revealClozeSentence,
   type ParsedCloze,

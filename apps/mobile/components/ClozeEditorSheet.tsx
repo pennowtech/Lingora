@@ -21,6 +21,8 @@ export function ClozeEditorSheet(props: {
   visible: boolean
   initialSentence: string
   initialTranslation: string
+  /** The card's own headword — passed straight through to `ClozeMarkupEditor`'s pre-mark default. */
+  word?: string
   onCancel: () => void
   onSave: (result: ClozeEditorResult) => void
   saving?: boolean
@@ -48,6 +50,7 @@ export function ClozeEditorSheet(props: {
               <ClozeMarkupEditor
                 initialSentence={props.initialSentence}
                 initialTranslation={props.initialTranslation}
+                {...(props.word !== undefined && { word: props.word })}
                 onChange={setResult}
               />
             ) : null}

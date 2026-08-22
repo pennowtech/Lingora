@@ -56,6 +56,14 @@ export interface ClusterRef {
   description: string
 }
 
+/** One turn of a chatAboutWord conversation, oldest first — mirrors the shape persisted in
+ * `@lingora/database`'s `card_chat_messages` (via `@lingora/types`' `ChatMessage`), but kept
+ * separate here since the provider layer has no database dependency. */
+export interface ChatTurn {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 /** Optional targeting for example generation (the grammar controls panel). */
 export interface ExampleGenerationOptions {
   /** Grammar structures the examples must exercise, e.g. ['Konjunktiv II', 'passive voice']. */
@@ -150,4 +158,19 @@ export interface AIProvider {
   ): Promise<AIResult<{ word: string; explanation: string }>>
 
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
+
+  /**
+   * The word detail screen's "Ask AI" chat window — a free-form, multi-turn conversation about
+   * one specific card/sense, persisted per-card (see `@lingora/database`'s `card_chat_messages`)
+   * and deleted with it. Unlike `generateMeaning`'s single-shot `question` override, this replies
+   * in a warm, human conversational tone and asks a clarifying question back when the learner's
+   * message is ambiguous, given the whole `history` so far (oldest first, ending with the
+   * learner's latest message — the reply itself is not included in `history`).
+   */
+  chatAboutWord(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+    history: ChatTurn[],
+  ): Promise<AIResult<string>>
 }

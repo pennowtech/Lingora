@@ -136,6 +136,9 @@ export function IconButton(props: {
   size?: number
   disabled?: boolean
   testID?: string
+  /** An icon-only button has nothing else for a screen reader to announce — worth setting whenever
+   * the icon alone (e.g. "arrow-undo-outline") wouldn't be obvious out of context. */
+  accessibilityLabel?: string
 }): JSX.Element {
   const colors = useColors()
   return (
@@ -144,6 +147,8 @@ export function IconButton(props: {
       onPress={props.onPress}
       disabled={props.disabled}
       hitSlop={8}
+      accessibilityRole="button"
+      {...(props.accessibilityLabel !== undefined && { accessibilityLabel: props.accessibilityLabel })}
       style={({ pressed }) => [props.disabled && { opacity: 0.4 }, pressed && { opacity: 0.6 }]}
     >
       <Ionicons name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />

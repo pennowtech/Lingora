@@ -468,6 +468,74 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [editExample, setEditExample] = useState('')
   const [editTranslation, setEditTranslation] = useState('')
 
+  // Undo/redo for the edit modal — one shared history across all three fields (and the "Generate
+  // with AI" example button, which overwrites two of them at once) rather than per-field, since
+  // the whole modal reads as a single editing session. New snapshots are only committed after a
+  // typing pause (see the debounce effect below), so undo steps back through meaningful edits
+  // instead of one keystroke at a time. isRestoringEdit distinguishes "the user typed something"
+  // from "undo/redo just set this state programmatically" so restoring a snapshot doesn't
+  // immediately get captured as a new one, which would silently wipe the redo stack.
+  interface EditSnapshot {
+    meaning: string
+    example: string
+    translation: string
+  }
+  const [editHistory, setEditHistory] = useState<{ stack: EditSnapshot[]; index: number }>({
+    stack: [{ meaning: '', example: '', translation: '' }],
+    index: 0,
+  })
+  const isRestoringEdit = useRef(false)
+
+  const commitEditSnapshot = (snapshot: EditSnapshot): void => {
+    setEditHistory((prev) => {
+      const current = prev.stack[prev.index]
+      if (
+        current &&
+        current.meaning === snapshot.meaning &&
+        current.example === snapshot.example &&
+        current.translation === snapshot.translation
+      ) {
+        return prev
+      }
+      const truncated = prev.stack.slice(0, prev.index + 1)
+      return { stack: [...truncated, snapshot], index: truncated.length }
+    })
+  }
+
+  useEffect(() => {
+    if (!editOpen) return
+    if (isRestoringEdit.current) {
+      isRestoringEdit.current = false
+      return
+    }
+    const timer = setTimeout(() => {
+      commitEditSnapshot({ meaning: editMeaning, example: editExample, translation: editTranslation })
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [editMeaning, editExample, editTranslation, editOpen])
+
+  const undoEdit = (): void => {
+    if (editHistory.index === 0) return
+    const newIndex = editHistory.index - 1
+    const snapshot = editHistory.stack[newIndex]!
+    isRestoringEdit.current = true
+    setEditMeaning(snapshot.meaning)
+    setEditExample(snapshot.example)
+    setEditTranslation(snapshot.translation)
+    setEditHistory((prev) => ({ ...prev, index: newIndex }))
+  }
+
+  const redoEdit = (): void => {
+    if (editHistory.index >= editHistory.stack.length - 1) return
+    const newIndex = editHistory.index + 1
+    const snapshot = editHistory.stack[newIndex]!
+    isRestoringEdit.current = true
+    setEditMeaning(snapshot.meaning)
+    setEditExample(snapshot.example)
+    setEditTranslation(snapshot.translation)
+    setEditHistory((prev) => ({ ...prev, index: newIndex }))
+  }
+
   const queueQuery = useQuery({
     queryKey: ['review-queue', params.deckId, clozeOnly, singleCardId],
     queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, singleCardId),
@@ -572,9 +640,15 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const openEdit = (): void => {
     if (!view) return
-    setEditMeaning(view.meaning ?? '')
-    setEditExample(view.example ?? '')
-    setEditTranslation(view.exampleTranslation ?? '')
+    const initial: EditSnapshot = {
+      meaning: view.meaning ?? '',
+      example: view.example ?? '',
+      translation: view.exampleTranslation ?? '',
+    }
+    setEditMeaning(initial.meaning)
+    setEditExample(initial.example)
+    setEditTranslation(initial.translation)
+    setEditHistory({ stack: [initial], index: 0 })
     setEditOpen(true)
   }
 
@@ -1007,7 +1081,21 @@ export default function ReviewSessionScreen(): JSX.Element {
           <View style={styles.editSheet}>
             <View style={styles.editHeader}>
               <Text style={styles.editTitle}>{t('Edit this card')}</Text>
-              <IconButton icon="close" onPress={() => setEditOpen(false)} />
+              <View style={styles.editHeaderActions}>
+                <IconButton
+                  icon="arrow-undo-outline"
+                  accessibilityLabel={t('Undo')}
+                  onPress={undoEdit}
+                  disabled={editHistory.index === 0}
+                />
+                <IconButton
+                  icon="arrow-redo-outline"
+                  accessibilityLabel={t('Redo')}
+                  onPress={redoEdit}
+                  disabled={editHistory.index >= editHistory.stack.length - 1}
+                />
+                <IconButton icon="close" onPress={() => setEditOpen(false)} />
+              </View>
             </View>
             <Text style={styles.editLabel}>{t('Meaning')}</Text>
             <TextInput
@@ -1221,6 +1309,7 @@ const createStyles = (colors: ThemeColors) =>
       gap: spacing.sm,
     },
     editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+    editHeaderActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
     editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

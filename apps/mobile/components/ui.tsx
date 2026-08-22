@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
-import { useState, type JSX, type ReactNode } from 'react'
+import { useEffect, useState, type JSX, type ReactNode } from 'react'
 import {
   ActivityIndicator,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ExportFormat } from '../lib/export'
 import { speak } from '../lib/speech'
 import { cefrColors, radius, spacing, type } from '../lib/theme'
@@ -695,6 +697,48 @@ export function AlertModal(props: {
 }
 
 /**
+ * A brief, non-blocking confirmation — "Added to My Vocabulary", "Cloze added" — for actions
+ * frequent enough that `AlertModal`'s tap-to-dismiss would be more friction than the confirmation
+ * is worth (adding a card/cloze to a deck, one word after another). Auto-dismisses after
+ * `durationMs` (default 2200ms) or on tap; owned by the caller's own local state (`message`/
+ * `onHide`), same pattern as every other one-shot notice in this app — there's no global toast
+ * queue, so a caller triggering a second toast before the first hides just replaces it in place.
+ */
+export function Toast(props: {
+  message: string | null
+  onHide: () => void
+  icon?: keyof typeof Ionicons.glyphMap
+  durationMs?: number
+}): JSX.Element | null {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
+  // Below the status bar AND the native stack header (insets.top alone only clears the status
+  // bar) — headerHeight is a reasonable fixed estimate rather than reading the real header height,
+  // since screens vary and this only needs to clear it, not hug it exactly.
+  const insets = useSafeAreaInsets()
+  const headerHeight = Platform.OS === 'ios' ? 44 : 56
+
+  useEffect(() => {
+    if (!props.message) return
+    const timer = setTimeout(props.onHide, props.durationMs ?? 2200)
+    return () => clearTimeout(timer)
+    // Deliberately keyed on props.message alone — re-arming the timer on every onHide/durationMs
+    // identity change (most callers pass an inline arrow function) would restart the countdown
+    // each render instead of once per shown message.
+  }, [props.message])
+
+  if (!props.message) return null
+  return (
+    <View style={[styles.toastWrap, { top: insets.top + headerHeight + spacing.sm }]} pointerEvents="box-none">
+      <Pressable style={styles.toast} onPress={props.onHide}>
+        <Ionicons name={props.icon ?? 'checkmark-circle'} size={18} color={colors.textOnPrimary} />
+        <Text style={styles.toastText}>{props.message}</Text>
+      </Pressable>
+    </View>
+  )
+}
+
+/**
  * The two-button (Cancel + Confirm) counterpart to `AlertModal` — the in-app replacement for
  * `Alert.alert(title, message, [{cancel}, {confirm, style: 'destructive'}])`, for a real yes/no
  * decision before an action (delete/merge/restore/etc.), not just a result notification. Still
@@ -1060,4 +1104,23 @@ const createStyles = (colors: ThemeColors) =>
     alertModalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     alertModalMessage: { fontSize: type.body, color: colors.textSecondary, lineHeight: 20 },
     confirmModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
+    toastWrap: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      // `top` is set per-instance (safe-area insets aren't available to a style factory) — see Toast.
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    toast: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primary,
+      borderRadius: radius.full,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      maxWidth: '100%',
+    },
+    toastText: { color: colors.textOnPrimary, fontSize: type.caption, fontWeight: '600', flexShrink: 1 },
   })

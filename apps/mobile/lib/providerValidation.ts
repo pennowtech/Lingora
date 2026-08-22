@@ -1,4 +1,14 @@
-import { AIProviderError, AnthropicProvider, DeepLProvider, GeminiProvider, MistralProvider, OpenAIProvider } from '@lingora/ai'
+import {
+  AIError,
+  AIProviderError,
+  AIResponseParseError,
+  AIValidationError,
+  AnthropicProvider,
+  DeepLProvider,
+  GeminiProvider,
+  MistralProvider,
+  OpenAIProvider,
+} from '@lingora/ai'
 import { logger } from '@lingora/observability'
 
 const log = logger.child({ feature: 'settings', component: 'providerValidation' })
@@ -62,6 +72,59 @@ export function formatUserFriendlyProviderError(
   const status = providerError?.status
   const rawMsg = error instanceof Error ? error.message : String(error)
   const lower = rawMsg.toLowerCase()
+
+  // -1. This function exists solely to translate *AI/provider* failures (bad key, rate limit,
+  // quota, network, provider-side schema rejection) into friendly text — every check below is a
+  // keyword/status heuristic tuned for that narrow purpose. A caller can end up passing it
+  // literally any thrown value from a mutation, though (e.g. search.tsx's `generate.isError` runs
+  // whatever `generate.error` holds through here regardless of what actually threw) — a plain
+  // application error unrelated to any AI provider (confirmed in the wild: persistTranslationAsCard
+  // throwing "Lemma 'X' already exists" when a word's resolved form collides with an existing one)
+  // would otherwise coincidentally fall through every check below to the generic "check your key
+  // and settings" fallback, which is actively wrong for an error that has nothing to do with the
+  // key. Only genuine AI-package errors (AIError and its subclasses) get the heuristics below —
+  // anything else shows its own real message instead of a guessed-at, possibly-misleading one.
+  if (!(error instanceof AIError)) {
+    return rawMsg
+  }
+
+  // 0. The AI's response for this specific generation didn't match our expected structure — a
+  // content/schema issue (see packages/ai/src/generation/structured.ts), not a key/auth/network
+  // problem. Checked first and by type, not by message text, since neither error carries any of
+  // the keywords the checks below look for — they'd otherwise fall all the way through to the
+  // generic "check your key and settings" fallback at the bottom, which is actively misleading
+  // here (confirmed in the wild: a Mistral AIValidationError for one specific word surfaced as
+  // "Mistral validation failed. Please check your key and settings.", even though the key was
+  // fine — a schema mismatch in that one response is what actually failed). Model responses are
+  // non-deterministic, so a retry of the exact same word can succeed with nothing else changed.
+  if (error instanceof AIValidationError) {
+    return tr(
+      "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.",
+      { providerName },
+    )
+  }
+  if (error instanceof AIResponseParseError) {
+    return tr(
+      '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
+      { providerName },
+    )
+  }
+
+  // The provider's own structured-output endpoint (strict json_schema — see
+  // packages/ai/src/providers/json-schema.ts) can reject a request outright with an HTTP 400 when
+  // whatever the model tried to generate doesn't fit their schema constraints for that particular
+  // content — a provider-side rejection, still not a key/auth problem (401/403 are handled
+  // separately below). Confirmed in the wild: a Mistral 400 for one specific word fell through
+  // every check below (400 isn't 401/403/404/429/5xx, and the response body is truncated to 500
+  // chars in the raw error message — see providers/mistral.ts — which can cut a JSON error object
+  // off mid-object, making check 7's JSON.parse below throw and silently skip it too) and landed
+  // on the same misleading "check your key" fallback this whole block exists to avoid.
+  if (status === 400) {
+    return tr(
+      "{{providerName}} could not generate a valid response for this word. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.",
+      { providerName },
+    )
+  }
 
   // 1. Model Access / Project Permission Restriction (takes precedence over generic 403)
   if (

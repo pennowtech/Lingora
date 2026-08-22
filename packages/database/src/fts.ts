@@ -114,3 +114,28 @@ export function buildFTSQuery(query: string): string {
 
   return `"${escapedQuery}"*`
 }
+
+/**
+ * Same escaping as buildFTSQuery, but without the trailing `*` — an exact phrase match, every
+ * token complete, instead of "last token may be a prefix." For searching translation/meaning
+ * text (searchLemmas' fts_meanings branch): that text is in a *different* language than the
+ * lemma form itself, so a target-language search term that happens to be a short prefix of some
+ * unrelated word's translation would otherwise false-positive-match it purely by coincidence —
+ * confirmed in the wild: searching the German word "Wand" ("wall") phrase-prefix-matched the
+ * English translation "to wander" (of the unrelated word "schlendern"), since "wand" is a
+ * legitimate prefix of "wander". Prefix matching stays appropriate for fts_lemmas (autocompleting
+ * a word in your own target-language vocabulary as you type it), just not for meaning text.
+ */
+export function buildFTSExactQuery(query: string): string {
+  const trimmedQuery = query.trim()
+  if (trimmedQuery === '') {
+    return ''
+  }
+
+  const escapedQuery = trimmedQuery.replace(/["*^(){}[\]:]/g, ' ').trim()
+  if (escapedQuery === '') {
+    return ''
+  }
+
+  return `"${escapedQuery}"`
+}

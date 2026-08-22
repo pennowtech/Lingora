@@ -1112,25 +1112,57 @@ export default function WordDetailScreen(): JSX.Element {
           <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
         </View>
 
-        {/* ── Cluster tabs (one per semantic context) ── */}
-        <View style={styles.clusterTabs}>
-          {word.clusters.map(({ cluster }) => (
-            <Pressable
-              key={cluster.id}
-              onPress={() => setClusterId(cluster.id)}
-              style={[styles.clusterTab, cluster.id === activeClusterId && styles.clusterTabActive]}
-            >
-              <Text
-                style={[
-                  styles.clusterTabLabel,
-                  cluster.id === activeClusterId && styles.clusterTabLabelActive,
-                ]}
-              >
-                {cluster.label}
-              </Text>
-              <CefrBadge level={cluster.cefrLevel} />
-            </Pressable>
-          ))}
+        {/* ── Cluster tabs (only meaningful with more than one semantic sense — a single-cluster
+            word has nothing to switch between, so the row is skipped entirely rather than
+            floating one lone pill). A real segmented-control shape (rounded track background,
+            elevated white pill for the active tab) replaces the old flex-wrapped chip row, which
+            broke unevenly across lines and read as loose chips rather than a deliberate switcher.
+            Horizontal scroll instead of wrap means it never breaks awkwardly even with many
+            senses. The CEFR badge only shows on the active tab — showing it on every tab competed
+            with the segmented control's own selected/unselected state for attention. ── */}
+        {/* ── Semantic Contexts Section ── */}
+        <View style={styles.clusterSection}>
+          <View style={styles.clusterSectionHeader}>
+            <View style={styles.clusterTitleRow}>
+              <Ionicons name="layers-outline" size={16} color={colors.primary} />
+              <Text style={styles.clusterSectionLabel}>{t('Semantic Contexts')}</Text>
+            </View>
+            <Text style={styles.clusterCountBadge}>
+              {t('{{count}} contexts', { count: word.clusters.length })}
+            </Text>
+          </View>
+
+          {word.clusters.length > 1 ? (
+            <View style={styles.clusterTabsTrack}>
+              {word.clusters.map(({ cluster }) => {
+                const isActive = cluster.id === activeClusterId
+                return (
+                  <Pressable
+                    key={cluster.id}
+                    onPress={() => setClusterId(cluster.id)}
+                    style={[styles.clusterTab, isActive && styles.clusterTabActive]}
+                  >
+                    <Text style={[styles.clusterTabLabel, isActive && styles.clusterTabLabelActive]}>
+                      {cluster.label}
+                    </Text>
+                    {isActive ? <CefrBadge level={cluster.cefrLevel} /> : null}
+                  </Pressable>
+                )
+              })}
+            </View>
+          ) : null}
+
+          {active ? (
+            <View style={styles.activeClusterBanner}>
+              <View style={styles.activeClusterHeader}>
+                <Text style={styles.activeClusterLabel}>{active.cluster.label}</Text>
+                <CefrBadge level={active.cluster.cefrLevel} />
+              </View>
+              {active.cluster.description ? (
+                <Text style={styles.activeClusterDescription}>{active.cluster.description}</Text>
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
         {active ? (
@@ -1826,19 +1858,93 @@ const createStyles = (colors: ThemeColors) =>
     },
     aiEnrichingText: { fontSize: type.caption, color: colors.primary, fontWeight: '600' },
     skeletonContainer: { flex: 1, padding: spacing.lg },
-    clusterTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
+    clusterSection: {
+      marginTop: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    clusterSectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    clusterTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    clusterSectionLabel: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    clusterCountBadge: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.primary,
+      backgroundColor: colors.primarySoft,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    clusterTabsTrack: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      paddingVertical: spacing.xs,
+    },
     clusterTab: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.lg,
+      gap: spacing.xs,
+      paddingVertical: spacing.xs + 2,
+      paddingHorizontal: spacing.md,
       borderRadius: radius.full,
       backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: 'transparent',
     },
-    clusterTabActive: { backgroundColor: colors.primary },
-    clusterTabLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
-    clusterTabLabelActive: { color: colors.textOnPrimary },
+    clusterTabActive: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    clusterTabLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    clusterTabLabelActive: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    activeClusterBanner: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginTop: spacing.xs,
+      gap: 4,
+    },
+    activeClusterHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    activeClusterLabel: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+      textTransform: 'capitalize',
+    },
+    activeClusterDescription: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
     meaningCard: { marginTop: spacing.lg },
     primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
     explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },

@@ -252,6 +252,7 @@ const ENGLISH_PHRASES = [
   'Active: {{selection}}',
   'Generate examples',
   'Add your OpenAI key in Settings to generate targeted examples.',
+  'Meanings in this word',
   'Synonyms',
   'Phrases & collocations',
   'Cloze card',
@@ -545,6 +546,8 @@ const ENGLISH_PHRASES = [
   'v0.0.1 · offline-first · your data stays on device',
   'offline-first · your data stays on device',
   'Build',
+  'Semantic Contexts',
+  '{{count}} contexts',
 
   // Root layout titles
   'Opening your vocabulary…',
@@ -1176,6 +1179,7 @@ const de: Partial<Record<Phrase, string>> = {
   'Generate examples': 'Beispiele erzeugen',
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Füge deinen OpenAI-Schlüssel in den Einstellungen hinzu, um gezielte Beispiele zu erzeugen.',
+  'Meanings in this word': 'Bedeutungen dieses Wortes',
   Synonyms: 'Synonyme',
   'Phrases & collocations': 'Redewendungen & Kollokationen',
   'Cloze card': 'Lückentext-Karte',
@@ -1460,6 +1464,8 @@ const de: Partial<Record<Phrase, string>> = {
   'Show {{provider}} API key': '{{provider}}-API-Schlüssel anzeigen',
   'Validate key': 'Schlüssel prüfen',
   Clear: 'Leeren',
+  'Semantic Contexts': 'Semantische Kontexte',
+  '{{count}} contexts': '{{count}} Kontexte',
   'Device-observed usage': 'Auf dem Gerät beobachtete Nutzung',
   '{{count}} requests': '{{count}} Anfragen',
   '{{count}} tokens': '{{count}} Tokens',
@@ -2243,6 +2249,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'Generate examples': 'Générer des exemples',
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Ajoutez votre clé OpenAI dans les réglages pour générer des exemples ciblés.',
+  'Meanings in this word': 'Sens de ce mot',
   Synonyms: 'Synonymes',
   'Phrases & collocations': 'Expressions et collocations',
   'Cloze card': 'Carte lacunaire',
@@ -2550,6 +2557,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': "Ouvrir l'utilisation DeepL ↗",
   'v0.0.1 · offline-first · your data stays on device':
     "v0.0.1 · hors ligne par défaut · vos données restent sur l'appareil",
+  'Semantic Contexts': 'Contextes sémantiques',
+  '{{count}} contexts': '{{count}} contextes',
   'Opening your vocabulary…': 'Ouverture de votre vocabulaire…',
   'Import & Export': 'Import et export',
   'Import CSV': 'Importer un CSV',
@@ -3306,6 +3315,7 @@ const es: Partial<Record<Phrase, string>> = {
   'Generate examples': 'Generar ejemplos',
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Añade tu clave de OpenAI en Ajustes para generar ejemplos específicos.',
+  'Meanings in this word': 'Significados de esta palabra',
   Synonyms: 'Sinónimos',
   'Phrases & collocations': 'Frases y colocaciones',
   'Cloze card': 'Tarjeta de huecos',
@@ -3612,6 +3622,8 @@ const es: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': 'Abrir uso de DeepL ↗',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · sin conexión por defecto · tus datos permanecen en el dispositivo',
+  'Semantic Contexts': 'Contextos semánticos',
+  '{{count}} contexts': '{{count}} contextos',
   'Opening your vocabulary…': 'Abriendo tu vocabulario…',
   'Import & Export': 'Importar y exportar',
   'Import CSV': 'Importar CSV',
@@ -4370,6 +4382,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'Generate examples': 'उदाहरण बनाएं',
   'Add your OpenAI key in Settings to generate targeted examples.':
     'लक्षित उदाहरण बनाने के लिए सेटिंग्स में अपनी OpenAI कुंजी जोड़ें।',
+  'Meanings in this word': 'इस शब्द के अर्थ',
   Synonyms: 'समानार्थी शब्द',
   'Phrases & collocations': 'वाक्यांश और सहचर्य',
   'Cloze card': 'क्लोज़ कार्ड',
@@ -4677,6 +4690,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'Open DeepL usage ↗': 'DeepL उपयोग खोलें ↗',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · ऑफ़लाइन-फर्स्ट · आपका डेटा डिवाइस पर ही रहता है',
+  'Semantic Contexts': 'अर्थगत संदर्भ',
+  '{{count}} contexts': '{{count}} संदर्भ',
   'Opening your vocabulary…': 'आपकी शब्दावली खोली जा रही है…',
   'Import & Export': 'आयात और निर्यात',
   'Import CSV': 'CSV आयात करें',
@@ -5275,6 +5290,7 @@ const vi: Partial<Record<Phrase, string>> = {
     'Thêm khóa OpenAI trong Cài đặt để tạo từ mới',
   'Add your OpenAI key in Settings to generate targeted examples.':
     'Thêm khóa OpenAI trong Cài đặt để tạo ví dụ theo yêu cầu.',
+  'Meanings in this word': 'Các nghĩa của từ này',
   'Add your OpenAI key to generate cards': 'Thêm khóa OpenAI để tạo thẻ',
   'Explore Full AI Flashcard': 'Khám phá thẻ AI đầy đủ',
   'Generate Full AI Flashcard': 'Tạo thẻ AI đầy đủ',
@@ -6125,6 +6141,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'use on flashcard': 'dùng trên thẻ ghi nhớ',
   'v0.0.1 · offline-first · your data stays on device':
     'v0.0.1 · ưu tiên ngoại tuyến · dữ liệu của bạn luôn ở trên thiết bị',
+  'Semantic Contexts': 'Ngữ cảnh ngữ nghĩa',
+  '{{count}} contexts': '{{count}} ngữ cảnh',
   'you@example.com': 'you@example.com',
   '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one — good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.':
     '{{ variable }} in ra một giá trị. {% if gender %}...{% endif %} chỉ hiển thị nội dung khi trường đó có giá trị — hữu ích cho các trường không bắt buộc. {% for s in synonyms %}...{% endfor %} lặp qua một danh sách; thêm "limit:2" để giới hạn số lượng, và {% unless forloop.last %}...{% endunless %} để thêm dấu phân cách giữa các mục nhưng không thêm sau mục cuối cùng.',

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { GoogleTranslateProvider } from './google-translate'
 
 /** Fetch stub replaying the given bodies (or errors) in sequence. */
@@ -174,6 +174,39 @@ describe('GoogleTranslateProvider request dedupe', () => {
     await provider.translate('foundation', 'en', 'de')
     await provider.translate('Haus', 'de', 'en')
 
+    expect(fetchFn.calls.length).toBe(2)
+  })
+})
+
+describe('GoogleTranslateProvider rate-limit cooldown', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('fails fast without a network call for any word during the cooldown after a 429', async () => {
+    vi.useFakeTimers()
+    const fetchFn = fetchReturning({ status: 429, payload: null }, { payload: HAUS_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    await expect(provider.translate('foundation', 'en', 'de')).rejects.toMatchObject({ status: 429 })
+    expect(fetchFn.calls.length).toBe(1)
+
+    // A different word, still within the cooldown window - every request hits the same wall
+    // right now, so this should fail immediately without touching the network at all.
+    await expect(provider.translate('Haus', 'de', 'en')).rejects.toMatchObject({ status: 429, retryable: true })
+    expect(fetchFn.calls.length).toBe(1)
+  })
+
+  it('tries the network again once the cooldown has elapsed', async () => {
+    vi.useFakeTimers()
+    const fetchFn = fetchReturning({ status: 429, payload: null }, { payload: HAUS_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    await expect(provider.translate('foundation', 'en', 'de')).rejects.toMatchObject({ status: 429 })
+    vi.advanceTimersByTime(60_001)
+
+    const result = await provider.translate('Haus', 'de', 'en')
+    expect(result.data).toBe('house')
     expect(fetchFn.calls.length).toBe(2)
   })
 })

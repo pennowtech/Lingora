@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DatabaseAdapter } from '@lingora/database';
 import { 
   getAllDecks, 
@@ -32,6 +32,8 @@ import {
   AnthropicProvider,
   DeepSeekProvider,
   GroqProvider,
+  GoogleTranslateProvider,
+  DeepLProvider,
   createAIPipeline,
   validateOpenAIKey,
   validateMistralKey,
@@ -39,7 +41,9 @@ import {
   validateClaudeKey,
   validateDeepSeekKey,
   validateGroqKey,
-  validateDeepLKey
+  validateDeepLKey,
+  type AIProvider,
+  type DictionaryProvider
 } from '@lingora/ai';
 import { DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, type GenerationProviderName } from '@lingora/core';
 import { getDesktopDatabase } from './database';
@@ -52,6 +56,26 @@ export type ProviderName = GenerationProviderName;
 export type TranslationProvider = 'google' | 'deepl' | GenerationProviderName;
 
 const PROVIDER_ORDER: ProviderName[] = [...GENERATION_PROVIDERS];
+
+/** OpenAI, Mistral, Gemini, Claude, DeepSeek, and Groq all implement both provider slots — same
+ * helper as apps/mobile's lib/services.tsx, reused here for both `generateWithGemini` and the
+ * `dictionary` slot below so the six-provider if/else chain isn't duplicated. */
+function instantiateGenerationProvider(name: ProviderName, key: string, model: string): AIProvider & DictionaryProvider {
+  switch (name) {
+    case 'openai':
+      return new OpenAIProvider({ apiKey: key, model, fetchFn: desktopFetch });
+    case 'mistral':
+      return new MistralProvider({ apiKey: key, model, fetchFn: desktopFetch });
+    case 'gemini':
+      return new GeminiProvider({ apiKey: key, model, fetchFn: desktopFetch });
+    case 'anthropic':
+      return new AnthropicProvider({ apiKey: key, model, fetchFn: desktopFetch });
+    case 'deepseek':
+      return new DeepSeekProvider({ apiKey: key, model, fetchFn: desktopFetch });
+    case 'groq':
+      return new GroqProvider({ apiKey: key, model, fetchFn: desktopFetch });
+  }
+}
 
 /** Active requires a validated key (see SettingsScreen.tsx's AI Providers grid) — when the
  * currently-Active provider's key fails or is cleared, there's no keyless generation provider to
@@ -97,6 +121,7 @@ interface DesktopServicesContextType {
   addNewDeck: (title: string, type?: string) => Promise<string>;
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
+  dictionary: DictionaryProvider;
   generateWithGemini: (surfaceForm: string) => Promise<any>;
   selectedGenerationProvider: ProviderName;
   setSelectedGenerationProvider: (provider: ProviderName) => void;
@@ -208,6 +233,27 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       localStorage.removeItem('lingora.deepl_validated');
     }
   };
+
+  // The dictionary slot — same idea as apps/mobile's lib/services.tsx#buildAIServices: Google's
+  // free tier needs no key and is the default; DeepL or any configured-and-validated generation
+  // provider can also serve translation/language-detection, per Settings → Translation. Recomputed
+  // whenever the relevant state changes rather than rebuilt once at boot (desktop has no async
+  // "reloadServices" step the way mobile's SecureStore-backed bootstrap does).
+  const dictionary = useMemo<DictionaryProvider>(() => {
+    if (selectedTranslationProvider === 'deepl' && deeplValidated && deeplKey.trim() !== '') {
+      return new DeepLProvider({ apiKey: deeplKey.trim(), fetchFn: desktopFetch });
+    }
+    if (
+      selectedTranslationProvider !== 'google' &&
+      selectedTranslationProvider !== 'deepl' &&
+      providers[selectedTranslationProvider]?.validated
+    ) {
+      const cfg = providers[selectedTranslationProvider];
+      return instantiateGenerationProvider(selectedTranslationProvider, cfg.key, cfg.model);
+    }
+    return new GoogleTranslateProvider({ fetchFn: desktopFetch });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTranslationProvider, deeplKey, deeplValidated, providers]);
 
   useEffect(() => {
     localStorage.setItem('lingora.providers', JSON.stringify(providers));
@@ -506,35 +552,17 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
+  // Routes through the `dictionary` slot above instead of a hardcoded Google Translate fetch —
+  // honors whichever provider is selected under Settings → Translation (Google/DeepL/an AI
+  // provider), same as apps/mobile's quick-translate. Callers that just want "some translation" can
+  // keep using this; SearchLookupScreen also calls `dictionary`/`detectSearchLanguage` directly
+  // where it needs language-direction detection, which this signature doesn't expose.
   const translateText = async (text: string, source?: LanguageCode, target?: LanguageCode): Promise<string> => {
     const srcLang = source || targetLanguage;
     const tgtLang = target || nativeLanguage;
     try {
-      const params = new URLSearchParams({
-        client: 'gtx',
-        sl: srcLang,
-        tl: tgtLang,
-        dt: 't',
-        q: text,
-      });
-      const url = `https://translate.googleapis.com/translate_a/single?${params.toString()}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        console.warn('[TranslateText] HTTP error:', response.status);
-        return text;
-      }
-      const json = await response.json();
-      // Response structure: [[[translatedText, origText, ...], ...], null, detectedLang, ...]
-      let translation = '';
-      if (Array.isArray(json) && Array.isArray(json[0])) {
-        for (const segment of json[0]) {
-          if (Array.isArray(segment) && typeof segment[0] === 'string') {
-            translation += segment[0];
-          }
-        }
-      }
-      console.log('[TranslateText]', { text, srcLang, tgtLang, translation: translation.trim() || '(empty)' });
-      return translation.trim() || text;
+      const result = await dictionary.translate(text, srcLang, tgtLang);
+      return result.data.trim() || text;
     } catch (err) {
       console.error('[TranslateText] Failed:', err);
       return text;
@@ -614,24 +642,12 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     // desktopFetch routes through Tauri's HTTP plugin (Rust-side, no page origin) instead of the
     // WebView's own fetch — none of these providers send Access-Control-Allow-Origin for a page
     // origin, so a plain WebView request would be blocked by CORS. See desktopFetch.ts.
-    let aiProviderInstance: any;
-    if (selectedGenerationProvider === 'openai') {
-      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.openai, fetchFn: desktopFetch });
-    } else if (selectedGenerationProvider === 'mistral') {
-      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.mistral, fetchFn: desktopFetch });
-    } else if (selectedGenerationProvider === 'gemini') {
-      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.gemini, fetchFn: desktopFetch });
-    } else if (selectedGenerationProvider === 'anthropic') {
-      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.anthropic, fetchFn: desktopFetch });
-    } else if (selectedGenerationProvider === 'deepseek') {
-      aiProviderInstance = new DeepSeekProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.deepseek, fetchFn: desktopFetch });
-    } else if (selectedGenerationProvider === 'groq') {
-      aiProviderInstance = new GroqProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.groq, fetchFn: desktopFetch });
-    }
+    const aiProviderInstance = instantiateGenerationProvider(selectedGenerationProvider, active.key, active.model || DEFAULT_MODELS[selectedGenerationProvider]);
 
     const pipeline = await createAIPipeline({
       db,
-      ai: aiProviderInstance
+      ai: aiProviderInstance,
+      dictionary
     });
 
     const outcome = await pipeline.lookupOrGenerate(surfaceForm, {
@@ -752,6 +768,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       addNewDeck,
       addNewCard,
       translateText,
+      dictionary,
       generateWithGemini,
       selectedGenerationProvider,
       setSelectedGenerationProvider,

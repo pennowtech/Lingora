@@ -4,9 +4,20 @@ import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { useDesktopServices } from '../services/desktopServices';
-import { getClustersForLemma } from '@lingora/database';
-import { formatUserFriendlyProviderError } from '@lingora/ai';
+import { getClustersForLemma, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
+import { detectSearchLanguage, formatUserFriendlyProviderError } from '@lingora/ai';
 import { speak } from '../services/desktopSpeech';
+
+/** Debounce the raw input so a real search runs per typing pause, not per keystroke — same idea
+ * as apps/mobile's Search screen's useDebounced. */
+function useDebounced<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
 
 interface SearchLookupScreenProps {
   words: WordLemma[];
@@ -15,8 +26,9 @@ interface SearchLookupScreenProps {
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
-  const { db, translateText, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
+  const { db, dictionary, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
   const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
   const [selectedWord, setSelectedWord] = useState<WordLemma>(words[0]);
 
@@ -121,57 +133,64 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     return () => { isSubscribed = false; };
   }, [db]);
 
-  // Execute Search strictly on Button Click or Enter Key (Bi-directional Translate Support)
-  const handleExecuteSearch = async () => {
-    const trimmed = query.trim();
+  // Real FTS5 search (searchLemmasWithPreview, same repository function apps/mobile's Search
+  // screen uses) instead of a hand-rolled LIKE query — gets proper ranking plus inDeck/hasDetail/
+  // source per result. Runs automatically as the user types (debouncedQuery below) and immediately
+  // on explicit Enter/button click, both funneled through this one function.
+  const executeSearch = async (rawTerm: string) => {
+    const trimmed = rawTerm.trim();
     if (!trimmed) return;
 
     setIsSearching(true);
     setHasSearched(true);
 
     try {
-      let lemmaRows: any[] = [];
-      if (db) {
-        lemmaRows = await db.query<any>(
-          `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural
-           FROM lemmas l
-           WHERE l.form LIKE ? OR l.id IN (SELECT lemma_id FROM inflections WHERE form LIKE ?)
-           LIMIT 20`,
-          [`%${trimmed}%`, `%${trimmed}%`]
-        );
-      }
+      const previews: LemmaSearchPreview[] = db ? await searchLemmasWithPreview(db, trimmed, targetLanguage, nativeLanguage) : [];
+      // Search results are prefix matches (e.g. "zauber" also matches the unrelated, longer,
+      // already-saved "zauberstab") — what decides whether this is a genuinely new word is whether
+      // *this exact word* already has a card, not whether any results exist at all. Same fix as
+      // apps/mobile's Search screen's hasExactSearchMatch.
+      const exactMatch = previews.some((p) => p.lemma.form.toLowerCase() === trimmed.toLowerCase());
 
-      // Bi-directional Google Translate API call: Target -> Native, with Native -> Target fallback
-      let googleTranslation = await translateText(trimmed, targetLanguage, nativeLanguage);
-      if (!googleTranslation || googleTranslation.toLowerCase() === trimmed.toLowerCase()) {
-        const reverseTranslation = await translateText(trimmed, nativeLanguage, targetLanguage);
-        if (reverseTranslation && reverseTranslation.toLowerCase() !== trimmed.toLowerCase()) {
-          googleTranslation = reverseTranslation;
+      // Direction-aware dictionary translation (Google/DeepL/whichever AI provider is active under
+      // Settings → Translation) — replaces the old bidirectional-translate-and-check-echo heuristic
+      // with the same detectSearchLanguage helper apps/mobile's Search screen uses.
+      let dictionaryTranslation = '';
+      if (!exactMatch) {
+        try {
+          const source = await detectSearchLanguage(dictionary, trimmed, nativeLanguage, targetLanguage);
+          const target = source === targetLanguage ? nativeLanguage : targetLanguage;
+          const result = await dictionary.translate(trimmed, source, target);
+          dictionaryTranslation = result.data;
+        } catch (err) {
+          console.warn('[Search & Lookup] Dictionary translation failed:', err);
         }
       }
 
-      if (lemmaRows && lemmaRows.length > 0) {
-        const enrichedPromises = lemmaRows.map(async (l: any, idx: number) => {
-          const inflRows = await db!.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
+      let enriched: WordLemma[] = [];
+      if (previews.length > 0 && db) {
+        const enrichedPromises = previews.map(async (preview, idx) => {
+          const l = preview.lemma;
+          const inflRows = await db.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
           const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
-          const dbClusters = await getClustersForLemma(db!, l.id);
+          const dbClusters = await getClustersForLemma(db, l.id);
 
           let clusters: any[] = [];
           if (dbClusters && dbClusters.length > 0) {
             for (const c of dbClusters) {
-              const exRows = await db!.query<{ sentence: string; translation: string }>(
+              const exRows = await db.query<{ sentence: string; translation: string }>(
                 `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
                 [c.id]
               );
-              const meanRows = await db!.query<{ translation: string; explanation: string }>(
+              const meanRows = await db.query<{ translation: string; explanation: string }>(
                 `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                 [c.id]
               );
               clusters.push({
                 id: c.id,
                 context: c.label || 'General Context',
-                translation: googleTranslation || meanRows[0]?.translation || c.description || l.form,
-                definition: meanRows[0]?.explanation || c.description || `Google Translation: ${googleTranslation}`,
+                translation: preview.translation || meanRows[0]?.translation || c.description || l.form,
+                definition: meanRows[0]?.explanation || c.description || '',
                 examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
                   { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                 ]
@@ -182,8 +201,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               {
                 id: `c-db-${l.id}`,
                 context: 'General Context',
-                translation: googleTranslation || l.form,
-                definition: `Google Translation: "${googleTranslation}"`,
+                translation: preview.translation || l.form,
+                definition: preview.translation ? `Translation: "${preview.translation}"` : '',
                 examples: [{ de: `Wir untersuchen ${l.form} im Detail.`, en: `We examine ${l.form} in detail.` }]
               }
             ];
@@ -192,28 +211,28 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           return {
             id: l.id,
             form: l.form,
-            pos: l.pos || 'noun',
-            gender: l.gender,
-            cefr: dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
+            pos: l.partOfSpeech || 'noun',
+            gender: l.gender as any,
+            inDeck: preview.inDeck,
+            cefr: preview.cefrLevel || dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
             frequency: 250 + idx * 75,
             grammar: {
-              partOfSpeech: l.pos === 'verb' ? 'Starkes Verb (Strong Verb)' : `${l.gender || 'die'} Nomen`,
-              cases: l.pos === 'verb' ? 'von + Dativ / Akkusativ' : `Plural: ${l.plural || '—'}`,
-              cefrNotes: `SQLite Lemma "${l.form}" + Google Translation ("${googleTranslation}").`
+              partOfSpeech: l.partOfSpeech === 'verb' ? 'Starkes Verb (Strong Verb)' : `${l.gender || 'die'} Nomen`,
+              cases: l.partOfSpeech === 'verb' ? 'von + Dativ / Akkusativ' : `Plural: ${l.plural || '—'}`,
+              cefrNotes: `SQLite Lemma "${l.form}".`
             },
             clusters,
             surfaceForms
-          };
+          } as WordLemma;
         });
 
-        const enriched = await Promise.all(enrichedPromises);
-        setSearchResults(enriched);
-        if (enriched[0]) {
-          setSelectedWord(enriched[0]);
-          setSelectedClusterId(enriched[0].clusters[0]?.id || '');
-        }
-      } else {
-        // No match in local SQLite database: construct live result with Google Translate translation!
+        enriched = await Promise.all(enrichedPromises);
+      }
+
+      // A genuinely new word (no exact match) always gets its own synthetic "Generate with AI"
+      // entry, even alongside prefix matches — prepended so it's the first, most relevant result
+      // for what was actually typed.
+      if (!exactMatch) {
         const newWord: WordLemma = {
           id: `search-${Date.now()}`,
           form: trimmed,
@@ -222,14 +241,16 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           frequency: 500,
           grammar: {
             partOfSpeech: 'Vocabulary Word',
-            cefrNotes: `Live Google Translate result for "${trimmed}". Click "Generate with AI" for full CEFR card package.`
+            cefrNotes: `Live dictionary result for "${trimmed}". Click "Generate with AI" for a full CEFR card package.`
           },
           clusters: [
             {
               id: `cluster-search-${Date.now()}`,
-              context: 'Google Translate',
-              translation: googleTranslation,
-              definition: `Instant Google Translation for "${trimmed}": "${googleTranslation}".`,
+              context: 'Dictionary',
+              translation: dictionaryTranslation || trimmed,
+              definition: dictionaryTranslation
+                ? `Instant dictionary translation for "${trimmed}": "${dictionaryTranslation}".`
+                : `No dictionary translation available for "${trimmed}" yet.`,
               examples: [
                 { de: `Ein Satz mit ${trimmed}.`, en: `A sentence with ${trimmed}.` }
               ]
@@ -237,17 +258,32 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           ],
           surfaceForms: [trimmed]
         };
+        enriched = [newWord, ...enriched];
+      }
 
-        setSearchResults([newWord]);
-        setSelectedWord(newWord);
-        setSelectedClusterId(newWord.clusters[0].id);
+      setSearchResults(enriched);
+      if (enriched[0]) {
+        setSelectedWord(enriched[0]);
+        setSelectedClusterId(enriched[0].clusters[0]?.id || '');
       }
     } catch (err) {
-      console.error('[Search & Lookup] Error executing search on button press:', err);
+      console.error('[Search & Lookup] Error executing search:', err);
     } finally {
       setIsSearching(false);
     }
   };
+
+  const handleExecuteSearch = () => executeSearch(query);
+
+  // Live search-as-you-type — mirrors apps/mobile's Search screen, in addition to (not instead
+  // of) the explicit Search button/Enter below, which still runs immediately without waiting for
+  // the debounce.
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      void executeSearch(debouncedQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -530,8 +566,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600 }}>
                   {word.clusters[0]?.translation}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                  {word.clusters.length} semantic cluster{word.clusters.length > 1 ? 's' : ''}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {word.clusters.length} semantic cluster{word.clusters.length > 1 ? 's' : ''}
+                  </span>
+                  {word.inDeck && (
+                    <span style={{ fontSize: '11px', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}>
+                      <Check size={12} /> In library
+                    </span>
+                  )}
                 </div>
               </div>
             );

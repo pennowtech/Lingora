@@ -8,13 +8,14 @@ import {
   type ExpoSQLiteDatabase,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
+import { defaultExportFileName, type SaveOutcome } from '@lingora/core'
 import { File, Paths } from 'expo-file-system'
 import { openDatabaseAsync } from 'expo-sqlite'
 import JSZip from 'jszip'
 import { exportBackupToFile } from './backup'
-import { defaultExportFileName, saveExportFile, type SaveOutcome } from './save-file'
+import { expoFileStorage } from './save-file'
 
-export { defaultExportFileName } from './save-file'
+export { defaultExportFileName } from '@lingora/core'
 
 const log = logger.child({ feature: 'export', component: 'export' })
 
@@ -36,7 +37,7 @@ export async function exportCsvToFile(db: DatabaseAdapter, options: ExportOption
   const csv = await buildCsvExport(db, { ...(options.deckId && { deckId: options.deckId }) })
   const itemCount = csv.trim().split('\r\n').length - 1
 
-  const outcome = await saveExportFile({
+  const outcome = await expoFileStorage.saveFile({
     fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.csv`,
     mimeType: 'text/csv',
     content: { kind: 'utf8', text: csv },
@@ -54,7 +55,7 @@ export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportO
   })
   const itemCount = (markdown.match(/^### /gm) ?? []).length
 
-  const outcome = await saveExportFile({
+  const outcome = await expoFileStorage.saveFile({
     fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.md`,
     mimeType: 'text/markdown',
     content: { kind: 'utf8', text: markdown },
@@ -74,8 +75,8 @@ export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportO
  * for the same reason: a deserialized in-memory database can't back the
  * disk-spilled temp b-trees a multi-table write like this needs), then
  * zips it with an empty `media` manifest (`{}` — Lemmory doesn't export
- * audio/images) into a `.apkg` file and saves it (`saveExportFile` — a real
- * folder picker on Android, the share sheet elsewhere).
+ * audio/images) into a `.apkg` file and saves it (`expoFileStorage.saveFile`
+ * — a real folder picker on Android, the share sheet elsewhere).
  */
 export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const cards = await getExportableCards(db, { ...(options.deckId && { deckId: options.deckId }) })
@@ -100,7 +101,7 @@ export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptio
     zip.file('media', '{}')
     const zipBytes = await zip.generateAsync({ type: 'uint8array' })
 
-    const outcome = await saveExportFile({
+    const outcome = await expoFileStorage.saveFile({
       fileName: `${options.fileName ?? defaultExportFileName(deckName)}.apkg`,
       mimeType: 'application/octet-stream',
       content: { kind: 'bytes', data: zipBytes },

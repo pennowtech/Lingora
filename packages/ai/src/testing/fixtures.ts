@@ -2,7 +2,7 @@ import type { WordGenerationPayload } from '@lingora/types'
 
 /**
  * A fully valid generation payload for 'ausgehen' — the fixture tests mutate.
- * Mirrors the Phase 2 seed data (one social cluster, davon-ausgehen phrase).
+ * Mirrors the Phase 2 seed data (one social cluster).
  */
 export function validPayload(): WordGenerationPayload {
   return {
@@ -32,24 +32,6 @@ export function validPayload(): WordGenerationPayload {
           },
         ],
         synonyms: [{ word: 'weggehen', cefrLevel: 'B1', formality: 'colloquial', nuance: null }],
-      },
-    ],
-    phrases: [
-      {
-        expression: 'davon ausgehen',
-        meaning: 'to assume',
-        exampleSentence: 'Ich gehe davon aus, dass du kommst.',
-        exampleTranslation: 'I assume you are coming.',
-        cefrLevel: 'B1',
-      },
-    ],
-    clozes: [
-      {
-        sentence: 'Wir gehen heute Abend [...].',
-        answer: 'aus',
-        translation: 'We are going out tonight.',
-        difficulty: 'easy',
-        cefrLevel: 'A2',
       },
     ],
   }

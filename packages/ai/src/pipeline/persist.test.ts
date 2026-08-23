@@ -56,9 +56,9 @@ describe('persistWordGeneration', () => {
     expect(await count('meanings')).toBe(1)
     expect(await count('examples')).toBe(1)
     expect(await count('synonyms')).toBe(1)
-    expect(await count('phrases')).toBe(1)
-    // Cloze cards are always user-authored now (see ClozeMarkupEditor) — persistWordGeneration
-    // never derives one automatically from the generated example.
+    // Phrases and clozes are on-demand only (WordGenerationPayload no longer carries either) —
+    // persistWordGeneration never derives them from the initial generation.
+    expect(await count('phrases')).toBe(0)
     expect(await count('cloze_cards')).toBe(0)
   })
 

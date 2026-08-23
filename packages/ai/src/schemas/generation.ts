@@ -1,4 +1,4 @@
-import type { GeneratedCluster, GeneratedCloze, GeneratedPhrase, LanguageCode, WordGenerationPayload } from '@lingora/types'
+import type { GeneratedCluster, LanguageCode, WordGenerationPayload } from '@lingora/types'
 import { z } from 'zod'
 import {
   cefrLevelSchema,
@@ -88,19 +88,19 @@ const wordGenerationBaseShape = {
   }),
   inflections: z.array(z.string().min(1)),
   clusters: z.array(generatedClusterSchema).min(1).max(6),
-  phrases: z.array(generatedPhraseSchema),
+  // No phrases/clozes here — both are on-demand only (generatePhrases/generateCloze below,
+  // called from app/word/[form].tsx's "Load more phrases"/manual cloze editor), never part of the
+  // initial word package. persistWordGeneration/regenerateWordPackage never wrote them from this
+  // payload even back when it did carry them — asking every provider to generate throwaway
+  // content on every single word lookup was pure waste (extra output tokens, extra required
+  // fields, extra validation surface), confirmed while chasing a DeepSeek generation failure.
 }
 
-export const wordGenerationSchema = z.object({
-  ...wordGenerationBaseShape,
-  clozes: z.array(generatedClozeSchema).min(1),
-})
-
-/** Same shape without refinements — the source for the provider's JSON schema. */
-export const wordGenerationJsonTargetSchema = z.object({
-  ...wordGenerationBaseShape,
-  clozes: z.array(generatedClozeBaseSchema).min(1),
-})
+// No refinements left on this shape (the only one — the cloze '[...]' gap check — went with
+// clozes), so there's nothing left to differ between the validation schema and the provider's
+// JSON-schema target; kept as two names for that distinction's sake if a future field reintroduces one.
+export const wordGenerationSchema = z.object({ ...wordGenerationBaseShape })
+export const wordGenerationJsonTargetSchema = wordGenerationSchema
 
 /**
  * wordGenerationSchema plus a check no prompt wording alone reliably prevents: confirmed
@@ -136,8 +136,6 @@ void _assertContract
 export interface PartialWordGeneration {
   lemma: WordGenerationPayload['lemma'] | null
   clusters: GeneratedCluster[]
-  phrases: GeneratedPhrase[]
-  clozes: GeneratedCloze[]
   complete: false
 }
 
@@ -167,8 +165,6 @@ export function salvagePartial(data: unknown): PartialWordGeneration {
   return {
     lemma: lemmaResult.success ? lemmaResult.data : null,
     clusters,
-    phrases: keepValid(generatedPhraseSchema, root['phrases']),
-    clozes: keepValid(generatedClozeSchema, root['clozes']),
     complete: false,
   }
 }

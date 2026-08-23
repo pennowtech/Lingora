@@ -27,6 +27,7 @@ import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai'
+import { AI_GENERATED_SOURCES } from '@lingora/core'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useCyclingIndex } from '../../lib/useCyclingIndex'
@@ -94,7 +95,7 @@ const HELP_SECTIONS: HelpSection[] = [
  * app restart, which is the expected "last search" lifetime. */
 let lastSearchQuery = ''
 
-/** A dictionary provider's `.name` ('google-translate', 'deepl', or one of the four AI providers
+/** A dictionary provider's `.name` ('google-translate', 'deepl', or one of the AI providers
  * when it fills this slot too) isn't a label fit for an error message — reused for the quick-
  * translate error card so a technical exception doesn't leak provider internals to the user. */
 function dictionaryProviderLabel(name: string): string {
@@ -383,7 +384,7 @@ export default function SearchScreen(): JSX.Element {
       const existingLemma = await findLemmaBySurfaceForm(db, requestTerm)
       if (existingLemma) {
         const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingLemma.id, nativeLanguage)
-        const isFullAiCard = !!matchingCard?.source && ['openai', 'mistral', 'gemini', 'anthropic', 'local'].includes(matchingCard.source)
+        const isFullAiCard = !!matchingCard?.source && AI_GENERATED_SOURCES.includes(matchingCard.source)
         log.info('search.ai_generation_instant_existing', {
           message: `Word "${requestTerm}" resolved to existing lemma "${existingLemma.form}" in ${Date.now() - flowStart}ms (isFullAiCard: ${isFullAiCard})`,
         })
@@ -417,7 +418,7 @@ export default function SearchScreen(): JSX.Element {
         const existingTargetLemma = await findLemmaBySurfaceForm(db, targetWord)
         if (existingTargetLemma) {
           const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingTargetLemma.id, nativeLanguage)
-          const isFullAiCard = !!matchingCard?.source && ['openai', 'mistral', 'gemini', 'anthropic', 'local'].includes(matchingCard.source)
+          const isFullAiCard = !!matchingCard?.source && AI_GENERATED_SOURCES.includes(matchingCard.source)
           log.info('search.ai_generation_instant_existing', {
             message: `Word "${requestTerm}" resolved to existing lemma "${existingTargetLemma.form}" (via reverse-direction translation) in ${Date.now() - flowStart}ms (isFullAiCard: ${isFullAiCard})`,
           })

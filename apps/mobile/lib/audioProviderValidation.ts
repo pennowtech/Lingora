@@ -14,6 +14,7 @@ const PROVIDER_LABELS: Record<CloudAudioProviderName, string> = {
   openai: 'OpenAI',
   elevenlabs: 'ElevenLabs',
   deepgram: 'Deepgram',
+  google: 'Google Cloud TTS',
 }
 
 /**
@@ -29,6 +30,7 @@ export async function validateAudioProviderKey(
   apiKey: string,
   voice: string,
   speed?: number,
+  model?: string,
 ): Promise<AudioValidationResult> {
   const label = PROVIDER_LABELS[provider]
   const startedAt = Date.now()
@@ -37,7 +39,13 @@ export async function validateAudioProviderKey(
     metadata: { provider },
   })
   try {
-    const bytes = await synthesizeSpeech(provider, { text: 'Hallo', apiKey, voice, ...(speed !== undefined && { speed }) })
+    const bytes = await synthesizeSpeech(provider, {
+      text: 'Hallo',
+      apiKey,
+      voice,
+      ...(speed !== undefined && { speed }),
+      ...(model !== undefined && { model }),
+    })
     if (bytes.byteLength === 0) throw new Error('Provider returned an empty audio response.')
     log.info('settings.audio_provider_validation_completed', {
       message: 'Audio provider key validated successfully',

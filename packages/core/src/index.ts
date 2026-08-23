@@ -16,9 +16,12 @@ import type { LanguageCode, PartOfSpeech, QuestionType, ReviewRating } from '@li
  */
 
 export * from './audio'
+export * from './audioPlayback'
 export * from './cardSource'
 export * from './constants'
+export * from './deviceTts'
 export * from './deckTree'
+export * from './fileStorage'
 export * from './format'
 export * from './onboarding'
 export * from './providerMeta'

@@ -61,6 +61,7 @@ import {
   DEFAULT_FRONT_TEMPLATE,
   DEFAULT_STYLES,
   renderCardHtml,
+  AI_GENERATED_SOURCES,
   type CardTemplateContext,
 } from '@lingora/core'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
@@ -72,9 +73,6 @@ import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'srs', screen: 'ReviewSessionScreen' })
-
-/** Cards created by one of the AI providers — see word/[form].tsx's identical constant. */
-const AI_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
 
 const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
   { rating: 'again', label: 'Again' },
@@ -882,7 +880,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate an example'), error),
   })
 
-  const isAiCard = !!view?.card.source && AI_SOURCES.includes(view.card.source)
+  const isAiCard = !!view?.card.source && AI_GENERATED_SOURCES.includes(view.card.source)
 
   // AI cards: generated on demand (only when "More info" is tapped and nothing's stored yet — see
   // handleExplain) and persisted via updateMeaningText, so it's free to re-show next time — never

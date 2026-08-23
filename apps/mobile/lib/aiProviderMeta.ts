@@ -11,7 +11,9 @@ import {
 } from '@lingora/core'
 import {
   validateClaudeKey,
+  validateDeepSeekKey,
   validateGeminiKey,
+  validateGroqKey,
   validateMistralKey,
   validateOpenAIKey,
   type ValidationResult,
@@ -43,6 +45,8 @@ const ICON_COLOR_BY_PROVIDER: Record<GenerationProviderName, { icon: IconName; c
   mistral: { icon: 'Zap', color: '#F97316' },
   gemini: { icon: 'Globe', color: '#4285F4' },
   anthropic: { icon: 'MessageCircle', color: '#D97757' },
+  deepseek: { icon: 'DeepSeek', color: '#4D6BFE' },
+  groq: { icon: 'Groq', color: '#F55036' },
 }
 
 export const PROVIDER_META: Record<GenerationProviderName, ProviderMeta> = {
@@ -50,6 +54,8 @@ export const PROVIDER_META: Record<GenerationProviderName, ProviderMeta> = {
   mistral: { ...PROVIDER_META_DATA.mistral, ...ICON_COLOR_BY_PROVIDER.mistral },
   gemini: { ...PROVIDER_META_DATA.gemini, ...ICON_COLOR_BY_PROVIDER.gemini },
   anthropic: { ...PROVIDER_META_DATA.anthropic, ...ICON_COLOR_BY_PROVIDER.anthropic },
+  deepseek: { ...PROVIDER_META_DATA.deepseek, ...ICON_COLOR_BY_PROVIDER.deepseek },
+  groq: { ...PROVIDER_META_DATA.groq, ...ICON_COLOR_BY_PROVIDER.groq },
 }
 
 export const VALIDATORS: Record<GenerationProviderName, (key: string, model: string) => Promise<ValidationResult>> = {
@@ -57,4 +63,6 @@ export const VALIDATORS: Record<GenerationProviderName, (key: string, model: str
   mistral: validateMistralKey,
   gemini: validateGeminiKey,
   anthropic: validateClaudeKey,
+  deepseek: validateDeepSeekKey,
+  groq: validateGroqKey,
 }

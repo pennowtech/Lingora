@@ -18,6 +18,8 @@
     "@lingora/srs": "workspace:*",
     "@lingora/types": "workspace:*",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2",
+    "@tauri-apps/plugin-fs": "^2",
     "@tauri-apps/plugin-http": "^2",
     "fts5-sql-bundle": "^1.0.2",
     "liquidjs": "^10.27.2",

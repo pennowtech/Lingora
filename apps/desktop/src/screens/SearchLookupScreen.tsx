@@ -6,6 +6,7 @@ import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { useDesktopServices } from '../services/desktopServices';
 import { getClustersForLemma } from '@lingora/database';
 import { formatUserFriendlyProviderError } from '@lingora/ai';
+import { speak } from '../services/desktopSpeech';
 
 interface SearchLookupScreenProps {
   words: WordLemma[];
@@ -546,7 +547,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>
                   {selectedWord.gender ? `${selectedWord.gender} ` : ''}{selectedWord.form}
                 </h2>
-                <button className="btn btn-ghost" style={{ padding: '6px', borderRadius: '50%' }}>
+                <button
+                  onClick={() => speak(selectedWord.form, targetLanguage)}
+                  className="btn btn-ghost"
+                  style={{ padding: '6px', borderRadius: '50%' }}
+                  aria-label={`Play pronunciation of ${selectedWord.form}`}
+                >
                   <Volume2 size={20} color="var(--accent-primary)" />
                 </button>
                 <span className="badge badge-sky">{selectedWord.pos}</span>

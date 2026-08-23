@@ -25,10 +25,15 @@ const SOURCE_LOGOS: Partial<Record<CardSource, ImageSourcePropType>> = {
   deepl: deeplLogo,
 }
 
-/** Icon fallback for every CardSource with no brand logo to match. */
+/** Icon fallback for every CardSource with no `Image`-based brand logo (a raster PNG) to match.
+ * DeepSeek/Groq route here rather than SOURCE_LOGOS because their real brand marks are simple
+ * single-path SVGs, drawn as regular Icon.tsx entries (components/BrandIcons.tsx) instead of a
+ * PNG asset. */
 const SOURCE_FALLBACK_ICONS: Partial<Record<CardSource, IconName>> = {
   word_guide: 'BookOpen',
   manual: 'SquarePen',
+  deepseek: 'DeepSeek',
+  groq: 'Groq',
 }
 
 /** Small icon indicating how a card/result was created — Search results and word detail only,
@@ -49,11 +54,15 @@ export function CardSourceIcon(props: { source: CardSource | null | undefined; s
       />
     )
   }
+  const fallbackIcon = SOURCE_FALLBACK_ICONS[props.source] ?? 'Cpu'
+  // DeepSeek/Groq draw their own real brand color (see BrandIcons.tsx's defaults) — only the
+  // generic Lucide fallbacks (BookOpen, SquarePen, Cpu) get tinted to the app's primary color.
+  const isBrandIcon = fallbackIcon === 'DeepSeek' || fallbackIcon === 'Groq'
   return (
     <Icon
-      name={SOURCE_FALLBACK_ICONS[props.source] ?? 'Cpu'}
+      name={fallbackIcon}
       size={size}
-      color={colors.primary}
+      {...(!isBrandIcon && { color: colors.primary })}
       accessibilityLabel={SOURCE_LABELS[props.source]}
     />
   )

@@ -1,44 +1,26 @@
 import { logger } from '@lingora/observability'
+import { defaultExportFileName, type FileStorage, type PickedFile, type SaveContent, type SaveFileOptions, type SaveOutcome } from '@lingora/core'
 import { fromByteArray } from 'base64-js'
 import { File, Paths } from 'expo-file-system'
 import { EncodingType, StorageAccessFramework } from 'expo-file-system/legacy'
 import * as Sharing from 'expo-sharing'
 import { Platform } from 'react-native'
 
+export { defaultExportFileName, type SaveContent, type SaveFileOptions, type SaveOutcome }
+
 const log = logger.child({ feature: 'export', component: 'save-file' })
 
-export type SaveContent = { kind: 'utf8'; text: string } | { kind: 'bytes'; data: Uint8Array }
-
-export interface SaveFileOptions {
-  fileName: string
-  mimeType: string
-  content: SaveContent
-  /** Only used for the share-sheet fallback path (its dialog title). */
-  dialogTitle: string
-}
-
-export type SaveOutcome = 'device' | 'share'
-
-function slug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'lemmory'
-}
-
-/** `YYYY-MM-DD_HHmm` in local time — filesystem-safe (no colons) and sorts chronologically. */
-function timestampForFileName(date: Date = new Date()): string {
-  const pad = (n: number): string => String(n).padStart(2, '0')
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-    `_${pad(date.getHours())}${pad(date.getMinutes())}`
-  )
-}
-
-/** `deckname_YYYY-MM-DD_HHmm` — the default name offered in the export-name prompt (see
- * ExportNameModal), editable before the export actually runs. */
-export function defaultExportFileName(deckName?: string): string {
-  return `${slug(deckName ?? 'lemmory')}_${timestampForFileName()}`
+/** Opens Expo's native file picker. Consolidated here (previously duplicated ad hoc in
+ * backup.ts/apkg.ts, each with its own inline `File.pickFileAsync` call) as the mobile
+ * implementation of @lingora/core's FileStorage#pickFile. */
+async function pickFile(options: { mimeTypes: string[] }): Promise<PickedFile | null> {
+  const picked = await File.pickFileAsync({ mimeTypes: options.mimeTypes })
+  if (picked.canceled) return null
+  return {
+    name: picked.result.name,
+    text: () => picked.result.text(),
+    bytes: () => picked.result.bytes(),
+  }
 }
 
 /** SAF's writeAsStringAsync only takes a string — bytes go through base64 (no Hermes atob/btoa dependency). */
@@ -63,7 +45,7 @@ async function saveViaShareSheet(options: SaveFileOptions): Promise<SaveOutcome>
 
   const canShare = await Sharing.isAvailableAsync()
   if (canShare) {
-    await Sharing.shareAsync(file.uri, { mimeType: options.mimeType, dialogTitle: options.dialogTitle })
+    await Sharing.shareAsync(file.uri, { mimeType: options.mimeType, ...(options.dialogTitle && { dialogTitle: options.dialogTitle }) })
   }
   return 'share'
 }
@@ -77,7 +59,7 @@ async function saveViaShareSheet(options: SaveFileOptions): Promise<SaveOutcome>
  * reusing a previously granted one — the file name is already chosen fresh per export (see
  * ExportNameModal/defaultExportFileName), and the location should be too.
  */
-export async function saveExportFile(options: SaveFileOptions): Promise<SaveOutcome> {
+async function saveFile(options: SaveFileOptions): Promise<SaveOutcome> {
   if (Platform.OS !== 'android') {
     return saveViaShareSheet(options)
   }
@@ -93,3 +75,8 @@ export async function saveExportFile(options: SaveFileOptions): Promise<SaveOutc
   log.info('export.saved_to_device', { message: 'Export saved directly to a user-chosen folder' })
   return 'device'
 }
+
+/** The Expo implementation of @lingora/core's FileStorage interface — see that package's doc
+ * comment on why picking/saving a file has no shared cross-platform implementation, only a shared
+ * contract (apps/desktop/src/services/desktopFileStorage.ts is the Tauri counterpart). */
+export const expoFileStorage: FileStorage = { pickFile, saveFile }

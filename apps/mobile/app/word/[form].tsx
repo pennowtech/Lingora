@@ -90,15 +90,12 @@ import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { formatUserFriendlyProviderError } from '@lingora/ai'
+import { AI_GENERATED_SOURCES } from '@lingora/core'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
-
-/** Cards created by one of the AI providers — as opposed to a dictionary quick-translate, the
- * installed word-guides dictionary, or manual/import entry (see packages/types CardSource). */
-const AI_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
 
 const REPORT_REASONS: Array<{ value: EvaluationReportReason; label: string }> = [
   { value: 'inaccurate_translation', label: 'Inaccurate translation' },
@@ -443,7 +440,7 @@ export default function WordDetailScreen(): JSX.Element {
   const active = word?.clusters.find((c) => c.cluster.id === activeClusterId)
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
-  const isAiCard = !!word?.card?.source && AI_SOURCES.includes(word.card.source)
+  const isAiCard = !!word?.card?.source && AI_GENERATED_SOURCES.includes(word.card.source)
 
   useEffect(() => {
     if (autoEnrich === 'true' && word && !isAiCard && !autoEnrichMutation.isPending && !autoEnrichMutation.isSuccess) {
@@ -802,6 +799,13 @@ export default function WordDetailScreen(): JSX.Element {
         nativeLanguage,
       })
       if (result.kind === 'partial') {
+        // Schema-validation issue paths/messages (e.g. "meanings.0.translation: Required") — not
+        // word text or AI response content, safe to log. The only way to see why a provider's
+        // JSON didn't satisfy the expected shape, since the UI only ever shows a generic message.
+        log.warn('vocabulary.regenerate_partial', {
+          message: `AI generation returned a partial result: ${result.issues.join('; ')}`,
+          metadata: { provider: ai.name },
+        })
         throw new Error(t('Generation came back incomplete - nothing was changed. Try again.'))
       }
       const promptVersion = await getActivePromptVersion(db, 'word_package')

@@ -1,6 +1,7 @@
 import { useState, type JSX } from 'react'
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Icon, type IconName } from './Icon'
+import { InlineMarkdown } from './InlineMarkdown'
 import { Card, IconButton } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -102,10 +103,22 @@ export function HelpAccordionSheet(props: {
                     <View style={styles.accordionBody}>
                       {section.paragraphs.map((paragraph, index) => {
                         const p = typeof paragraph === 'string' ? { text: paragraph } : paragraph
+                        if (p.code) {
+                          return (
+                            <Text key={index} style={styles.code}>
+                              {t(p.text)}
+                            </Text>
+                          )
+                        }
                         return (
-                          <Text key={index} style={[p.code ? styles.code : styles.body, p.bold && styles.bold]}>
-                            {t(p.text)}
-                          </Text>
+                          <InlineMarkdown
+                            key={index}
+                            text={t(p.text)}
+                            style={[styles.body, p.bold && styles.bold]}
+                            boldStyle={styles.inlineBold}
+                            italicStyle={styles.inlineItalic}
+                            codeStyle={styles.inlineCode}
+                          />
                         )
                       })}
                     </View>
@@ -149,5 +162,15 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primarySoft,
       borderRadius: radius.sm,
       padding: spacing.sm,
+    },
+    // Inline markdown spans within an ordinary paragraph (see InlineMarkdown) — **bold**, *italic*,
+    // `code` — separate from the code/bold above, which style an entire paragraph at once.
+    inlineBold: { fontWeight: '800', color: colors.text },
+    inlineItalic: { fontStyle: 'italic' },
+    inlineCode: {
+      fontFamily: 'monospace',
+      backgroundColor: colors.primarySoft,
+      color: colors.primary,
+      fontSize: type.micro,
     },
   })

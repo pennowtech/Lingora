@@ -1010,6 +1010,38 @@ const ENGLISH_PHRASES = [
   'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
   '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.',
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel, expanded
+  // from a two-line summary into a full conversational guide) and its matching Audio Settings labels
+  'Active Generation Provider',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.',
+  'Key configured',
+  'No key set',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.',
+  'Always available',
+  'Validated',
+  '"Active" vs "Enabled" - what\'s the difference?',
+  'Adding and validating a key',
+  'Which provider should I pick?',
+  'What the usage numbers mean',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.',
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -2204,6 +2236,58 @@ const de: Partial<Record<Phrase, string>> = {
     '„Zu Lückentext hinzufügen" (oder „Lückentext bearbeiten", sobald einer existiert) unten öffnet den Editor, vorausgefüllt mit dem aktuell ausgewählten Beispiel. Wähle ein Wort oder eine Phrase im Satz aus und tippe auf „Als Lücke markieren", um es auszublenden - standardmäßig wird das Stichwort selbst ausgeblendet - passe dann die Übersetzung an und speichere.',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     'Beim Speichern wird immer der bestehende Lückentext-Satz dieser Karte ersetzt statt ein zweiter hinzugefügt - es gibt immer nur einen pro Karte.',
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
+  // matching Audio Settings labels
+  'Active Generation Provider': 'Aktiver Generierungsanbieter',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
+    'Wähle, welche KI zur Kontext-Unterscheidung, Wortpaket-Erstellung und GER-Beispielsatzerstellung genutzt wird.',
+  'Key configured': 'Schlüssel konfiguriert',
+  'No key set': 'Kein Schlüssel hinterlegt',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
+    'Wähle, welches System vorliest - Gerätestimmen sind kostenlos und offline nutzbar; Cloud-Anbieter nutzen deinen eigenen API-Schlüssel.',
+  'Always available': 'Immer verfügbar',
+  'Validated': 'Validiert',
+  '"Active" vs "Enabled" - what\'s the difference?': '„Aktiv" vs. „Aktiviert" - was ist der Unterschied?',
+  'Adding and validating a key': 'Einen Schlüssel hinzufügen und validieren',
+  'Which provider should I pick?': 'Welchen Anbieter sollte ich wählen?',
+  'What the usage numbers mean': 'Was die Nutzungszahlen bedeuten',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.':
+    'Hier wird aus einem neuen Wort eine vollständige Karte - Bedeutungen, Beispielsätze, Bedeutungscluster und mehr. Sobald du ein Wort nachschlägst, das Lingora noch nicht kennt, übergibt die App es an den Anbieter, den du unten als **Aktiv** markiert hast, und lässt ihn die Karte erstellen.',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.':
+    'Es funktioniert nach dem Prinzip **„eigener Schlüssel"**: Lingora liefert kein gemeinsames KI-Abo mit, daher wird nichts erzeugt, bevor du deinen eigenen API-Schlüssel bei einem der Anbieter unten eingibst. Das bedeutet auch: Solange du kein Wort nachschlägst, wird nichts gesendet - ein gespeicherter Schlüssel allein löst keine Anfrage aus.',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
+    'Du musst nicht jeden Anbieter ausfüllen. Ein einziger funktionierender, validierter Schlüssel reicht - wähle den Dienst, bei dem du bereits ein Konto hast, oder einen, den du einfach ausprobieren möchtest, und leg dort los.',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
+    '**Aktiv** ist der eine Anbieter, der gerade wirklich arbeitet - die KI, die antwortet, wenn du ein Wort nachschlägst. Nur ein Anbieter kann gleichzeitig aktiv sein, und ein Tipp auf die Karte eines validierten Anbieters schaltet sofort dorthin um.',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
+    '**Aktiviert** ist eine sanftere Markierung, versteckt im eigenen Einstellungsbereich eines Anbieters. Sie legt fest, ob dieser Anbieter überhaupt ausgewählt werden darf (auch als Ausweichoption sowie an anderen Stellen der App wie Einstellungen > Übersetzung) - schalte sie aus, wenn du einen Schlüssel für später aufheben, ihn aber gerade nicht nutzbar machen willst.',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
+    'Wird ein Schlüssel gelöscht oder schlägt die Validierung fehl, während sein Anbieter aktiv ist, wechselt Lingora unbemerkt zur nächstbesten Option - dem Anbieter, der sowohl aktiviert ist als auch einen validierten Schlüssel hat - damit du nie ohne Generierung dastehst, nur weil ein Schlüssel ungültig geworden ist.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Tippe auf die Karte eines Anbieters, um dessen Einstellungen zu öffnen, füge deinen API-Schlüssel ein und wähle bei Bedarf ein anderes Modell als das Standardmodell. Tippe dann auf **Validieren** - dabei wird eine kleine echte Anfrage gesendet, um zu bestätigen, dass der Schlüssel funktioniert, bevor du dich bei der Worterstellung darauf verlässt.',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Ein Anbieter kann erst aktiv werden, wenn sein Schlüssel erfolgreich validiert wurde. Das ist Absicht - so verhindert es, dass ein vertippter oder abgelaufener Schlüssel unbemerkt zum einzigen Hindernis zwischen dir und einer neuen Karte wird.',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
+    '**Löschen** entfernt den Schlüssel vollständig von diesem Gerät (und setzt Validierung und Nutzungsverlauf zurück). Alles wird ausschließlich im sicheren Speicher dieses Geräts abgelegt - nicht auf Lingoras eigenen Servern und nirgendwo synchronisiert, außer du sicherst und stellst es selbst wieder her.',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
+    '**OpenAI** ist die Standardwahl und eine sichere Allround-Option - zuverlässige strukturierte Ausgaben, weit verbreitet, ein Schlüssel ist leicht auf `platform.openai.com` zu bekommen.',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.':
+    '**Groq** betreibt offene Modelle (wie die gpt-oss-Familie) auf sehr schneller eigener Hardware - wenn dir Geschwindigkeit wichtiger ist als eine bestimmte Modellfamilie, antwortet dieser Anbieter meist am schnellsten.',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.':
+    '**Mistral** ist eine solide europäische Alternative mit eigenen Modellen - gut geeignet, wenn du nicht von einem US-Anbieter abhängig sein möchtest oder einfach eine zweite Option haben willst.',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.':
+    '**Gemini** (Google) bietet oft großzügige kostenlose Nutzungsgrenzen, wenn du es erst einmal ausprobieren möchtest, ohne dich auf einen kostenpflichtigen Schlüssel festzulegen.',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.':
+    '**Claude** (Anthropic) ist für sorgfältige, gut durchdachte Ausgaben bekannt - eine gute Wahl, wenn dir Beispielsätze oder Bedeutungen eines anderen Anbieters etwas seltsam vorkommen und du vergleichen möchtest.',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.':
+    '**DeepSeek** ist leistungsfähig und günstig, arbeitet bei einer vollständigen Wortgenerierung aber merklich langsamer als die anderen - gut zu wissen, damit eine längere Wartezeit nicht wie ein Fehler wirkt.',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.':
+    'Für welchen Anbieter du dich auch entscheidest - die Modellauswahl unter jedem Anbieter lässt dich Geschwindigkeit, Kosten und Qualität abwägen, ohne diesen Bildschirm zu verlassen.',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.':
+    'Im Bereich jedes Anbieters zeigt ein Feld die **geräteseitig erfasste Nutzung** - Anfrage- und Token-Anzahl, die dieses Gerät tatsächlich über diesen Schlüssel gesendet hat. Das ist eine Orientierungshilfe, keine Rechnung: Es zählt nur, was hier auf diesem Gerät passiert ist, und stimmt daher nicht mit einem Schlüssel überein, der auf mehreren Geräten oder in mehreren Apps genutzt wird.',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
+    'Für die echten, verbindlichen Zahlen - und für alles rund um Abrechnung oder Ratenlimits - nutze den Link „Nutzung öffnen", der dich direkt zum eigenen Dashboard des jeweiligen Anbieters bringt.',
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -3380,6 +3464,58 @@ const fr: Partial<Record<Phrase, string>> = {
     "« Ajouter au texte lacunaire » (ou « Modifier le texte lacunaire » une fois qu'il en existe un) en bas ouvre l'éditeur pré-rempli avec l'exemple actuellement sélectionné. Sélectionne un mot ou une expression dans la phrase et appuie sur « Marquer comme lacune » pour le masquer - par défaut, c'est le mot vedette lui-même qui est masqué - puis ajuste la traduction et enregistre.",
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     "L'enregistrement remplace toujours la phrase lacunaire existante de cette carte plutôt que d'en ajouter une seconde - il n'y en a jamais qu'une seule par carte.",
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
+  // matching Audio Settings labels
+  'Active Generation Provider': 'Fournisseur de génération actif',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
+    'Choisis quel moteur IA est utilisé pour la désambiguïsation du contexte, la génération du pack de mots et la création des phrases d\'exemple selon le niveau CECR.',
+  'Key configured': 'Clé configurée',
+  'No key set': 'Aucune clé définie',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
+    'Choisis quel moteur lit à voix haute - les voix de l\'appareil sont gratuites et fonctionnent hors ligne ; les fournisseurs cloud utilisent ta propre clé API.',
+  'Always available': 'Toujours disponible',
+  'Validated': 'Validée',
+  '"Active" vs "Enabled" - what\'s the difference?': '« Actif » et « Activé » : quelle est la différence ?',
+  'Adding and validating a key': 'Ajouter et valider une clé',
+  'Which provider should I pick?': 'Quel fournisseur choisir ?',
+  'What the usage numbers mean': 'Ce que signifient les chiffres d\'utilisation',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.':
+    'C\'est ici qu\'un nouveau mot devient une carte complète - significations, phrases d\'exemple, groupes de sens, et plus encore. Dès que tu recherches un mot que Lingora ne connaît pas encore, l\'app le transmet au fournisseur que tu as marqué comme **Actif** ci-dessous et lui demande de construire la carte.',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.':
+    'C\'est le principe **« apporte ta propre clé »** : Lingora ne fournit pas d\'abonnement IA partagé, donc rien n\'est généré tant que tu n\'as pas collé ta propre clé API pour l\'un des fournisseurs ci-dessous. Cela signifie aussi que rien n\'est jamais envoyé nulle part tant que tu ne recherches pas réellement un mot - avoir simplement une clé enregistrée ne déclenche aucune requête.',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
+    'Tu n\'as pas besoin de remplir tous les fournisseurs. Une seule clé fonctionnelle et validée suffit - choisis le service pour lequel tu as déjà un compte, ou celui que tu as envie d\'essayer, et commence par là.',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
+    '**Actif** désigne le seul fournisseur qui travaille réellement en ce moment - le moteur qui répond quand tu recherches un mot. Un seul fournisseur peut être Actif à la fois, et toucher la carte d\'un fournisseur validé y bascule immédiatement.',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
+    '**Activé** est un indicateur plus discret, dans les réglages propres à chaque fournisseur. Il détermine si ce fournisseur peut être choisi du tout (y compris comme solution de repli, et comme option ailleurs dans l\'app, par exemple dans Réglages > Traduction) - désactive-le si tu veux garder une clé de côté sans qu\'elle soit utilisable pour le moment.',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
+    'Si une clé est effacée ou échoue à la validation alors que son fournisseur est Actif, Lingora bascule discrètement vers la meilleure option suivante - un fournisseur à la fois activé et doté d\'une clé validée - pour que tu ne te retrouves jamais sans génération simplement parce qu\'une clé est devenue invalide.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Touche la carte d\'un fournisseur pour ouvrir ses réglages, colle ta clé API, et choisis un modèle différent du modèle par défaut si tu le souhaites. Touche ensuite **Valider** - cela envoie une petite requête réelle pour confirmer que la clé fonctionne réellement avant que tu ne t\'y fies pour générer un mot.',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Un fournisseur ne devient éligible pour devenir Actif qu\'une fois sa clé validée avec succès. C\'est voulu - cela évite qu\'une clé mal saisie ou expirée devienne, sans que tu le saches, le seul obstacle entre toi et une nouvelle carte.',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
+    '**Effacer** supprime la clé de cet appareil entièrement (et réinitialise son historique de validation et d\'utilisation). Rien n\'est stocké ailleurs que dans le stockage sécurisé de cet appareil - ni sur les serveurs de Lingora, ni synchronisé où que ce soit, sauf si tu sauvegardes et restaures toi-même.',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
+    '**OpenAI** est le choix par défaut, sûr et polyvalent - sortie structurée fiable, très utilisé, une clé facile à obtenir sur `platform.openai.com`.',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.':
+    '**Groq** fait tourner des modèles ouverts (comme la famille gpt-oss) sur un matériel maison très rapide - si la vitesse compte plus pour toi qu\'une famille de modèle précise, c\'est généralement le plus rapide à répondre.',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.':
+    '**Mistral** est une bonne alternative européenne avec ses propres modèles - utile si tu préfères ne pas dépendre d\'un fournisseur américain, ou si tu veux simplement une seconde option.',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.':
+    '**Gemini** (Google) offre souvent des limites d\'utilisation gratuites généreuses si tu veux juste essayer sans t\'engager tout de suite avec une clé payante.',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.':
+    '**Claude** (Anthropic) est réputé pour des réponses soignées et bien construites - un bon choix si les phrases d\'exemple ou les significations d\'un autre fournisseur te semblent un peu bancales et que tu veux comparer.',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.':
+    '**DeepSeek** est performant et peu coûteux, mais tend à être nettement plus lent que les autres pour générer un mot complet - utile à savoir pour qu\'une attente plus longue ne donne pas l\'impression d\'un bug.',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.':
+    'Quel que soit ton choix, le sélecteur de modèle sous chaque fournisseur te permet d\'ajuster vitesse, coût et qualité sans quitter cet écran.',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.':
+    'Le panneau de chaque fournisseur affiche un encadré d\'**utilisation observée sur l\'appareil** - le nombre de requêtes et de jetons réellement envoyés par cet appareil via cette clé. C\'est un repère pratique, pas une facture : cela ne compte que ce qui s\'est passé ici, donc cela ne correspondra pas à une clé partagée entre plusieurs appareils ou applications.',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
+    'Pour les chiffres réels et faisant foi - et pour tout ce qui concerne la facturation ou les limites de débit - utilise le lien « Ouvrir l\'utilisation », qui t\'amène directement au tableau de bord de ce fournisseur.',
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -4555,6 +4691,58 @@ const es: Partial<Record<Phrase, string>> = {
     '"Añadir a hueco" (o "Editar hueco" una vez que existe uno) en la parte inferior abre el editor precargado con el ejemplo actualmente seleccionado. Selecciona una palabra o frase en la oración y toca "Marcar como hueco" para ocultarla - por defecto oculta la propia palabra principal - luego ajusta la traducción y guarda.',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     'Guardar siempre reemplaza la oración de huecos existente de esta tarjeta en lugar de añadir una segunda - solo puede haber una por tarjeta.',
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
+  // matching Audio Settings labels
+  'Active Generation Provider': 'Proveedor de generación activo',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
+    'Elige qué motor de IA se usa para desambiguar el contexto, generar el paquete de la palabra y crear frases de ejemplo según el nivel MCER.',
+  'Key configured': 'Clave configurada',
+  'No key set': 'Sin clave configurada',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
+    'Elige qué motor habla en voz alta - las voces del dispositivo son gratuitas y funcionan sin conexión; los proveedores en la nube usan tu propia clave API.',
+  'Always available': 'Siempre disponible',
+  'Validated': 'Validada',
+  '"Active" vs "Enabled" - what\'s the difference?': '«Activo» frente a «Habilitado» - ¿cuál es la diferencia?',
+  'Adding and validating a key': 'Añadir y validar una clave',
+  'Which provider should I pick?': '¿Qué proveedor debería elegir?',
+  'What the usage numbers mean': 'Qué significan las cifras de uso',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.':
+    'Aquí es donde una palabra nueva se convierte en una tarjeta completa - significados, frases de ejemplo, grupos de sentido y más. Cada vez que buscas una palabra que Lingora aún no conoce, la entrega al proveedor que hayas marcado como **Activo** abajo y le pide que construya la tarjeta.',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.':
+    'Funciona con el principio de **"trae tu propia clave"**: Lingora no incluye una suscripción de IA compartida, así que no se genera nada hasta que pegues tu propia clave API en uno de los proveedores de abajo. Eso también significa que nunca se envía nada a ningún sitio hasta que realmente busques una palabra - guardar una clave por sí sola no dispara ninguna solicitud.',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
+    'No necesitas rellenar todos los proveedores. Con una sola clave que funcione y esté validada es suficiente - elige el servicio con el que ya tengas cuenta, o el que te dé curiosidad probar, y empieza por ahí.',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
+    '**Activo** es el único proveedor que realmente está trabajando ahora mismo - el motor que responde cuando buscas una palabra. Solo un proveedor puede estar Activo a la vez, y tocar la tarjeta de un proveedor validado cambia a él al instante.',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
+    '**Habilitado** es un indicador más suave, dentro del propio panel de ajustes de cada proveedor. Controla si ese proveedor puede elegirse en absoluto (incluso como alternativa de respaldo, y como opción en otras partes de la app, como Ajustes > Traducción) - desactívalo si quieres guardar una clave para más adelante sin que se pueda usar ahora.',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
+    'Si una clave se borra o falla la validación mientras su proveedor está Activo, Lingora cambia discretamente a la siguiente mejor opción - un proveedor que esté habilitado y tenga una clave validada - para que nunca te quedes sin generación solo porque una clave dejó de ser válida.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Toca la tarjeta de un proveedor para abrir sus ajustes, pega tu clave API y elige un modelo distinto del predeterminado si quieres. Luego pulsa **Validar** - esto envía una pequeña solicitud real para confirmar que la clave funciona antes de que confíes en ella para generar palabras.',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Un proveedor solo se vuelve elegible para ser Activo una vez que su clave se ha validado correctamente. Es a propósito - así se evita que una clave mal escrita o caducada se convierta, sin que te des cuenta, en lo único que te separa de una tarjeta nueva.',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
+    '**Borrar** elimina la clave de este dispositivo por completo (y reinicia su historial de validación y uso). No se guarda nada en ningún otro sitio salvo en el almacenamiento seguro de este dispositivo - no en los servidores de Lingora, ni sincronizado en ningún sitio, a menos que tú mismo hagas una copia de seguridad y la restaures.',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
+    '**OpenAI** es la opción predeterminada y una elección segura y de uso general - salida estructurada fiable, muy utilizada, fácil de conseguir una clave en `platform.openai.com`.',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.':
+    '**Groq** ejecuta modelos abiertos (como la familia gpt-oss) en hardware propio muy rápido - si la velocidad te importa más que una familia de modelos concreta, suele ser el más rápido en responder.',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.':
+    '**Mistral** es una buena alternativa europea con sus propios modelos - útil si prefieres no depender de un proveedor estadounidense o simplemente quieres una segunda opción.',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.':
+    '**Gemini** (Google) suele tener límites de uso gratuito generosos si solo quieres probarlo sin comprometerte todavía con una clave de pago.',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.':
+    '**Claude** (Anthropic) es conocido por respuestas cuidadas y bien razonadas - una buena opción si las frases de ejemplo o los significados de otro proveedor te parecen algo raros y quieres comparar.',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.':
+    '**DeepSeek** es capaz y económico, pero suele ser notablemente más lento que los demás al generar una palabra completa - conviene saberlo de antemano para que una espera más larga no parezca un fallo.',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.':
+    'Elijas el que elijas, el selector de modelo de cada proveedor te permite equilibrar velocidad, coste y calidad sin salir de esta pantalla.',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.':
+    'El panel de cada proveedor muestra un recuadro de **uso observado por el dispositivo** - el número de solicitudes y tokens que este dispositivo ha enviado realmente con esa clave. Es una referencia práctica, no una factura: solo cuenta lo que ha pasado aquí, así que no coincidirá con una clave compartida entre varios dispositivos o apps.',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
+    'Para las cifras reales y oficiales - y para cualquier cosa relacionada con facturación o límites de uso - usa el enlace «Abrir uso», que te lleva directamente al panel propio de ese proveedor.',
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -5726,6 +5914,58 @@ const hi: Partial<Record<Phrase, string>> = {
     'नीचे दिया "Add to Cloze" (या एक बार बन जाने पर "Edit Cloze") बटन मौजूदा चुने गए उदाहरण के साथ पहले से भरा हुआ एडिटर खोलता है। वाक्य में कोई शब्द या वाक्यांश चुनें और उसे छिपाने के लिए "Mark as cloze" पर टैप करें - यह डिफ़ॉल्ट रूप से मुख्य शब्द को ही छिपाता है - फिर अनुवाद ठीक करें और सेव करें।',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     'सेव करने पर हमेशा इस कार्ड का मौजूदा क्लोज़ वाक्य बदल जाता है, दूसरा नहीं जुड़ता - हर कार्ड पर हमेशा सिर्फ एक ही होता है।',
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
+  // matching Audio Settings labels
+  'Active Generation Provider': 'सक्रिय जनरेशन प्रदाता',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
+    'चुनें कि संदर्भ स्पष्ट करने, वर्ड पैकेज बनाने और सीईएफआर उदाहरण वाक्य तैयार करने के लिए कौन सा एआई इंजन उपयोग किया जाए।',
+  'Key configured': 'कुंजी कॉन्फ़िगर की गई',
+  'No key set': 'कोई कुंजी सेट नहीं है',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
+    'चुनें कि कौन सा इंजन बोलकर सुनाए - डिवाइस की आवाज़ें मुफ़्त हैं और ऑफ़लाइन काम करती हैं; क्लाउड प्रदाता आपकी अपनी एपीआई कुंजी का उपयोग करते हैं।',
+  'Always available': 'हमेशा उपलब्ध',
+  'Validated': 'सत्यापित',
+  '"Active" vs "Enabled" - what\'s the difference?': '"सक्रिय" बनाम "सक्षम" - अंतर क्या है?',
+  'Adding and validating a key': 'कुंजी जोड़ना और सत्यापित करना',
+  'Which provider should I pick?': 'कौन सा प्रदाता चुनें?',
+  'What the usage numbers mean': 'उपयोग के आंकड़ों का क्या मतलब है',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.':
+    'यहीं पर एक नया शब्द पूरा कार्ड बनता है - अर्थ, उदाहरण वाक्य, अर्थ-समूह और भी बहुत कुछ। जब भी आप कोई ऐसा शब्द खोजते हैं जिसे Lingora अभी नहीं जानता, यह उस शब्द को नीचे आपके द्वारा **सक्रिय** के रूप में चिह्नित प्रदाता को सौंप देता है और उससे कार्ड बनाने के लिए कहता है।',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.':
+    'यह **"अपनी कुंजी लाएं"** तरीके पर काम करता है: Lingora के साथ कोई साझा एआई सब्सक्रिप्शन नहीं आता, इसलिए जब तक आप नीचे दिए गए किसी प्रदाता में अपनी खुद की एपीआई कुंजी नहीं डालते, तब तक कुछ भी जनरेट नहीं होता। इसका मतलब यह भी है कि जब तक आप वाकई कोई शब्द नहीं खोजते, तब तक कहीं कुछ नहीं भेजा जाता - सिर्फ़ कुंजी सेव होने से कोई अनुरोध शुरू नहीं होता।',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
+    'आपको हर प्रदाता में जानकारी भरने की ज़रूरत नहीं है। एक काम करने वाली, सत्यापित कुंजी ही काफी है - जिस सेवा का खाता आपके पास पहले से है, या जिसे आज़माने में आपकी दिलचस्पी है, उसे चुनें और वहीं से शुरू करें।',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
+    '**सक्रिय** वह एकमात्र प्रदाता है जो अभी वाकई काम कर रहा है - वह इंजन जो शब्द खोजने पर जवाब देता है। एक समय में केवल एक ही प्रदाता सक्रिय हो सकता है, और किसी सत्यापित प्रदाता के कार्ड पर टैप करते ही तुरंत उस पर स्विच हो जाता है।',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
+    '**सक्षम** एक हल्का संकेतक है, जो हर प्रदाता के अपने सेटिंग्स पैनल में छिपा होता है। यह तय करता है कि उस प्रदाता को चुना जा सकता है या नहीं (फ़ॉलबैक के रूप में, और ऐप में कहीं और, जैसे सेटिंग्स > अनुवाद में विकल्प के रूप में भी) - अगर आप किसी कुंजी को बाद के लिए सेव रखना चाहते हैं पर अभी उसका उपयोग नहीं होने देना चाहते, तो इसे बंद कर दें।',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
+    'अगर किसी प्रदाता के सक्रिय रहते हुए उसकी कुंजी मिटा दी जाती है या सत्यापन में विफल हो जाती है, तो Lingora चुपचाप अगले सबसे अच्छे विकल्प पर स्विच हो जाता है - जो प्रदाता सक्षम है और जिसकी कुंजी सत्यापित है - ताकि सिर्फ़ एक कुंजी के पुरानी पड़ जाने से आप कभी बिना जनरेशन के न रह जाएं।',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'किसी प्रदाता की सेटिंग्स खोलने के लिए उसके कार्ड पर टैप करें, अपनी एपीआई कुंजी पेस्ट करें, और अगर डिफ़ॉल्ट से अलग मॉडल चाहिए तो उसे चुनें। फिर **सत्यापित करें** पर टैप करें - इससे एक छोटा असली अनुरोध भेजा जाता है, जो यह पुष्टि करता है कि कुंजी वाकई काम करती है, इससे पहले कि आप शब्द जनरेशन के लिए उस पर भरोसा करें।',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'कोई प्रदाता तभी सक्रिय बनने के योग्य होता है जब उसकी कुंजी सफलतापूर्वक सत्यापित हो चुकी हो। यह जानबूझकर किया गया है - इससे कोई गलत टाइप की गई या समय-सीमा समाप्त कुंजी चुपचाप आपके और नए कार्ड के बीच एकमात्र रुकावट नहीं बन पाती।',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
+    '**मिटाएं** इस डिवाइस से कुंजी को पूरी तरह हटा देता है (और उसका सत्यापन व उपयोग इतिहास रीसेट कर देता है)। कुछ भी इस डिवाइस के सुरक्षित स्टोरेज के अलावा कहीं और सेव नहीं होता - न Lingora के अपने सर्वर पर, न कहीं सिंक होता है, जब तक कि आप खुद बैकअप लेकर उसे पुनर्स्थापित न करें।',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
+    '**OpenAI** डिफ़ॉल्ट विकल्प है और एक सुरक्षित, सामान्य-उद्देश्य वाला विकल्प है - भरोसेमंद संरचित आउटपुट, व्यापक रूप से इस्तेमाल किया जाने वाला, और `platform.openai.com` पर कुंजी पाना आसान है।',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.':
+    '**Groq** बहुत तेज़ खुद के हार्डवेयर पर ओपन मॉडल (जैसे gpt-oss परिवार) चलाता है - अगर किसी खास मॉडल परिवार से ज़्यादा आपके लिए गति मायने रखती है, तो यह आमतौर पर सबसे तेज़ जवाब देता है।',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.':
+    '**Mistral** अपने खुद के मॉडलों के साथ एक मज़बूत यूरोपीय विकल्प है - अच्छा है अगर आप किसी अमेरिकी प्रदाता पर निर्भर नहीं रहना चाहते, या बस एक दूसरा विकल्प चाहते हैं।',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.':
+    '**Gemini** (Google) अक्सर उदार मुफ़्त उपयोग सीमा देता है, अगर आप बिना किसी भुगतान वाली कुंजी के लिए प्रतिबद्ध हुए बस इसे आज़माना चाहते हैं।',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.':
+    '**Claude** (Anthropic) सावधानी से सोचे-समझे आउटपुट के लिए जाना जाता है - अच्छा विकल्प है अगर किसी और प्रदाता के उदाहरण वाक्य या अर्थ आपको थोड़े अटपटे लगें और आप तुलना करना चाहें।',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.':
+    '**DeepSeek** सक्षम और सस्ता है, लेकिन पूरे शब्द जनरेशन के लिए बाकियों की तुलना में काफ़ी धीमा हो सकता है - यह पहले से पता होना अच्छा है, ताकि लंबा इंतज़ार किसी खराबी जैसा न लगे।',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.':
+    'आप जो भी चुनें, हर प्रदाता के नीचे दिया गया मॉडल चयनकर्ता आपको इस स्क्रीन से बाहर गए बिना गति, लागत और गुणवत्ता के बीच संतुलन बनाने देता है।',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.':
+    'हर प्रदाता के पैनल में एक **डिवाइस-आधारित उपयोग** बॉक्स दिखता है - इस डिवाइस ने उस कुंजी से वाकई जितने अनुरोध और टोकन भेजे हैं, उनकी गिनती। यह एक सुविधा है, बिल नहीं: यह सिर्फ़ वही गिनता है जो यहीं इस डिवाइस पर हुआ, इसलिए यह कई डिवाइस या ऐप में साझा की गई कुंजी से मेल नहीं खाएगा।',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
+    'असली, आधिकारिक आंकड़ों के लिए - और बिलिंग या दर सीमा से जुड़ी किसी भी बात के लिए - "उपयोग खोलें" लिंक का उपयोग करें, जो आपको सीधे उस प्रदाता के अपने डैशबोर्ड पर ले जाता है।',
 }
 
 const vi: Partial<Record<Phrase, string>> = {
@@ -6897,6 +7137,58 @@ const vi: Partial<Record<Phrase, string>> = {
     'Nút "Add to Cloze" (hoặc "Edit Cloze" khi đã có sẵn) ở dưới cùng mở trình chỉnh sửa với ví dụ đang chọn được điền sẵn. Chọn một từ hoặc cụm từ trong câu rồi nhấn "Mark as cloze" để ẩn nó - mặc định sẽ ẩn chính từ chính - sau đó chỉnh bản dịch và lưu lại.',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     'Lưu luôn thay thế câu điền khuyết hiện có của thẻ này thay vì thêm câu thứ hai - mỗi thẻ chỉ có duy nhất một câu.',
+
+  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
+  // matching Audio Settings labels
+  'Active Generation Provider': 'Nhà cung cấp tạo nội dung đang hoạt động',
+  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
+    'Chọn công cụ AI nào được dùng để phân biệt ngữ cảnh, tạo gói từ vựng và soạn câu ví dụ theo cấp độ CEFR.',
+  'Key configured': 'Đã cấu hình khóa',
+  'No key set': 'Chưa đặt khóa',
+  'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
+    'Chọn công cụ nào sẽ đọc to - giọng thiết bị miễn phí và hoạt động ngoại tuyến; các nhà cung cấp đám mây dùng khóa API của riêng bạn.',
+  'Always available': 'Luôn khả dụng',
+  'Validated': 'Đã xác thực',
+  '"Active" vs "Enabled" - what\'s the difference?': '"Đang hoạt động" khác "Bật" thế nào?',
+  'Adding and validating a key': 'Thêm và xác thực khóa',
+  'Which provider should I pick?': 'Nên chọn nhà cung cấp nào?',
+  'What the usage numbers mean': 'Các con số sử dụng nghĩa là gì',
+  'This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn\'t already know, it hands that word to whichever provider you\'ve marked **Active** below and asks it to build the card.':
+    'Đây là nơi một từ mới trở thành thẻ hoàn chỉnh - nghĩa, câu ví dụ, nhóm nghĩa, và nhiều hơn nữa. Bất cứ khi nào bạn tra một từ mà Lingora chưa biết, ứng dụng sẽ giao từ đó cho nhà cung cấp mà bạn đã đánh dấu **Đang hoạt động** bên dưới và yêu cầu tạo thẻ.',
+  'It\'s **bring-your-own-key**: Lingora doesn\'t ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn\'t trigger any requests.':
+    'Đây là mô hình **"tự mang khóa của bạn"**: Lingora không đi kèm gói AI dùng chung, nên sẽ không có gì được tạo ra cho đến khi bạn dán khóa API của riêng mình vào một trong các nhà cung cấp bên dưới. Điều đó cũng có nghĩa là không có gì được gửi đi đâu cả cho đến khi bạn thực sự tra một từ - chỉ lưu khóa thôi thì không kích hoạt yêu cầu nào.',
+  'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
+    'Bạn không cần điền đầy đủ mọi nhà cung cấp. Chỉ cần một khóa hoạt động và đã xác thực là đủ - chọn dịch vụ mà bạn đã có tài khoản, hoặc dịch vụ nào bạn tò mò muốn thử, rồi bắt đầu từ đó.',
+  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
+    '**Đang hoạt động** là nhà cung cấp duy nhất thực sự đang làm việc ngay lúc này - công cụ trả lời khi bạn tra một từ. Chỉ một nhà cung cấp có thể Đang hoạt động tại một thời điểm, và chạm vào thẻ của một nhà cung cấp đã xác thực sẽ chuyển sang nó ngay lập tức.',
+  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
+    '**Bật** là một cờ nhẹ nhàng hơn, nằm trong bảng cài đặt riêng của từng nhà cung cấp. Nó quyết định nhà cung cấp đó có được phép chọn hay không (kể cả làm phương án dự phòng, và như một lựa chọn ở nơi khác trong ứng dụng như Cài đặt > Dịch) - tắt nó nếu bạn muốn giữ một khóa để dùng sau mà chưa cho phép sử dụng ngay bây giờ.',
+  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
+    'Nếu một khóa bị xóa hoặc xác thực thất bại trong khi nhà cung cấp của nó đang hoạt động, Lingora sẽ âm thầm chuyển sang phương án tốt nhất tiếp theo - nhà cung cấp vừa được bật vừa có khóa đã xác thực - để bạn không bao giờ mất khả năng tạo nội dung chỉ vì một khóa bị hỏng.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Chạm vào thẻ của một nhà cung cấp để mở cài đặt của nó, dán khóa API của bạn vào, và chọn một mô hình khác nếu bạn muốn thay vì mô hình mặc định. Sau đó chạm **Xác thực** - thao tác này gửi một yêu cầu thực nhỏ để xác nhận khóa thực sự hoạt động trước khi bạn dựa vào nó để tạo từ.',
+  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Một nhà cung cấp chỉ đủ điều kiện trở thành Đang hoạt động khi khóa của nó đã được xác thực thành công. Đây là chủ ý - để tránh một khóa gõ sai hoặc hết hạn âm thầm trở thành trở ngại duy nhất giữa bạn và một thẻ mới.',
+  '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
+    '**Xóa** sẽ gỡ bỏ hoàn toàn khóa khỏi thiết bị này (và đặt lại lịch sử xác thực cũng như sử dụng của nó). Không có gì được lưu ở đâu khác ngoài bộ nhớ an toàn của thiết bị này - không lưu trên máy chủ của Lingora, không đồng bộ ở bất kỳ đâu, trừ khi chính bạn sao lưu và khôi phục nó.',
+  '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
+    '**OpenAI** là lựa chọn mặc định và an toàn cho mục đích chung - đầu ra có cấu trúc đáng tin cậy, được dùng rộng rãi, dễ lấy khóa tại `platform.openai.com`.',
+  '**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.':
+    '**Groq** chạy các mô hình mở (như dòng gpt-oss) trên phần cứng riêng rất nhanh - nếu tốc độ quan trọng với bạn hơn việc chọn một dòng mô hình cụ thể, đây thường là nhà cung cấp phản hồi nhanh nhất.',
+  '**Mistral** is a solid European alternative with its own models, good if you\'d rather not depend on a US-based provider or just want a second option in the mix.':
+    '**Mistral** là một lựa chọn châu Âu vững chắc với các mô hình riêng - tốt nếu bạn không muốn phụ thuộc vào một nhà cung cấp của Mỹ, hoặc chỉ đơn giản là muốn có thêm một lựa chọn.',
+  '**Gemini** (Google) tends to be generous on free-tier usage limits if you\'re just trying this out without committing to a paid key yet.':
+    '**Gemini** (Google) thường có hạn mức sử dụng miễn phí khá rộng rãi, nếu bạn chỉ muốn dùng thử mà chưa muốn cam kết với một khóa trả phí.',
+  '**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider\'s example sentences or meanings feel a little off and want to compare.':
+    '**Claude** (Anthropic) nổi tiếng với đầu ra cẩn thận, lập luận kỹ - lựa chọn tốt nếu bạn thấy câu ví dụ hoặc nghĩa của một nhà cung cấp khác hơi khó hiểu và muốn so sánh.',
+  '**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn\'t feel like something\'s broken.':
+    '**DeepSeek** có khả năng tốt và giá rẻ, nhưng thường chạy chậm hơn rõ rệt so với các nhà cung cấp khác khi tạo đầy đủ một từ - nên biết trước điều này để thời gian chờ lâu hơn không giống như một lỗi.',
+  'Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.':
+    'Dù bạn chọn nhà cung cấp nào, bộ chọn mô hình bên dưới mỗi nhà cung cấp cũng cho phép bạn cân bằng giữa tốc độ, chi phí và chất lượng mà không cần rời khỏi màn hình này.',
+  'Each provider\'s panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It\'s a convenience, not a bill: it only counts what happened here, so it won\'t match a key shared across multiple devices or apps.':
+    'Bảng của mỗi nhà cung cấp hiển thị một ô **sử dụng được ghi nhận trên thiết bị** - số yêu cầu và token mà thiết bị này thực sự đã gửi qua khóa đó. Đây là thông tin tham khảo tiện lợi, không phải hóa đơn: nó chỉ đếm những gì xảy ra ở đây, nên sẽ không khớp với một khóa được dùng chung trên nhiều thiết bị hoặc ứng dụng.',
+  'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
+    'Để xem số liệu thực tế, chính xác - và mọi thứ liên quan đến thanh toán hay giới hạn tốc độ - hãy dùng liên kết "Mở trang sử dụng", liên kết này sẽ đưa bạn thẳng đến bảng điều khiển riêng của nhà cung cấp đó.',
 }
 
 export const resources = {

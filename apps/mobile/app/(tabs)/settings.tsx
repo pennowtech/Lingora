@@ -46,6 +46,8 @@ const TRANSLATION_LABELS: Record<TranslationProviderName, string> = {
   mistral: 'Mistral',
   gemini: 'Gemini',
   anthropic: 'Claude',
+  deepseek: 'DeepSeek',
+  groq: 'Groq',
 }
 
 interface MenuSummary {
@@ -76,6 +78,8 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'mistral', label: 'Mistral', group: 'AI Providers', keywords: ['api key'], route: '/settings/ai-providers', icon: 'Zap' },
   { key: 'gemini', label: 'Gemini', group: 'AI Providers', keywords: ['google', 'api key'], route: '/settings/ai-providers', icon: 'Globe' },
   { key: 'claude', label: 'Claude', group: 'AI Providers', keywords: ['anthropic', 'api key'], route: '/settings/ai-providers', icon: 'MessageCircle' },
+  { key: 'deepseek', label: 'DeepSeek', group: 'AI Providers', keywords: ['api key'], route: '/settings/ai-providers', icon: 'DeepSeek' },
+  { key: 'groq', label: 'Groq', group: 'AI Providers', keywords: ['api key', 'fast'], route: '/settings/ai-providers', icon: 'Groq' },
   { key: 'delete-ai-keys', label: 'Delete All AI Providers Keys', group: 'AI Providers', keywords: ['delete', 'remove', 'clear', 'key'], route: '/settings/ai-providers', icon: 'Trash2' },
   { key: 'translation', label: 'Translation', group: 'Translation', keywords: ['translate'], route: '/settings/translation', icon: 'Languages' },
   { key: 'google-translate', label: 'Google Translate', group: 'Translation', keywords: ['translate', 'free'], route: '/settings/translation', icon: 'Languages' },

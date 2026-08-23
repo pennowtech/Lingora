@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import {
   createDeck,
   findLemmaBySurfaceForm,
@@ -18,6 +17,7 @@ import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
@@ -26,9 +26,7 @@ import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
-import { detectSearchLanguage } from '../../lib/languageDetection'
-import { isNetworkError, networkErrorMessage } from '../../lib/networkError'
-import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
+import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useCyclingIndex } from '../../lib/useCyclingIndex'
@@ -51,7 +49,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'lookup',
     title: 'Instant lookup',
-    icon: 'search-outline',
+    icon: 'Search',
     paragraphs: [
       'Type a word in either language you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
       'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
@@ -60,7 +58,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'new-word',
     title: 'When a word is new to you',
-    icon: 'sparkles-outline',
+    icon: 'Sparkles',
     paragraphs: [
       'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview - both are read-only until you choose to add one to a deck.',
       'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.',
@@ -70,7 +68,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'add',
     title: 'Adding to a deck',
-    icon: 'albums-outline',
+    icon: 'Layers',
     paragraphs: [
       'Tapping "Add to deck" always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
       'A green checkmark means the word is already in one of your decks.',
@@ -79,7 +77,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'from-outside',
     title: 'Search from anywhere',
-    icon: 'share-outline',
+    icon: 'Share2',
     paragraphs: [
       'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemmory." It opens right here with that word ready to go.',
       'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
@@ -563,14 +561,14 @@ export default function SearchScreen(): JSX.Element {
 
       {existingResult?.inDeck ? (
         <View style={styles.inDeckBadgeRow}>
-          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Icon name="CircleCheck" size={16} color={colors.success} />
           <Text style={styles.inDeckBadgeText}>{t('Already in your library')}</Text>
         </View>
       ) : (
         <View style={styles.guideFooterRow}>
           <Button
             label={t('Add to deck')}
-            icon="add-circle"
+            icon="CirclePlus"
             variant="primary"
             small
             onPress={() => setDeckPickerFor('translation')}
@@ -585,7 +583,7 @@ export default function SearchScreen(): JSX.Element {
   ) : quickTranslate.isError ? (
     <Card style={styles.translateCard}>
       <View style={styles.translateErrorRow}>
-        <Ionicons name="cloud-offline-outline" size={16} color={colors.textMuted} />
+        <Icon name="CloudOff" size={16} color={colors.textMuted} />
         <Text style={styles.translateErrorText}>
           {isNetworkError(quickTranslate.error)
             ? networkErrorMessage(t)
@@ -594,7 +592,7 @@ export default function SearchScreen(): JSX.Element {
       </View>
       <Button
         label={t('Retry')}
-        icon="refresh"
+        icon="RefreshCw"
         variant="secondary"
         small
         onPress={() => void quickTranslate.refetch()}
@@ -610,13 +608,13 @@ export default function SearchScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('lookup')} />
+            <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('lookup')} />
           ),
         }}
       />
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color={colors.textMuted} />
+          <Icon name="Search" size={18} color={colors.textMuted} />
           <TextInput
             testID="search-input"
             style={styles.input}
@@ -642,14 +640,16 @@ export default function SearchScreen(): JSX.Element {
             onSubmitEditing={flushExplainTerm}
           />
           {query !== '' ? (
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} onPress={() => setQuery('')} />
+            <Pressable onPress={() => setQuery('')}>
+              <Icon name="CircleX" size={18} color={colors.textMuted} />
+            </Pressable>
           ) : null}
         </View>
       </View>
 
       {term === '' ? (
         <EmptyState
-          icon="search"
+          icon="Search"
           title={t('Instant lookup')}
           message={t('Search in {{target}} or {{native}}.\nInflected or conjugated forms work too.', {
             target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
@@ -706,14 +706,14 @@ export default function SearchScreen(): JSX.Element {
                     <View style={styles.guideFooterRow}>
                       <Button
                         label={t('Add to deck')}
-                        icon="add-circle"
+                        icon="CirclePlus"
                         variant="primary"
                         small
                         onPress={() => setDeckPickerFor('guide')}
                       />
                       <Button
                         label={t('More info')}
-                        icon="book-outline"
+                        icon="BookOpen"
                         variant="secondary"
                         small
                         onPress={() => setGuideModalOpen(true)}
@@ -728,7 +728,7 @@ export default function SearchScreen(): JSX.Element {
                   guide={wordGuide.data ?? null}
                   onClose={() => setGuideModalOpen(false)}
                   footer={
-                    <Button label={t('Add to deck')} icon="add-circle" onPress={() => setDeckPickerFor('guide')} />
+                    <Button label={t('Add to deck')} icon="CirclePlus" onPress={() => setDeckPickerFor('guide')} />
                   }
                 />
                 {quickTranslatePreview}
@@ -764,7 +764,7 @@ export default function SearchScreen(): JSX.Element {
                           <View style={styles.explainFooterRow}>
                             <View style={styles.explainCtaBtn}>
                               <Text style={styles.explainFooterText}>{t('Explore Full AI Flashcard')}</Text>
-                              <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+                              <Icon name="ArrowRight" size={14} color={colors.primary} />
                             </View>
                           </View>
                         </Card>
@@ -790,7 +790,7 @@ export default function SearchScreen(): JSX.Element {
                 ) : (
                   <Pressable onPress={() => router.push('/settings/ai-providers')}>
                     <Card style={styles.limitedCard}>
-                      <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
+                      <Icon name="Key" size={18} color={colors.textSecondary} />
                       <Text style={styles.limitedLabel}>
                         {t('No AI provider is active - add and enable one in Settings to generate new words')}
                       </Text>
@@ -824,7 +824,7 @@ export default function SearchScreen(): JSX.Element {
                 </View>
                 <View style={styles.rowRight}>
                   <CardSourceIcon source={item.source} />
-                  {item.inDeck ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
+                  {item.inDeck ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
                   {item.hasDetail ? <Chip label={t('Details')} onPress={openDetail} /> : null}
                 </View>
               </Card>

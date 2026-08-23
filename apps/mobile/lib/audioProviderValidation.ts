@@ -1,7 +1,6 @@
 import { logger } from '@lingora/observability'
-import type { CloudAudioProviderName } from './audioProviderMeta'
-import { CloudTtsError, synthesizeSpeech } from './cloudTtsProviders'
-import { formatUserFriendlyProviderError } from './providerValidation'
+import { CloudTtsError, synthesizeSpeech, type CloudAudioProviderName } from '@lingora/core'
+import { formatUserFriendlyProviderError } from '@lingora/ai'
 
 const log = logger.child({ feature: 'settings', component: 'audioProviderValidation' })
 

@@ -66,13 +66,13 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'cefr',
     title: 'Default CEFR level',
-    icon: 'school-outline',
+    icon: 'GraduationCap',
     paragraphs: ['Examples and explanations are calibrated to this level.'],
   },
   {
     id: 'languages',
     title: 'Language pair',
-    icon: 'language-outline',
+    icon: 'Languages',
     paragraphs: [
       '"I speak": explanations and the "More info" follow-up use this language.',
       '"I\'m learning": new words are looked up and generated in this language.',
@@ -81,7 +81,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'questionTypes',
     title: 'Practice question types',
-    icon: 'shuffle-outline',
+    icon: 'Shuffle',
     paragraphs: [
       'Mixed practice presents due cards in a random mix of whichever formats are enabled here.',
       'Cloze here is scored separately from the dedicated Cloze Practice mode.',
@@ -90,7 +90,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'sessionLimit',
     title: 'Cards per session',
-    icon: 'layers-outline',
+    icon: 'Layers',
     paragraphs: [
       'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.',
       'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
@@ -99,7 +99,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'wotd',
     title: 'Word of the Day reminder',
-    icon: 'notifications-outline',
+    icon: 'Bell',
     paragraphs: ['When the daily notification for your Home screen word arrives.'],
   },
 ]
@@ -278,7 +278,7 @@ export default function LearningScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('cefr')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('cefr')} color={colors.primary} size={22} />
           ),
         }}
       />
@@ -286,7 +286,7 @@ export default function LearningScreen(): JSX.Element {
       <Card>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>{t('Default CEFR level')}</Text>
-          <IconButton icon="help-circle-outline" onPress={() => help.openSection('cefr')} color={colors.textMuted} size={16} />
+          <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('cefr')} color={colors.textMuted} size={16} />
         </View>
         <View style={styles.chipRow}>
           {CEFR_LEVELS.map((level) => (
@@ -304,7 +304,7 @@ export default function LearningScreen(): JSX.Element {
       <Card>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>{t('I speak')}</Text>
-          <IconButton icon="help-circle-outline" onPress={() => help.openSection('languages')} color={colors.textMuted} size={16} />
+          <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('languages')} color={colors.textMuted} size={16} />
         </View>
         <Dropdown
           label={t('I speak')}
@@ -324,24 +324,29 @@ export default function LearningScreen(): JSX.Element {
       <Card>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>{t('Practice question types')}</Text>
-          <IconButton icon="help-circle-outline" onPress={() => help.openSection('questionTypes')} color={colors.textMuted} size={16} />
+          <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('questionTypes')} color={colors.textMuted} size={16} />
         </View>
         <View style={styles.chipRow}>
-          {ALL_QUESTION_TYPES.map((questionType) => (
-            <Chip
-              key={questionType}
-              label={t(QUESTION_TYPE_META[questionType].label)}
-              selected={enabledTypes.includes(questionType)}
-              onPress={() => toggleQuestionType(questionType)}
-            />
-          ))}
+          {ALL_QUESTION_TYPES.map((questionType) => {
+            const meta = QUESTION_TYPE_META[questionType]
+            return (
+              <Chip
+                key={questionType}
+                {...(meta.arrowFrom !== undefined && meta.arrowTo !== undefined
+                  ? { arrow: { from: t(meta.arrowFrom), to: t(meta.arrowTo) } }
+                  : { label: t(meta.label) })}
+                selected={enabledTypes.includes(questionType)}
+                onPress={() => toggleQuestionType(questionType)}
+              />
+            )
+          })}
         </View>
       </Card>
 
       <Card>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>{t('Cards per session')}</Text>
-          <IconButton icon="help-circle-outline" onPress={() => help.openSection('sessionLimit')} color={colors.textMuted} size={16} />
+          <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('sessionLimit')} color={colors.textMuted} size={16} />
         </View>
         <View style={styles.chipRow}>
           {SESSION_CARD_LIMIT_OPTIONS.map((limit) => (
@@ -364,7 +369,7 @@ export default function LearningScreen(): JSX.Element {
         <Card>
           <View style={styles.fieldLabelRow}>
             <Text style={styles.fieldLabel}>{t('Word of the Day reminder')}</Text>
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('wotd')} color={colors.textMuted} size={16} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('wotd')} color={colors.textMuted} size={16} />
           </View>
           <Dropdown
             label={t('Word of the Day reminder')}

@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon } from './Icon'
 import { Button } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -33,16 +33,16 @@ export function CaptureChooserSheet(props: {
           <View style={styles.headerRow}>
             <Text style={styles.title}>{t('Add to Lemmory')}</Text>
             <Pressable onPress={props.onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color={colors.textMuted} />
+              <Icon name="X" size={22} color={colors.textMuted} />
             </Pressable>
           </View>
           <ScrollView style={styles.textScroll} keyboardShouldPersistTaps="handled">
             <Text style={styles.capturedText}>{props.text}</Text>
           </ScrollView>
-          <Button label={t('Search this')} icon="search" onPress={props.onSearch} />
+          <Button label={t('Search this')} icon="Search" onPress={props.onSearch} />
           <Button
             label={t('Add to Mining queue')}
-            icon="download"
+            icon="Download"
             variant="secondary"
             onPress={props.onAddToMining}
             style={styles.secondButton}

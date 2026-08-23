@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { Deck } from '@lingora/types'
 import { getAllDecks, type DatabaseAdapter } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Icon } from './Icon'
 import { Button, ErrorState, IconButton, Spinner } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -90,11 +90,11 @@ export function DeckPickerModal(props: {
                 onPress={submitNewDeck}
                 disabled={creating || newDeckName.trim() === ''}
               />
-              <IconButton icon="close" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
+              <IconButton icon="X" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
             </View>
           ) : (
             <Pressable testID="deck-picker-new-toggle" style={styles.newDeckButton} onPress={() => setNewDeckMode(true)}>
-              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+              <Icon name="CirclePlus" size={20} color={colors.primary} />
               <Text style={styles.newDeckButtonLabel}>{t('Create new deck')}</Text>
             </Pressable>
           )}
@@ -118,7 +118,7 @@ export function DeckPickerModal(props: {
                   >
                     <Text style={styles.emoji}>{deck.emoji ?? '📚'}</Text>
                     <Text style={styles.name}>{deck.name}</Text>
-                    {already ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
+                    {already ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
                   </Pressable>
                 )
               })}

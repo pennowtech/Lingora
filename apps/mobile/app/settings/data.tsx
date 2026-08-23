@@ -17,9 +17,9 @@ export default function DataScreen(): JSX.Element {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Card>
-        <LinkRow icon="swap-vertical" label={t('Import & export')} detail={t('Anki, CSV, JSON backup')} onPress={() => router.push('/settings/import-export')} />
-        <LinkRow icon="color-palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} divider />
-        <LinkRow icon="library" label={t('Local Dictionaries')} detail={t('Free starter dictionary - no AI key needed')} onPress={() => router.push('/settings/word-guides')} divider />
+        <LinkRow icon="ArrowUpDown" label={t('Import & export')} detail={t('Anki, CSV, JSON backup')} onPress={() => router.push('/settings/import-export')} />
+        <LinkRow icon="Palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} divider />
+        <LinkRow icon="Library" label={t('Local Dictionaries')} detail={t('Free starter dictionary - no AI key needed')} onPress={() => router.push('/settings/word-guides')} divider />
       </Card>
     </ScrollView>
   )

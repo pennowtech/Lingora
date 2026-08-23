@@ -121,7 +121,8 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
     this.model = config.model ?? 'gemini-2.5-flash'
     this.baseUrl = (config.baseUrl ?? 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async generateWordPackage(

@@ -105,7 +105,7 @@ export function ClozeMarkupEditor(props: {
       />
 
       <View style={styles.toolbar}>
-        <Button label={t('Mark as cloze')} icon="create-outline" small onPress={handleMark} disabled={!canMark} />
+        <Button label={t('Mark as cloze')} icon="SquarePen" small onPress={handleMark} disabled={!canMark} />
         <Button label={t('Reset')} variant="ghost" small onPress={handleReset} />
       </View>
 

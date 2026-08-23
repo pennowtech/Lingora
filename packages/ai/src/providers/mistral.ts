@@ -118,7 +118,8 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
     this.model = config.model ?? 'mistral-small-latest'
     this.baseUrl = (config.baseUrl ?? 'https://api.mistral.ai/v1').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async generateWordPackage(

@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons'
 import { getRecentlyAddedWords } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { router, Stack } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon } from '../components/Icon'
 import { Card, CefrBadge, EmptyState, ErrorState, Spinner } from '../components/ui'
 import { useServices } from '../lib/services'
 import { radius, spacing, type } from '../lib/theme'
@@ -36,7 +36,7 @@ export default function RecentWordsScreen(): JSX.Element {
         <ErrorState message={String(recentQuery.error)} onRetry={() => void recentQuery.refetch()} />
       ) : recentQuery.data.length === 0 ? (
         <EmptyState
-          icon="sparkles-outline"
+          icon="Sparkles"
           title={t('No words yet')}
           message={t('Look up a word to add your first card.')}
         />
@@ -54,7 +54,7 @@ export default function RecentWordsScreen(): JSX.Element {
               </View>
               {word.hasCloze ? (
                 <View style={styles.clozeBadge}>
-                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                  <Icon name="SquarePen" size={12} color={colors.warning} />
                 </View>
               ) : null}
               {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}

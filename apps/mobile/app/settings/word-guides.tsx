@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import type { LanguageCode } from '@lingora/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Icon } from '../../components/Icon'
 import { AlertModal, Button, Card, Chip, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
 import {
   getBundledChunkIndexes,
@@ -168,7 +168,7 @@ export default function WordGuidesScreen(): JSX.Element {
             </Text>
             <Button
               label={installAll.isPending ? t('Installing...') : t('Install all available')}
-              icon="download"
+              icon="Download"
               onPress={() => installAll.mutate()}
               disabled={installAll.isPending || availableCount === 0}
               style={styles.installAllButton}
@@ -176,7 +176,7 @@ export default function WordGuidesScreen(): JSX.Element {
             {installedCount > 0 ? (
               <Button
                 label={uninstallAll.isPending ? t('Uninstalling...') : t('Uninstall all')}
-                icon="trash"
+                icon="Trash2"
                 variant="secondary"
                 onPress={confirmUninstallAll}
                 disabled={uninstallAll.isPending}
@@ -209,7 +209,7 @@ export default function WordGuidesScreen(): JSX.Element {
                 accessibilityRole="button"
                 accessibilityLabel={t('Uninstall')}
               >
-                <Ionicons name="trash-outline" size={15} color={colors.danger} />
+                <Icon name="Trash2" size={15} color={colors.danger} />
                 <Text style={styles.uninstallLabel}>{t('Uninstall')}</Text>
               </Pressable>
             ) : (

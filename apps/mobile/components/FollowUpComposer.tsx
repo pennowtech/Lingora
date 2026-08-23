@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Icon } from './Icon'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -88,7 +88,7 @@ export function FollowUpComposer(props: {
           {props.loading ? (
             <ActivityIndicator size="small" color={colors.textMuted} />
           ) : (
-            <Ionicons name="arrow-up-circle" size={18} color={canAsk ? colors.primary : colors.textMuted} />
+            <Icon name="CircleArrowUp" size={18} color={canAsk ? colors.primary : colors.textMuted} />
           )}
           <Text style={[styles.askLabel, canAsk && styles.askLabelActive]}>
             {props.loading ? t('Asking...') : t('Ask')}

@@ -1,4 +1,4 @@
-/** 'just now' · '5 min ago' · '3 h ago' · '2 d ago' — mining queue timestamps. */
+/** 'just now' · '5 min ago' · '3 h ago' · '2 d ago' — mining queue and similar relative timestamps. */
 export function timeAgo(timestamp: number): string {
   const elapsed = Date.now() - timestamp
   const minutes = Math.floor(elapsed / 60_000)

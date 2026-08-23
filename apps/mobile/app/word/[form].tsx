@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import type {
   Card as CardRow,
@@ -84,12 +83,13 @@ import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
 import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
-import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
+import { formatUserFriendlyProviderError } from '@lingora/ai'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
@@ -118,21 +118,21 @@ const CONTEXT_TABS = [
   'slang',
 ] as const
 
-const CONTEXT_TAB_ICONS: Record<(typeof CONTEXT_TABS)[number], keyof typeof Ionicons.glyphMap> = {
-  all: 'layers-outline',
-  casual: 'cafe-outline',
-  formal: 'ribbon-outline',
-  business: 'briefcase-outline',
-  travel: 'airplane-outline',
-  daily_life: 'home-outline',
-  slang: 'sparkles-outline',
+const CONTEXT_TAB_ICONS: Record<(typeof CONTEXT_TABS)[number], IconName> = {
+  all: 'Layers',
+  casual: 'Coffee',
+  formal: 'Award',
+  business: 'Briefcase',
+  travel: 'Plane',
+  daily_life: 'House',
+  slang: 'Sparkles',
 }
 
 const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'meaning',
     title: 'Meaning',
-    icon: 'book-outline',
+    icon: 'BookOpen',
     paragraphs: [
       'The translation at the top is what actually appears on your flashcard.',
       'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.',
@@ -142,7 +142,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'examples',
     title: 'Example sentences',
-    icon: 'chatbubble-outline',
+    icon: 'MessageCircle',
     paragraphs: [
       'Example sentences show the word used in context, with a translation underneath.',
       'Tap the star on any example to choose which one appears on your flashcard - only one shows at a time.',
@@ -153,7 +153,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'grammar',
     title: 'Advanced grammar options',
-    icon: 'options-outline',
+    icon: 'SlidersHorizontal',
     paragraphs: [
       'This collapsible panel below the examples lets you pick a specific grammar pattern - a tense, a sentence structure, a particular conjunction - that you want the next batch of examples to practice, instead of leaving it to chance.',
       'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.',
@@ -163,7 +163,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'actions',
     title: 'Explain, Ask AI & more',
-    icon: 'chatbubble-ellipses-outline',
+    icon: 'MessageCircle',
     paragraphs: [
       'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
       '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.',
@@ -175,7 +175,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'synonyms-phrases',
     title: 'Synonyms & phrases',
-    icon: 'swap-horizontal-outline',
+    icon: 'ArrowLeftRight',
     paragraphs: [
       'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.',
       'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
@@ -184,7 +184,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'cloze',
     title: 'Cloze cards',
-    icon: 'create-outline',
+    icon: 'SquarePen',
     paragraphs: [
       'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.',
       '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
@@ -194,7 +194,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'deck',
     title: 'Adding to a deck',
-    icon: 'albums-outline',
+    icon: 'Layers',
     paragraphs: [
       '"Add to deck" at the bottom is how you start reviewing this word - you can add it to more than one deck, or create a new one on the spot.',
       'Whatever translation at this moment is selected/shown will be added to deck along with its relevant example.',
@@ -1135,7 +1135,7 @@ export default function WordDetailScreen(): JSX.Element {
         options={{
           title: '',
           headerRight: () => (
-            <IconButton icon="help-circle-outline" size={22} onPress={() => help.openSection('meaning')} />
+            <IconButton icon="CircleQuestionMark" size={22} onPress={() => help.openSection('meaning')} />
           ),
         }}
       />
@@ -1176,8 +1176,8 @@ export default function WordDetailScreen(): JSX.Element {
                   <Text style={styles.formsToggleLabel}>
                     {formsExpanded ? t('Hide grammar info') : t('Grammar info')}
                   </Text>
-                  <Ionicons
-                    name={formsExpanded ? 'chevron-up' : 'chevron-down'}
+                  <Icon
+                    name={formsExpanded ? 'ChevronUp' : 'ChevronDown'}
                     size={13}
                     color={colors.primary}
                   />
@@ -1201,7 +1201,7 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.clusterSection}>
           <View style={styles.clusterSectionHeader}>
             <View style={styles.clusterTitleRow}>
-              <Ionicons name="layers-outline" size={16} color={colors.primary} />
+              <Icon name="Layers" size={16} color={colors.primary} />
               <Text style={styles.clusterSectionLabel}>{t('Semantic Contexts')}</Text>
             </View>
             <Text style={styles.clusterCountBadge}>
@@ -1264,7 +1264,7 @@ export default function WordDetailScreen(): JSX.Element {
                   onExplain={handleExplain}
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                  {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+                  {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
                   {...(!aiIntended && { onEdit: openEdit })}
                   onLookup={handleLookup}
                   onAskAI={handleAskAI}
@@ -1312,7 +1312,7 @@ export default function WordDetailScreen(): JSX.Element {
                   <View style={styles.exampleHeaderRow}>
                     {ex.isSelected ? (
                       <View style={styles.selectedBanner}>
-                        <Ionicons name="star" size={14} color={colors.primary} />
+                        <Icon name="Star" size={14} color={colors.primary} />
                         <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
                       </View>
                     ) : (
@@ -1322,7 +1322,7 @@ export default function WordDetailScreen(): JSX.Element {
                         disabled={selectExample.isPending}
                         hitSlop={10}
                       >
-                        <Ionicons name="star-outline" size={14} color={colors.textMuted} />
+                        <Icon name="Star" size={14} color={colors.textMuted} />
                         <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
                       </Pressable>
                     )}
@@ -1350,7 +1350,7 @@ export default function WordDetailScreen(): JSX.Element {
               <View style={styles.moreExamplesContainer}>
                 <Button
                   label={generateExamples.isPending ? t('Generating more examples...') : t('Generate more examples')}
-                  icon="sparkles"
+                  icon="Sparkles"
                   variant="secondary"
                   small
                   disabled={generateExamples.isPending}
@@ -1361,11 +1361,11 @@ export default function WordDetailScreen(): JSX.Element {
 
             {/* ── Advanced grammar options trigger button ── */}
             <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen(true)}>
-              <Ionicons name="options-outline" size={16} color={colors.primary} />
+              <Icon name="SlidersHorizontal" size={16} color={colors.primary} />
               <Text style={styles.grammarToggleLabel}>
                 {t('Advanced grammar options')}{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}
               </Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+              <Icon name="ChevronRight" size={16} color={colors.primary} />
             </Pressable>
 
             {/* ── Advanced Grammar Options Modal Pop-Up ── */}
@@ -1380,7 +1380,7 @@ export default function WordDetailScreen(): JSX.Element {
                 <View style={styles.grammarModalContent}>
                   <View style={styles.grammarModalHeader}>
                     <View style={styles.grammarModalTitleRow}>
-                      <Ionicons name="options" size={20} color={colors.primary} />
+                      <Icon name="SlidersHorizontal" size={20} color={colors.primary} />
                       <Text style={styles.grammarModalTitle}>{t('Advanced Grammar Options')}</Text>
                     </View>
                     <Pressable
@@ -1388,7 +1388,7 @@ export default function WordDetailScreen(): JSX.Element {
                       onPress={() => setGrammarOpen(false)}
                       hitSlop={10}
                     >
-                      <Ionicons name="close" size={20} color={colors.textSecondary} />
+                      <Icon name="X" size={20} color={colors.textSecondary} />
                     </Pressable>
                   </View>
 
@@ -1439,8 +1439,8 @@ export default function WordDetailScreen(): JSX.Element {
                           onPress={handleAddCustomGrammar}
                           disabled={!customGrammarInput.trim()}
                         >
-                          <Ionicons
-                            name="add"
+                          <Icon
+                            name="Plus"
                             size={20}
                             color={customGrammarInput.trim() ? colors.surface : colors.textMuted}
                           />
@@ -1450,7 +1450,7 @@ export default function WordDetailScreen(): JSX.Element {
 
                     {grammarSelection.length > 0 ? (
                       <View style={styles.grammarSummaryBox}>
-                        <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                        <Icon name="CircleCheck" size={14} color={colors.primary} />
                         <Text style={styles.grammarSummary}>
                           {t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}
                         </Text>
@@ -1462,7 +1462,7 @@ export default function WordDetailScreen(): JSX.Element {
                     {tier === 'full' ? (
                       <Button
                         label={generateExamples.isPending ? t('Generating examples...') : t('Generate targeted examples')}
-                        icon="sparkles"
+                        icon="Sparkles"
                         disabled={generateExamples.isPending}
                         onPress={() => {
                           setGrammarOpen(false)
@@ -1476,7 +1476,7 @@ export default function WordDetailScreen(): JSX.Element {
                         </Text>
                         <Button
                           label={t('Open Settings')}
-                          icon="key-outline"
+                          icon="Key"
                           variant="secondary"
                           small
                           onPress={() => {
@@ -1516,8 +1516,8 @@ export default function WordDetailScreen(): JSX.Element {
                               accessibilityRole="button"
                               accessibilityLabel={t('AI Usage & Nuance')}
                             >
-                              <Ionicons
-                                name={isExpanded ? 'sparkles' : 'sparkles-outline'}
+                              <Icon
+                                name={isExpanded ? 'Sparkles' : 'Sparkles'}
                                 size={15}
                                 color={isExpanded ? colors.surface : colors.primary}
                               />
@@ -1532,7 +1532,7 @@ export default function WordDetailScreen(): JSX.Element {
                               accessibilityRole="button"
                               accessibilityLabel={t('Open Flashcard')}
                             >
-                              <Ionicons name="open-outline" size={16} color={colors.textSecondary} />
+                              <Icon name="ExternalLink" size={16} color={colors.textSecondary} />
                             </Pressable>
                           </View>
                         </View>
@@ -1549,7 +1549,7 @@ export default function WordDetailScreen(): JSX.Element {
                             ) : (
                               <>
                                 <View style={styles.synInlineHeader}>
-                                  <Ionicons name="sparkles" size={13} color={colors.primary} />
+                                  <Icon name="Sparkles" size={13} color={colors.primary} />
                                   <Text style={styles.synInlineTitle}>{t('AI Usage & Nuance')}</Text>
                                 </View>
                                 <Text style={styles.synInlineText} selectable>
@@ -1616,7 +1616,7 @@ export default function WordDetailScreen(): JSX.Element {
               {generatePhrases.isPending ? (
                 <ActivityIndicator size="small" color={colors.textOnPrimary} />
               ) : (
-                <Ionicons name="sparkles" size={15} color={colors.textOnPrimary} />
+                <Icon name="Sparkles" size={15} color={colors.textOnPrimary} />
               )}
               <Text style={styles.phrasesPillLabel}>
                 {generatePhrases.isPending ? t('Generating...') : t('Load more with AI')}
@@ -1644,7 +1644,7 @@ export default function WordDetailScreen(): JSX.Element {
               {generatePhrases.isPending ? (
                 <ActivityIndicator size="small" color={colors.textOnPrimary} />
               ) : (
-                <Ionicons name="sparkles" size={16} color={colors.textOnPrimary} />
+                <Icon name="Sparkles" size={16} color={colors.textOnPrimary} />
               )}
               <Text style={styles.phrasesPillLabel}>
                 {generatePhrases.isPending ? t('Generating...') : t('Explore with AI')}
@@ -1679,13 +1679,13 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.bottomBarButtonRow}>
             <Button
               label={t('Add to deck')}
-              icon="add-circle"
+              icon="CirclePlus"
               onPress={() => setDeckPickerOpen(true)}
               style={styles.bottomBarButton}
             />
             <Button
               label={word.clozes.length > 0 ? t('Edit Cloze') : t('Add to Cloze')}
-              icon="create-outline"
+              icon="SquarePen"
               variant="secondary"
               onPress={() =>
                 setClozeEditor({
@@ -1769,7 +1769,7 @@ export default function WordDetailScreen(): JSX.Element {
                   {generateEditExample.isPending ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
-                    <Ionicons name="sparkles" size={14} color={colors.primary} />
+                    <Icon name="Sparkles" size={14} color={colors.primary} />
                   )}
                   <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
                 </Pressable>
@@ -1798,7 +1798,7 @@ export default function WordDetailScreen(): JSX.Element {
             <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
             <Button
               label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
-              icon="save"
+              icon="Save"
               onPress={() => saveEdit.mutate()}
               disabled={saveEdit.isPending}
             />

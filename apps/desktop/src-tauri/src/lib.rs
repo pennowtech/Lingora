@@ -15,6 +15,13 @@ fn trigger_quick_lookup(app: tauri::AppHandle) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // AI provider calls (OpenAI, Mistral, Gemini, Claude, DeepL, ElevenLabs, Deepgram) are
+        // BYOK direct-to-provider requests from the frontend — routed through this plugin (see
+        // src/services/desktopFetch.ts) instead of the WebView's own fetch, since the WebView is
+        // still subject to browser CORS and none of those providers send
+        // Access-Control-Allow-Origin for a page origin. A Rust-side request has no page origin,
+        // so it isn't subject to CORS at all.
+        .plugin(tauri_plugin_http::init())
         .invoke_handler(tauri::generate_handler![greet, trigger_quick_lookup])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

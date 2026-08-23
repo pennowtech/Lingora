@@ -1,4 +1,9 @@
-import type { DayReviewCount } from '@lingora/database'
+/** The minimal per-day shape buildHeatmap needs — a structural subset of @lingora/database's
+ * DayReviewCount, kept separate so this package doesn't depend on the database package (which
+ * itself depends on @lingora/core — a real dependency back here would be circular). */
+export interface DayCount {
+  count: number
+}
 
 /** Consecutive reviewed days counting back from today (or yesterday, so an unfinished today doesn't break it). */
 export function streakFromDayIndexes(days: number[]): number {
@@ -16,12 +21,12 @@ export function streakFromDayIndexes(days: number[]): number {
 }
 
 /**
- * Buckets daily review counts into 0–4 intensity levels for the heatmap,
+ * Buckets daily review counts into 0-4 intensity levels for the heatmap,
  * relative to the busiest day in the range (so the scale adapts to how
  * active this particular user is, rather than fixed absolute thresholds).
  * Returns rows of `columns` days, oldest first, matching `counts`' order.
  */
-export function buildHeatmap(counts: DayReviewCount[], columns = 7): number[][] {
+export function buildHeatmap(counts: DayCount[], columns = 7): number[][] {
   const max = Math.max(0, ...counts.map((c) => c.count))
   const intensity = (count: number): number => {
     if (count === 0 || max === 0) return 0

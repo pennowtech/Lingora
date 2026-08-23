@@ -23,16 +23,22 @@ import {
   createCloze
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
-import { buildCardContext, renderCardHtml } from './templates';
+import { buildCardContext, renderCardHtml, SEPARABLE_PREFIXES } from './templates';
 import type { LanguageCode, CefrLevel } from '@lingora/types';
-import { 
-  OpenAIProvider, 
-  MistralProvider, 
-  GeminiProvider, 
+import {
+  OpenAIProvider,
+  MistralProvider,
+  GeminiProvider,
   AnthropicProvider,
-  createAIPipeline
+  createAIPipeline,
+  validateOpenAIKey,
+  validateMistralKey,
+  validateGeminiKey,
+  validateClaudeKey,
+  validateDeepLKey
 } from '@lingora/ai';
 import { getDesktopDatabase } from './database';
+import { desktopFetch } from './desktopFetch';
 
 export type ProviderName = 'openai' | 'mistral' | 'gemini' | 'anthropic';
 export type TranslationProvider = 'google' | 'deepl' | 'openai' | 'mistral' | 'gemini' | 'anthropic';
@@ -178,72 +184,36 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     localStorage.setItem('lingora.providers', JSON.stringify(providers));
   }, [providers]);
 
-  // Validation Logic
+  // Validation Logic — delegates to @lingora/ai's shared validators (also used by apps/mobile),
+  // which give a real reachability pre-check and friendly, specific error messages (bad key vs.
+  // quota vs. rate limit vs. server error vs. offline) instead of a single generic fallback string.
   const validateProviderKey = async (name: ProviderName) => {
     setProviders(prev => ({ ...prev, [name]: { ...prev[name], validating: true, validated: false, error: undefined } }));
     const p = providers[name];
-    let isValid = false;
-    let errorMsg = undefined;
 
-    try {
-      if (name === 'openai') {
-        const res = await fetch('https://api.openai.com/v1/models', {
-          headers: { 'Authorization': `Bearer ${p.key}` }
-        });
-        isValid = res.ok;
-      } else if (name === 'gemini') {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${p.key}`);
-        isValid = res.ok;
-      } else if (name === 'mistral') {
-        const res = await fetch('https://api.mistral.ai/v1/models', {
-          headers: { 'Authorization': `Bearer ${p.key}` }
-        });
-        isValid = res.ok;
-      } else if (name === 'anthropic') {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'x-api-key': p.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-          body: JSON.stringify({ model: p.model, max_tokens: 1, messages: [{ role: 'user', content: 'hello' }] })
-        });
-        isValid = res.ok || res.status === 400; // 400 means valid key, bad request structure, 401 is bad key
-      }
-    } catch(err: any) {
-      isValid = false;
-      errorMsg = err.message || 'Network error occurred';
-    }
+    const VALIDATORS: Record<ProviderName, () => Promise<{ ok: boolean; message: string }>> = {
+      openai: () => validateOpenAIKey(p.key, p.model, desktopFetch),
+      mistral: () => validateMistralKey(p.key, p.model, desktopFetch),
+      gemini: () => validateGeminiKey(p.key, p.model, desktopFetch),
+      anthropic: () => validateClaudeKey(p.key, p.model, desktopFetch),
+    };
+    const result = await VALIDATORS[name]();
 
-    if (!isValid && !errorMsg) {
-      errorMsg = 'Invalid API key or authentication failed.';
-    }
-
-    setProviders(prev => ({ ...prev, [name]: { ...prev[name], validating: false, validated: isValid, error: errorMsg } }));
+    setProviders(prev => ({
+      ...prev,
+      [name]: { ...prev[name], validating: false, validated: result.ok, error: result.ok ? undefined : result.message }
+    }));
   };
 
   const validateDeeplKey = async () => {
     setDeeplValidating(true);
     setDeeplError(undefined);
-    let isValid = false;
-    let errorMsg = undefined;
-    try {
-      const isPro = deeplKey.endsWith(':fx') ? false : true;
-      const endpoint = isPro ? 'https://api.deepl.com/v2/usage' : 'https://api-free.deepl.com/v2/usage';
-      const res = await fetch(endpoint, {
-        headers: { 'Authorization': `DeepL-Auth-Key ${deeplKey}` }
-      });
-      isValid = res.ok;
-    } catch (e: any) {
-      isValid = false;
-      errorMsg = e.message || 'Network error occurred';
-    }
-    
-    if (!isValid && !errorMsg) {
-      errorMsg = 'Invalid DeepL API key or authorization failed.';
-    }
+    const result = await validateDeepLKey(deeplKey, desktopFetch);
 
     setDeeplValidating(false);
-    setDeeplValidatedState(isValid);
-    setDeeplError(errorMsg);
-    localStorage.setItem('lingora.deepl_validated', isValid.toString());
+    setDeeplValidatedState(result.ok);
+    setDeeplError(result.ok ? undefined : result.message);
+    localStorage.setItem('lingora.deepl_validated', result.ok.toString());
   };
 
   useEffect(() => {
@@ -444,12 +414,6 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
             let answer = lemmaForm;
 
             // Attempt to blank out the word in the sentence
-            const SEPARABLE_PREFIXES = [
-              'zusammen', 'zurück', 'entgegen', 'gegenüber', 'hinein', 'hinaus', 'heraus', 'herein',
-              'wieder', 'entlang', 'vorbei', 'statt', 'durch', 'über', 'unter', 'wider', 'fest',
-              'her', 'hin', 'los', 'mit', 'vor', 'weg', 'zu', 'ab', 'an', 'auf', 'aus', 'bei', 'ein',
-            ].sort((a, b) => b.length - a.length);
-
             const forms = new Set<string>([lemmaForm]);
             const lower = lemmaForm.toLowerCase();
             const prefix = SEPARABLE_PREFIXES.find((p) => lower.startsWith(p) && lemmaForm.length - p.length >= 3);
@@ -610,16 +574,18 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
 
     if (!db) throw new Error("Database not loaded.");
 
-    const fetchFn = fetch.bind(window);
+    // desktopFetch routes through Tauri's HTTP plugin (Rust-side, no page origin) instead of the
+    // WebView's own fetch — none of these providers send Access-Control-Allow-Origin for a page
+    // origin, so a plain WebView request would be blocked by CORS. See desktopFetch.ts.
     let aiProviderInstance: any;
     if (selectedGenerationProvider === 'openai') {
-      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || 'gpt-4o-mini', fetchFn });
+      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || 'gpt-4.1-mini', fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'mistral') {
-      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || 'mistral-small-latest', fetchFn });
+      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || 'mistral-small-latest', fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'gemini') {
-      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || 'gemini-2.5-flash', fetchFn });
+      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || 'gemini-2.5-flash', fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'anthropic') {
-      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || 'claude-3-5-haiku-latest', fetchFn });
+      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || 'claude-haiku-4-5-20251001', fetchFn: desktopFetch });
     }
 
     const pipeline = await createAIPipeline({

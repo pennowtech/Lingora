@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default permissions for the main window - grants the HTTP plugin so AI provider (BYOK) requests can be made from Rust, bypassing the WebView's browser CORS restrictions.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "http:default"
+  ]
+}

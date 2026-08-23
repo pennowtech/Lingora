@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { Deck } from '@lingora/types'
 import {
   createDeck,
@@ -28,6 +27,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { Icon } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
 import {
@@ -44,7 +44,7 @@ import {
   type ImportFormat,
 } from '../../components/ui'
 import { CloudSyncNotConfiguredError, requestCloudSync, useCloudSync } from '../../lib/cloudSync'
-import { collectDescendantIds } from '../../lib/deckTree'
+import { collectDescendantIds } from '@lingora/core'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -362,7 +362,7 @@ export default function DecksScreen(): JSX.Element {
                 <ActivityIndicator size="small" color={colors.primary} />
               </View>
             ) : (
-              <IconButton testID="deck-sync-now-button" icon="sync" onPress={handleSyncNow} />
+              <IconButton testID="deck-sync-now-button" icon="RefreshCw" onPress={handleSyncNow} />
             ),
         }}
       />
@@ -372,7 +372,7 @@ export default function DecksScreen(): JSX.Element {
         <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
       ) : decksQuery.data.length === 0 ? (
         <EmptyState
-          icon="albums"
+          icon="Layers"
           title={t('No decks yet')}
           message={t('Create your first deck with the + button.')}
         />
@@ -385,7 +385,7 @@ export default function DecksScreen(): JSX.Element {
       )}
 
       <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setActionMenuOpen(true)}>
-        <Ionicons name="add" size={28} color={colors.textOnPrimary} />
+        <Icon name="Plus" size={28} color={colors.textOnPrimary} />
       </Pressable>
 
       {/* ── "+" action menu — add deck, add card, or import a file ── */}
@@ -400,7 +400,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-add-deck"
               label={t('Add deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -410,7 +410,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-add-card"
               label={t('Add card')}
-              icon="add-circle-outline"
+              icon="CirclePlus"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -420,7 +420,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-import"
               label={t('Import file')}
-              icon="download-outline"
+              icon="Download"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -491,7 +491,7 @@ export default function DecksScreen(): JSX.Element {
               <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
               <Button
                 label={create.isPending ? t('Creating...') : t('Create deck')}
-                icon="add"
+                icon="Plus"
                 disabled={create.isPending}
                 onPress={() => create.mutate()}
               />
@@ -527,7 +527,7 @@ export default function DecksScreen(): JSX.Element {
                   }}
                 >
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+                    <Icon name="CirclePlus" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Add Card')}</Text>
                 </Pressable>
@@ -542,21 +542,21 @@ export default function DecksScreen(): JSX.Element {
                   }}
                 >
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="folder-open-outline" size={20} color={colors.primary} />
+                    <Icon name="FolderOpen" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Open Deck')}</Text>
                 </Pressable>
 
                 <Pressable style={styles.gridActionTile} onPress={() => showImport(menuDeck)}>
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="download-outline" size={20} color={colors.primary} />
+                    <Icon name="Download" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Import')}</Text>
                 </Pressable>
 
                 <Pressable style={styles.gridActionTile} onPress={() => showExport(menuDeck)}>
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="cloud-download-outline" size={20} color={colors.primary} />
+                    <Icon name="CloudDownload" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Export')}</Text>
                 </Pressable>
@@ -572,30 +572,30 @@ export default function DecksScreen(): JSX.Element {
                     setMenuDeck(null)
                   }}
                 >
-                  <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="Pencil" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Rename deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => showMove(menuDeck)}>
-                  <Ionicons name="folder-open-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="FolderOpen" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Move deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => showMerge(menuDeck)}>
-                  <Ionicons name="git-merge-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="GitMerge" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Merge into another deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => confirmResetProgress(menuDeck)}>
-                  <Ionicons name="refresh-outline" size={18} color={colors.warning} />
+                  <Icon name="RefreshCw" size={18} color={colors.warning} />
                   <Text style={[styles.menuRowLabel, { color: colors.warning }]}>{t('Reset progress')}</Text>
                 </Pressable>
 
                 <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={() => confirmDelete(menuDeck)}>
-                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                  <Icon name="Trash2" size={18} color={colors.danger} />
                   <Text style={[styles.menuRowLabel, { color: colors.danger }]}>{t('Delete deck')}</Text>
                 </Pressable>
               </View>
@@ -669,7 +669,7 @@ export default function DecksScreen(): JSX.Element {
                       onPress={() => move.mutate(null)}
                       disabled={move.isPending || pickerDeck.parentId === undefined}
                     >
-                      <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+                      <Icon name="LayoutGrid" size={18} color={colors.textSecondary} />
                       <Text style={styles.pickerRowLabel}>{t('Top level (no parent)')}</Text>
                     </Pressable>
                   ) : null}
@@ -831,9 +831,9 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
             <Text style={styles.dueBadgeLabel}>{t('{{count}} due', { count: node.dueCount })}</Text>
           </Pressable>
         ) : (
-          <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+          <Icon name="CircleCheck" size={20} color={colors.success} />
         )}
-        <IconButton icon="ellipsis-vertical" onPress={() => onOpenMenu(node.deck)} />
+        <IconButton icon="EllipsisVertical" onPress={() => onOpenMenu(node.deck)} />
       </Card>
       {node.children.map((child) => (
         <DeckRow key={child.deck.id} node={child} depth={depth + 1} onOpenMenu={onOpenMenu} />

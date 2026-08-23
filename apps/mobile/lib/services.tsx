@@ -1,5 +1,20 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import {
+  ALL_DECKS_ID,
+  DEFAULT_DECK_ID,
+  DEFAULT_MODELS,
+  DEFAULT_NATIVE_LANGUAGE,
+  DEFAULT_TARGET_LANGUAGE,
+  FULLY_SUPPORTED_VOCAB_LANGUAGES,
+  GENERATION_PROVIDERS,
+  LANGUAGE_FLAGS,
+  STORE_KEYS,
+  SUPPORTED_LANGUAGES,
+  TRANSLATION_PROVIDERS,
+  type GenerationProviderName,
+  type TranslationProviderName,
+} from '@lingora/core'
+import {
   AnthropicProvider,
   createAIPipeline,
   DeepLProvider,
@@ -73,89 +88,23 @@ const aiLog = logger.child({ feature: 'ai', component: 'services' })
  */
 export type FeatureTier = 'translation' | 'full'
 
-/** The provider slots that can fill AIProvider (word-package generation). */
-export const GENERATION_PROVIDERS = ['openai', 'mistral', 'gemini', 'anthropic'] as const
-export type GenerationProviderName = (typeof GENERATION_PROVIDERS)[number]
-
-/** Everything the dictionary (translation) slot can be filled by. */
-export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'mistral', 'gemini', 'anthropic'] as const
-export type TranslationProviderName = (typeof TRANSLATION_PROVIDERS)[number]
-
-export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
-  openai: 'gpt-4.1-mini',
-  mistral: 'mistral-small-latest',
-  gemini: 'gemini-2.5-flash',
-  anthropic: 'claude-haiku-4-5-20251001',
+/** Pure data, imported above — lives in @lingora/core so the desktop app can reuse it too.
+ * Re-exported here so every existing `from './services'` import in the app keeps working. */
+export {
+  GENERATION_PROVIDERS,
+  TRANSLATION_PROVIDERS,
+  DEFAULT_MODELS,
+  STORE_KEYS,
+  DEFAULT_DECK_ID,
+  ALL_DECKS_ID,
+  SUPPORTED_LANGUAGES,
+  FULLY_SUPPORTED_VOCAB_LANGUAGES,
+  LANGUAGE_FLAGS,
+  DEFAULT_NATIVE_LANGUAGE,
+  DEFAULT_TARGET_LANGUAGE,
+  type GenerationProviderName,
+  type TranslationProviderName,
 }
-
-/** SecureStore keys — the only place API keys and preferences are persisted. */
-export const STORE_KEYS = {
-  openaiKey: 'lingora.openai_key',
-  openaiModel: 'lingora.openai_model',
-  openaiEnabled: 'lingora.openai_enabled',
-  openaiValidatedKey: 'lingora.openai_validated_key',
-  mistralKey: 'lingora.mistral_key',
-  mistralModel: 'lingora.mistral_model',
-  mistralEnabled: 'lingora.mistral_enabled',
-  mistralValidatedKey: 'lingora.mistral_validated_key',
-  geminiKey: 'lingora.gemini_key',
-  geminiModel: 'lingora.gemini_model',
-  geminiEnabled: 'lingora.gemini_enabled',
-  geminiValidatedKey: 'lingora.gemini_validated_key',
-  claudeKey: 'lingora.claude_key',
-  claudeModel: 'lingora.claude_model',
-  claudeEnabled: 'lingora.claude_enabled',
-  claudeValidatedKey: 'lingora.claude_validated_key',
-  deeplKey: 'lingora.deepl_key',
-  deeplEnabled: 'lingora.deepl_enabled',
-  deeplValidatedKey: 'lingora.deepl_validated_key',
-  translationProvider: 'lingora.translation_provider',
-  generationProvider: 'lingora.generation_provider',
-  defaultCefr: 'lingora.default_cefr',
-  nativeLanguage: 'lingora.native_language',
-  targetLanguage: 'lingora.target_language',
-  ttsPitch: 'lingora.tts_pitch',
-  ttsRate: 'lingora.tts_rate',
-  hasSeeded: 'lingora.has_seeded',
-  reviewQuestionTypes: 'lingora.review_question_types',
-  sessionCardLimit: 'lingora.session_card_limit',
-} as const
-
-export const DEFAULT_DECK_ID = 'deck-default'
-
-/** Not a real deck id — a review-screen route param meaning "every deck, unfiltered" (see the
- * due-card repository queries, which already treat an omitted deckId that way). Used by Home's
- * review shortcuts so the deck they open always matches the due-count they're showing, instead
- * of pointing at one hardcoded deck that may not even exist any more. */
-export const ALL_DECKS_ID = 'all'
-
-/** Every language the dictionary/generation providers know how to handle (see LanguageCode). */
-export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['de', 'en', 'ja', 'es', 'fr', 'vi', 'hi']
-
-/** The subset of SUPPORTED_LANGUAGES with real generation/dictionary/word-guide content today —
- * shared by settings/learning.tsx (gates the native/target pickers) and settings/general.tsx
- * (gates the app-language ↔ native-language cross-prompt: offering to switch a language the
- * native-language picker would then reject makes no sense). Japanese/Spanish/Vietnamese still
- * show up in the pickers themselves but warn instead of applying — see learning.tsx's own
- * warnUnsupportedLanguage. */
-export const FULLY_SUPPORTED_VOCAB_LANGUAGES: readonly LanguageCode[] = ['en', 'de', 'fr', 'hi']
-
-/** Flag emoji per vocabulary language — purely decorative/iconographic, never translated, so
- * (unlike the per-screen VOCAB_LANGUAGE_LABELS text maps) this one lives in one shared place
- * instead of being duplicated per screen. Used by components/LanguagePairBadge.tsx. */
-export const LANGUAGE_FLAGS: Record<LanguageCode, string> = {
-  de: '🇩🇪',
-  en: '🇬🇧',
-  es: '🇪🇸',
-  fr: '🇫🇷',
-  hi: '🇮🇳',
-  ja: '🇯🇵',
-  vi: '🇻🇳',
-}
-
-/** Preserves today's hardcoded German→English behavior for users who never open the setting. */
-export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
-export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'
 
 export interface Services {
   db: DatabaseAdapter

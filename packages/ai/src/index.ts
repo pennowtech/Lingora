@@ -52,3 +52,22 @@ export {
 // Prompt registry (templates are versioned application logic)
 export { LANGUAGE_NAMES, PROMPTS, renderPrompt, type PromptName, type PromptTemplate } from './prompts/templates'
 export { ensurePromptVersions } from './prompts/seed'
+
+// Provider-key validation & user-friendly error formatting — shared between apps/mobile and the
+// desktop app's Settings screens (lives here, not packages/core, to avoid a circular dependency —
+// see validation.ts's own doc comment).
+export {
+  formatUserFriendlyProviderError,
+  validateClaudeKey,
+  validateDeepLKey,
+  validateGeminiKey,
+  validateMistralKey,
+  validateOpenAIKey,
+  type TranslateFn,
+  type ValidationResult,
+} from './validation'
+
+// Network-error classification and dictionary-language detection — same circular-dependency
+// reason as validation.ts above.
+export { isNetworkError, networkErrorMessage } from './networkError'
+export { detectSearchLanguage } from './languageDetection'

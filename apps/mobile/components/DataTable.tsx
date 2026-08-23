@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native'
+import { Icon } from './Icon'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -56,8 +56,8 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
         <View style={styles.headerRow}>
           {selection ? (
             <Pressable style={[styles.headerCheckboxCell, { width: SELECT_COLUMN_WIDTH }]} onPress={selection.onToggleAll}>
-              <Ionicons
-                name={selection.allSelected ? 'checkbox' : 'square-outline'}
+              <Icon
+                name={selection.allSelected ? 'SquareCheck' : 'Square'}
                 size={18}
                 color={selection.allSelected ? colors.primary : colors.textMuted}
               />
@@ -85,8 +85,8 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                   style={[styles.checkboxCell, { width: SELECT_COLUMN_WIDTH }]}
                   onPress={() => selection.onToggle(row)}
                 >
-                  <Ionicons
-                    name={selection.isSelected(row) ? 'checkbox' : 'square-outline'}
+                  <Icon
+                    name={selection.isSelected(row) ? 'SquareCheck' : 'Square'}
                     size={18}
                     color={selection.isSelected(row) ? colors.primary : colors.textMuted}
                   />

@@ -135,9 +135,9 @@ const CEFR_LEVELS: { level: CefrLevel; desc: string; color: string }[] = [
   { level: 'C2', desc: 'Mastery / Fluent', color: 'var(--warning)' }
 ];
 
-export const SettingsScreen: React.FC = () => {
-  const { 
-    cefrLevel: currentCefr, 
+export const SettingsScreen: React.FC<{ initialTab?: 'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop' }> = ({ initialTab }) => {
+  const {
+    cefrLevel: currentCefr,
     nativeLanguage: currentNative, 
     targetLanguage: currentTarget, 
     setLearningConfig, 
@@ -158,7 +158,7 @@ export const SettingsScreen: React.FC = () => {
     validateDeeplKey
   } = useDesktopServices();
 
-  const [activeTab, setActiveTab] = useState<'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop'>('learning');
+  const [activeTab, setActiveTab] = useState<'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop'>(initialTab ?? 'learning');
 
   // Learning & Language Settings State (following mobile app)
   const [cefr, setCefrState] = useState<CefrLevel>(currentCefr);

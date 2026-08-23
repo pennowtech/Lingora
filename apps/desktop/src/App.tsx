@@ -20,8 +20,16 @@ const AppContent: React.FC = () => {
   const [words, setWords] = useState(MOCK_WORDS);
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
   const [miningQueue, setMiningQueue] = useState(MOCK_MINING_QUEUE);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop' | undefined>(undefined);
 
   const [isQuickLookupOpen, setIsQuickLookupOpen] = useState(false);
+
+  // Search & Lookup's "no AI provider configured" prompt jumps straight to the AI Providers tab,
+  // rather than landing on Settings' own default tab and making the user find it themselves.
+  const navigateToAiProviderSettings = () => {
+    setSettingsInitialTab('ai');
+    setActiveScreen('settings');
+  };
 
   // Map DB deck shape { id, name, ... } → UI Deck shape { id, title, totalCards, ... }
   // While DB is loading, show mock decks as placeholders
@@ -113,6 +121,7 @@ const AppContent: React.FC = () => {
             words={words}
             decks={decks}
             onAddCard={handleAddCard}
+            onNavigateToAiProviderSettings={navigateToAiProviderSettings}
           />
         )}
 
@@ -142,7 +151,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeScreen === 'settings' && (
-          <SettingsScreen />
+          <SettingsScreen initialTab={settingsInitialTab} />
         )}
       </div>
 

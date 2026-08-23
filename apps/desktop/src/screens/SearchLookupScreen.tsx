@@ -6,7 +6,7 @@ import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
 import { useDesktopServices } from '../services/desktopServices';
 import { getClustersForLemma, getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
-import { detectSearchLanguage, formatUserFriendlyProviderError } from '@lingora/ai';
+import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, type GenerationProviderName } from '@lingora/core';
 import type { CardSource } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
@@ -50,10 +50,13 @@ interface SearchLookupScreenProps {
   words: WordLemma[];
   decks: Deck[];
   onAddCard: (wordForm: string, context: string, deckId: string, cardType: string, deckTitle?: string) => void;
+  /** Jumps to Settings' AI Providers tab — used by the "no AI provider configured" prompt below,
+   * which replaces "Generate with AI" when the active generation provider has no validated key. */
+  onNavigateToAiProviderSettings: () => void;
 }
 
-export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
-  const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
+export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard, onNavigateToAiProviderSettings }) => {
+  const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, providers, addNewDeck } = useDesktopServices();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
@@ -62,6 +65,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   const [isSearching, setIsSearching] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  // Set only for a genuine connectivity failure on the dictionary lookup (not a missing/invalid
+  // key, which fails silently the same way it always has) — so "the internet is down" doesn't
+  // look identical to "no dictionary translation available for this word."
+  const [searchNotice, setSearchNotice] = useState<string | null>(null);
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
@@ -170,6 +177,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
     setIsSearching(true);
     setHasSearched(true);
+    setSearchNotice(null);
 
     try {
       const previews: LemmaSearchPreview[] = db ? await searchLemmasWithPreview(db, trimmed, targetLanguage, nativeLanguage) : [];
@@ -197,6 +205,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           dictionaryTranslation = result.data;
         } catch (err) {
           console.warn('[Search & Lookup] Dictionary translation failed:', err);
+          if (isNetworkError(err)) setSearchNotice(networkErrorMessage((s) => s));
         }
 
         if (db) {
@@ -590,6 +599,18 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         </button>
       </div>
 
+      {searchNotice && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '10px 14px', marginBottom: '16px',
+          backgroundColor: 'var(--bg-glass)', border: '1px solid var(--warning)',
+          borderRadius: '10px', fontSize: '12px', color: 'var(--warning)'
+        }}>
+          <AlertCircle size={14} />
+          <span>{searchNotice}</span>
+        </div>
+      )}
+
       {/* Main Split Inspector View */}
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', minHeight: 0 }}>
         {/* Left List of Matches */}
@@ -680,17 +701,29 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
             {/* Target Deck & AI Generation Actions */}
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={handleGenerateAI}
-                disabled={isGeneratingAI}
-                className="btn btn-secondary"
-                style={{ padding: '10px 14px', fontSize: '13px' }}
-              >
-                <Sparkles size={16} color="var(--success)" />
-                <span>{`Generate with ${PROVIDER_META_DATA[selectedGenerationProvider].label}`}</span>
-              </button>
+              {providers[selectedGenerationProvider]?.validated ? (
+                <button
+                  onClick={handleGenerateAI}
+                  disabled={isGeneratingAI}
+                  className="btn btn-secondary"
+                  style={{ padding: '10px 14px', fontSize: '13px' }}
+                >
+                  <Sparkles size={16} color="var(--success)" />
+                  <span>{`Generate with ${PROVIDER_META_DATA[selectedGenerationProvider].label}`}</span>
+                </button>
+              ) : (
+                <button
+                  onClick={onNavigateToAiProviderSettings}
+                  className="btn btn-secondary"
+                  style={{ padding: '10px 14px', fontSize: '13px' }}
+                  title="Add and validate an API key in Settings to enable AI generation"
+                >
+                  <AlertCircle size={16} color="var(--warning)" />
+                  <span>Add AI provider key</span>
+                </button>
+              )}
 
-              <button 
+              <button
                 onClick={handleOpenDeckPicker}
                 className="btn btn-primary"
                 style={{ padding: '10px 18px', fontSize: '13px' }}

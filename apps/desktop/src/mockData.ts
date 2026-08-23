@@ -4,6 +4,9 @@ export interface WordLemma {
   pos: string;
   cefr: string;
   gender?: 'der' | 'die' | 'das';
+  /** Whether any card of this lemma is already in a deck — set by SearchLookupScreen from
+   * searchLemmasWithPreview's LemmaSearchPreview.inDeck, undefined for a not-yet-saved word. */
+  inDeck?: boolean;
   frequency: number;
   grammar: {
     partOfSpeech: string;

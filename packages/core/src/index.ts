@@ -1,4 +1,4 @@
-import type { QuestionType, ReviewRating } from '@lingora/types'
+import type { LanguageCode, PartOfSpeech, QuestionType, ReviewRating } from '@lingora/types'
 
 /**
  * Platform-agnostic application logic shared between apps/mobile and (from Phase 6 on) the Tauri
@@ -83,4 +83,45 @@ const RATING_RANK: Record<ReviewRating, number> = { again: 0, hard: 1, good: 2, 
  * actually retained, so the schedule should treat it as 'again', not average the two out. */
 export function worstRating(a: ReviewRating, b: ReviewRating): ReviewRating {
   return RATING_RANK[a] <= RATING_RANK[b] ? a : b
+}
+
+// ─── Part-of-speech casing heuristic ───────────────────────────────────────────
+
+/** Target languages whose orthography capitalizes every common noun, not just proper nouns and
+ * sentence-initial words — German is the only one of this app's supported languages that does.
+ * A word typed as a standalone dictionary-form search term (not read from mid-sentence, where
+ * capitalization could just mean "sentence start") is capitalized in one of these languages
+ * essentially only because it's a noun. */
+const NOUN_CAPITALIZING_LANGUAGES: readonly LanguageCode[] = ['de']
+
+/**
+ * A best-guess `PartOfSpeech` from a standalone word's own casing — for the few call sites that
+ * need *some* value before real classification (AI generation, a word-guide's own tag) is
+ * available or ever runs: a plain dictionary-translation lookup with no POS data at all, and CSV/
+ * Anki import rows with no POS column. Confirmed in the wild: German has real noun/verb minimal
+ * pairs distinguished only by capitalization — "Ausreden" (the plural noun "excuses") vs.
+ * "ausreden" (the verb "to talk someone out of something"), "Schweigen" (the noun "silence") vs.
+ * "schweigen" (the verb "to be silent") — and every one of those call sites used to hardcode
+ * `'noun'` unconditionally, mistagging every lowercase-typed verb search as a noun with no way to
+ * self-correct until (if ever) a full AI generation overwrote it.
+ *
+ * Deliberately narrow, matching the exact reliable signal and no further guess beyond it:
+ * - Outside `NOUN_CAPITALIZING_LANGUAGES` (i.e. every supported language except German), casing
+ *   carries no part-of-speech meaning at all — returns `'unknown'`, same honest default the manual
+ *   "Add card" flow already uses, rather than a wrong guess.
+ * - Within one of those languages: capitalized -> `'noun'` (the overwhelmingly common case for a
+ *   capitalized standalone search term). Lowercase only rules out noun — it's equally consistent
+ *   with a verb infinitive, an adjective, an adverb, a preposition, and more, so it can't name a
+ *   single part of speech with any real confidence either. `'verb'` is returned anyway as the
+ *   fallback guess, since it's both the single most common lowercase dictionary-form word class and
+ *   exactly the case this heuristic exists to fix (the two examples above) — still just a starting
+ *   guess a later real classification (AI generation, an installed dictionary's own tag) is free to
+ *   overwrite, never authoritative.
+ */
+export function guessPartOfSpeechFromCasing(word: string, language: LanguageCode): PartOfSpeech {
+  const trimmed = word.trim()
+  if (trimmed === '' || !NOUN_CAPITALIZING_LANGUAGES.includes(language)) return 'unknown'
+  const firstChar = trimmed[0]!
+  const isCapitalized = firstChar === firstChar.toUpperCase() && firstChar !== firstChar.toLowerCase()
+  return isCapitalized ? 'noun' : 'verb'
 }

@@ -11,6 +11,7 @@ import { BottomTabBar } from '../components/BottomTabBar'
 import { CaptureIntentHandler } from '../components/CaptureIntentHandler'
 import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
 import { LanguagePairBadge } from '../components/LanguagePairBadge'
+import { WordOfTheDayLifecycle } from '../components/WordOfTheDayLifecycle'
 import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
@@ -69,11 +70,12 @@ function AppStack(): JSX.Element {
 
   return (
     <ServicesProvider
-      loading={<Spinner message={t('Opening your vocabulary…')} />}
+      loading={<Spinner message={t('Opening your vocabulary...')} />}
       renderError={(message, retry) => <ErrorState message={message} onRetry={retry} />}
     >
       <QueryClientProvider client={queryClient}>
         <CloudSyncLifecycle />
+        <WordOfTheDayLifecycle />
         <CaptureIntentHandler />
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>
@@ -87,6 +89,7 @@ function AppStack(): JSX.Element {
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="word/[form]" options={{ title: '' }} />
+            <Stack.Screen name="recent-words" options={{ title: t('Recently searched') }} />
             <Stack.Screen name="deck/[id]" options={{ title: t('Deck') }} />
             <Stack.Screen name="deck/add-card" options={{ title: t('Add card') }} />
             <Stack.Screen name="deck/table" options={{ title: t('All cards') }} />

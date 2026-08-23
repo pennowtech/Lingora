@@ -1,8 +1,11 @@
 {
   "expo": {
-    "name": "Lingora",
+    "name": "Lemmory",
     "slug": "lingora",
-    "scheme": "lingora",
+    "scheme": [
+      "lemmory",
+      "lingora"
+    ],
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon-lingora.png",
@@ -19,7 +22,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json",
-      "versionCode": 8
+      "versionCode": 10
     },
     "web": {
       "favicon": "./assets/favicon.png"

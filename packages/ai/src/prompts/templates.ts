@@ -76,6 +76,12 @@ export function languageVars(ctx: {
  */
 const ANTI_SWAP_WARNING = `The word "{{word}}" is already written in {{targetLanguage}} — it is not something to translate. Never invert the two languages: {{targetLanguage}} for the word itself and every target-language field, {{nativeLanguage}} only for translations/explanations/meanings. Writing target-language content in {{nativeLanguage}}, or native-language content in {{targetLanguage}}, is wrong even if every other field is correct.`
 
+/** Formats a chatAboutWord conversation into the plain-text transcript block the template embeds
+ * — the model has no other memory of prior turns, so this is the entire context it gets. */
+export function formatChatTranscript(history: { role: 'user' | 'assistant'; content: string }[]): string {
+  return history.map((turn) => `${turn.role === 'user' ? 'Learner' : 'Tutor'}: ${turn.content}`).join('\n')
+}
+
 const ANTI_SWAP_LEMMA_WARNING = `${ANTI_SWAP_WARNING} Set lemma.language to exactly "{{targetLanguageCode}}" — never "{{nativeLanguageCode}}". If you find yourself translating "{{word}}" into {{nativeLanguage}} for the lemma field, stop: that is the native language, and the lemma must stay in {{targetLanguage}}.`
 
 export const PROMPTS = {
@@ -86,9 +92,17 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
-    version: 4, // v4: explicit anti-swap warning + lemma.language code instruction (see ANTI_SWAP_LEMMA_WARNING) — a model was observed inverting target/native for the whole package
+    // v6: the LEMMA section now tells the model to use the searched word's own casing as a
+    // part-of-speech disambiguation signal where the target language's orthography makes that
+    // meaningful (German capitalizes every common noun) — confirmed in the wild that "Ausreden"/
+    // "ausreden" and "Schweigen"/"schweigen" (real German noun/verb minimal pairs distinguished
+    // only by capitalization) were both generated as nouns regardless of which form was actually
+    // searched, since capitalization was previously only ever mentioned as an output-formatting
+    // rule, never as evidence the model should read from its own input.
+    // v5: conversational explanations (no academic "<word> means that..." or "This term denotes...")
+    version: 6,
 
-    template: `You are a {{targetLanguage}} lexicographer building vocabulary data for a {{targetLanguage}}→{{nativeLanguage}} learning app. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
+    template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
 
 ${ANTI_SWAP_LEMMA_WARNING}
 
@@ -96,11 +110,17 @@ Generate a complete, accurate word package for the {{targetLanguage}} word: "{{w
 {{baselineHint}}
 Requirements:
 
+EXPLANATION TONE & STYLE
+- Explanations and usage notes must sound like a friendly native mentor chatting with a friend.
+- NEVER use dry academic textbook phrasing like "{{word}} means that...", "This term denotes...", or "Defines...". Speak naturally and directly.
+- MEANING USAGE FIELD IN WORDPACKAGE: Set usage to null for every meaning in wordPackage — detailed usage explanations (50–100 words covering when, why, how, and where to use the word) are fetched on-demand when the user taps 'More info'.
+
 LEMMA
 - Return the dictionary form (lemma) of "{{word}}", in {{targetLanguage}} — not translated into {{nativeLanguage}}. If the input is inflected, the lemma is its base form, still in {{targetLanguage}}.
 - lemma.language must be exactly "{{targetLanguageCode}}".
 - partOfSpeech must be exact. For nouns include the grammatical gender and the plural form when the language marks them; for everything else (or a language without that feature) set gender and/or plural to null.
 - Capitalize the lemma and inflections exactly as {{targetLanguage}}'s own orthography requires (e.g. German nouns are always capitalized; most other languages are not).
+- If {{targetLanguage}}'s orthography makes capitalization a meaningful signal (German: every common noun is capitalized, so a lowercase input word is essentially never a noun), and "{{word}}" as actually typed is genuinely ambiguous between two parts of speech, use its exact capitalization to resolve it rather than picking whichever reading is more common overall — e.g. German "ausreden" (lowercase) is the verb "to talk someone out of something", while "Ausreden" (capitalized) is the plural noun "excuses"; "schweigen" is the verb "to be silent", "Schweigen" is the noun "silence". Ignore this rule entirely for a language where casing carries no such meaning.
 
 INFLECTIONS
 - List the surface forms a learner will actually meet (key conjugations for verbs, plural/case forms for nouns, comparative/superlative for adjectives). 3–8 forms, without the lemma itself.
@@ -108,7 +128,8 @@ INFLECTIONS
 SEMANTIC CLUSTERS
 - Group meanings by semantic context, one cluster per genuinely distinct context ("social going-out" vs "a lamp going out" vs "supplies running out").
 - Only create clusters that are real, established usages. One cluster is fine for unambiguous words; never invent contexts to fill space.
-- Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, 2–4 examples, and 0–4 synonyms.
+- Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, exactly 2 examples, and 0–4 synonyms.
+- SYNONYMS IN WORDPACKAGE: For each synonym item, provide only the target-language word and its cefrLevel. Set nuance to null and formality to "neutral" — never write nuance or usage explanations in wordPackage (they are fetched on-demand).
 - CRITICAL: every example, meaning and synonym inside a cluster must stay strictly within that cluster's semantic context. An example for the 'electricity' cluster must never describe a social evening.
 
 CEFR CALIBRATION — the learner's level is {{cefrLevel}}
@@ -116,7 +137,7 @@ CEFR CALIBRATION — the learner's level is {{cefrLevel}}
 - Label every item with its own honest CEFR level; items may sit below the learner's level, but examples must not exceed it.
 
 EXAMPLES
-- Natural, contemporary {{targetLanguage}} a native speaker would actually say — never textbook-stilted.
+- Write exactly 2 natural, contemporary {{targetLanguage}} example sentences per cluster that a native speaker would actually say — never textbook-stilted.
 - Each example gets a context tag: casual, formal, business, travel, dating, social_media, daily_life or slang.
 - Tag each example with the notable grammar structures it uses, in {{targetLanguage}}'s own grammatical terminology (grammarTags); use null when nothing stands out.
 - Each example's translation is in {{nativeLanguage}} — the learner's own language.
@@ -159,29 +180,30 @@ Return strict JSON only: {"clusters": [{"label": "...", "description": "...", "c
   /** Meanings for one existing cluster. */
   meanings: {
     name: 'meanings',
-    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
+    version: 5, // v5: 50-100 word usage explanation answering when, why, how, and where to use the word
     template: `For the {{targetLanguage}} word "{{word}}", give 1–3 meanings that belong strictly to this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
 ${ANTI_SWAP_WARNING}
 
-Learner level: {{cefrLevel}}. The learner's own language is {{nativeLanguage}} — write the translation, explanation and usage notes in {{nativeLanguage}}. Each meaning: a concise {{nativeLanguage}} translation, a one-line {{nativeLanguage}} explanation, 1–2 sentences of usage notes (register, common contexts, typical collocations — how this meaning is actually used day to day), and its own honest CEFR level. Stay inside the context — no meanings from other usages of the word.
+Learner level: {{cefrLevel}}. The learner's own language is {{nativeLanguage}} — write the translation, explanation and usage notes in {{nativeLanguage}}. Each meaning: a concise {{nativeLanguage}} translation, a one-line {{nativeLanguage}} explanation, and a detailed 50–100 word {{nativeLanguage}} usage note answering when, why, how, and where native speakers use this word in this context (situations, register, settings, practical use-case). Do NOT repeat the basic definition or translation, and do NOT include synonyms.
 {{followUpSection}}
 Return strict JSON only: {"meanings": [{"translation": "...", "explanation": "...", "usage": "...", "cefrLevel": "..."}]}`,
   },
   /** Examples for one existing cluster — the regenerate/grammar-panel button. */
   examples: {
     name: 'examples',
-    version: 4, // v4: explicit anti-swap warning (see ANTI_SWAP_WARNING)
-    template: `Write 2–4 natural, contemporary {{targetLanguage}} example sentences for the word "{{word}}", strictly within this semantic context:
+    version: 6, // v6: strict grammar override mandate for Konjunktiv II / passive / user custom grammar
+    template: `Write exactly 2 natural, contemporary {{targetLanguage}} example sentences for the word "{{word}}", strictly within this semantic context:
 
 Context: {{clusterLabel}} — {{clusterDescription}}
 
 ${ANTI_SWAP_WARNING}
 
-Learner level: {{cefrLevel}} — write at or slightly below it (A1/A2: present tense, common words, short main clauses; B1/B2: past tenses, subordinate clauses; C1/C2: subjunctive, complex structure). Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
+Learner level: {{cefrLevel}}.
 {{grammarInstructions}}
+Sentences a native speaker would actually say, never textbook-stilted. An example for this context must never drift into the word's other usages.
 Each example: the {{targetLanguage}} sentence, its {{nativeLanguage}} translation (the learner's own language), a context tag (casual, formal, business, travel, dating, social_media, daily_life or slang), its own CEFR level, and grammarTags — the notable grammar structures the sentence uses, in {{targetLanguage}}'s own grammatical terminology (null when nothing stands out).
 
 Return strict JSON only: {"examples": [{"sentence": "...", "translation": "...", "context": "...", "cefrLevel": "...", "grammarTags": ["..."] }]}`,
@@ -199,6 +221,19 @@ ${ANTI_SWAP_WARNING}
 Learner level: {{cefrLevel}}. Each synonym: the {{targetLanguage}} word, its CEFR level, a formality tag (formal, neutral, colloquial or slang), and nuance — a short {{nativeLanguage}} note on how it differs from "{{word}}", or null if it's a near-exact match. Only established synonyms; an empty list is better than a forced one.
 
 Return strict JSON only: {"synonyms": [{"word": "...", "cefrLevel": "...", "formality": "...", "nuance": "... or null"}]}`,
+  },
+  /** On-demand explanation of how a specific synonym differs from the headword. */
+  synonymNuance: {
+    name: 'synonym_nuance',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor explaining the usage difference between two words to a learner in {{nativeLanguage}}.
+
+${ANTI_SWAP_WARNING}
+
+Explain how the synonym "{{synonym}}" differs from the word "{{word}}" in the semantic context: {{contextLabel}}.
+Write in a warm, conversational human voice in {{nativeLanguage}} (2–3 short sentences). Explain when a native speaker chooses "{{synonym}}" over "{{word}}", its register (formal/casual), and situational nuance.
+
+Return strict JSON only: {"nuance": "...", "formality": "formal|neutral|colloquial|slang"}`,
   },
   /** Phrases and idioms built on the word. */
   phrases: {
@@ -242,6 +277,89 @@ Text: {{text}}`,
     template: `Identify the language of the following text. Return JSON: {"language": "xx"} where xx is one of: de, en, ja, es, fr, vi, hi. Strict JSON only.
 
 Text: {{text}}`,
+  },
+  /**
+   * A short, cheap gist for the Search screen's inline preview of a not-yet-generated word — one
+   * flowing explanation, not the structured multi-cluster word package. Deliberately capped at 50
+   * words so it reads as a glance-and-go teaser, not a substitute for opening the full card.
+   */
+  explainWord: {
+    name: 'explain_word',
+    // v4: name what the word actually is and where/why it's used, directly — v3 explicitly offered
+    // "Think of this when..." as an acceptable opener, which reads as a hint or riddle rather than an
+    // explanation and was the single most common shape the model actually produced.
+    version: 4,
+    template: `You are a friendly {{targetLanguage}} language mentor explaining a word to a learner in a warm, natural, human voice in {{nativeLanguage}}.
+
+${ANTI_SWAP_WARNING}
+
+Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. State directly what it is (or what it means) and where or why it's used — do not open with "Think of...", "Used when...", "Imagine...", or any other hint-style or riddle-style framing that makes the learner infer the meaning themselves; say it outright. Also avoid dry textbook formulas like "{{word}} means that..." or "This term denotes...". One short, natural sentence or two — 30 words or fewer, no exceptions. No examples, no lists, no headings, just the explanation itself. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans. Return strict JSON only: {"explanation": "..."}`,
+  },
+  /**
+   * The word detail screen's "More info" sheet, fetched on demand (only once the learner taps the
+   * button, never on card generation) — deliberately distinct from meanings.explanation, which is
+   * already shown inline on the card. Repeating that content, or listing synonyms (already shown
+   * in their own section), would make tapping "More info" pointless. Also doubles as the "Ask AI"
+   * follow-up question mechanism (see {{followUpSection}}) — one shape, one set of constraints,
+   * for both the unprompted and the learner-asked case.
+   */
+  explainWordDetail: {
+    name: 'explain_word_detail',
+    // v4: allows the same sparing basic-markdown spans explainWord's prompt already does (v3 had
+    // no markdown permission at all, so the UI's markdown rendering had nothing to actually render)
+    // v3: explicit what/where/why/who/how framing and an explicit anti-narrative instruction — v2
+    // read as a tidy little story about the word instead of a teacher directly answering "how do I
+    // actually use this"; also folds in the {{followUpSection}} question mechanism (previously a
+    // separate generateMeaning-with-question override with no length/paragraph constraints at all).
+    version: 4,
+    template: `You are a friendly, knowledgeable {{targetLanguage}} tutor giving a learner ADDITIONAL practical context for a word they already have a basic definition for — the way the best teacher would explain it face to face, directly and conversationally, never as a little story or scene.
+
+${ANTI_SWAP_WARNING}
+
+For the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}} — explain, in {{nativeLanguage}}, whichever of these actually matter here: what it really conveys beyond the bare translation, where/when it's typically used, why a speaker reaches for this word specifically (rather than a near-synonym), who tends to say it (formality, age group, setting), and how it's actually used in practice (paired with what, in what pattern). A {{cefrLevel}} learner should walk away knowing exactly how to use it themselves — concrete, usable information, not a mood piece.
+
+Do NOT restate a basic definition or translation — assume the learner already has one. Do NOT list or mention synonyms. Do NOT write a narrative, scenario, or anecdote — give direct answers, like a teacher responding to a student's question, never scene-setting. Write at most 3 short paragraphs, in a warm, human, conversational voice — never dry textbook phrasing. Each paragraph must be 30 words or fewer — short and scannable, not a dense block. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans per paragraph.
+{{followUpSection}}
+Return strict JSON only: {"paragraphs": ["...", "..."]}`,
+  },
+  /**
+   * "Word of the Day" (Home dashboard + daily notification) — the AI picks the word itself (no
+   * ANTI_SWAP_WARNING here: unlike every other template, there's no already-given word to invert,
+   * since choosing it is the whole point), avoiding whatever the learner's library already has.
+   */
+  suggestWordOfTheDay: {
+    name: 'suggest_word_of_the_day',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor picking a "Word of the Day" for a {{cefrLevel}} learner — something useful, interesting, and genuinely worth knowing at their level, in a warm, natural voice in {{nativeLanguage}}.
+
+Pick exactly ONE {{targetLanguage}} word or short common phrase. The learner already knows these — never pick one of them or an obvious variant: {{excludeList}}
+
+Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two — 30 words or fewer, no exceptions. Speak naturally and directly — NEVER dry textbook formulas like "X means that...". No examples, no lists. Return strict JSON only: {"word": "...", "explanation": "..."}`,
+  },
+  /**
+   * The word detail screen's "Ask AI" chat window — a genuine multi-turn conversation, unlike
+   * generateMeaning's single-shot `question` override. {{transcript}} is the whole thread so far
+   * (built by `formatChatTranscript`); the model only ever writes its next reply, never replays
+   * earlier turns. Deliberately allows a clarifying question back instead of a guess — a chat
+   * partner who never asks "which do you mean?" isn't acting like one.
+   */
+  chatAboutWord: {
+    name: 'chat_about_word',
+    // v3: allows the same sparing basic-markdown spans explainWord's prompt already does — the
+    // chat UI can render **bold**/*italics*/`code`, but the model had no permission to use them yet
+    version: 3,
+    template: `You are a friendly, knowledgeable {{targetLanguage}} language tutor having a one-on-one chat with a {{cefrLevel}} learner about the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}}.
+
+${ANTI_SWAP_WARNING}
+
+Explain, clarify, and chat in {{nativeLanguage}} — but whenever you give an example sentence, a usage, or the word/phrase itself, write that specific part in {{targetLanguage}}, immediately followed by a short {{nativeLanguage}} translation in parentheses. The learner is here to see and practice real {{targetLanguage}}, not just read about it in {{nativeLanguage}}.
+
+Reply in a warm, natural, human conversational tone — like a patient tutor texting a friend, never dry textbook phrasing. Keep replies short and chat-sized: usually 1-4 sentences, under about 80 words, unless the learner clearly wants more depth. If the learner's message is ambiguous, or you'd need more context to give a genuinely useful answer, ask a short clarifying question instead of guessing. Never say you are an AI, a model, or a prompt — you are just the tutor. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans.
+
+Conversation so far, oldest first:
+{{transcript}}
+
+Write only your next reply as the tutor — not the learner's turn, not a repeat of an earlier message. Return strict JSON only: {"reply": "..."}`,
   },
 } as const satisfies Record<string, PromptTemplate>
 

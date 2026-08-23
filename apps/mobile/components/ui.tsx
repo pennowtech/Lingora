@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
-import { useState, type JSX, type ReactNode } from 'react'
+import { useEffect, useState, type JSX, type ReactNode } from 'react'
 import {
   ActivityIndicator,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ExportFormat } from '../lib/export'
 import { speak } from '../lib/speech'
 import { cefrColors, radius, spacing, type } from '../lib/theme'
@@ -136,6 +138,9 @@ export function IconButton(props: {
   size?: number
   disabled?: boolean
   testID?: string
+  /** An icon-only button has nothing else for a screen reader to announce — worth setting whenever
+   * the icon alone (e.g. "arrow-undo-outline") wouldn't be obvious out of context. */
+  accessibilityLabel?: string
 }): JSX.Element {
   const colors = useColors()
   return (
@@ -144,6 +149,8 @@ export function IconButton(props: {
       onPress={props.onPress}
       disabled={props.disabled}
       hitSlop={8}
+      accessibilityRole="button"
+      {...(props.accessibilityLabel !== undefined && { accessibilityLabel: props.accessibilityLabel })}
       style={({ pressed }) => [props.disabled && { opacity: 0.4 }, pressed && { opacity: 0.6 }]}
     >
       <Ionicons name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />
@@ -184,17 +191,29 @@ export function CardActionBar(props: {
    * follow-up sheet instead. */
   explainLabel?: string
   explainIcon?: keyof typeof Ionicons.glyphMap
-  onEdit: () => void
+  /** Optional — omitted for AI-generated cards, which already have Regenerate (whole-card redo)
+   * and per-field regenerate actions instead of a manual text editor. */
+  onEdit?: () => void
   onLookup: () => void
   /** "Listen" — speaks the example or word aloud via TTS. */
   onListen?: () => void
   /** "Ask AI" — a follow-up question popup, separate from Explain/More info. Optional because not
    * every card-rendering context (e.g. a bare preview) wants it. */
   onAskAI?: () => void
-  /** "Regenerate" — replaces the whole card's AI-generated content from scratch. Optional and
-   * AI-cards-only; the caller is responsible for confirming before calling this (destructive). */
+  /** "Regenerate" — replaces the whole card's AI-generated content from scratch. Optional; the
+   * caller is responsible for confirming before calling this (destructive). Available on every
+   * card, not just already-AI ones — regenerating a dictionary/word-guide card upgrades it to a
+   * full AI card in place. */
   onRegenerate?: () => void
   regenerateLoading?: boolean
+  /** Disables Explain/More info, Ask AI, and Regenerate together — the three actions that read or
+   * rewrite this card's AI content — while some other AI write is already in flight for it (e.g.
+   * background auto-enrichment just after creation). Doesn't affect Listen/Edit/Delete/Look up,
+   * which don't touch AI-generated content. */
+  aiActionsDisabled?: boolean
+  /** "Delete" — permanently deletes this generated card. */
+  onDelete?: () => void
+  deleteLoading?: boolean
 }): JSX.Element {
   const styles = useThemedStyles(createStyles)
   return (
@@ -208,9 +227,15 @@ export function CardActionBar(props: {
         active={props.explainVisible}
         onPress={props.onExplain}
         {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
+        {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
       />
       {props.onAskAI ? (
-        <CardActionButton icon="chatbubble-ellipses-outline" label="Ask AI" onPress={props.onAskAI} />
+        <CardActionButton
+          icon="chatbubble-ellipses-outline"
+          label="Ask AI"
+          onPress={props.onAskAI}
+          {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
+        />
       ) : null}
       {props.onRegenerate ? (
         <CardActionButton
@@ -218,9 +243,21 @@ export function CardActionBar(props: {
           label="Regenerate"
           onPress={props.onRegenerate}
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
+          {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
       ) : null}
-      <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+      {props.onEdit ? (
+        <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+      ) : null}
+      {props.onDelete ? (
+        <CardActionButton
+          icon="trash-outline"
+          label="Delete"
+          destructive
+          onPress={props.onDelete}
+          {...(props.deleteLoading !== undefined && { loading: props.deleteLoading })}
+        />
+      ) : null}
       <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
     </View>
   )
@@ -230,19 +267,33 @@ function CardActionButton(props: {
   icon: keyof typeof Ionicons.glyphMap
   label: string
   active?: boolean
+  destructive?: boolean
   loading?: boolean
+  disabled?: boolean
   onPress: () => void
 }): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const textColor = props.destructive
+    ? colors.danger
+    : props.active
+      ? colors.primary
+      : colors.textSecondary
+  const isDisabled = props.loading === true || props.disabled === true
+
   return (
-    <Pressable style={styles.cardActionButton} onPress={props.onPress} disabled={props.loading} hitSlop={4}>
+    <Pressable
+      style={[styles.cardActionButton, isDisabled && styles.cardActionButtonDisabled]}
+      onPress={props.onPress}
+      disabled={isDisabled}
+      hitSlop={4}
+    >
       {props.loading ? (
-        <ActivityIndicator size="small" color={colors.primary} />
+        <ActivityIndicator size="small" color={props.destructive ? colors.danger : colors.primary} />
       ) : (
-        <Ionicons name={props.icon} size={20} color={props.active ? colors.primary : colors.textSecondary} />
+        <Ionicons name={props.icon} size={20} color={textColor} />
       )}
-      <Text style={[styles.cardActionLabel, props.active && { color: colors.primary }]}>{props.label}</Text>
+      <Text style={[styles.cardActionLabel, { color: textColor }]}>{props.label}</Text>
     </Pressable>
   )
 }
@@ -317,7 +368,7 @@ export function Dropdown(props: {
             </View>
           ) : null}
           <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
-            {selected?.label ?? props.placeholder ?? 'Select…'}
+            {selected?.label ?? props.placeholder ?? 'Select...'}
           </Text>
           {selected?.badgeCount !== undefined ? (
             <View style={styles.dropdownBadge}>
@@ -398,10 +449,10 @@ interface ExportFormatOption {
 }
 
 const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
-  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet — word, meaning, example, and more.', icon: 'grid' },
+  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'grid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'albums' },
-  { format: 'markdown', label: 'Markdown', description: 'A readable word — meaning — example list. Not re-importable.', icon: 'document-text' },
-  { format: 'lin', label: 'Lingora (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
+  { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'document-text' },
+  { format: 'lin', label: 'Lemmory (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
 ]
 
 /**
@@ -423,19 +474,21 @@ export function ExportFormatSheet(props: {
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
-        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as…'}</Text>
-        {EXPORT_FORMAT_OPTIONS.map((opt) => (
-          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
-            <View style={styles.exportOptionIcon}>
-              <Ionicons name={opt.icon} size={18} color={colors.primary} />
-            </View>
-            <View style={styles.exportOptionText}>
-              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
-              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </Pressable>
-        ))}
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Export as...'}</Text>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {EXPORT_FORMAT_OPTIONS.map((opt) => (
+            <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+              <View style={styles.exportOptionIcon}>
+                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+              </View>
+              <View style={styles.exportOptionText}>
+                <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+                <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </Modal>
   )
@@ -454,8 +507,8 @@ interface ImportFormatOption {
 
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
-  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck — including Cloze notes.', icon: 'albums' },
-  { format: 'lin', label: 'Lingora (.lin)', description: 'A deck someone shared from Lingora — full fidelity, including review history.', icon: 'sparkles' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'albums' },
+  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */
@@ -472,19 +525,21 @@ export function ImportFormatSheet(props: {
       <Pressable style={styles.dropdownBackdrop} onPress={props.onClose} />
       <View style={styles.dropdownSheet}>
         <View style={styles.modalHandle} />
-        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from…'}</Text>
-        {IMPORT_FORMAT_OPTIONS.map((opt) => (
-          <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
-            <View style={styles.exportOptionIcon}>
-              <Ionicons name={opt.icon} size={18} color={colors.primary} />
-            </View>
-            <View style={styles.exportOptionText}>
-              <Text style={styles.exportOptionLabel}>{opt.label}</Text>
-              <Text style={styles.exportOptionDescription}>{opt.description}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </Pressable>
-        ))}
+        <Text style={styles.dropdownSheetTitle}>{props.title ?? 'Import from...'}</Text>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {IMPORT_FORMAT_OPTIONS.map((opt) => (
+            <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
+              <View style={styles.exportOptionIcon}>
+                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+              </View>
+              <View style={styles.exportOptionText}>
+                <Text style={styles.exportOptionLabel}>{opt.label}</Text>
+                <Text style={styles.exportOptionDescription}>{opt.description}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </Modal>
   )
@@ -642,6 +697,48 @@ export function AlertModal(props: {
 }
 
 /**
+ * A brief, non-blocking confirmation — "Added to My Vocabulary", "Cloze added" — for actions
+ * frequent enough that `AlertModal`'s tap-to-dismiss would be more friction than the confirmation
+ * is worth (adding a card/cloze to a deck, one word after another). Auto-dismisses after
+ * `durationMs` (default 2200ms) or on tap; owned by the caller's own local state (`message`/
+ * `onHide`), same pattern as every other one-shot notice in this app — there's no global toast
+ * queue, so a caller triggering a second toast before the first hides just replaces it in place.
+ */
+export function Toast(props: {
+  message: string | null
+  onHide: () => void
+  icon?: keyof typeof Ionicons.glyphMap
+  durationMs?: number
+}): JSX.Element | null {
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
+  // Below the status bar AND the native stack header (insets.top alone only clears the status
+  // bar) — headerHeight is a reasonable fixed estimate rather than reading the real header height,
+  // since screens vary and this only needs to clear it, not hug it exactly.
+  const insets = useSafeAreaInsets()
+  const headerHeight = Platform.OS === 'ios' ? 44 : 56
+
+  useEffect(() => {
+    if (!props.message) return
+    const timer = setTimeout(props.onHide, props.durationMs ?? 2200)
+    return () => clearTimeout(timer)
+    // Deliberately keyed on props.message alone — re-arming the timer on every onHide/durationMs
+    // identity change (most callers pass an inline arrow function) would restart the countdown
+    // each render instead of once per shown message.
+  }, [props.message])
+
+  if (!props.message) return null
+  return (
+    <View style={[styles.toastWrap, { top: insets.top + headerHeight + spacing.sm }]} pointerEvents="box-none">
+      <Pressable style={styles.toast} onPress={props.onHide}>
+        <Ionicons name={props.icon ?? 'checkmark-circle'} size={18} color={colors.textOnPrimary} />
+        <Text style={styles.toastText}>{props.message}</Text>
+      </Pressable>
+    </View>
+  )
+}
+
+/**
  * The two-button (Cancel + Confirm) counterpart to `AlertModal` — the in-app replacement for
  * `Alert.alert(title, message, [{cancel}, {confirm, style: 'destructive'}])`, for a real yes/no
  * decision before an action (delete/merge/restore/etc.), not just a result notification. Still
@@ -756,6 +853,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
     },
     cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    cardActionButtonDisabled: { opacity: 0.4 },
     cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
     sectionHeader: {
       flexDirection: 'row',
@@ -1006,4 +1104,23 @@ const createStyles = (colors: ThemeColors) =>
     alertModalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     alertModalMessage: { fontSize: type.body, color: colors.textSecondary, lineHeight: 20 },
     confirmModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
+    toastWrap: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      // `top` is set per-instance (safe-area insets aren't available to a style factory) — see Toast.
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    toast: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primary,
+      borderRadius: radius.full,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      maxWidth: '100%',
+    },
+    toastText: { color: colors.textOnPrimary, fontSize: type.caption, fontWeight: '600', flexShrink: 1 },
   })

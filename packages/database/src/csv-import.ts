@@ -1,5 +1,6 @@
 import type { CefrLevel, LanguageCode, PartOfSpeech } from '@lingora/types'
 import { logger } from '@lingora/observability'
+import { guessPartOfSpeechFromCasing } from '@lingora/core'
 import type { DatabaseAdapter } from './adapter'
 import { importRow, parseListField, resolveWordAndMeaning, type DuplicatePolicy } from './import-shared'
 import { getLemmaByForm } from './repositories/lemmas'
@@ -158,8 +159,10 @@ export type CsvField = 'word' | 'meaning' | 'cloze' | 'example' | 'exampleTransl
 
 export type CsvColumnMapping = Partial<Record<CsvField, number>>
 
-/** Every imported row's part-of-speech/CEFR level — no per-row mapping for these, just a sane fallback (see CsvField's doc comment). */
-const FALLBACK_PART_OF_SPEECH: PartOfSpeech = 'noun'
+/** Every imported row's CEFR level — no per-row mapping for it, just a sane fallback (see
+ * CsvField's doc comment). Part of speech has no per-row mapping either, but isn't a single fixed
+ * fallback the way CEFR is — see guessPartOfSpeechFromCasing's call site below, which uses each
+ * row's own word and casing instead of hardcoding every row to 'noun' regardless of content. */
 const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 
 export interface CsvImportOptions {
@@ -232,7 +235,8 @@ export async function buildCsvImportPreview(
       cardType,
     })
 
-    const partOfSpeech = FALLBACK_PART_OF_SPEECH
+    const guessedPartOfSpeech = guessPartOfSpeechFromCasing(word, options.language)
+    const partOfSpeech = guessedPartOfSpeech === 'unknown' ? 'noun' : guessedPartOfSpeech
     const cefrLevel = FALLBACK_CEFR_LEVEL
     const tags: string[] = []
 

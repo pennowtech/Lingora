@@ -1,8 +1,9 @@
-import type { CefrLevel, LanguageCode, Lemma, PromptVersion } from '@lingora/types'
+import type { Card, CefrLevel, GenerationUsage, LanguageCode, Lemma, PromptVersion, WordGenerationPayload } from '@lingora/types'
 import {
   findLemmaBySurfaceForm,
   getCardByLemmaAndNativeLanguage,
   persistWordGeneration,
+  regenerateWordPackage,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -10,6 +11,42 @@ import { buildCacheKey, type GenerationCache } from '../cache/cache'
 import { bucketTokenCount } from '../providers/http'
 import type { PartialWordGeneration } from '../schemas/generation'
 import type { AIProvider, DictionaryProvider } from '../providers/types'
+
+/**
+ * Persists a validated word package, upgrading an existing non-AI card for this exact
+ * (lemma, nativeLanguage) pair in place (via regenerateWordPackage) instead of creating a second,
+ * parallel card the way persistWordGeneration always would — see cardToUpgrade's doc comment in
+ * lookupOrGenerate below for why that matters.
+ */
+async function persistOrUpgrade(
+  db: DatabaseAdapter,
+  payload: WordGenerationPayload,
+  usage: GenerationUsage,
+  deckId: string,
+  nativeLanguage: LanguageCode,
+  addToDeck: boolean,
+  reuseLemmaId: string | undefined,
+  cardToUpgrade: Card | undefined,
+  existingLemma: Lemma | null,
+): Promise<{ lemma: Lemma; cardId: string; generationMetadataId: string }> {
+  if (cardToUpgrade && existingLemma) {
+    const { cardId, generationMetadataId } = await regenerateWordPackage(
+      db,
+      existingLemma.id,
+      cardToUpgrade.id,
+      payload,
+      usage,
+    )
+    // regenerateWordPackage may have corrected the lemma's form casing (e.g. a dictionary card's
+    // lowercase "vorteil" → the AI's grammatically correct "Vorteil") — reflect that here rather
+    // than returning the stale, pre-upgrade form from existingLemma.
+    return { lemma: { ...existingLemma, form: payload.lemma.form }, cardId, generationMetadataId }
+  }
+  return persistWordGeneration(db, payload, usage, deckId, nativeLanguage, {
+    addToDeck,
+    ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }),
+  })
+}
 
 const log = logger.child({ feature: 'ai', component: 'lookup-or-generate' })
 
@@ -43,7 +80,11 @@ export interface LookupOptions {
    * (and fully persists) the word without silently adding it to a deck — see
    * persistWordGeneration's `options.addToDeck` for the underlying mechanics. */
   addToDeck?: boolean
+  /** Force AI generation even if a dictionary/non-AI card already exists */
+  forceGenerate?: boolean
 }
+
+const AI_CARD_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
 
 interface PipelineDeps {
   db: DatabaseAdapter
@@ -78,23 +119,38 @@ export async function lookupOrGenerate(
   // native languages, but its cards aren't — only treat this as resolved if a card already
   // exists for the requested nativeLanguage too; otherwise reuse the lemma but fall through to
   // generation so this native language gets its own card.
+  const tMorphology = Date.now()
   const existingLemma = await findLemmaBySurfaceForm(db, word)
   let reuseLemmaId: string | undefined
+  // Set only when a card already exists for this exact (lemma, nativeLanguage) pair but isn't a
+  // full AI card yet — e.g. the optimistic dictionary-only card search.tsx's "Generate with AI"
+  // button creates before navigating. Generating below then upgrades that card in place via
+  // regenerateWordPackage instead of persistWordGeneration creating a second, parallel card for
+  // the same (lemma, nativeLanguage): persistWordGeneration always creates a fresh card, so
+  // without this, the richer AI content would land in an orphaned card loadWord() never surfaces
+  // (getCardsByLemma's un-ordered `.find()` keeps returning the original, thinner dictionary card).
+  let cardToUpgrade: Card | undefined
   if (existingLemma) {
     const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingLemma.id, nativeLanguage)
-    if (matchingCard) {
+    const isFullAiCard = !!matchingCard?.source && AI_CARD_SOURCES.includes(matchingCard.source)
+    if (matchingCard && isFullAiCard && !opts.forceGenerate) {
       log.info('ai.lookup_resolved_existing', {
-        message: 'Word resolved to an existing lemma via morphology lookup',
+        message: 'Word resolved to an existing AI lemma via morphology lookup',
         result: 'success',
         durationMs: Date.now() - startedAt,
-        metadata: meta,
+        metadata: { ...meta, morphologyDurationMs: Date.now() - tMorphology },
       })
       return { kind: 'existing', lemma: existingLemma }
     }
+    if (matchingCard && !isFullAiCard) {
+      cardToUpgrade = matchingCard
+    }
     reuseLemmaId = existingLemma.id
   }
+  const morphologyDurationMs = Date.now() - tMorphology
 
   // 2. Cache — same word, level, native language and prompt version never hits the API twice.
+  const tCache = Date.now()
   const cacheKey = buildCacheKey({
     language,
     nativeLanguage,
@@ -105,8 +161,10 @@ export async function lookupOrGenerate(
     promptVersionId: wordPackagePrompt.id,
   })
   const cached = await cache.get(cacheKey)
+  const cacheCheckDurationMs = Date.now() - tCache
   if (cached) {
-    const persisted = await persistWordGeneration(
+    const tPersist = Date.now()
+    const persisted = await persistOrUpgrade(
       db,
       cached.payload,
       {
@@ -119,13 +177,17 @@ export async function lookupOrGenerate(
       },
       opts.deckId,
       nativeLanguage,
-      { addToDeck: opts.addToDeck ?? true, ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }) },
+      opts.addToDeck ?? true,
+      reuseLemmaId,
+      cardToUpgrade,
+      existingLemma,
     )
+    const dbPersistDurationMs = Date.now() - tPersist
     log.info('ai.generation_completed', {
       message: 'Word package served from cache and persisted',
       result: 'success',
       durationMs: Date.now() - startedAt,
-      metadata: { ...meta, cacheHit: true },
+      metadata: { ...meta, cacheHit: true, morphologyDurationMs, cacheCheckDurationMs, dbPersistDurationMs },
     })
     return { kind: 'generated', ...persisted, fromCache: true }
   }
@@ -133,6 +195,7 @@ export async function lookupOrGenerate(
   // 3. Optional dictionary hint, translated into the learner's own language (not hardcoded
   // English) so it matches the language generateWordPackage's meanings/explanations get written
   // in. Failure degrades to no-hint, never aborts.
+  const tDict = Date.now()
   let hint: { baselineTranslation: string } | undefined
   if (dictionary) {
     try {
@@ -141,40 +204,44 @@ export async function lookupOrGenerate(
     } catch {
       log.warn('ai.dictionary_hint_failed', {
         message: 'Dictionary hint lookup failed — generating without a baseline translation',
-        metadata: { ...meta, provider: dictionary.name, fallbackUsed: true },
+        metadata: { ...meta, provider: dictionary.name, fallbackUsed: true, dictHintDurationMs: Date.now() - tDict },
       })
       hint = undefined
     }
   }
+  const dictHintDurationMs = Date.now() - tDict
 
   // 4. Generate. Repair, validation and the retry live inside the provider.
+  const tLlm = Date.now()
   log.info('ai.generation_started', {
-    message: 'Word package generation started',
-    metadata: { ...meta, fallbackUsed: hint === undefined },
+    message: `Word package generation started (dict hint took ${dictHintDurationMs}ms)`,
+    metadata: { ...meta, fallbackUsed: hint === undefined, dictHintDurationMs },
   })
   const result = await ai.generateWordPackage(
     word,
     { cefrLevel: opts.cefrLevel, language, nativeLanguage },
     hint,
   )
+  const llmDurationMs = Date.now() - tLlm
 
   if (result.kind === 'partial') {
     log.warn('ai.generation_partial', {
       message: 'Word package failed validation after retry — salvaged a partial result',
       durationMs: Date.now() - startedAt,
-      metadata: { ...meta, itemCount: result.issues.length },
+      metadata: { ...meta, itemCount: result.issues.length, morphologyDurationMs, cacheCheckDurationMs, dictHintDurationMs, llmDurationMs },
     })
     return { kind: 'partial', partial: result.partial, issues: result.issues }
   }
 
   // 5. Cache the validated payload, then persist it in one transaction.
+  const tPersist = Date.now()
   await cache.set(cacheKey, wordPackagePrompt.id, ai.name, ai.model, {
     payload: result.data,
     tokensUsed: result.usage.tokensUsed,
     latencyMs: result.usage.latencyMs,
   })
 
-  const persisted = await persistWordGeneration(
+  const persisted = await persistOrUpgrade(
     db,
     result.data,
     {
@@ -187,14 +254,28 @@ export async function lookupOrGenerate(
     },
     opts.deckId,
     nativeLanguage,
-    { addToDeck: opts.addToDeck ?? true, ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }) },
+    opts.addToDeck ?? true,
+    reuseLemmaId,
+    cardToUpgrade,
+    existingLemma,
   )
+  const dbPersistDurationMs = Date.now() - tPersist
 
+  const totalDurationMs = Date.now() - startedAt
   log.info('ai.generation_completed', {
-    message: 'Word package generated and persisted',
+    message: `Word package generated in ${totalDurationMs}ms (Dict: ${dictHintDurationMs}ms, LLM: ${llmDurationMs}ms, DB: ${dbPersistDurationMs}ms)`,
     result: 'success',
-    durationMs: Date.now() - startedAt,
-    metadata: { ...meta, cacheHit: false, tokenCountBucket: bucketTokenCount(result.usage.tokensUsed) },
+    durationMs: totalDurationMs,
+    metadata: {
+      ...meta,
+      cacheHit: false,
+      morphologyDurationMs,
+      cacheCheckDurationMs,
+      dictHintDurationMs,
+      llmDurationMs,
+      dbPersistDurationMs,
+      tokenCountBucket: bucketTokenCount(result.usage.tokensUsed),
+    },
   })
   return { kind: 'generated', ...persisted, fromCache: false }
 }

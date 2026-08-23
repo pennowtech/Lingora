@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
 import { generateValidated, type RawCompletion } from '../generation/structured'
-import { languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
+import { formatChatTranscript, languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
 import {
   generatedClozeBaseSchema,
   generatedClozeSchema,
@@ -28,6 +28,7 @@ import { toOpenAIJsonSchema } from './json-schema'
 import type {
   AIProvider,
   AIResult,
+  ChatTurn,
   ClusterRef,
   DictionaryProvider,
   ExampleGenerationOptions,
@@ -74,6 +75,22 @@ const phrasesResponseSchema = z.object({ phrases: z.array(generatedPhraseSchema)
 const clozesResponseSchema = z.object({ clozes: z.array(generatedClozeSchema) })
 const clozesJsonTargetSchema = z.object({ clozes: z.array(generatedClozeBaseSchema) })
 const translateResponseSchema = z.object({ translation: z.string().min(1) })
+const explainWordResponseSchema = z.object({
+  explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+})
+const explainWordDetailResponseSchema = z.object({
+  paragraphs: z
+    .array(z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'))
+    .min(1)
+    .max(3),
+})
+const suggestWordOfTheDayResponseSchema = z.object({
+  word: z.string().min(1),
+  explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+})
+const chatAboutWordResponseSchema = z.object({
+  reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),
+})
 const detectLanguageResponseSchema = z.object({ language: languageCodeSchema })
 
 const log = logger.child({ feature: 'ai', component: 'MistralProvider' })
@@ -173,8 +190,8 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
       clusterDescription: cluster.description,
       grammarInstructions:
         grammar.length > 0
-          ? `\nGRAMMAR TARGETING: every example must exercise at least one of these structures, and together the examples must cover all of them: ${grammar.join(', ')}. List the structures each sentence actually uses in its grammarTags.\n`
-          : '',
+          ? `\nCRITICAL GRAMMAR REQUIREMENT: You MUST write EVERY example sentence using the following specified grammar structure(s): ${grammar.join(', ')}. Override any default tense or simplicity restrictions to ensure this grammar structure is explicitly present in the sentence. Include "${grammar.join(', ')}" in the grammarTags array for each sentence.\n`
+          : 'Write sentences at or slightly below the learner level.',
     })
     const result = await this.generateStrict(prompt, 'examples', examplesResponseSchema)
     return { data: result.data.examples, usage: result.usage }
@@ -222,6 +239,67 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
     })
     const result = await this.generateStrict(prompt, 'translation', translateResponseSchema)
     return { data: result.data.translation, usage: result.usage }
+  }
+
+  async explainWord(word: string, ctx: GenerationContext): Promise<AIResult<string>> {
+    const prompt = renderPrompt(PROMPTS.explainWord.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, 'explain_word', explainWordResponseSchema)
+    return { data: result.data.explanation, usage: result.usage }
+  }
+
+  async explainWordDetail(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+    question?: string,
+  ): Promise<AIResult<string[]>> {
+    const prompt = renderPrompt(PROMPTS.explainWordDetail.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      clusterLabel: cluster.label,
+      clusterDescription: cluster.description,
+      followUpSection: question
+        ? `\nThe learner also asked: "${question}" — address this directly, in the same short-paragraph format and constraints above.\n`
+        : '',
+    })
+    const result = await this.generateStrict(prompt, 'explain_word_detail', explainWordDetailResponseSchema)
+    return { data: result.data.paragraphs, usage: result.usage }
+  }
+
+  async suggestWordOfTheDay(
+    ctx: GenerationContext,
+    excludeWords: string[],
+  ): Promise<AIResult<{ word: string; explanation: string }>> {
+    const prompt = renderPrompt(PROMPTS.suggestWordOfTheDay.template, {
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      excludeList: excludeWords.length > 0 ? excludeWords.join(', ') : '(none yet — this is their first word)',
+    })
+    const result = await this.generateStrict(prompt, 'suggest_word_of_the_day', suggestWordOfTheDayResponseSchema)
+    return { data: result.data, usage: result.usage }
+  }
+
+  async chatAboutWord(
+    word: string,
+    cluster: ClusterRef,
+    ctx: GenerationContext,
+    history: ChatTurn[],
+  ): Promise<AIResult<string>> {
+    const prompt = renderPrompt(PROMPTS.chatAboutWord.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      clusterLabel: cluster.label,
+      clusterDescription: cluster.description,
+      transcript: formatChatTranscript(history),
+    })
+    const result = await this.generateStrict(prompt, 'chat_about_word', chatAboutWordResponseSchema)
+    return { data: result.data.reply, usage: result.usage }
   }
 
   async detectLanguage(text: string): Promise<AIResult<LanguageCode>> {

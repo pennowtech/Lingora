@@ -5,13 +5,13 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 /**
- * Bridges Android's "Process Text" intent — the entry Lingora adds to the system text-selection
- * toolbar (long-press a word in any app -> "Search in Lingora") — into JS. See
+ * Bridges Android's "Process Text" intent — the entry Lemmory adds to the system text-selection
+ * toolbar (long-press a word in any app -> "Search in Lemmory") — into JS. See
  * `plugin/withProcessTextIntentManifest.js` for the AndroidManifest intent-filter this depends on,
  * and `index.ts` for the JS-side API this backs.
  *
  * Two delivery paths, matching how Android actually delivers the intent:
- *  - Cold start (Lingora wasn't running): MainActivity's own `onCreate` receives it, captured by
+ *  - Cold start (Lemmory wasn't running): MainActivity's own `onCreate` receives it, captured by
  *    `ProcessTextIntentReactActivityLifecycleListener` into `ProcessTextIntentSingleton` before JS
  *    even exists yet — `getInitialProcessText` drains it once JS is ready.
  *  - Already running: MainActivity is `singleTask`, so Android calls `onNewIntent` on the existing

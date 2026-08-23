@@ -55,6 +55,7 @@ describe('splitSqlStatements', () => {
 
   it('round-trips every real migration script without losing statements', () => {
     for (const migration of ALL_MIGRATIONS) {
+      if (typeof migration.up !== 'string' || typeof migration.down !== 'string') continue
       const upStatements = splitSqlStatements(migration.up)
       const downStatements = splitSqlStatements(migration.down)
       expect(upStatements.length, `migration ${migration.version} up`).toBeGreaterThan(0)

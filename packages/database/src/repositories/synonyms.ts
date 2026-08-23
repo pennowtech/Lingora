@@ -53,3 +53,18 @@ export async function createSynonym(db: DatabaseAdapter, synonym: Synonym): Prom
 export async function deleteSynonym(db: DatabaseAdapter, synonymId: string): Promise<void> {
   await db.execute(`DELETE FROM synonyms WHERE id = ?`, [synonymId])
 }
+
+/**
+ * Update a synonym's nuance and formality level on-demand.
+ */
+export async function updateSynonymNuance(
+  db: DatabaseAdapter,
+  synonymId: string,
+  nuance: string,
+  formality?: Synonym['formality'],
+): Promise<void> {
+  await db.execute(
+    `UPDATE synonyms SET nuance = ?, formality_level = COALESCE(?, formality_level) WHERE id = ?`,
+    [nuance, formality ?? null, synonymId],
+  )
+}

@@ -15,5 +15,5 @@ export function isNetworkError(error: unknown): boolean {
 }
 
 export function networkErrorMessage(t: (key: string) => string): string {
-  return t("Couldn't reach the translation service — check your internet connection.")
+  return t("Couldn't reach the translation service - check your internet connection.")
 }

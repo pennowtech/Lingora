@@ -67,6 +67,12 @@ export interface MeaningCluster {
   description: string // 'financial charges, fees, costs'
   cefrLevel?: CefrLevel | null
   orderIndex: number // display order
+  /** The word detail/review "More info" sheet's additional-context paragraphs for this cluster
+   * (see explainWordDetail) — persisted here (migration 0020) instead of session-only state, so
+   * it's fetched from AI once per cluster ever, not once per app session. Undefined/null until the
+   * first successful fetch (optional so the many `createCluster` call sites creating a fresh
+   * cluster — which never has this yet — don't all need an explicit `moreInfo: null`). */
+  moreInfo?: string[] | null
 }
 
 // ─── Cards ────────────────────────────────────────────────────────────────────
@@ -234,6 +240,14 @@ export interface AudioAsset {
 export type ReviewRating = 'again' | 'hard' | 'good' | 'easy'
 
 /**
+ * The presentation format a review question was asked in. 'vocab'/'reverse'/'cloze'
+ * can also be graded through the dedicated whole-session modes; when they occur
+ * inside a mixed session they're scored onto the same card_states schedule rather
+ * than cloze's own independent one — see mixed-session review docs.
+ */
+export type QuestionType = 'vocab' | 'reverse' | 'cloze' | 'trueFalse' | 'mcq'
+
+/**
  * An immutable record of a single review event.
  * Never update these rows — only insert.
  */
@@ -243,6 +257,7 @@ export interface ReviewEvent {
   rating: ReviewRating
   reviewedAt: number // unix timestamp
   durationMs: number // how long they looked at the card
+  questionType?: QuestionType
 }
 
 /**
@@ -462,4 +477,22 @@ export interface WordGuideEntry {
   intro: string
   synonyms: WordGuideSynonym[]
   examples: WordGuideExample[]
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export type ChatRole = 'user' | 'assistant'
+
+/**
+ * One turn of the free-form "Ask AI" conversation about a specific card (see migration 0018,
+ * `card_chat_messages`) — deliberately separate from `Meaning`/`Example`: this is a running
+ * back-and-forth thread, not stored, curated card content. Scoped to one card, deleted with it via
+ * `ON DELETE CASCADE`, and never shown on any other word.
+ */
+export interface ChatMessage {
+  id: string
+  cardId: string
+  role: ChatRole
+  content: string
+  createdAt: number
 }

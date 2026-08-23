@@ -167,7 +167,7 @@ export default function WordGuidesScreen(): JSX.Element {
               })}
             </Text>
             <Button
-              label={installAll.isPending ? t('Installing…') : t('Install all available')}
+              label={installAll.isPending ? t('Installing...') : t('Install all available')}
               icon="download"
               onPress={() => installAll.mutate()}
               disabled={installAll.isPending || availableCount === 0}
@@ -175,7 +175,7 @@ export default function WordGuidesScreen(): JSX.Element {
             />
             {installedCount > 0 ? (
               <Button
-                label={uninstallAll.isPending ? t('Uninstalling…') : t('Uninstall all')}
+                label={uninstallAll.isPending ? t('Uninstalling...') : t('Uninstall all')}
                 icon="trash"
                 variant="secondary"
                 onPress={confirmUninstallAll}
@@ -197,7 +197,7 @@ export default function WordGuidesScreen(): JSX.Element {
           <Card style={styles.chunkRow}>
             <View style={styles.chunkText}>
               <Text style={styles.chunkTitle}>
-                {t('Words {{start}}–{{end}}', { start: item.rankStart.toLocaleString(), end: item.rankEnd.toLocaleString() })}
+                {t('Words {{start}}-{{end}}', { start: item.rankStart.toLocaleString(), end: item.rankEnd.toLocaleString() })}
               </Text>
               <Text style={styles.chunkMeta}>{t('{{count}} words', { count: item.wordCount.toLocaleString() })}</Text>
             </View>

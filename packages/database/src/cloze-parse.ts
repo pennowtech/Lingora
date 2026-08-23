@@ -95,6 +95,43 @@ export function markSelectionAsCloze(text: string, start: number, end: number): 
   return `${text.slice(0, start)}{{c${nextNumber}::${selected}}}${text.slice(end)}`
 }
 
+function isWordChar(char: string | undefined): boolean {
+  return char !== undefined && /[\p{L}\p{N}]/u.test(char)
+}
+
+/**
+ * Convenience default for the manual cloze editor: if `word` appears as a genuine whole-word,
+ * case-insensitive match in `text` (checked with `\p{L}`/`\p{N}` rather than regex `\b`, since `\b`
+ * only recognizes ASCII word characters and would misfire around a word starting/ending in a
+ * German umlaut or ß), pre-mark that first occurrence so the editor opens already blanking the
+ * word being carded, instead of an empty selection every time.
+ *
+ * Deliberately narrower than full auto-detection (see markSelectionAsCloze's doc comment for why
+ * that was reverted): this only ever marks an exact literal substring match, never guesses at an
+ * inflected form or a split separable-verb prefix ("Der Laden verkauft alles aus." for
+ * "ausverkaufen") — returns null in every case it can't be sure about, so the caller falls back to
+ * the plain unmarked sentence and the existing manual select-and-mark flow, exactly as before this
+ * existed. Never silently marks the wrong thing.
+ */
+export function markWordAsCloze(text: string, word: string): string | null {
+  const trimmedWord = word.trim()
+  if (trimmedWord === '') return null
+  const lowerText = text.toLowerCase()
+  const lowerWord = trimmedWord.toLowerCase()
+
+  let searchFrom = 0
+  for (;;) {
+    const index = lowerText.indexOf(lowerWord, searchFrom)
+    if (index === -1) return null
+    const before = index > 0 ? text[index - 1] : undefined
+    const after = index + trimmedWord.length < text.length ? text[index + trimmedWord.length] : undefined
+    if (!isWordChar(before) && !isWordChar(after)) {
+      return markSelectionAsCloze(text, index, index + trimmedWord.length)
+    }
+    searchFrom = index + 1
+  }
+}
+
 /**
  * The equivalent of `revealClozeMarkup`, but starting from an already-persisted `Cloze` row
  * (`sentence` = blanked with `CLOZE_BLANK`, `answer` = every answer joined with "; ", the same

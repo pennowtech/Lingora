@@ -353,10 +353,19 @@ export async function getCardsForDeck(
 }
 
 /**
- * Total number of cards. Home screen stat strip.
+ * Total number of cards actually in a deck — Home/Stats screen stat strip. Deliberately not
+ * `COUNT(*) FROM cards`: a card can exist with no deck_cards row at all (e.g. Search's
+ * "Generate with AI" and Word of the Day both create the card with `addToDeck: false`, see
+ * persistWordGeneration/persistTranslationAsCard, so the learner can explore/regenerate it before
+ * ever choosing to add it to a deck) — counting those inflated this stat well above what summing
+ * every deck's own card count would show, which is confusing on a screen whose whole point is "how
+ * many cards do I actually have." Counts distinct cards, not deck_cards rows, so a card added to
+ * more than one deck is still only counted once.
  */
 export async function getTotalCardCount(db: DatabaseAdapter): Promise<number> {
-  const result = await db.querySingle<{ count: number }>(`SELECT COUNT(*) AS count FROM cards`)
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(DISTINCT card_id) AS count FROM deck_cards`,
+  )
   return result?.count ?? 0
 }
 
@@ -458,4 +467,43 @@ export async function getClozeCardCountForDeck(db: DatabaseAdapter, deckId: stri
     [deckId],
   )
   return result?.count ?? 0
+}
+
+/** One row of wrong-answer material for a true/false or multiple-choice review question. */
+export interface DistractorMeaning {
+  cardId: string
+  word: string
+  meaning: string
+}
+
+/**
+ * Random other cards' primary meanings, for building true/false and multiple-choice wrong
+ * answers in mixed review sessions (see apps/mobile/app/review/[deckId].tsx `mode=mixed`).
+ * Fetched once per session and sampled client-side, not once per question. `excludeCardId` keeps
+ * the card currently being tested out of its own distractor pool; callers must additionally
+ * exclude it when checking eligibility, since a card can still appear here as a distractor for a
+ * *different* card in the same session.
+ * @param db The database adapter to use for the query.
+ * @param excludeCardId The card currently being tested — excluded from the pool.
+ * @param deckId Optional deck ID to scope the pool to (undefined = all decks).
+ * @param limit Maximum number of distractor rows to return.
+ */
+export async function getDistractorMeanings(
+  db: DatabaseAdapter,
+  excludeCardId: string,
+  deckId: string | undefined,
+  limit: number,
+): Promise<DistractorMeaning[]> {
+  const params: unknown[] = []
+  let query = `SELECT DISTINCT c.id AS cardId, l.form AS word, m.translation AS meaning
+    FROM cards c
+    JOIN meanings m ON m.id = c.primary_meaning_id
+    JOIN lemmas l ON l.id = c.lemma_id`
+  if (deckId) {
+    query += ` INNER JOIN deck_cards dc ON dc.card_id = c.id AND dc.deck_id = ?`
+    params.push(deckId)
+  }
+  query += ` WHERE c.id != ? ORDER BY RANDOM() LIMIT ?`
+  params.push(excludeCardId, limit)
+  return db.query<DistractorMeaning>(query, params)
 }

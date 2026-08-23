@@ -22,7 +22,7 @@ export interface CloudAuthService {
 
 export class CloudSyncNotConfiguredError extends Error {
   constructor() {
-    super('Cloud sync isn’t set up yet for this app — it needs a Firebase project before sign-in works.')
+    super('Cloud sync isn\'t set up yet for this app - it needs a Firebase project before sign-in works.')
     this.name = 'CloudSyncNotConfiguredError'
   }
 }

@@ -1,5 +1,5 @@
 import type { LanguageCode, WordGenerationPayload } from '@lingora/types'
-import { migrate } from '@lingora/database'
+import { migrate, persistTranslationAsCard } from '@lingora/database'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AIProviderError } from '../errors'
 import { salvagePartial } from '../schemas/generation'
@@ -229,6 +229,87 @@ describe('lookupOrGenerate', () => {
     const cacheRows = await db.query(`SELECT cache_key FROM ai_cache`)
     expect(lemmas).toHaveLength(0) // never persisted
     expect(cacheRows).toHaveLength(0) // never cached
+  })
+
+  it('upgrades an existing dictionary card in place instead of creating a second, orphaned one', async () => {
+    // The exact shape search.tsx's "Generate with AI" button creates before navigating: a minimal,
+    // one-cluster dictionary card via persistTranslationAsCard — then autoEnrichMutation calls
+    // lookupOrGenerate with forceGenerate to fill it in with real AI content in the background.
+    const { cardId: dictionaryCardId } = await persistTranslationAsCard(
+      db,
+      { form: 'ausgehen', language: 'de', translation: 'to go out', provider: 'google' },
+      DECK_ID,
+      'en',
+    )
+
+    const ai = mockProvider([complete()])
+    const pipeline = await createAIPipeline({ db, ai })
+    const outcome = await pipeline.lookupOrGenerate('ausgehen', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      forceGenerate: true,
+    })
+
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+
+    // Same card, upgraded — not a second card that loadWord()'s unordered `.find()` would never
+    // surface, leaving the dictionary-only content stuck on screen forever (the reported bug).
+    expect(outcome.cardId).toBe(dictionaryCardId)
+    const cards = await db.query<{ id: string }>(
+      `SELECT id FROM cards WHERE lemma_id = (SELECT id FROM lemmas WHERE form = 'ausgehen')`,
+    )
+    expect(cards).toHaveLength(1)
+
+    // The card now reports as a real AI card (source updated, not stuck on 'google').
+    const card = await db.querySingle<{ source: string }>(`SELECT source FROM cards WHERE id = ?`, [
+      dictionaryCardId,
+    ])
+    expect(card?.source).toBe('openai')
+
+    // Real generated content replaced the one-meaning dictionary stub, and deck membership (added
+    // by persistTranslationAsCard) survived the upgrade untouched.
+    const meanings = await db.query(`SELECT id FROM meanings WHERE card_id = ?`, [dictionaryCardId])
+    expect(meanings.length).toBeGreaterThan(0)
+    const examples = await db.query(`SELECT id FROM examples WHERE card_id = ?`, [dictionaryCardId])
+    expect(examples.length).toBeGreaterThan(0)
+    const membership = await db.query(`SELECT id FROM deck_cards WHERE card_id = ?`, [dictionaryCardId])
+    expect(membership).toHaveLength(1)
+  })
+
+  it('upgrades in place even when the AI corrects the dictionary card\'s casing', async () => {
+    // A dictionary card is created from whatever casing the user typed/searched — often lowercase
+    // ("vorteil") — while the AI always returns the grammatically correct capitalization for
+    // German nouns ("Vorteil"). That's still the same word, not a different one: regression test
+    // for a real bug found via a live OpenAI generation, where the upgrade path's exact-match
+    // guard rejected this as "a different word" and threw instead of upgrading.
+    const { cardId: dictionaryCardId } = await persistTranslationAsCard(
+      db,
+      { form: 'vorteil', language: 'de', translation: 'advantage', provider: 'google' },
+      DECK_ID,
+      'en',
+    )
+
+    const aiPayload: WordGenerationPayload = { ...validPayload(), lemma: { ...validPayload().lemma, form: 'Vorteil' } }
+    const ai = mockProvider([complete(aiPayload)])
+    const pipeline = await createAIPipeline({ db, ai })
+    const outcome = await pipeline.lookupOrGenerate('vorteil', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      forceGenerate: true,
+    })
+
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+    expect(outcome.cardId).toBe(dictionaryCardId)
+    expect(outcome.lemma.form).toBe('Vorteil') // the corrected casing, not the stale 'vorteil'
+
+    const lemma = await db.querySingle<{ form: string }>(`SELECT form FROM lemmas WHERE id = ?`, [
+      outcome.lemma.id,
+    ])
+    expect(lemma?.form).toBe('Vorteil')
+    const cards = await db.query<{ id: string }>(`SELECT id FROM cards WHERE lemma_id = ?`, [outcome.lemma.id])
+    expect(cards).toHaveLength(1) // no second card left behind under the old casing
   })
 
   it('propagates provider errors', async () => {

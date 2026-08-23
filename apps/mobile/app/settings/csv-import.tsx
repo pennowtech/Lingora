@@ -76,29 +76,29 @@ function buildTableColumns(
 ): DataTableColumn<CsvRowPreview>[] {
   return [
     { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
-    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '-' },
     ...(mapping.cloze !== undefined
-      ? [{ label: 'Cloze', width: 220, cell: (p: CsvRowPreview) => p.cloze ?? '—' }]
+      ? [{ label: 'Cloze', width: 220, cell: (p: CsvRowPreview) => p.cloze ?? '-' }]
       : []),
     ...(mapping.example !== undefined
-      ? [{ label: 'Example', width: 220, cell: (p: CsvRowPreview) => p.example ?? '—' }]
+      ? [{ label: 'Example', width: 220, cell: (p: CsvRowPreview) => p.example ?? '-' }]
       : []),
     ...(mapping.exampleTranslation !== undefined
-      ? [{ label: 'Example translation', width: 220, cell: (p: CsvRowPreview) => p.exampleTranslation ?? '—' }]
+      ? [{ label: 'Example translation', width: 220, cell: (p: CsvRowPreview) => p.exampleTranslation ?? '-' }]
       : []),
     ...(mapping.synonyms !== undefined
       ? [
           {
             label: 'Synonyms',
             width: 160,
-            cell: (p: CsvRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—'),
+            cell: (p: CsvRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '-'),
           },
         ]
       : []),
     {
       label: 'Existing deck',
       width: 160,
-      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '-') : '-'),
     },
     {
       label: 'Status',
@@ -109,7 +109,7 @@ function buildTableColumns(
     {
       label: 'Issues',
       width: 260,
-      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
+      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '-'),
       cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
     },
   ]
@@ -413,7 +413,6 @@ export default function CsvImportScreen(): JSX.Element {
 
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip
@@ -461,7 +460,7 @@ export default function CsvImportScreen(): JSX.Element {
           <View style={styles.centerModalContainer}>
             <View style={styles.centerModalCard}>
               {result === null ? (
-                <Spinner message={t('Importing…')} />
+                <Spinner message={t('Importing...')} />
               ) : (
                 <>
                   <EmptyState
@@ -531,7 +530,7 @@ export default function CsvImportScreen(): JSX.Element {
                         style={[styles.sampleCell, { width: SAMPLE_COLUMN_WIDTH }]}
                         numberOfLines={2}
                       >
-                        {row[index] && row[index].length > 0 ? row[index] : '—'}
+                        {row[index] && row[index].length > 0 ? row[index] : '-'}
                       </Text>
                     ))}
                   </View>
@@ -556,7 +555,7 @@ export default function CsvImportScreen(): JSX.Element {
             <Text style={styles.hint}>
               {cardType === 'basic'
                 ? t('Word and Meaning are required. Everything else is optional.')
-                : t('Cloze sentence is required — it must contain {{c1::word}} markup. Everything else is optional.')}
+                : t('Cloze sentence is required - it must contain {{c1::word}} markup. Everything else is optional.')}
             </Text>
             {FIELDS_BY_CARD_TYPE[cardType].map((field) => (
               <View key={field} style={styles.mappingRow}>
@@ -591,7 +590,7 @@ export default function CsvImportScreen(): JSX.Element {
 
           <View style={styles.actions}>
             <Button
-              label={previewLoading ? t('Checking…') : t('Preview import')}
+              label={previewLoading ? t('Checking...') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!canBuildPreview || previewLoading}
             />

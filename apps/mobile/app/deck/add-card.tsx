@@ -196,7 +196,7 @@ export default function AddCardScreen(): JSX.Element {
                     <Text style={styles.label}>{t('Example sentence')}</Text>
                     {tier === 'full' ? (
                       <Button
-                        label={generateExample.isPending ? t('Generating…') : t('Generate with AI')}
+                        label={generateExample.isPending ? t('Generating...') : t('Generate with AI')}
                         icon="sparkles"
                         variant="secondary"
                         small
@@ -277,7 +277,7 @@ export default function AddCardScreen(): JSX.Element {
         {create.isError ? <Text style={styles.errorText}>{String(create.error)}</Text> : null}
 
         <Button
-          label={create.isPending ? t('Adding…') : t('Add card')}
+          label={create.isPending ? t('Adding...') : t('Add card')}
           icon="add-circle"
           onPress={() => create.mutate()}
           disabled={!canSubmit || create.isPending}

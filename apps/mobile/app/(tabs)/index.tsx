@@ -13,7 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import { router, useFocusEffect } from 'expo-router'
 import { useCallback, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
@@ -21,6 +21,7 @@ import { streakFromDayIndexes } from '../../lib/stats'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+import { getStoredWordOfTheDay } from '../../lib/wordOfTheDay'
 
 interface HomeStats {
   dueNow: number
@@ -63,7 +64,7 @@ function greetingFor(hour: number, t: (key: string) => string): string {
  * Home dashboard: today's review load, streak, and recent activity.
  */
 export default function HomeScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, tier } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -73,16 +74,27 @@ export default function HomeScreen(): JSX.Element {
     queryKey: ['recent-words'],
     queryFn: () => getRecentlyAddedWords(db, 3),
   })
+  // The actual daily generation/refresh happens once, app-wide, in WordOfTheDayLifecycle — this
+  // is just reading whatever it already wrote. Unavailable without an AI provider (tier !== 'full'
+  // means WordOfTheDayLifecycle never even attempts a refresh), so this doesn't run at all then —
+  // no point polling for something that will never exist.
+  const wordOfTheDayQuery = useQuery({
+    queryKey: ['word-of-the-day'],
+    queryFn: getStoredWordOfTheDay,
+    enabled: tier === 'full',
+  })
 
   useFocusEffect(
     useCallback(() => {
       void statsQuery.refetch()
       void recentQuery.refetch()
-    }, []),
+      if (tier === 'full') void wordOfTheDayQuery.refetch()
+    }, [tier]),
   )
 
   const stats = statsQuery.data
   const recent = recentQuery.data ?? []
+  const wordOfTheDay = wordOfTheDayQuery.data
 
   return (
     // No 'top' edge — LanguagePairBadge (app/_layout.tsx, above every non-review screen) already
@@ -94,7 +106,7 @@ export default function HomeScreen(): JSX.Element {
             <Text style={styles.greeting}>{greetingFor(new Date().getHours(), t)} 👋</Text>
             <Text style={styles.subGreeting}>
               {stats && stats.dueNow === 0
-                ? t('All caught up — nothing due right now.')
+                ? t('All caught up - nothing due right now.')
                 : t('Nice to see you back.')}
             </Text>
           </View>
@@ -124,7 +136,7 @@ export default function HomeScreen(): JSX.Element {
             one — the count above the button and the cards the button actually opens always match,
             whatever decks exist right now. */}
         <Card style={styles.heroCard}>
-          <Text style={styles.heroCount}>{stats?.dueNow ?? '–'}</Text>
+          <Text style={styles.heroCount}>{stats?.dueNow ?? '-'}</Text>
           <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
           <Button
             label={t('Start review')}
@@ -140,20 +152,73 @@ export default function HomeScreen(): JSX.Element {
         {/* Stats strip */}
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.reviewedToday ?? '–'}</Text>
+            <Text style={styles.statValue}>{stats?.reviewedToday ?? '-'}</Text>
             <Text style={styles.statLabel}>{t('reviewed today')}</Text>
           </Card>
-          <Card style={styles.statCard}>
+          <Card style={styles.statCard} onPress={() => router.push('/stats')}>
             <Text style={styles.statValue}>
-              {stats ? `${Math.round(stats.retention30d * 100)}%` : '–'}
+              {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
             </Text>
-            <Text style={styles.statLabel}>{t('retention')}</Text>
+            {/* "Retention" is SRS jargon — this is plainly the share of your last-30-days reviews
+                where you actually remembered the word (rated it above "Again"), so say that
+                instead. Tappable to /stats like "total cards" for the fuller explanation — a real
+                chevron icon signals that, not an ASCII "->" glued onto the label text. */}
+            <View style={styles.statLabelRow}>
+              <Text style={styles.statLabel}>{t('remembered')}</Text>
+              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+            </View>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
-            <Text style={styles.statValue}>{stats?.totalCards ?? '–'}</Text>
-            <Text style={styles.statLabel}>{t('total cards →')}</Text>
+            <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
+            <View style={styles.statLabelRow}>
+              <Text style={styles.statLabel}>{t('total cards')}</Text>
+              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+            </View>
           </Card>
         </View>
+
+        {/* Word of the Day — entirely absent without an AI provider configured (tier !== 'full'),
+            not just disabled: there's nothing useful to show, and no CTA to configure one here
+            either, that's what Settings → AI Providers is for. The actual daily generation lives
+            in WordOfTheDayLifecycle (app/_layout.tsx); this only ever reads what it already wrote. */}
+        {tier === 'full' && (!!wordOfTheDay || wordOfTheDayQuery.isPending) ? (
+          <>
+            <SectionHeader title={t('Word of the Day')} />
+            <Pressable
+              disabled={!wordOfTheDay}
+              onPress={() => {
+                if (wordOfTheDay) {
+                  router.push({
+                    pathname: '/word/[form]',
+                    params: { form: wordOfTheDay.word, initialExplanation: wordOfTheDay.explanation },
+                  })
+                }
+              }}
+            >
+              {({ pressed }) => (
+                <Card style={[styles.wotdCard, pressed && styles.wotdCardPressed]}>
+                  {wordOfTheDay ? (
+                    <>
+                      <Text style={styles.wotdWord}>{wordOfTheDay.word}</Text>
+                      <Text style={styles.wotdExplanation} numberOfLines={3}>
+                        {wordOfTheDay.explanation}
+                      </Text>
+                      <View style={styles.wotdFooterRow}>
+                        <Text style={styles.wotdFooterText}>{t('Learn this word')}</Text>
+                        <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                      </View>
+                    </>
+                  ) : (
+                    <View style={styles.wotdLoadingRow}>
+                      <ActivityIndicator color={colors.primary} />
+                      <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
+                    </View>
+                  )}
+                </Card>
+              )}
+            </Pressable>
+          </>
+        ) : null}
 
         {/* Quick actions — the two review tiles are scoped to every deck (ALL_DECKS_ID), same as
             the hero above, and grey themselves out (no onPress) once their own due count is 0
@@ -199,7 +264,7 @@ export default function HomeScreen(): JSX.Element {
         </View>
 
         {/* Recently searched */}
-        <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/decks')} />
+        <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/recent-words')} />
         {recent.length === 0 && recentQuery.isSuccess ? (
           <EmptyState
             icon="sparkles-outline"
@@ -277,7 +342,40 @@ const createStyles = (colors: ThemeColors) =>
   statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   statCard: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center' },
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
+  statLabel: { fontSize: type.micro, color: colors.textSecondary, textAlign: 'center' },
+  statLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 1, marginTop: 2, opacity: 0.85 },
+  // Word of the Day — primarySoft-tinted, matching this session's other AI-content cards (Search's
+  // quick-explain preview), so it reads as the same "AI, actionable" family rather than a new motif.
+  wotdCard: { gap: spacing.sm, backgroundColor: colors.primarySoft, borderColor: colors.primarySoft },
+  wotdCardPressed: { opacity: 0.85 },
+  wotdHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  wotdIconBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wotdEyebrow: {
+    fontSize: type.micro,
+    fontWeight: '800',
+    color: colors.primary,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  wotdWord: { fontSize: type.body, fontWeight: '800', color: colors.text },
+  wotdExplanation: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19 },
+  wotdFooterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing.xs },
+  wotdFooterText: {
+    fontSize: type.micro,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  wotdLoadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs },
+  wotdLoadingText: { fontSize: type.body, color: colors.primary },
   actionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   actionCard: {
     flexBasis: '48%',

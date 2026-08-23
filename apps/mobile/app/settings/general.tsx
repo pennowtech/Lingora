@@ -46,7 +46,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'color-palette-outline',
     paragraphs: [
       'Pick a look for the whole app, from bright to dark and everything between.',
-      'This only changes colors — nothing about how the app works.',
+      'This only changes colors - nothing about how the app works.',
     ],
   },
   {
@@ -60,7 +60,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'App Language',
     icon: 'language-outline',
     paragraphs: [
-      'This changes the language of the app itself — its buttons and menus — not the language you\'re learning.',
+      'This changes the language of the app itself - its buttons and menus - not the language you\'re learning.',
       '"Follow device" just matches whatever language your phone is already set to.',
     ],
   },
@@ -69,8 +69,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Share & Search',
     icon: 'share-outline',
     paragraphs: [
-      'Long-press a word in any app and pick "Search in Lingora" to look it up here right away.',
-      'You can also share text from another app straight to Lingora, the same way you\'d share a link or a photo.',
+      'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.',
+      'You can also share text from another app straight to Lemmory, the same way you\'d share a link or a photo.',
       { text: 'This setting decides what happens next.', bold: true },
       'Always open Search, split between Search and the Mining queue depending on how much text it is, or ask you every time.',
     ],
@@ -170,7 +170,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
           onChange={(value) => value && setThemeKey(value as ThemeKey)}
           options={THEME_ORDER.map((key) => ({ label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`, value: key }))}
         />
-        <Text style={styles.hint}>{t('Applies across the app.')}</Text>
       </Card>
 
       <Card>
@@ -240,5 +239,4 @@ const createStyles = (colors: ThemeColors) =>
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
-    hint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
   })

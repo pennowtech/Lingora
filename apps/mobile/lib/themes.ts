@@ -9,7 +9,7 @@
  *   accent → primary, accentSoft → primarySoft, accentText → primaryDark, bgBase → background,
  *   bgCard → surface, bgSurface → surfaceMuted, text1/2/3 → text/textSecondary/textMuted,
  *   textOnAccent → textOnPrimary, success/warn/danger → success/warning/danger (soft variants
- *   computed below since Shelfie doesn't define them — it has no equivalent of Lingora's
+ *   computed below since Shelfie doesn't define them — it has no equivalent of Lemmory's
  *   CEFR/rating badge UI).
  */
 
@@ -55,7 +55,7 @@ function soft(hex: string): string {
 
 const lingoraLight: AppTheme = {
   key: 'lingoraLight',
-  name: 'Lingora Light',
+  name: 'Lemmory Light',
   icon: '🇩🇪',
   mode: 'light',
   colors: {

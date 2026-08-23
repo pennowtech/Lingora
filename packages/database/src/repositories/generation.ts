@@ -364,7 +364,12 @@ export async function regenerateWordPackage(
     if (!existing) {
       throw new Error(`Lemma '${lemmaId}' not found — nothing to regenerate`)
     }
-    if (existing.form !== payload.lemma.form) {
+    // Case-insensitive: a dictionary-only card (see lookupOrGenerate's upgrade-in-place use of
+    // this function) stores the lemma exactly as the user typed it — often lowercase, e.g.
+    // "vorteil" — while the AI always returns the grammatically correct capitalization ("Vorteil"
+    // for German nouns). That's the same word, not a different one, so the form is also updated
+    // below to the AI's canonical casing rather than leaving the lemma's headword lowercase.
+    if (existing.form.toLowerCase() !== payload.lemma.form.toLowerCase()) {
       throw new Error(
         `Regenerated payload's headword '${payload.lemma.form}' doesn't match the existing ` +
           `lemma '${existing.form}' — a different word needs a new lookup, not a regeneration`,
@@ -372,8 +377,8 @@ export async function regenerateWordPackage(
     }
 
     await tx.execute(
-      `UPDATE lemmas SET part_of_speech = ?, gender = ?, plural = ?, updated_at = ? WHERE id = ?`,
-      [payload.lemma.partOfSpeech, payload.lemma.gender, payload.lemma.plural, now, lemmaId],
+      `UPDATE lemmas SET form = ?, part_of_speech = ?, gender = ?, plural = ?, updated_at = ? WHERE id = ?`,
+      [payload.lemma.form, payload.lemma.partOfSpeech, payload.lemma.gender, payload.lemma.plural, now, lemmaId],
     )
 
     // Inflections aren't scoped by lemma_id alone when re-inserting (form is globally UNIQUE, and
@@ -471,8 +476,13 @@ export async function regenerateWordPackage(
     if (primaryMeaningId === null) {
       throw new Error('WordGenerationPayload had no meanings — nothing to make primary')
     }
-    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, updated_at = ? WHERE id = ?`, [
+    // Also refreshes `source` to whichever provider just generated this content — matters not only
+    // for the "Regenerate" button (switching AI providers between regenerations previously left
+    // the card's source/icon stuck on the old one), but for lookupOrGenerate's own use of this
+    // function to upgrade a dictionary-sourced card to a full AI one in place (see its doc comment).
+    await tx.execute(`UPDATE cards SET primary_meaning_id = ?, source = ?, updated_at = ? WHERE id = ?`, [
       primaryMeaningId,
+      usage.provider,
       now,
       cardId,
     ])

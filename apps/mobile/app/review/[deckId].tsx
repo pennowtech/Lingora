@@ -1,4 +1,4 @@
-import type { Card as CardRow, CardState, LanguageCode, ReviewRating, Synonym, Template, WordGuideEntry } from '@lingora/types'
+import type { Card as CardRow, CardState, LanguageCode, QuestionType, ReviewRating, Synonym, Template, WordGuideEntry } from '@lingora/types'
 import {
   getCardById,
   getCardsByLemma,
@@ -9,6 +9,7 @@ import {
   getClozeState,
   getClustersForLemma,
   getDefaultTemplate,
+  getDistractorMeanings,
   getExamplesForCard,
   getLemmaById,
   getMeaningsForCard,
@@ -18,6 +19,7 @@ import {
   recordClozeReview,
   recordReview,
   revealClozeSentence,
+  updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
   type DatabaseAdapter,
@@ -28,14 +30,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
-import { AskAISheet } from '../../components/AskAISheet'
+import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
+import { MultipleChoiceQuestion } from '../../components/MultipleChoiceQuestion'
+import { TrueFalseQuestion } from '../../components/TrueFalseQuestion'
+import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import {
   AlertModal,
@@ -60,6 +64,8 @@ import {
   type CardTemplateContext,
 } from '../../lib/templates'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
+import { getSessionCardLimit } from '../../lib/reviewSession'
+import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
@@ -238,6 +244,10 @@ interface ReviewCard {
   synonyms: Synonym[]
   /** The meaning's own cluster — needed to call ai.generateMeaning() for an on-demand explanation. */
   clusterRef: { label: string; description: string } | null
+  /** The same cluster's id and persisted "More info" paragraphs (see MeaningCluster.moreInfo) —
+   * kept separate from clusterRef since most callers only need label/description. */
+  clusterId: string | null
+  moreInfo: string[] | null
   exampleId: string | null
   example: string | null
   exampleTranslation: string | null
@@ -292,11 +302,19 @@ async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boole
     partOfSpeech: lemma.partOfSpeech,
     synonyms,
     clusterRef: meaningCluster ? { label: meaningCluster.label, description: meaningCluster.description } : null,
+    clusterId: meaningCluster?.id ?? null,
+    moreInfo: meaningCluster?.moreInfo ?? null,
     exampleId: selectedExample?.id ?? null,
     example: selectedExample?.sentence ?? null,
     exampleTranslation: selectedExample?.translation ?? null,
     clozeSentence: cloze?.sentence ?? null,
     clozeAnswer: cloze?.answer ?? null,
+    // Default from this card's own content — loadReviewQueue's single-card path overrides these
+    // with a sibling-aware value (a CSV/Anki import can put cloze/vocab content on a separate
+    // sibling card of the same lemma), but the normal due-queue path never did until mixed-session
+    // eligibility (see pickEligibleTypes) needed to know it per due card.
+    hasVocabVariant: meanings.length > 0,
+    hasClozeVariant: clozes.length > 0,
     templateContext: buildCardContext({
       lemma,
       meanings,
@@ -309,21 +327,33 @@ async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boole
   }
 }
 
+/** What loadReviewQueue returns: the (possibly capped) cards to review, and whether more due cards
+ * exist beyond the cap — the done screen's "Practice more" button (see review/[deckId].tsx) uses
+ * `hasMore` to offer another session immediately, instead of making the rest wait for their own
+ * natural due date just because they didn't fit in this one sitting. */
+interface ReviewQueueResult {
+  views: ReviewCard[]
+  hasMore: boolean
+}
+
 /**
- * Loads every due card in a deck with the content the review session needs.
+ * Loads the due cards in a deck with the content the review session needs, capped at
+ * `sessionCardLimit` cards (0 = no cap) — applies to every review mode (plain/cloze/reverse/mixed).
  * `clozeOnly` switches to an entirely independent due query/FSRS state (cloze_states, migration
  * 0013) — cloze practice and word-meaning review of the same card are separately scheduled, so a
  * card can be due for one, both, or neither at any given moment. getClozeCardsDueForReview
  * already only returns cards with at least one cloze variant, so there's no need to filter that
- * again afterward the way this used to.
+ * again afterward the way this used to. Both due queries already sort most-overdue-first, so
+ * capping is just taking the front of that list — the cards that most need reviewing today.
  *
  * `cardId` — set when opened from the deck detail screen's card list (tapping a specific word),
  * not a practice session — builds a one-card "queue" for that exact card regardless of its due
- * status, so a card row always opens something to look at. A CSV/Anki import can put word-meaning
- * and cloze content on two separate sibling cards of the same lemma (import-shared.ts#importRow)
- * rather than one, so asking for `cardId` in cloze mode when *that* card has no cloze of its own
- * falls back to its cloze-type sibling if one exists — `hasVocabVariant`/`hasClozeVariant` (set
- * from every sibling, not just the resolved one) tell the screen whether a toggle makes sense.
+ * status (uncapped — a single card is never subject to the session cap), so a card row always
+ * opens something to look at. A CSV/Anki import can put word-meaning and cloze content on two
+ * separate sibling cards of the same lemma (import-shared.ts#importRow) rather than one, so asking
+ * for `cardId` in cloze mode when *that* card has no cloze of its own falls back to its cloze-type
+ * sibling if one exists — `hasVocabVariant`/`hasClozeVariant` (set from every sibling, not just the
+ * resolved one) tell the screen whether a toggle makes sense.
  *
  * `card.type` covers `basic`, `reverse`, `phrase`, and `image`, but nothing
  * in the generation/import pipeline creates anything other than `basic`
@@ -336,11 +366,12 @@ async function loadReviewQueue(
   db: DatabaseAdapter,
   deckId: string,
   clozeOnly: boolean,
+  sessionCardLimit: number,
   cardId?: string,
-): Promise<ReviewCard[]> {
+): Promise<ReviewQueueResult> {
   if (cardId) {
     const requested = await getCardById(db, cardId)
-    if (!requested) return []
+    if (!requested) return { views: [], hasMore: false }
 
     const siblings = await getCardsByLemma(db, requested.lemmaId)
     const clozeCounts = await Promise.all(siblings.map((c) => getClozesForCard(db, c.id)))
@@ -362,22 +393,24 @@ async function loadReviewQueue(
     }
 
     const view = await loadCardView(db, resolvedCard, clozeOnly)
-    if (!view) return []
-    return [{ ...view, hasVocabVariant, hasClozeVariant }]
+    if (!view) return { views: [], hasMore: false }
+    return { views: [{ ...view, hasVocabVariant, hasClozeVariant }], hasMore: false }
   }
 
   // ALL_DECKS_ID means "everywhere", not a real deck — the due-card queries treat an omitted
   // deckId as unfiltered, so translate the sentinel to undefined right at the query boundary.
   const scopeDeckId = deckId === ALL_DECKS_ID ? undefined : deckId
-  const cards = clozeOnly
+  const allDueCards = clozeOnly
     ? await getClozeCardsDueForReview(db, scopeDeckId)
     : await getCardsDueForReview(db, scopeDeckId)
+  const hasMore = sessionCardLimit > 0 && allDueCards.length > sessionCardLimit
+  const cards = sessionCardLimit > 0 ? allDueCards.slice(0, sessionCardLimit) : allDueCards
   const views: ReviewCard[] = []
   for (const card of cards) {
     const view = await loadCardView(db, card, clozeOnly)
     if (view) views.push(view)
   }
-  return views
+  return { views, hasMore }
 }
 
 /** "1 min" / "3 h" / "2 d" — coarse enough for a rating-button hint. */
@@ -420,6 +453,12 @@ export default function ReviewSessionScreen(): JSX.Element {
   // the opposite direction, not a distinct skill the way cloze is. Only the rendering direction
   // (isReverse below) differs.
   const reverseOnly = params.mode === 'reverse'
+  // Mixed practice: each due card gets a random presentation (vocab/reverse/cloze/true-false/
+  // multiple-choice) from the user's enabled types (see lib/reviewTypes.ts), instead of one format
+  // for the whole session. Uses the exact same due queue/FSRS schedule as plain vocab review
+  // (clozeOnly stays false below) — every presentation, including a cloze-formatted one, is scored
+  // onto card_states, never cloze_states. Dedicated Cloze Practice (mode=cloze) is untouched.
+  const mixedOnly = params.mode === 'mixed'
   // Set when opened from the deck detail screen's card list — a specific word, not a practice
   // session — so loadReviewQueue builds a one-card "queue" for it regardless of due status.
   const singleCardId = params.cardId
@@ -438,7 +477,16 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
-  const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
+  // A question typed into "More info"'s composer, waiting to be auto-sent the moment WordChatSheet
+  // opens (see bridgeToChat below) — cleared once WordChatSheet confirms it's been sent.
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | undefined>(undefined)
+  // "More info" sheet content — an instant, same-session overlay on top of the persisted value
+  // already loaded onto `view.moreInfo` (see MeaningCluster.moreInfo): showing this immediately on
+  // a successful fetch is faster than waiting for the queue to refetch and re-populate `view`, but
+  // `view.moreInfo` is what makes it available again on a future visit without re-asking AI at
+  // all. Keyed by card id instead of cluster id since review has no cluster tabs (one meaning per
+  // flipped card) — same shape as word/[form].tsx's moreInfoByCluster.
+  const [moreInfoByCard, setMoreInfoByCard] = useState<Record<string, string[]>>({})
 
   // Edit-this-card modal — an Anki-style "fix it on the spot" path, distinct
   // from the template editor (which only edits layout/style, never content)
@@ -452,41 +500,205 @@ export default function ReviewSessionScreen(): JSX.Element {
   const [editExample, setEditExample] = useState('')
   const [editTranslation, setEditTranslation] = useState('')
 
-  const queueQuery = useQuery({
-    queryKey: ['review-queue', params.deckId, clozeOnly, singleCardId],
-    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, singleCardId),
-    enabled: (params.deckId ?? '') !== '',
+  // Undo/redo for the edit modal — one shared history across all three fields (and the "Generate
+  // with AI" example button, which overwrites two of them at once) rather than per-field, since
+  // the whole modal reads as a single editing session. New snapshots are only committed after a
+  // typing pause (see the debounce effect below), so undo steps back through meaningful edits
+  // instead of one keystroke at a time. isRestoringEdit distinguishes "the user typed something"
+  // from "undo/redo just set this state programmatically" so restoring a snapshot doesn't
+  // immediately get captured as a new one, which would silently wipe the redo stack.
+  interface EditSnapshot {
+    meaning: string
+    example: string
+    translation: string
+  }
+  const [editHistory, setEditHistory] = useState<{ stack: EditSnapshot[]; index: number }>({
+    stack: [{ meaning: '', example: '', translation: '' }],
+    index: 0,
   })
+  const isRestoringEdit = useRef(false)
+
+  const commitEditSnapshot = (snapshot: EditSnapshot): void => {
+    setEditHistory((prev) => {
+      const current = prev.stack[prev.index]
+      if (
+        current &&
+        current.meaning === snapshot.meaning &&
+        current.example === snapshot.example &&
+        current.translation === snapshot.translation
+      ) {
+        return prev
+      }
+      const truncated = prev.stack.slice(0, prev.index + 1)
+      return { stack: [...truncated, snapshot], index: truncated.length }
+    })
+  }
+
+  useEffect(() => {
+    if (!editOpen) return
+    if (isRestoringEdit.current) {
+      isRestoringEdit.current = false
+      return
+    }
+    const timer = setTimeout(() => {
+      commitEditSnapshot({ meaning: editMeaning, example: editExample, translation: editTranslation })
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [editMeaning, editExample, editTranslation, editOpen])
+
+  const undoEdit = (): void => {
+    if (editHistory.index === 0) return
+    const newIndex = editHistory.index - 1
+    const snapshot = editHistory.stack[newIndex]!
+    isRestoringEdit.current = true
+    setEditMeaning(snapshot.meaning)
+    setEditExample(snapshot.example)
+    setEditTranslation(snapshot.translation)
+    setEditHistory((prev) => ({ ...prev, index: newIndex }))
+  }
+
+  const redoEdit = (): void => {
+    if (editHistory.index >= editHistory.stack.length - 1) return
+    const newIndex = editHistory.index + 1
+    const snapshot = editHistory.stack[newIndex]!
+    isRestoringEdit.current = true
+    setEditMeaning(snapshot.meaning)
+    setEditExample(snapshot.example)
+    setEditTranslation(snapshot.translation)
+    setEditHistory((prev) => ({ ...prev, index: newIndex }))
+  }
+
+  // How many due cards a single session pulls in — applies to every review mode, not just Mixed
+  // (see lib/reviewSession.ts). Fetched before queueQuery so the cap is already known by the time
+  // the due-card query runs, rather than refetching once it resolves.
+  const sessionLimitQuery = useQuery({
+    queryKey: ['session-card-limit'],
+    queryFn: getSessionCardLimit,
+  })
+  const sessionCardLimit = sessionLimitQuery.data
+  const queueQuery = useQuery({
+    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId, sessionCardLimit],
+    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, sessionCardLimit ?? 0, singleCardId),
+    enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
+  })
+
+  // Mixed practice's per-card question type needs: the user's enabled types (Settings — see
+  // lib/reviewTypes.ts) and a shared pool of other cards' meanings to build true/false and
+  // multiple-choice wrong answers from. Both fetched once per session, not once per card.
+  const enabledTypesQuery = useQuery({
+    queryKey: ['enabled-question-types'],
+    queryFn: getEnabledQuestionTypes,
+    enabled: mixedOnly,
+  })
+  const distractorScopeDeckId = params.deckId === ALL_DECKS_ID ? undefined : params.deckId
+  const distractorPoolQuery = useQuery({
+    queryKey: ['review-distractor-pool', params.deckId],
+    queryFn: () => getDistractorMeanings(db, '', distractorScopeDeckId, 30),
+    enabled: mixedOnly,
+  })
+  // Per-card rating aggregation for a session where the same card appears more than once (Mixed
+  // practice — every enabled+eligible format for a card is its own queue entry, see sessionOrder
+  // below). Only the LAST entry for a given card actually writes to card_states/review_events; see
+  // the rate mutation. Reset alongside sessionOrder whenever the session itself resets.
+  const cardAggregation = useRef<Map<string, { worst: ReviewRating; durationMs: number; answeredCount: number }>>(
+    new Map(),
+  )
+
+  // Shared by the mode-change effect below and the done screen's "Practice more" button — resets
+  // every piece of per-session state so a fresh loadReviewQueue call (the cards just finished are
+  // rescheduled past "now" by then, so it naturally serves the next batch) starts clean.
+  const resetSession = (): void => {
+    setIndex(0)
+    setFlipped(false)
+    setDurationsMs([])
+    cardStartedAt.current = Date.now()
+    setSessionOrder([])
+    cardAggregation.current = new Map()
+  }
+
+  // "Practice more" invalidates+refetches ['review-queue'] under the *same* query key (deckId/mode/
+  // cap all unchanged) — React Query keeps serving the previous (now-stale) `data` while that
+  // refetch is in flight, it doesn't clear to undefined. Without this flag, the sessionOrder-build
+  // effect below would see that stale data (the batch that was JUST fully rated), rebuild
+  // sessionOrder from it immediately, and then — once the real fresh data lands moments later — its
+  // own `sessionOrder.length > 0` guard would block it from ever using that fresh data. The live
+  // queue (built by cross-referencing sessionOrder against the fresh, now-correct liveById) would
+  // then filter out every one of those stale entries (they're no longer due), leaving an empty
+  // queue that misreports as "Nothing due right now" even though the deck genuinely has more due
+  // cards. This flag closes that window: set before the refetch starts, cleared only once
+  // invalidateQueries' returned promise confirms the refetch actually completed.
+  const [awaitingFreshQueue, setAwaitingFreshQueue] = useState(false)
 
   // Toggling vocab<->cloze view for the same word (the header's icon button, single-card mode
   // only) swaps the whole queue out from under the existing index/flipped state — without this, a
   // card already rated (index past the end, "done") in one view stayed "done" the instant the
   // other view's actually-unreviewed single card loaded.
   useEffect(() => {
-    setIndex(0)
-    setFlipped(false)
-    setDurationsMs([])
-    cardStartedAt.current = Date.now()
-    setSessionOrder([])
-  }, [clozeOnly, singleCardId])
+    resetSession()
+  }, [clozeOnly, mixedOnly, singleCardId])
 
-  // The session's card order is frozen the first time the queue loads for this (deck, mode) key —
-  // `index` only ever moves through *this* list, never through `queueQuery.data` directly. This is
-  // what actually fixes the "explain sometimes jumps to the next card" bug: `queueQuery.data`
-  // refetches mid-session (e.g. after generating an on-demand AI explanation, which invalidates
-  // ['review-queue']), and a plain `queue[index]` read against that live, refetched array is only
-  // as stable as the array's own row order — which even a deterministic SQL ORDER BY can't fully
-  // guarantee across two separate fetches once real time has passed (a card can newly become due
-  // and get inserted mid-array). Freezing *which cards, in which order* once, and only ever
-  // refreshing each frozen card's own *content* from the live query, removes the failure mode
-  // entirely: `index` always means the same card, for the whole session, no matter how many times
-  // the underlying query refetches in between.
-  const [sessionOrder, setSessionOrder] = useState<string[]>([])
+  /** One entry in the frozen session order: a due card presented in one specific format. A plain
+   * vocab/reverse/cloze session has exactly one entry per due card (the session's own mode decides
+   * the format); a Mixed session has one entry per (card, enabled+eligible format) pair — a card
+   * enabled for all 5 formats and eligible for all of them appears 5 times. */
+  interface SessionEntry {
+    cardId: string
+    questionType: QuestionType
+  }
+
+  // The session's order is frozen the first time everything it depends on is ready for this (deck,
+  // mode) key — `index` only ever moves through *this* list, never through `queueQuery.data`
+  // directly. This is what actually fixes the "explain sometimes jumps to the next card" bug:
+  // `queueQuery.data` refetches mid-session (e.g. after generating an on-demand AI explanation,
+  // which invalidates ['review-queue']), and a plain `queue[index]` read against that live,
+  // refetched array is only as stable as the array's own row order — which even a deterministic SQL
+  // ORDER BY can't fully guarantee across two separate fetches once real time has passed (a card
+  // can newly become due and get inserted mid-array). Freezing *which (card, format) pairs, in
+  // which order* once, and only ever refreshing each frozen card's own *content* from the live
+  // query, removes the failure mode entirely: `index` always means the same entry, for the whole
+  // session, no matter how many times the underlying query refetches in between.
+  const [sessionOrder, setSessionOrder] = useState<SessionEntry[]>([])
   useEffect(() => {
-    if (sessionOrder.length === 0 && queueQuery.data && queueQuery.data.length > 0) {
-      setSessionOrder(queueQuery.data.map((c) => c.card.id))
+    if (sessionOrder.length > 0) return
+    // See awaitingFreshQueue's own comment — don't build from queueQuery.data while a "Practice
+    // more" refetch might still be serving the previous (already fully-rated) batch.
+    if (awaitingFreshQueue) return
+    const dueCards = queueQuery.data?.views
+    if (!dueCards || dueCards.length === 0) return
+    if (mixedOnly) {
+      // Needs the user's enabled types and the distractor pool to know which formats are actually
+      // eligible per card — both queries are `enabled: mixedOnly` above, so wait for them too.
+      if (!enabledTypesQuery.data || distractorPoolQuery.isPending) return
+      const entries: SessionEntry[] = []
+      for (const card of dueCards) {
+        const types = pickEligibleTypes(
+          { cardId: card.card.id, hasClozeVariant: card.hasClozeVariant === true },
+          enabledTypesQuery.data,
+          distractorPoolQuery.data ?? [],
+        )
+        for (const questionType of types) entries.push({ cardId: card.card.id, questionType })
+      }
+      // Interleaved across the whole session, not grouped by card — see shuffleArray's own comment.
+      setSessionOrder(shuffleArray(entries))
+    } else {
+      setSessionOrder(
+        dueCards.map((card) => ({
+          cardId: card.card.id,
+          questionType: clozeOnly ? 'cloze' : reverseOnly || card.card.type === 'reverse' ? 'reverse' : 'vocab',
+        })),
+      )
     }
-  }, [queueQuery.data, sessionOrder.length])
+  }, [
+    queueQuery.data,
+    sessionOrder.length,
+    awaitingFreshQueue,
+    mixedOnly,
+    clozeOnly,
+    reverseOnly,
+    enabledTypesQuery.data,
+    distractorPoolQuery.data,
+    distractorPoolQuery.isPending,
+  ])
 
   // The card's own LiquidJS template — vocab (basic/reverse) and cloze
   // sessions each fetch their type's default template, matching the fact
@@ -502,44 +714,93 @@ export default function ReviewSessionScreen(): JSX.Element {
     backTemplate: clozeOnly ? CLOZE_BACK_TEMPLATE : DEFAULT_BACK_TEMPLATE,
     styles: clozeOnly ? CLOZE_STYLES : DEFAULT_STYLES,
   }
+  // A mixed session isn't "all cloze" (that's dedicated Cloze Practice, clozeOnly above), but any
+  // given due card can still be presented in cloze format — fetch cloze's own default template
+  // separately so that presentation still uses the user's actual cloze card design, not vocab's.
+  const mixedClozeTemplateQuery = useQuery({
+    queryKey: ['default-template', 'cloze'],
+    queryFn: () => getDefaultTemplate(db, 'cloze'),
+    enabled: mixedOnly,
+  })
+  const mixedClozeTemplate: Pick<Template, 'frontTemplate' | 'backTemplate' | 'styles'> = mixedClozeTemplateQuery.data ?? {
+    frontTemplate: CLOZE_FRONT_TEMPLATE,
+    backTemplate: CLOZE_BACK_TEMPLATE,
+    styles: CLOZE_STYLES,
+  }
 
   // Frozen order (sessionOrder), fresh content (queueQuery.data) — see the comment above sessionOrder.
-  const liveById = new Map((queueQuery.data ?? []).map((c) => [c.card.id, c]))
-  const queue =
-    sessionOrder.length > 0
-      ? sessionOrder.map((id) => liveById.get(id)).filter((c): c is ReviewCard => c !== undefined)
-      : (queueQuery.data ?? [])
-  const view = queue[index]
+  const liveById = new Map((queueQuery.data?.views ?? []).map((c) => [c.card.id, c]))
+  const queue = sessionOrder.filter((entry) => liveById.has(entry.cardId))
+  const activeEntry = queue[index]
+  const view = activeEntry ? liveById.get(activeEntry.cardId) : undefined
   const done = index >= queue.length
+  const activeQuestionType: QuestionType | null = activeEntry?.questionType ?? null
+
+  const isReverse = activeQuestionType === 'reverse'
+  const isCloze = activeQuestionType === 'cloze'
+  const isTrueFalse = activeQuestionType === 'trueFalse'
+  const isMcq = activeQuestionType === 'mcq'
+  // mcq/trueFalse are auto-graded (see TrueFalseQuestion/MultipleChoiceQuestion below) — no manual
+  // rating buttons/swipe, so the flip/rating chrome further down is skipped entirely for them.
+  const isAutoGraded = isTrueFalse || isMcq
+
+  // How many total entries this specific card has in the whole (frozen) session — 1 outside mixed
+  // mode, or when a mixed card only had one enabled+eligible format; more than 1 when the same card
+  // is being tested in several formats this session (Mixed practice with several types enabled).
+  const totalFormatsForCard = view ? queue.filter((entry) => entry.cardId === view.card.id).length : 0
 
   const rate = useMutation({
     mutationFn: async (rating: ReviewRating) => {
-      if (!view) throw new Error(t('No card to rate.'))
+      if (!view || !activeEntry) throw new Error(t('No card to rate.'))
       const now = Date.now()
-      const newState = schedule(view.cardState, rating, now)
+      const cardId = view.card.id
+      const elapsed = now - cardStartedAt.current
+      const prior = cardAggregation.current.get(cardId)
+      // A card tested in several formats this session (Mixed practice) gets exactly one FSRS
+      // update, using the WORST rating across every format it was tested in — see worstRating's
+      // own doc comment for why (a word isn't "known" if it failed even one presentation of it).
+      const worst = prior ? worstRating(prior.worst, rating) : rating
+      const totalDuration = (prior?.durationMs ?? 0) + elapsed
+      const answeredCount = (prior?.answeredCount ?? 0) + 1
+      const totalForCard = queue.filter((entry) => entry.cardId === cardId).length
+      const isFinalAttemptForCard = answeredCount >= totalForCard
+
+      if (!isFinalAttemptForCard) {
+        cardAggregation.current.set(cardId, { worst, durationMs: totalDuration, answeredCount })
+        return { wrote: false, durationMs: elapsed }
+      }
+
+      cardAggregation.current.delete(cardId)
+      const newState = schedule(view.cardState, worst, now)
+      // Mixed sessions never touch cloze_states, even when a card happens to be presented in cloze
+      // format — see the mixedOnly comment above. Only dedicated Cloze Practice (clozeOnly) does.
       const recordFn = clozeOnly ? recordClozeReview : recordReview
       await recordFn(
         db,
         {
           id: crypto.randomUUID(),
-          cardId: view.card.id,
-          rating,
+          cardId,
+          rating: worst,
           reviewedAt: now,
-          durationMs: now - cardStartedAt.current,
+          durationMs: totalDuration,
+          // Only attributable to one format when the card was tested in exactly one format this
+          // session (every non-mixed session, or a mixed card with just one enabled/eligible type)
+          // — an aggregate across several formats has no single format to name.
+          ...(totalForCard === 1 && { questionType: activeEntry.questionType }),
         },
         newState,
       )
-      return now - cardStartedAt.current
+      return { wrote: true, durationMs: elapsed }
     },
-    onSuccess: async (durationMs) => {
+    onSuccess: async ({ durationMs, wrote }) => {
       setDurationsMs((prev) => [...prev, durationMs])
       setFlipped(false)
       setExplainVisible(false)
       setGuideModalOpen(false)
       setAiSheetOpen(false)
-      setFollowUps([])
       setIndex((i) => i + 1)
       cardStartedAt.current = Date.now()
+      if (!wrote) return
       // 'deck-counts' refreshes the Decks LIST screen's due badges; 'deck' (React Query prefix
       // -matches every ['deck', id] query) refreshes the deck DETAIL screen's own due count and
       // "Review N due cards" button — without this, rating a card here left that screen showing
@@ -555,11 +816,30 @@ export default function ReviewSessionScreen(): JSX.Element {
     },
   })
 
+  // "Practice more" (done screen, only shown when the due queue had more cards than the session
+  // cap — see loadReviewQueue's hasMore) — starts a fresh session immediately instead of making the
+  // rest wait for their own natural next-due date just because they didn't fit in this one sitting.
+  // The cards just finished are already rescheduled past "now", so a fresh loadReviewQueue call
+  // naturally serves the next batch, most-overdue-first, without needing to track "already shown".
+  const practiceMore = (): void => {
+    resetSession()
+    setAwaitingFreshQueue(true)
+    void queryClient
+      .invalidateQueries({ queryKey: ['review-queue'] })
+      .finally(() => setAwaitingFreshQueue(false))
+  }
+
   const openEdit = (): void => {
     if (!view) return
-    setEditMeaning(view.meaning ?? '')
-    setEditExample(view.example ?? '')
-    setEditTranslation(view.exampleTranslation ?? '')
+    const initial: EditSnapshot = {
+      meaning: view.meaning ?? '',
+      example: view.example ?? '',
+      translation: view.exampleTranslation ?? '',
+    }
+    setEditMeaning(initial.meaning)
+    setEditExample(initial.example)
+    setEditTranslation(initial.translation)
+    setEditHistory({ stack: [initial], index: 0 })
     setEditOpen(true)
   }
 
@@ -604,9 +884,12 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const isAiCard = !!view?.card.source && AI_SOURCES.includes(view.card.source)
 
-  // AI cards: the base explanation is generated once (on first open, if missing — see the
-  // auto-generate effect below) and persisted, so it's free to re-show next time. Mirrors
-  // word/[form].tsx's identical mutation.
+  // AI cards: generated on demand (only when "More info" is tapped and nothing's stored yet — see
+  // handleExplain) and persisted via updateMeaningText, so it's free to re-show next time — never
+  // re-fetched for a meaning that already has one. Mirrors word/[form].tsx's identical mutation.
+  // A failure here surfaces as an inline retry row in the sheet itself (see AIExplanationSheet's
+  // explanationError), not a blocking alert — this is only one part of a sheet that may already be
+  // showing other perfectly good content (the paragraphs below can succeed independently).
   const generateExplanation = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
@@ -626,36 +909,39 @@ export default function ReviewSessionScreen(): JSX.Element {
       )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
-    onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
-  // A follow-up question from the "More info" sheet's composer — ephemeral, not persisted (same
-  // decision as word/[form].tsx's identical mutation).
-  const askFollowUp = useMutation({
-    mutationFn: async (question: string) => {
-      if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
+  // "More info" sheet content — on-demand only (see handleExplain), persisted per cluster via
+  // updateClusterMoreInfo so it's fetched from AI at most once per cluster ever, not once per app
+  // session — the queue's own next load already reads it back via getClustersForLemma, same as any
+  // other stored cluster content. Same non-blocking-failure reasoning as generateExplanation above.
+  const generateMoreInfo = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
       if (!view?.clusterRef) throw new Error(t('This word has no meaning yet.'))
-      const result = await ai.generateMeaning(
-        view.form,
-        view.clusterRef,
-        { cefrLevel: defaultCefr, language: view.language, nativeLanguage },
-        question,
-      )
-      const generated = result.data[0]
-      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null }
+      const result = await ai.explainWordDetail(view.form, view.clusterRef, {
+        cefrLevel: defaultCefr,
+        language: view.language,
+        nativeLanguage,
+      })
+      if (view.clusterId) await updateClusterMoreInfo(db, view.clusterId, result.data)
+      return result.data
     },
-    onSuccess: (entry) => setFollowUps((prev) => [...prev, entry]),
-    onError: (error: unknown) => showError(t('Could not get an answer'), error),
+    onSuccess: async (paragraphs) => {
+      if (view?.card.id) setMoreInfoByCard((prev) => ({ ...prev, [view.card.id]: paragraphs }))
+      await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+    },
   })
 
-  // Same auto-generate-once-on-open behavior as word/[form].tsx, scoped to the currently flipped
-  // card (view.card.id) so it fires again per new card, not just once for the whole session.
-  useEffect(() => {
-    if (!isAiCard || !view?.meaningId) return
-    if ((view.explanation ?? '').trim() !== '') return
-    if (tier !== 'full' || generateExplanation.isPending) return
-    generateExplanation.mutate()
-  }, [isAiCard, view?.card.id, view?.explanation, tier])
+  // A follow-up question typed into "More info"'s composer bridges straight to the persistent
+  // "Ask AI" chat instead of answering itself inline — same card, full prior history already
+  // there — so there's exactly one place a word's Q&A history actually lives. Same as
+  // word/[form].tsx's identical bridge.
+  const bridgeToChat = (question: string): void => {
+    setAiSheetOpen(false)
+    setPendingChatMessage(question)
+    setAskAiOpen(true)
+  }
 
   // Checked before AI generation, and on EVERY tap (not just when nothing is
   // stored yet): a bulk-installed, pre-generated dictionary (see
@@ -697,11 +983,21 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not look up an explanation'), error),
   })
 
-  // Same AI-vs-dictionary branch as word/[form].tsx's handleExplain.
+  // Same AI-vs-dictionary branch as word/[form].tsx's handleExplain. For an AI card, "More info"
+  // now covers both the meaning's own explanation and the additional-context paragraphs — neither
+  // shows on the back-card itself any more, both are fetched on demand only when this is actually
+  // tapped (the meaning's explanation used to auto-generate as soon as the card was flipped, whether
+  // or not the learner ever asked to see it).
   const handleExplain = (): void => {
     if (!view) return
     if (isAiCard) {
       setAiSheetOpen(true)
+      if ((view.explanation ?? '').trim() === '' && !generateExplanation.isPending && tier === 'full') {
+        generateExplanation.mutate()
+      }
+      if (!moreInfoByCard[view.card.id] && !view.moreInfo && !generateMoreInfo.isPending && ai) {
+        generateMoreInfo.mutate()
+      }
       return
     }
     if (explainVisible || guideModalOpen) {
@@ -739,11 +1035,21 @@ export default function ReviewSessionScreen(): JSX.Element {
     void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(view.form)}`)
   }
 
-  // Same "Ask AI" affordance as word/[form].tsx's handleAskAI — separate from Explain/More info,
+  // Same "Ask AI" chat window as word/[form].tsx's handleAskAI — separate from Explain/More info,
   // available on every card.
   const handleAskAI = (): void => {
     if (!ai) {
-      aiRequiredAlert.show(t('ask a follow-up question'))
+      aiRequiredAlert.show(t('chat with your AI tutor'))
+      return
+    }
+    // A card with no resolvable meaning/cluster (e.g. content removed via moderation, or an
+    // import that didn't attach one) has nothing for the chat to discuss — surfacing that
+    // explicitly instead of silently doing nothing when the button is tapped.
+    if (!view?.clusterRef) {
+      setErrorNotice({
+        title: t('Nothing to chat about yet'),
+        message: t("This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there."),
+      })
       return
     }
     setAskAiOpen(true)
@@ -769,16 +1075,6 @@ export default function ReviewSessionScreen(): JSX.Element {
     )
   }
 
-  // 'reverse' cards show the meaning first and rate recall of the word —
-  // swapped at the template-context level (word <-> meaning) so the same
-  // stored template naturally renders meaning-first, rather than needing a
-  // second template. Nothing yet produces 'phrase'/'image' cards for a
-  // dedicated layout to matter for either. Cloze cards never reverse.
-  const isReverse = !clozeOnly && (reverseOnly || view?.card.type === 'reverse')
-  // Every card in this session is the same kind (see loadReviewQueue), so
-  // `clozeOnly` alone tells us which template/layout applies.
-  const isCloze = clozeOnly
-
   // What the speaker button (below) reads aloud — the example sentence for a vocab card, or the
   // complete cloze sentence (blank filled back in with its answer, not the "[...]" placeholder)
   // for a cloze card. Null when there's nothing to speak, which is also what hides the button —
@@ -800,19 +1096,23 @@ export default function ReviewSessionScreen(): JSX.Element {
   // (same reasoning as word/[form].tsx's identical change: hiding either was never actually
   // useful).
   const backContext = renderedContext
-  const templateStyles = template.styles ?? ''
+  // Dedicated Cloze Practice (clozeOnly) already fetched cloze's own default via `template` above;
+  // a mixed session's cloze-formatted card needs mixedClozeTemplate instead, since `template` there
+  // is the session's vocab default (see the mixedClozeTemplateQuery comment above).
+  const activeTemplate = isCloze && mixedOnly ? mixedClozeTemplate : template
+  const templateStyles = activeTemplate.styles ?? ''
   const frontHtml = !view
     ? ''
-    : renderCardHtml(template.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front', colors)
+    : renderCardHtml(activeTemplate.frontTemplate, templateStyles, renderedContext ?? view.templateContext, 'front', colors)
   // Vocab's back stacks front+back (word recap above the meaning); cloze's
   // back template is the complete revealed-sentence layout on its own — the
   // front's blanked sentence has no reason to repeat above it.
   const backHtml = !view
     ? ''
     : isCloze
-      ? renderCardHtml(template.backTemplate, templateStyles, view.templateContext, 'back', colors)
+      ? renderCardHtml(activeTemplate.backTemplate, templateStyles, view.templateContext, 'back', colors)
       : renderCardHtml(
-          `${template.frontTemplate}<hr/>${template.backTemplate}`,
+          `${activeTemplate.frontTemplate}<hr/>${activeTemplate.backTemplate}`,
           templateStyles,
           backContext ?? view.templateContext,
           'back',
@@ -827,6 +1127,11 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
+        {mixedOnly && !done && view ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('mixed')}</Text>
+          </View>
+        ) : null}
         {isCloze ? (
           <View style={styles.modePill}>
             <Text style={styles.modePillLabel}>{t('cloze')}</Text>
@@ -835,6 +1140,16 @@ export default function ReviewSessionScreen(): JSX.Element {
         {isReverse ? (
           <View style={styles.modePill}>
             <Text style={styles.modePillLabel}>{t('reverse')}</Text>
+          </View>
+        ) : null}
+        {isTrueFalse ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('true/false')}</Text>
+          </View>
+        ) : null}
+        {isMcq ? (
+          <View style={styles.modePill}>
+            <Text style={styles.modePillLabel}>{t('multiple choice')}</Text>
           </View>
         ) : null}
         {/* Previewing one specific word from the deck's card list, not a practice session — a
@@ -857,7 +1172,11 @@ export default function ReviewSessionScreen(): JSX.Element {
       </View>
       {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
-      {done || !view ? (
+      {awaitingFreshQueue ? (
+        <View style={styles.doneWrap}>
+          <Spinner />
+        </View>
+      ) : done || !view ? (
         <View style={styles.doneWrap}>
           <EmptyState
             icon={queue.length === 0 ? 'checkmark-done' : 'trophy'}
@@ -865,23 +1184,100 @@ export default function ReviewSessionScreen(): JSX.Element {
             message={
               queue.length === 0
                 ? t('This deck has no cards due for review. Add words or check back later.')
-                : t('You reviewed {{count}} cards. Great work — come back when the next cards are due.', { count: queue.length })
+                : queueQuery.data?.hasMore
+                  ? // More due cards than fit in this session's cap (Settings > Learning > Cards
+                    // per session) — offered "Practice more" below instead of making them wait.
+                    t('You reviewed {{count}} cards. There are more cards due - keep going or come back later.', {
+                      count: new Set(queue.map((entry) => entry.cardId)).size,
+                    })
+                  : // Distinct cards, not queue.length — a Mixed session's queue can have several
+                    // entries per card (one per format tested), but "You reviewed 20 cards" for a
+                    // 4-card deck would be a confusing overcount.
+                    t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', {
+                      count: new Set(queue.map((entry) => entry.cardId)).size,
+                    })
             }
           />
-          <Pressable style={styles.doneButton} onPress={() => router.back()}>
-            <Text style={styles.doneButtonLabel}>{t('Back to deck')}</Text>
+          {queue.length > 0 && queueQuery.data?.hasMore ? (
+            <Pressable style={styles.doneButton} onPress={practiceMore}>
+              <Text style={styles.doneButtonLabel}>{t('Practice more')}</Text>
+            </Pressable>
+          ) : null}
+          <Pressable
+            style={queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondary : styles.doneButton}
+            onPress={() => router.back()}
+          >
+            <Text
+              style={
+                queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondaryLabel : styles.doneButtonLabel
+              }
+            >
+              {t('Back to deck')}
+            </Text>
           </Pressable>
         </View>
+      ) : isAutoGraded && view.meaning ? (
+        <>
+          {/* True/false and multiple-choice bypass the LiquidJS/WebView template pipeline entirely
+              — a system-defined interaction, not a user-customizable card layout (see
+              components/TrueFalseQuestion.tsx / MultipleChoiceQuestion.tsx). Auto-graded: no flip,
+              no manual rating buttons/swipe — onAnswered maps correct/incorrect straight onto
+              'good'/'again' and calls the same rate mutation every other format uses. */}
+          <View style={styles.card}>
+            {isTrueFalse ? (
+              <TrueFalseQuestion
+                // Keyed to this exact (card, format) entry — without it, two consecutive
+                // auto-graded questions of the same type reuse one component instance, and its
+                // internal `choice` state ("already answered") carries over onto the new question,
+                // locking out taps and silently dropping onAnswered. See MultipleChoiceQuestion
+                // below for the identical failure mode.
+                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
+                cardKey={view.card.id}
+                word={view.form}
+                meaning={view.meaning}
+                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+              />
+            ) : (
+              <MultipleChoiceQuestion
+                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
+                cardKey={view.card.id}
+                word={view.form}
+                meaning={view.meaning}
+                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+              />
+            )}
+            {/* Same action bar as every other card format (word/[form].tsx's identical reasoning) —
+                the question type is just a different way of testing this word, not a different
+                word, so Explain/More info, Ask AI, and Look up all still apply to it. */}
+            <CardActionBar
+              {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
+              onExplain={handleExplain}
+              explainVisible={isAiCard || explainVisible}
+              explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
+              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+              onEdit={openEdit}
+              onLookup={handleLookup}
+              onAskAI={handleAskAI}
+            />
+          </View>
+          <View style={styles.ratingPlaceholder} />
+          {rate.isError ? <Text style={styles.errorLabel}>{String(rate.error)}</Text> : null}
+        </>
       ) : (
         <>
           {/* Card — cloze and vocab cards both render through the same
               LiquidJS + WebView pipeline (lib/templates.ts), just with a
               different (fixed, for cloze) template — see isCloze above.
-              The action bar and explanation are native elements (not baked
-              into the customizable LiquidJS template, so they work
-              regardless of the user's own layout) but render INSIDE the
-              same bordered card box as the WebView content, below it,
-              rather than as a separate row outside it. */}
+              The action bar is a native element (not baked into the
+              customizable LiquidJS template, so it works regardless of the
+              user's own layout) but renders INSIDE the same bordered card
+              box as the WebView content, below it, rather than as a
+              separate row outside it. The meaning's explanation no longer
+              shows here at all — it's on-demand only, via "More info" (see
+              handleExplain/AIExplanationSheet), same as the additional-
+              context paragraphs it now sits alongside. */}
           {flipped ? (
             <SwipeableCard
               enabled={!rate.isPending && !singleCardId}
@@ -898,25 +1294,19 @@ export default function ReviewSessionScreen(): JSX.Element {
                 })}
               />
 
-              {!isCloze ? (
-                <>
-                  {isAiCard ? (
-                    <Text style={styles.explanationText}>
-                      {generateExplanation.isPending ? t('Generating…') : (view.explanation ?? '') || t('No explanation yet.')}
-                    </Text>
-                  ) : null}
-                  <CardActionBar
-                    {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
-                    onExplain={handleExplain}
-                    explainVisible={isAiCard || explainVisible}
-                    explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                    {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
-                    onEdit={openEdit}
-                    onLookup={handleLookup}
-                    onAskAI={handleAskAI}
-                  />
-                </>
-              ) : null}
+              {/* Shown for cloze too now (dedicated Cloze Practice and Mixed practice's
+                  cloze-formatted cards alike) — a cloze presentation is still testing the same
+                  underlying word, so Explain/More info/Ask AI/Look up/Edit all still apply. */}
+              <CardActionBar
+                {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
+                onExplain={handleExplain}
+                explainVisible={isAiCard || explainVisible}
+                explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
+                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+                onEdit={openEdit}
+                onLookup={handleLookup}
+                onAskAI={handleAskAI}
+              />
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
@@ -932,7 +1322,13 @@ export default function ReviewSessionScreen(): JSX.Element {
           {singleCardId ? null : flipped ? (
             <View style={styles.ratingRow}>
               {RATINGS.map(({ rating, label }) => {
-                const preview = schedule(view.cardState, rating, Date.now())
+                // This word being tested in more than one format this session (Mixed practice)
+                // means the interval preview would be misleading: it previews *this* rating
+                // applied fresh to the persisted schedule, but the real update only lands once
+                // every format for this card is answered, using the worst rating across all of
+                // them — see the rate mutation. No visible explanation for the omission (tried
+                // one, it read as clutter) — the buttons just quietly skip the interval text.
+                const preview = totalFormatsForCard <= 1 ? schedule(view.cardState, rating, Date.now()) : null
                 return (
                   <Pressable
                     key={rating}
@@ -948,9 +1344,11 @@ export default function ReviewSessionScreen(): JSX.Element {
                     disabled={rate.isPending}
                   >
                     <Text style={[styles.ratingLabel, { color: activeRatingColors[rating].fg }]}>{t(label)}</Text>
-                    <Text style={[styles.ratingInterval, { color: activeRatingColors[rating].fg }]}>
-                      {formatInterval(Date.now(), preview.nextReviewAt)}
-                    </Text>
+                    {preview ? (
+                      <Text style={[styles.ratingInterval, { color: activeRatingColors[rating].fg }]}>
+                        {formatInterval(Date.now(), preview.nextReviewAt)}
+                      </Text>
+                    ) : null}
                   </Pressable>
                 )
               })}
@@ -968,8 +1366,30 @@ export default function ReviewSessionScreen(): JSX.Element {
           <View style={styles.editSheet}>
             <View style={styles.editHeader}>
               <Text style={styles.editTitle}>{t('Edit this card')}</Text>
-              <IconButton icon="close" onPress={() => setEditOpen(false)} />
+              <View style={styles.editHeaderActions}>
+                <IconButton
+                  icon="arrow-undo-outline"
+                  accessibilityLabel={t('Undo')}
+                  onPress={undoEdit}
+                  disabled={editHistory.index === 0}
+                />
+                <IconButton
+                  icon="arrow-redo-outline"
+                  accessibilityLabel={t('Redo')}
+                  onPress={redoEdit}
+                  disabled={editHistory.index >= editHistory.stack.length - 1}
+                />
+                <IconButton icon="close" onPress={() => setEditOpen(false)} />
+              </View>
             </View>
+            {/* Capped + scrollable (see editSheet's maxHeight) — three multiline fields plus the
+                undo/redo header can grow taller than the screen, especially at large system
+                font/display scaling; header and Cancel/Save stay pinned outside the scroll. */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.editScrollContent}
+            >
             <Text style={styles.editLabel}>{t('Meaning')}</Text>
             <TextInput
               style={styles.editInput}
@@ -1014,17 +1434,18 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCorrect={false}
             />
             <Text style={styles.editHint}>
-              {t('Basic inline HTML works too — {{bold}}, {{italic}}, {{colored}}.', {
+              {t('Basic inline HTML works too - {{bold}}, {{italic}}, {{colored}}.', {
                 bold: '<b>bold</b>',
                 italic: '<i>italic</i>',
                 colored: '<span style="color:#D64545">red</span>',
               })}
             </Text>
             {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
+            </ScrollView>
             <View style={styles.editActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
-                label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
+                label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
                 icon="save"
                 onPress={() => saveEdit.mutate()}
                 disabled={saveEdit.isPending}
@@ -1041,7 +1462,7 @@ export default function ReviewSessionScreen(): JSX.Element {
           setGuideModalOpen(false)
           setExplainVisible(false)
         }}
-        {...(!guideModalOpen && { footnote: t('Generated with AI — not from your installed dictionary.') })}
+        {...(!guideModalOpen && { footnote: t('Generated with AI - not from your installed dictionary.') })}
       />
 
       {/* "More info" — AI cards only, the rich explanation/synonyms/usage sheet. */}
@@ -1052,25 +1473,38 @@ export default function ReviewSessionScreen(): JSX.Element {
           headword={view.form}
           partOfSpeech={view.partOfSpeech}
           language={view.language}
-          translation={view.meaning ?? ''}
           explanation={view.explanation ?? ''}
-          usage={view.usage}
-          loading={generateExplanation.isPending}
-          synonyms={view.synonyms}
-          followUps={followUps}
-          askLoading={askFollowUp.isPending}
-          onAsk={(question) => askFollowUp.mutate(question)}
+          explanationLoading={generateExplanation.isPending}
+          explanationError={generateExplanation.isError}
+          onRetryExplanation={() => generateExplanation.mutate()}
+          paragraphs={moreInfoByCard[view.card.id] ?? view.moreInfo ?? []}
+          paragraphsError={generateMoreInfo.isError}
+          onRetryParagraphs={() => generateMoreInfo.mutate()}
+          loading={generateMoreInfo.isPending}
+          onAsk={bridgeToChat}
         />
       ) : null}
 
-      {/* "Ask AI" — every card, AI-sourced or not; just the question composer + Q&A thread. */}
-      <AskAISheet
-        visible={askAiOpen}
-        onClose={() => setAskAiOpen(false)}
-        followUps={followUps}
-        askLoading={askFollowUp.isPending}
-        onAsk={(question) => askFollowUp.mutate(question)}
-      />
+      {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
+          not. handleAskAI already guards opening it without `ai`/`view`; this just keeps the type
+          checker honest. initialMessage carries over a question typed into "More info"'s composer
+          (see bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
+      {ai && view?.clusterRef ? (
+        <WordChatSheet
+          visible={askAiOpen}
+          onClose={() => setAskAiOpen(false)}
+          db={db}
+          ai={ai}
+          cardId={view.card.id}
+          word={view.form}
+          cluster={view.clusterRef}
+          cefrLevel={defaultCefr}
+          language={view.language}
+          nativeLanguage={nativeLanguage}
+          {...(pendingChatMessage !== undefined && { initialMessage: pendingChatMessage })}
+          onInitialMessageSent={() => setPendingChatMessage(undefined)}
+        />
+      ) : null}
 
       {aiRequiredAlert.modal}
 
@@ -1140,13 +1574,6 @@ const createStyles = (colors: ThemeColors) =>
     swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
     swipeBadgeBottom: { bottom: spacing.xl, alignSelf: 'center' },
     tapHint: { position: 'absolute', bottom: spacing.xl, fontSize: type.caption, color: colors.textMuted },
-    explanationText: {
-      fontSize: type.caption,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      paddingBottom: spacing.sm,
-      lineHeight: 18,
-    },
     ratingRow: { flexDirection: 'row', gap: spacing.xs, padding: spacing.md, paddingTop: 0 },
     ratingPlaceholder: { height: 76 },
     ratingButton: {
@@ -1174,8 +1601,14 @@ const createStyles = (colors: ThemeColors) =>
       borderTopRightRadius: radius.xl,
       padding: spacing.xl,
       gap: spacing.sm,
+      // At large system font/display scaling three multiline fields can grow taller than the
+      // screen — capped here and made scrollable (see the ScrollView around the fields) instead
+      // of silently overflowing the screen edge with no way to reach the rest.
+      maxHeight: '85%',
     },
+    editScrollContent: { gap: spacing.sm },
     editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+    editHeaderActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     editTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
     editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
     editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -1201,4 +1634,12 @@ const createStyles = (colors: ThemeColors) =>
       marginTop: -spacing.xl,
     },
     doneButtonLabel: { color: colors.textOnPrimary, fontSize: type.body, fontWeight: '700' },
+    doneButtonSecondary: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    doneButtonSecondaryLabel: { color: colors.text, fontSize: type.body, fontWeight: '700' },
   })

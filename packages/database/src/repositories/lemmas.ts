@@ -1,6 +1,6 @@
 import type { CardSource, CefrLevel, Inflection, LanguageCode, Lemma } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
-import { buildFTSQuery } from '../fts'
+import { buildFTSExactQuery, buildFTSQuery } from '../fts'
 
 /**
  * The columns of a lemma row, aliased to the camelCase names of the Lemma type.
@@ -78,6 +78,25 @@ export async function getLemmaByForm(
 }
 
 /**
+ * Every lemma form already in the user's library for one language — used to tell "Word of the
+ * Day" (see apps/mobile/lib/wordOfTheDay.ts) which words NOT to suggest again. Deliberately just
+ * the bare forms, not full Lemma rows — this is passed straight into an AI prompt as a plain
+ * exclude-list, nothing else about the lemma is needed.
+ */
+export async function getAllLemmaFormsForLanguage(db: DatabaseAdapter, language: LanguageCode): Promise<string[]> {
+  const rows = await db.query<{ form: string }>(`SELECT form FROM lemmas WHERE language = ?`, [language])
+  return rows.map((row) => row.form)
+}
+
+/**
+ * Delete a lemma and all associated cards, meanings, clusters, examples, synonyms, phrases,
+ * cloze variants, and review history.
+ */
+export async function deleteLemma(db: DatabaseAdapter, lemmaId: string): Promise<void> {
+  await db.execute(`DELETE FROM lemmas WHERE id = ?`, [lemmaId])
+}
+
+/**
  * Full-text search across lemma forms AND meaning translations.
  * Called on every keystroke in the search bar, so a user finds
  * 'ausgehen' whether they type "ausgeh" (German) or "go out" (English).
@@ -96,6 +115,12 @@ export async function searchLemmas(
 ): Promise<Lemma[]> {
   const query = buildFTSQuery(input)
   if (!query) return []
+  // Prefix matching is right for fts_lemmas (autocompleting a word in your own target-language
+  // vocabulary as you type it) but wrong for fts_meanings — that text is in the *other* language,
+  // so a target-language search term that's a short prefix of some unrelated word's translation
+  // would otherwise false-positive-match purely by coincidence (see buildFTSExactQuery's own
+  // doc comment for the confirmed "Wand" -> "wander" repro).
+  const meaningQuery = buildFTSExactQuery(input)
 
   return db.query<Lemma>(
     `SELECT id, form, language, partOfSpeech, gender, plural, createdAt, updatedAt
@@ -117,7 +142,7 @@ export async function searchLemmas(
      GROUP BY id
      ORDER BY MIN(rank)
      LIMIT 20`,
-    [query, language, query, language],
+    [query, language, meaningQuery, language],
   )
 }
 

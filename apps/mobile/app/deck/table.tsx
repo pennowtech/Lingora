@@ -19,7 +19,7 @@ import type { ThemeColors } from '../../lib/themes'
 const MAX_SYNONYMS_SHOWN = 2
 
 function synonymsCell(card: ExportableCard): string {
-  if (card.synonyms.length === 0) return '—'
+  if (card.synonyms.length === 0) return '-'
   const shown = card.synonyms.slice(0, MAX_SYNONYMS_SHOWN).join(', ')
   const remaining = card.synonyms.length - MAX_SYNONYMS_SHOWN
   return remaining > 0 ? `${shown} (+${remaining})` : shown
@@ -31,25 +31,25 @@ function synonymsCell(card: ExportableCard): string {
 // export-shared.ts), so each set only keeps the columns that are ever populated for its rows.
 const WORD_COLUMNS: DataTableColumn<ExportableCard>[] = [
   { label: 'Word', width: 140, cell: (c) => c.word },
-  { label: 'Meaning', width: 160, cell: (c) => c.meaning || '—' },
-  { label: 'Example', width: 240, cell: (c) => c.example ?? '—' },
-  { label: 'Example translation', width: 220, cell: (c) => c.exampleTranslation ?? '—' },
+  { label: 'Meaning', width: 160, cell: (c) => c.meaning || '-' },
+  { label: 'Example', width: 240, cell: (c) => c.example ?? '-' },
+  { label: 'Example translation', width: 220, cell: (c) => c.exampleTranslation ?? '-' },
   { label: 'Synonyms', width: 180, cell: synonymsCell },
-  { label: 'Tags', width: 160, cell: (c) => c.tags.join(', ') || '—' },
+  { label: 'Tags', width: 160, cell: (c) => c.tags.join(', ') || '-' },
   { label: 'Part of speech', width: 130, cell: (c) => c.partOfSpeech },
   { label: 'CEFR', width: 70, cell: (c) => c.cefrLevel },
 ]
 
 const CLOZE_COLUMNS: DataTableColumn<ExportableCard>[] = [
   { label: 'Word', width: 140, cell: (c) => c.word },
-  { label: 'Meaning', width: 160, cell: (c) => c.meaning || '—' },
+  { label: 'Meaning', width: 160, cell: (c) => c.meaning || '-' },
   // clozeMarkup, not cloze: a type:'basic' card the AI pipeline also gave a cloze variant has
   // `cloze` forced null (that field is export-format shaping — see ExportableCard's doc comment),
   // but `clozeMarkup` is set whenever cloze content actually exists, regardless of card type.
-  { label: 'Cloze', width: 260, cell: (c) => c.clozeMarkup ?? '—' },
-  { label: 'Example translation', width: 220, cell: (c) => c.clozeVariantTranslation ?? '—' },
+  { label: 'Cloze', width: 260, cell: (c) => c.clozeMarkup ?? '-' },
+  { label: 'Example translation', width: 220, cell: (c) => c.clozeVariantTranslation ?? '-' },
   { label: 'Synonyms', width: 180, cell: synonymsCell },
-  { label: 'Tags', width: 160, cell: (c) => c.tags.join(', ') || '—' },
+  { label: 'Tags', width: 160, cell: (c) => c.tags.join(', ') || '-' },
   { label: 'CEFR', width: 70, cell: (c) => c.cefrLevel },
 ]
 
@@ -84,7 +84,7 @@ export default function DeckTableScreen(): JSX.Element {
 
   return (
     <>
-      <Stack.Screen options={{ title: deckName ? t('{{name}} — all cards', { name: deckName }) : t('All cards') }} />
+      <Stack.Screen options={{ title: deckName ? t('{{name}} - all cards', { name: deckName }) : t('All cards') }} />
       {cardsQuery.isPending ? (
         <Spinner />
       ) : cardsQuery.isError ? (

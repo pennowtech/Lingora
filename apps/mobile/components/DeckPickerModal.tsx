@@ -85,7 +85,7 @@ export function DeckPickerModal(props: {
                 onSubmitEditing={submitNewDeck}
               />
               <Button
-                label={creating ? t('Creating…') : t('Create')}
+                label={creating ? t('Creating...') : t('Create')}
                 small
                 onPress={submitNewDeck}
                 disabled={creating || newDeckName.trim() === ''}
@@ -124,7 +124,7 @@ export function DeckPickerModal(props: {
               })}
             </ScrollView>
           ) : (
-            <Text style={styles.hint}>{t('No decks yet — create one above.')}</Text>
+            <Text style={styles.hint}>{t('No decks yet - create one above.')}</Text>
           )}
           {props.selectError ? <Text style={styles.errorText}>{props.selectError}</Text> : null}
         </View>

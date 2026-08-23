@@ -29,7 +29,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'This becomes a public issue',
     icon: 'globe-outline',
     paragraphs: [
-      'Submitting posts your message as a GitHub issue on Lingora\'s public repository — anyone can read it, including your contact email if you provide one.',
+      'Submitting posts your message as a GitHub issue on Lemmory\'s public repository - anyone can read it, including your contact email if you provide one.',
       'Please don\'t include anything private in your message.',
     ],
   },
@@ -38,7 +38,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'What diagnostics includes',
     icon: 'information-circle-outline',
     paragraphs: [
-      'Only app version, platform, and your current feature tier (Full or Translation-only) — enough to help reproduce a bug.',
+      'Only app version, platform, and your current feature tier (Full or Translation-only) - enough to help reproduce a bug.',
       'Never included: word content, translations, AI responses, or API keys.',
     ],
   },
@@ -47,7 +47,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Why nothing sends yet',
     icon: 'construct-outline',
     paragraphs: [
-      'Creating a GitHub issue needs a token with write access to the repo — that can never ship inside the app, since a compiled build can be decompiled and any embedded secret treated as public.',
+      'Creating a GitHub issue needs a token with write access to the repo - that can never ship inside the app, since a compiled build can be decompiled and any embedded secret treated as public.',
       'This screen is a preview of the full flow; submitting just confirms locally for now. A small server-side function will handle real submission in a future update.',
     ],
   },
@@ -86,7 +86,15 @@ export default function AboutScreen(): JSX.Element {
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
 
-  const appVersion = Constants.expoConfig?.version ?? 'unknown'
+  const appVersion = Constants.expoConfig?.version ?? '0.1.0'
+  const buildNumber =
+    Constants.nativeBuildVersion ??
+    (Platform.OS === 'android'
+      ? Constants.expoConfig?.android?.versionCode?.toString()
+      : Constants.expoConfig?.ios?.buildNumber) ??
+    '8'
+
+  const buildLabel = `v${appVersion} (${t('Build')} ${buildNumber})`
   const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android'
 
   const canSubmit = title.trim() !== '' && message.trim() !== '' && !submitting
@@ -104,7 +112,7 @@ export default function AboutScreen(): JSX.Element {
       setSubmitting(false)
       setNotice({
         title: t('Thanks for the feedback'),
-        message: t("This is a preview of the feedback form — sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
+        message: t("This is a preview of the feedback form - sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
       })
       setCategory('bug')
       setTitle('')
@@ -130,8 +138,11 @@ export default function AboutScreen(): JSX.Element {
         <View style={styles.iconWrap}>
           <Image source={appIcon} style={styles.icon} resizeMode="contain" />
         </View>
-        <Text style={styles.appName}>Lingora</Text>
-        <Text style={styles.detail}>{t('v0.0.1 · offline-first · your data stays on device')}</Text>
+        <Text style={styles.appName}>Lemmory</Text>
+        <View style={styles.versionBadgeContainer}>
+          <Text style={styles.versionBadgeText}>{buildLabel}</Text>
+        </View>
+        <Text style={styles.detail}>{t('offline-first · your data stays on device')}</Text>
       </Card>
 
       <Text style={styles.sectionLabel}>{t('Send Feedback')}</Text>
@@ -182,7 +193,7 @@ export default function AboutScreen(): JSX.Element {
         <View style={styles.switchRow}>
           <View style={styles.switchLabelWrap}>
             <Text style={styles.fieldLabel}>{t('Include diagnostics')}</Text>
-            <Text style={styles.fieldHint}>{t('App version, platform, and feature tier — helps reproduce a bug.')}</Text>
+            <Text style={styles.fieldHint}>{t('App version, platform, and feature tier - helps reproduce a bug.')}</Text>
           </View>
           <Switch testID="feedback-diagnostics-toggle" value={includeDiagnostics} onValueChange={setIncludeDiagnostics} />
         </View>
@@ -199,7 +210,7 @@ export default function AboutScreen(): JSX.Element {
 
       <Card>
         <Text style={styles.fieldLabel}>{t('Email (Optional)')}</Text>
-        <Text style={styles.fieldHint}>{t('Only if you want a reply — also becomes public once posted.')}</Text>
+        <Text style={styles.fieldHint}>{t('Only if you want a reply - also becomes public once posted.')}</Text>
         <TextInput
           style={[styles.input, styles.fieldSpacing]}
           placeholder={t('you@example.com')}
@@ -213,7 +224,7 @@ export default function AboutScreen(): JSX.Element {
       </Card>
 
       <Button
-        label={submitting ? t('Sending…') : t('Send Feedback')}
+        label={submitting ? t('Sending...') : t('Send Feedback')}
         icon="send"
         onPress={handleSubmit}
         disabled={!canSubmit}
@@ -256,6 +267,18 @@ const createStyles = (colors: ThemeColors) =>
     },
     icon: { width: 72, height: 72 },
     appName: { fontSize: type.heading, fontWeight: '800', color: colors.text },
+    versionBadgeContainer: {
+      backgroundColor: colors.primarySoft,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 2,
+      borderRadius: radius.full,
+      marginVertical: spacing.xs,
+    },
+    versionBadgeText: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.primary,
+    },
     detail: { fontSize: type.caption, color: colors.textMuted, textAlign: 'center' },
     sectionLabel: {
       fontSize: type.caption,

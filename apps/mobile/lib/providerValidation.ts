@@ -1,8 +1,5 @@
 import {
   AIError,
-  AIProviderError,
-  AIResponseParseError,
-  AIValidationError,
   AnthropicProvider,
   DeepLProvider,
   GeminiProvider,
@@ -50,6 +47,35 @@ function offlineMessage(providerName: string): string {
 }
 
 /**
+ * Duck-typed fallback for `instanceof AIError`/`AIProviderError`/etc. — `@lingora/ai`'s own doc
+ * comment on `AIError` warns that instanceof chains "survive bundling less reliably" than its
+ * literal `code` discriminator, and recommends switching on `.code` instead. Confirmed in the
+ * wild: a Google Translate 429 rate-limit error reached this function but fell through the
+ * `instanceof AIError` gate below, showing the raw truncated HTML error body to the user instead
+ * of "rate limit reached, try again" - exactly the failure mode this comment predicts. `instanceof`
+ * is still tried first (cheap, no behavior change in the common case); this is only a fallback for
+ * when the thrown error's prototype chain doesn't resolve to the same class reference this module
+ * imported (a duplicated/mismatched module instance of `@lingora/ai` somewhere in the bundle).
+ */
+interface AIErrorLike {
+  message: string
+  code: 'provider' | 'parse' | 'validation'
+  status?: number
+}
+
+function asAIErrorLike(error: unknown): AIErrorLike | undefined {
+  if (error instanceof AIError) return error
+  if (
+    error instanceof Error &&
+    'code' in error &&
+    (error.code === 'provider' || error.code === 'parse' || error.code === 'validation')
+  ) {
+    return error as Error & AIErrorLike
+  }
+  return undefined
+}
+
+/**
  * Formats technical raw API errors (JSON strings, HTTP status dumps, stack traces)
  * into clean, user-friendly, actionable messages for settings & error alerts.
  */
@@ -68,8 +94,8 @@ export function formatUserFriendlyProviderError(
     )
   })
 
-  const providerError = error instanceof AIProviderError ? error : undefined
-  const status = providerError?.status
+  const aiError = asAIErrorLike(error)
+  const status = aiError?.code === 'provider' ? aiError.status : undefined
   const rawMsg = error instanceof Error ? error.message : String(error)
   const lower = rawMsg.toLowerCase()
 
@@ -82,9 +108,10 @@ export function formatUserFriendlyProviderError(
   // throwing "Lemma 'X' already exists" when a word's resolved form collides with an existing one)
   // would otherwise coincidentally fall through every check below to the generic "check your key
   // and settings" fallback, which is actively wrong for an error that has nothing to do with the
-  // key. Only genuine AI-package errors (AIError and its subclasses) get the heuristics below —
-  // anything else shows its own real message instead of a guessed-at, possibly-misleading one.
-  if (!(error instanceof AIError)) {
+  // key. Only genuine AI-package errors (AIError and its subclasses, or a duck-typed equivalent —
+  // see asAIErrorLike) get the heuristics below — anything else shows its own real message instead
+  // of a guessed-at, possibly-misleading one.
+  if (!aiError) {
     return rawMsg
   }
 
@@ -97,13 +124,13 @@ export function formatUserFriendlyProviderError(
   // "Mistral validation failed. Please check your key and settings.", even though the key was
   // fine — a schema mismatch in that one response is what actually failed). Model responses are
   // non-deterministic, so a retry of the exact same word can succeed with nothing else changed.
-  if (error instanceof AIValidationError) {
+  if (aiError.code === 'validation') {
     return tr(
       "{{providerName}}'s response for this word wasn't in the expected format. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.",
       { providerName },
     )
   }
-  if (error instanceof AIResponseParseError) {
+  if (aiError.code === 'parse') {
     return tr(
       '{{providerName}} returned a response that could not be read. This can happen occasionally - try again, or try a different AI provider in Settings > AI Providers.',
       { providerName },
@@ -246,13 +273,14 @@ async function runValidation(
     })
     return { ok: true, message: `Connected - ${detail}` }
   } catch (error) {
-    const providerError = error instanceof AIProviderError ? error : undefined
+    const aiError = asAIErrorLike(error)
+    const status = aiError?.code === 'provider' ? aiError.status : undefined
     log.warn('settings.provider_validation_failed', {
       message: 'Provider key validation failed',
       durationMs: Date.now() - startedAt,
       metadata: {
         provider: providerName,
-        ...(providerError?.status !== undefined ? { statusCode: providerError.status } : {}),
+        ...(status !== undefined ? { statusCode: status } : {}),
       },
     })
     return { ok: false, message: formatUserFriendlyProviderError(providerName, error) }

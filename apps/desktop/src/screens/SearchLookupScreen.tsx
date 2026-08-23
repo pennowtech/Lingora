@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle, type LucideIcon } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
+import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
 import {
   getClustersForLemma,
@@ -84,6 +85,24 @@ function dictionaryProviderLabel(name: string): string {
   return PROVIDER_META_DATA[name as GenerationProviderName]?.label ?? name;
 }
 
+/** Cluster `context` values the synthetic "not found in DB yet" entry can carry (see
+ * executeSearch), each rendered as its own distinctly-styled preview panel below — a genuine AI
+ * gist reads differently from a free dictionary hit or a bare translation, so they shouldn't share
+ * one undifferentiated look. */
+type PreviewKind = 'ai' | 'guide' | 'dictionary';
+
+const PREVIEW_KIND_META: Record<PreviewKind, { icon: LucideIcon; label: string; hint: string; accent: string }> = {
+  ai: { icon: Sparkles, label: 'AI Insight', hint: 'Instant AI gist - not saved yet', accent: 'var(--accent-primary)' },
+  guide: { icon: BookOpen, label: 'From Your Installed Dictionary', hint: 'Free, offline reference', accent: 'var(--info)' },
+  dictionary: { icon: Globe, label: 'Dictionary Translation', hint: 'Quick reference only', accent: 'var(--text-secondary)' },
+};
+
+function previewKindFor(context: string | undefined): PreviewKind {
+  if (context === 'AI Insight') return 'ai';
+  if (context === 'Installed Dictionary') return 'guide';
+  return 'dictionary';
+}
+
 /** Module-level, not component state — App.tsx only renders SearchLookupScreen while
  * activeScreen === 'search', so switching to another screen and back unmounts/remounts this
  * component from scratch. Without this, the query (and the whole results list, since it's keyed
@@ -130,6 +149,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // key, which fails silently the same way it always has) — so "the internet is down" doesn't
   // look identical to "no dictionary translation available for this word."
   const [searchNotice, setSearchNotice] = useState<string | null>(null);
+  // True only while the word-guide/AI-quick-explain/dictionary-translation step of a search is in
+  // flight (not the whole search, which also covers the fast local DB query) — drives the preview
+  // panel's own loading state below, since that step is the one genuinely slow enough to need one.
+  const [isFetchingInsight, setIsFetchingInsight] = useState(false);
   const help = useHelpAccordion('lookup');
   // Real persistence data for whichever synthetic "not found in DB yet" entry is currently showing
   // (see the `search-${...}` id prefix below) — keyed by the searched form, so "Add to Deck" can
@@ -269,6 +292,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       // provider is configured — mirrors apps/mobile's Search screen's quickExplain.
       let quickExplainText = '';
       if (!exactMatch) {
+        setIsFetchingInsight(true);
         try {
           const source = await detectSearchLanguage(dictionary, trimmed, nativeLanguage, targetLanguage);
           const target = source === targetLanguage ? nativeLanguage : targetLanguage;
@@ -295,6 +319,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             console.warn('[Search & Lookup] AI quick-explain failed:', err);
           }
         }
+        setIsFetchingInsight(false);
       }
 
       let enriched: WordLemma[] = [];
@@ -433,6 +458,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       console.error('[Search & Lookup] Error executing search:', err);
     } finally {
       setIsSearching(false);
+      setIsFetchingInsight(false);
     }
   };
 
@@ -881,32 +907,128 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </div>
           </div>
 
-          {/* Morphological Surface Forms */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-              Inflected Surface Forms (Lemma Normalization)
+          {/* AI/word-guide preview — only for a word with no card yet, and only when there's
+              genuinely more to show than the header's own translation line above (an AI gist or a
+              free dictionary entry) — a bare translation with nothing else doesn't earn its own
+              box, that would just repeat the header. Shown before "Generate with AI" ever runs, so
+              the learner sees something useful the instant it's ready rather than only after
+              committing to a full generation. */}
+          {isFetchingInsight ? (
+            <div
+              className="glass-card"
+              style={{
+                padding: '18px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                animation: 'fadeIn 0.2s ease-out',
+              }}
+            >
+              <div
+                className="spin"
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  border: '2px solid var(--accent-primary)',
+                  borderTopColor: 'transparent',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                Checking your dictionary and AI insight for <strong style={{ color: 'var(--text-primary)' }}>"{selectedWord.form}"</strong>...
+              </span>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {selectedWord.surfaceForms.map(form => (
-                <span 
-                  key={form}
-                  style={{
-                    fontSize: '12px',
-                    fontFamily: 'var(--font-mono)',
-                    padding: '4px 10px',
-                    backgroundColor: 'var(--bg-glass)',
-                    borderRadius: '6px',
-                    color: 'var(--text-secondary)',
-                    border: '1px solid var(--border-color)'
-                  }}
-                >
-                  {form}
-                </span>
-              ))}
-            </div>
-          </div>
+          ) : selectedWord.id.startsWith('search-') && previewKindFor(activeCluster?.context) !== 'dictionary' && (() => {
+            const kind = previewKindFor(activeCluster?.context);
+            const meta = PREVIEW_KIND_META[kind];
+            const Icon = meta.icon;
+            return (
+              <div
+                className="glass-card"
+                style={{
+                  padding: '20px',
+                  border: `1px solid ${meta.accent}`,
+                  background: kind === 'ai' ? 'linear-gradient(135deg, var(--accent-secondary), var(--bg-glass) 65%)' : 'var(--bg-glass)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  animation: 'fadeIn 0.2s ease-out',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Icon size={15} color={meta.accent} />
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: meta.accent, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                    {meta.label}
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>· {meta.hint}</span>
+                </div>
 
-          {/* Tab Navigation */}
+                <InlineMarkdown
+                  text={activeCluster?.definition || ''}
+                  style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
+                  boldStyle={{ fontWeight: 800 }}
+                  italicStyle={{ fontStyle: 'italic' }}
+                  codeStyle={{
+                    fontFamily: 'var(--font-mono)',
+                    backgroundColor: 'var(--bg-card)',
+                    padding: '1px 5px',
+                    borderRadius: '4px',
+                    color: meta.accent,
+                  }}
+                />
+
+                {kind === 'ai' && providers[selectedGenerationProvider]?.validated && (
+                  <button
+                    onClick={handleGenerateAI}
+                    disabled={isGeneratingAI}
+                    className="btn btn-primary"
+                    style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '8px 16px', marginTop: '2px' }}
+                  >
+                    <Sparkles size={14} />
+                    <span>Generate the full card</span>
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Everything below - inflected forms, grammar insights, the cluster/card-generator tabs
+              - only makes sense once this word actually has real, saved data behind it (a DB
+              result, or one just generated with AI): real inflections, real grammar analysis, real
+              senses to pick a cloze/card type against. For a word with no card yet (the
+              `search-` synthetic entry), showing them means empty tabs or, worse, hardcoded
+              placeholder content (a dummy example sentence, a dummy cloze preview) presented as if
+              it were real - exactly what a mobile-app-style search result never does: it shows a
+              preview and "Generate"/"Add to Deck", nothing else, until there's an actual card. */}
+          {!selectedWord.id.startsWith('search-') && (
+            <>
+              {/* Morphological Surface Forms */}
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                  Inflected Surface Forms (Lemma Normalization)
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {selectedWord.surfaceForms.map(form => (
+                    <span
+                      key={form}
+                      style={{
+                        fontSize: '12px',
+                        fontFamily: 'var(--font-mono)',
+                        padding: '4px 10px',
+                        backgroundColor: 'var(--bg-glass)',
+                        borderRadius: '6px',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--border-color)'
+                      }}
+                    >
+                      {form}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab Navigation */}
           <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
             <button
               onClick={() => setActiveTab('clusters')}
@@ -939,15 +1061,21 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           {/* Tab 1: Semantic Clusters & Cluster Selector */}
           {activeTab === 'clusters' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.15s ease-out' }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                Select a cluster below to configure context scoping for your review deck:
-              </div>
+              {/* A single-cluster word has no real choice to make - the instruction and the
+                  "Selected for Review" badge below both only make sense once there's more than
+                  one sense to pick between. */}
+              {selectedWord.clusters.length > 1 && (
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  Select a cluster below to configure context scoping for your review deck:
+                </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {selectedWord.clusters.map((cluster) => {
                   const isSelected = cluster.id === (selectedClusterId || selectedWord.clusters[0]?.id);
+                  const singleCluster = selectedWord.clusters.length === 1;
                   return (
-                    <div 
+                    <div
                       key={cluster.id}
                       onClick={() => setSelectedClusterId(cluster.id)}
                       style={{
@@ -955,21 +1083,26 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                         border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                         borderRadius: '12px',
                         padding: '18px',
-                        cursor: 'pointer',
+                        cursor: singleCluster ? 'default' : 'pointer',
                         transition: 'all 0.15s ease'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span className="badge badge-amber">{cluster.context}</span>
-                          {isSelected && <span className="badge badge-emerald">Selected for Review</span>}
+                          {isSelected && !singleCluster && <span className="badge badge-emerald">Selected for Review</span>}
                         </div>
                         <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--info)' }}>{cluster.translation}</span>
                       </div>
 
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', fontStyle: 'italic' }}>
-                        "{cluster.definition}"
-                      </p>
+                      {/* Already shown, more prominently, in the preview panel above for a word
+                          with no card yet (see selectedWord.id's `search-` prefix) - repeating it
+                          here would just be the same paragraph twice. */}
+                      {!selectedWord.id.startsWith('search-') && (
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', fontStyle: 'italic' }}>
+                          "{cluster.definition}"
+                        </p>
+                      )}
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {cluster.examples.map((ex, exIdx) => (
@@ -1069,6 +1202,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <span>Save Card to Deck...</span>
               </button>
             </div>
+          )}
+            </>
           )}
         </div>
       </div>

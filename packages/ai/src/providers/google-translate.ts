@@ -41,6 +41,17 @@ export class GoogleTranslateProvider implements DictionaryProvider {
   private readonly timeoutMs: number
   private readonly fetchFn: typeof fetch
 
+  // Request dedupe/cache — this free, unofficial, keyless endpoint is aggressively rate-limited
+  // (see the class doc comment), and `translate()` + `translateAlternatives()` almost always get
+  // called back-to-back for the exact same (text, source, target) — a search screen's quick
+  // translation and its "show all meanings" list both need it. Both parse different parts of the
+  // *same* dt=t+dt=bd response, so there's no reason to hit the network twice: an in-flight call
+  // is shared, and a completed one is reused for a few seconds after, which also absorbs a fast
+  // retry/re-render firing the identical query again immediately.
+  private readonly pending = new Map<string, Promise<{ payload: unknown; latencyMs: number }>>()
+  private readonly cache = new Map<string, { payload: unknown; expiresAt: number }>()
+  private static readonly CACHE_TTL_MS = 10_000
+
   constructor(config: GoogleTranslateProviderConfig = {}) {
     this.baseUrl = (config.baseUrl ?? 'https://translate.googleapis.com').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 15_000
@@ -97,6 +108,33 @@ export class GoogleTranslateProvider implements DictionaryProvider {
   }
 
   private async request(
+    text: string,
+    source: string,
+    target: string,
+  ): Promise<{ payload: unknown; latencyMs: number }> {
+    const key = `${source}:${target}:${text}`
+
+    const cached = this.cache.get(key)
+    if (cached && cached.expiresAt > Date.now()) {
+      return { payload: cached.payload, latencyMs: 0 }
+    }
+
+    const inFlight = this.pending.get(key)
+    if (inFlight) return inFlight
+
+    const promise = this.requestUncached(text, source, target)
+      .then((result) => {
+        this.cache.set(key, { payload: result.payload, expiresAt: Date.now() + GoogleTranslateProvider.CACHE_TTL_MS })
+        return result
+      })
+      .finally(() => {
+        this.pending.delete(key)
+      })
+    this.pending.set(key, promise)
+    return promise
+  }
+
+  private async requestUncached(
     text: string,
     source: string,
     target: string,

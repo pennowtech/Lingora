@@ -138,6 +138,46 @@ describe('GoogleTranslateProvider.translateAlternatives', () => {
   })
 })
 
+describe('GoogleTranslateProvider request dedupe', () => {
+  // A search screen calls translate() and translateAlternatives() back-to-back for the same
+  // (text, source, target) — both read different parts of the identical dt=t+dt=bd response, so
+  // this free, keyless, aggressively-rate-limited endpoint (see the class doc comment) shouldn't
+  // be hit twice for one search.
+  it('shares one in-flight fetch between concurrent translate() and translateAlternatives() calls', async () => {
+    const fetchFn = fetchReturning({ payload: FOUNDATION_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    const [translated, alternatives] = await Promise.all([
+      provider.translate('foundation', 'en', 'de'),
+      provider.translateAlternatives('foundation', 'en', 'de'),
+    ])
+
+    expect(translated.data).toBeTruthy()
+    expect(alternatives.data.length).toBeGreaterThan(0)
+    expect(fetchFn.calls.length).toBe(1)
+  })
+
+  it('reuses a just-completed response for a repeat call instead of fetching again', async () => {
+    const fetchFn = fetchReturning({ payload: FOUNDATION_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    await provider.translate('foundation', 'en', 'de')
+    await provider.translateAlternatives('foundation', 'en', 'de')
+
+    expect(fetchFn.calls.length).toBe(1)
+  })
+
+  it('still fetches separately for a different word', async () => {
+    const fetchFn = fetchReturning({ payload: FOUNDATION_RESPONSE }, { payload: HAUS_RESPONSE })
+    const provider = new GoogleTranslateProvider({ fetchFn })
+
+    await provider.translate('foundation', 'en', 'de')
+    await provider.translate('Haus', 'de', 'en')
+
+    expect(fetchFn.calls.length).toBe(2)
+  })
+})
+
 describe('GoogleTranslateProvider.detectLanguage', () => {
   it('reads the detected language and asks the endpoint to auto-detect', async () => {
     const fetchFn = fetchReturning({ payload: HAUS_RESPONSE })

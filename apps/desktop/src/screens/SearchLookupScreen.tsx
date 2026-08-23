@@ -1,15 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
 import { useDesktopServices } from '../services/desktopServices';
 import { getClustersForLemma, getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, type GenerationProviderName } from '@lingora/core';
 import type { CardSource } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
+
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'lookup',
+    title: 'Instant lookup',
+    icon: Search,
+    paragraphs: [
+      'Type a word in either your native or your target language - your own vocabulary is searched instantly as you type, no need to press Enter.',
+      'Inflected or conjugated surface forms work too, not just a word\'s base/dictionary form.',
+    ],
+  },
+  {
+    id: 'new-word',
+    title: 'When a word is new to you',
+    icon: Sparkles,
+    paragraphs: [
+      'If a word isn\'t in your library yet, you\'ll see a free, offline preview from the installed dictionary when one exists, or a short **AI Insight** gist when your active AI provider has a validated key - both are read-only until you add the word to a deck.',
+      '**Generate with [Provider]** builds a full card with meanings, examples, semantic clusters, grammar, and more, using whichever provider is Active under Settings > AI Providers.',
+      'No validated key configured yet? The button becomes **Add AI provider key** instead, taking you straight to Settings.',
+    ],
+  },
+  {
+    id: 'clusters',
+    title: 'Semantic clusters & tabs',
+    icon: Layers2,
+    paragraphs: [
+      'A word can have more than one distinct sense - the **Semantic Context Clusters** tab lists each one, with its own translation, definition, and examples. Selecting a cluster scopes the Card Generator tab to that sense.',
+      '**Advanced Grammar Insights** shows conjugation, cases, and other grammar detail for the selected word.',
+      '**Card Generator & Cloze Selection** lets you pick a card type and preview it before saving.',
+    ],
+  },
+  {
+    id: 'add',
+    title: 'Adding to a deck',
+    icon: Plus,
+    paragraphs: [
+      '**Add to Deck...** always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
+      'An **In library** badge in the results list means a word already has a card - a source icon next to it shows how that card was created (an AI provider, a dictionary, or your installed word guide).',
+    ],
+  },
+];
 
 /** Small per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers,
  * using desktop's own lucide-react/brand-icon assets instead of mobile's PNG logos. */
@@ -69,6 +111,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // key, which fails silently the same way it always has) — so "the internet is down" doesn't
   // look identical to "no dictionary translation available for this word."
   const [searchNotice, setSearchNotice] = useState<string | null>(null);
+  const help = useHelpAccordion('lookup');
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
@@ -597,6 +640,16 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </>
           )}
         </button>
+
+        <button
+          onClick={() => help.openSection('lookup')}
+          className="btn btn-ghost"
+          style={{ padding: '0 14px', height: '50px', borderRadius: '12px' }}
+          aria-label="Search & Lookup help"
+          title="Search & Lookup help"
+        >
+          <HelpCircle size={18} color="var(--text-secondary)" />
+        </button>
       </div>
 
       {searchNotice && (
@@ -935,6 +988,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         clusterContext={activeCluster?.context || 'General'}
         cardType={selectedCardType.toUpperCase()}
         onConfirmAdd={handleConfirmDeckAdd}
+      />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title="Search & Lookup help"
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
       />
     </div>
   );

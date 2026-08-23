@@ -52,6 +52,15 @@ export class GoogleTranslateProvider implements DictionaryProvider {
   private readonly cache = new Map<string, { payload: unknown; expiresAt: number }>()
   private static readonly CACHE_TTL_MS = 10_000
 
+  // This endpoint publishes no Retry-After header and no documented rate-limit policy (it's the
+  // same unofficial one translate.google.com's own web page calls) — there's no real number to
+  // read off a response. Once it does answer with a 429, every request in this window fails the
+  // same way, so retrying sooner only spends more of the caller's patience and looks worse to
+  // Google, not better. 60s is a conservative, made-up-but-reasonable backoff, not a documented
+  // fact — tune it if it proves too short/long in practice.
+  private rateLimitedUntil = 0
+  private static readonly RATE_LIMIT_COOLDOWN_MS = 60_000
+
   constructor(config: GoogleTranslateProviderConfig = {}) {
     this.baseUrl = (config.baseUrl ?? 'https://translate.googleapis.com').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 15_000
@@ -112,6 +121,19 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     source: string,
     target: string,
   ): Promise<{ payload: unknown; latencyMs: number }> {
+    // Fail fast, no network call, while cooling down from a previous 429 — every request would
+    // hit the same wall right now, so there's nothing to gain by trying and everything to gain by
+    // not adding to whatever traffic pattern got this rate-limited in the first place.
+    const cooldownRemainingMs = this.rateLimitedUntil - Date.now()
+    if (cooldownRemainingMs > 0) {
+      throw new AIProviderError(
+        `Google Translate is rate-limited - try again in ${Math.ceil(cooldownRemainingMs / 1000)}s`,
+        this.name,
+        true,
+        429,
+      )
+    }
+
     const key = `${source}:${target}:${text}`
 
     const cached = this.cache.get(key)
@@ -205,6 +227,9 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     }
 
     if (!response.ok) {
+      if (response.status === 429) {
+        this.rateLimitedUntil = Date.now() + GoogleTranslateProvider.RATE_LIMIT_COOLDOWN_MS
+      }
       const body = await response.text().catch(() => '')
       throw new AIProviderError(
         `Google Translate returned ${response.status}: ${body.slice(0, 300)}`,

@@ -122,6 +122,7 @@ interface DesktopServicesContextType {
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
   dictionary: DictionaryProvider;
+  activeAiProvider: AIProvider | null;
   generateWithGemini: (surfaceForm: string) => Promise<any>;
   selectedGenerationProvider: ProviderName;
   setSelectedGenerationProvider: (provider: ProviderName) => void;
@@ -254,6 +255,17 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     return new GoogleTranslateProvider({ fetchFn: desktopFetch });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTranslationProvider, deeplKey, deeplValidated, providers]);
+
+  // A ready-to-use AIProvider instance for the currently Active generation provider — null when it
+  // has no validated key. Distinct from `generateWithGemini` (which always runs the whole
+  // lookupOrGenerate pipeline and persists a card): this is for cheaper one-off calls like the
+  // Search screen's quick-explain preview, mirroring apps/mobile's `ai` from useServices().
+  const activeAiProvider = useMemo<AIProvider | null>(() => {
+    const cfg = providers[selectedGenerationProvider];
+    if (!cfg?.validated || cfg.key.trim() === '') return null;
+    return instantiateGenerationProvider(selectedGenerationProvider, cfg.key, cfg.model);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGenerationProvider, providers]);
 
   useEffect(() => {
     localStorage.setItem('lingora.providers', JSON.stringify(providers));
@@ -769,6 +781,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       addNewCard,
       translateText,
       dictionary,
+      activeAiProvider,
       generateWithGemini,
       selectedGenerationProvider,
       setSelectedGenerationProvider,

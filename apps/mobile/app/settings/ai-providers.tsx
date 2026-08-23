@@ -32,8 +32,52 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'How AI Providers works',
     icon: 'Sparkles',
     paragraphs: [
-      'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.',
-      'Bring your own API key - nothing is sent to a provider until you generate a card.',
+      "This is where a new word turns into a full card - meanings, example sentences, semantic clusters, and more. Whenever you look up a word Lingora doesn't already know, it hands that word to whichever provider you've marked **Active** below and asks it to build the card.",
+      "It's **bring-your-own-key**: Lingora doesn't ship with a shared AI subscription, so nothing gets generated until you paste in your own API key from one of the providers below. That also means nothing is ever sent anywhere until you actually look up a word - just having a key saved doesn't trigger any requests.",
+      "You don't need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you're curious to try, and start there.",
+    ],
+  },
+  {
+    id: 'active-vs-enabled',
+    title: '"Active" vs "Enabled" - what\'s the difference?',
+    icon: 'SlidersHorizontal',
+    paragraphs: [
+      "**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider's card here switches to it immediately.",
+      "**Enabled** is a softer flag, tucked inside a provider's own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.",
+      "If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you're never stuck without generation just because one key went stale.",
+    ],
+  },
+  {
+    id: 'setup',
+    title: 'Adding and validating a key',
+    icon: 'Key',
+    paragraphs: [
+      "Tap a provider's card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.",
+      "A provider only becomes eligible to be Active once its key has validated successfully. That's deliberate - it stops a typo'd or expired key from silently becoming the one thing standing between you and a new card.",
+      "**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device's secure storage - not in Lingora's own servers, not synced anywhere, unless you back up and restore it yourself.",
+    ],
+  },
+  {
+    id: 'providers',
+    title: 'Which provider should I pick?',
+    icon: 'Sparkles',
+    paragraphs: [
+      "**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.",
+      "**Groq** runs open models (like the gpt-oss family) on very fast custom hardware - if speed matters more to you than picking a specific model family, this is usually the quickest of the bunch to respond.",
+      "**Mistral** is a solid European alternative with its own models, good if you'd rather not depend on a US-based provider or just want a second option in the mix.",
+      "**Gemini** (Google) tends to be generous on free-tier usage limits if you're just trying this out without committing to a paid key yet.",
+      "**Claude** (Anthropic) is known for careful, well-reasoned output - a good pick if you find another provider's example sentences or meanings feel a little off and want to compare.",
+      "**DeepSeek** is capable and inexpensive, but tends to run noticeably slower than the others for a full word generation - worth knowing going in so a longer wait doesn't feel like something's broken.",
+      "Whichever you choose, the model picker under each provider lets you trade off speed, cost, and quality without needing to leave this screen.",
+    ],
+  },
+  {
+    id: 'usage',
+    title: 'What the usage numbers mean',
+    icon: 'ChartColumn',
+    paragraphs: [
+      "Each provider's panel shows a **device-observed usage** box - request and token counts this specific device has actually sent through that key. It's a convenience, not a bill: it only counts what happened here, so it won't match a key shared across multiple devices or apps.",
+      "For the real, authoritative numbers - and anything to do with billing or rate limits - use the \"Open usage\" link, which takes you straight to that provider's own dashboard.",
     ],
   },
 ]
@@ -42,6 +86,11 @@ const HELP_SECTIONS: HelpSection[] = [
  * The "AI Providers" sub-screen (formerly the Settings screen's own "Generation" section) —
  * split out so the top-level Settings menu isn't a single mega-scroll. Fully self-contained: loads
  * its own slice of SecureStore on mount rather than receiving it from the parent menu.
+ *
+ * Layout mirrors the desktop app's Settings > AI Providers exactly: a grid of compact provider
+ * cards (tap to preview + activate) plus a single detail box below for whichever card was tapped —
+ * not an always-rendered accordion row per provider. Nothing shows in the detail area until a card
+ * is tapped, and tapping a different card swaps it rather than stacking multiple open sections.
  */
 export default function AiProvidersScreen(): JSX.Element {
   const { reloadServices } = useServices()
@@ -51,7 +100,6 @@ export default function AiProvidersScreen(): JSX.Element {
   const help = useHelpAccordion('overview')
 
   const [generationProvider, setGenerationProviderState] = useState<GenerationProviderName | null>(null)
-  const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [expandedProvider, setExpandedProvider] = useState<GenerationProviderName | null>(null)
   const [showKey, setShowKey] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
@@ -65,12 +113,16 @@ export default function AiProvidersScreen(): JSX.Element {
     mistral: emptyProviderState('mistral'),
     gemini: emptyProviderState('gemini'),
     anthropic: emptyProviderState('anthropic'),
+    deepseek: emptyProviderState('deepseek'),
+    groq: emptyProviderState('groq'),
   })
   const [usage, setUsage] = useState<Record<GenerationProviderName, UsageSnapshot>>({
     openai: ZERO_USAGE,
     mistral: ZERO_USAGE,
     gemini: ZERO_USAGE,
     anthropic: ZERO_USAGE,
+    deepseek: ZERO_USAGE,
+    groq: ZERO_USAGE,
   })
 
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -120,8 +172,6 @@ export default function AiProvidersScreen(): JSX.Element {
       } catch (error) {
         log.error('settings.load_failed', error, { message: 'Failed to load stored AI provider settings' })
         setLoadError(String(error))
-      } finally {
-        setLoaded(true)
       }
     }
     void load()
@@ -212,7 +262,7 @@ export default function AiProvidersScreen(): JSX.Element {
       void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, '')
       void clearUsage(name)
     }
-    setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE })
+    setUsage({ openai: ZERO_USAGE, mistral: ZERO_USAGE, gemini: ZERO_USAGE, anthropic: ZERO_USAGE, deepseek: ZERO_USAGE, groq: ZERO_USAGE })
     setValidated({})
     void reloadServices()
     log.info('settings.all_provider_keys_deleted', {
@@ -247,45 +297,75 @@ export default function AiProvidersScreen(): JSX.Element {
         </View>
       ) : null}
 
-      <Card style={styles.providerCard}>
-        {loaded && configuredProviders.length > 1 ? (
-          <View style={{ marginTop: spacing.md }}>
-            <Text style={styles.fieldLabel}>{t('Active provider')}</Text>
-            <View style={styles.chipRow}>
-              {configuredProviders.map((name) => (
-                <Chip
-                  key={name}
-                  testID={`active-provider-${name}`}
-                  label={PROVIDER_META[name].label}
-                  selected={name === activeGenerationProvider}
-                  onPress={() => changeGenerationProvider(name)}
-                />
-              ))}
-            </View>
-          </View>
-        ) : null}
+      <Card>
+        <Text style={styles.sectionTitle}>{t('Active Generation Provider')}</Text>
+        <Text style={styles.sectionSubtitle}>
+          {t('Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.')}
+        </Text>
+        <View style={styles.grid}>
+          {GENERATION_PROVIDERS.map((name) => {
+            const state = providers[name]
+            const meta = PROVIDER_META[name]
+            const hasKey = state.apiKey.trim() !== ''
+            const isActive = name === activeGenerationProvider
+            const isPreviewed = expandedProvider === name
+            return (
+              <View key={name}>
+                <Pressable
+                  testID={`provider-grid-${name}`}
+                  style={[styles.gridCard, isPreviewed && styles.gridCardPreviewed]}
+                  onPress={() => {
+                    if (validated[name]) changeGenerationProvider(name)
+                    setExpandedProvider((prev) => (prev === name ? null : name))
+                  }}
+                >
+                  <View style={[styles.gridCardIcon, { backgroundColor: `${meta.color}1A` }]}>
+                    <CardSourceIcon source={name} size={20} />
+                  </View>
+                  <View style={styles.gridCardBody}>
+                    <View style={styles.gridCardHeader}>
+                      <Text style={styles.gridCardLabel} numberOfLines={1}>{meta.label}</Text>
+                      {isActive ? (
+                        <View style={styles.activeBadge}>
+                          <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <Text style={styles.gridCardModel} numberOfLines={1}>{t('Model')}: {state.model}</Text>
+                    <Text
+                      style={[
+                        styles.gridCardStatus,
+                        validated[name] && styles.gridCardStatusSuccess,
+                        hasKey && !validated[name] && styles.gridCardStatusWarning,
+                      ]}
+                    >
+                      {validated[name] ? t('Validated') : hasKey ? t('Key configured') : t('No key set')}
+                    </Text>
+                  </View>
+                  <Icon name={isPreviewed ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
+                </Pressable>
 
-        {GENERATION_PROVIDERS.map((name) => (
-          <ProviderCard
-            key={name}
-            name={name}
-            meta={PROVIDER_META[name]}
-            state={providers[name]}
-            active={name === activeGenerationProvider}
-            expanded={expandedProvider === name}
-            showKey={showKey[name] ?? false}
-            validating={validating[name] ?? false}
-            validated={validated[name] ?? false}
-            usage={usage[name]}
-            onToggleExpanded={() => setExpandedProvider((prev) => (prev === name ? null : name))}
-            onToggleEnabled={(value) => changeEnabled(name, value)}
-            onToggleShowKey={() => setShowKey((prev) => ({ ...prev, [name]: !prev[name] }))}
-            onChangeApiKey={(value) => changeApiKey(name, value)}
-            onChangeModel={(value) => changeModel(name, value)}
-            onValidate={() => validate(name)}
-            onClearKey={() => clearProviderKey(name)}
-          />
-        ))}
+                {isPreviewed ? (
+                  <ProviderDetailBody
+                    name={name}
+                    state={state}
+                    active={isActive}
+                    showKey={showKey[name] ?? false}
+                    validating={validating[name] ?? false}
+                    validated={validated[name] ?? false}
+                    usage={usage[name]}
+                    onToggleEnabled={(value) => changeEnabled(name, value)}
+                    onToggleShowKey={() => setShowKey((prev) => ({ ...prev, [name]: !prev[name] }))}
+                    onChangeApiKey={(value) => changeApiKey(name, value)}
+                    onChangeModel={(value) => changeModel(name, value)}
+                    onValidate={() => validate(name)}
+                    onClearKey={() => clearProviderKey(name)}
+                  />
+                ) : null}
+              </View>
+            )
+          })}
+        </View>
       </Card>
 
       <Card style={styles.dangerCard}>
@@ -303,7 +383,7 @@ export default function AiProvidersScreen(): JSX.Element {
       <ConfirmModal
         visible={deleteAllConfirmOpen}
         title={t('Delete all AI provider keys?')}
-        message={t('This removes every OpenAI/Mistral/Gemini/Claude key from this device. Vocabulary and progress are unaffected.')}
+        message={t('This removes every OpenAI/Mistral/Gemini/Claude/DeepSeek/Groq key from this device. Vocabulary and progress are unaffected.')}
         onCancel={() => setDeleteAllConfirmOpen(false)}
         onConfirm={() => {
           setDeleteAllConfirmOpen(false)
@@ -333,17 +413,17 @@ export default function AiProvidersScreen(): JSX.Element {
   )
 }
 
-function ProviderCard(props: {
+/** The config panel that unfolds directly beneath a tapped provider row, merged visually into the
+ * same box rather than a separate card at the bottom of the list — model chips, API key,
+ * Enabled/Validate/Clear, device-observed usage. */
+function ProviderDetailBody(props: {
   name: GenerationProviderName
-  meta: (typeof PROVIDER_META)[GenerationProviderName]
   state: ProviderFormState
   active: boolean
-  expanded: boolean
   showKey: boolean
   validating: boolean
   validated: boolean
   usage: UsageSnapshot
-  onToggleExpanded: () => void
   onToggleEnabled: (value: boolean) => void
   onToggleShowKey: () => void
   onChangeApiKey: (value: string) => void
@@ -351,125 +431,94 @@ function ProviderCard(props: {
   onValidate: () => void
   onClearKey: () => void
 }): JSX.Element {
-  const { name, meta, state, active, expanded, showKey, validating, validated, usage } = props
+  const { name, state, showKey, validating, validated, usage } = props
+  const meta = PROVIDER_META[name]
   const hasKey = state.apiKey.trim() !== ''
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
 
   return (
-    <View style={styles.providerBlock}>
-      {/* The Switch is a sibling of the expand-toggle Pressable, not nested inside it — a native
-          Switch nested inside a Pressable/TouchableOpacity's touch region is a known Android+RN
-          gotcha where the tap can land on neither the Switch nor the wrapping Pressable reliably
-          (found via Maestro flow flakiness: the Switch's own AccessibilityNodeInfo reported
-          clickable+enabled with correct bounds, yet taps at its center consistently didn't toggle
-          it — a real touch-target overlap bug, not a test timing issue). Split into two Pressables
-          (icon+text, chevron) around the Switch so the row still expands/collapses from either
-          end while the Switch gets its own untouched hit region in between. */}
-      <View style={styles.providerHeader}>
-        <Pressable
-          testID={`provider-header-${name}`}
-          style={styles.providerHeaderMain}
-          onPress={props.onToggleExpanded}
-        >
-          <View style={[styles.providerIcon, { backgroundColor: `${meta.color}1A` }]}>
-            <CardSourceIcon source={name} size={20} />
-          </View>
-          <View style={styles.optionText}>
-            <View style={styles.providerNameRow}>
-              <Text style={styles.optionLabel}>{meta.label}</Text>
-              {active ? (
-                <View style={styles.activeBadge}>
-                  <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
-                </View>
-              ) : null}
-            </View>
-            <Text style={styles.optionDetail}>{t(meta.description)}</Text>
-          </View>
-        </Pressable>
-        <Switch
-          testID={`provider-toggle-${name}`}
-          value={state.enabled && hasKey}
-          onValueChange={props.onToggleEnabled}
-          disabled={!hasKey}
-        />
-        <Pressable onPress={props.onToggleExpanded} hitSlop={8}>
-          <Icon name={expanded ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
-        </Pressable>
-      </View>
-
-      {expanded ? (
-        <View style={styles.providerBody}>
-          <Text style={styles.fieldLabel}>{t('Model')}</Text>
-          <View style={styles.chipRow}>
-            {meta.models.map((model) => (
-              <Chip key={model} label={model} selected={model === state.model} onPress={() => props.onChangeModel(model)} />
-            ))}
-          </View>
-
-          <View style={styles.keyInputWrap}>
-            <TextInput
-              testID={`provider-key-input-${name}`}
-              style={styles.keyInputWithIcon}
-              placeholder={t('Paste your {{provider}} API key...', { provider: meta.label })}
-              placeholderTextColor={colors.textMuted}
-              value={state.apiKey}
-              onChangeText={props.onChangeApiKey}
-              secureTextEntry={!showKey}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <Pressable
-              testID={`provider-show-key-${name}`}
-              accessibilityRole="button"
-              accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
-              onPress={props.onToggleShowKey}
-              style={styles.keyInputEye}
-            >
-              <Icon name={showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          <View style={styles.providerActionsRow}>
-            <Pressable
-              testID={`provider-validate-${name}`}
-              style={[
-                styles.secondaryButton,
-                validated && styles.secondaryButtonValidated,
-                (validating || !hasKey) && styles.secondaryButtonDisabled,
-              ]}
-              onPress={props.onValidate}
-              disabled={validating || !hasKey}
-            >
-              {validating ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : validated ? (
-                <View style={styles.validatedRow}>
-                  <Icon name="CircleCheck" size={15} color={colors.success} />
-                  <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
-                </View>
-              ) : (
-                <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
-              )}
-            </Pressable>
-            <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-              <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.usageBox}>
-            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
-            <Text style={styles.usageDetail}>
-              {t('{{count}} requests', { count: usage.requests.toLocaleString() })} ·{' '}
-              {t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })}
-            </Text>
-            <Pressable onPress={() => void Linking.openURL(meta.usageUrl)}>
-              <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
-            </Pressable>
-          </View>
+    <View style={styles.detailPanel}>
+      <View style={styles.providerBody}>
+        <Text style={styles.fieldLabel}>{t('Model')}</Text>
+        <View style={styles.chipRow}>
+          {meta.models.map((model) => (
+            <Chip key={model} label={model} selected={model === state.model} onPress={() => props.onChangeModel(model)} />
+          ))}
         </View>
-      ) : null}
+
+        <View style={styles.keyInputWrap}>
+          <TextInput
+            testID={`provider-key-input-${name}`}
+            style={styles.keyInputWithIcon}
+            placeholder={t('Paste your {{provider}} API key...', { provider: meta.label })}
+            placeholderTextColor={colors.textMuted}
+            value={state.apiKey}
+            onChangeText={props.onChangeApiKey}
+            secureTextEntry={!showKey}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <Pressable
+            testID={`provider-show-key-${name}`}
+            accessibilityRole="button"
+            accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
+            onPress={props.onToggleShowKey}
+            style={styles.keyInputEye}
+          >
+            <Icon name={showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
+          </Pressable>
+        </View>
+
+        <View style={styles.enabledRow}>
+          <Text style={styles.fieldLabel}>{t('Enabled')}</Text>
+          <Switch
+            testID={`provider-toggle-${name}`}
+            value={state.enabled && hasKey}
+            onValueChange={props.onToggleEnabled}
+            disabled={!hasKey}
+          />
+        </View>
+
+        <View style={styles.providerActionsRow}>
+          <Pressable
+            testID={`provider-validate-${name}`}
+            style={[
+              styles.secondaryButton,
+              validated && styles.secondaryButtonValidated,
+              (validating || !hasKey) && styles.secondaryButtonDisabled,
+            ]}
+            onPress={props.onValidate}
+            disabled={validating || !hasKey}
+          >
+            {validating ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : validated ? (
+              <View style={styles.validatedRow}>
+                <Icon name="CircleCheck" size={15} color={colors.success} />
+                <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
+              </View>
+            ) : (
+              <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
+            )}
+          </Pressable>
+          <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
+            <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.usageBox}>
+          <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
+          <Text style={styles.usageDetail}>
+            {t('{{count}} requests', { count: usage.requests.toLocaleString() })} ·{' '}
+            {t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })}
+          </Text>
+          <Pressable onPress={() => void Linking.openURL(meta.usageUrl)}>
+            <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
+          </Pressable>
+        </View>
+      </View>
     </View>
   )
 }
@@ -477,31 +526,60 @@ function ProviderCard(props: {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.xl },
   banner: {
     flexDirection: 'row',
     gap: spacing.md,
     backgroundColor: colors.dangerSoft,
     borderRadius: radius.md,
     padding: spacing.lg,
-    marginBottom: spacing.md,
   },
   bannerText: { flex: 1 },
   bannerTitle: { fontSize: type.body, fontWeight: '700', color: colors.danger },
   bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
-  providerCard: { gap: 0 },
-  providerBlock: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.md, paddingTop: spacing.md },
-  providerHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  providerHeaderMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  providerIcon: { width: 34, height: 34, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  providerNameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 1 },
+  sectionTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+  sectionSubtitle: { fontSize: type.caption, color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg, lineHeight: 19 },
+  grid: { gap: spacing.md },
+  gridCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    backgroundColor: colors.surface,
+  },
+  gridCardPreviewed: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+  },
+  gridCardIcon: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  gridCardBody: { flex: 1, gap: 3 },
+  gridCardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  gridCardLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, flexShrink: 1 },
+  gridCardModel: { fontSize: type.caption, color: colors.textSecondary },
+  gridCardStatus: { fontSize: type.caption, color: colors.textMuted },
+  gridCardStatusSuccess: { color: colors.success },
+  gridCardStatusWarning: { color: colors.warning },
+  detailPanel: {
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: colors.primary,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
   activeBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.success },
-  providerBody: { marginTop: spacing.md, gap: spacing.sm },
+  providerBody: { marginTop: spacing.md, gap: spacing.md },
   providerActionsRow: { flexDirection: 'row', gap: spacing.sm },
-  optionText: { flex: 1 },
-  optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
-  optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+  enabledRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   keyInputWrap: { position: 'relative' },
   keyInputWithIcon: {
     borderWidth: 1,
@@ -528,8 +606,8 @@ const createStyles = (colors: ThemeColors) =>
   secondaryButtonValidated: { borderColor: colors.successSoft, backgroundColor: colors.successSoft },
   secondaryButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
   validatedRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  usageBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.sm, padding: spacing.md, gap: 2 },
-  dangerCard: { marginTop: spacing.lg },
+  usageBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.md, padding: spacing.lg, gap: 4 },
+  dangerCard: { marginTop: 0 },
   dangerButton: {
     flexDirection: 'row',
     alignItems: 'center',

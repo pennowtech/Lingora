@@ -1,7 +1,9 @@
 import { AIError, AIProviderError, AIResponseParseError, AIValidationError } from './errors'
 import { AnthropicProvider } from './providers/anthropic'
 import { DeepLProvider } from './providers/deepl'
+import { DeepSeekProvider } from './providers/deepseek'
 import { GeminiProvider } from './providers/gemini'
+import { GroqProvider } from './providers/groq'
 import { MistralProvider } from './providers/mistral'
 import { OpenAIProvider } from './providers/openai'
 import { logger } from '@lingora/observability'
@@ -27,6 +29,8 @@ const PROVIDER_HOSTS = {
   mistral: 'https://api.mistral.ai/v1/models',
   gemini: 'https://generativelanguage.googleapis.com',
   anthropic: 'https://api.anthropic.com',
+  deepseek: 'https://api.deepseek.com/v1/models',
+  groq: 'https://api.groq.com/openai/v1/models',
   deepl: 'https://api-free.deepl.com',
 } as const
 
@@ -294,6 +298,29 @@ export async function validateGeminiKey(apiKey: string, model: string, fetchFn: 
 export async function validateClaudeKey(apiKey: string, model: string, fetchFn: typeof fetch = fetch): Promise<ValidationResult> {
   return runValidation('Claude', PROVIDER_HOSTS.anthropic, fetchFn, async () => {
     const provider = new AnthropicProvider({ apiKey, model, timeoutMs: 15000, fetchFn })
+    await provider.translate('Guten Tag', 'de', 'en')
+    return `${model} is ready for card generation and translation.`
+  })
+}
+
+// DeepSeek/Groq get a longer probe timeout than the other four providers (15000ms) — confirmed
+// against a live key that DeepSeek's chat completions endpoint can take longer than 15s to
+// respond even once reachability (canReachProviderHost, a separate 5s check) already succeeded,
+// unlike every other provider's real-world observed latency. Groq gets the same longer budget
+// preemptively, same reasoning as its json_object response_format fallback in groq.ts.
+const SLOWER_PROVIDER_TIMEOUT_MS = 30000
+
+export async function validateDeepSeekKey(apiKey: string, model: string, fetchFn: typeof fetch = fetch): Promise<ValidationResult> {
+  return runValidation('DeepSeek', PROVIDER_HOSTS.deepseek, fetchFn, async () => {
+    const provider = new DeepSeekProvider({ apiKey, model, timeoutMs: SLOWER_PROVIDER_TIMEOUT_MS, fetchFn })
+    await provider.translate('Guten Tag', 'de', 'en')
+    return `${model} is ready for card generation and translation.`
+  })
+}
+
+export async function validateGroqKey(apiKey: string, model: string, fetchFn: typeof fetch = fetch): Promise<ValidationResult> {
+  return runValidation('Groq', PROVIDER_HOSTS.groq, fetchFn, async () => {
+    const provider = new GroqProvider({ apiKey, model, timeoutMs: SLOWER_PROVIDER_TIMEOUT_MS, fetchFn })
     await provider.translate('Guten Tag', 'de', 'en')
     return `${model} is ready for card generation and translation.`
   })

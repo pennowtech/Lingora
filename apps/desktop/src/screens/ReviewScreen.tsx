@@ -3,6 +3,7 @@ import { Volume2, CheckCircle2, RotateCcw, Sparkles, ArrowRight, ShieldCheck, Ke
 import type { CardReview } from '../mockData';
 import { useDesktopServices } from '../services/desktopServices';
 import { CardRenderer } from '../components/CardRenderer';
+import { speak } from '../services/desktopSpeech';
 
 interface ReviewScreenProps {
   cards: CardReview[];
@@ -10,7 +11,7 @@ interface ReviewScreenProps {
 }
 
 export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishReview }) => {
-  const { rateCard } = useDesktopServices();
+  const { rateCard, targetLanguage } = useDesktopServices();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -127,10 +128,11 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishRevie
           {currentCard.context && <span className="badge badge-amber">{currentCard.context}</span>}
         </div>
 
-        <button 
-          onClick={(e) => { e.stopPropagation(); }}
+        <button
+          onClick={(e) => { e.stopPropagation(); speak(currentCard.front, targetLanguage); }}
           className="btn btn-ghost"
           style={{ position: 'absolute', top: '16px', right: '20px', borderRadius: '50%', padding: '8px', zIndex: 10 }}
+          aria-label="Play pronunciation"
         >
           <Volume2 size={20} color="var(--accent-primary)" />
         </button>

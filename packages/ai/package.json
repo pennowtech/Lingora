@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@lingora/core": "workspace:*",
     "@lingora/database": "workspace:*",
     "@lingora/observability": "workspace:*",
     "@lingora/types": "workspace:*",

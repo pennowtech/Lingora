@@ -22,6 +22,11 @@ pub fn run() {
         // Access-Control-Allow-Origin for a page origin. A Rust-side request has no page origin,
         // so it isn't subject to CORS at all.
         .plugin(tauri_plugin_http::init())
+        // Backup/CSV/Markdown/Anki export-import file picking and saving (see
+        // src/services/desktopFileStorage.ts) — the native "Open"/"Save As" dialogs plus the
+        // actual disk read/write, both routed through Rust rather than any browser file API.
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![greet, trigger_quick_lookup])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

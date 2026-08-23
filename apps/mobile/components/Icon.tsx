@@ -30,6 +30,7 @@ import {
   CircleX,
   Clipboard,
   Clock,
+  Cloud,
   CloudDownload,
   CloudOff,
   CloudUpload,
@@ -110,6 +111,7 @@ import {
   Zap,
   type LucideProps,
 } from 'lucide-react-native'
+import { DeepSeekIcon, GroqIcon } from './BrandIcons'
 
 /**
  * The app's single icon set, migrated from Ionicons (@expo/vector-icons) to Lucide so mobile and
@@ -157,6 +159,7 @@ const ICONS = {
   CircleX,
   Clipboard,
   Clock,
+  Cloud,
   CloudDownload,
   CloudOff,
   CloudUpload,
@@ -235,6 +238,8 @@ const ICONS = {
   Wrench,
   X,
   Zap,
+  DeepSeek: DeepSeekIcon,
+  Groq: GroqIcon,
 } as const
 
 export type IconName = keyof typeof ICONS

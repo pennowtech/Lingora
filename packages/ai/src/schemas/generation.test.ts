@@ -30,12 +30,6 @@ describe('wordGenerationSchema', () => {
     payload.clusters[0]!.meanings = []
     expect(wordGenerationSchema.safeParse(payload).success).toBe(false)
   })
-
-  it("rejects a cloze whose sentence has no '[...]' gap", () => {
-    const payload = validPayload()
-    payload.clozes[0]!.sentence = 'Wir gehen heute Abend aus.'
-    expect(wordGenerationSchema.safeParse(payload).success).toBe(false)
-  })
 })
 
 describe('wordGenerationSchemaForLanguage', () => {
@@ -64,19 +58,14 @@ describe('salvagePartial', () => {
     const cluster = clusters[0] as { examples: unknown[]; synonyms: unknown[] }
     cluster.examples.push({ sentence: 'kaputt' }) // malformed example
     cluster.synonyms.push({ word: '', cefrLevel: 'B1', formality: 'neutral', nuance: null })
-    const brokenPhrases = [
-      ...(payload['phrases'] as unknown[]),
-      { expression: 'missing everything else' },
-    ]
 
-    const partial = salvagePartial({ ...payload, phrases: brokenPhrases })
+    const partial = salvagePartial(payload)
 
     expect(partial.complete).toBe(false)
     expect(partial.lemma?.form).toBe('ausgehen')
     expect(partial.clusters).toHaveLength(1)
     expect(partial.clusters[0]!.examples).toHaveLength(1) // broken one dropped
     expect(partial.clusters[0]!.synonyms).toHaveLength(1) // empty word dropped
-    expect(partial.phrases).toHaveLength(1) // broken phrase dropped
   })
 
   it('drops a cluster whose last example was invalid', () => {
@@ -93,7 +82,5 @@ describe('salvagePartial', () => {
     const partial = salvagePartial('not even an object')
     expect(partial.lemma).toBeNull()
     expect(partial.clusters).toHaveLength(0)
-    expect(partial.phrases).toHaveLength(0)
-    expect(partial.clozes).toHaveLength(0)
   })
 })

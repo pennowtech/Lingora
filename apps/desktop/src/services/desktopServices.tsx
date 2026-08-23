@@ -30,18 +30,43 @@ import {
   MistralProvider,
   GeminiProvider,
   AnthropicProvider,
+  DeepSeekProvider,
+  GroqProvider,
   createAIPipeline,
   validateOpenAIKey,
   validateMistralKey,
   validateGeminiKey,
   validateClaudeKey,
+  validateDeepSeekKey,
+  validateGroqKey,
   validateDeepLKey
 } from '@lingora/ai';
+import { DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, type GenerationProviderName } from '@lingora/core';
 import { getDesktopDatabase } from './database';
 import { desktopFetch } from './desktopFetch';
 
-export type ProviderName = 'openai' | 'mistral' | 'gemini' | 'anthropic';
-export type TranslationProvider = 'google' | 'deepl' | 'openai' | 'mistral' | 'gemini' | 'anthropic';
+// Reuses @lingora/core's GenerationProviderName instead of a separately hand-maintained literal
+// union, so a new generation provider (see GENERATION_PROVIDERS) doesn't silently drift out of
+// sync here the way the model-list/default-model duplication did before it was wired to core.
+export type ProviderName = GenerationProviderName;
+export type TranslationProvider = 'google' | 'deepl' | GenerationProviderName;
+
+const PROVIDER_ORDER: ProviderName[] = [...GENERATION_PROVIDERS];
+
+/** Active requires a validated key (see SettingsScreen.tsx's AI Providers grid) — when the
+ * currently-Active provider's key fails or is cleared, there's no keyless generation provider to
+ * fall back to (unlike Pronunciation's "device"), so this picks the next-best option: another
+ * already-validated provider first, then another provider with a key at all (unvalidated but worth
+ * trying over one with no key), else leaves `excluding` as the least-bad choice — the UI simply
+ * won't show it as Active again until something gets validated. */
+export function pickFallbackGenerationProvider(providers: Record<ProviderName, ProviderConfig>, excluding: ProviderName): ProviderName {
+  const candidates = PROVIDER_ORDER.filter((n) => n !== excluding);
+  return (
+    candidates.find((n) => providers[n].validated) ??
+    candidates.find((n) => providers[n].key.trim() !== '') ??
+    excluding
+  );
+}
 
 export interface ProviderConfig {
   key: string;
@@ -140,11 +165,15 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const loadSavedProviders = (): Record<ProviderName, ProviderConfig> => {
     const saved = localStorage.getItem('lingora.providers');
+    // Default models come from @lingora/core's DEFAULT_MODELS — the same values apps/mobile's
+    // Settings > AI Providers uses — instead of a second hardcoded copy that silently drifts.
     const defaults: Record<ProviderName, ProviderConfig> = {
-      openai: { key: '', model: 'gpt-4o-mini', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
-      mistral: { key: '', model: 'mistral-small-latest', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
-      gemini: { key: '', model: 'gemini-2.5-flash', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
-      anthropic: { key: '', model: 'claude-3-5-haiku-latest', enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 }
+      openai: { key: '', model: DEFAULT_MODELS.openai, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      mistral: { key: '', model: DEFAULT_MODELS.mistral, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      gemini: { key: '', model: DEFAULT_MODELS.gemini, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      anthropic: { key: '', model: DEFAULT_MODELS.anthropic, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      deepseek: { key: '', model: DEFAULT_MODELS.deepseek, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 },
+      groq: { key: '', model: DEFAULT_MODELS.groq, enabled: true, validated: false, validating: false, showKey: false, requestsCount: 0, tokensUsed: 0 }
     };
     if (saved) {
       try {
@@ -196,13 +225,22 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       mistral: () => validateMistralKey(p.key, p.model, desktopFetch),
       gemini: () => validateGeminiKey(p.key, p.model, desktopFetch),
       anthropic: () => validateClaudeKey(p.key, p.model, desktopFetch),
+      deepseek: () => validateDeepSeekKey(p.key, p.model, desktopFetch),
+      groq: () => validateGroqKey(p.key, p.model, desktopFetch),
     };
     const result = await VALIDATORS[name]();
 
-    setProviders(prev => ({
-      ...prev,
-      [name]: { ...prev[name], validating: false, validated: result.ok, error: result.ok ? undefined : result.message }
-    }));
+    const updatedProviders: Record<ProviderName, ProviderConfig> = {
+      ...providers,
+      [name]: { ...providers[name], validating: false, validated: result.ok, error: result.ok ? undefined : result.message }
+    };
+    setProviders(updatedProviders);
+
+    // Active requires a validated key — a provider that just failed validation can't stay Active.
+    if (!result.ok && selectedGenerationProvider === name) {
+      const fallback = pickFallbackGenerationProvider(updatedProviders, name);
+      if (fallback !== name) setSelectedGenerationProvider(fallback);
+    }
   };
 
   const validateDeeplKey = async () => {
@@ -565,11 +603,10 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const generateWithGemini = async (surfaceForm: string): Promise<any> => {
     const active = providers[selectedGenerationProvider];
     if (!active?.key?.trim()) {
-      const displayName =
-        selectedGenerationProvider === 'openai' ? 'OpenAI' :
-        selectedGenerationProvider === 'mistral' ? 'Mistral' :
-        selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic';
-      throw new Error(`No API key configured for ${displayName}. Please add your key in Settings → AI Providers.`);
+      // PROVIDER_META_DATA's label, not a local ternary — a provider with no branch here used to
+      // silently display as "Anthropic" instead of throwing a type error, the same class of bug as
+      // SettingsScreen.tsx's now-fixed label ternaries.
+      throw new Error(`No API key configured for ${PROVIDER_META_DATA[selectedGenerationProvider].label}. Please add your key in Settings → AI Providers.`);
     }
 
     if (!db) throw new Error("Database not loaded.");
@@ -579,13 +616,17 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     // origin, so a plain WebView request would be blocked by CORS. See desktopFetch.ts.
     let aiProviderInstance: any;
     if (selectedGenerationProvider === 'openai') {
-      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || 'gpt-4.1-mini', fetchFn: desktopFetch });
+      aiProviderInstance = new OpenAIProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.openai, fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'mistral') {
-      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || 'mistral-small-latest', fetchFn: desktopFetch });
+      aiProviderInstance = new MistralProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.mistral, fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'gemini') {
-      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || 'gemini-2.5-flash', fetchFn: desktopFetch });
+      aiProviderInstance = new GeminiProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.gemini, fetchFn: desktopFetch });
     } else if (selectedGenerationProvider === 'anthropic') {
-      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || 'claude-haiku-4-5-20251001', fetchFn: desktopFetch });
+      aiProviderInstance = new AnthropicProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.anthropic, fetchFn: desktopFetch });
+    } else if (selectedGenerationProvider === 'deepseek') {
+      aiProviderInstance = new DeepSeekProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.deepseek, fetchFn: desktopFetch });
+    } else if (selectedGenerationProvider === 'groq') {
+      aiProviderInstance = new GroqProvider({ apiKey: active.key, model: active.model || DEFAULT_MODELS.groq, fetchFn: desktopFetch });
     }
 
     const pipeline = await createAIPipeline({

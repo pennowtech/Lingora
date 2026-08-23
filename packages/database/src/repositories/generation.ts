@@ -11,7 +11,6 @@ import type { DatabaseAdapter } from '../adapter'
 import { createCluster, createMeaning } from './clusters'
 import { createExample } from './examples'
 import { createInflections, createLemma, getLemmaByForm, getLemmaById } from './lemmas'
-import { createPhrase } from './phrases'
 import { createSynonym } from './synonyms'
 
 /**
@@ -298,16 +297,13 @@ export async function persistWordGeneration(
       }
     }
 
-    // Phrases are fetched on demand inside the card — not created automatically on card package generation
-    // (see generatePhrases on-demand action in app/word/[form].tsx).
-
-    // No cloze card is created automatically — payload.clozes (the AI's own attempt) goes unused
-    // by design. Neither an independently AI-generated cloze (stale the moment the user picks a
-    // different sense) nor one auto-derived by matching the lemma's surface forms in the example
-    // (unreliable for German separable verbs, whose prefix splits from the stem in normal word
-    // order) held up — cloze cards are created explicitly by the user instead, via the word-detail
-    // screen's manual cloze editor (see components/ClozeEditorSheet.tsx), which always matches
-    // whatever example/sense they're looking at because they're the one marking it.
+    // WordGenerationPayload no longer carries phrases/clozes at all (see its own doc comment) —
+    // both are on-demand only: phrases via generatePhrases in app/word/[form].tsx, clozes via the
+    // manual cloze editor (components/ClozeEditorSheet.tsx), which always matches whatever
+    // example/sense the user is actually looking at because they're the one marking it — neither
+    // an independently AI-generated cloze (stale the moment a different sense is picked) nor one
+    // auto-derived by matching the lemma's surface forms in the example (unreliable for German
+    // separable verbs, whose prefix splits from the stem in normal word order) held up.
 
     // The payload schema guarantees ≥1 cluster with ≥1 meaning, so this is
     // a genuine corruption guard, not a reachable branch.
@@ -332,8 +328,10 @@ export interface RegeneratedWordGeneration {
 
 /**
  * Replace an AI card's entire generated content — every meaning cluster (and with it, its
- * meanings/examples/synonyms), phrases, and cloze variants — with a freshly generated
- * WordGenerationPayload for the *same* word, in one transaction.
+ * meanings/examples/synonyms) — with a freshly generated WordGenerationPayload for the *same*
+ * word, in one transaction. Also clears the card's on-demand phrases and manually-authored cloze
+ * cards (they aren't part of the payload — see WordGenerationPayload's own doc comment — but a
+ * regenerate still wipes them, since they were built against the content this is replacing).
  *
  * Unlike persistWordGeneration, this never creates a new lemma or card: `lemmaId`/`cardId` are
  * reused as-is, so the card's FSRS review state (`card_states`, `review_events`), deck

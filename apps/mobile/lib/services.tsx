@@ -18,8 +18,10 @@ import {
   AnthropicProvider,
   createAIPipeline,
   DeepLProvider,
+  DeepSeekProvider,
   GeminiProvider,
   GoogleTranslateProvider,
+  GroqProvider,
   MistralProvider,
   OpenAIProvider,
   type AIPipeline,
@@ -223,7 +225,7 @@ async function readProviderConfig(
   return { key: k, enabled: enabledRaw !== 'false', model: m, validated }
 }
 
-/** OpenAI, Mistral, Gemini, and Claude all implement both provider slots. */
+/** OpenAI, Mistral, Gemini, Claude, DeepSeek, and Groq all implement both provider slots. */
 function instantiateGenerationProvider(
   name: GenerationProviderName,
   key: string,
@@ -238,6 +240,10 @@ function instantiateGenerationProvider(
       return new GeminiProvider({ apiKey: key, model })
     case 'anthropic':
       return new AnthropicProvider({ apiKey: key, model })
+    case 'deepseek':
+      return new DeepSeekProvider({ apiKey: key, model })
+    case 'groq':
+      return new GroqProvider({ apiKey: key, model })
   }
 }
 
@@ -251,6 +257,8 @@ async function buildAIServices(
     mistral,
     gemini,
     claude,
+    deepseek,
+    groq,
     deeplKey,
     deeplEnabledRaw,
     storedTranslationProvider,
@@ -287,6 +295,20 @@ async function buildAIServices(
       STORE_KEYS.claudeValidatedKey,
       DEFAULT_MODELS.anthropic,
     ),
+    readProviderConfig(
+      STORE_KEYS.deepseekKey,
+      STORE_KEYS.deepseekEnabled,
+      STORE_KEYS.deepseekModel,
+      STORE_KEYS.deepseekValidatedKey,
+      DEFAULT_MODELS.deepseek,
+    ),
+    readProviderConfig(
+      STORE_KEYS.groqKey,
+      STORE_KEYS.groqEnabled,
+      STORE_KEYS.groqModel,
+      STORE_KEYS.groqValidatedKey,
+      DEFAULT_MODELS.groq,
+    ),
     SecureStore.getItemAsync(STORE_KEYS.deeplKey),
     SecureStore.getItemAsync(STORE_KEYS.deeplEnabled),
     SecureStore.getItemAsync(STORE_KEYS.translationProvider),
@@ -310,7 +332,7 @@ async function buildAIServices(
     ? (storedTargetLanguage as LanguageCode)
     : DEFAULT_TARGET_LANGUAGE
 
-  const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude }
+  const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude, deepseek, groq }
   const configured = GENERATION_PROVIDERS.filter(
     (name) => configs[name].enabled && configs[name].key !== '' && configs[name].validated,
   )

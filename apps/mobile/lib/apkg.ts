@@ -11,6 +11,7 @@ import { decompress } from 'fzstd'
 import { File, Paths } from 'expo-file-system'
 import { openDatabaseAsync } from 'expo-sqlite'
 import JSZip from 'jszip'
+import { expoFileStorage } from './save-file'
 
 const log = logger.child({ feature: 'import', screen: 'ApkgImportScreen' })
 
@@ -48,14 +49,14 @@ export interface PickedApkg {
  * in `finally`, whether or not parsing succeeds.
  */
 export async function pickAndParseApkgFile(): Promise<PickedApkg | null> {
-  const picked = await File.pickFileAsync({
+  const picked = await expoFileStorage.pickFile({
     mimeTypes: ['application/zip', 'application/octet-stream', '*/*'],
   })
-  if (picked.canceled) return null
+  if (!picked) return null
 
   log.info('import.apkg_file_picked', { message: 'User picked an .apkg file' })
 
-  const zipBytes = await picked.result.bytes()
+  const zipBytes = await picked.bytes()
   const zip = await JSZip.loadAsync(zipBytes)
 
   const modernEntry = zip.file('collection.anki21b')
@@ -87,7 +88,7 @@ export async function pickAndParseApkgFile(): Promise<PickedApkg | null> {
       message: 'Anki collection parsed',
       metadata: { itemCount: notes.length },
     })
-    return { fileName: picked.result.name, notes, decks, noteTypes }
+    return { fileName: picked.name, notes, decks, noteTypes }
   } finally {
     await ankiDb?.closeAsync()
     if (tempFile.exists) tempFile.delete()

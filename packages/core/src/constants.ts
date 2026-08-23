@@ -8,12 +8,15 @@ import type { LanguageCode } from '@lingora/types'
  * preference set on one platform is named consistently even though nothing syncs between them yet.
  */
 
-/** The provider slots that can fill AIProvider (word-package generation). */
-export const GENERATION_PROVIDERS = ['openai', 'mistral', 'gemini', 'anthropic'] as const
+/** The provider slots that can fill AIProvider (word-package generation). Array order is also the
+ * fallback-selection order both apps use when picking a default provider (the first
+ * enabled+keyed+validated entry wins) — see apps/mobile/lib/services.tsx and
+ * apps/desktop/src/services/desktopServices.tsx's PROVIDER_ORDER. */
+export const GENERATION_PROVIDERS = ['openai', 'groq', 'mistral', 'gemini', 'anthropic', 'deepseek'] as const
 export type GenerationProviderName = (typeof GENERATION_PROVIDERS)[number]
 
 /** Everything the dictionary (translation) slot can be filled by. */
-export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'mistral', 'gemini', 'anthropic'] as const
+export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'groq', 'mistral', 'gemini', 'anthropic', 'deepseek'] as const
 export type TranslationProviderName = (typeof TRANSLATION_PROVIDERS)[number]
 
 export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
@@ -21,6 +24,8 @@ export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
   mistral: 'mistral-small-latest',
   gemini: 'gemini-2.5-flash',
   anthropic: 'claude-haiku-4-5-20251001',
+  deepseek: 'deepseek-v4-flash',
+  groq: 'openai/gpt-oss-20b',
 }
 
 /** Key/value store keys — the only place API keys and preferences are persisted. Shared naming
@@ -42,6 +47,14 @@ export const STORE_KEYS = {
   claudeModel: 'lingora.claude_model',
   claudeEnabled: 'lingora.claude_enabled',
   claudeValidatedKey: 'lingora.claude_validated_key',
+  deepseekKey: 'lingora.deepseek_key',
+  deepseekModel: 'lingora.deepseek_model',
+  deepseekEnabled: 'lingora.deepseek_enabled',
+  deepseekValidatedKey: 'lingora.deepseek_validated_key',
+  groqKey: 'lingora.groq_key',
+  groqModel: 'lingora.groq_model',
+  groqEnabled: 'lingora.groq_enabled',
+  groqValidatedKey: 'lingora.groq_validated_key',
   deeplKey: 'lingora.deepl_key',
   deeplEnabled: 'lingora.deepl_enabled',
   deeplValidatedKey: 'lingora.deepl_validated_key',

@@ -5,6 +5,7 @@ import {
   AUDIO_PROVIDER_STORE_KEY,
   AUDIO_PROVIDERS,
   AUDIO_STORE_KEYS,
+  AUDIO_USAGE_STORE_KEYS,
   DEFAULT_AUDIO_SPEED,
   DEFAULT_TTS_PITCH,
   DEFAULT_TTS_RATE,
@@ -73,16 +74,19 @@ export async function setAudioProvider(provider: AudioProviderName): Promise<voi
 }
 
 /** A cloud provider's stored API key + chosen voice/model + speaking speed — one of each per
- * provider, not per language (a cloud voice is generally multilingual, unlike device voices). */
-export async function getCloudAudioConfig(provider: CloudAudioProviderName): Promise<{ apiKey: string; voice: string; speed: number }> {
+ * provider, not per language (a cloud voice is generally multilingual, unlike device voices).
+ * `model` is only meaningful for ElevenLabs today (AUDIO_STORE_KEYS.model is provider-specific) —
+ * empty string for providers with no model store key. */
+export async function getCloudAudioConfig(provider: CloudAudioProviderName): Promise<{ apiKey: string; voice: string; speed: number; model: string }> {
   const keys = AUDIO_STORE_KEYS[provider]
-  const [apiKey, voice, speedRaw] = await Promise.all([
+  const [apiKey, voice, speedRaw, model] = await Promise.all([
     SecureStore.getItemAsync(keys.key),
     SecureStore.getItemAsync(keys.voice),
     SecureStore.getItemAsync(keys.speed),
+    keys.model ? SecureStore.getItemAsync(keys.model) : Promise.resolve(null),
   ])
   const speed = speedRaw !== null ? Number(speedRaw) : DEFAULT_AUDIO_SPEED
-  return { apiKey: apiKey ?? '', voice: voice ?? '', speed: Number.isFinite(speed) ? speed : DEFAULT_AUDIO_SPEED }
+  return { apiKey: apiKey ?? '', voice: voice ?? '', speed: Number.isFinite(speed) ? speed : DEFAULT_AUDIO_SPEED, model: model ?? '' }
 }
 
 export async function setCloudAudioKey(provider: CloudAudioProviderName, apiKey: string): Promise<void> {
@@ -95,4 +99,41 @@ export async function setCloudAudioVoice(provider: CloudAudioProviderName, voice
 
 export async function setCloudAudioSpeed(provider: CloudAudioProviderName, speed: number): Promise<void> {
   await SecureStore.setItemAsync(AUDIO_STORE_KEYS[provider].speed, String(speed))
+}
+
+/** No-op for a provider with no model store key (see AUDIO_STORE_KEYS.model's own doc comment). */
+export async function setCloudAudioModel(provider: CloudAudioProviderName, model: string): Promise<void> {
+  const key = AUDIO_STORE_KEYS[provider].model
+  if (key) await SecureStore.setItemAsync(key, model)
+}
+
+/** Device-observed usage — see AUDIO_USAGE_STORE_KEYS' own doc comment for why this is recorded
+ * directly (lib/cloudTts.ts, on synthesis success) instead of via packages/ai's Proxy-based
+ * withUsageTracking, which needs an object with methods to wrap. */
+export async function getCloudAudioUsage(provider: CloudAudioProviderName): Promise<{ requestsCount: number; charactersUsed: number }> {
+  const keys = AUDIO_USAGE_STORE_KEYS[provider]
+  const [requestsRaw, charactersRaw] = await Promise.all([
+    SecureStore.getItemAsync(keys.requests),
+    SecureStore.getItemAsync(keys.characters),
+  ])
+  const requestsCount = requestsRaw !== null ? Number(requestsRaw) : 0
+  const charactersUsed = charactersRaw !== null ? Number(charactersRaw) : 0
+  return {
+    requestsCount: Number.isFinite(requestsCount) ? requestsCount : 0,
+    charactersUsed: Number.isFinite(charactersUsed) ? charactersUsed : 0,
+  }
+}
+
+export async function recordCloudAudioUsage(provider: CloudAudioProviderName, characterCount: number): Promise<void> {
+  const keys = AUDIO_USAGE_STORE_KEYS[provider]
+  const current = await getCloudAudioUsage(provider)
+  await Promise.all([
+    SecureStore.setItemAsync(keys.requests, String(current.requestsCount + 1)),
+    SecureStore.setItemAsync(keys.characters, String(current.charactersUsed + characterCount)),
+  ])
+}
+
+export async function clearCloudAudioUsage(provider: CloudAudioProviderName): Promise<void> {
+  const keys = AUDIO_USAGE_STORE_KEYS[provider]
+  await Promise.all([SecureStore.deleteItemAsync(keys.requests), SecureStore.deleteItemAsync(keys.characters)])
 }

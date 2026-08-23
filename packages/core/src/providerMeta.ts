@@ -39,6 +39,18 @@ export const PROVIDER_META_DATA: Record<GenerationProviderName, ProviderMetaData
     usageUrl: 'https://platform.claude.com/settings/usage',
     description: 'Claude BYOK for card generation and translation.',
   },
+  deepseek: {
+    label: 'DeepSeek',
+    models: ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-v4-flash-vision-exp'],
+    usageUrl: 'https://platform.deepseek.com/usage',
+    description: 'BYOK alternative for card generation and translation.',
+  },
+  groq: {
+    label: 'Groq',
+    models: ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'groq/compound', 'groq/compound-mini'],
+    usageUrl: 'https://console.groq.com/home',
+    description: 'Fast inference BYOK for card generation and translation.',
+  },
 }
 
 /** Storage key names per provider — shared naming only, see constants.ts's own doc comment. */
@@ -47,6 +59,8 @@ export const PROVIDER_STORE_KEYS: Record<GenerationProviderName, { key: string; 
   mistral: { key: STORE_KEYS.mistralKey, enabled: STORE_KEYS.mistralEnabled, model: STORE_KEYS.mistralModel, validatedKey: STORE_KEYS.mistralValidatedKey },
   gemini: { key: STORE_KEYS.geminiKey, enabled: STORE_KEYS.geminiEnabled, model: STORE_KEYS.geminiModel, validatedKey: STORE_KEYS.geminiValidatedKey },
   anthropic: { key: STORE_KEYS.claudeKey, enabled: STORE_KEYS.claudeEnabled, model: STORE_KEYS.claudeModel, validatedKey: STORE_KEYS.claudeValidatedKey },
+  deepseek: { key: STORE_KEYS.deepseekKey, enabled: STORE_KEYS.deepseekEnabled, model: STORE_KEYS.deepseekModel, validatedKey: STORE_KEYS.deepseekValidatedKey },
+  groq: { key: STORE_KEYS.groqKey, enabled: STORE_KEYS.groqEnabled, model: STORE_KEYS.groqModel, validatedKey: STORE_KEYS.groqValidatedKey },
 }
 
 export interface ProviderFormState {

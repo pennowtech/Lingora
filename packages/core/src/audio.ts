@@ -16,10 +16,10 @@ const APP_KEY_PREFIX = 'lingora'
  * Every text-to-speech source Audio Settings can pick from. 'device' is an on-device engine
  * (offline, no key, platform-specific — mobile uses expo-speech); the other three are cloud APIs.
  */
-export const AUDIO_PROVIDERS = ['device', 'openai', 'elevenlabs', 'deepgram'] as const
+export const AUDIO_PROVIDERS = ['device', 'openai', 'elevenlabs', 'deepgram', 'google'] as const
 export type AudioProviderName = (typeof AUDIO_PROVIDERS)[number]
 
-export const CLOUD_AUDIO_PROVIDERS = ['openai', 'elevenlabs', 'deepgram'] as const
+export const CLOUD_AUDIO_PROVIDERS = ['openai', 'elevenlabs', 'deepgram', 'google'] as const
 export type CloudAudioProviderName = (typeof CLOUD_AUDIO_PROVIDERS)[number]
 
 export interface AudioProviderMeta {
@@ -44,12 +44,17 @@ export const AUDIO_PROVIDER_META: Record<AudioProviderName, AudioProviderMeta> =
   elevenlabs: {
     label: 'ElevenLabs',
     icon: 'Mic',
-    description: 'eleven_multilingual_v2. Paste a voice ID from your ElevenLabs voice library.',
+    description: 'eleven_multilingual_v2 or eleven_flash_v2_5. Paste a voice ID from your ElevenLabs voice library.',
   },
   deepgram: {
     label: 'Deepgram',
     icon: 'Radio',
     description: 'Aura-2. Enter the exact model name for the voice/language you want (see Deepgram\'s docs).',
+  },
+  google: {
+    label: 'Google Cloud TTS',
+    icon: 'Cloud',
+    description: 'Neural2/WaveNet voices. BYOK — a Google Cloud API key, restricted to the Text-to-Speech API (not the free Google Translate used elsewhere in the app).',
   },
 }
 
@@ -73,7 +78,10 @@ export const OPENAI_TTS_VOICES = [
 export const OPENAI_RECOMMENDED_VOICES: readonly string[] = ['marin', 'cedar']
 export const OPENAI_DEFAULT_MODEL = 'gpt-4o-mini-tts'
 
-export const ELEVENLABS_DEFAULT_MODEL = 'eleven_multilingual_v2'
+/** eleven_multilingual_v2 (default, broadest language/quality coverage) and eleven_flash_v2_5
+ * (lower latency, still multilingual) — ElevenLabs' two model IDs this app offers a picker for. */
+export const ELEVENLABS_MODELS = ['eleven_multilingual_v2', 'eleven_flash_v2_5'] as const
+export const ELEVENLABS_DEFAULT_MODEL: string = ELEVENLABS_MODELS[0]
 
 /** A known-good multilingual ElevenLabs premade voice — used whenever no voice has been picked
  * yet, same role OpenAI's 'marin' fallback plays below. */
@@ -96,10 +104,26 @@ export const DEEPGRAM_DEFAULT_MODEL_BY_LANGUAGE: Partial<Record<LanguageCode, st
   fr: 'aura-2-agathe-fr',
 }
 
+/** Google Cloud TTS's documented voice identifiers, one triple per language this app supports
+ * (matches TTS_LOCALE_PREFIXES below) — three quality/cost tiers: Standard (oldest, lowest cost),
+ * WaveNet (higher quality), Neural2 (Google's newest tier, the default here). Voice IDs encode
+ * their own BCP-47 language code as a prefix (e.g. "en-US-Neural2-F" → "en-US"), extracted in
+ * synthesizeGoogle rather than stored separately. */
+export const GOOGLE_TTS_VOICES_BY_LANGUAGE: Record<LanguageCode, { standard: string; wavenet: string; neural2: string }> = {
+  en: { standard: 'en-US-Standard-C', wavenet: 'en-US-Wavenet-D', neural2: 'en-US-Neural2-F' },
+  de: { standard: 'de-DE-Standard-A', wavenet: 'de-DE-Wavenet-C', neural2: 'de-DE-Neural2-F' },
+  es: { standard: 'es-ES-Standard-A', wavenet: 'es-ES-Wavenet-B', neural2: 'es-ES-Neural2-A' },
+  fr: { standard: 'fr-FR-Standard-A', wavenet: 'fr-FR-Wavenet-C', neural2: 'fr-FR-Neural2-A' },
+  hi: { standard: 'hi-IN-Standard-A', wavenet: 'hi-IN-Wavenet-D', neural2: 'hi-IN-Neural2-A' },
+  ja: { standard: 'ja-JP-Standard-B', wavenet: 'ja-JP-Wavenet-A', neural2: 'ja-JP-Neural2-B' },
+  vi: { standard: 'vi-VN-Standard-A', wavenet: 'vi-VN-Wavenet-A', neural2: 'vi-VN-Neural2-A' },
+}
+export const GOOGLE_TTS_DEFAULT_VOICE = GOOGLE_TTS_VOICES_BY_LANGUAGE.en.neural2
+
 /** Providers whose synthesis API accepts a speaking-speed parameter (see synthesizeSpeech below)
  * — Deepgram's Aura-2 /v1/speak endpoint has no documented equivalent, so it's left out rather
  * than sending a parameter it would silently ignore or reject. */
-export const SPEED_CAPABLE_PROVIDERS = ['openai', 'elevenlabs'] as const
+export const SPEED_CAPABLE_PROVIDERS = ['openai', 'elevenlabs', 'google'] as const
 export type SpeedCapableProviderName = (typeof SPEED_CAPABLE_PROVIDERS)[number]
 
 export const DEFAULT_AUDIO_SPEED = 1.0
@@ -112,7 +136,7 @@ export const AUDIO_SPEED_OPTIONS = [0.8, 1.0, 1.2] as const
 /** Storage key names — the app-layer key/value store (SecureStore on mobile, localStorage on
  * desktop) is what actually persists these; this is just the shared naming so both apps agree on
  * what a given preference is called. */
-export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string; speed: string; validatedKey: string }> = {
+export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voice: string; speed: string; validatedKey: string; model?: string }> = {
   openai: {
     key: `${APP_KEY_PREFIX}.tts_openai_key`,
     voice: `${APP_KEY_PREFIX}.tts_openai_voice`,
@@ -124,6 +148,9 @@ export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voi
     voice: `${APP_KEY_PREFIX}.tts_elevenlabs_voice`,
     speed: `${APP_KEY_PREFIX}.tts_elevenlabs_speed`,
     validatedKey: `${APP_KEY_PREFIX}.tts_elevenlabs_validated_key`,
+    // The only cloud TTS provider with a user-selectable model today (ELEVENLABS_MODELS) — OpenAI
+    // has one fixed TTS model, Deepgram's "voice" field IS its model string already.
+    model: `${APP_KEY_PREFIX}.tts_elevenlabs_model`,
   },
   deepgram: {
     key: `${APP_KEY_PREFIX}.tts_deepgram_key`,
@@ -131,9 +158,37 @@ export const AUDIO_STORE_KEYS: Record<CloudAudioProviderName, { key: string; voi
     speed: `${APP_KEY_PREFIX}.tts_deepgram_speed`,
     validatedKey: `${APP_KEY_PREFIX}.tts_deepgram_validated_key`,
   },
+  google: {
+    key: `${APP_KEY_PREFIX}.tts_google_key`,
+    voice: `${APP_KEY_PREFIX}.tts_google_voice`,
+    speed: `${APP_KEY_PREFIX}.tts_google_speed`,
+    validatedKey: `${APP_KEY_PREFIX}.tts_google_validated_key`,
+  },
 }
 
 export const AUDIO_PROVIDER_STORE_KEY = `${APP_KEY_PREFIX}.tts_provider`
+
+/** Device-observed usage counters per cloud TTS provider — same "requests + a usage unit" shape
+ * AI Providers tracks (see packages/ai's provider `.usage` field / apps/mobile/lib/providerUsage.ts),
+ * just recorded differently: TTS has no object-oriented provider instance to wrap in a Proxy, so
+ * each app increments these directly after a successful synthesis call (apps/mobile/lib/cloudTts.ts,
+ * apps/desktop/src/services/desktopAudioPlayback.ts) rather than intercepting a method call.
+ * "characters" (not tokens) because every cloud TTS provider bills by input character count. */
+export const AUDIO_USAGE_STORE_KEYS: Record<CloudAudioProviderName, { requests: string; characters: string }> = {
+  openai: { requests: `${APP_KEY_PREFIX}.tts_openai_usage_requests`, characters: `${APP_KEY_PREFIX}.tts_openai_usage_characters` },
+  elevenlabs: { requests: `${APP_KEY_PREFIX}.tts_elevenlabs_usage_requests`, characters: `${APP_KEY_PREFIX}.tts_elevenlabs_usage_characters` },
+  deepgram: { requests: `${APP_KEY_PREFIX}.tts_deepgram_usage_requests`, characters: `${APP_KEY_PREFIX}.tts_deepgram_usage_characters` },
+  google: { requests: `${APP_KEY_PREFIX}.tts_google_usage_requests`, characters: `${APP_KEY_PREFIX}.tts_google_usage_characters` },
+}
+
+/** Where "Open Provider Usage" links to per cloud TTS provider — real billing/usage dashboards,
+ * same role as PROVIDER_META_DATA's usageUrl for AI generation providers. */
+export const AUDIO_PROVIDER_USAGE_URL: Record<CloudAudioProviderName, string> = {
+  openai: 'https://platform.openai.com/usage',
+  elevenlabs: 'https://elevenlabs.io/app/usage',
+  deepgram: 'https://console.deepgram.com/project/usage',
+  google: 'https://console.cloud.google.com/billing',
+}
 
 /** The voice/model actually used when the user hasn't picked one — single source of truth so the
  * picker's displayed default, the Test/Validate calls, and real playback all agree. `storedVoice`
@@ -143,6 +198,7 @@ export function getDefaultCloudVoice(provider: CloudAudioProviderName, targetLan
   if (trimmed !== '') return trimmed
   if (provider === 'openai') return 'marin'
   if (provider === 'elevenlabs') return ELEVENLABS_DEFAULT_VOICE_ID
+  if (provider === 'google') return GOOGLE_TTS_VOICES_BY_LANGUAGE[targetLanguage].neural2
   return DEEPGRAM_DEFAULT_MODEL_BY_LANGUAGE[targetLanguage] ?? DEEPGRAM_EXAMPLE_MODEL
 }
 
@@ -213,6 +269,7 @@ const FETCHERS: Record<CloudAudioProviderName, ((apiKey: string) => Promise<Prov
   openai: null, // OpenAI's voice set is small and fixed — OPENAI_TTS_VOICES above already lists it, no API call needed.
   elevenlabs: fetchElevenLabsVoices,
   deepgram: fetchDeepgramModels,
+  google: null, // Curated per-language list (GOOGLE_TTS_VOICES_BY_LANGUAGE) — no live catalog call needed.
 }
 
 /** Returns `[]` (never throws) on any failure — callers should fall back to manual entry rather
@@ -239,6 +296,9 @@ export interface CloudTtsRequest {
    * SPEED_CAPABLE_PROVIDERS above) — synthesizeDeepgram ignores it, Aura-2's /v1/speak endpoint
    * has no documented equivalent. */
   speed?: number
+  /** ElevenLabs' model_id (see ELEVENLABS_MODELS) — ignored by every other provider. Empty/absent
+   * falls back to ELEVENLABS_DEFAULT_MODEL. */
+  model?: string
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -268,8 +328,8 @@ async function readErrorBody(response: Response): Promise<string> {
   }
 }
 
-async function synthesizeOpenAI(req: CloudTtsRequest): Promise<ArrayBuffer> {
-  const response = await fetch('https://api.openai.com/v1/audio/speech', {
+async function synthesizeOpenAI(req: CloudTtsRequest, fetchFn: typeof fetch): Promise<ArrayBuffer> {
+  const response = await fetchFn('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${req.apiKey}`,
@@ -290,11 +350,11 @@ async function synthesizeOpenAI(req: CloudTtsRequest): Promise<ArrayBuffer> {
   return response.arrayBuffer()
 }
 
-async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> {
+async function synthesizeElevenLabs(req: CloudTtsRequest, fetchFn: typeof fetch): Promise<ArrayBuffer> {
   // Callers resolve a language-aware default before reaching here (see getDefaultCloudVoice
   // above) — this fallback is just a safety net.
   const voiceId = req.voice.trim() || ELEVENLABS_DEFAULT_VOICE_ID
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
+  const response = await fetchFn(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
     method: 'POST',
     headers: {
       'xi-api-key': req.apiKey,
@@ -303,7 +363,7 @@ async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> 
     },
     body: JSON.stringify({
       text: req.text,
-      model_id: ELEVENLABS_DEFAULT_MODEL,
+      model_id: req.model?.trim() || ELEVENLABS_DEFAULT_MODEL,
       voice_settings: { speed: clamp(req.speed ?? DEFAULT_AUDIO_SPEED, 0.7, 1.2) },
     }),
   })
@@ -314,11 +374,11 @@ async function synthesizeElevenLabs(req: CloudTtsRequest): Promise<ArrayBuffer> 
   return response.arrayBuffer()
 }
 
-async function synthesizeDeepgram(req: CloudTtsRequest): Promise<ArrayBuffer> {
+async function synthesizeDeepgram(req: CloudTtsRequest, fetchFn: typeof fetch): Promise<ArrayBuffer> {
   // Callers resolve a per-target-language default before reaching here (see
   // getDefaultCloudVoice above) — DEEPGRAM_EXAMPLE_MODEL here is just a safety net.
   const model = req.voice.trim() || DEEPGRAM_EXAMPLE_MODEL
-  const response = await fetch(`https://api.deepgram.com/v1/speak?model=${encodeURIComponent(model)}`, {
+  const response = await fetchFn(`https://api.deepgram.com/v1/speak?model=${encodeURIComponent(model)}`, {
     method: 'POST',
     headers: {
       Authorization: `Token ${req.apiKey}`,
@@ -333,14 +393,67 @@ async function synthesizeDeepgram(req: CloudTtsRequest): Promise<ArrayBuffer> {
   return response.arrayBuffer()
 }
 
-const SYNTHESIZERS: Record<CloudAudioProviderName, (req: CloudTtsRequest) => Promise<ArrayBuffer>> = {
+const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+/** Dependency-free base64 decode — Google Cloud TTS returns audio as a base64 string in a JSON
+ * body (unlike every other provider here, which streams raw audio/mpeg bytes directly), and this
+ * package deliberately has zero platform APIs (no `atob`, no Node `Buffer`) so it behaves
+ * identically on Hermes (mobile) and the browser/Tauri WebView (desktop). */
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const clean = base64.replace(/[^A-Za-z0-9+/]/g, '')
+  const byteLength = Math.floor((clean.length * 3) / 4) - (base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0)
+  const bytes = new Uint8Array(byteLength)
+  let byteIndex = 0
+  for (let i = 0; i < clean.length; i += 4) {
+    const a = BASE64_ALPHABET.indexOf(clean[i]!)
+    const b = BASE64_ALPHABET.indexOf(clean[i + 1] ?? 'A')
+    const c = BASE64_ALPHABET.indexOf(clean[i + 2] ?? 'A')
+    const d = BASE64_ALPHABET.indexOf(clean[i + 3] ?? 'A')
+    const chunk = (a << 18) | (b << 12) | (c << 6) | d
+    if (byteIndex < byteLength) bytes[byteIndex++] = (chunk >> 16) & 0xff
+    if (byteIndex < byteLength) bytes[byteIndex++] = (chunk >> 8) & 0xff
+    if (byteIndex < byteLength) bytes[byteIndex++] = chunk & 0xff
+  }
+  return bytes.buffer
+}
+
+/** Google Cloud Text-to-Speech's REST API — a plain restricted API key (`?key=`), not the OAuth2
+ * service-account flow GCP APIs often use server-side; safe for the same BYOK/on-device-only key
+ * storage every other provider here uses (see this module's own doc comment). `req.voice` holds a
+ * full voice name (e.g. "en-US-Neural2-F"); its BCP-47 language code is the first two hyphenated
+ * segments, required as a separate field in the request body. */
+async function synthesizeGoogle(req: CloudTtsRequest, fetchFn: typeof fetch): Promise<ArrayBuffer> {
+  const voiceName = req.voice.trim() || GOOGLE_TTS_DEFAULT_VOICE
+  const languageCode = voiceName.split('-').slice(0, 2).join('-')
+  const response = await fetchFn(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(req.apiKey)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      input: { text: req.text },
+      voice: { languageCode, name: voiceName },
+      audioConfig: { audioEncoding: 'MP3', speakingRate: clamp(req.speed ?? DEFAULT_AUDIO_SPEED, 0.25, 4.0) },
+    }),
+  })
+  if (!response.ok) {
+    const body = await readErrorBody(response)
+    throw new CloudTtsError(`Google Cloud TTS request failed (${response.status}): ${body}`, response.status, body)
+  }
+  const payload = (await response.json()) as { audioContent?: string }
+  if (!payload.audioContent) {
+    throw new CloudTtsError('Google Cloud TTS response had no audioContent', response.status, '')
+  }
+  return base64ToArrayBuffer(payload.audioContent)
+}
+
+const SYNTHESIZERS: Record<CloudAudioProviderName, (req: CloudTtsRequest, fetchFn: typeof fetch) => Promise<ArrayBuffer>> = {
   openai: synthesizeOpenAI,
   elevenlabs: synthesizeElevenLabs,
   deepgram: synthesizeDeepgram,
+  google: synthesizeGoogle,
 }
 
-export async function synthesizeSpeech(provider: CloudAudioProviderName, req: CloudTtsRequest): Promise<ArrayBuffer> {
-  return SYNTHESIZERS[provider](req)
+export async function synthesizeSpeech(provider: CloudAudioProviderName, req: CloudTtsRequest, fetchFn: typeof fetch = fetch): Promise<ArrayBuffer> {
+  return SYNTHESIZERS[provider](req, fetchFn)
 }
 
 // ─── TTS settings (pure shape/keys — actual storage stays app-side) ─────────────

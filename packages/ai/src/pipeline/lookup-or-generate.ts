@@ -7,6 +7,7 @@ import {
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
+import { AI_GENERATED_SOURCES } from '@lingora/core'
 import { buildCacheKey, type GenerationCache } from '../cache/cache'
 import { bucketTokenCount } from '../providers/http'
 import type { PartialWordGeneration } from '../schemas/generation'
@@ -84,8 +85,6 @@ export interface LookupOptions {
   forceGenerate?: boolean
 }
 
-const AI_CARD_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
-
 interface PipelineDeps {
   db: DatabaseAdapter
   ai: AIProvider
@@ -132,7 +131,7 @@ export async function lookupOrGenerate(
   let cardToUpgrade: Card | undefined
   if (existingLemma) {
     const matchingCard = await getCardByLemmaAndNativeLanguage(db, existingLemma.id, nativeLanguage)
-    const isFullAiCard = !!matchingCard?.source && AI_CARD_SOURCES.includes(matchingCard.source)
+    const isFullAiCard = !!matchingCard?.source && AI_GENERATED_SOURCES.includes(matchingCard.source)
     if (matchingCard && isFullAiCard && !opts.forceGenerate) {
       log.info('ai.lookup_resolved_existing', {
         message: 'Word resolved to an existing AI lemma via morphology lookup',
@@ -225,8 +224,11 @@ export async function lookupOrGenerate(
   const llmDurationMs = Date.now() - tLlm
 
   if (result.kind === 'partial') {
+    // Issues are schema-validation paths/messages (e.g. "clozes.0.cefrLevel: Invalid option...")
+    // — not word text or AI response content, safe in a free-text message (sanitizeText still
+    // runs on it). metadata stays allowlisted-only (itemCount), per the usual policy.
     log.warn('ai.generation_partial', {
-      message: 'Word package failed validation after retry — salvaged a partial result',
+      message: `Word package failed validation after retry — salvaged a partial result: ${result.issues.join('; ')}`,
       durationMs: Date.now() - startedAt,
       metadata: { ...meta, itemCount: result.issues.length, morphologyDurationMs, cacheCheckDurationMs, dictHintDurationMs, llmDurationMs },
     })

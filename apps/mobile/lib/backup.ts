@@ -9,10 +9,10 @@ import {
 } from '@lingora/database'
 import type { DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
+import { defaultExportFileName, type SaveOutcome } from '@lingora/core'
 import Constants from 'expo-constants'
-import { File } from 'expo-file-system'
 import * as SecureStore from 'expo-secure-store'
-import { defaultExportFileName, saveExportFile, type SaveOutcome } from './save-file'
+import { expoFileStorage } from './save-file'
 import { STORE_KEYS } from './services'
 
 const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
@@ -73,7 +73,7 @@ export async function exportBackupToFile(
   // showed "417 cards exported").
   const itemCount = backup.tables.cards?.length ?? 0
 
-  const outcome = await saveExportFile({
+  const outcome = await expoFileStorage.saveFile({
     fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lin`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
@@ -97,12 +97,12 @@ export async function pickAndParseBackupFile(): Promise<PickedBackup | null> {
   // MIME type, and Android's picker resolves unknown extensions to
   // 'application/octet-stream' inconsistently across OEMs — filtering by a
   // specific type risks hiding the very file the user is looking for.
-  const picked = await File.pickFileAsync({ mimeTypes: ['application/octet-stream', 'application/json', 'text/plain', '*/*'] })
-  if (picked.canceled) return null
+  const picked = await expoFileStorage.pickFile({ mimeTypes: ['application/octet-stream', 'application/json', 'text/plain', '*/*'] })
+  if (!picked) return null
 
-  const raw = await picked.result.text()
+  const raw = await picked.text()
   const payload = parseBackup(raw)
-  return { payload, fileName: picked.result.name }
+  return { payload, fileName: picked.name }
 }
 
 export interface RestoreOutcome {

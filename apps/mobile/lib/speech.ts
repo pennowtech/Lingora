@@ -1,9 +1,8 @@
 import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import * as Speech from 'expo-speech'
-import { getDefaultCloudVoice } from './audioProviderMeta'
+import { CloudTtsError, getDefaultCloudVoice } from '@lingora/core'
 import { playCloudSpeech, stopCloudSpeech } from './cloudTts'
-import { CloudTtsError } from './cloudTtsProviders'
 import { getAudioProvider, getAvailableVoices, getCloudAudioConfig, getTtsSettings } from './ttsSettings'
 
 const log = logger.child({ feature: 'app', component: 'speech' })

@@ -1,8 +1,7 @@
 import { logger } from '@lingora/observability'
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio'
 import { File, Paths } from 'expo-file-system'
-import type { CloudAudioProviderName } from './audioProviderMeta'
-import { synthesizeSpeech } from './cloudTtsProviders'
+import { synthesizeSpeech, type CloudAudioProviderName } from '@lingora/core'
 
 const log = logger.child({ feature: 'app', component: 'cloudTts' })
 

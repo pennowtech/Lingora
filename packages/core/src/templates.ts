@@ -5,11 +5,9 @@ import { Liquid } from 'liquidjs'
 const log = logger.child({ feature: 'srs', component: 'templates' })
 
 /**
- * LiquidJS card rendering — the flashcard renderer the roadmap calls for:
- * `Template.frontTemplate`/`backTemplate` (Liquid syntax) + `Template.styles`
- * (CSS) render to real HTML, loaded into a WebView so the CSS actually
- * applies (replacing the old plain-text/regex approximation the template
- * editor used before).
+ * LiquidJS card rendering — shared between the mobile review session (loaded into a WebView) and
+ * the desktop app (loaded into an iframe/div) so both apps render the exact same card HTML from
+ * the exact same template/context, with no per-platform reimplementation to drift out of sync.
  *
  * The engine instance is stateless and safe to share — LiquidJS templates
  * are just parsed and rendered against a plain data object; no card/DB
@@ -23,36 +21,37 @@ export interface TemplateVariable {
   /** Plain-language label — the primary thing shown to a non-technical user. */
   label: string
   description: string
-  /** Ionicons glyph name — kept as a plain string so this stays a pure, dependency-free module. */
+  /** A Lucide icon name (lucide-react-native on mobile, lucide-react on desktop) — both apps
+   * share the same icon set, so this string means the same glyph on either platform. */
   icon: string
 }
 
 /**
  * Every placeholder a template can use. `audio`/`image` are always empty in
- * the current data model (no audio-file or card-image pipeline exists yet —
- * see PHASE_5_STATUS.md) but are still real, always-present context keys so
+ * the current data model (no audio-file or card-image pipeline exists yet)
+ * but are still real, always-present context keys so
  * `{% if audio %}`/`{% if image %}` conditionals behave correctly rather
  * than throwing on an undefined variable.
  */
 export const TEMPLATE_VARIABLES: TemplateVariable[] = [
-  { name: 'word', label: 'Word', description: 'Root word form', icon: 'text' },
-  { name: 'gender', label: 'Article & part of speech', description: 'e.g. "verb · separable"', icon: 'pricetag' },
-  { name: 'meaning', label: 'Meaning', description: 'Primary meaning', icon: 'language' },
-  { name: 'other_meanings', label: 'Other meanings', description: 'Secondary meanings', icon: 'list' },
-  { name: 'example', label: 'Example sentence', description: 'Selected example', icon: 'chatbox' },
+  { name: 'word', label: 'Word', description: 'Root word form', icon: 'Type' },
+  { name: 'gender', label: 'Article & part of speech', description: 'e.g. "verb · separable"', icon: 'Tag' },
+  { name: 'meaning', label: 'Meaning', description: 'Primary meaning', icon: 'Languages' },
+  { name: 'other_meanings', label: 'Other meanings', description: 'Secondary meanings', icon: 'List' },
+  { name: 'example', label: 'Example sentence', description: 'Selected example', icon: 'MessageSquare' },
   {
     name: 'example_highlighted',
     label: 'Example (word highlighted)',
     description: 'Same example, with the word marked - works for separable verbs too',
-    icon: 'color-wand',
+    icon: 'WandSparkles',
   },
-  { name: 'translation', label: 'Example translation', description: 'Translation of the example', icon: 'swap-horizontal' },
-  { name: 'synonyms', label: 'Synonyms', description: 'Synonym list', icon: 'git-compare' },
-  { name: 'phrases', label: 'Related phrases', description: 'Common phrases using this word', icon: 'chatbubbles' },
-  { name: 'audio', label: 'Pronunciation audio', description: 'Audio clip, if any', icon: 'volume-high' },
-  { name: 'image', label: 'Image', description: 'Cluster image, if any', icon: 'image' },
-  { name: 'cloze', label: 'Cloze sentence', description: 'Only in cloze-mode review', icon: 'create' },
-  { name: 'context_hint', label: 'Context hint', description: 'Part of speech / cluster hint', icon: 'information-circle' },
+  { name: 'translation', label: 'Example translation', description: 'Translation of the example', icon: 'ArrowLeftRight' },
+  { name: 'synonyms', label: 'Synonyms', description: 'Synonym list', icon: 'GitCompare' },
+  { name: 'phrases', label: 'Related phrases', description: 'Common phrases using this word', icon: 'MessagesSquare' },
+  { name: 'audio', label: 'Pronunciation audio', description: 'Audio clip, if any', icon: 'Volume2' },
+  { name: 'image', label: 'Image', description: 'Cluster image, if any', icon: 'Image' },
+  { name: 'cloze', label: 'Cloze sentence', description: 'Only in cloze-mode review', icon: 'SquarePen' },
+  { name: 'context_hint', label: 'Context hint', description: 'Part of speech / cluster hint', icon: 'Info' },
 ]
 
 /**
@@ -61,9 +60,9 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
  * gets its own short list rather than the vocab TEMPLATE_VARIABLES above.
  */
 export const CLOZE_TEMPLATE_VARIABLES: TemplateVariable[] = [
-  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder - the front', icon: 'create' },
-  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted - the back', icon: 'eye' },
-  { name: 'translation', label: 'Sentence translation', description: 'Translation of the cloze sentence', icon: 'swap-horizontal' },
+  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder — the front', icon: 'SquarePen' },
+  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted — the back', icon: 'Eye' },
+  { name: 'translation', label: 'Sentence translation', description: 'Translation of the cloze sentence', icon: 'ArrowLeftRight' },
 ]
 
 /**
@@ -71,9 +70,7 @@ export const CLOZE_TEMPLATE_VARIABLES: TemplateVariable[] = [
  * word, a soft pill tag for the part of speech, and a bordered "example
  * card" on the back) rather than bare unstyled text. Deliberately uses real
  * wrapping `<div class="...">` elements: this is hand-authored content the
- * user can see and edit in the Code tab, not the Fields tab's
- * behind-the-scenes auto-insertion (which stays wrapper-free by design —
- * see `withField` in `app/settings/templates.tsx`). Also the seed value new
+ * user can see and edit in the Code tab. Also the seed value new
  * templates start from and what "Reset to default" restores.
  */
 export const DEFAULT_FRONT_TEMPLATE = `<div class="dc-front">
@@ -126,7 +123,7 @@ export const CONDITIONAL_EXAMPLE = `{% if gender %}
 
 /** List-typed fields need a real {% for %} loop to render at all (a bare {{ synonyms }} would
  * print "[object Object]" for a list of objects) — hasTemplateField checks for the loop, not the
- * bare variable, for these. Shared with settings/templates.tsx's Fields tab, whose toggles use
+ * bare variable, for these. Shared with the template editor's Fields tab, whose toggles use
  * this same heuristic to decide on/off. */
 export const LOOP_TEMPLATE_FIELDS = new Set(['other_meanings', 'synonyms', 'phrases'])
 
@@ -175,9 +172,9 @@ export interface CardTemplateContext {
   audio: string
   image: string
   cloze: string
-  /** The cloze sentence with each blank shown as a visible placeholder — the review front. See CLOZE_FRONT_TEMPLATE. */
+  /** The cloze sentence with each blank shown as a visible placeholder — the review front. */
   cloze_blanked: string
-  /** The cloze sentence with every blank revealed and highlighted — the review back. See CLOZE_BACK_TEMPLATE. */
+  /** The cloze sentence with every blank revealed and highlighted — the review back. */
   cloze_revealed: string
   context_hint: string | null
 }
@@ -192,10 +189,7 @@ export interface CardTemplateContext {
  *        both expose a `{{ translation }}` placeholder (see TEMPLATE_VARIABLES/
  *        CLOZE_TEMPLATE_VARIABLES), but they mean two different things: the selected example's
  *        translation for a vocab card, the cloze sentence's own translation for a cloze card.
- *        Previously this always preferred the example's translation and the cloze branch was
- *        unreachable (a card almost always has an example too), so a cloze card silently showed
- *        an unrelated example's translation instead of its own. Defaults to 'vocab' since that's
- *        every caller predating cloze-mode review.
+ *        Defaults to 'vocab' since that's every caller predating cloze-mode review.
  */
 export function buildCardContext(args: {
   lemma: Lemma
@@ -208,8 +202,8 @@ export function buildCardContext(args: {
 }): CardTemplateContext {
   const primary = args.meanings.find((m) => m.isPrimary) ?? args.meanings[0]
   const selectedExample = args.examples.find((e) => e.isSelected) ?? args.examples[0]
-  // 'unknown' means a manually-added card whose part of speech was never provided (see
-  // app/deck/add-card.tsx) — omit it from the pill rather than showing a fabricated "unknown".
+  // 'unknown' means a manually-added card whose part of speech was never provided — omit it from
+  // the pill rather than showing a fabricated "unknown".
   const genderLabel = [args.lemma.partOfSpeech === 'unknown' ? null : args.lemma.partOfSpeech, args.lemma.gender]
     .filter(Boolean)
     .join(' · ')
@@ -225,8 +219,7 @@ export function buildCardContext(args: {
     example,
     example_highlighted: example ? highlightWord(example, args.lemma.form) : null,
     translation,
-    // Only the two closest — a card back is a quick recall check, not the full curated list the
-    // word detail screen's own Synonyms section (with its evaluate/report controls) shows.
+    // Only the two closest — a card back is a quick recall check, not the full curated list.
     // Synonyms come back in the order the AI generated them (most relevant first, no separate
     // ranking column), so first-two is closest-two.
     synonyms: args.synonyms.slice(0, 2).map((s) => ({ word: s.word, nuance: s.nuance ?? '', formality: s.formality })),
@@ -242,8 +235,8 @@ export function buildCardContext(args: {
 
 const HTML_ESCAPE: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
 
-/** The exact tag shapes FormattableTextInput's toolbar inserts (bold/italic/color) -- the only
- * HTML a manually-typed example sentence is ever allowed to carry. escapeHtmlShell (below) skips
+/** The exact tag shapes a rich-text toolbar (bold/italic/color) can insert -- the only HTML a
+ * manually-typed example sentence is ever allowed to carry. escapeHtmlShell (below) skips
  * escaping these exact matches so highlightWord's target-word mark-wrapping doesn't mangle them
  * into visible escaped text; anything else typed still gets escaped normally. */
 const FORMATTING_TAG_PATTERN = /<\/?(?:b|i|span style="color:#[0-9a-fA-F]{6}")>/g
@@ -264,8 +257,10 @@ function escapeHtmlShell(value: string): string {
  * Common separable-verb prefixes, longest first — checked in order so
  * "zusammen" is tried before its "zu" substring would be. Not exhaustive
  * (German has situational/dialect prefixes too) but covers the common case.
+ * Exported so any other separable-verb-aware logic (e.g. cloze auto-blanking during manual card
+ * creation) uses this exact list instead of hand-copying it.
  */
-const SEPARABLE_PREFIXES = [
+export const SEPARABLE_PREFIXES = [
   'zusammen', 'zurück', 'entgegen', 'gegenüber', 'hinein', 'hinaus', 'heraus', 'herein',
   'wieder', 'entlang', 'vorbei', 'statt', 'durch', 'über', 'unter', 'wider', 'fest',
   'her', 'hin', 'los', 'mit', 'vor', 'weg', 'zu', 'ab', 'an', 'auf', 'aus', 'bei', 'ein',
@@ -325,8 +320,7 @@ function renderClozeBlanked(sentence: string): string {
  * Cloze back: every blank is replaced with its answer, highlighted the same
  * way `highlightWord` marks a vocab card's target word. `Cloze.answer` holds
  * every blank's answer joined with "; ", in the order the blanks appear in
- * `Cloze.sentence` (see packages/database/src/cloze-parse.ts) — split back
- * apart here and consumed positionally.
+ * `Cloze.sentence` — split back apart here and consumed positionally.
  */
 function renderClozeRevealed(sentence: string, answerJoined: string): string {
   const answers = answerJoined
@@ -392,8 +386,8 @@ export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
 
 /**
  * Renders one side of a card (front or back) to a full HTML document string,
- * ready to load into a WebView. Synchronous (LiquidJS's `parseAndRenderSync`
- * — none of Lemmory's templates use async filters/tags) so callers can use
+ * ready to load into a WebView (mobile) or an iframe (desktop). Synchronous (LiquidJS's
+ * `parseAndRenderSync` — none of Lemmory's templates use async filters/tags) so callers can use
  * it directly during render without extra async state. Falls back to a
  * visible error message instead of throwing — a malformed template (bad
  * Liquid syntax) shouldn't crash the review session or the editor's live

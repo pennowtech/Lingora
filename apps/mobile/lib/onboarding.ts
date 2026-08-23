@@ -1,17 +1,14 @@
 import * as SecureStore from 'expo-secure-store'
-import type { CefrLevel, LanguageCode } from '@lingora/types'
+import {
+  APP_LANGUAGE_STORE_KEY,
+  ONBOARDING_CEFR_KEY,
+  ONBOARDING_COMPLETED_KEY,
+  ONBOARDING_NATIVE_LANG_KEY,
+  ONBOARDING_TARGET_LANG_KEY,
+  type OnboardingPreferences,
+} from '@lingora/core'
 
-const ONBOARDING_COMPLETED_KEY = 'lingora.onboarding_completed'
-const STORED_NATIVE_LANG_KEY = 'lingora.native_language'
-const STORED_TARGET_LANG_KEY = 'lingora.target_language'
-const STORED_CEFR_KEY = 'lingora.default_cefr'
-const APP_LANGUAGE_STORE_KEY = 'lingora.app_language'
-
-export interface OnboardingPreferences {
-  nativeLanguage: LanguageCode
-  targetLanguage: LanguageCode
-  level: CefrLevel
-}
+export type { OnboardingPreferences }
 
 export async function isOnboardingCompleted(): Promise<boolean> {
   try {
@@ -33,9 +30,9 @@ export async function setOnboardingCompleted(completed: boolean): Promise<void> 
 export async function saveOnboardingPreferences(prefs: OnboardingPreferences): Promise<void> {
   try {
     await Promise.all([
-      SecureStore.setItemAsync(STORED_NATIVE_LANG_KEY, prefs.nativeLanguage),
-      SecureStore.setItemAsync(STORED_TARGET_LANG_KEY, prefs.targetLanguage),
-      SecureStore.setItemAsync(STORED_CEFR_KEY, prefs.level),
+      SecureStore.setItemAsync(ONBOARDING_NATIVE_LANG_KEY, prefs.nativeLanguage),
+      SecureStore.setItemAsync(ONBOARDING_TARGET_LANG_KEY, prefs.targetLanguage),
+      SecureStore.setItemAsync(ONBOARDING_CEFR_KEY, prefs.level),
       SecureStore.setItemAsync(APP_LANGUAGE_STORE_KEY, prefs.nativeLanguage),
       SecureStore.setItemAsync(ONBOARDING_COMPLETED_KEY, 'true'),
     ])

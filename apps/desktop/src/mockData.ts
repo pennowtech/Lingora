@@ -7,6 +7,9 @@ export interface WordLemma {
   /** Whether any card of this lemma is already in a deck — set by SearchLookupScreen from
    * searchLemmasWithPreview's LemmaSearchPreview.inDeck, undefined for a not-yet-saved word. */
   inDeck?: boolean;
+  /** How the lemma's card was created (from LemmaSearchPreview.source) — drives the small source
+   * badge in the results list, undefined for a not-yet-saved word. */
+  source?: import('@lingora/types').CardSource | null;
   frequency: number;
   grammar: {
     partOfSpeech: string;

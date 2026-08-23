@@ -1,12 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
+import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
 import { useDesktopServices } from '../services/desktopServices';
-import { getClustersForLemma, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
+import { getClustersForLemma, getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError } from '@lingora/ai';
+import { PROVIDER_META_DATA, SOURCE_LABELS, type GenerationProviderName } from '@lingora/core';
+import type { CardSource } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
+
+/** Small per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers,
+ * using desktop's own lucide-react/brand-icon assets instead of mobile's PNG logos. */
+const SOURCE_ICONS: Partial<Record<CardSource, React.ReactNode>> = {
+  openai: <Bot size={12} />,
+  mistral: <Bot size={12} />,
+  gemini: <Bot size={12} />,
+  anthropic: <Bot size={12} />,
+  deepseek: <DeepSeekIcon size={12} />,
+  groq: <GroqIcon size={12} />,
+  google: <Globe size={12} />,
+  deepl: <Globe size={12} />,
+  word_guide: <BookOpen size={12} />,
+  manual: <Pencil size={12} />,
+  local: <Sparkles size={12} />,
+};
+
+/** A dictionary provider's `.name` ('google-translate', 'deepl', or a generation provider name
+ * when it fills this slot too) isn't a label fit for the "X Active" badge below. */
+function dictionaryProviderLabel(name: string): string {
+  if (name === 'google-translate') return 'Google Translate';
+  if (name === 'deepl') return 'DeepL';
+  return PROVIDER_META_DATA[name as GenerationProviderName]?.label ?? name;
+}
 
 /** Debounce the raw input so a real search runs per typing pause, not per keystroke — same idea
  * as apps/mobile's Search screen's useDebounced. */
@@ -26,7 +53,7 @@ interface SearchLookupScreenProps {
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard }) => {
-  const { db, dictionary, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
+  const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, addNewDeck } = useDesktopServices();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
@@ -156,6 +183,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       // Settings → Translation) — replaces the old bidirectional-translate-and-check-echo heuristic
       // with the same detectSearchLanguage helper apps/mobile's Search screen uses.
       let dictionaryTranslation = '';
+      // Free, offline lookup against the installed word-guides dictionary — checked before any AI
+      // call, same priority order as apps/mobile's Search screen (word guide wins over quick-explain).
+      let guideEntry: Awaited<ReturnType<typeof getWordGuide>> = null;
+      // A short AI gist, only fetched when there's no free guide entry and a validated generation
+      // provider is configured — mirrors apps/mobile's Search screen's quickExplain.
+      let quickExplainText = '';
       if (!exactMatch) {
         try {
           const source = await detectSearchLanguage(dictionary, trimmed, nativeLanguage, targetLanguage);
@@ -164,6 +197,23 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           dictionaryTranslation = result.data;
         } catch (err) {
           console.warn('[Search & Lookup] Dictionary translation failed:', err);
+        }
+
+        if (db) {
+          try {
+            guideEntry = await getWordGuide(db, trimmed, targetLanguage);
+          } catch (err) {
+            console.warn('[Search & Lookup] Word guide lookup failed:', err);
+          }
+        }
+
+        if (!guideEntry && activeAiProvider) {
+          try {
+            const result = await activeAiProvider.explainWord(trimmed, { cefrLevel, language: targetLanguage, nativeLanguage });
+            quickExplainText = result.data;
+          } catch (err) {
+            console.warn('[Search & Lookup] AI quick-explain failed:', err);
+          }
         }
       }
 
@@ -214,6 +264,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             pos: l.partOfSpeech || 'noun',
             gender: l.gender as any,
             inDeck: preview.inDeck,
+            source: preview.source,
             cefr: preview.cefrLevel || dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
             frequency: 250 + idx * 75,
             grammar: {
@@ -231,29 +282,46 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
       // A genuinely new word (no exact match) always gets its own synthetic "Generate with AI"
       // entry, even alongside prefix matches — prepended so it's the first, most relevant result
-      // for what was actually typed.
+      // for what was actually typed. Prefers the free installed word guide, then a short AI
+      // quick-explain gist, then falls back to a plain dictionary translation — same priority
+      // order as apps/mobile's Search screen.
       if (!exactMatch) {
+        const translation = guideEntry?.translation || dictionaryTranslation || trimmed;
+        const definition = guideEntry
+          ? guideEntry.intro
+          : quickExplainText || (
+              dictionaryTranslation
+                ? `Instant dictionary translation for "${trimmed}": "${dictionaryTranslation}".`
+                : `No dictionary translation available for "${trimmed}" yet.`
+            );
+        const examples = guideEntry && guideEntry.examples.length > 0
+          ? guideEntry.examples.map(e => ({ de: e.sentence, en: e.translation }))
+          : [{ de: `Ein Satz mit ${trimmed}.`, en: `A sentence with ${trimmed}.` }];
+        const context = guideEntry ? 'Installed Dictionary' : quickExplainText ? 'AI Insight' : 'Dictionary';
+        const cefrNotes = guideEntry
+          ? `From your installed dictionary. Click "Generate with AI" for a full CEFR card package.`
+          : quickExplainText
+            ? `AI quick-explanation. Click "Generate with AI" for the full card.`
+            : `Live dictionary result for "${trimmed}". Click "Generate with AI" for a full CEFR card package.`;
+
         const newWord: WordLemma = {
           id: `search-${Date.now()}`,
-          form: trimmed,
-          pos: 'word',
+          form: guideEntry?.headword || trimmed,
+          pos: guideEntry?.partOfSpeech || 'word',
+          gender: (guideEntry?.gender === 'masculine' ? 'der' : guideEntry?.gender === 'feminine' ? 'die' : guideEntry?.gender === 'neuter' ? 'das' : undefined) as any,
           cefr: 'B1-B2',
           frequency: 500,
           grammar: {
-            partOfSpeech: 'Vocabulary Word',
-            cefrNotes: `Live dictionary result for "${trimmed}". Click "Generate with AI" for a full CEFR card package.`
+            partOfSpeech: guideEntry?.partOfSpeech || 'Vocabulary Word',
+            cefrNotes
           },
           clusters: [
             {
               id: `cluster-search-${Date.now()}`,
-              context: 'Dictionary',
-              translation: dictionaryTranslation || trimmed,
-              definition: dictionaryTranslation
-                ? `Instant dictionary translation for "${trimmed}": "${dictionaryTranslation}".`
-                : `No dictionary translation available for "${trimmed}" yet.`,
-              examples: [
-                { de: `Ein Satz mit ${trimmed}.`, en: `A sentence with ${trimmed}.` }
-              ]
+              context,
+              translation,
+              definition,
+              examples
             }
           ],
           surfaceForms: [trimmed]
@@ -315,11 +383,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
-        const providerLabel =
-          selectedGenerationProvider === 'openai' ? 'OpenAI' :
-          selectedGenerationProvider === 'mistral' ? 'Mistral' :
-          selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic Claude';
-        setGenerationError(formatUserFriendlyProviderError(providerLabel, err));
+        setGenerationError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
       }
     } finally {
       setIsGeneratingAI(false);
@@ -384,7 +448,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                Generating with {selectedGenerationProvider === 'openai' ? 'OpenAI' : selectedGenerationProvider === 'mistral' ? 'Mistral' : selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic Claude'}
+                Generating with {PROVIDER_META_DATA[selectedGenerationProvider].label}
               </div>
               <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                 Building semantic clusters, meanings, and examples for <strong style={{ color: 'var(--accent-primary)' }}>"{selectedWord.form}"</strong>
@@ -535,7 +599,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               {hasSearched ? `Search Results (${searchResults.length})` : `Database Words (${searchResults.length})`}
             </span>
             <span className="badge badge-sky" style={{ fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Globe size={11} /> Google Translate Active
+              <Globe size={11} /> {dictionaryProviderLabel(dictionary.name)} Active
             </span>
           </div>
 
@@ -558,7 +622,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {word.source && SOURCE_ICONS[word.source] && (
+                      <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
+                        {SOURCE_ICONS[word.source]}
+                      </span>
+                    )}
                     {word.form}
                   </span>
                   <span className="badge badge-indigo">{word.cefr}</span>
@@ -603,7 +672,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               </div>
               <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Globe size={15} color="var(--info)" />
-                Google Translation: <strong>"{selectedWord.clusters[0]?.translation}"</strong>
+                Translation: <strong>"{selectedWord.clusters[0]?.translation}"</strong>
               </div>
             </div>
 
@@ -618,7 +687,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 style={{ padding: '10px 14px', fontSize: '13px' }}
               >
                 <Sparkles size={16} color="var(--success)" />
-                <span>{`Generate with ${selectedGenerationProvider === 'openai' ? 'OpenAI' : selectedGenerationProvider === 'mistral' ? 'Mistral' : selectedGenerationProvider === 'gemini' ? 'Gemini' : 'Claude'}`}</span>
+                <span>{`Generate with ${PROVIDER_META_DATA[selectedGenerationProvider].label}`}</span>
               </button>
 
               <button 

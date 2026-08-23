@@ -5,6 +5,7 @@ import { DeckPickerModal } from '../components/DeckPickerModal';
 import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { useDesktopServices } from '../services/desktopServices';
 import { getClustersForLemma } from '@lingora/database';
+import { formatUserFriendlyProviderError } from '@lingora/ai';
 
 interface SearchLookupScreenProps {
   words: WordLemma[];
@@ -277,7 +278,11 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
-        alert(err.message || 'AI generation failed. Check your API key in Settings.');
+        const providerLabel =
+          selectedGenerationProvider === 'openai' ? 'OpenAI' :
+          selectedGenerationProvider === 'mistral' ? 'Mistral' :
+          selectedGenerationProvider === 'gemini' ? 'Google Gemini' : 'Anthropic Claude';
+        setGenerationError(formatUserFriendlyProviderError(providerLabel, err));
       }
     } finally {
       setIsGeneratingAI(false);
@@ -366,6 +371,57 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             >
               <X size={14} />
               Cancel Generation
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* AI Generation Error Modal — was a raw native alert() showing the technical exception
+          message (e.g. "TypeError: Failed to fetch"); now a friendly, dismissable message via
+          formatUserFriendlyProviderError, matching the generating modal's styling. */}
+      {generationError && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          backdropFilter: 'blur(6px)',
+          animation: 'fadeIn 0.15s ease-out'
+        }}>
+          <div style={{
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '20px',
+            padding: '36px 40px',
+            width: '420px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '20px',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.4)'
+          }}>
+            <div style={{
+              width: '64px', height: '64px', borderRadius: '50%',
+              backgroundColor: 'var(--bg-glass)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <AlertCircle size={28} color="var(--danger)" />
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                Generation failed
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                {generationError}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setGenerationError(null)}
+              className="btn btn-secondary"
+              style={{ fontSize: '13px', padding: '8px 24px' }}
+            >
+              Dismiss
             </button>
           </div>
         </div>

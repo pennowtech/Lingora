@@ -581,9 +581,10 @@ const ENGLISH_PHRASES = [
   // Newly added — capture-intent (share/select-text), help sheets, and general UI polish
   '"Add to deck" at the bottom is how you start reviewing this word - you can add it to more than one deck, or create a new one on the spot.',
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.',
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.',
   '"Follow device" just matches whatever language your phone is already set to.',
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.',
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.",
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.',
   'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.',
@@ -591,6 +592,7 @@ const ENGLISH_PHRASES = [
   'A short summary',
   'AI Providers',
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.',
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.',
   'Accent color swatches write a custom property at the top of your CSS:',
   'Add "{{term}}" to...',
   'Add a key in AI Providers to enable',
@@ -997,6 +999,17 @@ const ENGLISH_PHRASES = [
   'English translation',
   'Add cloze card',
   'Save cloze card',
+
+  // Newly added — word detail screen's help sheet was stale/incomplete against the actual UI
+  // (missing Custom Grammar Rule, Delete, the synonym/phrase AI buttons, and cloze editing)
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.',
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.',
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.',
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.',
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.',
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.',
 ] as const
 
 type Phrase = (typeof ENGLISH_PHRASES)[number]
@@ -1595,12 +1608,14 @@ const de: Partial<Record<Phrase, string>> = {
     '„Zu Stapel hinzufügen" unten ist der Weg, um mit diesem Wort zu üben - du kannst es zu mehreren Stapeln hinzufügen oder direkt einen neuen erstellen.',
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.':
     '„KI fragen" öffnet einen kleinen Chat, in dem du eine Anschlussfrage zu genau diesem Wort stellen kannst.',
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.':
-    '„Erklären" (oder „Mehr Infos" bei einer KI-generierten Karte) zeigt bzw. erweitert eine leicht verständliche Erklärung des Worts und seiner Verwendung.',
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.':
+    '„Erklären" (oder „Mehr Infos" bei einer KI-generierten Karte) zeigt bzw. erweitert eine direkte Erklärung, was das Wort bedeutet und wo oder warum man es verwendet.',
   '"Follow device" just matches whatever language your phone is already set to.':
     '„Gerätesprache verwenden" übernimmt einfach die Sprache, die dein Handy bereits eingestellt hat.',
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.':
     '„Mit KI erzeugen" erstellt eine vollständige Erklärkarte mit Bedeutungen, Beispielen, Grammatik und mehr - mit dem KI-Anbieter, den du in den Einstellungen eingerichtet hast.',
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.':
+    'Die Vorschau „KI-Einblicke" liefert eine kurze, direkte Erklärung, was das Wort bedeutet und wo oder warum man es verwendet - tippe jederzeit darauf, um die vollständige Karte zu erzeugen.',
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.":
     '„Neu erzeugen" verwirft die Bedeutungen, Beispiele, Synonyme, Redewendungen und Lückentext-Karten dieser Karte und erstellt alles neu - nützlich, wenn die aktuelle Version nicht zu dir passt. Das kann nicht rückgängig gemacht werden.',
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.':
@@ -1613,6 +1628,8 @@ const de: Partial<Record<Phrase, string>> = {
   'AI Providers': 'KI-Anbieter',
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.':
     'KI-generiert - Erklärungen können ungenau sein. Überprüfe wichtige Details mit einer vertrauenswürdigen Quelle.',
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.':
+    'Bei einer KI-generierten Karte gibt die kurze Erklärung direkt unter der Übersetzung unmittelbar an, was das Wort bedeutet und wo oder warum man es verwendet - kein Rätsel zum Selbst-Herausfinden.',
   'Accent color swatches write a custom property at the top of your CSS:':
     'Akzentfarb-Kacheln schreiben eine benutzerdefinierte Eigenschaft an den Anfang deines CSS:',
   'Add "{{term}}" to...': '„{{term}}" hinzufügen zu...',
@@ -2170,6 +2187,23 @@ const de: Partial<Record<Phrase, string>> = {
   'English translation': 'Englische Übersetzung',
   'Add cloze card': 'Lückentext-Karte hinzufügen',
   'Save cloze card': 'Lückentext-Karte speichern',
+
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.':
+    'Unter jedem Beispiel kannst du mit Daumen hoch/runter markieren, ob es gut ist oder später nochmal geprüft werden sollte. Das Flag-Symbol meldet ein konkretes Problem (z. B. unnatürliche Formulierung oder einen Grammatikfehler) mit optionaler Notiz. Der Kreispfeil erzeugt einen frischen Satz Beispiele für diese Bedeutung - dasselbe wie "Weitere Beispiele erzeugen" unter der Liste.',
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.':
+    'Die gewünschte Struktur ist nicht dabei? Trag sie unter "Eigene Grammatikregel" ein und tippe auf +, um sie zur Auswahl hinzuzufügen - sie wird genau so, wie geschrieben, zusammen mit den ausgewählten Chips an die KI gesendet.',
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.':
+    '„Gezielte Beispiele erzeugen" ersetzt die aktuellen Beispiele durch neue, die genau deine Auswahl üben. Auf diese Weise erzeugte Beispiele bekommen einen hervorgehobenen Hintergrund, damit du sie erkennst.',
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.':
+    'Mit dem Stift-Symbol bearbeitest du Bedeutung oder Beispieltext direkt (nur bei Karten aus dem Wörterbuch - eine KI-Karte nutzt stattdessen Regenerieren und die einzelnen KI-Werkzeuge). Das Papierkorb-Symbol löscht diese Karte endgültig, nach einer Bestätigung. Das letzte Symbol öffnet eine schnelle Websuche zum Wort, für eine zweite Meinung außerhalb der App.',
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.':
+    'Synonyme sind andere Wörter mit ähnlicher Bedeutung - nützlich, um deinen Wortschatz rund um dieses Wort zu erweitern. Tippe auf das Funkeln-Symbol bei einem Synonym, um KI-Infos zu Verwendung & Nuance abzurufen - wie förmlich es ist und was es vom Stichwort unterscheidet. Das Symbol daneben öffnet dieses Synonym als eigene Karteikarte.',
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.':
+    'Redewendungen zeigen dieses Wort in gängigen Ausdrücken oder Wortkombinationen, bei Bedarf abgerufen: Tippe beim ersten Mal auf „Mit KI entdecken" oder auf „Weitere mit KI laden", wenn du schon welche hast.',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.':
+    '„Zu Lückentext hinzufügen" (oder „Lückentext bearbeiten", sobald einer existiert) unten öffnet den Editor, vorausgefüllt mit dem aktuell ausgewählten Beispiel. Wähle ein Wort oder eine Phrase im Satz aus und tippe auf „Als Lücke markieren", um es auszublenden - standardmäßig wird das Stichwort selbst ausgeblendet - passe dann die Übersetzung an und speichere.',
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
+    'Beim Speichern wird immer der bestehende Lückentext-Satz dieser Karte ersetzt statt ein zweiter hinzugefügt - es gibt immer nur einen pro Karte.',
 }
 
 const fr: Partial<Record<Phrase, string>> = {
@@ -2759,12 +2793,14 @@ const fr: Partial<Record<Phrase, string>> = {
     "« Ajouter au paquet » en bas te permet de commencer à réviser ce mot - tu peux l'ajouter à plusieurs paquets, ou en créer un nouveau sur-le-champ.",
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.':
     "« Demander à l'IA » ouvre un petit chat où tu peux poser une question complémentaire sur ce mot précis.",
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.':
-    "« Expliquer » (ou « Plus d'infos » sur une carte générée par IA) affiche ou développe une explication en langage simple du mot et de son usage.",
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.':
+    "« Expliquer » (ou « Plus d'infos » sur une carte générée par IA) affiche ou développe une explication directe de ce que le mot signifie et où ou pourquoi on l'utilise.",
   '"Follow device" just matches whatever language your phone is already set to.':
     "« Suivre l'appareil » adopte simplement la langue déjà définie sur ton téléphone.",
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.':
     "« Générer avec l'IA » crée une carte d'explication complète avec sens, exemples, grammaire et plus, en utilisant le fournisseur d'IA que tu as configuré dans les Réglages.",
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.':
+    "L'aperçu « Aperçus IA » donne une explication courte et directe de ce que le mot signifie et où ou pourquoi on l'utilise - appuie dessus à tout moment pour générer la carte complète.",
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.":
     '« Régénérer » supprime les sens, exemples, synonymes, expressions et cartes à trous de cette carte, et régénère tout à neuf - utile si la version actuelle ne te convient pas. Cette action est irréversible.',
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.':
@@ -2777,6 +2813,8 @@ const fr: Partial<Record<Phrase, string>> = {
   'AI Providers': "Fournisseurs d'IA",
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.':
     "Généré par IA - les explications peuvent contenir des erreurs. Vérifie les détails importants auprès d'une source fiable.",
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.':
+    "Sur une carte générée par IA, la courte explication juste sous la traduction indique directement ce que le mot signifie et où ou pourquoi on l'utilise - pas un indice à deviner soi-même.",
   'Accent color swatches write a custom property at the top of your CSS:':
     "Les nuances de couleur d'accent inscrivent une propriété personnalisée en haut de ton CSS :",
   'Add "{{term}}" to...': 'Ajouter « {{term}} » à...',
@@ -3325,6 +3363,23 @@ const fr: Partial<Record<Phrase, string>> = {
   'English translation': 'Traduction anglaise',
   'Add cloze card': 'Ajouter une carte lacunaire',
   'Save cloze card': 'Enregistrer la carte lacunaire',
+
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.':
+    "Sous chaque exemple, pouce en haut/en bas te permet d'indiquer s'il est bon ou à vérifier plus tard. L'icône drapeau signale un problème précis (formulation peu naturelle, erreur de grammaire...) avec une note facultative. La flèche circulaire régénère un nouveau lot d'exemples pour ce sens - comme « Générer plus d'exemples » sous la liste.",
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.':
+    "Tu ne trouves pas la structure voulue ? Saisis la tienne sous « Règle de grammaire personnalisée » et appuie sur + pour l'ajouter à la sélection - elle est envoyée à l'IA telle quelle, avec les puces déjà choisies.",
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.':
+    "« Générer des exemples ciblés » remplace les exemples actuels par de nouveaux, écrits pour pratiquer ta sélection. Les exemples générés ainsi ont un fond mis en évidence, pour que tu puisses les repérer.",
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.':
+    "L'icône crayon te permet de modifier directement le sens ou le texte d'exemple (cartes issues du dictionnaire uniquement - une carte IA utilise plutôt Régénérer et les outils IA par champ). L'icône poubelle supprime définitivement cette carte, après confirmation. La dernière icône ouvre une recherche web rapide pour le mot, pour un second avis en dehors de l'appli.",
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.':
+    "Les synonymes sont d'autres mots de sens proche, utiles pour élargir ton vocabulaire autour de ce mot. Appuie sur l'icône étincelle d'un synonyme pour obtenir l'usage et la nuance donnés par l'IA - son degré de formalité et ce qui le distingue du mot vedette. L'icône à côté ouvre ce synonyme comme sa propre carte.",
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.':
+    'Les expressions montrent ce mot utilisé dans des tournures ou combinaisons courantes, récupérées à la demande : appuie sur « Explorer avec l\'IA » la première fois, ou sur « Charger plus avec l\'IA » pour un nouveau lot une fois que tu en as déjà.',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.':
+    "« Ajouter au texte lacunaire » (ou « Modifier le texte lacunaire » une fois qu'il en existe un) en bas ouvre l'éditeur pré-rempli avec l'exemple actuellement sélectionné. Sélectionne un mot ou une expression dans la phrase et appuie sur « Marquer comme lacune » pour le masquer - par défaut, c'est le mot vedette lui-même qui est masqué - puis ajuste la traduction et enregistre.",
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
+    "L'enregistrement remplace toujours la phrase lacunaire existante de cette carte plutôt que d'en ajouter une seconde - il n'y en a jamais qu'une seule par carte.",
 }
 
 const es: Partial<Record<Phrase, string>> = {
@@ -3912,12 +3967,14 @@ const es: Partial<Record<Phrase, string>> = {
     '"Añadir a mazo" en la parte inferior es cómo empiezas a repasar esta palabra: puedes añadirla a más de un mazo o crear uno nuevo al instante.',
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.':
     '"Preguntar a la IA" abre un pequeño chat donde puedes escribir una pregunta de seguimiento sobre esta palabra en concreto.',
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.':
-    '"Explicar" (o "Más info" en una tarjeta generada por IA) muestra o amplía una explicación en lenguaje sencillo de la palabra y cómo se usa.',
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.':
+    '"Explicar" (o "Más info" en una tarjeta generada por IA) muestra o amplía una explicación directa de qué significa la palabra y dónde o por qué se usa.',
   '"Follow device" just matches whatever language your phone is already set to.':
     '"Seguir al dispositivo" simplemente usa el idioma que ya tiene configurado tu teléfono.',
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.':
     '"Generar con IA" crea una tarjeta explicativa completa con significados, ejemplos, gramática y más, usando el proveedor de IA que hayas configurado en Ajustes.',
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.':
+    'La vista previa "Información de IA" ofrece una explicación breve y directa de qué significa la palabra y dónde o por qué se usa - tócala en cualquier momento para generar la tarjeta completa.',
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.":
     '"Regenerar" descarta los significados, ejemplos, sinónimos, frases y tarjetas de huecos de esta tarjeta, y genera todo de nuevo desde cero; útil si la versión actual no te está funcionando. Esto no se puede deshacer.',
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.':
@@ -3930,6 +3987,8 @@ const es: Partial<Record<Phrase, string>> = {
   'AI Providers': 'Proveedores de IA',
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.':
     'Generado por IA: las explicaciones pueden ser inexactas. Comprueba los detalles importantes con una fuente de confianza.',
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.':
+    'En una tarjeta generada por IA, la breve explicación justo debajo de la traducción indica directamente qué significa la palabra y dónde o por qué se usa - no es una pista para que la adivines tú.',
   'Accent color swatches write a custom property at the top of your CSS:':
     'Las muestras de color de acento escriben una propiedad personalizada al principio de tu CSS:',
   'Add "{{term}}" to...': 'Añadir "{{term}}" a...',
@@ -4479,6 +4538,23 @@ const es: Partial<Record<Phrase, string>> = {
   'English translation': 'Traducción al inglés',
   'Add cloze card': 'Añadir tarjeta de huecos',
   'Save cloze card': 'Guardar tarjeta de huecos',
+
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.':
+    'Debajo de cada ejemplo, el pulgar arriba/abajo te permite indicar si es bueno o si conviene revisarlo después. El icono de bandera reporta un problema concreto (como una frase poco natural o un error gramatical) con una nota opcional. La flecha circular genera un nuevo lote de ejemplos para este sentido - lo mismo que hace "Generar más ejemplos" debajo de la lista.',
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.':
+    '¿No encuentras la estructura que buscas? Escribe la tuya en "Regla gramatical personalizada" y toca el + para añadirla a la selección - se envía a la IA tal cual la escribiste, junto con los chips ya elegidos.',
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.':
+    '"Generar ejemplos dirigidos" reemplaza los ejemplos actuales por otros nuevos, escritos para practicar tu selección. Los ejemplos generados así tienen un fondo resaltado, para que puedas identificarlos.',
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.':
+    'El icono de lápiz te permite editar directamente el significado o el texto del ejemplo (solo en tarjetas del diccionario - una tarjeta de IA usa Regenerar y las herramientas de IA por campo en su lugar). El icono de papelera elimina esta tarjeta por completo, tras confirmar. El último icono abre una búsqueda web rápida de la palabra, para una segunda opinión fuera de la app.',
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.':
+    'Los sinónimos son otras palabras de significado similar, útiles para ampliar tu vocabulario alrededor de esta palabra. Toca el icono de destello en uno para obtener uso y matiz según la IA - qué tan formal es y qué lo diferencia de la palabra principal. El icono de al lado abre ese sinónimo como su propia tarjeta.',
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.':
+    'Las frases muestran esta palabra usada en expresiones o combinaciones comunes, obtenidas bajo demanda: toca "Explorar con IA" la primera vez, o "Cargar más con IA" para otro lote una vez que ya tienes algunas.',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.':
+    '"Añadir a hueco" (o "Editar hueco" una vez que existe uno) en la parte inferior abre el editor precargado con el ejemplo actualmente seleccionado. Selecciona una palabra o frase en la oración y toca "Marcar como hueco" para ocultarla - por defecto oculta la propia palabra principal - luego ajusta la traducción y guarda.',
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
+    'Guardar siempre reemplaza la oración de huecos existente de esta tarjeta en lugar de añadir una segunda - solo puede haber una por tarjeta.',
 }
 
 const hi: Partial<Record<Phrase, string>> = {
@@ -5068,12 +5144,14 @@ const hi: Partial<Record<Phrase, string>> = {
     '"Add to deck" नीचे दिया गया है और इस शब्द की रिव्यू शुरू करने का तरीका है - आप इसे एक से ज़्यादा डेक में जोड़ सकते हैं, या तुरंत एक नया डेक बना सकते हैं।',
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.':
     '"Ask AI" एक छोटी चैट खोलता है, जहां आप इस शब्द से जुड़ा कोई और सवाल टाइप कर सकते हैं।',
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.':
-    '"Explain" (या AI-जनरेटेड कार्ड पर "More info") शब्द और उसके इस्तेमाल की आसान भाषा में व्याख्या दिखाता या खोलता है।',
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.':
+    '"Explain" (या AI-जनरेटेड कार्ड पर "More info") शब्द का सीधा मतलब और उसे कहां या क्यों इस्तेमाल किया जाता है, यह दिखाता या खोलता है।',
   '"Follow device" just matches whatever language your phone is already set to.':
     '"Follow device" बस आपके फ़ोन की मौजूदा भाषा से मेल खाता है।',
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.':
     '"Generate with AI" आपके Settings में सेट किए गए AI प्रोवाइडर की मदद से अर्थ, उदाहरण, व्याकरण और बाकी सब कुछ वाला पूरा एक्सप्लेनेशन कार्ड बनाता है।',
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.':
+    '"AI Insights" प्रीव्यू शब्द का सीधा और छोटा मतलब और उसे कहां या क्यों इस्तेमाल किया जाता है, यह बताता है - पूरा फ्लैशकार्ड बनाने के लिए इसे कभी भी टैप करें।',
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.":
     '"Regenerate" इस कार्ड के अर्थ, उदाहरण, समानार्थी शब्द, वाक्यांश और क्लोज़ कार्ड हटाकर सब कुछ नए सिरे से बनाता है - अगर मौजूदा वर्शन आपके काम का नहीं है तो यह मददगार है। इसे वापस नहीं किया जा सकता।',
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.':
@@ -5086,6 +5164,8 @@ const hi: Partial<Record<Phrase, string>> = {
   'AI Providers': 'AI प्रोवाइडर्स',
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.':
     'AI-जनरेटेड - व्याख्या ग़लत भी हो सकती है। ज़रूरी जानकारी को किसी भरोसेमंद स्रोत से ज़रूर जांच लें।',
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.':
+    'AI-जनरेटेड कार्ड पर, अनुवाद के ठीक नीचे दी गई छोटी व्याख्या सीधे बताती है कि शब्द का मतलब क्या है और उसे कहां या क्यों इस्तेमाल किया जाता है - यह कोई पहेली नहीं है जिसे आपको खुद सुलझाना हो।',
   'Accent color swatches write a custom property at the top of your CSS:':
     'Accent कलर स्वॉच आपके CSS के ऊपर एक कस्टम प्रॉपर्टी लिख देते हैं:',
   'Add "{{term}}" to...': '"{{term}}" को इसमें जोड़ें...',
@@ -5629,6 +5709,23 @@ const hi: Partial<Record<Phrase, string>> = {
   'English translation': 'अंग्रेज़ी अनुवाद',
   'Add cloze card': 'क्लोज़ कार्ड जोड़ें',
   'Save cloze card': 'क्लोज़ कार्ड सहेजें',
+
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.':
+    'हर उदाहरण के नीचे, थम्ब्स अप/डाउन से आप बता सकते हैं कि यह अच्छा है या बाद में फिर से जांचने लायक है। फ्लैग आइकन किसी खास समस्या (जैसे अस्वाभाविक भाषा या व्याकरण की गलती) को ऐच्छिक नोट के साथ रिपोर्ट करता है। गोल तीर इस अर्थ के लिए उदाहरणों का एक नया सेट बनाता है - बिल्कुल वैसे ही जैसे लिस्ट के नीचे "और उदाहरण जनरेट करें" करता है।',
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.':
+    'चाहा हुआ पैटर्न नहीं दिख रहा? "Custom Grammar Rule" में अपना खुद का टाइप करें और उसे चुनाव में जोड़ने के लिए + पर टैप करें - यह जैसा लिखा है वैसा ही, चुनी गई चिप्स के साथ AI को भेजा जाता है।',
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.':
+    '"Generate targeted examples" मौजूदा उदाहरणों को नए उदाहरणों से बदल देता है जो आपके चुनाव पर आधारित हों। इस तरह बने उदाहरणों को हाइलाइट किया गया बैकग्राउंड मिलता है, ताकि आप उन्हें पहचान सकें।',
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.':
+    'पेंसिल आइकन से आप मतलब या उदाहरण टेक्स्ट सीधे एडिट कर सकते हैं (सिर्फ डिक्शनरी से मिले कार्ड पर - AI कार्ड पर इसकी जगह Regenerate और अलग-अलग फील्ड के AI टूल इस्तेमाल होते हैं)। ट्रैश आइकन पुष्टि के बाद इस कार्ड को पूरी तरह मिटा देता है। आखिरी आइकन शब्द के लिए ऐप के बाहर दूसरी राय पाने के लिए एक जल्दी वेब सर्च खोलता है।',
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.':
+    'पर्यायवाची शब्द मिलते-जुलते मतलब वाले दूसरे शब्द हैं, जो इस शब्द के आसपास आपकी शब्दावली बढ़ाने में मदद करते हैं। किसी पर्यायवाची पर स्पार्कल आइकन टैप करके AI से उसका इस्तेमाल और बारीकियां जानें - यह कितना औपचारिक है और मुख्य शब्द से कैसे अलग है। बगल वाला आइकन उस पर्यायवाची को उसके अपने फ्लैशकार्ड के रूप में खोलता है।',
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.':
+    'वाक्यांश इस शब्द को आम अभिव्यक्तियों या शब्द-संयोजनों में दिखाते हैं, जिन्हें ज़रूरत पर लाया जाता है: पहली बार "Explore with AI" पर टैप करें, या पहले से कुछ होने पर और पाने के लिए "Load more with AI" पर टैप करें।',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.':
+    'नीचे दिया "Add to Cloze" (या एक बार बन जाने पर "Edit Cloze") बटन मौजूदा चुने गए उदाहरण के साथ पहले से भरा हुआ एडिटर खोलता है। वाक्य में कोई शब्द या वाक्यांश चुनें और उसे छिपाने के लिए "Mark as cloze" पर टैप करें - यह डिफ़ॉल्ट रूप से मुख्य शब्द को ही छिपाता है - फिर अनुवाद ठीक करें और सेव करें।',
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
+    'सेव करने पर हमेशा इस कार्ड का मौजूदा क्लोज़ वाक्य बदल जाता है, दूसरा नहीं जुड़ता - हर कार्ड पर हमेशा सिर्फ एक ही होता है।',
 }
 
 const vi: Partial<Record<Phrase, string>> = {
@@ -5636,12 +5733,14 @@ const vi: Partial<Record<Phrase, string>> = {
     'Nút "Thêm vào bộ thẻ" ở dưới cùng là cách bạn bắt đầu ôn từ này - bạn có thể thêm vào nhiều bộ thẻ, hoặc tạo bộ mới ngay tại chỗ.',
   '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.':
     'Nút "Hỏi AI" mở một khung chat nhỏ để bạn đặt câu hỏi thêm về từ này.',
-  '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.':
-    'Nút "Giải thích" (hoặc "Xem thêm" trên thẻ do AI tạo) hiển thị hoặc mở rộng phần giải thích dễ hiểu về từ và cách dùng.',
+  '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.':
+    'Nút "Giải thích" (hoặc "Xem thêm" trên thẻ do AI tạo) hiển thị hoặc mở rộng phần giải thích trực tiếp về nghĩa của từ và nơi hoặc lý do dùng từ đó.',
   '"Follow device" just matches whatever language your phone is already set to.':
     '"Theo máy" chỉ đơn giản là dùng đúng ngôn ngữ mà điện thoại của bạn đang cài đặt.',
   '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.':
     'Nút "Tạo bằng AI" tạo một thẻ giải thích đầy đủ gồm nghĩa, ví dụ, ngữ pháp và nhiều hơn nữa, dùng nhà cung cấp AI bạn đã thiết lập trong Cài đặt.',
+  'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.':
+    'Bản xem trước "AI Insights" đưa ra phần giải thích ngắn gọn, trực tiếp về nghĩa của từ và nơi hoặc lý do dùng từ đó - chạm vào bất cứ lúc nào để tạo thẻ đầy đủ.',
   "\"Regenerate\" throws away this card's meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn't working for you. This can't be undone.":
     'Nút "Tạo lại" sẽ xóa bỏ toàn bộ nghĩa, ví dụ, từ đồng nghĩa, cụm từ và thẻ điền khuyết của thẻ này, rồi tạo lại từ đầu - hữu ích nếu phiên bản hiện tại chưa phù hợp với bạn. Không thể hoàn tác thao tác này.',
   '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.':
@@ -5665,6 +5764,8 @@ const vi: Partial<Record<Phrase, string>> = {
   'AI not configured': 'Chưa thiết lập AI',
   'AI-generated - explanations can be inaccurate. Check important details against a trusted reference.':
     'Do AI tạo ra - phần giải thích có thể không chính xác. Hãy kiểm tra lại các chi tiết quan trọng với nguồn đáng tin cậy.',
+  'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.':
+    'Trên thẻ do AI tạo, phần giải thích ngắn ngay dưới bản dịch nói thẳng nghĩa của từ và nơi hoặc lý do dùng từ đó - không phải gợi ý để bạn tự đoán.',
   'API keys stay on this device (Expo SecureStore) and are never included in exports or backups.':
     'Khóa API được lưu ngay trên thiết bị này (Expo SecureStore) và không bao giờ được đưa vào bản xuất hay bản sao lưu.',
   About: 'Giới thiệu',
@@ -6779,6 +6880,23 @@ const vi: Partial<Record<Phrase, string>> = {
   'English translation': 'Bản dịch tiếng Anh',
   'Add cloze card': 'Thêm thẻ điền khuyết',
   'Save cloze card': 'Lưu thẻ điền khuyết',
+
+  'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.':
+    'Bên dưới mỗi ví dụ, nút thích/không thích giúp bạn đánh dấu nó tốt hay cần kiểm tra lại sau. Biểu tượng cờ báo một vấn đề cụ thể (như diễn đạt không tự nhiên hoặc lỗi ngữ pháp) kèm ghi chú tùy chọn. Mũi tên tròn tạo một loạt ví dụ mới cho nghĩa này - giống hệt nút "Tạo thêm ví dụ" bên dưới danh sách.',
+  'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.':
+    'Không thấy mẫu ngữ pháp bạn muốn? Gõ mẫu của riêng bạn vào "Custom Grammar Rule" rồi nhấn + để thêm vào lựa chọn - nó được gửi cho AI đúng như bạn đã gõ, cùng với các thẻ đã chọn.',
+  '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.':
+    '"Generate targeted examples" thay các ví dụ hiện tại bằng ví dụ mới được viết để luyện đúng lựa chọn của bạn. Các ví dụ tạo theo cách này có nền được làm nổi bật, để bạn nhận ra chúng.',
+  'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.':
+    'Biểu tượng cây bút cho phép bạn chỉnh sửa trực tiếp nghĩa hoặc văn bản ví dụ (chỉ với thẻ lấy từ từ điển - thẻ AI dùng Regenerate và các công cụ AI riêng cho từng trường thay vào đó). Biểu tượng thùng rác xóa hẳn thẻ này sau khi xác nhận. Biểu tượng cuối cùng mở nhanh một tìm kiếm trên web cho từ này, để có thêm ý kiến khác ngoài ứng dụng.',
+  'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.':
+    'Từ đồng nghĩa là những từ khác có nghĩa gần giống, giúp mở rộng vốn từ quanh từ này. Nhấn biểu tượng lấp lánh trên một từ đồng nghĩa để lấy thông tin cách dùng & sắc thái từ AI - mức độ trang trọng và điểm khác với từ chính. Biểu tượng bên cạnh mở từ đồng nghĩa đó thành thẻ riêng của nó.',
+  'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.':
+    'Cụm từ cho thấy từ này được dùng trong các cách diễn đạt hoặc tổ hợp từ thông dụng, được lấy khi cần: nhấn "Explore with AI" lần đầu, hoặc "Load more with AI" để lấy thêm khi đã có sẵn một số.',
+  '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.':
+    'Nút "Add to Cloze" (hoặc "Edit Cloze" khi đã có sẵn) ở dưới cùng mở trình chỉnh sửa với ví dụ đang chọn được điền sẵn. Chọn một từ hoặc cụm từ trong câu rồi nhấn "Mark as cloze" để ẩn nó - mặc định sẽ ẩn chính từ chính - sau đó chỉnh bản dịch và lưu lại.',
+  'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
+    'Lưu luôn thay thế câu điền khuyết hiện có của thẻ này thay vì thêm câu thứ hai - mỗi thẻ chỉ có duy nhất một câu.',
 }
 
 export const resources = {

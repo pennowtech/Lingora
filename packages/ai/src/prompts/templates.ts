@@ -92,7 +92,15 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
-    version: 5, // v5: conversational explanations (no academic "<word> means that..." or "This term denotes...")
+    // v6: the LEMMA section now tells the model to use the searched word's own casing as a
+    // part-of-speech disambiguation signal where the target language's orthography makes that
+    // meaningful (German capitalizes every common noun) — confirmed in the wild that "Ausreden"/
+    // "ausreden" and "Schweigen"/"schweigen" (real German noun/verb minimal pairs distinguished
+    // only by capitalization) were both generated as nouns regardless of which form was actually
+    // searched, since capitalization was previously only ever mentioned as an output-formatting
+    // rule, never as evidence the model should read from its own input.
+    // v5: conversational explanations (no academic "<word> means that..." or "This term denotes...")
+    version: 6,
 
     template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
 
@@ -112,6 +120,7 @@ LEMMA
 - lemma.language must be exactly "{{targetLanguageCode}}".
 - partOfSpeech must be exact. For nouns include the grammatical gender and the plural form when the language marks them; for everything else (or a language without that feature) set gender and/or plural to null.
 - Capitalize the lemma and inflections exactly as {{targetLanguage}}'s own orthography requires (e.g. German nouns are always capitalized; most other languages are not).
+- If {{targetLanguage}}'s orthography makes capitalization a meaningful signal (German: every common noun is capitalized, so a lowercase input word is essentially never a noun), and "{{word}}" as actually typed is genuinely ambiguous between two parts of speech, use its exact capitalization to resolve it rather than picking whichever reading is more common overall — e.g. German "ausreden" (lowercase) is the verb "to talk someone out of something", while "Ausreden" (capitalized) is the plural noun "excuses"; "schweigen" is the verb "to be silent", "Schweigen" is the noun "silence". Ignore this rule entirely for a language where casing carries no such meaning.
 
 INFLECTIONS
 - List the surface forms a learner will actually meet (key conjugations for verbs, plural/case forms for nouns, comparative/superlative for adjectives). 3–8 forms, without the lemma itself.
@@ -276,12 +285,15 @@ Text: {{text}}`,
    */
   explainWord: {
     name: 'explain_word',
-    version: 3, // v3: hard 30-word cap (was 50) for the Search card's tighter space; allows sparing basic markdown
+    // v4: name what the word actually is and where/why it's used, directly — v3 explicitly offered
+    // "Think of this when..." as an acceptable opener, which reads as a hint or riddle rather than an
+    // explanation and was the single most common shape the model actually produced.
+    version: 4,
     template: `You are a friendly {{targetLanguage}} language mentor explaining a word to a learner in a warm, natural, human voice in {{nativeLanguage}}.
 
 ${ANTI_SWAP_WARNING}
 
-Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. Speak naturally and directly — NEVER use dry textbook formulas like "{{word}} means that..." or "This term denotes...". (e.g. "Think of this when...", "Used when..."). One short, natural sentence or two — 30 words or fewer, no exceptions. No examples, no lists, no headings, just the explanation itself. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans. Return strict JSON only: {"explanation": "..."}`,
+Explain the {{targetLanguage}} word "{{word}}" for a {{cefrLevel}} learner, written in {{nativeLanguage}}. State directly what it is (or what it means) and where or why it's used — do not open with "Think of...", "Used when...", "Imagine...", or any other hint-style or riddle-style framing that makes the learner infer the meaning themselves; say it outright. Also avoid dry textbook formulas like "{{word}} means that..." or "This term denotes...". One short, natural sentence or two — 30 words or fewer, no exceptions. No examples, no lists, no headings, just the explanation itself. You may use basic markdown sparingly where it genuinely helps: **bold** for emphasis, *italics* for a nuance, or \`code\` for an exact word form — never more than one or two spans. Return strict JSON only: {"explanation": "..."}`,
   },
   /**
    * The word detail screen's "More info" sheet, fetched on demand (only once the learner taps the

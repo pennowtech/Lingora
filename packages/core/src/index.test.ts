@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_QUESTION_TYPES, pickEligibleTypes, shuffleArray, worstRating } from './index'
+import { ALL_QUESTION_TYPES, guessPartOfSpeechFromCasing, pickEligibleTypes, shuffleArray, worstRating } from './index'
 
 describe('pickEligibleTypes', () => {
   it('returns only enabled types the card is eligible for', () => {
@@ -69,5 +69,37 @@ describe('worstRating', () => {
 describe('ALL_QUESTION_TYPES', () => {
   it('contains exactly the five known formats', () => {
     expect([...ALL_QUESTION_TYPES].sort()).toEqual(['cloze', 'mcq', 'reverse', 'trueFalse', 'vocab'].sort())
+  })
+})
+
+describe('guessPartOfSpeechFromCasing', () => {
+  it('guesses noun for a capitalized German word', () => {
+    expect(guessPartOfSpeechFromCasing('Ausreden', 'de')).toBe('noun')
+    expect(guessPartOfSpeechFromCasing('Schweigen', 'de')).toBe('noun')
+  })
+
+  it('guesses verb for a lowercase German word - the exact noun/verb minimal pairs this exists for', () => {
+    expect(guessPartOfSpeechFromCasing('ausreden', 'de')).toBe('verb')
+    expect(guessPartOfSpeechFromCasing('schweigen', 'de')).toBe('verb')
+  })
+
+  it('returns unknown for a language that does not capitalize common nouns, regardless of casing', () => {
+    expect(guessPartOfSpeechFromCasing('House', 'en')).toBe('unknown')
+    expect(guessPartOfSpeechFromCasing('house', 'en')).toBe('unknown')
+    expect(guessPartOfSpeechFromCasing('Maison', 'fr')).toBe('unknown')
+  })
+
+  it('returns unknown for an empty or whitespace-only word', () => {
+    expect(guessPartOfSpeechFromCasing('', 'de')).toBe('unknown')
+    expect(guessPartOfSpeechFromCasing('   ', 'de')).toBe('unknown')
+  })
+
+  it('is not fooled by leading whitespace when checking the first real character', () => {
+    expect(guessPartOfSpeechFromCasing('  Wand', 'de')).toBe('noun')
+    expect(guessPartOfSpeechFromCasing('  wandern', 'de')).toBe('verb')
+  })
+
+  it('treats a word with no case distinction (leading digit/symbol) as lowercase, not capitalized', () => {
+    expect(guessPartOfSpeechFromCasing('123', 'de')).toBe('verb')
   })
 })

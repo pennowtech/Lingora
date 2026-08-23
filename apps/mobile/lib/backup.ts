@@ -48,9 +48,9 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
  * own cards via `createDeckBackup`, export-only (a deck `.lin` has no
  * matching restore path, see `createDeckBackup`'s doc comment) — and saves
  * it (`saveExportFile` — a real folder picker on Android, the share sheet
- * elsewhere). `.lin` — the Lingora backup format's own extension. The
+ * elsewhere). `.lin` — the Lemmory backup format's own extension. The
  * content is still plain JSON (`BackupPayload`, unchanged) — this is a
- * naming/branding decision (a backup is "a Lingora file", not "a JSON
+ * naming/branding decision (a backup is "a Lemmory file", not "a JSON
  * file" to the user), not a new serialization. `.lin` has no registered
  * system MIME type, so the share sheet and file picker below use
  * `application/octet-stream` rather than `application/json`.
@@ -77,7 +77,7 @@ export async function exportBackupToFile(
     fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lin`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
-    dialogTitle: 'Save Lingora backup',
+    dialogTitle: 'Save Lemmory backup',
   })
   log.info('export.backup_shared', {
     message: `Backup file ${outcome === 'device' ? 'saved to device' : 'shared'}`,

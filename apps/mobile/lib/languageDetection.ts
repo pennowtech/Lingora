@@ -3,7 +3,7 @@ import type { DictionaryProvider } from '@lingora/ai'
 import { isNetworkError } from './networkError'
 
 /**
- * Lingora only ever cares about two configured languages (native/target) — but the dictionary's
+ * Lemmory only ever cares about two configured languages (native/target) — but the dictionary's
  * `detectLanguage` does a blind guess across every language it knows, which can land on neither
  * one for a short or ambiguous word (e.g. "reden" is also a real Dutch word, so Google's auto-
  * detect sometimes returns 'nl' for a plain German search). Previously that made the whole

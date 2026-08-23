@@ -43,7 +43,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
-import { requestCloudSync, useCloudSync } from '../../lib/cloudSync'
+import { CloudSyncNotConfiguredError, requestCloudSync, useCloudSync } from '../../lib/cloudSync'
 import { collectDescendantIds } from '../../lib/deckTree'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
@@ -311,7 +311,18 @@ export default function DecksScreen(): JSX.Element {
     setExportDeck(null)
   }
 
+  // Unlike the Sync settings screen, this header icon has no disabled state to fall back on when
+  // no account is connected - check up front so tapping it shows a helpful nudge instead of
+  // round-tripping into CloudSyncNotConfiguredError's technical message (also kept as a fallback
+  // in the catch below, in case the account signs out between this check and the request).
   const handleSyncNow = (): void => {
+    if (!sync.account) {
+      setExportNotice({
+        title: t('Sync not connected'),
+        message: t('Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.'),
+      })
+      return
+    }
     requestCloudSync(db)
       .then(async (summary) => {
         await invalidateDecks()
@@ -320,7 +331,16 @@ export default function DecksScreen(): JSX.Element {
           message: t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', { ...summary }),
         })
       })
-      .catch((error: unknown) => showError(t('Sync failed'), error))
+      .catch((error: unknown) => {
+        if (error instanceof CloudSyncNotConfiguredError) {
+          setExportNotice({
+            title: t('Sync not connected'),
+            message: t('Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.'),
+          })
+          return
+        }
+        showError(t('Sync failed'), error)
+      })
   }
 
   const allDecks = allDecksQuery.data ?? []
@@ -373,36 +393,41 @@ export default function DecksScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setActionMenuOpen(false)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
-          <Button
-            testID="action-menu-add-deck"
-            label={t('Add deck')}
-            icon="albums-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setCreateOpen(true)
-            }}
-          />
-          <Button
-            testID="action-menu-add-card"
-            label={t('Add card')}
-            icon="add-circle-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setAddCardPickerOpen(true)
-            }}
-          />
-          <Button
-            testID="action-menu-import"
-            label={t('Import file')}
-            icon="download-outline"
-            variant="secondary"
-            onPress={() => {
-              setActionMenuOpen(false)
-              setImportPickerOpen(true)
-            }}
-          />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — at large system font/display
+              scaling this content can grow taller than the screen, and without a scroll container
+              the overflow was simply unreachable, cut off at the screen edge. */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalSheetScrollContent}>
+            <Button
+              testID="action-menu-add-deck"
+              label={t('Add deck')}
+              icon="albums-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setCreateOpen(true)
+              }}
+            />
+            <Button
+              testID="action-menu-add-card"
+              label={t('Add card')}
+              icon="add-circle-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setAddCardPickerOpen(true)
+              }}
+            />
+            <Button
+              testID="action-menu-import"
+              label={t('Import file')}
+              icon="download-outline"
+              variant="secondary"
+              onPress={() => {
+                setActionMenuOpen(false)
+                setImportPickerOpen(true)
+              }}
+            />
+          </ScrollView>
         </View>
       </Modal>
 
@@ -465,7 +490,7 @@ export default function DecksScreen(): JSX.Element {
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
               <Button
-                label={create.isPending ? t('Creating…') : t('Create deck')}
+                label={create.isPending ? t('Creating...') : t('Create deck')}
                 icon="add"
                 disabled={create.isPending}
                 onPress={() => create.mutate()}
@@ -480,6 +505,11 @@ export default function DecksScreen(): JSX.Element {
         <Pressable style={styles.modalBackdrop} onPress={() => setMenuDeck(null)} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — the 2x2 quick-action grid plus the
+              5-row list group is already a lot of vertical content, and at large system
+              font/display scaling it can grow taller than the screen. Without a scroll container
+              here the overflow was simply unreachable, cut off at the screen edge. */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalSheetScrollContent}>
           {menuDeck ? (
             <>
               <View style={styles.menuHeader}>
@@ -571,6 +601,7 @@ export default function DecksScreen(): JSX.Element {
               </View>
             </>
           ) : null}
+          </ScrollView>
         </View>
       </Modal>
 
@@ -593,7 +624,7 @@ export default function DecksScreen(): JSX.Element {
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setRenameDeckTarget(null)} disabled={rename.isPending} />
               <Button
-                label={rename.isPending ? t('Saving…') : t('Save')}
+                label={rename.isPending ? t('Saving...') : t('Save')}
                 disabled={rename.isPending || renameValue.trim() === ''}
                 onPress={() => rename.mutate()}
               />
@@ -628,8 +659,8 @@ export default function DecksScreen(): JSX.Element {
               <>
                 <Text style={styles.modalTitle}>
                   {pickerMode === 'move'
-                    ? t('Move "{{name}}" to…', { name: pickerDeck.name })
-                    : t('Merge "{{name}}" into…', { name: pickerDeck.name })}
+                    ? t('Move "{{name}}" to...', { name: pickerDeck.name })
+                    : t('Merge "{{name}}" into...', { name: pickerDeck.name })}
                 </Text>
                 <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
                   {pickerMode === 'move' ? (
@@ -733,7 +764,7 @@ export default function DecksScreen(): JSX.Element {
         title={t('Reset progress?')}
         message={
           resetConfirmDeck
-            ? t('Every card in "{{name}}" goes back to "new" — word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
+            ? t('Every card in "{{name}}" goes back to "new" - word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
                 name: resetConfirmDeck.name,
               })
             : ''
@@ -873,7 +904,13 @@ const createStyles = (colors: ThemeColors) =>
     borderTopRightRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
+    // At large system font/display scaling this sheet's content (especially the per-deck menu's
+    // 2x2 grid + row list) can grow taller than the screen — capped here and made scrollable
+    // (see the ScrollView wrapping each sheet's content) instead of silently overflowing the
+    // screen edge with no way to reach the rest.
+    maxHeight: '85%',
   },
+  modalSheetScrollContent: { gap: spacing.md },
   modalHandle: {
     alignSelf: 'center',
     width: 40,

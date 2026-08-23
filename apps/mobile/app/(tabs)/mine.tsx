@@ -45,7 +45,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'What this screen is for',
     icon: 'download-outline',
     paragraphs: [
-      'Queue is a holding area for sentences you want to turn into vocabulary cards later — nothing here happens automatically.',
+      'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.',
       'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
     ],
   },
@@ -55,7 +55,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'checkbox-outline',
     paragraphs: [
       'Everything in the queue is selected by default. Tap a card to include or leave it out, or use the trash icon to remove it for good.',
-      'Only bother with this if you want to be selective — otherwise everything gets turned into cards together.',
+      'Only bother with this if you want to be selective - otherwise everything gets turned into cards together.',
     ],
   },
   {
@@ -64,7 +64,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'sparkles-outline',
     paragraphs: [
       'The button at the bottom turns your selected sentences into real vocabulary cards, one at a time.',
-      'This is the one step that actually does the work — nothing before it does anything with your captured text.',
+      'This is the one step that actually does the work - nothing before it does anything with your captured text.',
     ],
   },
   {
@@ -72,7 +72,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding from other apps',
     icon: 'share-outline',
     paragraphs: [
-      'Found a sentence somewhere else, like an article or a message? Share it to Lingora the same way you\'d share it to any other app.',
+      'Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you\'d share it to any other app.',
       'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.',
     ],
   },
@@ -175,7 +175,7 @@ export default function MiningQueueScreen(): JSX.Element {
 
       for (const [index, entry] of chosen.entries()) {
         if (generateCancelledRef.current) break
-        setProgress(`Generating ${index + 1} of ${chosen.length}…`)
+        setProgress(`Generating ${index + 1} of ${chosen.length}...`)
         try {
           await updateMineEntryStatus(db, entry.id, 'processing')
           const outcome = await pipeline.lookupOrGenerate(entry.rawText.trim(), {
@@ -273,40 +273,45 @@ export default function MiningQueueScreen(): JSX.Element {
   )
 
   const progressOverlay = (
-    <ProgressOverlay visible={generate.isPending} message={progress ?? t('Generating…')} onCancel={cancelGenerate} />
+    <ProgressOverlay visible={generate.isPending} message={progress ?? t('Generating...')} onCancel={cancelGenerate} />
   )
 
   const captureModal = (
     <Modal visible={captureOpen} animationType="slide" transparent onRequestClose={closeCapture}>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
-          <Text style={styles.modalHint}>
-            {t('Paste or type a German sentence. It joins the queue below — nothing is sent to AI until you generate.')}
-          </Text>
-          <TextInput
-            testID="mine-capture-input"
-            style={styles.modalInput}
-            multiline
-            placeholder="Ich gehe heute Abend aus."
-            placeholderTextColor={colors.textMuted}
-            value={captureText}
-            onChangeText={(text) => {
-              setCaptureText(text)
-              setCaptureSource('manual')
-            }}
-          />
-          <Button
-            label={t('Paste from clipboard')}
-            variant="secondary"
-            icon="clipboard-outline"
-            onPress={handlePasteFromClipboard}
-            small
-          />
+          {/* Capped + scrollable (see modalSheet's maxHeight) — the hint text plus the multiline
+              input can grow taller than the screen at large system font/display scaling; the
+              Cancel/Add row stays pinned outside the scroll. */}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
+            <Text style={styles.modalHint}>
+              {t('Paste or type a German sentence. It joins the queue below - nothing is sent to AI until you generate.')}
+            </Text>
+            <TextInput
+              testID="mine-capture-input"
+              style={styles.modalInput}
+              multiline
+              placeholder="Ich gehe heute Abend aus."
+              placeholderTextColor={colors.textMuted}
+              value={captureText}
+              onChangeText={(text) => {
+                setCaptureText(text)
+                setCaptureSource('manual')
+              }}
+            />
+            <Button
+              label={t('Paste from clipboard')}
+              variant="secondary"
+              icon="clipboard-outline"
+              onPress={handlePasteFromClipboard}
+              small
+            />
+          </ScrollView>
           <View style={styles.modalActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={closeCapture} />
             <Button
-              label={capture.isPending ? t('Adding…') : t('Add to queue')}
+              label={capture.isPending ? t('Adding...') : t('Add to queue')}
               onPress={() => capture.mutate({ text: captureText.trim(), source: captureSource })}
               disabled={captureText.trim().length === 0 || capture.isPending}
             />
@@ -353,7 +358,7 @@ export default function MiningQueueScreen(): JSX.Element {
         <EmptyState
           icon="download"
           title={t('Queue is empty')}
-          message={t('Add a sentence manually, paste one from your clipboard, or capture text from the share sheet — it lands here before any AI processing.')}
+          message={t('Add a sentence manually, paste one from your clipboard, or capture text from the share sheet - it lands here before any AI processing.')}
         />
         {generate.data && generate.data.total > 0 ? (
           <Text style={styles.resultLabel}>
@@ -362,7 +367,7 @@ export default function MiningQueueScreen(): JSX.Element {
               total: generate.data.total,
             })}
             {generate.data.failures > 0 ? ` · ${t('{{count}} failed', { count: generate.data.failures })}` : ''}
-            {' — '}
+            {' - '}
             {t('see Decks.')}
           </Text>
         ) : null}
@@ -425,7 +430,7 @@ export default function MiningQueueScreen(): JSX.Element {
           />
         ) : (
           <Button
-            label={t('No AI provider active — open Settings')}
+            label={t('No AI provider active - open Settings')}
             icon="key"
             variant="secondary"
             onPress={() => router.push('/settings')}
@@ -442,7 +447,7 @@ export default function MiningQueueScreen(): JSX.Element {
         db={db}
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
-        title={t('Generate {{count}} cards to…', { count: selectedIds.length })}
+        title={t('Generate {{count}} cards to...', { count: selectedIds.length })}
         onSelectDeck={(deck) => {
           setDeckPickerOpen(false)
           generate.mutate(deck.id)
@@ -513,7 +518,12 @@ const createStyles = (colors: ThemeColors) =>
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.md,
+    // At large system font/display scaling this content can grow taller than the screen — capped
+    // here and made scrollable (see the ScrollView wrapping it) instead of silently overflowing
+    // the screen edge with no way to reach the rest.
+    maxHeight: '85%',
   },
+  modalScrollContent: { gap: spacing.md },
   modalTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
   modalHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
   modalInput: {

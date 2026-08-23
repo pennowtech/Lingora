@@ -33,7 +33,7 @@ export const TABLE_COLUMNS = {
   lemmas: ['id', 'form', 'language', 'gender', 'plural', 'part_of_speech', 'created_at', 'updated_at'],
   inflections: ['id', 'form', 'lemma_id', 'features', 'created_at', 'updated_at'],
   decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji'],
-  meaning_clusters: ['id', 'label', 'description', 'lemma_id', 'cefr_level', 'order_index'],
+  meaning_clusters: ['id', 'label', 'description', 'lemma_id', 'cefr_level', 'order_index', 'more_info'],
   cards: ['id', 'lemma_id', 'deck_id', 'type', 'primary_meaning_id', 'created_at', 'updated_at', 'suspended_at', 'source', 'native_language'],
   meanings: [
     'id',
@@ -111,7 +111,7 @@ export const TABLE_COLUMNS = {
     'reps',
     'learning_steps',
   ],
-  review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms'],
+  review_events: ['id', 'card_id', 'review_date', 'rating', 'duration_ms', 'question_type'],
   sentence_mining_queue: [
     'id',
     'raw_text',
@@ -124,6 +124,7 @@ export const TABLE_COLUMNS = {
     'card_id',
   ],
   evaluations: ['id', 'target_type', 'target_id', 'rating', 'reason', 'note', 'created_at'],
+  card_chat_messages: ['id', 'card_id', 'role', 'content', 'created_at'],
 } as const
 
 export type BackupTableName = keyof typeof TABLE_COLUMNS
@@ -152,6 +153,7 @@ export const TABLE_ORDER: readonly BackupTableName[] = [
   'review_events',
   'sentence_mining_queue',
   'evaluations',
+  'card_chat_messages',
 ]
 
 /** Non-secret preferences worth restoring — never an API key (those stay in SecureStore only). */
@@ -360,8 +362,10 @@ export async function createDeckBackup(
   }
   // Included in full, not filtered — see the doc comment above.
   const INCLUDE_ALL: readonly BackupTableName[] = ['templates', 'prompt_versions']
-  // Not deck-scoped data at all — omitted entirely from a deck export.
-  const OMIT: readonly BackupTableName[] = ['sentence_mining_queue', 'evaluations']
+  // Not deck-scoped data at all — omitted entirely from a deck export. card_chat_messages is
+  // additionally personal (a learner's own private conversation about a word) — never something to
+  // hand to whoever a deck gets shared with, even though it's included in a full personal backup.
+  const OMIT: readonly BackupTableName[] = ['sentence_mining_queue', 'evaluations', 'card_chat_messages']
 
   const tables: BackupPayload['tables'] = {}
   let rowCount = 0

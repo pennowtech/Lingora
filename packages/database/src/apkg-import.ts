@@ -1,5 +1,6 @@
 import type { CefrLevel, LanguageCode, PartOfSpeech } from '@lingora/types'
 import { logger } from '@lingora/observability'
+import { guessPartOfSpeechFromCasing } from '@lingora/core'
 import type { DatabaseAdapter } from './adapter'
 import { importRow, parseListField, resolveWordAndMeaning, type DuplicatePolicy } from './import-shared'
 import { getLemmaByForm } from './repositories/lemmas'
@@ -222,8 +223,10 @@ export type ApkgField = 'word' | 'meaning' | 'cloze' | 'example' | 'exampleTrans
 
 export type ApkgFieldMapping = Partial<Record<ApkgField, number>>
 
-/** Every imported note's part-of-speech/CEFR level — no per-note mapping for these, just a sane fallback (see ApkgField's doc comment). */
-const FALLBACK_PART_OF_SPEECH: PartOfSpeech = 'noun'
+/** Every imported note's CEFR level — no per-note mapping for it, just a sane fallback (see
+ * ApkgField's doc comment). Part of speech has no per-note mapping either, but isn't a single
+ * fixed fallback the way CEFR is — see guessPartOfSpeechFromCasing's call site below, which uses
+ * each note's own word and casing instead of hardcoding every note to 'noun' regardless of content. */
 const FALLBACK_CEFR_LEVEL: CefrLevel = 'A1'
 
 export interface ApkgImportOptions {
@@ -296,7 +299,8 @@ export async function buildApkgImportPreview(
       cardType,
     })
 
-    const partOfSpeech = FALLBACK_PART_OF_SPEECH
+    const guessedPartOfSpeech = guessPartOfSpeechFromCasing(word, options.language)
+    const partOfSpeech = guessedPartOfSpeech === 'unknown' ? 'noun' : guessedPartOfSpeech
     const cefrLevel = FALLBACK_CEFR_LEVEL
 
     const synonymsRaw = field(note.fields, mapping.synonyms)

@@ -23,7 +23,7 @@ function slug(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'lingora'
+    .replace(/^-+|-+$/g, '') || 'lemmory'
 }
 
 /** `YYYY-MM-DD_HHmm` in local time — filesystem-safe (no colons) and sorts chronologically. */
@@ -38,7 +38,7 @@ function timestampForFileName(date: Date = new Date()): string {
 /** `deckname_YYYY-MM-DD_HHmm` — the default name offered in the export-name prompt (see
  * ExportNameModal), editable before the export actually runs. */
 export function defaultExportFileName(deckName?: string): string {
-  return `${slug(deckName ?? 'lingora')}_${timestampForFileName()}`
+  return `${slug(deckName ?? 'lemmory')}_${timestampForFileName()}`
 }
 
 /** SAF's writeAsStringAsync only takes a string — bytes go through base64 (no Hermes atob/btoa dependency). */
@@ -84,7 +84,7 @@ export async function saveExportFile(options: SaveFileOptions): Promise<SaveOutc
 
   const result = await StorageAccessFramework.requestDirectoryPermissionsAsync()
   if (!result.granted) {
-    log.info('export.save_folder_declined', { message: 'User did not grant a save folder — falling back to the share sheet' })
+    log.info('export.save_folder_declined', { message: 'User did not grant a save folder - falling back to the share sheet' })
     return saveViaShareSheet(options)
   }
 

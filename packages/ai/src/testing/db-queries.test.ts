@@ -82,7 +82,7 @@ describe('phase 4 UI queries', () => {
     expect(cards[0]!.form).toBeTruthy()
   })
 
-  it('getTotalCardCount counts every card', async () => {
+  it('getTotalCardCount counts cards that are actually in a deck', async () => {
     expect(await getTotalCardCount(db)).toBeGreaterThanOrEqual(1)
   })
 

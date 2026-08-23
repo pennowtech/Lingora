@@ -1,11 +1,22 @@
-import type { CefrLevel, LanguageCode } from '@lingora/types'
+import type { CefrLevel, LanguageCode, QuestionType } from '@lingora/types'
 import { logger } from '@lingora/observability'
+import { useQueryClient } from '@tanstack/react-query'
+import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import { AlertModal, Card, Chip, ConfirmModal, Dropdown, SectionHeader } from '../../components/ui'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AlertModal, Card, Chip, ConfirmModal, Dropdown, IconButton, SectionHeader } from '../../components/ui'
 import { isAppLanguage, setAppLanguagePreference, type AppLanguage } from '../../lib/i18n'
+import {
+  DEFAULT_SESSION_CARD_LIMIT,
+  getSessionCardLimit,
+  NO_SESSION_LIMIT,
+  SESSION_CARD_LIMIT_OPTIONS,
+  setSessionCardLimit,
+} from '../../lib/reviewSession'
+import { ALL_QUESTION_TYPES, getEnabledQuestionTypes, QUESTION_TYPE_META, setEnabledQuestionTypes } from '../../lib/reviewTypes'
 import {
   DEFAULT_NATIVE_LANGUAGE,
   DEFAULT_TARGET_LANGUAGE,
@@ -15,8 +26,22 @@ import {
   useServices,
 } from '../../lib/services'
 import { cefrColors, spacing, type } from '../../lib/theme'
-import { useThemedStyles } from '../../lib/ThemeContext'
+import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+import { getNotificationTime, setNotificationTime, type NotificationTime } from '../../lib/wordOfTheDay'
+
+/** Every hour on the hour, 6am–10pm — plenty of granularity for "roughly when do you want your
+ * daily word," without a native time-picker dependency this app doesn't otherwise need. */
+const NOTIFICATION_TIME_OPTIONS: NotificationTime[] = Array.from({ length: 17 }, (_, i) => ({
+  hour: i + 6,
+  minute: 0,
+}))
+
+function formatHour(hour: number): string {
+  const period = hour < 12 ? 'AM' : 'PM'
+  const twelveHour = hour % 12 === 0 ? 12 : hour % 12
+  return `${twelveHour}:00 ${period}`
+}
 
 const log = logger.child({ feature: 'settings', screen: 'LearningScreen' })
 
@@ -34,17 +59,68 @@ const VOCAB_LANGUAGE_LABELS: Record<LanguageCode, string> = {
 
 const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
+/** One explanation per section, behind a single "?" in the header (and a per-card "?" jumping
+ * straight to that section) instead of a gray hint paragraph under every field — same pattern as
+ * settings/tts.tsx and settings/templates.tsx (see components/HelpAccordion.tsx). */
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'cefr',
+    title: 'Default CEFR level',
+    icon: 'school-outline',
+    paragraphs: ['Examples and explanations are calibrated to this level.'],
+  },
+  {
+    id: 'languages',
+    title: 'Language pair',
+    icon: 'language-outline',
+    paragraphs: [
+      '"I speak": explanations and the "More info" follow-up use this language.',
+      '"I\'m learning": new words are looked up and generated in this language.',
+    ],
+  },
+  {
+    id: 'questionTypes',
+    title: 'Practice question types',
+    icon: 'shuffle-outline',
+    paragraphs: [
+      'Mixed practice presents due cards in a random mix of whichever formats are enabled here.',
+      'Cloze here is scored separately from the dedicated Cloze Practice mode.',
+    ],
+  },
+  {
+    id: 'sessionLimit',
+    title: 'Cards per session',
+    icon: 'layers-outline',
+    paragraphs: [
+      'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.',
+      'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
+    ],
+  },
+  {
+    id: 'wotd',
+    title: 'Word of the Day reminder',
+    icon: 'notifications-outline',
+    paragraphs: ['When the daily notification for your Home screen word arrives.'],
+  },
+]
+
 /** The "Learning" sub-screen: default CEFR level and the native/target vocabulary language pair.
  * The app's own UI language lives in Settings > General now, alongside Audio Settings — it's an
  * interface preference, not a learning preference. */
 export default function LearningScreen(): JSX.Element {
   const { t, i18n } = useTranslation()
-  const { reloadServices } = useServices()
+  const { reloadServices, tier } = useServices()
+  const queryClient = useQueryClient()
+  const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const help = useHelpAccordion('cefr')
 
   const [cefr, setCefrState] = useState<CefrLevel>('B1')
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
+  const [wotdTime, setWotdTimeState] = useState<NotificationTime>({ hour: 9, minute: 0 })
+  const [enabledTypes, setEnabledTypesState] = useState<QuestionType[]>(['vocab'])
+  const [sessionCardLimit, setSessionCardLimitState] = useState<number>(DEFAULT_SESSION_CARD_LIMIT)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   // The "vice versa" half of general.tsx's app-language cross-prompt: offered right after a
   // native-language change actually applies, not on every render — see setNativeLanguage below.
@@ -74,12 +150,20 @@ export default function LearningScreen(): JSX.Element {
         if ((SUPPORTED_LANGUAGES as readonly string[]).includes(storedTargetLanguage ?? '')) {
           setTargetLanguageState(storedTargetLanguage as LanguageCode)
         }
+        setWotdTimeState(await getNotificationTime())
+        setEnabledTypesState(await getEnabledQuestionTypes())
+        setSessionCardLimitState(await getSessionCardLimit())
       } catch (error) {
         log.error('settings.load_failed', error, { message: 'Failed to load stored learning settings' })
       }
     }
     void load()
   }, [])
+
+  const setWotdTime = (time: NotificationTime): void => {
+    setWotdTimeState(time)
+    void setNotificationTime(time, t)
+  }
 
   const persist = (storeKey: string, value: string): void => {
     void SecureStore.setItemAsync(storeKey, value)
@@ -102,10 +186,42 @@ export default function LearningScreen(): JSX.Element {
     persist(STORE_KEYS.defaultCefr, level)
   }
 
+  // At least one type must stay enabled — otherwise Mixed practice would have nothing eligible to
+  // present and silently fall back to plain vocab every time (see pickEligibleTypes), which reads
+  // as the setting doing nothing rather than as a real constraint.
+  const toggleQuestionType = (questionType: QuestionType): void => {
+    const next =
+      enabledTypes.includes(questionType) && enabledTypes.length > 1
+        ? enabledTypes.filter((qt) => qt !== questionType)
+        : enabledTypes.includes(questionType)
+          ? enabledTypes
+          : [...enabledTypes, questionType]
+    setEnabledTypesState(next)
+    void (async () => {
+      await setEnabledQuestionTypes(next)
+      // Mixed practice is deck-agnostic (one global setting, not per-deck), so invalidating this
+      // one query key is what makes "the next Mixed practice session, on any deck" pick up the
+      // change — without it, review/[deckId].tsx's own ['enabled-question-types'] query could keep
+      // serving a cached pre-change value for up to its 30s staleTime.
+      await queryClient.invalidateQueries({ queryKey: ['enabled-question-types'] })
+    })()
+  }
+
+  // Applies to every review mode (plain/cloze/reverse/mixed), not just Mixed practice — see
+  // lib/reviewSession.ts. Same invalidation reasoning as toggleQuestionType above: without it, an
+  // already-open ['session-card-limit'] query could keep serving the old cap for up to 30s.
+  const setSessionLimit = (limit: number): void => {
+    setSessionCardLimitState(limit)
+    void (async () => {
+      await setSessionCardLimit(limit)
+      await queryClient.invalidateQueries({ queryKey: ['session-card-limit'] })
+    })()
+  }
+
   const warnUnsupportedLanguage = (language: LanguageCode): void => {
     setNotice({
       title: t('Not supported yet'),
-      message: t('{{language}} isn\'t ready yet — English and German are the only languages Lingora fully supports right now.', {
+      message: t('{{language}} isn\'t ready yet - English and German are the only languages Lemmory fully supports right now.', {
         language: t(VOCAB_LANGUAGE_LABELS[language]),
       }),
     })
@@ -156,10 +272,22 @@ export default function LearningScreen(): JSX.Element {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+      {/* One "?" in the native header, opening to the first section — same header-right pattern as
+          settings/tts.tsx and settings/templates.tsx. Per-card "?" buttons below jump straight to
+          their own section instead. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection('cefr')} color={colors.primary} size={22} />
+          ),
+        }}
+      />
       <SectionHeader title={t('Learning')} />
       <Card>
-        <Text style={styles.fieldLabel}>{t('Default CEFR level')}</Text>
-        <Text style={styles.fieldHint}>{t('Examples and explanations are calibrated to this level.')}</Text>
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>{t('Default CEFR level')}</Text>
+          <IconButton icon="help-circle-outline" onPress={() => help.openSection('cefr')} color={colors.textMuted} size={16} />
+        </View>
         <View style={styles.chipRow}>
           {CEFR_LEVELS.map((level) => (
             <Chip
@@ -174,8 +302,10 @@ export default function LearningScreen(): JSX.Element {
       </Card>
 
       <Card>
-        <Text style={styles.fieldLabel}>{t('I speak')}</Text>
-        <Text style={styles.fieldHint}>{t('Explanations and the "More info" follow-up use this language.')}</Text>
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>{t('I speak')}</Text>
+          <IconButton icon="help-circle-outline" onPress={() => help.openSection('languages')} color={colors.textMuted} size={16} />
+        </View>
         <Dropdown
           label={t('I speak')}
           value={nativeLanguage}
@@ -183,7 +313,6 @@ export default function LearningScreen(): JSX.Element {
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
         <Text style={[styles.fieldLabel, styles.languageFieldSpacing]}>{t("I'm learning")}</Text>
-        <Text style={styles.fieldHint}>{t('New words are looked up and generated in this language.')}</Text>
         <Dropdown
           label={t("I'm learning")}
           value={targetLanguage}
@@ -191,6 +320,76 @@ export default function LearningScreen(): JSX.Element {
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
       </Card>
+
+      <Card>
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>{t('Practice question types')}</Text>
+          <IconButton icon="help-circle-outline" onPress={() => help.openSection('questionTypes')} color={colors.textMuted} size={16} />
+        </View>
+        <View style={styles.chipRow}>
+          {ALL_QUESTION_TYPES.map((questionType) => (
+            <Chip
+              key={questionType}
+              label={t(QUESTION_TYPE_META[questionType].label)}
+              selected={enabledTypes.includes(questionType)}
+              onPress={() => toggleQuestionType(questionType)}
+            />
+          ))}
+        </View>
+      </Card>
+
+      <Card>
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>{t('Cards per session')}</Text>
+          <IconButton icon="help-circle-outline" onPress={() => help.openSection('sessionLimit')} color={colors.textMuted} size={16} />
+        </View>
+        <View style={styles.chipRow}>
+          {SESSION_CARD_LIMIT_OPTIONS.map((limit) => (
+            <Chip
+              key={limit}
+              label={String(limit)}
+              selected={sessionCardLimit === limit}
+              onPress={() => setSessionLimit(limit)}
+            />
+          ))}
+          <Chip
+            label={t('No limit')}
+            selected={sessionCardLimit === NO_SESSION_LIMIT}
+            onPress={() => setSessionLimit(NO_SESSION_LIMIT)}
+          />
+        </View>
+      </Card>
+
+      {tier === 'full' ? (
+        <Card>
+          <View style={styles.fieldLabelRow}>
+            <Text style={styles.fieldLabel}>{t('Word of the Day reminder')}</Text>
+            <IconButton icon="help-circle-outline" onPress={() => help.openSection('wotd')} color={colors.textMuted} size={16} />
+          </View>
+          <Dropdown
+            label={t('Word of the Day reminder')}
+            value={`${wotdTime.hour}:${wotdTime.minute}`}
+            onChange={(value) => {
+              const option = NOTIFICATION_TIME_OPTIONS.find((time) => `${time.hour}:${time.minute}` === value)
+              if (option) setWotdTime(option)
+            }}
+            options={NOTIFICATION_TIME_OPTIONS.map((time) => ({
+              label: formatHour(time.hour),
+              value: `${time.hour}:${time.minute}`,
+            }))}
+          />
+        </Card>
+      ) : null}
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Learning')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={help.setSectionId}
+        translate={t}
+      />
 
       <AlertModal
         visible={notice !== null}
@@ -223,7 +422,7 @@ const createStyles = (colors: ThemeColors) =>
     container: { flex: 1, backgroundColor: colors.background },
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-    fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: 2, marginBottom: spacing.sm },
+    fieldLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     languageFieldSpacing: { marginTop: spacing.md },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
   })

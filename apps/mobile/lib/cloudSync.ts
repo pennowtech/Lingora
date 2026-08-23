@@ -167,7 +167,7 @@ export async function deleteCloudAccountAndData(db: DatabaseAdapter): Promise<vo
       await getCloudAuthService().revokeAccess(account.email)
     } catch {
       log.warn('sync.account_revoke_failed', {
-        message: 'Revoking the Google OAuth grant failed — data was deleted and the local session will still be signed out',
+        message: 'Revoking the Google OAuth grant failed - data was deleted and the local session will still be signed out',
       })
     }
     await getCloudAuthService().signOut()
@@ -255,7 +255,7 @@ export function useCloudSync(): CloudSyncState {
 // ─── Automatic background sync ───────────────────────────────────────────────
 //
 // Triggered when the app is backgrounded (the same boundary Shelfie fires on, minus its "chapter/
-// book close" hook — Lingora has no equivalent mid-session boundary worth syncing on). Gated only
+// book close" hook — Lemmory has no equivalent mid-session boundary worth syncing on). Gated only
 // by the minimum-interval cooldown and being signed in — deliberately no Wi-Fi-only check.
 
 let db: DatabaseAdapter | null = null

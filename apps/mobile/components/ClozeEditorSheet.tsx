@@ -21,6 +21,8 @@ export function ClozeEditorSheet(props: {
   visible: boolean
   initialSentence: string
   initialTranslation: string
+  /** The card's own headword — passed straight through to `ClozeMarkupEditor`'s pre-mark default. */
+  word?: string
   onCancel: () => void
   onSave: (result: ClozeEditorResult) => void
   saving?: boolean
@@ -48,6 +50,7 @@ export function ClozeEditorSheet(props: {
               <ClozeMarkupEditor
                 initialSentence={props.initialSentence}
                 initialTranslation={props.initialTranslation}
+                {...(props.word !== undefined && { word: props.word })}
                 onChange={setResult}
               />
             ) : null}
@@ -57,7 +60,7 @@ export function ClozeEditorSheet(props: {
             <View style={styles.actions}>
               <Button label={t('Cancel')} variant="ghost" onPress={props.onCancel} disabled={props.saving ?? false} />
               <Button
-                label={props.saving ? t('Saving…') : t('Save cloze card')}
+                label={props.saving ? t('Saving...') : t('Save cloze card')}
                 onPress={handleSave}
                 disabled={!result || (props.saving ?? false)}
               />

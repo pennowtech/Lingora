@@ -188,7 +188,8 @@ describe('word_guides repository', () => {
       )
 
       expect(lemma.form).toBe('sprechen')
-      expect(lemma.partOfSpeech).toBe('noun')
+      // Lowercase German input -> guessPartOfSpeechFromCasing's verb fallback, not a hardcoded noun.
+      expect(lemma.partOfSpeech).toBe('verb')
 
       const meaning = await db.querySingle<{ translation: string; explanation: string }>(
         'SELECT translation, explanation FROM meanings WHERE card_id = ?',

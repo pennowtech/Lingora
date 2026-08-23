@@ -9,7 +9,26 @@ import type { DatabaseAdapter } from '../adapter'
  * contexts never bleed into each other.
  */
 
-const CLUSTER_COLUMNS = `id, lemma_id AS lemmaId, label, description, cefr_level AS cefrLevel, order_index AS orderIndex`
+const CLUSTER_COLUMNS = `id, lemma_id AS lemmaId, label, description, cefr_level AS cefrLevel, order_index AS orderIndex, more_info AS moreInfoJson`
+
+/** Raw cluster row as it comes back from SQLite (more_info is a JSON string column, or NULL). */
+interface ClusterRow extends Omit<MeaningCluster, 'moreInfo'> {
+  moreInfoJson: string | null
+}
+
+function toCluster(row: ClusterRow): MeaningCluster {
+  const { moreInfoJson, ...rest } = row
+  let moreInfo: string[] | null = null
+  if (moreInfoJson) {
+    try {
+      const parsed: unknown = JSON.parse(moreInfoJson)
+      if (Array.isArray(parsed)) moreInfo = parsed as string[]
+    } catch {
+      moreInfo = null
+    }
+  }
+  return { ...rest, moreInfo }
+}
 
 /** Raw meaning row as it comes back from SQLite (booleans are 0/1). */
 interface MeaningRow extends Omit<Meaning, 'isPrimary'> {
@@ -31,10 +50,11 @@ export async function getClustersForLemma(
   db: DatabaseAdapter,
   lemmaId: string,
 ): Promise<MeaningCluster[]> {
-  return db.query<MeaningCluster>(
+  const rows = await db.query<ClusterRow>(
     `SELECT ${CLUSTER_COLUMNS} FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
     [lemmaId],
   )
+  return rows.map(toCluster)
 }
 
 /**
@@ -61,6 +81,22 @@ export async function createCluster(db: DatabaseAdapter, cluster: MeaningCluster
  */
 export async function deleteCluster(db: DatabaseAdapter, clusterId: string): Promise<void> {
   await db.execute(`DELETE FROM meaning_clusters WHERE id = ?`, [clusterId])
+}
+
+/**
+ * Persists the "More info" sheet's additional-context paragraphs for a cluster, so the next visit
+ * (this session or a future one) reads them back instead of asking AI again — see
+ * MeaningCluster.moreInfo's doc comment.
+ */
+export async function updateClusterMoreInfo(
+  db: DatabaseAdapter,
+  clusterId: string,
+  paragraphs: string[],
+): Promise<void> {
+  await db.execute(`UPDATE meaning_clusters SET more_info = ? WHERE id = ?`, [
+    JSON.stringify(paragraphs),
+    clusterId,
+  ])
 }
 
 /**

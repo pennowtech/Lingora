@@ -47,7 +47,7 @@ export function FollowUpComposer(props: {
         // reason: word-suggestion autocomplete was also swallowing punctuation on accept.
         onChangeText={setText}
         maxLength={MAX_LENGTH}
-        placeholder={t('Ask a short follow-up…')}
+        placeholder={t('Ask a short follow-up...')}
         placeholderTextColor={colors.textMuted}
         autoCorrect={false}
         autoCapitalize="sentences"
@@ -67,7 +67,7 @@ export function FollowUpComposer(props: {
         {props.loading ? (
           <View style={styles.thinkingRow}>
             <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.thinkingLabel}>{t('Thinking…')}</Text>
+            <Text style={styles.thinkingLabel}>{t('Thinking...')}</Text>
             {props.onCancel ? (
               <Pressable onPress={props.onCancel} hitSlop={8}>
                 <Text style={styles.cancelLabel}>{t('Cancel')}</Text>
@@ -91,7 +91,7 @@ export function FollowUpComposer(props: {
             <Ionicons name="arrow-up-circle" size={18} color={canAsk ? colors.primary : colors.textMuted} />
           )}
           <Text style={[styles.askLabel, canAsk && styles.askLabelActive]}>
-            {props.loading ? t('Asking…') : t('Ask')}
+            {props.loading ? t('Asking...') : t('Ask')}
           </Text>
         </Pressable>
       </View>

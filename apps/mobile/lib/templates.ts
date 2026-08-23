@@ -43,7 +43,7 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
   {
     name: 'example_highlighted',
     label: 'Example (word highlighted)',
-    description: 'Same example, with the word marked — works for separable verbs too',
+    description: 'Same example, with the word marked - works for separable verbs too',
     icon: 'color-wand',
   },
   { name: 'translation', label: 'Example translation', description: 'Translation of the example', icon: 'swap-horizontal' },
@@ -61,8 +61,8 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
  * gets its own short list rather than the vocab TEMPLATE_VARIABLES above.
  */
 export const CLOZE_TEMPLATE_VARIABLES: TemplateVariable[] = [
-  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder — the front', icon: 'create' },
-  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted — the back', icon: 'eye' },
+  { name: 'cloze_blanked', label: 'Sentence (blanked)', description: 'The cloze sentence with each blank shown as a placeholder - the front', icon: 'create' },
+  { name: 'cloze_revealed', label: 'Sentence (revealed)', description: 'The cloze sentence with every blank filled in and highlighted - the back', icon: 'eye' },
   { name: 'translation', label: 'Sentence translation', description: 'Translation of the cloze sentence', icon: 'swap-horizontal' },
 ]
 
@@ -99,14 +99,14 @@ export const DEFAULT_BACK_TEMPLATE = `<div class="dc-back">
 </div>`
 
 export const DEFAULT_STYLES = `.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; box-sizing: border-box; }
-.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: clamp(1.8rem, 6.5vw, 2.6rem); font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.15; word-break: break-word; overflow-wrap: break-word; max-width: 100%; text-align: center; }
-.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); max-width: 100%; box-sizing: border-box; word-break: break-word; }
+.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.15; word-break: break-word; overflow-wrap: break-word; max-width: 100%; text-align: center; }
+.dc-tag { display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); max-width: 100%; box-sizing: border-box; word-break: break-word; }
 
 .dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; box-sizing: border-box; }
-.dc-meaning { font-size: clamp(1.3rem, 4.5vw, 1.85rem); font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
+.dc-meaning { font-size: clamp(1.1rem, 3.6vw, 1.5rem); font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
 .dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; word-break: break-word; overflow-wrap: break-word; }
-.dc-example-de { font-size: 1.05rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; word-break: break-word; overflow-wrap: break-word; }
-.dc-example-en { font-size: 0.9rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; word-break: break-word; overflow-wrap: break-word; }
+.dc-example-de { font-size: 0.92rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.5; word-break: break-word; overflow-wrap: break-word; }
+.dc-example-en { font-size: 0.8rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.4; font-weight: 400; word-break: break-word; overflow-wrap: break-word; }
 .dc-example-de mark.dc-hl { background: var(--theme-primary-soft, #F1F0FE); color: var(--theme-primary, #6C63FF); font-weight: 800; padding: 1px 5px; border-radius: 4px; font-style: normal; }
 
 .dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; }
@@ -233,7 +233,7 @@ export function buildCardContext(args: {
     phrases: args.phrases.map((p) => ({ expression: p.expression, meaning: p.meaning })),
     audio: '',
     image: '',
-    cloze: args.cloze ? `${args.cloze.sentence} → ${args.cloze.answer}` : '',
+    cloze: args.cloze ? `${args.cloze.sentence} > ${args.cloze.answer}` : '',
     cloze_blanked: args.cloze ? renderClozeBlanked(args.cloze.sentence) : '',
     cloze_revealed: args.cloze ? renderClozeRevealed(args.cloze.sentence, args.cloze.answer) : '',
     context_hint: genderLabel || null,
@@ -393,7 +393,7 @@ export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
 /**
  * Renders one side of a card (front or back) to a full HTML document string,
  * ready to load into a WebView. Synchronous (LiquidJS's `parseAndRenderSync`
- * — none of Lingora's templates use async filters/tags) so callers can use
+ * — none of Lemmory's templates use async filters/tags) so callers can use
  * it directly during render without extra async state. Falls back to a
  * visible error message instead of throwing — a malformed template (bad
  * Liquid syntax) shouldn't crash the review session or the editor's live
@@ -416,7 +416,7 @@ export function renderCardHtml(
     body = engine.parseAndRenderSync(liquidTemplate, context) as string
   } catch (error) {
     log.warn('srs.template_render_failed', {
-      message: 'Liquid template failed to render — showing a fallback message instead',
+      message: 'Liquid template failed to render - showing a fallback message instead',
     })
     body = `<p style="color:#D64545">Template error: ${escapeHtmlShell(String(error))}</p>`
   }

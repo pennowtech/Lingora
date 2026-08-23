@@ -1,4 +1,4 @@
-import { markSelectionAsCloze, parseClozeMarkup } from '@lingora/database'
+import { markSelectionAsCloze, markWordAsCloze, parseClozeMarkup } from '@lingora/database'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, TextInput, View } from 'react-native'
@@ -27,19 +27,31 @@ export interface ClozeEditorResult {
  * action to target until the whole form submits — it just tracks the latest result via `onChange`
  * and uses it when the surrounding form's own submit button fires.
  *
- * See cloze-parse.ts's `markSelectionAsCloze` doc comment for why marking is manual rather than
- * automatic (fails for German separable verbs).
+ * See cloze-parse.ts's `markSelectionAsCloze` doc comment for why FULL auto-detection (guessing at
+ * an inflected form or a split separable-verb prefix) is a hard no — but `word` (the card's own
+ * headword) gets a narrower, safe default via `markWordAsCloze`: if it appears in
+ * `initialSentence` as a genuine whole-word match, that occurrence starts pre-marked, so the editor
+ * opens already blanking the word being carded instead of an empty selection every time. Falls
+ * back to the plain unmarked sentence (today's existing manual select-and-mark flow) whenever it
+ * can't be sure — never a silently wrong guess.
  */
 export function ClozeMarkupEditor(props: {
   initialSentence: string
   initialTranslation: string
+  /** The card's own headword, for the whole-word pre-mark default described above. Omit for a
+   * caller with no single word to default to — the editor still works, just starts unmarked. */
+  word?: string
   onChange: (result: ClozeEditorResult | null) => void
 }): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
 
-  const [text, setText] = useState(props.initialSentence)
+  const defaultText = props.word
+    ? (markWordAsCloze(props.initialSentence, props.word) ?? props.initialSentence)
+    : props.initialSentence
+
+  const [text, setText] = useState(defaultText)
   const [translation, setTranslation] = useState(props.initialTranslation)
   const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
@@ -65,14 +77,20 @@ export function ClozeMarkupEditor(props: {
   }
 
   const handleReset = (): void => {
-    setText(props.initialSentence)
+    // Back to the same pre-marked default the editor opened with, not necessarily the fully bare
+    // sentence — Reset undoes the user's own edits, not the convenience default they started from.
+    setText(defaultText)
     setSelection({ start: 0, end: 0 })
   }
+
+  const wasPreMarked = defaultText !== props.initialSentence
 
   return (
     <View>
       <Text style={styles.hint}>
-        {t('Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.')}
+        {wasPreMarked
+          ? t('The word is already blanked out below - select a different word or phrase and tap "Mark as cloze" to change it.')
+          : t('Select a word or phrase in the sentence below, then tap "Mark as cloze" to blank it out.')}
       </Text>
 
       <Text style={styles.fieldLabel}>{t('Sentence')}</Text>

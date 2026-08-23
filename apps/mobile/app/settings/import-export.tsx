@@ -103,7 +103,7 @@ export default function ImportExportScreen(): JSX.Element {
   const runFormatExport = (format: ExportFormat, fileName: string): void => {
     setExportingFormat(format)
     log.info('export.format_export_pressed', { message: 'User pressed a whole-library format export button' })
-    runExport(db, format, { deckName: 'Lingora vocabulary', fileName })
+    runExport(db, format, { deckName: 'Lemmory vocabulary', fileName })
       .then(({ itemCount, outcome }) => {
         setExportNotice({
           title: t('Export ready'),
@@ -184,7 +184,7 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.infoSoft}
         iconColor={colors.info}
         title={t('Anki deck (.apkg)')}
-        detail={t("Bring your existing decks. Review history isn't imported — cards start fresh.")}
+        detail={t("Bring your existing decks. Review history isn't imported - cards start fresh.")}
         expanded={expanded.has('import-apkg')}
         onToggle={() => toggle('import-apkg')}
       >
@@ -214,7 +214,7 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
         title={t('A shared deck (.lin)')}
-        detail={t("Add a deck someone shared with you — full fidelity, including review history. Doesn't touch anything else on this device.")}
+        detail={t("Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.")}
         expanded={expanded.has('import-lin-deck')}
         onToggle={() => toggle('import-lin-deck')}
       >
@@ -228,14 +228,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="cloud-upload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Restore from Lingora backup (.lin)')}
+        title={t('Restore from Lemmory backup (.lin)')}
         detail={t('Replaces everything on this device with a previously exported backup.')}
         expanded={expanded.has('import-restore')}
         onToggle={() => toggle('import-restore')}
       >
         <Pressable style={styles.actionButton} onPress={handleRestore} disabled={restoring}>
           <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{restoring ? t('Restoring…') : t('Choose backup file')}</Text>
+          <Text style={styles.actionButtonLabel}>{restoring ? t('Restoring...') : t('Choose backup file')}</Text>
           {restoring ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
       </OptionAccordion>
@@ -246,14 +246,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="cloud-download"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Lingora backup (.lin)')}
-        detail={t('Your full library — decks, cards, review history. Your data is always yours. API keys are never included.')}
+        title={t('Lemmory backup (.lin)')}
+        detail={t('Your full library - decks, cards, review history. Your data is always yours. API keys are never included.')}
         expanded={expanded.has('export-lin')}
         onToggle={() => toggle('export-lin')}
       >
         <Pressable style={styles.actionButton} onPress={handleExport} disabled={exporting}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exporting ? t('Exporting…') : t('Export everything')}</Text>
+          <Text style={styles.actionButtonLabel}>{exporting ? t('Exporting...') : t('Export everything')}</Text>
           {exporting ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
       </OptionAccordion>
@@ -263,13 +263,13 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.successSoft}
         iconColor={colors.success}
         title={t('CSV')}
-        detail={t('One row per card — the same columns CSV import reads, so this file re-imports as-is.')}
+        detail={t('One row per card - the same columns CSV import reads, so this file re-imports as-is.')}
         expanded={expanded.has('export-csv')}
         onToggle={() => toggle('export-csv')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('csv')} disabled={exportingFormat !== null}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'csv' ? t('Exporting…') : t('Export as CSV')}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'csv' ? t('Exporting...') : t('Export as CSV')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -278,13 +278,13 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.infoSoft}
         iconColor={colors.info}
         title={t('Anki deck (.apkg)')}
-        detail={t("Study your Lingora vocabulary in Anki/AnkiDroid. Cards start fresh — review history isn't carried over.")}
+        detail={t("Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.")}
         expanded={expanded.has('export-apkg')}
         onToggle={() => toggle('export-apkg')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('apkg')} disabled={exportingFormat !== null}>
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'apkg' ? t('Exporting…') : t('Export as .apkg')}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'apkg' ? t('Exporting...') : t('Export as .apkg')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -293,7 +293,7 @@ export default function ImportExportScreen(): JSX.Element {
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
         title={t('Markdown')}
-        detail={t('A readable word — meaning — example list. Not meant to re-import.')}
+        detail={t('A readable word - meaning - example list. Not meant to re-import.')}
         expanded={expanded.has('export-markdown')}
         onToggle={() => toggle('export-markdown')}
       >
@@ -303,13 +303,13 @@ export default function ImportExportScreen(): JSX.Element {
           disabled={exportingFormat !== null}
         >
           <Ionicons name="download" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? t('Exporting…') : t('Export as Markdown')}</Text>
+          <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? t('Exporting...') : t('Export as Markdown')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <ExportNameModal
         visible={exportPending !== null}
-        defaultName={defaultExportFileName('Lingora vocabulary')}
+        defaultName={defaultExportFileName('Lemmory vocabulary')}
         onCancel={() => setExportPending(null)}
         onConfirm={(fileName) => {
           const pending = exportPending

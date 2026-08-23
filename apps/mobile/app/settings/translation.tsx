@@ -194,7 +194,7 @@ export default function TranslationScreen(): JSX.Element {
               key={name}
               source={name}
               label={PROVIDER_META[name].label}
-              detail={available ? t('Uses this provider’s key from AI Providers') : t('Add a key in AI Providers to enable')}
+              detail={available ? t('Uses this provider\'s key from AI Providers') : t('Add a key in AI Providers to enable')}
               selected={translationProvider === name}
               disabled={!available}
               onPress={() => changeTranslationProvider(name)}
@@ -254,7 +254,7 @@ function DeepLRow(props: {
           <CardSourceIcon source="deepl" size={18} />
           <View style={styles.optionText}>
             <Text style={styles.optionLabel}>DeepL</Text>
-            <Text style={styles.optionDetail}>{t('Best German↔English quality — bring your own key')}</Text>
+            <Text style={styles.optionDetail}>{t('Best German↔English quality - bring your own key')}</Text>
           </View>
         </Pressable>
         <Pressable
@@ -274,7 +274,7 @@ function DeepLRow(props: {
             <TextInput
               testID="provider-key-input-deepl"
               style={styles.keyInputWithIcon}
-              placeholder={t('Paste your DeepL API key…')}
+              placeholder={t('Paste your DeepL API key...')}
               placeholderTextColor={colors.textMuted}
               value={props.apiKey}
               onChangeText={props.onChangeApiKey}

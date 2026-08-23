@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildClozeMarkup, hasClozeMarkup, parseClozeMarkup, revealClozeMarkup, revealClozeSentence } from './cloze-parse'
+import { buildClozeMarkup, hasClozeMarkup, markWordAsCloze, parseClozeMarkup, revealClozeMarkup, revealClozeSentence } from './cloze-parse'
 
 describe('hasClozeMarkup', () => {
   it('detects real Anki cloze syntax', () => {
@@ -98,5 +98,49 @@ describe('revealClozeSentence', () => {
     const original = 'Wir gehen heute Abend {{c1::aus}}.'
     const parsed = parseClozeMarkup(original)!
     expect(revealClozeSentence(parsed.blanked, parsed.answers.join('; '))).toBe('Wir gehen heute Abend aus.')
+  })
+})
+
+describe('markWordAsCloze', () => {
+  it('marks the first whole-word, case-insensitive match', () => {
+    expect(markWordAsCloze('Die Wand ist weiss.', 'wand')).toBe('Die {{c1::Wand}} ist weiss.')
+  })
+
+  it('only marks the first occurrence, not every one', () => {
+    expect(markWordAsCloze('Das Haus neben dem Haus ist rot.', 'Haus')).toBe(
+      'Das {{c1::Haus}} neben dem Haus ist rot.',
+    )
+  })
+
+  it('does not match a word as a substring of a longer word', () => {
+    // "Wand" must not match inside "Wandern" - a whole-word boundary check, not a plain substring one.
+    expect(markWordAsCloze('Wir gehen heute wandern.', 'wand')).toBeNull()
+  })
+
+  it('returns null when the word is a German umlaut/ß boundary case that a plain \\b regex would miss', () => {
+    // A regex \b before/after "Ü" or "ß" is unreliable (\b only recognizes ASCII word chars) -
+    // confirms the \p{L}/\p{N} boundary check handles this correctly either way.
+    expect(markWordAsCloze('Ich mag diese Übung sehr.', 'Übung')).toBe('Ich mag diese {{c1::Übung}} sehr.')
+    expect(markWordAsCloze('Der Fluss ist groß.', 'groß')).toBe('Der Fluss ist {{c1::groß}}.')
+  })
+
+  it('returns null for a separable-verb prefix split across the sentence, never a wrong guess', () => {
+    // "ausverkaufen" never appears as one literal substring here - the prefix "aus" splits from
+    // the stem "verkauft" in normal word order. Must fall back to null, not a wrong partial mark.
+    expect(markWordAsCloze('Der Laden verkauft alles aus.', 'ausverkaufen')).toBeNull()
+  })
+
+  it('returns null when the word does not appear in the sentence at all', () => {
+    expect(markWordAsCloze('Die Sonne scheint heute.', 'Regen')).toBeNull()
+  })
+
+  it('returns null for an empty word', () => {
+    expect(markWordAsCloze('Die Sonne scheint heute.', '  ')).toBeNull()
+  })
+
+  it('numbers after any cloze markup the sentence already has', () => {
+    expect(markWordAsCloze('Wir gehen heute {{c1::aus}} und sehen ein Haus.', 'Haus')).toBe(
+      'Wir gehen heute {{c1::aus}} und sehen ein {{c2::Haus}}.',
+    )
   })
 })

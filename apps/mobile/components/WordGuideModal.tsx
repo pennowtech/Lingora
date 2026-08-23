@@ -78,7 +78,7 @@ export function WordGuideModal(props: {
                     {guide.synonyms.map((syn) => (
                       <Text key={syn.word} style={styles.synonym}>
                         {'• '}
-                        <Text style={styles.synonymWord}>{syn.word}</Text> — {syn.gloss}
+                        <Text style={styles.synonymWord}>{syn.word}</Text> - {syn.gloss}
                       </Text>
                     ))}
                   </>
@@ -107,7 +107,7 @@ export function WordGuideModal(props: {
                 ) : null}
 
                 <Text style={styles.footnote}>
-                  {props.footnote ?? t('From your installed dictionary — free, no AI needed.')}
+                  {props.footnote ?? t('From your installed dictionary - free, no AI needed.')}
                 </Text>
               </ScrollView>
               {props.footer}

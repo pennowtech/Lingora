@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { logger } from '@lingora/observability'
 import type {
   Card as CardRow,
   CefrLevel,
@@ -20,6 +21,7 @@ import {
   createCardForSense,
   createDeck,
   createPhrase,
+  deleteLemma,
   findLemmaBySurfaceForm,
   getActivePromptVersion,
   getCardsByLemma,
@@ -38,14 +40,17 @@ import {
   regenerateWordPackage,
   setCloze,
   setEvaluation,
+  updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
   updateSelectedExample,
+  updateSynonymNuance,
   type DatabaseAdapter,
 } from '@lingora/database'
+import { LANGUAGE_NAMES, PROMPTS, renderPrompt } from '@lingora/ai'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -73,21 +78,23 @@ import {
   SectionHeader,
   SpeakerButton,
   Spinner,
+  Toast,
 } from '../../components/ui'
-import { AIExplanationSheet, type FollowUpEntry } from '../../components/AIExplanationSheet'
-import { AskAISheet } from '../../components/AskAISheet'
+import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
-import { CardSourceIcon } from '../../lib/cardSource'
+import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
-import { DEFAULT_DECK_ID, useServices } from '../../lib/services'
+import { PROVIDER_META } from '../../lib/aiProviderMeta'
+import { formatUserFriendlyProviderError } from '../../lib/providerValidation'
+import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
-import { useCyclingIndex } from '../../lib/useCyclingIndex'
 
 /** Cards created by one of the AI providers — as opposed to a dictionary quick-translate, the
  * installed word-guides dictionary, or manual/import entry (see packages/types CardSource). */
@@ -128,7 +135,8 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'book-outline',
     paragraphs: [
       'The translation at the top is what actually appears on your flashcard.',
-      'If this word has more than one distinct sense — say, a casual meaning and a business one — you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
+      'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.',
+      'If this word has more than one distinct sense - say, a casual meaning and a business one - you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
     ],
   },
   {
@@ -137,9 +145,9 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'chatbubble-outline',
     paragraphs: [
       'Example sentences show the word used in context, with a translation underneath.',
-      'Tap the star on any example to choose which one appears on your flashcard — only one shows at a time.',
+      'Tap the star on any example to choose which one appears on your flashcard - only one shows at a time.',
       'The dropdown above the examples ("all", "travel", "business", and so on) filters them down to a particular tone or situation, if you only want to see those.',
-      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense.',
+      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.',
     ],
   },
   {
@@ -147,8 +155,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Advanced grammar options',
     icon: 'options-outline',
     paragraphs: [
-      'This collapsible panel below the examples lets you pick a specific grammar pattern — a tense, a sentence structure, a particular conjunction — that you want the next batch of examples to practice, instead of leaving it to chance.',
-      'Examples generated from a selected option get a highlighted background, so you can tell which ones came from your request.',
+      'This collapsible panel below the examples lets you pick a specific grammar pattern - a tense, a sentence structure, a particular conjunction - that you want the next batch of examples to practice, instead of leaving it to chance.',
+      'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.',
+      '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.',
     ],
   },
   {
@@ -157,10 +166,10 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'chatbubble-ellipses-outline',
     paragraphs: [
       'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
-      '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.',
+      '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.',
       '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
-      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh — useful if the current version isn\'t working for you. This can\'t be undone.',
-      'The pencil icon lets you edit the meaning or example text directly. The last icon opens a quick web search for the word, for a second opinion outside the app.',
+      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn\'t working for you. This can\'t be undone.',
+      'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.',
     ],
   },
   {
@@ -168,22 +177,26 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Synonyms & phrases',
     icon: 'swap-horizontal-outline',
     paragraphs: [
-      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.',
-      'Phrases show this word used in common expressions or word combinations.',
+      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.',
+      'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
     ],
   },
   {
     id: 'cloze',
     title: 'Cloze cards',
     icon: 'create-outline',
-    paragraphs: ['A cloze card blanks out part of a sentence for you to fill in — a different way of practicing the same word.'],
+    paragraphs: [
+      'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.',
+      '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
+      'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.',
+    ],
   },
   {
     id: 'deck',
     title: 'Adding to a deck',
     icon: 'albums-outline',
     paragraphs: [
-      '"Add to deck" at the bottom is how you start reviewing this word — you can add it to more than one deck, or create a new one on the spot.',
+      '"Add to deck" at the bottom is how you start reviewing this word - you can add it to more than one deck, or create a new one on the spot.',
       'Whatever translation at this moment is selected/shown will be added to deck along with its relevant example.',
       'You can add your cards to multiple decks even if it is added before.'
     ],
@@ -206,26 +219,26 @@ const GRAMMAR_GROUPS_BY_LANGUAGE: Partial<Record<LanguageCode, Array<{ title: st
   de: [
     { title: 'Tense & mood', options: ['Konjunktiv II', 'Präteritum', 'Perfekt', 'Futur I', 'Plusquamperfekt'] },
     { title: 'Sentence structure', options: ['Passive voice', 'Relative clause', 'Indirect speech', 'Question form'] },
-    { title: 'Conjunctions', options: ['als ob / als hätte', 'obwohl', 'damit', 'weil / da', 'nicht nur … sondern auch'] },
+    { title: 'Conjunctions', options: ['als ob / als hätte', 'obwohl', 'damit', 'weil / da', 'nicht nur ... sondern auch'] },
     { title: 'Focus words', options: ['selbst / sogar', 'jemals', 'Modalpartikeln (doch, ja, halt)'] },
   ],
   en: [
     { title: 'Tense & aspect', options: ['Present perfect', 'Past perfect', 'Future continuous', 'Present perfect continuous', 'Third conditional'] },
     { title: 'Sentence structure', options: ['Passive voice', 'Relative clause', 'Reported speech', 'Question tags'] },
-    { title: 'Conjunctions', options: ['although / even though', 'in spite of / despite', 'so that', 'not only … but also', 'whereas'] },
+    { title: 'Conjunctions', options: ['although / even though', 'in spite of / despite', 'so that', 'not only ... but also', 'whereas'] },
     { title: 'Modality & nuance', options: ['must have / might have', 'used to / would rather', 'phrasal verbs', 'hedging (sort of, kind of)'] },
   ],
   fr: [
     { title: 'Tense & mood', options: ['Subjonctif', 'Imparfait', 'Passé composé', 'Plus-que-parfait', 'Conditionnel'] },
     { title: 'Sentence structure', options: ['Voix passive', 'Proposition relative', 'Discours indirect', 'Forme interrogative'] },
-    { title: 'Conjunctions', options: ['bien que / quoique', 'afin que', 'non seulement … mais aussi', 'tandis que'] },
+    { title: 'Conjunctions', options: ['bien que / quoique', 'afin que', 'non seulement ... mais aussi', 'tandis que'] },
     { title: 'Pronouns & agreement', options: ['Pronoms relatifs (qui/que/dont/où)', 'Accord du participe passé', 'Pronoms COD/COI', 'Négation (ne...que, ne...plus)'] },
   ],
   hi: [
     { title: 'Tense & aspect', options: ['Perfect past (पूर्ण भूतकाल)', 'Imperfect past (अपूर्ण भूतकाल)', 'Presumptive future (संभाव्य भविष्यत्)', 'Subjunctive/optative (विध्यर्थ)'] },
-    { title: 'Sentence structure', options: ['Passive voice (कर्मवाच्य)', 'Relative clause (जो … वह)', 'Indirect speech (अप्रत्यक्ष कथन)', 'Question form (प्रश्नवाचक)'] },
+    { title: 'Sentence structure', options: ['Passive voice (कर्मवाच्य)', 'Relative clause (जो ... वह)', 'Indirect speech (अप्रत्यक्ष कथन)', 'Question form (प्रश्नवाचक)'] },
     { title: 'Postpositions & case', options: ['Ergative ने', 'Dative/accusative को', 'Instrumental/ablative से', 'Genitive agreement का/की/के'] },
-    { title: 'Conjunctions', options: ['यद्यपि … तथापि (although … yet)', 'चूँकि (since)', 'न केवल … बल्कि भी (not only … but also)', 'जैसे कि (as if)'] },
+    { title: 'Conjunctions', options: ['यद्यपि ... तथापि (although ... yet)', 'चूँकि (since)', 'न केवल ... बल्कि भी (not only ... but also)', 'जैसे कि (as if)'] },
   ],
 }
 
@@ -284,13 +297,15 @@ async function loadWord(db: DatabaseAdapter, form: string, nativeLanguage: Langu
  * Word detail — the core lookup experience: semantic cluster tabs, meanings,
  * CEFR-controlled examples with the grammar panel, synonyms, phrases, cloze.
  */
+const log = logger.child({ feature: 'vocabulary', component: 'word-detail' })
+
 export default function WordDetailScreen(): JSX.Element {
-  // nativeTerm is only set when search.tsx's reverse-direction auto-detect generated this word
-  // (the user typed a native-language word, e.g. "rumor", and got the target-language equivalent,
-  // e.g. "Gerucht") — it's what lets the headline show the word the learner actually typed instead
-  // of the unfamiliar target-language form. Absent for every other way of reaching this screen
-  // (straight search, decks, review), which keeps their current headword-first display unchanged.
-  const { form, nativeTerm } = useLocalSearchParams<{ form: string; nativeTerm?: string }>()
+  const { form, nativeTerm, autoEnrich, initialExplanation } = useLocalSearchParams<{
+    form: string
+    nativeTerm?: string
+    autoEnrich?: string
+    initialExplanation?: string
+  }>()
   const { db, ai, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
@@ -299,13 +314,85 @@ export default function WordDetailScreen(): JSX.Element {
   const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings/ai-providers'))
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false)
+  const [expandedSynonyms, setExpandedSynonyms] = useState<Record<string, boolean>>({})
+  const [loadingSynonymNuance, setLoadingSynonymNuance] = useState<Record<string, boolean>>({})
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
+  const handleToggleSynonym = async (syn: Synonym, contextDescription?: string) => {
+    const nextState = !expandedSynonyms[syn.id]
+    setExpandedSynonyms((prev) => ({ ...prev, [syn.id]: nextState }))
+
+    if (nextState && (!syn.nuance || syn.nuance.trim() === '')) {
+      if (!ai || !form) return
+      setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: true }))
+      try {
+        const res = await ai.generateSynonyms(
+          form,
+          { label: contextDescription ?? 'general', description: '' },
+          { cefrLevel: defaultCefr, language: targetLanguage, nativeLanguage },
+        )
+        const match = res.data.find((item) => item.word.toLowerCase() === syn.word.toLowerCase()) ?? res.data[0]
+        if (match) {
+          const nuanceText = match.nuance ?? t('Used as a {{formality}} synonym for {{word}}.', {
+            formality: match.formality ?? 'general',
+            word: form,
+          })
+          await updateSynonymNuance(db, syn.id, nuanceText, match.formality)
+          await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+        }
+      } catch (err) {
+        log.error('word_detail.fetch_synonym_nuance_failed', err, { message: 'Failed to fetch synonym nuance on demand' })
+      } finally {
+        setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: false }))
+      }
+    }
+  }
+
+  const autoEnrichMutation = useMutation({
+    mutationFn: async () => {
+      if (!pipeline || !form) return
+      log.info('word_detail.auto_enrich_started', { message: `Background AI enrichment started for ${form}` })
+      await pipeline.lookupOrGenerate(form, {
+        cefrLevel: defaultCefr,
+        deckId: DEFAULT_DECK_ID,
+        language: targetLanguage,
+        nativeLanguage,
+        addToDeck: false,
+        forceGenerate: true,
+      })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+      log.info('word_detail.auto_enrich_completed', { message: `Background AI enrichment completed for ${form}` })
+    },
+    onError: (err) => {
+      log.error('word_detail.auto_enrich_failed', err, { message: `Background AI enrichment failed for ${form}` })
+      const providerLabel = ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI'
+      const formatted = formatUserFriendlyProviderError(providerLabel, err, t)
+      setErrorNotice({ title: t('AI Enrichment Failed'), message: formatted })
+    },
+  })
+
   const [clusterId, setClusterId] = useState<string | null>(null)
+  const [formsExpanded, setFormsExpanded] = useState(false)
   const [contextTab, setContextTab] = useState<(typeof CONTEXT_TABS)[number]>('all')
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [grammarSelection, setGrammarSelection] = useState<string[]>([])
+  const [customGrammarInput, setCustomGrammarInput] = useState('')
+
+  const handleAddCustomGrammar = () => {
+    const trimmed = customGrammarInput.trim()
+    if (!trimmed) return
+    if (!grammarSelection.includes(trimmed)) {
+      setGrammarSelection((prev) => [...prev, trimmed])
+    }
+    setCustomGrammarInput('')
+  }
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
+  // "Added to My Vocabulary" / "Cloze added" — a brief confirmation for actions that otherwise
+  // leave no visible trace (adding an already-open word's card to another deck, or a cloze,
+  // doesn't navigate anywhere or change what's on screen). See components/ui.tsx#Toast.
+  const [toast, setToast] = useState<string | null>(null)
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
@@ -319,7 +406,17 @@ export default function WordDetailScreen(): JSX.Element {
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [aiSheetOpen, setAiSheetOpen] = useState(false)
   const [askAiOpen, setAskAiOpen] = useState(false)
-  const [followUps, setFollowUps] = useState<FollowUpEntry[]>([])
+  // A question typed into "More info"'s composer, waiting to be auto-sent the moment WordChatSheet
+  // opens (see bridgeToChat below) — cleared once WordChatSheet confirms it's been sent.
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | undefined>(undefined)
+  // "More info" sheet content — additional context distinct from the meaning's own inline
+  // explanation, fetched on demand only (see generateMoreInfo below). An instant, same-session
+  // overlay on top of the persisted value already loaded onto active.cluster.moreInfo (see
+  // MeaningCluster.moreInfo) — showing this immediately on success is faster than waiting for the
+  // word query to refetch, but the persisted column is what makes it available again on a future
+  // visit without re-asking AI at all. Keyed by cluster id rather than a single value so a stale
+  // answer from a different sense never shows through.
+  const [moreInfoByCluster, setMoreInfoByCluster] = useState<Record<string, string[]>>({})
   const [editOpen, setEditOpen] = useState(false)
   const [editMeaning, setEditMeaning] = useState('')
   const [editExample, setEditExample] = useState('')
@@ -347,6 +444,12 @@ export default function WordDetailScreen(): JSX.Element {
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
   const isAiCard = !!word?.card?.source && AI_SOURCES.includes(word.card.source)
+
+  useEffect(() => {
+    if (autoEnrich === 'true' && word && !isAiCard && !autoEnrichMutation.isPending && !autoEnrichMutation.isSuccess) {
+      autoEnrichMutation.mutate()
+    }
+  }, [autoEnrich, word, isAiCard])
 
   const exampleCounts = useMemo(() => {
     const counts: Record<string, number> = { all: active?.examples.length ?? 0 }
@@ -457,17 +560,6 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate word card'), error),
   })
 
-  // Generating a brand-new word is a single, slow AI round-trip with no real partial-progress
-  // signal — cycling the loading message is purely about making the wait feel legible, not
-  // reporting actual progress. Only used while generateMissingWord itself is in flight, not for
-  // the (near-instant, local DB) wordQuery-only loading state below.
-  const generatingWordMessages = [
-    t('Looking up "{{form}}"…', { form: form ?? '' }),
-    t('Writing meanings and examples…'),
-    t('Almost done…'),
-  ]
-  const generatingWordMessageIndex = useCyclingIndex(generateMissingWord.isPending, generatingWordMessages.length)
-
   useEffect(() => {
     if (
       !wordQuery.isPending &&
@@ -521,8 +613,8 @@ export default function WordDetailScreen(): JSX.Element {
   // just syncing the selected example if it changed within the same sense. A DIFFERENT sense:
   // rather than overwriting that existing card's meaning/example — which would silently change
   // what a card already sitting in some other deck shows — this creates a genuinely new card for
-  // the lemma (createCardForSense). Cloze content is never touched here — see offerClozeEditor,
-  // called after the card is resolved, which asks the user rather than guessing.
+  // the lemma (createCardForSense). Cloze content is never touched here — that's the sticky bottom
+  // bar's separate "Add to Cloze" button's job entirely, deliberately not chained off this action.
   const resolveTargetCardId = async (deckId: string): Promise<string> => {
     if (!word?.card || !active) throw new Error(t('This word has no card yet.'))
     const senseChanged = headlineMeaning && headlineMeaning.id !== word.card.primaryMeaningId
@@ -553,10 +645,10 @@ export default function WordDetailScreen(): JSX.Element {
     await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
   }
 
-  // The manual cloze editor's target — set to open it, either from "Add to deck" (offerClozeEditor
-  // below) or the Cloze section's standalone button. Holding the target card id here (rather than
-  // always assuming word.card.id) is what lets the same sheet serve both a brand-new card from a
-  // sense change and the current one.
+  // The manual cloze editor's target — set to open it from the Cloze section's own "Add to
+  // Cloze"/"Edit Cloze" button. Holding the target card id here (rather than always assuming
+  // word.card.id) is what lets the same sheet serve both a brand-new card from a sense change and
+  // the current one.
   const [clozeEditor, setClozeEditor] = useState<{
     cardId: string
     sentence: string
@@ -564,31 +656,22 @@ export default function WordDetailScreen(): JSX.Element {
     cefrLevel: CefrLevel
   } | null>(null)
 
-  // Opens the cloze editor straight from "Add to deck", pre-filled with whatever example was just
-  // selected — cloze content is always opt-in and user-authored (see ClozeEditorSheet's doc
-  // comment for why automatic derivation didn't hold up), and the sheet's own Cancel button is
-  // already the "skip" affordance, so a confirm-first Alert here was just one extra tap with no
-  // extra information in it.
-  const offerClozeEditor = (cardId: string): void => {
-    if (!selectedExample || !active) return
-    setClozeEditor({
-      cardId,
-      sentence: selectedExample.sentence,
-      translation: selectedExample.translation,
-      cefrLevel: active.cluster.cefrLevel ?? defaultCefr,
-    })
-  }
-
   const addToDeck = useMutation({
-    mutationFn: async (deckId: string) => {
-      const cardId = await resolveTargetCardId(deckId)
-      await addCardToDeck(db, deckId, cardId)
-      return cardId
+    mutationFn: async (deck: { id: string; name: string }) => {
+      const cardId = await resolveTargetCardId(deck.id)
+      await addCardToDeck(db, deck.id, cardId)
+      return { cardId, deckName: deck.name }
     },
-    onSuccess: async (cardId) => {
+    // "Add to deck" only ever adds to the deck — it used to also auto-open the cloze editor, but
+    // that conflated two separate, deliberately opt-in actions (see the sticky bottom bar's own
+    // "Add to Cloze" button below, which is the one place cloze content actually gets created).
+    // Every review format except cloze (word->meaning, reverse, true/false, multiple choice) is
+    // already available for this card the moment it's in a deck; cloze only joins the rotation
+    // once its own button is used.
+    onSuccess: async ({ deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
-      offerClozeEditor(cardId)
+      setToast(t('Added to {{deck}}', { deck: deckName }))
     },
   })
 
@@ -602,12 +685,12 @@ export default function WordDetailScreen(): JSX.Element {
       await createDeck(db, { id, name, createdAt: now, updatedAt: now })
       const cardId = await resolveTargetCardId(id)
       await addCardToDeck(db, id, cardId)
-      return cardId
+      return { cardId, deckName: name }
     },
-    onSuccess: async (cardId) => {
+    onSuccess: async ({ deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
-      offerClozeEditor(cardId)
+      setToast(t('Added to {{deck}}', { deck: deckName }))
     },
     onError: (error: unknown) => showError(t('Could not create deck'), error),
   })
@@ -626,6 +709,23 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       setClozeEditor(null)
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
+      // Name the deck when it's unambiguous (already in exactly one) — same "which deck" feedback
+      // "Added to {{deck}}" already gives elsewhere. Left generic for zero decks (nothing to name
+      // yet — the picker opening right below is what actually answers that) or more than one
+      // (no single right answer to name).
+      const existingDecks = existingDecksQuery.data ?? []
+      setToast(existingDecks.length === 1 ? t('Cloze added to {{deck}}', { deck: existingDecks[0]!.name }) : t('Cloze added'))
+      // Cloze practice (standalone or as one of Mixed practice's rotating formats) only ever pulls
+      // from cards that are actually in a deck — the same rule every other format already follows.
+      // A card can reach this button before ever being added to one (cloze is available from the
+      // very first visit, not gated behind "Add to deck" first), so without this, the cloze content
+      // just saved would silently never be reviewable until the user separately remembered to add
+      // the word to a deck. existingDecksQuery is lemma-scoped, not card-scoped, but every path that
+      // reaches this button targets the lemma's one card in this native language, so "does this
+      // lemma have a deck yet" is the right question here.
+      if (existingDecks.length === 0) {
+        setDeckPickerOpen(true)
+      }
     },
     onError: (error: unknown) => showError(t('Could not save the cloze card'), error),
   })
@@ -662,6 +762,30 @@ export default function WordDetailScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
   })
 
+  // "More info" sheet content — see moreInfoByCluster's doc comment. Deliberately never fired
+  // automatically: only handleExplain's on-tap check below triggers this, and only when neither
+  // moreInfoByCluster nor the persisted active.cluster.moreInfo already has an entry. Persisted via
+  // updateClusterMoreInfo so a future visit (this session or not) never re-asks AI for the same
+  // cluster. A failure surfaces as an inline retry row in the sheet (see AIExplanationSheet's
+  // paragraphsError), not a blocking alert.
+  const generateMoreInfo = useMutation({
+    mutationFn: async () => {
+      if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
+      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.explainWordDetail(
+        word.lemma.form,
+        { label: active.cluster.label, description: active.cluster.description },
+        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
+      )
+      await updateClusterMoreInfo(db, active.cluster.id, result.data)
+      return result.data
+    },
+    onSuccess: async (paragraphs) => {
+      if (activeClusterId) setMoreInfoByCluster((prev) => ({ ...prev, [activeClusterId]: paragraphs }))
+      await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+    },
+  })
+
   // Regenerate — replaces every meaning cluster (meanings/examples/synonyms), phrase, and cloze
   // on this card with a fresh AI generation. Unlike generateExamples/generateExplanation above,
   // this is whole-card and destructive (old content is gone, not just supplemented), so it's
@@ -678,7 +802,7 @@ export default function WordDetailScreen(): JSX.Element {
         nativeLanguage,
       })
       if (result.kind === 'partial') {
-        throw new Error(t('Generation came back incomplete — nothing was changed. Try again.'))
+        throw new Error(t('Generation came back incomplete - nothing was changed. Try again.'))
       }
       const promptVersion = await getActivePromptVersion(db, 'word_package')
       if (!promptVersion) throw new Error('Prompt versions are not seeded yet.')
@@ -695,7 +819,6 @@ export default function WordDetailScreen(): JSX.Element {
       // The old explanation/synonyms/examples this thread referenced no longer exist, and so does
       // whichever cluster id was selected — the regenerated word gets entirely new cluster ids,
       // so a stale selection would find nothing and the Meanings section would render blank.
-      setFollowUps([])
       setClusterId(null)
       await queryClient.invalidateQueries()
     },
@@ -710,38 +833,36 @@ export default function WordDetailScreen(): JSX.Element {
     setRegenerateConfirmOpen(true)
   }
 
-  // A follow-up question typed into the "More info" sheet's composer. Deliberately NOT persisted
-  // to the card's own explanation/usage — an ephemeral, session-only thread (see the "More info"
-  // design decision this session): the base explanation stays the one stored, reusable answer,
-  // and follow-ups just accumulate in `followUps` for as long as this sheet stays open.
-  // Same soft-cancel shape as search.tsx's "Generate with AI": there's no network-level abort
-  // (see ProgressOverlay's doc comment), so Cancel just bumps this id — the eventual response,
-  // if it still arrives, is dropped in onSuccess instead of being added to the thread.
-  const askFollowUpRequestId = useRef(0)
-  const askFollowUp = useMutation({
-    mutationFn: async (question: string) => {
-      if (!ai) throw new Error(t('Add your AI provider key in Settings to ask a follow-up.'))
-      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
-      const myRequestId = ++askFollowUpRequestId.current
-      const result = await ai.generateMeaning(
-        word.lemma.form,
-        { label: active.cluster.label, description: active.cluster.description },
-        { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
-        question,
-      )
-      const generated = result.data[0]
-      return { question, explanation: generated?.explanation ?? '', usage: generated?.usage ?? null, myRequestId }
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
+  const deleteCardMutation = useMutation({
+    mutationFn: async () => {
+      if (!word) return
+      await deleteLemma(db, word.lemma.id)
     },
-    onSuccess: ({ myRequestId, ...entry }) => {
-      if (myRequestId !== askFollowUpRequestId.current) return
-      setFollowUps((prev) => [...prev, entry])
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search'] })
+      queryClient.invalidateQueries({ queryKey: ['word'] })
+      queryClient.invalidateQueries({ queryKey: ['recent-words'] })
+      queryClient.invalidateQueries({ queryKey: ['home-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['deck'] })
+      router.back()
     },
-    onError: (error: unknown) => showError(t('Could not get an answer'), error),
+    onError: (error: unknown) => showError(t('Could not delete this card'), error),
   })
 
-  const cancelAskFollowUp = (): void => {
-    askFollowUpRequestId.current += 1
-    askFollowUp.reset()
+  const handleDeleteCard = (): void => {
+    setDeleteConfirmOpen(true)
+  }
+
+  // A follow-up question typed into the "More info" sheet's composer no longer answers itself
+  // inline — it bridges straight to the persistent "Ask AI" chat instead (same card, full prior
+  // history already there), so there's exactly one place a word's Q&A history actually lives.
+  // Closing More Info first (rather than stacking both sheets) keeps only one modal on screen.
+  const bridgeToChat = (question: string): void => {
+    setAiSheetOpen(false)
+    setPendingChatMessage(question)
+    setAskAiOpen(true)
   }
 
   // AI cards show their explanation inline as soon as it exists — no tap required (see the
@@ -802,6 +923,15 @@ export default function WordDetailScreen(): JSX.Element {
     if (!headlineMeaning) return
     if (isAiCard) {
       setAiSheetOpen(true)
+      if (
+        activeClusterId &&
+        !moreInfoByCluster[activeClusterId] &&
+        !active?.cluster.moreInfo &&
+        !generateMoreInfo.isPending &&
+        ai
+      ) {
+        generateMoreInfo.mutate()
+      }
       return
     }
     if (explainVisible || guideModalOpen) {
@@ -820,34 +950,36 @@ export default function WordDetailScreen(): JSX.Element {
   // anywhere — built fresh from whatever's already loaded each render.
   const aiExplanationGuide: WordGuideEntry | null =
     explainVisible &&
-    !guideModalOpen &&
-    !lookupWordGuide.isPending &&
-    !generateExplanation.isPending &&
-    word &&
-    headlineMeaning?.explanation
+      !guideModalOpen &&
+      !lookupWordGuide.isPending &&
+      !generateExplanation.isPending &&
+      word &&
+      headlineMeaning?.explanation
       ? {
-          headword: word.lemma.form,
-          language: word.lemma.language,
-          chunkId: 0,
-          partOfSpeech: word.lemma.partOfSpeech,
-          translation: headlineMeaning.translation,
-          ...(headlineMeaning.usage && { usage: headlineMeaning.usage }),
-          intro: headlineMeaning.explanation,
-          synonyms: (active?.synonyms ?? []).map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
-          examples: selectedExample
-            ? [{ sentence: selectedExample.sentence, translation: selectedExample.translation, type: 'indicative' as const }]
-            : [],
-        }
+        headword: word.lemma.form,
+        language: word.lemma.language,
+        chunkId: 0,
+        partOfSpeech: word.lemma.partOfSpeech,
+        translation: headlineMeaning.translation,
+        ...(headlineMeaning.usage && { usage: headlineMeaning.usage }),
+        intro: headlineMeaning.explanation,
+        synonyms: (active?.synonyms ?? []).map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
+        examples: selectedExample
+          ? [{ sentence: selectedExample.sentence, translation: selectedExample.translation, type: 'indicative' as const }]
+          : [],
+      }
       : null
 
-  // "Ask AI" is a separate, minimal affordance from Explain/More info — just the follow-up
-  // question composer (see AskAISheet), available on every card, AI-sourced or not (askFollowUp
-  // only needs the active cluster's label/description, which every card has).
+  // "Ask AI" opens a full chat window scoped to this card (see WordChatSheet) — separate from
+  // Explain/More info, available on every card, AI-sourced or not. `!word.card` never actually
+  // happens here in practice (the button only renders once headlineMeaning exists, which itself
+  // requires a card), but the guard keeps the sheet's `cardId` prop non-nullable.
   const handleAskAI = (): void => {
     if (!ai) {
-      aiRequiredAlert.show(t('ask a follow-up question'))
+      aiRequiredAlert.show(t('chat with your AI tutor'))
       return
     }
+    if (!word || !active || !word.card) return
     setAskAiOpen(true)
   }
 
@@ -900,14 +1032,43 @@ export default function WordDetailScreen(): JSX.Element {
     void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(word.lemma.form)}`)
   }
 
-  if (wordQuery.isPending || (generateMissingWord.isPending && !word)) {
-    const loadingMessage = generateMissingWord.isPending
-      ? (generatingWordMessages[generatingWordMessageIndex] ?? t('Generating AI card for "{{form}}"...', { form: form ?? '' }))
-      : t('Loading…')
+  if (wordQuery.isPending) {
     return (
       <>
         <Stack.Screen options={{ title: form ?? '' }} />
-        <Spinner message={loadingMessage} />
+        <Spinner message={t('Loading...')} />
+      </>
+    )
+  }
+
+  // Landing here for a word with no local card yet (deep link, share intent, Word of the Day, or
+  // any direct navigation not already covered by the optimistic-card flow in search.tsx)
+  // auto-generates via generateMissingWord below. Show the real screen shell immediately with
+  // just the headword and the same AI-enriching badge autoEnrichMutation uses further down,
+  // instead of a full-screen blocking spinner — an instant, near-empty page beats staring at a
+  // spinner for the whole AI round-trip, and reusing the badge keeps both "upgrading" cases on
+  // this screen consistent. When the caller already knows a short gist (Word of the Day's
+  // dashboard card/notification both show one), initialExplanation shows that here too instead of
+  // leaving the learner with nothing but a spinner until the full card lands.
+  const isGeneratingNewWord = !word && !wordQuery.isError && !!pipeline && !generateMissingWord.isError
+  if (isGeneratingNewWord) {
+    return (
+      <>
+        <Stack.Screen options={{ title: '' }} />
+        <View style={styles.skeletonContainer}>
+          <Text style={styles.wordForm} selectable>
+            {nativeTerm ?? form}
+          </Text>
+          {initialExplanation ? (
+            <Text style={styles.explanation} selectable>
+              {initialExplanation}
+            </Text>
+          ) : null}
+          <View style={styles.aiEnrichingBadge}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples...')}</Text>
+          </View>
+        </View>
       </>
     )
   }
@@ -922,8 +1083,8 @@ export default function WordDetailScreen(): JSX.Element {
               wordQuery.isError
                 ? String(wordQuery.error)
                 : generateMissingWord.isError
-                ? String(generateMissingWord.error)
-                : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
+                  ? String(generateMissingWord.error)
+                  : t('"{{form}}" isn\'t in your library yet.', { form: form ?? '' })
             }
             {...(wordQuery.isError || generateMissingWord.isError ? { onRetry: () => void generateMissingWord.mutate() } : {})}
           />
@@ -947,10 +1108,22 @@ export default function WordDetailScreen(): JSX.Element {
   ]
     .filter(Boolean)
     .join(' · ')
-  const inflectionMeta = word.inflections
+  const inflectionForms = word.inflections
     .filter((inf) => inf.surface !== word.lemma.form)
     .map((inf) => inf.surface)
-    .join(' · ')
+  const grammarInfo = [lemmaMeta, ...inflectionForms].filter(Boolean).join(' · ')
+
+  // A card opened via "Generate with AI" (search.tsx) starts life with a dictionary source — the
+  // optimistic card is created before the AI call even starts, see search.tsx's generate mutation
+  // — so isAiCard alone stays false for the whole window between navigation and a successful
+  // autoEnrichMutation, including forever if that enrichment fails. That's not a dictionary card
+  // by intent, so Edit shouldn't appear on it just because enrichment hasn't landed yet — autoEnrich
+  // (set for exactly this flow, see the effect above) is the signal that distinguishes "AI content
+  // hasn't arrived yet" from "this really is a plain dictionary/word-guide card."
+  const aiIntended = isAiCard || autoEnrich === 'true'
+  // Regenerate/More info/Ask AI all read or rewrite this card's AI content — disabled while some
+  // other AI write for it is already in flight, so a tap can't race a background one.
+  const aiEnriching = autoEnrichMutation.isPending || regenerateCard.isPending
 
   return (
     <>
@@ -972,35 +1145,89 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.headerText}>
             <View style={styles.wordFormRow}>
               <Text style={styles.wordForm} selectable>{nativeTerm ?? word.lemma.form}</Text>
-              <CardSourceIcon source={word.card?.source} size={18} />
+              <CardSourceIcon
+                source={
+                  word.card?.source && !['google', 'google_translate', 'word_guide'].includes(word.card.source)
+                    ? word.card.source
+                    : (ai?.name ? dictionaryNameToCardSource(ai.name) : word.card?.source)
+                }
+                size={18}
+              />
             </View>
-            <Text style={styles.wordMeta}>
-              {lemmaMeta}
-              {inflectionMeta ? ` · ${inflectionMeta}` : ''}
-            </Text>
+            {autoEnrichMutation.isPending ? (
+              <View style={styles.aiEnrichingBadge}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.aiEnrichingText}>{t('✨ AI enriching meanings & examples...')}</Text>
+              </View>
+            ) : null}
+            {/* Part of speech/gender/plural and inflected forms both collapsed behind one tap by
+                default — neither is needed to judge whether this is the right word before reading
+                its meaning, and a verb's full conjugation set dumped inline right under the
+                headword was the actual clutter. One combined toggle rather than two, since both
+                are the same kind of thing (grammar metadata) and showing "verb" without a way to
+                see its forms (or vice versa) would be an arbitrary split. */}
+            {grammarInfo !== '' ? (
+              <>
+                <Pressable
+                  style={styles.formsToggle}
+                  onPress={() => setFormsExpanded((prev) => !prev)}
+                  hitSlop={8}
+                >
+                  <Text style={styles.formsToggleLabel}>
+                    {formsExpanded ? t('Hide grammar info') : t('Grammar info')}
+                  </Text>
+                  <Ionicons
+                    name={formsExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={13}
+                    color={colors.primary}
+                  />
+                </Pressable>
+                {formsExpanded ? <Text style={styles.wordMeta}>{grammarInfo}</Text> : null}
+              </>
+            ) : null}
           </View>
           <SpeakerButton text={word.lemma.form} language={word.lemma.language} size={26} />
         </View>
 
-        {/* ── Cluster tabs (one per semantic context) ── */}
-        <View style={styles.clusterTabs}>
-          {word.clusters.map(({ cluster }) => (
-            <Pressable
-              key={cluster.id}
-              onPress={() => setClusterId(cluster.id)}
-              style={[styles.clusterTab, cluster.id === activeClusterId && styles.clusterTabActive]}
-            >
-              <Text
-                style={[
-                  styles.clusterTabLabel,
-                  cluster.id === activeClusterId && styles.clusterTabLabelActive,
-                ]}
-              >
-                {cluster.label}
-              </Text>
-              <CefrBadge level={cluster.cefrLevel} />
-            </Pressable>
-          ))}
+        {/* ── Cluster tabs (only meaningful with more than one semantic sense — a single-cluster
+            word has nothing to switch between, so the row is skipped entirely rather than
+            floating one lone pill). A real segmented-control shape (rounded track background,
+            elevated white pill for the active tab) replaces the old flex-wrapped chip row, which
+            broke unevenly across lines and read as loose chips rather than a deliberate switcher.
+            Horizontal scroll instead of wrap means it never breaks awkwardly even with many
+            senses. The CEFR badge only shows on the active tab — showing it on every tab competed
+            with the segmented control's own selected/unselected state for attention. ── */}
+        {/* ── Semantic Contexts Section ── */}
+        <View style={styles.clusterSection}>
+          <View style={styles.clusterSectionHeader}>
+            <View style={styles.clusterTitleRow}>
+              <Ionicons name="layers-outline" size={16} color={colors.primary} />
+              <Text style={styles.clusterSectionLabel}>{t('Semantic Contexts')}</Text>
+            </View>
+            <Text style={styles.clusterCountBadge}>
+              {t('{{count}} contexts', { count: word.clusters.length })}
+            </Text>
+          </View>
+
+          {word.clusters.length > 1 ? (
+            <View style={styles.clusterTabsTrack}>
+              {word.clusters.map(({ cluster }) => {
+                const isActive = cluster.id === activeClusterId
+                return (
+                  <Pressable
+                    key={cluster.id}
+                    onPress={() => setClusterId(cluster.id)}
+                    style={[styles.clusterTab, isActive && styles.clusterTabActive]}
+                  >
+                    <Text style={[styles.clusterTabLabel, isActive && styles.clusterTabLabelActive]}>
+                      {cluster.label}
+                    </Text>
+                    {isActive ? <CefrBadge level={cluster.cefrLevel} /> : null}
+                  </Pressable>
+                )
+              })}
+            </View>
+          ) : null}
         </View>
 
         {active ? (
@@ -1020,24 +1247,32 @@ export default function WordDetailScreen(): JSX.Element {
                   <Text style={styles.primaryMeaning} selectable>
                     {nativeTerm ? word.lemma.form : headlineMeaning.translation}
                   </Text>
-                  {isAiCard ? (
-                    <Text style={styles.explanation} selectable>
-                      {generateExplanation.isPending ? t('Generating…') : headlineMeaning.explanation || t('No explanation yet.')}
-                    </Text>
-                  ) : null}
+                  {(() => {
+                    const explanationToDisplay =
+                      headlineMeaning?.explanation && headlineMeaning.explanation.trim() !== ''
+                        ? headlineMeaning.explanation
+                        : initialExplanation
+                    return explanationToDisplay || isAiCard ? (
+                      <Text style={styles.explanation} selectable>
+                        {explanationToDisplay ??
+                          (generateExplanation.isPending ? t('Generating...') : isAiCard ? t('No explanation yet.') : null)}
+                      </Text>
+                    ) : null
+                  })()}
                 </Card>
                 <CardActionBar
                   onExplain={handleExplain}
                   explainVisible={isAiCard || explainVisible}
                   explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
                   {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
-                  onEdit={openEdit}
+                  {...(!aiIntended && { onEdit: openEdit })}
                   onLookup={handleLookup}
                   onAskAI={handleAskAI}
-                  {...(isAiCard && {
-                    onRegenerate: handleRegenerate,
-                    regenerateLoading: regenerateCard.isPending,
-                  })}
+                  onRegenerate={handleRegenerate}
+                  regenerateLoading={regenerateCard.isPending}
+                  aiActionsDisabled={aiEnriching}
+                  onDelete={handleDeleteCard}
+                  deleteLoading={deleteCardMutation.isPending}
                 />
               </>
             ) : null}
@@ -1074,25 +1309,29 @@ export default function WordDetailScreen(): JSX.Element {
                     ex.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
                   ]}
                 >
-                  {ex.isSelected ? (
-                    <View style={styles.selectedBanner}>
-                      <Ionicons name="star" size={14} color={colors.primary} />
-                      <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
-                    </View>
-                  ) : (
-                    <Pressable
-                      style={styles.selectedBanner}
-                      onPress={() => selectExample.mutate(ex.id)}
-                      disabled={selectExample.isPending}
-                      hitSlop={10}
-                    >
-                      <Ionicons name="star-outline" size={14} color={colors.textMuted} />
-                      <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
-                    </Pressable>
-                  )}
+                  <View style={styles.exampleHeaderRow}>
+                    {ex.isSelected ? (
+                      <View style={styles.selectedBanner}>
+                        <Ionicons name="star" size={14} color={colors.primary} />
+                        <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
+                      </View>
+                    ) : (
+                      <Pressable
+                        style={styles.selectedBanner}
+                        onPress={() => selectExample.mutate(ex.id)}
+                        disabled={selectExample.isPending}
+                        hitSlop={10}
+                      >
+                        <Ionicons name="star-outline" size={14} color={colors.textMuted} />
+                        <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
+                      </Pressable>
+                    )}
+
+                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                  </View>
+
                   <View style={styles.exampleSentenceRow}>
                     <Text style={styles.exampleSentence} selectable>{ex.sentence}</Text>
-                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
                   </View>
                   <Text style={styles.exampleTranslation} selectable>{ex.translation}</Text>
                   <View style={styles.exampleFooter}>
@@ -1107,96 +1346,232 @@ export default function WordDetailScreen(): JSX.Element {
                 </Card>
               ))}
 
-            {/* ── Grammar controls panel (advanced, collapsible) ── */}
-            <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen((v) => !v)}>
-              <Ionicons name="options" size={16} color={colors.primary} />
+            {tier === 'full' && active.examples.length > 0 && (
+              <View style={styles.moreExamplesContainer}>
+                <Button
+                  label={generateExamples.isPending ? t('Generating more examples...') : t('Generate more examples')}
+                  icon="sparkles"
+                  variant="secondary"
+                  small
+                  disabled={generateExamples.isPending}
+                  onPress={() => generateExamples.mutate()}
+                />
+              </View>
+            )}
+
+            {/* ── Advanced grammar options trigger button ── */}
+            <Pressable style={styles.grammarToggle} onPress={() => setGrammarOpen(true)}>
+              <Ionicons name="options-outline" size={16} color={colors.primary} />
               <Text style={styles.grammarToggleLabel}>
                 {t('Advanced grammar options')}{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}
               </Text>
-              <Ionicons name={grammarOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+              <Ionicons name="chevron-forward" size={16} color={colors.primary} />
             </Pressable>
 
-            {grammarOpen ? (
-              <Card style={styles.grammarPanel}>
-                {getGrammarGroups(targetLanguage).map((group) => (
-                  <View key={group.title} style={styles.grammarGroup}>
-                    <Text style={styles.grammarGroupTitle}>{t(group.title)}</Text>
-                    <View style={styles.chipRow}>
-                      {group.options.map((option) => (
-                        <Chip
-                          key={option}
-                          label={option}
-                          selected={grammarSelection.includes(option)}
-                          onPress={() => toggleGrammar(option)}
-                        />
-                      ))}
+            {/* ── Advanced Grammar Options Modal Pop-Up ── */}
+            <Modal
+              visible={grammarOpen}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setGrammarOpen(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <Pressable style={StyleSheet.absoluteFill} onPress={() => setGrammarOpen(false)} />
+                <View style={styles.grammarModalContent}>
+                  <View style={styles.grammarModalHeader}>
+                    <View style={styles.grammarModalTitleRow}>
+                      <Ionicons name="options" size={20} color={colors.primary} />
+                      <Text style={styles.grammarModalTitle}>{t('Advanced Grammar Options')}</Text>
                     </View>
+                    <Pressable
+                      style={styles.grammarModalCloseBtn}
+                      onPress={() => setGrammarOpen(false)}
+                      hitSlop={10}
+                    >
+                      <Ionicons name="close" size={20} color={colors.textSecondary} />
+                    </Pressable>
                   </View>
-                ))}
-                {grammarSelection.length > 0 ? (
-                  <Text style={styles.grammarSummary}>{t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}</Text>
-                ) : null}
-                {tier === 'full' ? (
-                  <Button
-                    label={generateExamples.isPending ? t('Generating…') : t('Generate examples')}
-                    icon="sparkles"
-                    disabled={generateExamples.isPending}
-                    onPress={() => generateExamples.mutate()}
-                  />
-                ) : (
-                  <>
-                    <Text style={styles.limitedHint}>
-                      {t('No AI provider is active — add and enable one to generate targeted examples.')}
+
+                  <ScrollView
+                    style={styles.grammarModalBody}
+                    contentContainerStyle={{ paddingBottom: spacing.md }}
+                    showsVerticalScrollIndicator={true}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <Text style={styles.grammarModalSubtitle}>
+                      {t('Select grammar structures to exercise in your examples:')}
                     </Text>
-                    <Button
-                      label={t('Open Settings')}
-                      icon="key-outline"
-                      variant="secondary"
-                      small
-                      onPress={() => router.push('/settings')}
-                    />
-                  </>
-                )}
-                {generateExamples.isError ? (
-                  <Text style={styles.generateError}>{String(generateExamples.error)}</Text>
-                ) : null}
-              </Card>
-            ) : null}
+
+                    {getGrammarGroups(targetLanguage).map((group) => (
+                      <View key={group.title} style={styles.grammarGroup}>
+                        <Text style={styles.grammarGroupTitle}>{t(group.title)}</Text>
+                        <View style={styles.chipRow}>
+                          {group.options.map((option) => (
+                            <Chip
+                              key={option}
+                              label={option}
+                              selected={grammarSelection.includes(option)}
+                              onPress={() => toggleGrammar(option)}
+                            />
+                          ))}
+                        </View>
+                      </View>
+                    ))}
+
+                    {/* Custom Grammar Rule Input */}
+                    <View style={styles.grammarGroup}>
+                      <Text style={styles.grammarGroupTitle}>{t('Custom Grammar Rule')}</Text>
+                      <View style={styles.customGrammarInputRow}>
+                        <TextInput
+                          style={styles.customGrammarInput}
+                          placeholder={t('e.g. Past perfect continuous, reported speech...')}
+                          placeholderTextColor={colors.textMuted}
+                          value={customGrammarInput}
+                          onChangeText={setCustomGrammarInput}
+                          onSubmitEditing={handleAddCustomGrammar}
+                          returnKeyType="done"
+                        />
+                        <Pressable
+                          style={[
+                            styles.addCustomGrammarBtn,
+                            !customGrammarInput.trim() && styles.addCustomGrammarBtnDisabled,
+                          ]}
+                          onPress={handleAddCustomGrammar}
+                          disabled={!customGrammarInput.trim()}
+                        >
+                          <Ionicons
+                            name="add"
+                            size={20}
+                            color={customGrammarInput.trim() ? colors.surface : colors.textMuted}
+                          />
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    {grammarSelection.length > 0 ? (
+                      <View style={styles.grammarSummaryBox}>
+                        <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                        <Text style={styles.grammarSummary}>
+                          {t('Active: {{selection}}', { selection: grammarSelection.join(' + ') })}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </ScrollView>
+
+                  <View style={styles.grammarModalFooter}>
+                    {tier === 'full' ? (
+                      <Button
+                        label={generateExamples.isPending ? t('Generating examples...') : t('Generate targeted examples')}
+                        icon="sparkles"
+                        disabled={generateExamples.isPending}
+                        onPress={() => {
+                          setGrammarOpen(false)
+                          generateExamples.mutate()
+                        }}
+                      />
+                    ) : (
+                      <View style={styles.grammarModalNoAi}>
+                        <Text style={styles.limitedHint}>
+                          {t('No AI provider is active - add and enable one to generate targeted examples.')}
+                        </Text>
+                        <Button
+                          label={t('Open Settings')}
+                          icon="key-outline"
+                          variant="secondary"
+                          small
+                          onPress={() => {
+                            setGrammarOpen(false)
+                            router.push('/settings')
+                          }}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </View>
+            </Modal>
 
             {/* ── Synonyms ── */}
             {active.synonyms.length > 0 ? (
               <>
                 <SectionHeader title={t('Synonyms')} />
                 <Card>
-                  {active.synonyms.map((syn, i) => (
-                    <Pressable
-                      key={syn.id}
-                      style={({ pressed }) => [
-                        styles.synRow,
-                        i > 0 && styles.rowDivider,
-                        pressed && styles.synRowPressed,
-                      ]}
-                      onPress={() => router.push(`/word/${encodeURIComponent(syn.word)}`)}
-                    >
-                      <View style={styles.synText}>
-                        <View style={styles.synWordRow}>
-                          <Text style={styles.synWord} selectable>{syn.word}</Text>
-                          <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                  {active.synonyms.map((syn, i) => {
+                    const isExpanded = !!expandedSynonyms[syn.id]
+                    return (
+                      <View key={syn.id} style={[styles.synBlock, i > 0 && styles.rowDivider]}>
+                        <View style={styles.synMainRow}>
+                          <Text style={styles.synWord} selectable>
+                            {syn.word}
+                          </Text>
+
+                          <View style={styles.synActionsGroup}>
+                            <Pressable
+                              style={({ pressed }) => [
+                                styles.synAiSparkleBtn,
+                                isExpanded && styles.synAiSparkleBtnActive,
+                                pressed && styles.synAiSparkleBtnPressed,
+                              ]}
+                              onPress={() => handleToggleSynonym(syn, active?.cluster.description)}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('AI Usage & Nuance')}
+                            >
+                              <Ionicons
+                                name={isExpanded ? 'sparkles' : 'sparkles-outline'}
+                                size={15}
+                                color={isExpanded ? colors.surface : colors.primary}
+                              />
+                            </Pressable>
+
+                            <Pressable
+                              style={({ pressed }) => [
+                                styles.synOpenCardBtn,
+                                pressed && styles.synOpenCardBtnPressed,
+                              ]}
+                              onPress={() => router.push(`/word/${encodeURIComponent(syn.word)}`)}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('Open Flashcard')}
+                            >
+                              <Ionicons name="open-outline" size={16} color={colors.textSecondary} />
+                            </Pressable>
+                          </View>
                         </View>
-                        <Text style={styles.synNuance} selectable>
-                          {syn.formality}
-                          {syn.nuance ? ` · ${syn.nuance}` : ''}
-                        </Text>
+
+                        {isExpanded ? (
+                          <View style={styles.synInlineExplanationCard}>
+                            {loadingSynonymNuance[syn.id] ? (
+                              <View style={styles.synInlineHeader}>
+                                <ActivityIndicator size="small" color={colors.primary} />
+                                <Text style={styles.synInlineLoadingText}>
+                                  {t('Fetching AI usage & nuance for "{{synonym}}"...', { synonym: syn.word })}
+                                </Text>
+                              </View>
+                            ) : (
+                              <>
+                                <View style={styles.synInlineHeader}>
+                                  <Ionicons name="sparkles" size={13} color={colors.primary} />
+                                  <Text style={styles.synInlineTitle}>{t('AI Usage & Nuance')}</Text>
+                                </View>
+                                <Text style={styles.synInlineText} selectable>
+                                  {syn.nuance
+                                    ? syn.nuance
+                                    : t('Used as a {{formality}} synonym for {{word}}.', {
+                                        formality: syn.formality ?? 'general',
+                                        word: form,
+                                      })}
+                                </Text>
+                                {syn.formality ? (
+                                  <View style={styles.synTagRow}>
+                                    <Chip label={syn.formality} />
+                                  </View>
+                                ) : null}
+                              </>
+                            )}
+                          </View>
+                        ) : null}
                       </View>
-                      <CefrBadge level={syn.cefrLevel} />
-                      <EvalBar
-                        activeRating={ratingFor(syn.id)}
-                        onUp={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'up' })}
-                        onDown={() => evaluate.mutate({ targetType: 'synonym', targetId: syn.id, rating: 'down' })}
-                        onReport={() => setReportTarget({ targetType: 'synonym', targetId: syn.id })}
-                      />
-                    </Pressable>
-                  ))}
+                    )
+                  })}
                 </Card>
               </>
             ) : null}
@@ -1218,8 +1593,18 @@ export default function WordDetailScreen(): JSX.Element {
                 <Text style={styles.phraseExampleTranslation} selectable>{phrase.exampleTranslation}</Text>
               </Card>
             ))}
+            {/* A solid-color, icon+label pill — not the icon-only circle this replaced, which
+                turned out too easy to miss, and not the old full-width button either. High
+                contrast + a shadow so it visibly reads as "tap me" at a glance. */}
             <Pressable
-              style={styles.loadMorePhrasesBtn}
+              style={({ pressed }) => [
+                styles.phrasesPill,
+                styles.phrasesLoadMorePill,
+                pressed && styles.phrasesPillPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={t('Load more phrases with AI')}
+              disabled={generatePhrases.isPending}
               onPress={() => {
                 if (!ai) {
                   aiRequiredAlert.show(t('generate phrases for this word'))
@@ -1227,34 +1612,27 @@ export default function WordDetailScreen(): JSX.Element {
                 }
                 generatePhrases.mutate()
               }}
-              disabled={generatePhrases.isPending}
             >
               {generatePhrases.isPending ? (
-                <ActivityIndicator size="small" color={colors.primary} />
+                <ActivityIndicator size="small" color={colors.textOnPrimary} />
               ) : (
-                <>
-                  <Ionicons name="sparkles-outline" size={14} color={colors.primary} />
-                  <Text style={styles.loadMorePhrasesLabel}>{t('Load more phrases with AI')}</Text>
-                </>
+                <Ionicons name="sparkles" size={15} color={colors.textOnPrimary} />
               )}
+              <Text style={styles.phrasesPillLabel}>
+                {generatePhrases.isPending ? t('Generating...') : t('Load more with AI')}
+              </Text>
             </Pressable>
           </>
         ) : (
           <Card style={styles.phrasesEmptyCard}>
-            <View style={styles.phrasesEmptyRow}>
-              <View style={styles.phrasesEmptyIcon}>
-                <Ionicons name="chatbubbles-outline" size={24} color={colors.primary} />
-              </View>
-              <View style={styles.phrasesEmptyTextGroup}>
-                <Text style={styles.phrasesEmptyTitle}>{t('Idioms & Collocations')}</Text>
-                <Text style={styles.phrasesEmptySubtitle}>
-                  {t('Explore common idioms, expressions, and collocations with AI.')}
-                </Text>
-              </View>
-            </View>
-            <Button
-              label={generatePhrases.isPending ? t('Generating phrases…') : t('Load Phrases & Collocations')}
-              variant="secondary"
+            <Text style={styles.phrasesEmptySubtitle}>
+              {t('Discover common expressions and word combinations for this word.')}
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.phrasesPill, pressed && styles.phrasesPillPressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t('Explore idioms and collocations with AI')}
+              disabled={generatePhrases.isPending}
               onPress={() => {
                 if (!ai) {
                   aiRequiredAlert.show(t('generate phrases for this word'))
@@ -1262,8 +1640,16 @@ export default function WordDetailScreen(): JSX.Element {
                 }
                 generatePhrases.mutate()
               }}
-              disabled={generatePhrases.isPending}
-            />
+            >
+              {generatePhrases.isPending ? (
+                <ActivityIndicator size="small" color={colors.textOnPrimary} />
+              ) : (
+                <Ionicons name="sparkles" size={16} color={colors.textOnPrimary} />
+              )}
+              <Text style={styles.phrasesPillLabel}>
+                {generatePhrases.isPending ? t('Generating...') : t('Explore with AI')}
+              </Text>
+            </Pressable>
           </Card>
         )}
 
@@ -1321,9 +1707,9 @@ export default function WordDetailScreen(): JSX.Element {
         db={db}
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
-        title={t('Add "{{form}}" to…', { form: word.lemma.form })}
+        title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
-        onSelectDeck={(deck) => addToDeck.mutate(deck.id)}
+        onSelectDeck={(deck) => addToDeck.mutate(deck)}
         selecting={addToDeck.isPending}
         onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
         creating={createDeckAndAdd.isPending}
@@ -1335,6 +1721,7 @@ export default function WordDetailScreen(): JSX.Element {
         visible={clozeEditor !== null}
         initialSentence={clozeEditor?.sentence ?? ''}
         initialTranslation={clozeEditor?.translation ?? ''}
+        word={word.lemma.form}
         onCancel={() => setClozeEditor(null)}
         onSave={(result) => saveCloze.mutate(result)}
         saving={saveCloze.isPending}
@@ -1357,55 +1744,60 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t('Edit this card')}</Text>
-          <Text style={styles.editLabel}>{t('Meaning')}</Text>
-          <TextInput
-            testID="edit-meaning-input"
-            style={styles.editInput}
-            value={editMeaning}
-            onChangeText={setEditMeaning}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <View style={styles.editLabelRow}>
-            <Text style={styles.editLabel}>{t('Example sentence')}</Text>
-            {tier === 'full' ? (
-              <Pressable
-                style={styles.generateInlineButton}
-                onPress={() => generateEditExample.mutate()}
-                disabled={generateEditExample.isPending}
-              >
-                {generateEditExample.isPending ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <Ionicons name="sparkles" size={14} color={colors.primary} />
-                )}
-                <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
-              </Pressable>
-            ) : null}
-          </View>
-          <TextInput
-            style={styles.editInput}
-            value={editExample}
-            onChangeText={setEditExample}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <Text style={styles.editLabel}>{t('Example translation')}</Text>
-          <TextInput
-            style={styles.editInput}
-            value={editTranslation}
-            onChangeText={setEditTranslation}
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
+          {/* Capped + scrollable (see modalSheet's maxHeight) — three multiline fields can grow
+              taller than the screen at large system font/display scaling; Cancel/Save stay
+              pinned outside the scroll. */}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <Text style={styles.editLabel}>{t('Meaning')}</Text>
+            <TextInput
+              testID="edit-meaning-input"
+              style={styles.editInput}
+              value={editMeaning}
+              onChangeText={setEditMeaning}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <View style={styles.editLabelRow}>
+              <Text style={styles.editLabel}>{t('Example sentence')}</Text>
+              {tier === 'full' ? (
+                <Pressable
+                  style={styles.generateInlineButton}
+                  onPress={() => generateEditExample.mutate()}
+                  disabled={generateEditExample.isPending}
+                >
+                  {generateEditExample.isPending ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : (
+                    <Ionicons name="sparkles" size={14} color={colors.primary} />
+                  )}
+                  <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+            <TextInput
+              style={styles.editInput}
+              value={editExample}
+              onChangeText={setEditExample}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Text style={styles.editLabel}>{t('Example translation')}</Text>
+            <TextInput
+              style={styles.editInput}
+              value={editTranslation}
+              onChangeText={setEditTranslation}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {saveEdit.isError ? <Text style={styles.generateError}>{String(saveEdit.error)}</Text> : null}
+          </ScrollView>
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
             <Button
-              label={saveEdit.isPending ? t('Saving…') : t('Save changes')}
+              label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
               icon="save"
               onPress={() => saveEdit.mutate()}
               disabled={saveEdit.isPending}
@@ -1425,29 +1817,31 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t("What's wrong with this?")}</Text>
-          <View style={styles.chipRow}>
-            {REPORT_REASONS.map((r) => (
-              <Chip
-                key={r.value}
-                label={t(r.label)}
-                selected={reportReason === r.value}
-                onPress={() => setReportReason(r.value)}
-              />
-            ))}
-          </View>
-          <TextInput
-            style={styles.reportNoteInput}
-            placeholder={t('Optional details…')}
-            placeholderTextColor={colors.textMuted}
-            multiline
-            value={reportNote}
-            onChangeText={setReportNote}
-          />
-          {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
+            <View style={styles.chipRow}>
+              {REPORT_REASONS.map((r) => (
+                <Chip
+                  key={r.value}
+                  label={t(r.label)}
+                  selected={reportReason === r.value}
+                  onPress={() => setReportReason(r.value)}
+                />
+              ))}
+            </View>
+            <TextInput
+              style={styles.reportNoteInput}
+              placeholder={t('Optional details...')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+              value={reportNote}
+              onChangeText={setReportNote}
+            />
+            {report.isError ? <Text style={styles.generateError}>{String(report.error)}</Text> : null}
+          </ScrollView>
           <View style={styles.reportActions}>
             <Button label={t('Cancel')} variant="ghost" onPress={() => setReportTarget(null)} />
             <Button
-              label={report.isPending ? t('Sending…') : t('Send report')}
+              label={report.isPending ? t('Sending...') : t('Send report')}
               disabled={reportReason === null || report.isPending}
               onPress={() =>
                 reportTarget &&
@@ -1466,7 +1860,7 @@ export default function WordDetailScreen(): JSX.Element {
           setGuideModalOpen(false)
           setExplainVisible(false)
         }}
-        {...(!guideModalOpen && { footnote: t('Generated with AI — not from your installed dictionary.') })}
+        {...(!guideModalOpen && { footnote: t('Generated with AI - not from your installed dictionary.') })}
       />
 
       {/* "More info" — AI cards only, the rich explanation/synonyms/usage sheet. */}
@@ -1477,27 +1871,37 @@ export default function WordDetailScreen(): JSX.Element {
           headword={word.lemma.form}
           partOfSpeech={word.lemma.partOfSpeech}
           language={word.lemma.language}
-          translation={headlineMeaning.translation}
-          explanation={headlineMeaning.explanation}
-          usage={headlineMeaning.usage ?? null}
-          loading={generateExplanation.isPending}
-          synonyms={active?.synonyms ?? []}
-          followUps={followUps}
-          askLoading={askFollowUp.isPending}
-          onAsk={(question) => askFollowUp.mutate(question)}
-          onAskCancel={cancelAskFollowUp}
+          paragraphs={
+            (activeClusterId ? moreInfoByCluster[activeClusterId] : undefined) ?? active?.cluster.moreInfo ?? []
+          }
+          loading={generateMoreInfo.isPending}
+          paragraphsError={generateMoreInfo.isError}
+          onRetryParagraphs={() => generateMoreInfo.mutate()}
+          onAsk={bridgeToChat}
         />
       ) : null}
 
-      {/* "Ask AI" — every card, AI-sourced or not; just the question composer + Q&A thread. */}
-      <AskAISheet
-        visible={askAiOpen}
-        onClose={() => setAskAiOpen(false)}
-        followUps={followUps}
-        askLoading={askFollowUp.isPending}
-        onAsk={(question) => askFollowUp.mutate(question)}
-        onAskCancel={cancelAskFollowUp}
-      />
+      {/* "Ask AI" — a full chat window scoped to this card, available on every card, AI-sourced or
+          not. Only mounted once everything it needs is actually available — handleAskAI already
+          guards opening it without those, so this is just keeping the type checker honest.
+          initialMessage carries over a question typed into "More info"'s composer (see
+          bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
+      {ai && word?.card && active ? (
+        <WordChatSheet
+          visible={askAiOpen}
+          onClose={() => setAskAiOpen(false)}
+          db={db}
+          ai={ai}
+          cardId={word.card.id}
+          word={word.lemma.form}
+          cluster={{ label: active.cluster.label, description: active.cluster.description }}
+          cefrLevel={defaultCefr}
+          language={word.lemma.language}
+          nativeLanguage={nativeLanguage}
+          {...(pendingChatMessage !== undefined && { initialMessage: pendingChatMessage })}
+          onInitialMessageSent={() => setPendingChatMessage(undefined)}
+        />
+      ) : null}
 
       {aiRequiredAlert.modal}
 
@@ -1514,197 +1918,479 @@ export default function WordDetailScreen(): JSX.Element {
         destructive
       />
 
+      <ConfirmModal
+        visible={deleteConfirmOpen}
+        title={t('Delete this card?')}
+        message={t('This permanently deletes this card and all its meanings, examples, synonyms, phrases, and cloze variations. This cannot be undone.')}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false)
+          deleteCardMutation.mutate()
+        }}
+        confirmLabel={t('Delete')}
+        destructive
+      />
+
       <AlertModal
         visible={errorNotice !== null}
         title={errorNotice?.title ?? ''}
         message={errorNotice?.message ?? ''}
         onClose={() => setErrorNotice(null)}
       />
+
+      <Toast message={toast} onHide={() => setToast(null)} />
     </>
   )
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-  headerText: { flex: 1, marginRight: spacing.md },
-  wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
-  wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  clusterTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
-  clusterTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
-  },
-  clusterTabActive: { backgroundColor: colors.primary },
-  clusterTabLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
-  clusterTabLabelActive: { color: colors.textOnPrimary },
-  meaningCard: { marginTop: spacing.lg },
-  primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
-  examplesHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  examplesFilterDropdown: { width: 175 },
-  exampleCard: { marginBottom: spacing.sm },
-  exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  selectedBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
-  reportNoteInput: {
-    minHeight: 72,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-    textAlignVertical: 'top',
-  },
-  reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
-  editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
-  editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
-  editInput: {
-    fontSize: type.body,
-    color: colors.text,
-    minHeight: 44,
-    textAlignVertical: 'top',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
-  },
-  exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
-  exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
-  exampleFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: spacing.md,
-  },
-  grammarToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  grammarToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  grammarPanel: { gap: spacing.md, marginBottom: spacing.md },
-  grammarGroup: {},
-  grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
-  grammarSummary: { fontSize: type.micro, color: colors.textSecondary, fontStyle: 'italic' },
-  limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
-  generateError: { fontSize: type.caption, color: colors.danger },
-  synRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
-  synText: { flex: 1, marginRight: spacing.md },
-  synWord: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  synNuance: { fontSize: type.caption, color: colors.textSecondary, marginTop: 1 },
-  synRowPressed: { opacity: 0.7 },
-  synWordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  loadMorePhrasesBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  loadMorePhrasesLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  phrasesEmptyCard: { gap: spacing.md, paddingVertical: spacing.md },
-  phrasesEmptyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  phrasesEmptyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phrasesEmptyTextGroup: { flex: 1 },
-  phrasesEmptyTitle: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  phrasesEmptySubtitle: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-  missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
-  missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
-  phraseCard: { marginBottom: spacing.sm },
-  phraseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  phraseExpression: { fontSize: type.body, fontWeight: '700', color: colors.primary },
-  phraseMeaning: { fontSize: type.caption, color: colors.text, marginTop: 2 },
-  phraseExample: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: 'italic' },
-  phraseExampleTranslation: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  clozeCard: { alignItems: 'center', marginBottom: spacing.sm },
-  clozeSentence: { fontSize: type.subheading, fontWeight: '700', color: colors.text, textAlign: 'center' },
-  clozeTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm },
-  clozeAnswerPill: {
-    marginTop: spacing.md,
-    backgroundColor: colors.successSoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-  },
-  clozeAnswerLabel: { fontSize: type.body, fontWeight: '700', color: colors.success },
-  addClozeButton: { alignSelf: 'center', marginTop: spacing.sm },
-  bottomBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: spacing.md,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  bottomBarButtonRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  bottomBarButton: {
-    flex: 1,
-  },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.sm,
-    maxHeight: '80%',
-  },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-    marginBottom: spacing.sm,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg },
+    headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+    headerText: { flex: 1, marginRight: spacing.md },
+    wordFormRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    wordForm: { fontSize: type.title, fontWeight: '800', color: colors.text },
+    wordMeta: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.xs },
+    formsToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginTop: 2,
+      alignSelf: 'flex-start',
+    },
+    formsToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    aiEnrichingBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginVertical: spacing.xs,
+    },
+    aiEnrichingText: { fontSize: type.caption, color: colors.primary, fontWeight: '600' },
+    skeletonContainer: { flex: 1, padding: spacing.lg },
+    clusterSection: {
+      marginTop: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    clusterSectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    clusterTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    clusterSectionLabel: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    clusterCountBadge: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.primary,
+      backgroundColor: colors.primarySoft,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    clusterTabsTrack: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      paddingVertical: spacing.xs,
+    },
+    clusterTab: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.xs + 2,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: 'transparent',
+    },
+    clusterTabActive: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    clusterTabLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    clusterTabLabelActive: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    meaningCard: { marginTop: spacing.lg },
+    primaryMeaning: { fontSize: type.body, fontWeight: '700', color: colors.text },
+    explanation: { fontSize: type.body, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 21 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
+    examplesHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+    examplesFilterDropdown: { width: 175 },
+    exampleCard: { marginBottom: spacing.sm },
+    exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+    selectedBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginBottom: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
+    reportNoteInput: {
+      minHeight: 72,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      fontSize: type.body,
+      color: colors.text,
+      textAlignVertical: 'top',
+    },
+    reportActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md, marginTop: spacing.sm },
+    editLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, marginTop: spacing.sm },
+    editLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    generateInlineButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    generateInlineLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    editInput: {
+      fontSize: type.body,
+      color: colors.text,
+      minHeight: 44,
+      textAlignVertical: 'top',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.sm,
+      padding: spacing.sm,
+    },
+    exampleHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.xs,
+    },
+    exampleSentenceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    exampleSentence: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text, lineHeight: 22 },
+    exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
+    exampleFooter: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      marginTop: spacing.md,
+    },
+    grammarToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+    },
+    moreExamplesContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    grammarToggleLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    grammarGroup: { marginBottom: spacing.md },
+    grammarGroupTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
+    customGrammarInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    customGrammarInput: {
+      flex: 1,
+      fontSize: type.caption,
+      color: colors.text,
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    addCustomGrammarBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.md,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addCustomGrammarBtnDisabled: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    grammarSummaryBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.primarySoft,
+      padding: spacing.sm,
+      borderRadius: radius.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    grammarSummary: { fontSize: type.caption, color: colors.primary, fontWeight: '600' },
+    limitedHint: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center' },
+    generateError: { fontSize: type.caption, color: colors.danger },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.55)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    grammarModalContent: {
+      width: '100%',
+      maxWidth: 440,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      maxHeight: '82%',
+      padding: spacing.lg,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.25,
+      shadowRadius: 20,
+      elevation: 10,
+    },
+    grammarModalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    grammarModalTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    grammarModalTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    grammarModalCloseBtn: {
+      padding: spacing.xs,
+    },
+    grammarModalSubtitle: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    grammarModalBody: {
+      flexShrink: 1,
+      maxHeight: 420,
+    },
+    grammarModalFooter: {
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    grammarModalNoAi: {
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
+    synBlock: {
+      paddingVertical: spacing.sm,
+    },
+    rowDivider: { borderTopWidth: 1, borderTopColor: colors.border },
+    synMainRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
+    synWord: { flex: 1, fontSize: type.body, fontWeight: '700', color: colors.text },
+    synActionsGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    synAiSparkleBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    synAiSparkleBtnActive: {
+      backgroundColor: colors.primary,
+    },
+    synAiSparkleBtnPressed: {
+      opacity: 0.8,
+    },
+    synOpenCardBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.full,
+      backgroundColor: colors.surfaceMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    synOpenCardBtnPressed: {
+      opacity: 0.7,
+    },
+    synInlineExplanationCard: {
+      marginTop: spacing.sm,
+      padding: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.md,
+      gap: spacing.xs,
+    },
+    synInlineHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    synInlineTitle: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.primary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    synInlineLoadingText: {
+      flex: 1,
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    synInlineText: {
+      fontSize: type.caption,
+      color: colors.text,
+      lineHeight: 18,
+    },
+    synTagRow: {
+      flexDirection: 'row',
+      marginTop: 2,
+    },
+    phrasesPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
+      marginTop: spacing.sm,
+      shadowColor: colors.primaryDark,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    phrasesLoadMorePill: {
+      alignSelf: 'flex-start',
+    },
+    phrasesPillPressed: {
+      opacity: 0.8,
+    },
+    phrasesPillLabel: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.textOnPrimary,
+    },
+    phrasesEmptyCard: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      gap: spacing.xs,
+    },
+    phrasesEmptyIconBadge: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.xs,
+    },
+    phrasesEmptyTitle: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    phrasesEmptySubtitle: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.xs,
+    },
+    missingWordContainer: { flex: 1, justifyContent: 'center', padding: spacing.lg },
+    missingWordActions: { marginTop: spacing.md, alignItems: 'center' },
+    phraseCard: { marginBottom: spacing.sm },
+    phraseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    phraseExpression: { fontSize: type.body, fontWeight: '700', color: colors.primary },
+    phraseMeaning: { fontSize: type.caption, color: colors.text, marginTop: 2 },
+    phraseExample: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: 'italic' },
+    phraseExampleTranslation: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    clozeCard: { alignItems: 'center', marginBottom: spacing.sm },
+    clozeSentence: { fontSize: type.subheading, fontWeight: '700', color: colors.text, textAlign: 'center' },
+    clozeTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: spacing.sm },
+    clozeAnswerPill: {
+      marginTop: spacing.md,
+      backgroundColor: colors.successSoft,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+    },
+    clozeAnswerLabel: { fontSize: type.body, fontWeight: '700', color: colors.success },
+    addClozeButton: { alignSelf: 'center', marginTop: spacing.sm },
+    bottomBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      padding: spacing.md,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    bottomBarButtonRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    bottomBarButton: {
+      flex: 1,
+    },
+    modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    modalSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.sm,
+      maxHeight: '80%',
+    },
+    modalHandle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.border,
+      marginBottom: spacing.sm,
+    },
+    modalScrollContent: {
+      gap: spacing.sm,
+    },
+    modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
   })

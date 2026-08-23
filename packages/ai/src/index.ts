@@ -50,5 +50,5 @@ export {
 } from './schemas/generation'
 
 // Prompt registry (templates are versioned application logic)
-export { PROMPTS, renderPrompt, type PromptName, type PromptTemplate } from './prompts/templates'
+export { LANGUAGE_NAMES, PROMPTS, renderPrompt, type PromptName, type PromptTemplate } from './prompts/templates'
 export { ensurePromptVersions } from './prompts/seed'

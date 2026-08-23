@@ -9,6 +9,7 @@ import type {
   WordGuideExample,
   WordGuideSynonym,
 } from '@lingora/types'
+import { guessPartOfSpeechFromCasing } from '@lingora/core'
 import type { DatabaseAdapter } from '../adapter'
 import { createCluster, createMeaning } from './clusters'
 import { createExample } from './examples'
@@ -143,7 +144,7 @@ export async function getInstalledWordGuideChunkIds(
  * (headwords without a usable tag in the source data are capitalized nouns
  * in practice — see tools/word-guides/derive-word-list.mjs).
  */
-function mapPartOfSpeech(raw: string | undefined): PartOfSpeech {
+function mapPartOfSpeech(raw: string | undefined, headword: string, language: LanguageCode): PartOfSpeech {
   const KNOWN: Record<string, PartOfSpeech> = {
     noun: 'noun',
     verb: 'verb',
@@ -158,7 +159,13 @@ function mapPartOfSpeech(raw: string | undefined): PartOfSpeech {
     numeral: 'noun',
   }
   const firstTag = raw?.split(/[/\s(]/)[0]?.toLowerCase()
-  return (firstTag ? KNOWN[firstTag] : undefined) ?? 'noun'
+  const known = firstTag ? KNOWN[firstTag] : undefined
+  if (known) return known
+  // The installed dictionary source didn't tag this entry (or used a tag this app doesn't
+  // recognize) — same casing-based best guess persistTranslationAsCard uses, rather than
+  // defaulting every untagged entry to 'noun' regardless of what it actually is.
+  const guessed = guessPartOfSpeechFromCasing(headword, language)
+  return guessed === 'unknown' ? 'noun' : guessed
 }
 
 /**
@@ -198,7 +205,7 @@ export async function persistWordGuideAsCard(
       id: crypto.randomUUID(),
       form: entry.headword,
       language: entry.language,
-      partOfSpeech: mapPartOfSpeech(entry.partOfSpeech),
+      partOfSpeech: mapPartOfSpeech(entry.partOfSpeech, entry.headword, entry.language),
       ...(entry.gender === 'masculine' || entry.gender === 'feminine' || entry.gender === 'neuter'
         ? { gender: entry.gender }
         : {}),
@@ -289,22 +296,38 @@ export async function persistWordGuideAsCard(
 /**
  * Turns a plain dictionary-translation result (Google Translate/DeepL — see
  * Search's quickTranslate) into a minimal real card: one cluster, one
- * meaning, no examples/synonyms/explanation. `partOfSpeech` defaults to
- * 'noun' (a translate API gives no part-of-speech at all, unlike a word
- * guide entry's free-text tag), and the meaning's `explanation` is left
- * empty on purpose — the explain-flow's existing priority order (stored
- * explanation → installed dictionary → live AI) then does the right thing
- * automatically the first time the user taps the book icon on this card.
+ * meaning, no examples/synonyms/explanation. A translate API gives no
+ * part-of-speech at all (unlike a word guide entry's free-text tag), so
+ * `partOfSpeech` is only ever a best guess from `guessPartOfSpeechFromCasing`
+ * — for German specifically, this resolves real noun/verb minimal pairs
+ * ("Ausreden" the noun vs. "ausreden" the verb) by the exact casing the
+ * learner typed, rather than defaulting every card to 'noun' regardless of
+ * what was actually searched; every other language just gets 'unknown',
+ * same honest default the manual "Add card" flow already uses. The
+ * meaning's `explanation` is left empty on purpose — the explain-flow's
+ * existing priority order (stored explanation → installed dictionary →
+ * live AI) then does the right thing automatically the first time the
+ * user taps the book icon on this card.
  *
+ * @param deckId The card's "home" deck (`cards.deck_id`) — a value is always required, but whether
+ *        it actually shows up in that deck's list/due count is controlled separately by
+ *        `options.addToDeck`, exactly like `persistWordGeneration`.
+ * @param options.addToDeck Defaults to true. False skips the `deck_cards` membership row — the
+ *        card is still fully created and persisted, just not yet visible in any deck's list or due
+ *        count until a later explicit "Add to deck" action. Used by Search's "Generate with AI"
+ *        optimistic-card step, which shouldn't silently add a new word to "My Vocabulary" before
+ *        the user has actually chosen to.
  * @throws If a lemma with this form/language already exists.
  */
 export async function persistTranslationAsCard(
   db: DatabaseAdapter,
-  args: { form: string; language: LanguageCode; translation: string; provider: Exclude<CardSource, 'word_guide'> },
+  args: { form: string; language: LanguageCode; translation: string; explanation?: string; provider: Exclude<CardSource, 'word_guide'> },
   deckId: string,
   nativeLanguage: LanguageCode,
   cefrLevel: CefrLevel = 'unknown',
+  options?: { addToDeck?: boolean },
 ): Promise<{ lemma: Lemma; cardId: string }> {
+  const addToDeck = options?.addToDeck ?? true
   return db.transaction(async (tx) => {
     const existing = await getLemmaByForm(tx, args.form, args.language)
     if (existing) {
@@ -318,7 +341,7 @@ export async function persistTranslationAsCard(
       id: crypto.randomUUID(),
       form: args.form,
       language: args.language,
-      partOfSpeech: 'noun',
+      partOfSpeech: guessPartOfSpeechFromCasing(args.form, args.language),
       createdAt: now,
       updatedAt: now,
     }
@@ -346,10 +369,12 @@ export async function persistTranslationAsCard(
        VALUES (?, 'new', 0, 0, 0, 0, NULL, ?)`,
       [card.id, now],
     )
-    await tx.execute(
-      `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
-      [crypto.randomUUID(), deckId, card.id, now],
-    )
+    if (addToDeck) {
+      await tx.execute(
+        `INSERT INTO deck_cards (id, deck_id, card_id, added_at) VALUES (?, ?, ?, ?)`,
+        [crypto.randomUUID(), deckId, card.id, now],
+      )
+    }
 
     const clusterId = crypto.randomUUID()
     await createCluster(tx, {
@@ -367,7 +392,7 @@ export async function persistTranslationAsCard(
       cardId: card.id,
       clusterId,
       translation: args.translation,
-      explanation: '',
+      explanation: args.explanation ?? '',
       cefrLevel,
       isPrimary: true,
       orderIndex: 0,

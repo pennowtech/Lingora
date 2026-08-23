@@ -117,6 +117,8 @@ export const STORE_KEYS = {
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
   hasSeeded: 'lingora.has_seeded',
+  reviewQuestionTypes: 'lingora.review_question_types',
+  sessionCardLimit: 'lingora.session_card_limit',
 } as const
 
 export const DEFAULT_DECK_ID = 'deck-default'
@@ -395,7 +397,7 @@ async function buildAIServices(
   if (!generationProviderName) {
     aiLog.info('ai.pipeline_locked', {
       metadata: { itemCount: configured.length },
-      message: 'No generation provider configured — tier is translation-only',
+      message: 'No generation provider configured - tier is translation-only',
     })
     return { ai: null, pipeline: null, tier: 'translation', defaultCefr, dictionary, nativeLanguage, targetLanguage }
   }

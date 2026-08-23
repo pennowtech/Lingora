@@ -81,30 +81,30 @@ function buildTableColumns(
 ): DataTableColumn<ApkgRowPreview>[] {
   return [
     { label: 'Word', width: 140, cell: (p) => p.word || '(empty)' },
-    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '—' },
+    { label: 'Meaning', width: 140, cell: (p) => p.meaning || '-' },
     ...(mapping.cloze !== undefined
-      ? [{ label: 'Cloze', width: 220, cell: (p: ApkgRowPreview) => p.cloze ?? '—' }]
+      ? [{ label: 'Cloze', width: 220, cell: (p: ApkgRowPreview) => p.cloze ?? '-' }]
       : []),
     ...(mapping.example !== undefined
-      ? [{ label: 'Example', width: 220, cell: (p: ApkgRowPreview) => p.example ?? '—' }]
+      ? [{ label: 'Example', width: 220, cell: (p: ApkgRowPreview) => p.example ?? '-' }]
       : []),
     ...(mapping.exampleTranslation !== undefined
-      ? [{ label: 'Example translation', width: 220, cell: (p: ApkgRowPreview) => p.exampleTranslation ?? '—' }]
+      ? [{ label: 'Example translation', width: 220, cell: (p: ApkgRowPreview) => p.exampleTranslation ?? '-' }]
       : []),
     ...(mapping.synonyms !== undefined
       ? [
           {
             label: 'Synonyms',
             width: 160,
-            cell: (p: ApkgRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '—'),
+            cell: (p: ApkgRowPreview) => (p.synonyms.length > 0 ? p.synonyms.join(', ') : '-'),
           },
         ]
       : []),
-    { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '—') },
+    { label: 'Tags', width: 150, cell: (p) => (p.tags.length > 0 ? p.tags.join(', ') : '-') },
     {
       label: 'Existing deck',
       width: 160,
-      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '—') : '—'),
+      cell: (p) => (p.existingLemmaId ? (existingDeckNames.get(p.existingLemmaId)?.join(', ') ?? '-') : '-'),
     },
     {
       label: 'Status',
@@ -115,7 +115,7 @@ function buildTableColumns(
     {
       label: 'Issues',
       width: 260,
-      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '—'),
+      cell: (p) => (p.errors.length > 0 ? p.errors.join(' ') : '-'),
       cellStyle: (p) => (p.errors.length > 0 ? { color: colors.danger } : undefined),
     },
   ]
@@ -445,7 +445,6 @@ export default function ApkgImportScreen(): JSX.Element {
 
           <Card style={styles.card}>
             <Text style={styles.fieldLabel}>{t('If the word already exists')}</Text>
-            <Text style={styles.hint}>{t('Applies to every duplicate row you leave checked below.')}</Text>
             <View style={styles.chipRow}>
               {DUPLICATE_POLICIES.map((policy) => (
                 <Chip
@@ -494,7 +493,7 @@ export default function ApkgImportScreen(): JSX.Element {
             <View style={styles.centerModalCard}>
               {result === null ? (
                 <>
-                  <Text style={styles.title}>{t('Importing…')}</Text>
+                  <Text style={styles.title}>{t('Importing...')}</Text>
                   <Text style={styles.body}>
                     {t('{{done}} of {{total}} notes', {
                       done: (progress?.done ?? 0).toLocaleString(),
@@ -515,7 +514,7 @@ export default function ApkgImportScreen(): JSX.Element {
                   <EmptyState
                     icon="checkmark-circle"
                     title={result.cancelled ? t('Import canceled') : t('Import complete')}
-                    message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched — you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
+                    message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
                   />
                   <View style={styles.summaryRow}>
                     <SummaryStat label={t('Imported')} value={result.imported} color={colors.success} />
@@ -545,7 +544,7 @@ export default function ApkgImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <Text style={styles.title}>{t('Import from Anki')}</Text>
           <Text style={styles.body}>
-            {t("Choose a `.apkg` export. Review history isn't imported — every card starts fresh — and media (audio/images) is stripped rather than copied.")}
+            {t("Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.")}
           </Text>
           <Button label={t('Choose .apkg file')} icon="folder-open" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
@@ -557,7 +556,7 @@ export default function ApkgImportScreen(): JSX.Element {
           <Card style={styles.card}>
             <Text style={styles.title}>{fileName}</Text>
             <Text style={styles.body}>
-              {t('{{notes}} notes across {{decks}} decks. Map each field below — it applies to every note, so a note type without that many fields just leaves it empty.', {
+              {t('{{notes}} notes across {{decks}} decks. Map each field below - it applies to every note, so a note type without that many fields just leaves it empty.', {
                 notes: notes.length.toLocaleString(),
                 decks: Math.max(decks.length, 1),
               })}
@@ -584,7 +583,7 @@ export default function ApkgImportScreen(): JSX.Element {
                         style={[styles.sampleCell, { width: SAMPLE_COLUMN_WIDTH }]}
                         numberOfLines={2}
                       >
-                        {stripAnkiHtml(note.fields[index] ?? '') || '—'}
+                        {stripAnkiHtml(note.fields[index] ?? '') || '-'}
                       </Text>
                     ))}
                   </View>
@@ -609,7 +608,7 @@ export default function ApkgImportScreen(): JSX.Element {
             <Text style={styles.hint}>
               {cardType === 'basic'
                 ? t('Word and Meaning are required. Everything else is optional.')
-                : t('Cloze sentence is required — it must contain {{c1::word}} markup. Everything else is optional.')}
+                : t('Cloze sentence is required - it must contain {{c1::word}} markup. Everything else is optional.')}
             </Text>
             {FIELDS_BY_CARD_TYPE[cardType].map((fieldName) => (
               <View key={fieldName} style={styles.mappingRow}>
@@ -641,7 +640,7 @@ export default function ApkgImportScreen(): JSX.Element {
 
           <View style={styles.actions}>
             <Button
-              label={previewLoading ? t('Checking…') : t('Preview import')}
+              label={previewLoading ? t('Checking...') : t('Preview import')}
               onPress={handleBuildPreview}
               disabled={!canBuildPreview || previewLoading}
             />

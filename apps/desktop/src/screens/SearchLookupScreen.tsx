@@ -6,10 +6,17 @@ import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
 import { useDesktopServices } from '../services/desktopServices';
-import { getClustersForLemma, getWordGuide, searchLemmasWithPreview, type LemmaSearchPreview } from '@lingora/database';
+import {
+  getClustersForLemma,
+  getWordGuide,
+  persistTranslationAsCard,
+  persistWordGuideAsCard,
+  searchLemmasWithPreview,
+  type LemmaSearchPreview,
+} from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
-import { PROVIDER_META_DATA, SOURCE_LABELS, type GenerationProviderName } from '@lingora/core';
-import type { CardSource } from '@lingora/types';
+import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, type GenerationProviderName } from '@lingora/core';
+import type { CardSource, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
 const HELP_SECTIONS: HelpSection[] = [
@@ -77,6 +84,13 @@ function dictionaryProviderLabel(name: string): string {
   return PROVIDER_META_DATA[name as GenerationProviderName]?.label ?? name;
 }
 
+/** Module-level, not component state — App.tsx only renders SearchLookupScreen while
+ * activeScreen === 'search', so switching to another screen and back unmounts/remounts this
+ * component from scratch. Without this, the query (and the whole results list, since it's keyed
+ * off the query) would reset to blank every time — this survives remounts for the rest of the app
+ * session, same "last search" lifetime as apps/mobile's Search screen's lastSearchQuery. */
+let lastSearchQuery = '';
+
 /** Debounce the raw input so a real search runs per typing pause, not per keystroke — same idea
  * as apps/mobile's Search screen's useDebounced. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -98,20 +112,32 @@ interface SearchLookupScreenProps {
 }
 
 export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard, onNavigateToAiProviderSettings }) => {
-  const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, providers, addNewDeck } = useDesktopServices();
-  const [query, setQuery] = useState('');
+  const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, providers, addNewDeck, refreshData } = useDesktopServices();
+  const [query, setQueryState] = useState(lastSearchQuery);
   const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
   const [selectedWord, setSelectedWord] = useState<WordLemma>(words[0]);
 
+  const setQuery = (value: string) => {
+    lastSearchQuery = value;
+    setQueryState(value);
+  };
+
   const [isSearching, setIsSearching] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(lastSearchQuery !== '');
   // Set only for a genuine connectivity failure on the dictionary lookup (not a missing/invalid
   // key, which fails silently the same way it always has) — so "the internet is down" doesn't
   // look identical to "no dictionary translation available for this word."
   const [searchNotice, setSearchNotice] = useState<string | null>(null);
   const help = useHelpAccordion('lookup');
+  // Real persistence data for whichever synthetic "not found in DB yet" entry is currently showing
+  // (see the `search-${...}` id prefix below) — keyed by the searched form, so "Add to Deck" can
+  // call the same real persist functions apps/mobile's Search screen uses (persistWordGuideAsCard/
+  // persistTranslationAsCard) instead of the generic addNewCard, which never wrote a meaning/
+  // translation at all for a genuinely new word. Cleared whenever a new search actually finds one.
+  const [pendingGuideEntry, setPendingGuideEntry] = useState<{ form: string; entry: WordGuideEntry } | null>(null);
+  const [pendingTranslation, setPendingTranslation] = useState<{ form: string; translation: string; providerName: string; explanation?: string } | null>(null);
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
@@ -221,6 +247,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setIsSearching(true);
     setHasSearched(true);
     setSearchNotice(null);
+    setPendingGuideEntry(null);
+    setPendingTranslation(null);
 
     try {
       const previews: LemmaSearchPreview[] = db ? await searchLemmasWithPreview(db, trimmed, targetLanguage, nativeLanguage) : [];
@@ -338,6 +366,21 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       // quick-explain gist, then falls back to a plain dictionary translation — same priority
       // order as apps/mobile's Search screen.
       if (!exactMatch) {
+        // Records exactly what "Add to Deck" should actually persist for this word — see the
+        // handler below, which calls persistWordGuideAsCard/persistTranslationAsCard directly
+        // instead of the generic addNewCard (which never wrote a meaning/translation at all for a
+        // brand-new lemma).
+        if (guideEntry) {
+          setPendingGuideEntry({ form: trimmed, entry: guideEntry });
+        } else {
+          setPendingTranslation({
+            form: trimmed,
+            translation: dictionaryTranslation || trimmed,
+            providerName: dictionary.name,
+            ...(quickExplainText && { explanation: quickExplainText }),
+          });
+        }
+
         const translation = guideEntry?.translation || dictionaryTranslation || trimmed;
         const definition = guideEntry
           ? guideEntry.intro
@@ -432,6 +475,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         setSelectedWord(pkg);
         setSearchResults(prev => prev.map(w => w.id === selectedWord.id ? pkg : w));
         setSelectedClusterId(pkg.clusters[0]?.id || '');
+        // pkg now has a real, persisted lemma — "Add to Deck" should use the generic path from
+        // here on, not the synthetic-entry persist functions.
+        setPendingGuideEntry(null);
+        setPendingTranslation(null);
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
@@ -461,6 +508,53 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       targetDeckId = await addNewDeck(deckTitle, finalCardType);
     }
     const typeToUse = finalCardType || selectedCardType.toUpperCase();
+
+    // A synthetic "not found in DB yet" entry (word guide or dictionary/AI-insight result) has no
+    // real lemma/meaning persisted at all — the generic addNewCard below only ever creates a bare
+    // lemma shell with no translation, so this calls the same real persist functions apps/mobile's
+    // Search screen uses instead, matching mobile's actual saved-card content.
+    const matchingGuide = pendingGuideEntry && pendingGuideEntry.form === selectedWord.form ? pendingGuideEntry.entry : null;
+    const matchingTranslation = pendingTranslation && pendingTranslation.form === selectedWord.form ? pendingTranslation : null;
+
+    if (matchingGuide && db) {
+      try {
+        await persistWordGuideAsCard(db, matchingGuide, targetDeckId, nativeLanguage, cefrLevel);
+        setPendingGuideEntry(null);
+        await refreshData();
+        await executeSearch(selectedWord.form);
+        alert(`Successfully added card "${selectedWord.form}" to "${deckTitle}"!`);
+      } catch (err: any) {
+        alert(err?.message || 'Error adding card');
+      }
+      return;
+    }
+
+    if (matchingTranslation && db) {
+      try {
+        await persistTranslationAsCard(
+          db,
+          {
+            form: matchingTranslation.form,
+            language: targetLanguage,
+            translation: matchingTranslation.translation,
+            provider: dictionaryNameToCardSource(matchingTranslation.providerName),
+            ...(matchingTranslation.explanation && { explanation: matchingTranslation.explanation }),
+          },
+          targetDeckId,
+          nativeLanguage,
+        );
+        setPendingTranslation(null);
+        await refreshData();
+        await executeSearch(selectedWord.form);
+        alert(`Successfully added card "${selectedWord.form}" to "${deckTitle}"!`);
+      } catch (err: any) {
+        alert(err?.message || 'Error adding card');
+      }
+      return;
+    }
+
+    // Already a real lemma (from the DB, or a completed AI generation) — the generic path is
+    // correct here since the lemma/meanings already exist; this only links it to a deck.
     onAddCard(selectedWord.form, activeCluster?.context || 'General', targetDeckId, typeToUse, deckTitle);
   };
 

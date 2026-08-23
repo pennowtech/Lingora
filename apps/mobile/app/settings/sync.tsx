@@ -7,6 +7,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, Vie
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AlertModal, Button, Card, Chip, ConfirmModal, IconButton, SectionHeader } from '../../components/ui'
 import {
+  CloudSyncNotConfiguredError,
   deleteCloudAccountAndData,
   initCloudSync,
   requestCloudSync,
@@ -99,7 +100,16 @@ export default function SyncScreen(): JSX.Element {
   }
 
   const handleSyncNow = (): void => {
-    requestCloudSync(db).catch((error: unknown) => showError(t('Sync failed'), error))
+    // The button above is disabled without a connected account, so this should be unreachable in
+    // practice - kept as a fallback for the same technical-message reason decks.tsx checks up
+    // front (see that screen's handleSyncNow comment).
+    requestCloudSync(db).catch((error: unknown) => {
+      if (error instanceof CloudSyncNotConfiguredError) {
+        showError(t('Sync not connected'), t('Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.'))
+        return
+      }
+      showError(t('Sync failed'), error)
+    })
   }
 
   const handleDeleteAccount = (): void => {

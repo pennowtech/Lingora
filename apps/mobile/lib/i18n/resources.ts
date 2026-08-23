@@ -773,6 +773,8 @@ const ENGLISH_PHRASES = [
   'Sync',
   'Sync decks, cards, and progress to a Google account',
   'Sync failed',
+  'Sync not connected',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.',
   'Sync in the background whenever you leave the app, at most this often',
   'Sync now',
   'Sync your decks, cards, and review progress to a Google account so they carry over to another device. API keys are never synced.',
@@ -1892,6 +1894,9 @@ const de: Partial<Record<Phrase, string>> = {
   'Sync decks, cards, and progress to a Google account':
     'Stapel, Karten und Fortschritt mit einem Google-Konto synchronisieren',
   'Sync failed': 'Synchronisierung fehlgeschlagen',
+  'Sync not connected': 'Synchronisierung nicht verbunden',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.':
+    'Verbinde dein Google-Konto unter Einstellungen > Synchronisierung, um deine Stapel und deinen Lernfortschritt geräteübergreifend zu synchronisieren.',
   'Sync in the background whenever you leave the app, at most this often':
     'Im Hintergrund synchronisieren, wann immer du die App verlässt, höchstens so oft',
   'Sync now': 'Jetzt synchronisieren',
@@ -3071,6 +3076,9 @@ const fr: Partial<Record<Phrase, string>> = {
   'Sync decks, cards, and progress to a Google account':
     'Synchroniser les paquets, cartes et progression avec un compte Google',
   'Sync failed': 'Échec de la synchronisation',
+  'Sync not connected': 'Synchronisation non connectée',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.':
+    "Connecte ton compte Google dans Réglages > Synchronisation pour synchroniser tes paquets et ta progression entre tes appareils.",
   'Sync in the background whenever you leave the app, at most this often':
     "Synchroniser en arrière-plan chaque fois que tu quittes l'app, au maximum aussi souvent que ceci",
   'Sync now': 'Synchroniser maintenant',
@@ -4246,6 +4254,9 @@ const es: Partial<Record<Phrase, string>> = {
   'Sync decks, cards, and progress to a Google account':
     'Sincroniza mazos, tarjetas y progreso con una cuenta de Google',
   'Sync failed': 'Error al sincronizar',
+  'Sync not connected': 'Sincronización no conectada',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.':
+    'Conecta tu cuenta de Google en Ajustes > Sincronización para empezar a sincronizar tus mazos y tu progreso entre dispositivos.',
   'Sync in the background whenever you leave the app, at most this often':
     'Sincronizar en segundo plano cada vez que sales de la app, como máximo con esta frecuencia',
   'Sync now': 'Sincronizar ahora',
@@ -5419,6 +5430,9 @@ const hi: Partial<Record<Phrase, string>> = {
   'Sync decks, cards, and progress to a Google account':
     'डेक, कार्ड और प्रोग्रेस को Google अकाउंट में सिंक करें',
   'Sync failed': 'सिंक नहीं हो सका',
+  'Sync not connected': 'सिंक कनेक्ट नहीं है',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.':
+    'अपने डेक और रिव्यू प्रोग्रेस को अलग-अलग डिवाइस पर सिंक करने के लिए Settings > Sync में जाकर अपना Google अकाउंट कनेक्ट करें।',
   'Sync in the background whenever you leave the app, at most this often':
     'जब भी आप ऐप छोड़ें, बैकग्राउंड में सिंक करें, ज़्यादा से ज़्यादा इतनी बार',
   'Sync now': 'अभी सिंक करें',
@@ -6478,6 +6492,9 @@ const vi: Partial<Record<Phrase, string>> = {
   'Sync decks, cards, and progress to a Google account':
     'Đồng bộ bộ thẻ, thẻ và tiến trình lên một tài khoản Google',
   'Sync failed': 'Đồng bộ thất bại',
+  'Sync not connected': 'Chưa kết nối đồng bộ',
+  'Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.':
+    'Kết nối tài khoản Google của bạn trong Cài đặt > Đồng bộ để bắt đầu đồng bộ bộ thẻ và tiến trình ôn tập giữa các thiết bị.',
   'Sync in the background whenever you leave the app, at most this often':
     'Đồng bộ ngầm mỗi khi bạn rời khỏi ứng dụng, tối đa với tần suất này',
   'Sync now': 'Đồng bộ ngay',

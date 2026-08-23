@@ -43,7 +43,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
-import { requestCloudSync, useCloudSync } from '../../lib/cloudSync'
+import { CloudSyncNotConfiguredError, requestCloudSync, useCloudSync } from '../../lib/cloudSync'
 import { collectDescendantIds } from '../../lib/deckTree'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
@@ -311,7 +311,18 @@ export default function DecksScreen(): JSX.Element {
     setExportDeck(null)
   }
 
+  // Unlike the Sync settings screen, this header icon has no disabled state to fall back on when
+  // no account is connected - check up front so tapping it shows a helpful nudge instead of
+  // round-tripping into CloudSyncNotConfiguredError's technical message (also kept as a fallback
+  // in the catch below, in case the account signs out between this check and the request).
   const handleSyncNow = (): void => {
+    if (!sync.account) {
+      setExportNotice({
+        title: t('Sync not connected'),
+        message: t('Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.'),
+      })
+      return
+    }
     requestCloudSync(db)
       .then(async (summary) => {
         await invalidateDecks()
@@ -320,7 +331,16 @@ export default function DecksScreen(): JSX.Element {
           message: t('{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted', { ...summary }),
         })
       })
-      .catch((error: unknown) => showError(t('Sync failed'), error))
+      .catch((error: unknown) => {
+        if (error instanceof CloudSyncNotConfiguredError) {
+          setExportNotice({
+            title: t('Sync not connected'),
+            message: t('Connect your Google account under Settings > Sync to start syncing your decks and review progress across devices.'),
+          })
+          return
+        }
+        showError(t('Sync failed'), error)
+      })
   }
 
   const allDecks = allDecksQuery.data ?? []

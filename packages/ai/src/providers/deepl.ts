@@ -56,7 +56,8 @@ export class DeepLProvider implements DictionaryProvider {
     this.apiKey = config.apiKey
     this.baseUrl = config.apiKey.trim().endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com'
     this.timeoutMs = config.timeoutMs ?? 15_000
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>> {

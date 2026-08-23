@@ -125,7 +125,8 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
     this.baseUrl = (config.baseUrl ?? 'https://api.anthropic.com/v1').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
     this.maxTokens = config.maxTokens ?? 4096
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async generateWordPackage(

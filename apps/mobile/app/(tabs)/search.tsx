@@ -63,6 +63,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'sparkles-outline',
     paragraphs: [
       'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview - both are read-only until you choose to add one to a deck.',
+      'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.',
       '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
     ],
   },

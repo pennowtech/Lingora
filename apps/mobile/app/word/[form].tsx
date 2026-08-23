@@ -135,6 +135,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'book-outline',
     paragraphs: [
       'The translation at the top is what actually appears on your flashcard.',
+      'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.',
       'If this word has more than one distinct sense - say, a casual meaning and a business one - you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
     ],
   },
@@ -146,7 +147,7 @@ const HELP_SECTIONS: HelpSection[] = [
       'Example sentences show the word used in context, with a translation underneath.',
       'Tap the star on any example to choose which one appears on your flashcard - only one shows at a time.',
       'The dropdown above the examples ("all", "travel", "business", and so on) filters them down to a particular tone or situation, if you only want to see those.',
-      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense.',
+      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.',
     ],
   },
   {
@@ -155,7 +156,8 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'options-outline',
     paragraphs: [
       'This collapsible panel below the examples lets you pick a specific grammar pattern - a tense, a sentence structure, a particular conjunction - that you want the next batch of examples to practice, instead of leaving it to chance.',
-      'Examples generated from a selected option get a highlighted background, so you can tell which ones came from your request.',
+      'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.',
+      '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.',
     ],
   },
   {
@@ -164,10 +166,10 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'chatbubble-ellipses-outline',
     paragraphs: [
       'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
-      '"Explain" (or "More info" on an AI-generated card) shows or expands a plain-language explanation of the word and how it\'s used.',
+      '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.',
       '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
       '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn\'t working for you. This can\'t be undone.',
-      'The pencil icon lets you edit the meaning or example text directly. The last icon opens a quick web search for the word, for a second opinion outside the app.',
+      'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.',
     ],
   },
   {
@@ -175,15 +177,19 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Synonyms & phrases',
     icon: 'swap-horizontal-outline',
     paragraphs: [
-      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.',
-      'Phrases show this word used in common expressions or word combinations.',
+      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.',
+      'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
     ],
   },
   {
     id: 'cloze',
     title: 'Cloze cards',
     icon: 'create-outline',
-    paragraphs: ['A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.'],
+    paragraphs: [
+      'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.',
+      '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
+      'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.',
+    ],
   },
   {
     id: 'deck',

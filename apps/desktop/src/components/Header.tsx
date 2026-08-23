@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Command, Plus, Volume2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Search, Command, Volume2, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   onOpenQuickLookup: () => void;
@@ -64,13 +64,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuickLookup, onOpenMiningM
           <span>Mine Sentence</span>
         </button>
 
-        <button 
+        <button
           onClick={onOpenQuickLookup}
           className="btn btn-primary"
           style={{ fontSize: '13px', padding: '8px 14px' }}
         >
-          <Plus size={15} />
-          <span>Quick Lookup</span>
+          <Search size={15} />
+          <span>Search & Lookup</span>
         </button>
 
         <div style={{ width: '1px', height: '24px', background: 'var(--border-color)' }} />

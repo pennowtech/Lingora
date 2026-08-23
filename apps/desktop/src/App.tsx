@@ -9,7 +9,6 @@ import { DecksScreen } from './screens/DecksScreen';
 import { SentenceMiningScreen } from './screens/SentenceMiningScreen';
 import { StatsScreen } from './screens/StatsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
-import { QuickLookupOverlay } from './components/QuickLookupOverlay';
 
 import { DesktopServicesProvider, useDesktopServices } from './services/desktopServices';
 import { MOCK_DECKS, MOCK_WORDS, MOCK_CARDS_QUEUE, MOCK_MINING_QUEUE } from './mockData';
@@ -21,8 +20,6 @@ const AppContent: React.FC = () => {
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
   const [miningQueue, setMiningQueue] = useState(MOCK_MINING_QUEUE);
   const [settingsInitialTab, setSettingsInitialTab] = useState<'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop' | undefined>(undefined);
-
-  const [isQuickLookupOpen, setIsQuickLookupOpen] = useState(false);
 
   // Search & Lookup's "no AI provider configured" prompt jumps straight to the AI Providers tab,
   // rather than landing on Settings' own default tab and making the user find it themselves.
@@ -102,7 +99,7 @@ const AppContent: React.FC = () => {
       {/* Main Content Area */}
       <div className="main-content">
         <Header
-          onOpenQuickLookup={() => setIsQuickLookupOpen(true)}
+          onOpenQuickLookup={() => setActiveScreen('search')}
           onOpenMiningModal={() => setActiveScreen('mining')}
         />
 
@@ -154,12 +151,6 @@ const AppContent: React.FC = () => {
           <SettingsScreen initialTab={settingsInitialTab} />
         )}
       </div>
-
-      {/* Global Quick Lookup Floating Overlay */}
-      <QuickLookupOverlay
-        isOpen={isQuickLookupOpen}
-        onClose={() => setIsQuickLookupOpen(false)}
-      />
     </div>
   );
 };

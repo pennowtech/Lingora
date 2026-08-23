@@ -285,6 +285,12 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
       // Settings → Translation) — replaces the old bidirectional-translate-and-check-echo heuristic
       // with the same detectSearchLanguage helper apps/mobile's Search screen uses.
       let dictionaryTranslation = '';
+      // Alternate translations for an ambiguous word (e.g. "foundation" → Stiftung, Grundlage,
+      // Fundament, ...), beyond the single best guess `translate` returns — optional on
+      // DictionaryProvider (only Google Translate's dt=bd dictionary section implements it), so
+      // this stays empty for DeepL/LLM-backed dictionary providers. Mirrors apps/mobile's Search
+      // screen's translateAlternatives.
+      let dictionaryAlternatives: string[] = [];
       // Free, offline lookup against the installed word-guides dictionary — checked before any AI
       // call, same priority order as apps/mobile's Search screen (word guide wins over quick-explain).
       let guideEntry: Awaited<ReturnType<typeof getWordGuide>> = null;
@@ -298,6 +304,16 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           const target = source === targetLanguage ? nativeLanguage : targetLanguage;
           const result = await dictionary.translate(trimmed, source, target);
           dictionaryTranslation = result.data;
+
+          if (dictionary.translateAlternatives) {
+            try {
+              const altResult = await dictionary.translateAlternatives(trimmed, source, target);
+              const primaryNorm = dictionaryTranslation.trim().toLowerCase();
+              dictionaryAlternatives = altResult.data.filter((alt) => alt.trim().toLowerCase() !== primaryNorm);
+            } catch (err) {
+              console.warn('[Search & Lookup] Dictionary alternatives lookup failed:', err);
+            }
+          }
         } catch (err) {
           console.warn('[Search & Lookup] Dictionary translation failed:', err);
           if (isNetworkError(err)) setSearchNotice(networkErrorMessage((s) => s));
@@ -406,12 +422,18 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           });
         }
 
-        const translation = guideEntry?.translation || dictionaryTranslation || trimmed;
+        // Alternates ride along inline after the primary translation ("Science, scholarship,
+        // knowledge") the same way apps/mobile's Search screen appends them - only meaningful for
+        // a plain dictionary translation, not a word guide's own single gloss.
+        const translationDisplay = dictionaryTranslation && dictionaryAlternatives.length > 0
+          ? `${dictionaryTranslation}, ${dictionaryAlternatives.join(', ')}`
+          : dictionaryTranslation;
+        const translation = guideEntry?.translation || translationDisplay || trimmed;
         const definition = guideEntry
           ? guideEntry.intro
           : quickExplainText || (
               dictionaryTranslation
-                ? `Instant dictionary translation for "${trimmed}": "${dictionaryTranslation}".`
+                ? `Instant dictionary translation for "${trimmed}": "${translationDisplay}".`
                 : `No dictionary translation available for "${trimmed}" yet.`
             );
         const examples = guideEntry && guideEntry.examples.length > 0

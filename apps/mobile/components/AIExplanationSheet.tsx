@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { LanguageCode } from '@lingora/types'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon } from './Icon'
 import { FollowUpComposer } from './FollowUpComposer'
 import { InlineMarkdown } from './InlineMarkdown'
 import { radius, spacing, type } from '../lib/theme'
@@ -89,7 +89,7 @@ export function AIExplanationSheet(props: {
               })}
             </Text>
             <Pressable onPress={props.onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color={colors.textMuted} />
+              <Icon name="X" size={22} color={colors.textMuted} />
             </Pressable>
           </View>
           <ScrollView style={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -147,7 +147,7 @@ export function AIExplanationSheet(props: {
                         separate code path needed. */}
                     {props.onRetryParagraphs ? (
                       <Pressable style={styles.regenerateRow} onPress={props.onRetryParagraphs} hitSlop={8}>
-                        <Ionicons name="refresh-circle-outline" size={15} color={colors.primary} />
+                        <Icon name="RefreshCw" size={15} color={colors.primary} />
                         <Text style={styles.regenerateLabel}>{t('Regenerate')}</Text>
                       </Pressable>
                     ) : null}

@@ -91,7 +91,7 @@ export default function DeckTableScreen(): JSX.Element {
         <ErrorState message={String(cardsQuery.error)} onRetry={() => void cardsQuery.refetch()} />
       ) : cardsQuery.data.length === 0 ? (
         <EmptyState
-          icon="grid-outline"
+          icon="LayoutGrid"
           title={t('No cards yet')}
           message={t('Add words from Search or import a file to see them here.')}
         />

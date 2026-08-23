@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { AIProvider, ClusterRef } from '@lingora/ai'
 import { createChatMessage, getChatMessages, type DatabaseAdapter } from '@lingora/database'
 import type { CefrLevel, ChatMessage, LanguageCode } from '@lingora/types'
@@ -21,6 +20,7 @@ import {
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon } from './Icon'
 import { InlineMarkdown } from './InlineMarkdown'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -202,10 +202,10 @@ export function WordChatSheet(props: {
           >
             <View style={styles.headerRow}>
               <Pressable onPress={handleClose} hitSlop={12} style={styles.backButton}>
-                <Ionicons name="chevron-back" size={26} color={colors.text} />
+                <Icon name="ChevronLeft" size={26} color={colors.text} />
               </Pressable>
               <View style={styles.headerAvatar}>
-                <Ionicons name="sparkles" size={16} color={colors.primary} />
+                <Icon name="Sparkles" size={16} color={colors.primary} />
               </View>
               <View style={styles.headerTextGroup}>
                 <Text style={styles.headerWord} numberOfLines={1}>{props.word}</Text>
@@ -223,7 +223,7 @@ export function WordChatSheet(props: {
               {messages.length === 0 && !messagesQuery.isPending ? (
                 <View style={styles.emptyState}>
                   <View style={styles.emptyIconBadge}>
-                    <Ionicons name="chatbubbles" size={26} color={colors.primary} />
+                    <Icon name="MessagesSquare" size={26} color={colors.primary} />
                   </View>
                   <Text style={styles.emptyTitle}>{t('Ask about "{{word}}"', { word: props.word })}</Text>
                   <Text style={styles.emptySubtitle}>
@@ -251,7 +251,7 @@ export function WordChatSheet(props: {
                 >
                   {message.role === 'assistant' ? (
                     <View style={styles.bubbleAvatar}>
-                      <Ionicons name="sparkles" size={12} color={colors.primary} />
+                      <Icon name="Sparkles" size={12} color={colors.primary} />
                     </View>
                   ) : null}
                   <View style={styles.bubbleGroup}>
@@ -281,7 +281,7 @@ export function WordChatSheet(props: {
               {pending ? (
                 <View style={[styles.bubbleRow, styles.bubbleRowAssistant]}>
                   <View style={styles.bubbleAvatar}>
-                    <Ionicons name="sparkles" size={12} color={colors.primary} />
+                    <Icon name="Sparkles" size={12} color={colors.primary} />
                   </View>
                   <View style={[styles.bubble, styles.bubbleAssistant, styles.typingBubble]}>
                     <ActivityIndicator size="small" color={colors.textMuted} />
@@ -319,7 +319,7 @@ export function WordChatSheet(props: {
                 accessibilityRole="button"
                 accessibilityLabel={t('Send')}
               >
-                <Ionicons name="arrow-up" size={20} color={colors.textOnPrimary} />
+                <Icon name="ArrowUp" size={20} color={colors.textOnPrimary} />
               </Pressable>
             </View>
           </KeyboardAvoidingView>

@@ -464,7 +464,7 @@ export default function CsvImportScreen(): JSX.Element {
               ) : (
                 <>
                   <EmptyState
-                    icon="checkmark-circle"
+                    icon="CircleCheck"
                     title={t('Import complete')}
                     message={t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}
                   />
@@ -498,7 +498,7 @@ export default function CsvImportScreen(): JSX.Element {
           <Text style={styles.body}>
             {t("From Quizlet, Memrise, or a spreadsheet export. You'll choose which column means what next.")}
           </Text>
-          <Button label={t('Choose CSV file')} icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose CSV file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -582,7 +582,7 @@ export default function CsvImportScreen(): JSX.Element {
             <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
             <Button
               label={deckName ?? t('Choose a deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />

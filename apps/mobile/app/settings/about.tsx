@@ -16,10 +16,10 @@ const log = logger.child({ feature: 'settings', screen: 'AboutScreen' })
 
 type Category = 'bug' | 'feature' | 'general'
 
-const CATEGORY_META: Record<Category, { label: string; icon: 'bug-outline' | 'bulb-outline' | 'chatbubbles-outline' }> = {
-  bug: { label: 'Bug / Issue', icon: 'bug-outline' },
-  feature: { label: 'Feature request', icon: 'bulb-outline' },
-  general: { label: 'General feedback', icon: 'chatbubbles-outline' },
+const CATEGORY_META: Record<Category, { label: string; icon: 'Bug' | 'Lightbulb' | 'MessagesSquare' }> = {
+  bug: { label: 'Bug / Issue', icon: 'Bug' },
+  feature: { label: 'Feature request', icon: 'Lightbulb' },
+  general: { label: 'General feedback', icon: 'MessagesSquare' },
 }
 const CATEGORIES = Object.keys(CATEGORY_META) as Category[]
 
@@ -27,7 +27,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'public',
     title: 'This becomes a public issue',
-    icon: 'globe-outline',
+    icon: 'Globe',
     paragraphs: [
       'Submitting posts your message as a GitHub issue on Lemmory\'s public repository - anyone can read it, including your contact email if you provide one.',
       'Please don\'t include anything private in your message.',
@@ -36,7 +36,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'diagnostics',
     title: 'What diagnostics includes',
-    icon: 'information-circle-outline',
+    icon: 'Info',
     paragraphs: [
       'Only app version, platform, and your current feature tier (Full or Translation-only) - enough to help reproduce a bug.',
       'Never included: word content, translations, AI responses, or API keys.',
@@ -45,7 +45,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'status',
     title: 'Why nothing sends yet',
-    icon: 'construct-outline',
+    icon: 'Wrench',
     paragraphs: [
       'Creating a GitHub issue needs a token with write access to the repo - that can never ship inside the app, since a compiled build can be decompiled and any embedded secret treated as public.',
       'This screen is a preview of the full flow; submitting just confirms locally for now. A small server-side function will handle real submission in a future update.',
@@ -129,7 +129,7 @@ export default function AboutScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('public')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('public')} color={colors.primary} size={22} />
           ),
         }}
       />
@@ -225,7 +225,7 @@ export default function AboutScreen(): JSX.Element {
 
       <Button
         label={submitting ? t('Sending...') : t('Send Feedback')}
-        icon="send"
+        icon="Send"
         onPress={handleSubmit}
         disabled={!canSubmit}
         style={styles.submitButton}

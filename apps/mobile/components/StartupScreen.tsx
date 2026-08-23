@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { useVideoPlayer, VideoView } from 'expo-video'
 import { useEffect, useState, type JSX } from 'react'
@@ -7,6 +6,7 @@ const videoSource = require('../assets/startup-intro.mp4')
 import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Icon, type IconName } from './Icon'
 import { Button } from './ui'
 import { saveOnboardingPreferences } from '../lib/onboarding'
 import { useServices } from '../lib/services'
@@ -95,7 +95,7 @@ function FullVideoSplash(props: { onEnded: () => void }): JSX.Element {
 
     return (
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <Ionicons name="language" size={80} color={colors.primary} />
+        <Icon name="Languages" size={80} color={colors.primary} />
       </View>
     )
   }
@@ -103,7 +103,7 @@ function FullVideoSplash(props: { onEnded: () => void }): JSX.Element {
 
 interface FeatureSlide {
   id: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   accentColor: string
   titleKey: string
   descKey: string
@@ -113,7 +113,7 @@ interface FeatureSlide {
 const FEATURE_SLIDES: FeatureSlide[] = [
   {
     id: 'ai_generation',
-    icon: 'sparkles',
+    icon: 'Sparkles',
     accentColor: '#6C63FF',
     titleKey: 'AI-Powered Vocabulary',
     descKey: 'Generate complete, accurate word packages with meanings, authentic example sentences, CEFR levels, and grammar notes in seconds.',
@@ -121,7 +121,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
   },
   {
     id: 'fsrs_spaced_repetition',
-    icon: 'hardware-chip-outline',
+    icon: 'Cpu',
     accentColor: '#2E9E5B',
     titleKey: 'FSRS Spaced Repetition',
     descKey: 'Scientifically proven memory scheduling algorithms ensure you review cards right before you forget them for maximum retention.',
@@ -129,7 +129,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
   },
   {
     id: 'cloze_mining',
-    icon: 'create-outline',
+    icon: 'SquarePen',
     accentColor: '#D97706',
     titleKey: 'Sentence Mining & Cloze',
     descKey: 'Capture sentences from any app or website, turn them into cloze fill-in-the-blank cards, and master words in real context.',
@@ -137,7 +137,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
   },
   {
     id: 'offline_privacy',
-    icon: 'shield-checkmark-outline',
+    icon: 'ShieldCheck',
     accentColor: '#2D7FF9',
     titleKey: 'Offline-First & Private',
     descKey: 'Your vocabulary database stays 100% on your device. Bring your own AI keys or use built-in offline dictionaries anytime.',
@@ -179,7 +179,7 @@ function FeatureSlideshow(props: { onComplete: () => void; onSkip: () => void })
             <Text style={[styles.featureBadgeTagText, { color: slide.accentColor }]}>{t(slide.badgeKey)}</Text>
           </View>
           <View style={[styles.featureIconContainer, { backgroundColor: slide.accentColor + '15' }]}>
-            <Ionicons name={slide.icon} size={54} color={slide.accentColor} />
+            <Icon name={slide.icon} size={54} color={slide.accentColor} />
           </View>
         </View>
 
@@ -204,7 +204,7 @@ function FeatureSlideshow(props: { onComplete: () => void; onSkip: () => void })
 
         <Button
           label={currentIndex === FEATURE_SLIDES.length - 1 ? t('Get Started') : t('Next')}
-          icon="arrow-forward"
+          icon="ArrowRight"
           onPress={handleNext}
           style={{ width: '100%', backgroundColor: slide.accentColor }}
         />
@@ -273,7 +273,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             {/* Header Icon */}
             <View style={styles.iconContainer}>
-              <Ionicons name="language" size={32} color={colors.primaryDark} />
+              <Icon name="Languages" size={32} color={colors.primaryDark} />
             </View>
 
           {/* Title & Subtitle */}
@@ -292,7 +292,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
             >
               <Text style={styles.flagEmoji}>{LANG_EMOJIS[nativeLang] ?? '🌐'}</Text>
             </Pressable>
-            <Ionicons name="arrow-forward" size={18} color={colors.textSecondary} style={styles.arrowIcon} />
+            <Icon name="ArrowRight" size={18} color={colors.textSecondary} style={styles.arrowIcon} />
             {/* Target Language (Right) */}
             <Pressable
               onPress={() => setShowTargetModal(true)}
@@ -337,7 +337,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
           {/* CTA Buttons */}
           <Button
             label={saving ? t('Saving...') : t('Continue')}
-            icon="arrow-forward"
+            icon="ArrowRight"
             onPress={handleContinue}
             disabled={saving}
             style={styles.continueButton}
@@ -364,7 +364,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
                     }}
                   >
                     <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
-                    {targetLang === opt.code ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
+                    {targetLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
                   </Pressable>
                 ))}
               </ScrollView>
@@ -388,7 +388,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
                     }}
                   >
                     <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
-                    {nativeLang === opt.code ? <Ionicons name="checkmark" size={18} color={colors.primary} /> : null}
+                    {nativeLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
                   </Pressable>
                 ))}
               </ScrollView>

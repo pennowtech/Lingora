@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { Template, TemplateType } from '@lingora/types'
 import { createTemplate, getAllTemplates, updateTemplate } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -9,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { CardRenderer } from '../../components/CardRenderer'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
 import { AlertModal, Button, Card, Chip, ConfirmModal, ErrorState, IconButton, SectionHeader, Spinner } from '../../components/ui'
 import {
   CLOZE_BACK_TEMPLATE,
@@ -26,7 +26,7 @@ import {
   renderCardHtml,
   TEMPLATE_VARIABLES,
   type CardTemplateContext,
-} from '../../lib/templates'
+} from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -81,7 +81,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'fields',
     title: 'Fields tab',
-    icon: 'list',
+    icon: 'List',
     paragraphs: [
       { text: 'Each row is one piece of card data. Tap "Front" or "Back" to show that field on that side - a field can appear on both, on neither, or on just one.' },
       { text: 'Turning a field on inserts the minimum Liquid needed for it at the end of that side\'s template: a plain field becomes {{ word }}; a list field (Other meanings, Synonyms, Related phrases) becomes a {% for %} loop, because a list can\'t be printed directly.' },
@@ -92,7 +92,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'style',
     title: 'Style tab',
-    icon: 'color-palette',
+    icon: 'Palette',
     paragraphs: [
       { text: 'The CSS box applies to both the front and back - there is one stylesheet per template, not one per side.' },
       { text: 'Accent color swatches write a custom property at the top of your CSS:' },
@@ -105,7 +105,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'preview',
     title: 'Preview tab',
-    icon: 'eye',
+    icon: 'Eye',
     paragraphs: [
       { text: 'Front and Back are separate - the chip above the card switches which side is rendered, so you always know exactly which side you\'re looking at.' },
       { text: 'The card fills the available screen space exactly (no scrolling) and the caption above it shows its real, on-device measured width and height in points - the same size a card gets during an actual review session.' },
@@ -115,7 +115,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'code',
     title: 'Code tab',
-    icon: 'code-slash',
+    icon: 'Code',
     paragraphs: [
       { text: 'Front and Back are raw Liquid templates - anything valid Liquid works here, not just what the Fields toggles generate.' },
       { text: '{{ variable }} prints a value. {% if gender %}...{% endif %} shows content only when a field has one - good for optional fields. {% for s in synonyms %}...{% endfor %} loops a list; add "limit:2" to cap it, and {% unless forloop.last %}...{% endunless %} to add a separator between items but not after the last one.', code: true },
@@ -126,7 +126,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'htmlcss',
     title: 'HTML & CSS without extra elements',
-    icon: 'construct',
+    icon: 'Wrench',
     paragraphs: [
       { text: 'Fields added via the toggles are never auto-wrapped in a <div> or <span> - {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.' },
       { text: 'Selectors that work with zero extra markup (they target the card body itself or elements this app already emits):' },
@@ -313,7 +313,7 @@ export default function TemplatesScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection(tab)} color={colors.primary} size={24} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection(tab)} color={colors.primary} size={24} />
           ),
         }}
       />
@@ -365,7 +365,7 @@ export default function TemplatesScreen(): JSX.Element {
                 return (
                   <View key={v.name} style={[styles.fieldRow, i > 0 && styles.rowDivider]}>
                     <View style={styles.fieldIcon}>
-                      <Ionicons name={v.icon as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
+                      <Icon name={v.icon as IconName} size={18} color={colors.primary} />
                     </View>
                     <View style={styles.fieldText}>
                       <Text style={styles.fieldLabel}>{v.label}</Text>
@@ -398,7 +398,7 @@ export default function TemplatesScreen(): JSX.Element {
                 {ACCENT_COLORS.map((color) => (
                   <View key={color} style={[styles.swatchWrap, accentColor === color && styles.swatchWrapSelected]}>
                     <IconButton
-                      icon="ellipse"
+                      icon="Circle"
                       color={color}
                       size={32}
                       onPress={() => setStyles_((prev) => withAccentColor(prev, accentColor === color ? null : color))}
@@ -483,7 +483,7 @@ export default function TemplatesScreen(): JSX.Element {
         />
         <Button
           label={persistTemplate.isPending ? t('Saving...') : t('Save changes')}
-          icon="save"
+          icon="Save"
           small
           onPress={() => persistTemplate.mutate({ front: frontTemplate, back: backTemplate, styles: styles_ })}
           disabled={persistTemplate.isPending || (!!active && !isDirty)}

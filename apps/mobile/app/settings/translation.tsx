@@ -1,14 +1,14 @@
-import { Ionicons } from '@expo/vector-icons'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
 import type { CardSource } from '@lingora/types'
+import { Icon } from '../../components/Icon'
 import { AlertModal, Card, SectionHeader } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
 import { DEEPL_USAGE_URL, PROVIDER_META, PROVIDER_STORE_KEYS, ZERO_USAGE } from '../../lib/aiProviderMeta'
-import { validateDeepLKey } from '../../lib/providerValidation'
+import { validateDeepLKey } from '@lingora/ai'
 import { clearUsage, getUsage, type UsageSnapshot } from '../../lib/providerUsage'
 import {
   DEFAULT_MODELS,
@@ -246,8 +246,8 @@ function DeepLRow(props: {
     <View style={styles.providerBlock}>
       <View style={styles.providerHeader}>
         <Pressable testID="translation-select-deepl" style={[styles.option, styles.flexFill]} onPress={props.onSelect}>
-          <Ionicons
-            name={props.selected ? 'radio-button-on' : 'radio-button-off'}
+          <Icon
+            name={props.selected ? 'CircleDot' : 'Circle'}
             size={20}
             color={props.selected ? colors.primary : colors.textMuted}
           />
@@ -264,7 +264,7 @@ function DeepLRow(props: {
           onPress={props.onToggleExpanded}
           hitSlop={8}
         >
-          <Ionicons name={props.expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+          <Icon name={props.expanded ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
         </Pressable>
       </View>
 
@@ -288,7 +288,7 @@ function DeepLRow(props: {
               onPress={props.onToggleShowKey}
               style={styles.keyInputEye}
             >
-              <Ionicons name={props.showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
+              <Icon name={props.showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
             </Pressable>
           </View>
 
@@ -317,7 +317,7 @@ function DeepLRow(props: {
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : props.validated ? (
                 <View style={styles.validatedRow}>
-                  <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+                  <Icon name="CircleCheck" size={15} color={colors.success} />
                   <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
                 </View>
               ) : (
@@ -362,8 +362,8 @@ function ProviderOption(props: {
   const styles = useThemedStyles(createStyles)
   return (
     <Pressable style={[styles.option, props.disabled && styles.optionDisabled]} onPress={props.onPress} disabled={props.disabled}>
-      <Ionicons
-        name={props.selected ? 'radio-button-on' : 'radio-button-off'}
+      <Icon
+        name={props.selected ? 'CircleDot' : 'Circle'}
         size={20}
         color={props.selected ? colors.primary : colors.textMuted}
       />

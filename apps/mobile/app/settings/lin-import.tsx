@@ -1,6 +1,5 @@
 import type { BackupPayload, LinDeckOption, LinDuplicatePolicy, LinLemmaPreview } from '@lingora/database'
 import { buildLinImportPreview, createDeck, getDeckById, getDecksForLemma, getDecksInPayload, importLinDeck } from '@lingora/database'
-import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
@@ -8,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle } from 'react-native'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { Icon } from '../../components/Icon'
 import { AlertModal, Button, Card, Chip, EmptyState, Spinner } from '../../components/ui'
 import { pickAndParseBackupFile } from '../../lib/backup'
 import { useServices } from '../../lib/services'
@@ -318,8 +318,8 @@ export default function LinImportScreen(): JSX.Element {
           <View style={styles.tableFlexColumn}>
             <View style={styles.tableHeaderRow}>
               <Pressable style={[styles.tableHeaderCheckboxCell, { width: SELECT_COLUMN_WIDTH }]} onPress={toggleSelectAll}>
-                <Ionicons
-                  name={allVisibleChecked ? 'checkbox' : 'square-outline'}
+                <Icon
+                  name={allVisibleChecked ? 'SquareCheck' : 'Square'}
                   size={18}
                   color={allVisibleChecked ? colors.primary : colors.textMuted}
                 />
@@ -353,8 +353,8 @@ export default function LinImportScreen(): JSX.Element {
                       style={[styles.tableCheckboxCell, { width: SELECT_COLUMN_WIDTH }]}
                       onPress={() => toggleChecked(preview.sourceLemmaId)}
                     >
-                      <Ionicons
-                        name={checked ? 'checkbox' : 'square-outline'}
+                      <Icon
+                        name={checked ? 'SquareCheck' : 'Square'}
                         size={18}
                         color={checked ? colors.primary : colors.textMuted}
                       />
@@ -398,7 +398,7 @@ export default function LinImportScreen(): JSX.Element {
               ) : (
                 <>
                   <EmptyState
-                    icon="checkmark-circle"
+                    icon="CircleCheck"
                     title={t('Import complete')}
                     message={t('Imported {{words}} words ({{cards}} cards).', {
                       words: result.imported.toLocaleString(),
@@ -435,7 +435,7 @@ export default function LinImportScreen(): JSX.Element {
           <Text style={styles.body}>
             {t('Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
-          <Button label={t('Choose .lin file')} icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose .lin file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -476,7 +476,7 @@ export default function LinImportScreen(): JSX.Element {
             <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
             <Button
               label={targetDeckName ?? t('Choose a deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />

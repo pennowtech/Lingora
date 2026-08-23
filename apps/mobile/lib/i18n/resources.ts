@@ -320,7 +320,7 @@ const ENGLISH_PHRASES = [
   'No stats yet',
   'Add and review some words to see your learning statistics here.',
   'remembered (30 d)',
-  'How often you recalled a word correctly',
+  'word correctly',
   'day streak',
   'total cards',
   'new this week',
@@ -949,8 +949,6 @@ const ENGLISH_PHRASES = [
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning',
-  'Meaning -> Word',
   'Fill in the blank',
   'True or False',
   'Multiple choice',
@@ -1342,7 +1340,6 @@ const de: Partial<Record<Phrase, string>> = {
   'Add and review some words to see your learning statistics here.':
     'Füge Wörter hinzu und wiederhole sie, um hier deine Lernstatistiken zu sehen.',
   'remembered (30 d)': 'gemerkt (30 T.)',
-  'How often you recalled a word correctly': 'Wie oft du dich richtig an ein Wort erinnert hast',
   'day streak': 'Tage-Serie',
   'total cards': 'Karten insgesamt',
   'new this week': 'neu diese Woche',
@@ -2133,8 +2130,6 @@ const de: Partial<Record<Phrase, string>> = {
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning': 'Wort -> Bedeutung',
-  'Meaning -> Word': 'Bedeutung -> Wort',
   'Fill in the blank': 'Lückentext',
   'True or False': 'Wahr oder Falsch',
   'Multiple choice': 'Multiple-Choice',
@@ -2524,7 +2519,6 @@ const fr: Partial<Record<Phrase, string>> = {
   'Add and review some words to see your learning statistics here.':
     'Ajoutez et révisez des mots pour voir vos statistiques ici.',
   'remembered (30 d)': 'mémorisé (30 j)',
-  'How often you recalled a word correctly': 'À quelle fréquence vous vous souvenez correctement d\'un mot',
   'day streak': 'série de jours',
   'total cards': 'total des cartes',
   'new this week': 'nouveaux cette semaine',
@@ -3312,8 +3306,6 @@ const fr: Partial<Record<Phrase, string>> = {
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning': 'Mot -> Sens',
-  'Meaning -> Word': 'Sens -> Mot',
   'Fill in the blank': 'Texte à trous',
   'True or False': 'Vrai ou faux',
   'Multiple choice': 'Choix multiple',
@@ -3702,7 +3694,6 @@ const es: Partial<Record<Phrase, string>> = {
   'Add and review some words to see your learning statistics here.':
     'Añade y repasa algunas palabras para ver aquí tus estadísticas de aprendizaje.',
   'remembered (30 d)': 'recordado (30 d)',
-  'How often you recalled a word correctly': 'Con qué frecuencia recuerdas correctamente una palabra',
   'day streak': 'racha de días',
   'total cards': 'tarjetas totales',
   'new this week': 'nuevas esta semana',
@@ -4490,8 +4481,6 @@ const es: Partial<Record<Phrase, string>> = {
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning': 'Palabra -> Significado',
-  'Meaning -> Word': 'Significado -> Palabra',
   'Fill in the blank': 'Rellenar el hueco',
   'True or False': 'Verdadero o falso',
   'Multiple choice': 'Opción múltiple',
@@ -4881,7 +4870,6 @@ const hi: Partial<Record<Phrase, string>> = {
   'Add and review some words to see your learning statistics here.':
     'यहाँ अपने सीखने के आँकड़े देखने के लिए कुछ शब्द जोड़ें और दोहराएं।',
   'remembered (30 d)': 'याद रखा (30 दिन)',
-  'How often you recalled a word correctly': 'आप किसी शब्द को कितनी बार सही याद कर पाते हैं',
   'day streak': 'दिनों की लड़ी',
   'total cards': 'कुल कार्ड',
   'new this week': 'इस सप्ताह नए',
@@ -5664,8 +5652,6 @@ const hi: Partial<Record<Phrase, string>> = {
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning': 'शब्द -> अर्थ',
-  'Meaning -> Word': 'अर्थ -> शब्द',
   'Fill in the blank': 'रिक्त स्थान भरें',
   'True or False': 'सही या गलत',
   'Multiple choice': 'बहुविकल्पीय',
@@ -6696,7 +6682,6 @@ const vi: Partial<Record<Phrase, string>> = {
   'new words per week': 'từ mới mỗi tuần',
   'regenerate this card': 'tạo lại thẻ này',
   'remembered (30 d)': 'đã nhớ (30 ngày)',
-  'How often you recalled a word correctly': 'Tần suất bạn nhớ đúng một từ',
   reverse: 'chiều ngược lại',
   'reviewed today': 'đã ôn hôm nay',
   'rule - reference it in your CSS below as':
@@ -6838,8 +6823,6 @@ const vi: Partial<Record<Phrase, string>> = {
 
   // Newly added — Mixed practice, question types, cards-per-session, and the AI Providers help
   // sheet/error-message hardening that went with them
-  'Word -> Meaning': 'Từ -> Nghĩa',
-  'Meaning -> Word': 'Nghĩa -> Từ',
   'Fill in the blank': 'Điền khuyết',
   'True or False': 'Đúng hay sai',
   'Multiple choice': 'Trắc nghiệm',

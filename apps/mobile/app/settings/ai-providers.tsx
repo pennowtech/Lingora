@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons'
 import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
+import { Icon } from '../../components/Icon'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AlertModal, Card, Chip, ConfirmModal, IconButton } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
@@ -30,7 +30,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'overview',
     title: 'How AI Providers works',
-    icon: 'sparkles-outline',
+    icon: 'Sparkles',
     paragraphs: [
       'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.',
       'Bring your own API key - nothing is sent to a provider until you generate a card.',
@@ -233,13 +233,13 @@ export default function AiProvidersScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
           ),
         }}
       />
       {loadError ? (
         <View style={styles.banner}>
-          <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+          <Icon name="CircleAlert" size={16} color={colors.danger} />
           <View style={styles.bannerText}>
             <Text style={styles.bannerTitle}>{t("Couldn't load saved settings")}</Text>
             <Text style={styles.bannerMessage}>{loadError}</Text>
@@ -295,7 +295,7 @@ export default function AiProvidersScreen(): JSX.Element {
           onPress={() => setDeleteAllConfirmOpen(true)}
           disabled={!anyKeyPresent}
         >
-          <Ionicons name="trash-outline" size={16} color={colors.danger} />
+          <Icon name="Trash2" size={16} color={colors.danger} />
           <Text style={styles.dangerButtonLabel}>{t('Delete All AI Providers Keys')}</Text>
         </Pressable>
       </Card>
@@ -395,7 +395,7 @@ function ProviderCard(props: {
           disabled={!hasKey}
         />
         <Pressable onPress={props.onToggleExpanded} hitSlop={8}>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+          <Icon name={expanded ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
         </Pressable>
       </View>
 
@@ -427,7 +427,7 @@ function ProviderCard(props: {
               onPress={props.onToggleShowKey}
               style={styles.keyInputEye}
             >
-              <Ionicons name={showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
+              <Icon name={showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
             </Pressable>
           </View>
 
@@ -446,7 +446,7 @@ function ProviderCard(props: {
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : validated ? (
                 <View style={styles.validatedRow}>
-                  <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+                  <Icon name="CircleCheck" size={15} color={colors.success} />
                   <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
                 </View>
               ) : (

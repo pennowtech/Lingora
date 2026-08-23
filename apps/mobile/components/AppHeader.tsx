@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { NativeStackHeaderProps } from 'expo-router/build/react-navigation/native-stack/types'
 import type { JSX } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon } from './Icon'
 import { CompactLanguagePairPill } from './LanguagePairBadge'
 import { spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -42,7 +42,7 @@ export function AppHeader({ back, options, navigation }: NativeStackHeaderProps)
             accessibilityLabel="Go back"
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Icon name="ArrowLeft" size={24} color={colors.text} />
           </Pressable>
         ) : null}
         {title ? (

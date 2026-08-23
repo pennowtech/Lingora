@@ -512,7 +512,7 @@ export default function ApkgImportScreen(): JSX.Element {
               ) : (
                 <>
                   <EmptyState
-                    icon="checkmark-circle"
+                    icon="CircleCheck"
                     title={result.cancelled ? t('Import canceled') : t('Import complete')}
                     message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
                   />
@@ -546,7 +546,7 @@ export default function ApkgImportScreen(): JSX.Element {
           <Text style={styles.body}>
             {t("Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.")}
           </Text>
-          <Button label={t('Choose .apkg file')} icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose .apkg file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -632,7 +632,7 @@ export default function ApkgImportScreen(): JSX.Element {
             <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
             <Button
               label={deckName ?? t('Choose a deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />

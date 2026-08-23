@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { LanguageCode, WordGuideEntry } from '@lingora/types'
 import type { JSX, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon } from './Icon'
 import { SpeakerButton } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -66,7 +66,7 @@ export function WordGuideModal(props: {
                   })}
                 </Text>
                 <Pressable onPress={props.onClose} hitSlop={8}>
-                  <Ionicons name="close" size={22} color={colors.textMuted} />
+                  <Icon name="X" size={22} color={colors.textMuted} />
                 </Pressable>
               </View>
               <ScrollView style={styles.scroll}>

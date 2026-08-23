@@ -31,10 +31,10 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Icon } from '../../components/Icon'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
 import { MultipleChoiceQuestion } from '../../components/MultipleChoiceQuestion'
@@ -62,7 +62,7 @@ import {
   DEFAULT_STYLES,
   renderCardHtml,
   type CardTemplateContext,
-} from '../../lib/templates'
+} from '@lingora/core'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { getSessionCardLimit } from '../../lib/reviewSession'
 import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
@@ -1123,7 +1123,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     <SafeAreaView style={styles.safe}>
       {/* Header: close, progress, mode, counter */}
       <View style={styles.header}>
-        <IconButton icon="close" onPress={() => router.back()} />
+        <IconButton icon="X" onPress={() => router.back()} />
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
@@ -1179,7 +1179,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       ) : done || !view ? (
         <View style={styles.doneWrap}>
           <EmptyState
-            icon={queue.length === 0 ? 'checkmark-done' : 'trophy'}
+            icon={queue.length === 0 ? 'CheckCheck' : 'Trophy'}
             title={queue.length === 0 ? t('Nothing due right now') : t('Session complete!')}
             message={
               queue.length === 0
@@ -1256,7 +1256,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               onExplain={handleExplain}
               explainVisible={isAiCard || explainVisible}
               explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
               onEdit={openEdit}
               onLookup={handleLookup}
               onAskAI={handleAskAI}
@@ -1302,7 +1302,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                 onExplain={handleExplain}
                 explainVisible={isAiCard || explainVisible}
                 explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
                 onEdit={openEdit}
                 onLookup={handleLookup}
                 onAskAI={handleAskAI}
@@ -1368,18 +1368,18 @@ export default function ReviewSessionScreen(): JSX.Element {
               <Text style={styles.editTitle}>{t('Edit this card')}</Text>
               <View style={styles.editHeaderActions}>
                 <IconButton
-                  icon="arrow-undo-outline"
+                  icon="Undo2"
                   accessibilityLabel={t('Undo')}
                   onPress={undoEdit}
                   disabled={editHistory.index === 0}
                 />
                 <IconButton
-                  icon="arrow-redo-outline"
+                  icon="Redo2"
                   accessibilityLabel={t('Redo')}
                   onPress={redoEdit}
                   disabled={editHistory.index >= editHistory.stack.length - 1}
                 />
-                <IconButton icon="close" onPress={() => setEditOpen(false)} />
+                <IconButton icon="X" onPress={() => setEditOpen(false)} />
               </View>
             </View>
             {/* Capped + scrollable (see editSheet's maxHeight) — three multiline fields plus the
@@ -1410,7 +1410,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                   {generateEditExample.isPending ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
-                    <Ionicons name="sparkles" size={14} color={colors.primary} />
+                    <Icon name="Sparkles" size={14} color={colors.primary} />
                   )}
                   <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
                 </Pressable>
@@ -1446,7 +1446,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
                 label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
-                icon="save"
+                icon="Save"
                 onPress={() => saveEdit.mutate()}
                 disabled={saveEdit.isPending}
               />

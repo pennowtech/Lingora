@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import {
   getDueCardsCount,
   getDueClozeCount,
@@ -15,9 +14,10 @@ import { useCallback, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Icon } from '../../components/Icon'
 import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
-import { streakFromDayIndexes } from '../../lib/stats'
+import { streakFromDayIndexes } from '@lingora/core'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -111,14 +111,14 @@ export default function HomeScreen(): JSX.Element {
             </Text>
           </View>
           <View style={styles.streakPill}>
-            <Ionicons name="flame" size={16} color={colors.warning} />
+            <Icon name="Flame" size={16} color={colors.warning} />
             <Text style={styles.streakLabel}>{t('{{count}} days', { count: stats?.streakDays ?? 0 })}</Text>
           </View>
         </View>
 
         {statsQuery.isError || recentQuery.isError ? (
           <View style={styles.errorBanner}>
-            <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+            <Icon name="CircleAlert" size={16} color={colors.danger} />
             <Text style={styles.errorBannerText}>{t('Some data on this screen couldn\'t load.')}</Text>
             <Pressable
               onPress={() => {
@@ -140,7 +140,7 @@ export default function HomeScreen(): JSX.Element {
           <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
           <Button
             label={t('Start review')}
-            icon="play"
+            icon="Play"
             onPress={() =>
               router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
             }
@@ -165,14 +165,14 @@ export default function HomeScreen(): JSX.Element {
                 chevron icon signals that, not an ASCII "->" glued onto the label text. */}
             <View style={styles.statLabelRow}>
               <Text style={styles.statLabel}>{t('remembered')}</Text>
-              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+              <Icon name="ChevronRight" size={10} color={colors.textMuted} />
             </View>
           </Card>
           <Card style={styles.statCard} onPress={() => router.push('/stats')}>
             <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
             <View style={styles.statLabelRow}>
               <Text style={styles.statLabel}>{t('total cards')}</Text>
-              <Ionicons name="chevron-forward" size={10} color={colors.textMuted} />
+              <Icon name="ChevronRight" size={10} color={colors.textMuted} />
             </View>
           </Card>
         </View>
@@ -205,7 +205,7 @@ export default function HomeScreen(): JSX.Element {
                       </Text>
                       <View style={styles.wotdFooterRow}>
                         <Text style={styles.wotdFooterText}>{t('Learn this word')}</Text>
-                        <Ionicons name="arrow-forward" size={13} color={colors.primary} />
+                        <Icon name="ArrowRight" size={13} color={colors.primary} />
                       </View>
                     </>
                   ) : (
@@ -231,7 +231,7 @@ export default function HomeScreen(): JSX.Element {
               onPress: () => router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } }),
             })}
           >
-            <Ionicons name="book-outline" size={22} color={colors.primary} />
+            <Icon name="BookOpen" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Practice words')}</Text>
             {stats ? <Text style={styles.actionCount}>{t('{{count}} due', { count: stats.dueNow })}</Text> : null}
           </Card>
@@ -245,20 +245,20 @@ export default function HomeScreen(): JSX.Element {
                 }),
             })}
           >
-            <Ionicons name="create-outline" size={22} color={colors.primary} />
+            <Icon name="SquarePen" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Practice cloze')}</Text>
             {stats ? <Text style={styles.actionCount}>{t('{{count}} due', { count: stats.dueCloze })}</Text> : null}
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/search')}>
-            <Ionicons name="search" size={22} color={colors.primary} />
+            <Icon name="Search" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Look up a word')}</Text>
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/mine')}>
-            <Ionicons name="download" size={22} color={colors.primary} />
+            <Icon name="Download" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Mining queue')}</Text>
           </Card>
           <Card style={styles.actionCard} onPress={() => router.push('/stats')}>
-            <Ionicons name="stats-chart" size={22} color={colors.primary} />
+            <Icon name="ChartColumn" size={22} color={colors.primary} />
             <Text style={styles.actionLabel}>{t('Statistics')}</Text>
           </Card>
         </View>
@@ -267,7 +267,7 @@ export default function HomeScreen(): JSX.Element {
         <SectionHeader title={t('Recently searched')} action={t('See all')} onAction={() => router.push('/recent-words')} />
         {recent.length === 0 && recentQuery.isSuccess ? (
           <EmptyState
-            icon="sparkles-outline"
+            icon="Sparkles"
             title={t('No words yet')}
             message={t('Look up a word to add your first card.')}
           />
@@ -284,7 +284,7 @@ export default function HomeScreen(): JSX.Element {
               </View>
               {word.hasCloze ? (
                 <View style={styles.clozeBadge}>
-                  <Ionicons name="create-outline" size={12} color={colors.warning} />
+                  <Icon name="SquarePen" size={12} color={colors.warning} />
                 </View>
               ) : null}
               {word.cefrLevel ? <CefrBadge level={word.cefrLevel} /> : null}

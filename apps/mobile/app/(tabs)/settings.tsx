@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { logger } from '@lingora/observability'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { router, useFocusEffect } from 'expo-router'
@@ -7,6 +6,7 @@ import { useCallback, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import appIcon from '../../assets/icon-lingora.png'
+import { Icon, type IconName } from '../../components/Icon'
 import { Card, LinkRow } from '../../components/ui'
 import { PROVIDER_STORE_KEYS } from '../../lib/aiProviderMeta'
 import {
@@ -62,7 +62,7 @@ interface SearchableSetting {
   group: string
   keywords: string[]
   route: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
 }
 
 /** A flat index of every setting reachable from this menu, across every sub-screen — searched by
@@ -71,28 +71,28 @@ interface SearchableSetting {
  * open and scrolled into view" without a lot more plumbing, and getting to the right screen in one
  * tap already does most of the work a search here needs to do. */
 const SEARCHABLE_SETTINGS: SearchableSetting[] = [
-  { key: 'ai-providers', label: 'AI Providers', group: 'AI Providers', keywords: ['ai', 'api', 'key', 'generation', 'provider'], route: '/settings/ai-providers', icon: 'sparkles-outline' },
-  { key: 'openai', label: 'OpenAI', group: 'AI Providers', keywords: ['gpt', 'api key'], route: '/settings/ai-providers', icon: 'sparkles-outline' },
-  { key: 'mistral', label: 'Mistral', group: 'AI Providers', keywords: ['api key'], route: '/settings/ai-providers', icon: 'flash-outline' },
-  { key: 'gemini', label: 'Gemini', group: 'AI Providers', keywords: ['google', 'api key'], route: '/settings/ai-providers', icon: 'logo-google' },
-  { key: 'claude', label: 'Claude', group: 'AI Providers', keywords: ['anthropic', 'api key'], route: '/settings/ai-providers', icon: 'chatbubble-ellipses-outline' },
-  { key: 'delete-ai-keys', label: 'Delete All AI Providers Keys', group: 'AI Providers', keywords: ['delete', 'remove', 'clear', 'key'], route: '/settings/ai-providers', icon: 'trash-outline' },
-  { key: 'translation', label: 'Translation', group: 'Translation', keywords: ['translate'], route: '/settings/translation', icon: 'language-outline' },
-  { key: 'google-translate', label: 'Google Translate', group: 'Translation', keywords: ['translate', 'free'], route: '/settings/translation', icon: 'language-outline' },
-  { key: 'deepl', label: 'DeepL', group: 'Translation', keywords: ['translate', 'api key'], route: '/settings/translation', icon: 'language-outline' },
-  { key: 'learning', label: 'Learning', group: 'Learning', keywords: ['cefr', 'level', 'language'], route: '/settings/learning', icon: 'school-outline' },
-  { key: 'cefr', label: 'Default CEFR level', group: 'Learning', keywords: ['a1', 'a2', 'b1', 'b2', 'c1', 'c2', 'level'], route: '/settings/learning', icon: 'school-outline' },
-  { key: 'vocab-languages', label: 'I speak / I\'m learning', group: 'Learning', keywords: ['native', 'target', 'language', 'speak', 'learning'], route: '/settings/learning', icon: 'globe-outline' },
-  { key: 'general', label: 'General', group: 'General', keywords: ['audio', 'pronunciation', 'app language', 'locale', 'ui'], route: '/settings/general', icon: 'options-outline' },
-  { key: 'audio-settings', label: 'Audio Settings', group: 'General', keywords: ['tts', 'voice', 'rate', 'pitch', 'speech', 'pronunciation'], route: '/settings/tts', icon: 'volume-high' },
-  { key: 'app-language', label: 'App Language', group: 'General', keywords: ['locale', 'ui', 'interface'], route: '/settings/general', icon: 'globe-outline' },
-  { key: 'data', label: 'Data', group: 'Data', keywords: ['import', 'export'], route: '/settings/data', icon: 'swap-vertical' },
-  { key: 'import-export', label: 'Import & export', group: 'Data', keywords: ['anki', 'csv', 'json', 'backup', 'restore'], route: '/settings/import-export', icon: 'swap-vertical' },
-  { key: 'templates', label: 'Card templates', group: 'Data', keywords: ['layout', 'design', 'liquid'], route: '/settings/templates', icon: 'color-palette' },
-  { key: 'word-guides', label: 'Local Dictionaries', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'library' },
-  { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'sync-outline' },
-  { key: 'about', label: 'About', group: 'About & Support', keywords: ['version', 'info'], route: '/settings/about', icon: 'information-circle-outline' },
-  { key: 'feedback', label: 'Send Feedback', group: 'About & Support', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/about', icon: 'chatbox-ellipses-outline' },
+  { key: 'ai-providers', label: 'AI Providers', group: 'AI Providers', keywords: ['ai', 'api', 'key', 'generation', 'provider'], route: '/settings/ai-providers', icon: 'Sparkles' },
+  { key: 'openai', label: 'OpenAI', group: 'AI Providers', keywords: ['gpt', 'api key'], route: '/settings/ai-providers', icon: 'Sparkles' },
+  { key: 'mistral', label: 'Mistral', group: 'AI Providers', keywords: ['api key'], route: '/settings/ai-providers', icon: 'Zap' },
+  { key: 'gemini', label: 'Gemini', group: 'AI Providers', keywords: ['google', 'api key'], route: '/settings/ai-providers', icon: 'Globe' },
+  { key: 'claude', label: 'Claude', group: 'AI Providers', keywords: ['anthropic', 'api key'], route: '/settings/ai-providers', icon: 'MessageCircle' },
+  { key: 'delete-ai-keys', label: 'Delete All AI Providers Keys', group: 'AI Providers', keywords: ['delete', 'remove', 'clear', 'key'], route: '/settings/ai-providers', icon: 'Trash2' },
+  { key: 'translation', label: 'Translation', group: 'Translation', keywords: ['translate'], route: '/settings/translation', icon: 'Languages' },
+  { key: 'google-translate', label: 'Google Translate', group: 'Translation', keywords: ['translate', 'free'], route: '/settings/translation', icon: 'Languages' },
+  { key: 'deepl', label: 'DeepL', group: 'Translation', keywords: ['translate', 'api key'], route: '/settings/translation', icon: 'Languages' },
+  { key: 'learning', label: 'Learning', group: 'Learning', keywords: ['cefr', 'level', 'language'], route: '/settings/learning', icon: 'GraduationCap' },
+  { key: 'cefr', label: 'Default CEFR level', group: 'Learning', keywords: ['a1', 'a2', 'b1', 'b2', 'c1', 'c2', 'level'], route: '/settings/learning', icon: 'GraduationCap' },
+  { key: 'vocab-languages', label: 'I speak / I\'m learning', group: 'Learning', keywords: ['native', 'target', 'language', 'speak', 'learning'], route: '/settings/learning', icon: 'Globe' },
+  { key: 'general', label: 'General', group: 'General', keywords: ['audio', 'pronunciation', 'app language', 'locale', 'ui'], route: '/settings/general', icon: 'SlidersHorizontal' },
+  { key: 'audio-settings', label: 'Audio Settings', group: 'General', keywords: ['tts', 'voice', 'rate', 'pitch', 'speech', 'pronunciation'], route: '/settings/tts', icon: 'Volume2' },
+  { key: 'app-language', label: 'App Language', group: 'General', keywords: ['locale', 'ui', 'interface'], route: '/settings/general', icon: 'Globe' },
+  { key: 'data', label: 'Data', group: 'Data', keywords: ['import', 'export'], route: '/settings/data', icon: 'ArrowUpDown' },
+  { key: 'import-export', label: 'Import & export', group: 'Data', keywords: ['anki', 'csv', 'json', 'backup', 'restore'], route: '/settings/import-export', icon: 'ArrowUpDown' },
+  { key: 'templates', label: 'Card templates', group: 'Data', keywords: ['layout', 'design', 'liquid'], route: '/settings/templates', icon: 'Palette' },
+  { key: 'word-guides', label: 'Local Dictionaries', group: 'Data', keywords: ['dictionary', 'starter'], route: '/settings/word-guides', icon: 'Library' },
+  { key: 'sync', label: 'Sync', group: 'Sync', keywords: ['google', 'cloud', 'backup', 'account', 'sign in'], route: '/settings/sync', icon: 'RefreshCw' },
+  { key: 'about', label: 'About', group: 'About & Support', keywords: ['version', 'info'], route: '/settings/about', icon: 'Info' },
+  { key: 'feedback', label: 'Send Feedback', group: 'About & Support', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/about', icon: 'MessageSquareText' },
 ]
 
 /** Maps a search result's route to the same category tint the main menu row for that destination
@@ -215,7 +215,7 @@ export default function SettingsScreen(): JSX.Element {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <View style={styles.searchBox}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
+        <Icon name="Search" size={18} color={colors.textMuted} />
         <TextInput
           testID="settings-search-input"
           accessibilityLabel={t('Search settings')}
@@ -236,7 +236,7 @@ export default function SettingsScreen(): JSX.Element {
             onPress={() => setQuery('')}
             hitSlop={8}
           >
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+            <Icon name="CircleX" size={18} color={colors.textMuted} />
           </Pressable>
         ) : null}
       </View>
@@ -264,7 +264,7 @@ export default function SettingsScreen(): JSX.Element {
         <>
           {limitedMode ? (
             <View style={styles.banner}>
-              <Ionicons name="lock-closed" size={16} color={colors.warning} />
+              <Icon name="Lock" size={16} color={colors.warning} />
               <View style={styles.bannerText}>
                 <Text style={styles.bannerTitle}>{t('Limited mode')}</Text>
                 <Text style={styles.bannerMessage}>
@@ -277,7 +277,7 @@ export default function SettingsScreen(): JSX.Element {
           <Card style={styles.menuCard}>
             <LinkRow
               testID="settings-menu-general"
-              icon="options-outline"
+              icon="SlidersHorizontal"
               label={t('General')}
               detail={t('Audio settings, app language')}
               onPress={() => router.push('/settings/general')}
@@ -285,7 +285,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-learning"
-              icon="school-outline"
+              icon="GraduationCap"
               label={t('Learning')}
               detail={learningDetail}
               onPress={() => router.push('/settings/learning')}
@@ -294,7 +294,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-data"
-              icon="swap-vertical"
+              icon="ArrowUpDown"
               label={t('Data')}
               detail={t('Import & export, templates, local dictionaries')}
               onPress={() => router.push('/settings/data')}
@@ -303,7 +303,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-ai-providers"
-              icon="sparkles-outline"
+              icon="Sparkles"
               label={t('AI Providers')}
               detail={aiProvidersDetail}
               onPress={() => router.push('/settings/ai-providers')}
@@ -312,7 +312,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-translation"
-              icon="language-outline"
+              icon="Languages"
               label={t('Translation')}
               detail={summary.translationLabel}
               onPress={() => router.push('/settings/translation')}
@@ -321,7 +321,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-sync"
-              icon="sync-outline"
+              icon="RefreshCw"
               label={t('Sync')}
               detail={t('Sync decks, cards, and progress to a Google account')}
               onPress={() => router.push('/settings/sync')}
@@ -330,7 +330,7 @@ export default function SettingsScreen(): JSX.Element {
             />
             <LinkRow
               testID="settings-menu-about"
-              icon="information-circle-outline"
+              icon="Info"
               label={t('About & Support')}
               detail={t('App info, send feedback or report an issue')}
               onPress={() => router.push('/settings/about')}

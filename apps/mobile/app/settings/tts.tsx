@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { LanguageCode } from '@lingora/types'
 import { VoiceQuality, type Voice } from 'expo-speech'
 import { Stack } from 'expo-router'
@@ -7,6 +6,7 @@ import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
 import { AlertModal, Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
 import * as SecureStore from 'expo-secure-store'
 import {
@@ -15,18 +15,19 @@ import {
   AUDIO_SPEED_OPTIONS,
   AUDIO_STORE_KEYS,
   CLOUD_AUDIO_PROVIDERS,
+  CloudTtsError,
   DEFAULT_AUDIO_SPEED,
+  fetchProviderVoices,
   getDefaultCloudVoice,
   OPENAI_RECOMMENDED_VOICES,
   OPENAI_TTS_VOICES,
   SPEED_CAPABLE_PROVIDERS,
   type AudioProviderName,
   type CloudAudioProviderName,
-} from '../../lib/audioProviderMeta'
+  type ProviderVoiceOption,
+} from '@lingora/core'
 import { validateAudioProviderKey } from '../../lib/audioProviderValidation'
-import { fetchProviderVoices, type ProviderVoiceOption } from '../../lib/audioProviderVoices'
 import { playCloudSpeech, stopCloudSpeech } from '../../lib/cloudTts'
-import { CloudTtsError } from '../../lib/cloudTtsProviders'
 import { speak } from '../../lib/speech'
 import { useServices } from '../../lib/services'
 import {
@@ -81,7 +82,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'overview',
     title: 'How Audio Settings works',
-    icon: 'information-circle',
+    icon: 'Info',
     paragraphs: [
       'Every speaker button in the app uses whichever engine is marked Active below.',
       'Cloud providers are bring-your-own-key - nothing is sent to them until you tap a speaker icon or press Test.',
@@ -91,7 +92,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'test',
     title: 'Testing a voice',
-    icon: 'volume-high',
+    icon: 'Volume2',
     paragraphs: [
       '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.',
       'Each provider\'s own "Test this provider" button plays through that card\'s current key/voice/speed directly, regardless of which engine is Active - use it to check a setup before switching to it.',
@@ -100,7 +101,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'device',
     title: 'Device (built-in)',
-    icon: 'phone-portrait',
+    icon: 'Smartphone',
     paragraphs: [
       'Uses your phone\'s own text-to-speech engine - offline, free, no API key.',
       'The voice list follows whatever language is set under Settings > Learning > "I\'m learning".',
@@ -110,7 +111,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'openai',
     title: 'OpenAI',
-    icon: 'sparkles',
+    icon: 'Sparkles',
     paragraphs: [
       'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI\'s newest, most natural-sounding voices.',
       'If Validate says a project doesn\'t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn\'t enabled it.',
@@ -121,7 +122,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'elevenlabs',
     title: 'ElevenLabs',
-    icon: 'mic',
+    icon: 'Mic',
     paragraphs: [
       'eleven_multilingual_v2. Once your key is entered, choose from your own ElevenLabs voice library, or switch to manual entry to paste a voice ID directly.',
       'If no voice is picked, a known-good multilingual default voice is used automatically.',
@@ -130,7 +131,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'deepgram',
     title: 'Deepgram',
-    icon: 'radio',
+    icon: 'Radio',
     paragraphs: [
       'Aura-2. Once your key is entered, choose from Deepgram\'s available models, or switch to manual entry to enter a model name directly (see Deepgram\'s docs for exact names).',
       'If no model is picked, a default is chosen to match whatever language is set under Settings > Learning > "I\'m learning" (English, German, Spanish, or French) - other languages fall back to an English voice until you pick one manually.',
@@ -350,7 +351,7 @@ export default function AudioSettingsScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
           ),
         }}
       />
@@ -425,7 +426,7 @@ export default function AudioSettingsScreen(): JSX.Element {
 
       <Button
         label={testing ? t('Playing...') : t('Test active engine')}
-        icon="volume-high"
+        icon="Volume2"
         variant="secondary"
         onPress={handleTest}
         disabled={testing}
@@ -508,7 +509,7 @@ function AudioProviderCard(props: {
       <View style={styles.providerHeader}>
         <Pressable testID={`audio-provider-header-${name}`} style={styles.providerHeaderMain} onPress={props.onToggleExpanded}>
           <View style={styles.providerIcon}>
-            <Ionicons name={meta.icon} size={18} color={colors.primary} />
+            <Icon name={meta.icon as IconName} size={18} color={colors.primary} />
           </View>
           <View style={styles.optionText}>
             <View style={styles.providerNameRow}>
@@ -524,7 +525,7 @@ function AudioProviderCard(props: {
         </Pressable>
         <IconButton
           testID={`audio-provider-help-${name}`}
-          icon="help-circle-outline"
+          icon="CircleQuestionMark"
           size={20}
           onPress={props.onOpenHelp}
         />
@@ -537,7 +538,7 @@ function AudioProviderCard(props: {
           disabled={active || !canActivate}
         />
         <Pressable onPress={props.onToggleExpanded} hitSlop={8}>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+          <Icon name={expanded ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
         </Pressable>
       </View>
 
@@ -607,7 +608,7 @@ function AudioProviderCard(props: {
               onPress={props.cloud.onToggleShowKey}
               style={styles.keyInputEye}
             >
-              <Ionicons name={props.cloud.showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
+              <Icon name={props.cloud.showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
             </Pressable>
           </View>
 
@@ -708,7 +709,7 @@ function AudioProviderCard(props: {
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : props.cloud.validated ? (
                 <View style={styles.validatedRow}>
-                  <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+                  <Icon name="CircleCheck" size={15} color={colors.success} />
                   <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
                 </View>
               ) : (

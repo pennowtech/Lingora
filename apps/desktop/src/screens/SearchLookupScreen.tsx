@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, type LucideIcon } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, type LucideIcon } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
@@ -7,19 +7,24 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../compo
 import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
 import {
+  createChatMessage,
+  deleteLemma,
   getActivePromptVersion,
+  getChatMessages,
   getClustersForLemma,
   getWordGuide,
   persistRegeneratedExamples,
   persistTranslationAsCard,
   persistWordGuideAsCard,
+  regenerateWordPackage,
   searchLemmasWithPreview,
+  updateClusterMoreInfo,
   updateSelectedExample,
   type LemmaSearchPreview,
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, getGrammarGroups, type GenerationProviderName } from '@lingora/core';
-import type { CardSource, WordGuideEntry } from '@lingora/types';
+import type { CardSource, ChatMessage, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
 const HELP_SECTIONS: HelpSection[] = [
@@ -59,6 +64,18 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       '**Add to Deck...** always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
       'An **In library** badge in the results list means a word already has a card - a source icon next to it shows how that card was created (an AI provider, a dictionary, or your installed word guide).',
+    ],
+  },
+  {
+    id: 'word-actions',
+    title: 'Look up, regenerate, more info, ask AI, or delete',
+    icon: ExternalLink,
+    paragraphs: [
+      'Five icon buttons next to Add to Deck, for a word that already has a card: **Look up on Google** opens a web search for it in your browser.',
+      '**Regenerate** replaces every meaning, example, and cluster on this card with a fresh AI generation - useful if the first result wasn\'t quite right. This is different from "Generate with AI," which only ever fills in a word that has nothing yet.',
+      '**More info** asks the AI for extra context paragraphs on the currently selected cluster - nuance, usage notes, common mistakes. It\'s cached per cluster, with a Regenerate button if you want a fresh take, and a composer at the bottom that hands a typed follow-up straight to Ask AI.',
+      '**Ask AI** opens a persistent chat about this word - questions and answers are saved per card, so the conversation is still there next time you look this word up.',
+      '**Delete** permanently removes this word\'s card. Regenerate and Delete both ask for confirmation first, since neither can be undone.',
     ],
   },
 ];
@@ -190,6 +207,32 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // are the ones you just asked for" cue as apps/mobile's word detail screen.
   const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null);
 
+  // Word action bar (Lookup/Regenerate/Delete) — matches apps/mobile's word detail screen's
+  // CardActionBar. Listen already exists (the speaker button in the header); Explain/More info
+  // and Ask AI are a separate, larger follow-up (a persisted chat/explanation sheet), not part of
+  // this pass.
+  const [isRegeneratingCard, setIsRegeneratingCard] = useState(false);
+  const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [wordActionError, setWordActionError] = useState<string | null>(null);
+
+  // "More info" — 2-3 additional-context paragraphs for the active cluster (explainWordDetail),
+  // matching apps/mobile's AIExplanationSheet. Fetched on demand, persisted per-cluster.
+  const [moreInfoOpen, setMoreInfoOpen] = useState(false);
+  const [moreInfoLoading, setMoreInfoLoading] = useState(false);
+  const [moreInfoError, setMoreInfoError] = useState<string | null>(null);
+  const [moreInfoDraft, setMoreInfoDraft] = useState('');
+
+  // "Ask AI" — a persistent, multi-turn chat scoped to this card (card_chat_messages), matching
+  // apps/mobile's WordChatSheet.
+  const [askAiOpen, setAskAiOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSending, setChatSending] = useState(false);
+  const [chatDraft, setChatDraft] = useState('');
+  const [chatError, setChatError] = useState<string | null>(null);
+
   const toggleGrammar = (option: string) => {
     setGrammarSelection((prev) => (prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]));
   };
@@ -237,6 +280,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     translation: meanRows[0]?.translation || c.description || l.form,
                     definition: meanRows[0]?.explanation || c.description || `Semantic context for ${l.form}`,
                     rawDescription: c.description,
+                    moreInfo: c.moreInfo,
                     examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                       { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                     ]
@@ -396,6 +440,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 translation: preview.translation || meanRows[0]?.translation || c.description || l.form,
                 definition: meanRows[0]?.explanation || c.description || '',
                 rawDescription: c.description,
+                moreInfo: c.moreInfo,
                 examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                   { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                 ]
@@ -643,6 +688,202 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     const targetClusterId = activeCluster?.id;
     await executeSearch(selectedWord.form);
     if (targetClusterId) setSelectedClusterId(targetClusterId);
+  };
+
+  const handleLookup = () => {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(selectedWord.form)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // Fetches (or re-fetches, as "Regenerate") the active cluster's "More info" paragraphs and
+  // persists them - same explainWordDetail + updateClusterMoreInfo flow as apps/mobile's
+  // generateMoreInfo mutation. Cached on the cluster itself (moreInfo), so this only actually
+  // calls the AI again when the learner explicitly asks for a fresh take.
+  const handleGenerateMoreInfo = async () => {
+    if (!activeAiProvider || !db || !activeCluster) {
+      setMoreInfoError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    setMoreInfoLoading(true);
+    setMoreInfoError(null);
+    try {
+      const result = await activeAiProvider.explainWordDetail(
+        selectedWord.form,
+        { label: activeCluster.context, description: activeCluster.rawDescription || activeCluster.definition },
+        { cefrLevel, language: targetLanguage, nativeLanguage }
+      );
+      await updateClusterMoreInfo(db, activeCluster.id, result.data);
+      const targetClusterId = activeCluster.id;
+      await executeSearch(selectedWord.form);
+      setSelectedClusterId(targetClusterId);
+    } catch (err: any) {
+      setMoreInfoError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setMoreInfoLoading(false);
+    }
+  };
+
+  const handleOpenMoreInfo = () => {
+    setMoreInfoOpen(true);
+    setMoreInfoError(null);
+    if (activeCluster && activeCluster.moreInfo === undefined) {
+      void handleGenerateMoreInfo();
+    }
+  };
+
+  // "More info"'s own follow-up composer doesn't answer inline - it bridges straight into the
+  // persistent Ask AI chat for this same card, same as apps/mobile's bridgeToChat.
+  const handleBridgeMoreInfoToChat = () => {
+    const question = moreInfoDraft.trim();
+    if (!question) return;
+    setMoreInfoOpen(false);
+    setMoreInfoDraft('');
+    void handleOpenAskAi(question);
+  };
+
+  const handleOpenAskAi = async (initialMessage?: string) => {
+    if (!activeAiProvider || !db || !selectedWord.cardId) {
+      setWordActionError('No AI provider is active, or this word has no card yet.');
+      return;
+    }
+    setAskAiOpen(true);
+    setChatError(null);
+    setChatLoading(true);
+    try {
+      const history = await getChatMessages(db, selectedWord.cardId);
+      setChatMessages(history);
+      if (initialMessage) {
+        await sendChatMessage(initialMessage, history);
+      }
+    } catch (err: any) {
+      setChatError(err?.message || 'Could not load this chat.');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const sendChatMessage = async (text: string, historyOverride?: ChatMessage[]) => {
+    if (!activeAiProvider || !db || !selectedWord.cardId || !activeCluster) return;
+    const history = historyOverride ?? chatMessages;
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), cardId: selectedWord.cardId, role: 'user', content: text, createdAt: Date.now() };
+    await createChatMessage(db, userMessage);
+    const withUser = [...history, userMessage];
+    setChatMessages(withUser);
+    setChatSending(true);
+    setChatError(null);
+    try {
+      const result = await activeAiProvider.chatAboutWord(
+        selectedWord.form,
+        { label: activeCluster.context, description: activeCluster.rawDescription || activeCluster.definition },
+        { cefrLevel, language: targetLanguage, nativeLanguage },
+        withUser.map((m) => ({ role: m.role, content: m.content }))
+      );
+      const assistantMessage: ChatMessage = { id: crypto.randomUUID(), cardId: selectedWord.cardId, role: 'assistant', content: result.data, createdAt: Date.now() };
+      await createChatMessage(db, assistantMessage);
+      setChatMessages([...withUser, assistantMessage]);
+    } catch (err: any) {
+      setChatError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  const handleSendChatDraft = () => {
+    const text = chatDraft.trim();
+    if (!text || chatSending) return;
+    setChatDraft('');
+    void sendChatMessage(text);
+  };
+
+  // Wholesale replaces this card's AI-generated content from scratch - distinct from "Generate
+  // with AI" above, which only ever fills in a word that has nothing yet (lookupOrGenerate's
+  // existing-lemma fast path never touches an already-generated card). Available on every real
+  // word, not just an already-AI one - regenerating a dictionary/word-guide card upgrades it to a
+  // full AI card in place, same as apps/mobile's regenerateCard mutation.
+  const handleRegenerateCard = async () => {
+    if (!activeAiProvider) {
+      setWordActionError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    if (!db || !selectedWord.cardId) {
+      setWordActionError('This word has no card yet - add it to a deck or generate it with AI first.');
+      return;
+    }
+
+    setIsRegeneratingCard(true);
+    setWordActionError(null);
+    try {
+      const result = await activeAiProvider.generateWordPackage(selectedWord.form, {
+        cefrLevel,
+        language: targetLanguage,
+        nativeLanguage,
+      });
+      if (result.kind === 'partial') {
+        throw new Error('Generation came back incomplete - nothing was changed. Try again.');
+      }
+      const promptVersion = await getActivePromptVersion(db, 'word_package');
+      if (!promptVersion) throw new Error('Prompt versions are not seeded yet.');
+      await regenerateWordPackage(db, selectedWord.id, selectedWord.cardId, result.data, {
+        provider: activeAiProvider.name,
+        model: activeAiProvider.model,
+        promptVersionId: promptVersion.id,
+        generatedAt: Date.now(),
+        tokensUsed: result.usage.tokensUsed,
+        latencyMs: result.usage.latencyMs,
+      });
+      await refreshData();
+      await executeSearch(selectedWord.form);
+    } catch (err: any) {
+      setWordActionError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setIsRegeneratingCard(false);
+    }
+  };
+
+  const handleDeleteCard = async () => {
+    if (!db || selectedWord.id.startsWith('search-')) return;
+    setIsDeletingCard(true);
+    setWordActionError(null);
+    try {
+      await deleteLemma(db, selectedWord.id);
+      await refreshData();
+      setDeleteConfirmOpen(false);
+      // The deleted word is gone from the results list too - fall back to whatever's left, or
+      // back to the plain word-browse list if this was the only result.
+      const remaining = searchResults.filter((w) => w.id !== selectedWord.id);
+      if (remaining.length > 0) {
+        setSearchResults(remaining);
+        setSelectedWord(remaining[0]);
+        setSelectedClusterId(remaining[0].clusters[0]?.id || '');
+      } else {
+        // Nothing left to show from this search - fall back to a plain browse of whatever's
+        // still in the database, same query the screen loads on first mount.
+        setQuery('');
+        setHasSearched(false);
+        const lemmaRows = await db.query<any>(
+          `SELECT l.id, l.form, l.part_of_speech AS pos, l.gender, l.plural FROM lemmas l ORDER BY l.form ASC LIMIT 20`
+        );
+        const fallback: WordLemma[] = lemmaRows.map((l: any, idx: number) => ({
+          id: l.id,
+          form: l.form,
+          pos: l.pos || 'noun',
+          gender: l.gender,
+          cefr: idx % 2 === 0 ? 'B1' : 'B2',
+          frequency: 250 + idx * 75,
+          grammar: { partOfSpeech: l.pos || 'noun', cefrNotes: `SQLite Lemma "${l.form}".` },
+          clusters: [{ id: `c-db-${l.id}`, context: 'General Context', translation: l.form, definition: '', examples: [] }],
+          surfaceForms: [l.form],
+        }));
+        if (fallback.length > 0) {
+          setSearchResults(fallback);
+          setSelectedWord(fallback[0]);
+          setSelectedClusterId(fallback[0].clusters[0]?.id || '');
+        }
+      }
+    } catch (err: any) {
+      setWordActionError(err?.message || 'Could not delete this card.');
+    } finally {
+      setIsDeletingCard(false);
+    }
   };
 
   const handleOpenDeckPicker = () => {
@@ -1025,8 +1266,76 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <Plus size={16} />
                 <span>Add to Deck...</span>
               </button>
+
+              {/* Word action bar - Lookup/Regenerate/Delete, matching apps/mobile's word detail
+                  screen's CardActionBar (Listen is the speaker button above; Explain/More info and
+                  Ask AI are a separate follow-up). Only for a real, already-saved word - none of
+                  these make sense for the synthetic "not found yet" entry. */}
+              {!selectedWord.id.startsWith('search-') && (
+                <div style={{ display: 'flex', gap: '4px', paddingLeft: '6px', marginLeft: '2px', borderLeft: '1px solid var(--border-color)' }}>
+                  <button
+                    onClick={handleOpenMoreInfo}
+                    className="btn btn-ghost"
+                    style={{ padding: '10px' }}
+                    title="More info"
+                    aria-label="More info"
+                  >
+                    <BookOpen size={16} color="var(--text-secondary)" />
+                  </button>
+                  <button
+                    onClick={() => void handleOpenAskAi()}
+                    className="btn btn-ghost"
+                    style={{ padding: '10px' }}
+                    title="Ask AI"
+                    aria-label="Ask AI"
+                  >
+                    <MessageCircle size={16} color="var(--text-secondary)" />
+                  </button>
+                  <button
+                    onClick={() => setRegenerateConfirmOpen(true)}
+                    disabled={isRegeneratingCard}
+                    className="btn btn-ghost"
+                    style={{ padding: '10px' }}
+                    title="Regenerate this card with AI"
+                    aria-label="Regenerate this card with AI"
+                  >
+                    <RefreshCw size={16} className={isRegeneratingCard ? 'spin' : undefined} color="var(--text-secondary)" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmOpen(true)}
+                    disabled={isDeletingCard}
+                    className="btn btn-ghost"
+                    style={{ padding: '10px' }}
+                    title="Delete this card"
+                    aria-label="Delete this card"
+                  >
+                    <Trash2 size={16} color="var(--danger)" />
+                  </button>
+                  <button
+                    onClick={handleLookup}
+                    className="btn btn-ghost"
+                    style={{ padding: '10px' }}
+                    title="Look up on Google"
+                    aria-label="Look up on Google"
+                  >
+                    <Globe size={16} color="var(--text-secondary)" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+
+          {wordActionError && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+              border: '1px solid var(--danger)', borderRadius: '10px',
+              fontSize: '12px', color: 'var(--danger)'
+            }}>
+              <AlertCircle size={14} />
+              <span>{wordActionError}</span>
+            </div>
+          )}
 
           {/* AI/word-guide preview — only for a word with no card yet, and only when there's
               genuinely more to show than the header's own translation line above (an AI gist or a
@@ -1486,6 +1795,270 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         cardType={selectedCardType.toUpperCase()}
         onConfirmAdd={handleConfirmDeckAdd}
       />
+
+      {/* Regenerate confirmation - destructive (replaces this card's existing AI content). */}
+      {regenerateConfirmOpen && (
+        <div className="modal-overlay" onClick={() => setRegenerateConfirmOpen(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '420px',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-active)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-glow)',
+              padding: '28px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              animation: 'fadeIn 0.15s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Sparkles size={20} color="var(--accent-primary)" />
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>Regenerate this card?</h3>
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              This replaces every meaning, example, and cluster currently on <strong style={{ color: 'var(--text-primary)' }}>"{selectedWord.form}"</strong> with a fresh AI generation. This can't be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setRegenerateConfirmOpen(false)} className="btn btn-secondary" style={{ fontSize: '13px' }}>
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setRegenerateConfirmOpen(false);
+                  void handleRegenerateCard();
+                }}
+                className="btn btn-primary"
+                style={{ fontSize: '13px' }}
+              >
+                <Sparkles size={14} />
+                <span>Regenerate</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation - destructive (permanently removes this lemma and every card on it). */}
+      {deleteConfirmOpen && (
+        <div className="modal-overlay" onClick={() => setDeleteConfirmOpen(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '420px',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--danger)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-glow)',
+              padding: '28px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              animation: 'fadeIn 0.15s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Trash2 size={20} color="var(--danger)" />
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>Delete this card?</h3>
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              This permanently deletes <strong style={{ color: 'var(--text-primary)' }}>"{selectedWord.form}"</strong> and every card, meaning, and example on it. This can't be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirmOpen(false)} className="btn btn-secondary" style={{ fontSize: '13px' }}>
+                Cancel
+              </button>
+              <button
+                onClick={() => void handleDeleteCard()}
+                disabled={isDeletingCard}
+                className="btn btn-primary"
+                style={{ fontSize: '13px', backgroundColor: 'var(--danger)', borderColor: 'var(--danger)' }}
+              >
+                <Trash2 size={14} />
+                <span>{isDeletingCard ? 'Deleting...' : 'Delete'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* "More info" - extra context paragraphs for the active cluster, matching apps/mobile's
+          AIExplanationSheet. The composer at the bottom bridges a typed follow-up into Ask AI. */}
+      {moreInfoOpen && (
+        <div className="modal-overlay" onClick={() => setMoreInfoOpen(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '520px',
+              maxHeight: '70vh',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-active)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-glow)',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              animation: 'fadeIn 0.15s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Info size={20} color="var(--accent-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>More info</h3>
+              </div>
+              <button onClick={() => setMoreInfoOpen(false)} className="btn btn-ghost" style={{ padding: '6px' }} aria-label="Close">
+                <X size={16} color="var(--text-secondary)" />
+              </button>
+            </div>
+
+            <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '4px' }}>
+              {moreInfoLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  <RefreshCw size={14} className="spin" />
+                  <span>Generating more info...</span>
+                </div>
+              )}
+              {moreInfoError && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--danger)', borderRadius: '10px',
+                  fontSize: '12px', color: 'var(--danger)'
+                }}>
+                  <AlertCircle size={14} />
+                  <span>{moreInfoError}</span>
+                </div>
+              )}
+              {!moreInfoLoading && (activeCluster?.moreInfo || []).map((paragraph, idx) => (
+                <div key={idx} style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                  <InlineMarkdown text={paragraph} />
+                </div>
+              ))}
+              {!moreInfoLoading && !moreInfoError && (activeCluster?.moreInfo === null || activeCluster?.moreInfo?.length === 0) && (
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Nothing more came back for this sense.</p>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+              <button onClick={() => void handleGenerateMoreInfo()} disabled={moreInfoLoading} className="btn btn-secondary" style={{ fontSize: '12px' }}>
+                <RefreshCw size={13} className={moreInfoLoading ? 'spin' : undefined} />
+                <span>Regenerate</span>
+              </button>
+              <div style={{ display: 'flex', gap: '8px', flex: 1 }}>
+                <input
+                  type="text"
+                  value={moreInfoDraft}
+                  onChange={(e) => setMoreInfoDraft(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleBridgeMoreInfoToChat(); }}
+                  placeholder="Ask a follow-up..."
+                  className="input"
+                  style={{ flex: 1, fontSize: '13px' }}
+                />
+                <button onClick={handleBridgeMoreInfoToChat} disabled={!moreInfoDraft.trim()} className="btn btn-primary" style={{ padding: '10px' }} aria-label="Ask in chat">
+                  <Send size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* "Ask AI" - persistent per-card chat, matching apps/mobile's WordChatSheet. */}
+      {askAiOpen && (
+        <div className="modal-overlay" onClick={() => setAskAiOpen(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '520px',
+              height: '70vh',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-active)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-glow)',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              animation: 'fadeIn 0.15s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <MessageCircle size={20} color="var(--accent-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>Ask AI about "{selectedWord.form}"</h3>
+              </div>
+              <button onClick={() => setAskAiOpen(false)} className="btn btn-ghost" style={{ padding: '6px' }} aria-label="Close">
+                <X size={16} color="var(--text-secondary)" />
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
+              {chatLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  <RefreshCw size={14} className="spin" />
+                  <span>Loading chat...</span>
+                </div>
+              )}
+              {!chatLoading && chatMessages.length === 0 && !chatError && (
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Ask anything about this word - grammar, usage, nuance.</p>
+              )}
+              {chatMessages.map((m) => (
+                <div
+                  key={m.id}
+                  style={{
+                    alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '85%',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: m.role === 'user' ? 'var(--accent-primary)' : 'var(--bg-glass)',
+                    border: m.role === 'user' ? 'none' : '1px solid var(--border-color)',
+                    fontSize: '13px',
+                    color: m.role === 'user' ? '#fff' : 'var(--text-primary)',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <InlineMarkdown text={m.content} />
+                </div>
+              ))}
+              {chatSending && (
+                <div style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  <RefreshCw size={12} className="spin" />
+                  <span>Thinking...</span>
+                </div>
+              )}
+              {chatError && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--danger)', borderRadius: '10px',
+                  fontSize: '12px', color: 'var(--danger)'
+                }}>
+                  <AlertCircle size={14} />
+                  <span>{chatError}</span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+              <input
+                type="text"
+                value={chatDraft}
+                onChange={(e) => setChatDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSendChatDraft(); }}
+                placeholder="Type a question..."
+                className="input"
+                style={{ flex: 1, fontSize: '13px' }}
+              />
+              <button onClick={handleSendChatDraft} disabled={!chatDraft.trim() || chatSending} className="btn btn-primary" style={{ padding: '10px' }} aria-label="Send">
+                <Send size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <HelpAccordionSheet
         visible={help.visible}

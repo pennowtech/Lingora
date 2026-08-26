@@ -589,7 +589,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     if (!lemma) return null;
 
     const clusters = await adapter.query<any>(
-      `SELECT id, label AS context, description AS definition, cefr_level AS cefr FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
+      `SELECT id, label AS context, description AS definition, cefr_level AS cefr, more_info AS moreInfoJson FROM meaning_clusters WHERE lemma_id = ? ORDER BY order_index ASC`,
       [lemmaId]
     );
 
@@ -612,6 +612,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
         translation: meanings[0]?.translation || lemma.form,
         definition: meanings[0]?.explanation || c.definition || '',
         rawDescription: c.definition,
+        moreInfo: (() => { try { return c.moreInfoJson ? JSON.parse(c.moreInfoJson) : null; } catch { return null; } })(),
         cefr: c.cefr || 'B2',
         examples: examples.map((ex: any) => ({
           id: ex.id,

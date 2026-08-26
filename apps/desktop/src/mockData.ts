@@ -38,6 +38,10 @@ export interface WordLemma {
      * meaning - see MeaningCluster.description in @lingora/types. Undefined for a placeholder
      * cluster with no real DB row (a not-yet-saved word). */
     rawDescription?: string;
+    /** "More info" — 2-3 short additional-context paragraphs (see explainWordDetail), persisted
+     * per-cluster via updateClusterMoreInfo. Undefined = never fetched yet; null/[] = fetched but
+     * nothing came back; a real word-guide/placeholder cluster never has any. */
+    moreInfo?: string[] | null;
     examples: {
       de: string;
       en: string;

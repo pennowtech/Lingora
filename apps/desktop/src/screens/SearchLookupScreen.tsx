@@ -1844,6 +1844,29 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               screen's Synonyms / Phrases & collocations sections. */}
           {activeTab === 'synonyms' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.15s ease-out' }}>
+              {/* Explicit, always-visible target - same fix as Advanced Grammar Examples: a word
+                  with more than one sense must not silently show synonyms for whichever cluster
+                  happened to be selected (or none at all) elsewhere on the screen. */}
+              {selectedWord.clusters.length > 1 && (
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                    Target Cluster
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {selectedWord.clusters.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedClusterId(c.id)}
+                        className={`btn ${activeCluster?.id === c.id ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                      >
+                        {c.context}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
                   Synonyms — {activeCluster?.context}
@@ -1906,8 +1929,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               </div>
 
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
                   Phrases & Collocations
+                </div>
+                {/* Phrases are word-level, not cluster-scoped - the `phrases` table has no
+                    meaning_cluster_id, and apps/mobile's word detail screen shows the same list
+                    regardless of which sense is selected. Not a bug: idioms like "davon ausgehen"
+                    aren't tied to one specific meaning of "ausgehen". */}
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                  For "{selectedWord.form}" as a whole - not scoped to one sense, same as synonyms are.
                 </div>
                 {phrasesError && (
                   <div style={{

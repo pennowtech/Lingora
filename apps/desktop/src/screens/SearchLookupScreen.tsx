@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, type LucideIcon } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
+import { SourceLogo } from '../components/SourceLogo';
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
 import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
@@ -28,7 +29,7 @@ import {
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, getGrammarGroups, type GenerationProviderName } from '@lingora/core';
-import type { CardSource, ChatMessage, WordGuideEntry } from '@lingora/types';
+import type { CardSource, ChatMessage, LanguageCode, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
 const HELP_SECTIONS: HelpSection[] = [
@@ -94,21 +95,30 @@ const HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
-/** Small per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers,
- * using desktop's own lucide-react/brand-icon assets instead of mobile's PNG logos. */
-const SOURCE_ICONS: Partial<Record<CardSource, React.ReactNode>> = {
-  openai: <Bot size={12} />,
-  mistral: <Bot size={12} />,
-  gemini: <Bot size={12} />,
-  anthropic: <Bot size={12} />,
-  deepseek: <DeepSeekIcon size={12} />,
-  groq: <GroqIcon size={12} />,
-  google: <Globe size={12} />,
-  deepl: <Globe size={12} />,
-  word_guide: <BookOpen size={12} />,
-  manual: <Pencil size={12} />,
-  local: <Sparkles size={12} />,
-};
+/** Per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers, and
+ * the same official brand logos (SourceLogo, ported from mobile's PNG assets) for every source
+ * that has one; DeepSeek/Groq keep their own inline-SVG BrandIcons (real marks, not PNGs);
+ * anything else falls back to a plain lucide-react glyph. Size-parameterized (unlike a static
+ * map) since this renders at several different sizes across the screen - a 12px list-row badge, an
+ * 18px card header icon, a 14px pill icon. */
+function sourceIcon(source: CardSource, size = 12): React.ReactNode {
+  const logo = SourceLogo({ source, size });
+  if (logo) return logo;
+  switch (source) {
+    case 'deepseek':
+      return <DeepSeekIcon size={size} />;
+    case 'groq':
+      return <GroqIcon size={size} />;
+    case 'word_guide':
+      return <BookOpen size={size} />;
+    case 'manual':
+      return <Pencil size={size} />;
+    case 'local':
+      return <Sparkles size={size} />;
+    default:
+      return null;
+  }
+}
 
 /** A dictionary provider's `.name` ('google-translate', 'deepl', or a generation provider name
  * when it fills this slot too) isn't a label fit for the "X Active" badge below. */
@@ -118,23 +128,6 @@ function dictionaryProviderLabel(name: string): string {
   return PROVIDER_META_DATA[name as GenerationProviderName]?.label ?? name;
 }
 
-/** Cluster `context` values the synthetic "not found in DB yet" entry can carry (see
- * executeSearch), each rendered as its own distinctly-styled preview panel below — a genuine AI
- * gist reads differently from a free dictionary hit or a bare translation, so they shouldn't share
- * one undifferentiated look. */
-type PreviewKind = 'ai' | 'guide' | 'dictionary';
-
-const PREVIEW_KIND_META: Record<PreviewKind, { icon: LucideIcon; label: string; hint: string; accent: string }> = {
-  ai: { icon: Sparkles, label: 'AI Insight', hint: 'Instant AI gist - not saved yet', accent: 'var(--accent-primary)' },
-  guide: { icon: BookOpen, label: 'From Your Installed Dictionary', hint: 'Free, offline reference', accent: 'var(--info)' },
-  dictionary: { icon: Globe, label: 'Dictionary Translation', hint: 'Quick reference only', accent: 'var(--text-secondary)' },
-};
-
-function previewKindFor(context: string | undefined): PreviewKind {
-  if (context === 'AI Insight') return 'ai';
-  if (context === 'Installed Dictionary') return 'guide';
-  return 'dictionary';
-}
 
 /** Module-level, not component state — App.tsx only renders SearchLookupScreen while
  * activeScreen === 'search', so switching to another screen and back unmounts/remounts this
@@ -194,6 +187,14 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // translation at all for a genuinely new word. Cleared whenever a new search actually finds one.
   const [pendingGuideEntry, setPendingGuideEntry] = useState<{ form: string; entry: WordGuideEntry } | null>(null);
   const [pendingTranslation, setPendingTranslation] = useState<{ form: string; translation: string; providerName: string; explanation?: string } | null>(null);
+  // Raw preview data for a not-yet-saved word's "new word" cards, kept separate from the synthetic
+  // WordLemma used for Add to Deck/tabs - apps/mobile's Search screen renders the dictionary
+  // translation and the AI Insights gist as two independent, potentially simultaneously-visible
+  // cards (see quickTranslatePreview + the explainCard), so this can't be collapsed into the one
+  // `context`-tagged cluster the synthetic entry uses. Cleared alongside pendingGuideEntry/
+  // pendingTranslation at the same reset points.
+  const [previewTranslation, setPreviewTranslation] = useState<{ translation: string; alternatives: string[]; sourceLang: LanguageCode; targetLang: LanguageCode } | null>(null);
+  const [previewAiInsight, setPreviewAiInsight] = useState<string | null>(null);
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'synonyms' | 'builder'>('clusters');
@@ -376,6 +377,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setSearchNotice(null);
     setPendingGuideEntry(null);
     setPendingTranslation(null);
+    setPreviewTranslation(null);
+    setPreviewAiInsight(null);
 
     try {
       const previews: LemmaSearchPreview[] = db ? await searchLemmasWithPreview(db, trimmed, targetLanguage, nativeLanguage) : [];
@@ -418,6 +421,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               console.warn('[Search & Lookup] Dictionary alternatives lookup failed:', err);
             }
           }
+          setPreviewTranslation({ translation: dictionaryTranslation, alternatives: dictionaryAlternatives, sourceLang: source, targetLang: target });
         } catch (err) {
           console.warn('[Search & Lookup] Dictionary translation failed:', err);
           if (isNetworkError(err)) setSearchNotice(networkErrorMessage((s) => s));
@@ -435,6 +439,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           try {
             const result = await activeAiProvider.explainWord(trimmed, { cefrLevel, language: targetLanguage, nativeLanguage });
             quickExplainText = result.data;
+            setPreviewAiInsight(quickExplainText);
           } catch (err) {
             console.warn('[Search & Lookup] AI quick-explain failed:', err);
           }
@@ -638,6 +643,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         // here on, not the synthetic-entry persist functions.
         setPendingGuideEntry(null);
         setPendingTranslation(null);
+        setPreviewTranslation(null);
+        setPreviewAiInsight(null);
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
@@ -1314,9 +1321,9 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
                 {/* Right: source icon + in-deck check - same as mobile's rowRight. */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                  {word.source && SOURCE_ICONS[word.source] && (
+                  {word.source && (
                     <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
-                      {SOURCE_ICONS[word.source]}
+                      {sourceIcon(word.source, 14)}
                     </span>
                   )}
                   {word.inDeck && <Check size={18} color="var(--success)" />}
@@ -1354,31 +1361,13 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
 
 
-            {/* Target Deck & AI Generation Actions */}
+            {/* Target Deck & AI Generation Actions - only for a real, already-saved word. A
+                not-yet-saved word (the `search-` synthetic entry) gets its own "Add to deck"/
+                "Generate"/"Explore Full AI Flashcard" actions inside its preview card below,
+                matching apps/mobile's Search screen (no header-level buttons there either - every
+                action lives inside the card it belongs to). */}
+            {!selectedWord.id.startsWith('search-') && (
             <div style={{ display: 'flex', gap: '10px' }}>
-              {providers[selectedGenerationProvider]?.validated ? (
-                <button
-                  onClick={handleGenerateAI}
-                  disabled={isGeneratingAI}
-                  className="btn btn-secondary"
-                  style={{ padding: '10px 14px', fontSize: '13px' }}
-                >
-                  <Sparkles size={16} color="var(--success)" />
-                  <span>Generate with AI</span>
-                  {SOURCE_ICONS[selectedGenerationProvider]}
-                </button>
-              ) : (
-                <button
-                  onClick={onNavigateToAiProviderSettings}
-                  className="btn btn-secondary"
-                  style={{ padding: '10px 14px', fontSize: '13px' }}
-                  title="Add and validate an API key in Settings to enable AI generation"
-                >
-                  <AlertCircle size={16} color="var(--warning)" />
-                  <span>Add AI provider key</span>
-                </button>
-              )}
-
               <button
                 onClick={handleOpenDeckPicker}
                 className="btn btn-primary"
@@ -1444,6 +1433,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 </div>
               )}
             </div>
+            )}
           </div>
 
           {wordActionError && (
@@ -1490,62 +1480,143 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 Checking your dictionary and AI insight for <strong style={{ color: 'var(--text-primary)' }}>"{selectedWord.form}"</strong>...
               </span>
             </div>
-          ) : selectedWord.id.startsWith('search-') && previewKindFor(activeCluster?.context) !== 'dictionary' && (() => {
-            const kind = previewKindFor(activeCluster?.context);
-            const meta = PREVIEW_KIND_META[kind];
-            const Icon = meta.icon;
-            return (
-              <div
-                className="glass-card"
-                style={{
-                  padding: '20px',
-                  border: `1px solid ${meta.accent}`,
-                  background: kind === 'ai' ? 'linear-gradient(135deg, var(--accent-secondary), var(--bg-glass) 65%)' : 'var(--bg-glass)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  animation: 'fadeIn 0.2s ease-out',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Icon size={15} color={meta.accent} />
-                  <span style={{ fontSize: '11px', fontWeight: 800, color: meta.accent, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-                    {meta.label}
+          ) : selectedWord.id.startsWith('search-') && (
+            /* "Signal Thread" - one connected vertical thread instead of separate cards: the free
+               dictionary/word-guide hit, then the AI gist, then the generate step - reads as one
+               process with a visible next step, not two unrelated boxes. */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>{selectedWord.form}</span>
+                {previewTranslation && (
+                  <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    {previewTranslation.sourceLang} → {previewTranslation.targetLang}
                   </span>
-                  {/* Which provider this gist actually came from - same spot/size as apps/mobile's
-                      CardSourceIcon next to its "AI Insights" badge. */}
-                  {kind === 'ai' && SOURCE_ICONS[selectedGenerationProvider]}
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>· {meta.hint}</span>
-                </div>
-
-                <InlineMarkdown
-                  text={activeCluster?.definition || ''}
-                  style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
-                  boldStyle={{ fontWeight: 800 }}
-                  italicStyle={{ fontStyle: 'italic' }}
-                  codeStyle={{
-                    fontFamily: 'var(--font-mono)',
-                    backgroundColor: 'var(--bg-card)',
-                    padding: '1px 5px',
-                    borderRadius: '4px',
-                    color: meta.accent,
-                  }}
-                />
-
-                {kind === 'ai' && providers[selectedGenerationProvider]?.validated && (
-                  <button
-                    onClick={handleGenerateAI}
-                    disabled={isGeneratingAI}
-                    className="btn btn-primary"
-                    style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '8px 16px', marginTop: '2px' }}
-                  >
-                    <Sparkles size={14} />
-                    <span>Generate the full card</span>
-                  </button>
                 )}
               </div>
-            );
-          })()}
+
+              <div style={{ position: 'relative', paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ position: 'absolute', left: '6px', top: '6px', bottom: '6px', width: '1.5px', backgroundColor: 'var(--border-active)' }} />
+
+                {/* Step 1: dictionary / word-guide translation - "done" the instant it's loaded. */}
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                    backgroundColor: (pendingGuideEntry || previewTranslation) ? 'var(--success)' : 'var(--bg-surface)',
+                    border: `2px solid ${(pendingGuideEntry || previewTranslation) ? 'var(--success)' : 'var(--text-muted)'}`,
+                  }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                    {pendingGuideEntry && pendingGuideEntry.form === selectedWord.form
+                      ? sourceIcon('word_guide', 13)
+                      : sourceIcon(dictionaryNameToCardSource(dictionary.name), 13)}
+                    <span>{pendingGuideEntry && pendingGuideEntry.form === selectedWord.form ? 'Installed dictionary' : 'Dictionary translation'}</span>
+                    <button onClick={() => speak(selectedWord.form, previewTranslation?.sourceLang || targetLanguage)} className="btn btn-ghost" style={{ padding: '2px', marginLeft: '2px' }} aria-label="Listen">
+                      <Volume2 size={13} color="var(--text-muted)" />
+                    </button>
+                  </div>
+                  {pendingGuideEntry && pendingGuideEntry.form === selectedWord.form ? (
+                    <>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{pendingGuideEntry.entry.translation}</div>
+                      {pendingGuideEntry.entry.intro && (
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5, marginTop: '2px' }}>{pendingGuideEntry.entry.intro}</div>
+                      )}
+                    </>
+                  ) : previewTranslation ? (
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {previewTranslation.translation}
+                      {previewTranslation.alternatives.length > 0 ? `, ${previewTranslation.alternatives.join(', ')}` : ''}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No dictionary translation available yet.</div>
+                  )}
+                  {(pendingGuideEntry || previewTranslation) && (
+                    <button onClick={handleOpenDeckPicker} className="btn btn-secondary" style={{ marginTop: '8px', fontSize: '12px', padding: '8px 14px' }}>
+                      <Plus size={13} />
+                      <span>Add to deck</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Step 2: AI Insights gist - already delivered (a "done" dot, like step 1), not
+                    the thing meant to be clicked - that's step 3. Still gets its own bordered
+                    panel so it reads as real content, not filler text fading into the page. */}
+                {previewAiInsight && (
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                      backgroundColor: 'var(--success)', border: '2px solid var(--success)',
+                    }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                      {sourceIcon(selectedGenerationProvider, 13)}
+                      <span>AI Insights</span>
+                    </div>
+                    <div style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--bg-glass)', border: '1px solid var(--border-color)' }}>
+                      <InlineMarkdown
+                        text={previewAiInsight}
+                        style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.6, color: 'var(--text-primary)' }}
+                        boldStyle={{ fontWeight: 800 }}
+                        italicStyle={{ fontStyle: 'italic' }}
+                        codeStyle={{
+                          fontFamily: 'var(--font-mono)',
+                          backgroundColor: 'var(--bg-card)',
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          color: 'var(--accent-primary)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: the actual next step - generate the full card. This is the step meant
+                    to draw the eye and get clicked, so unlike the two read-only steps above it,
+                    it gets the accent-active dot/glow and a highlighted panel around the CTA -
+                    the opposite of "dimmed," on purpose. */}
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                    backgroundColor: 'var(--accent-primary)', border: '2px solid var(--accent-primary)',
+                    boxShadow: '0 0 0 4px var(--accent-secondary)',
+                  }} />
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                    Full flashcard
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', flexWrap: 'wrap',
+                      padding: '14px 16px', borderRadius: '12px',
+                      background: 'linear-gradient(135deg, var(--accent-secondary), var(--bg-glass) 70%)',
+                      border: '1px solid var(--border-active)',
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Meanings, examples, grammar & more.
+                    </div>
+                    {providers[selectedGenerationProvider]?.validated ? (
+                      <button
+                        onClick={handleGenerateAI}
+                        disabled={isGeneratingAI}
+                        className="btn btn-primary"
+                        style={{ fontSize: '13px', padding: '10px 18px' }}
+                      >
+                        {isGeneratingAI ? <RefreshCw size={14} className="spin" /> : <ArrowRight size={14} />}
+                        <span>{isGeneratingAI ? 'Generating...' : 'Explore Full Card'}</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={onNavigateToAiProviderSettings}
+                        className="btn btn-primary"
+                        style={{ fontSize: '13px', padding: '10px 18px' }}
+                        title="Add and validate an API key in Settings to enable AI generation"
+                      >
+                        <AlertCircle size={14} />
+                        <span>Add AI provider key</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Everything below - inflected forms, grammar insights, the cluster/card-generator tabs
               - only makes sense once this word actually has real, saved data behind it (a DB

@@ -47,7 +47,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: Sparkles,
     paragraphs: [
       'If a word isn\'t in your library yet, you\'ll see a free, offline preview from the installed dictionary when one exists, or a short **AI Insight** gist when your active AI provider has a validated key - both are read-only until you add the word to a deck.',
-      '**Generate with [Provider]** builds a full card with meanings, examples, semantic clusters, grammar, and more, using whichever provider is Active under Settings > AI Providers.',
+      '**Generate with AI** builds a full card with meanings, examples, semantic clusters, grammar, and more, using whichever provider is Active under Settings > AI Providers - its icon shows next to the button and next to the AI Insight preview so you can always see which one\'s running.',
       'No validated key configured yet? The button becomes **Add AI provider key** instead, taking you straight to Settings.',
     ],
   },
@@ -1100,7 +1100,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                Generating with {PROVIDER_META_DATA[selectedGenerationProvider].label}
+                Generating with AI
               </div>
               <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                 Building semantic clusters, meanings, and examples for <strong style={{ color: 'var(--accent-primary)' }}>"{selectedWord.form}"</strong>
@@ -1287,6 +1287,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   setSelectedClusterId(word.clusters[0]?.id || '');
                 }}
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '10px',
                   padding: '14px',
                   borderRadius: '10px',
                   backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-card)',
@@ -1295,29 +1299,27 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   transition: 'all 0.15s ease'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {word.source && SOURCE_ICONS[word.source] && (
-                      <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
-                        {SOURCE_ICONS[word.source]}
-                      </span>
-                    )}
+                {/* Left: form + translation - same two-line content as apps/mobile's Search
+                    results row (renderItem's rowText), no CEFR badge or cluster count there. */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {word.form}
                   </span>
-                  <span className="badge badge-indigo">{word.cefr}</span>
-                </div>
-                <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600 }}>
-                  {word.clusters[0]?.translation}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    {word.clusters.length} semantic cluster{word.clusters.length > 1 ? 's' : ''}
-                  </span>
-                  {word.inDeck && (
-                    <span style={{ fontSize: '11px', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}>
-                      <Check size={12} /> In library
+                  {word.clusters[0]?.translation && (
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {word.clusters[0].translation}
                     </span>
                   )}
+                </div>
+
+                {/* Right: source icon + in-deck check - same as mobile's rowRight. */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                  {word.source && SOURCE_ICONS[word.source] && (
+                    <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
+                      {SOURCE_ICONS[word.source]}
+                    </span>
+                  )}
+                  {word.inDeck && <Check size={18} color="var(--success)" />}
                 </div>
               </div>
             );
@@ -1362,7 +1364,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   style={{ padding: '10px 14px', fontSize: '13px' }}
                 >
                   <Sparkles size={16} color="var(--success)" />
-                  <span>{`Generate with ${PROVIDER_META_DATA[selectedGenerationProvider].label}`}</span>
+                  <span>Generate with AI</span>
+                  {SOURCE_ICONS[selectedGenerationProvider]}
                 </button>
               ) : (
                 <button
@@ -1509,6 +1512,9 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   <span style={{ fontSize: '11px', fontWeight: 800, color: meta.accent, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                     {meta.label}
                   </span>
+                  {/* Which provider this gist actually came from - same spot/size as apps/mobile's
+                      CardSourceIcon next to its "AI Insights" badge. */}
+                  {kind === 'ai' && SOURCE_ICONS[selectedGenerationProvider]}
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>· {meta.hint}</span>
                 </div>
 

@@ -11,6 +11,12 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 25px var(--accent-primary-alpha25, rgba(99, 102, 241, 0.25));
+
+  /* Modal backdrop scrim - deliberately theme-independent (always a dark, translucent tint) so it
+     dims the page behind a popup on every theme. --bg-card is opaque #FFFFFF on every light theme
+     (lingoraLight/arctic/warmSand/paperlight), so .modal-overlay used to whitewash the whole screen
+     there instead of dimming it. */
+  --overlay-scrim: rgba(10, 10, 18, 0.55);
 }
 
 /* 1. Lingora Light */
@@ -355,7 +361,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--bg-card);
+  background: var(--overlay-scrim);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;

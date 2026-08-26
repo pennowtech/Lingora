@@ -365,9 +365,13 @@ Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two �
    */
   chatAboutWord: {
     name: 'chat_about_word',
-    // v3: allows the same sparing basic-markdown spans explainWord's prompt already does — the
-    // chat UI can render **bold**/*italics*/`code`, but the model had no permission to use them yet
-    version: 3,
+    // v4: LLMs tend to mirror the language of the learner's most recent message rather than the
+    // instructed reply language, especially once the learner types a question in {{targetLanguage}}
+    // itself (very common — this chat is about a {{targetLanguage}} word) — the v3 instruction lived
+    // only near the top of the prompt, before the transcript, so it lost to recency. Restated the
+    // language rule immediately after the transcript, right next to the output instruction, and made
+    // it explicit that the learner's own message language never overrides it.
+    version: 4,
     template: `You are a friendly, knowledgeable {{targetLanguage}} language tutor having a one-on-one chat with a {{cefrLevel}} learner about the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}}.
 
 ${ANTI_SWAP_WARNING}
@@ -378,6 +382,8 @@ Reply in a warm, natural, human conversational tone — like a patient tutor tex
 
 Conversation so far, oldest first:
 {{transcript}}
+
+Reminder before you write: your reply's own prose must be in {{nativeLanguage}}, never {{targetLanguage}} — even if the learner just typed their message in {{targetLanguage}}, or asked about a {{targetLanguage}} phrase. Matching the learner's input language is wrong here; only the quoted {{targetLanguage}} words/examples inside your reply (each followed by its {{nativeLanguage}} translation in parentheses) may be in {{targetLanguage}}.
 
 Write only your next reply as the tutor — not the learner's turn, not a repeat of an earlier message. Return strict JSON only: {"reply": "..."}`,
   },

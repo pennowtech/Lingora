@@ -51,6 +51,7 @@ import {
   type GenerationProviderName,
 } from '@lingora/core';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
+import { SourceLogo } from '../components/SourceLogo';
 import { validateAudioProviderKey } from '../services/desktopAudioProviderValidation';
 import { playCloudSpeech, stopCloudSpeech } from '../services/desktopAudioPlayback';
 import { speak } from '../services/desktopSpeech';
@@ -83,15 +84,17 @@ const AUDIO_PROVIDER_ICONS: Record<AudioProviderName, React.ReactNode> = {
   google: <Cloud size={20} />,
 };
 
-/** Generation-provider icon + accent color — one place instead of the two separate hardcoded
- * ternary chains (grid card header, detail card header) this replaces, each of which silently
- * mislabeled/miscolored any provider added after Anthropic (see DeepSeekProvider/GroqProvider's
- * doc comments for the same "why a shared table beats a ternary" reasoning). */
+/** Generation-provider icon — one place instead of the two separate hardcoded ternary chains
+ * (grid card header, detail card header) this replaces, each of which silently mislabeled any
+ * provider added after Anthropic (see DeepSeekProvider/GroqProvider's doc comments for the same
+ * "why a shared table beats a ternary" reasoning). Real brand logos (SourceLogo, same PNGs
+ * apps/mobile uses) for openai/mistral/gemini/anthropic; DeepSeek/Groq keep their own inline-SVG
+ * BrandIcons (their real marks are simple single-path SVGs, not PNGs). */
 const GENERATION_PROVIDER_ICONS: Record<GenerationProviderName, React.ReactNode> = {
-  openai: <Bot size={22} color="var(--accent-primary)" />,
-  mistral: <Bot size={22} color="var(--accent-secondary)" />,
-  gemini: <Bot size={22} color="var(--info)" />,
-  anthropic: <Bot size={22} color="var(--accent-secondary)" />,
+  openai: <SourceLogo source="openai" size={22} />,
+  mistral: <SourceLogo source="mistral" size={22} />,
+  gemini: <SourceLogo source="gemini" size={22} />,
+  anthropic: <SourceLogo source="anthropic" size={22} />,
   deepseek: <DeepSeekIcon size={22} />,
   groq: <GroqIcon size={22} />,
 };

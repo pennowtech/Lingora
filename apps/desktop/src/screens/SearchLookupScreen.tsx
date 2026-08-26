@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
+import { SourceLogo } from '../components/SourceLogo';
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
 import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
 import {
   createChatMessage,
+  createPhrase,
   deleteLemma,
   getActivePromptVersion,
   getChatMessages,
   getClustersForLemma,
+  getPhrasesForCard,
+  getSynonymsForCard,
   getWordGuide,
   persistRegeneratedExamples,
   persistTranslationAsCard,
@@ -20,11 +24,12 @@ import {
   searchLemmasWithPreview,
   updateClusterMoreInfo,
   updateSelectedExample,
+  updateSynonymNuance,
   type LemmaSearchPreview,
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, getGrammarGroups, type GenerationProviderName } from '@lingora/core';
-import type { CardSource, ChatMessage, WordGuideEntry } from '@lingora/types';
+import type { CardSource, ChatMessage, LanguageCode, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
 const HELP_SECTIONS: HelpSection[] = [
@@ -43,7 +48,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: Sparkles,
     paragraphs: [
       'If a word isn\'t in your library yet, you\'ll see a free, offline preview from the installed dictionary when one exists, or a short **AI Insight** gist when your active AI provider has a validated key - both are read-only until you add the word to a deck.',
-      '**Generate with [Provider]** builds a full card with meanings, examples, semantic clusters, grammar, and more, using whichever provider is Active under Settings > AI Providers.',
+      '**Generate with AI** builds a full card with meanings, examples, semantic clusters, grammar, and more, using whichever provider is Active under Settings > AI Providers - its icon shows next to the button and next to the AI Insight preview so you can always see which one\'s running.',
       'No validated key configured yet? The button becomes **Add AI provider key** instead, taking you straight to Settings.',
     ],
   },
@@ -54,7 +59,17 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       'A word can have more than one distinct sense - the **Semantic Context Clusters** tab lists each one, with its own translation, definition, and examples. Selecting a cluster scopes the Card Generator tab to that sense.',
       '**Advanced Grammar Examples** lets you pick grammar structures (tenses, sentence patterns, conjunctions) to target, then regenerates the active cluster\'s examples to exercise them.',
+      '**Synonyms & Phrases** shows this sense\'s synonyms right away, and phrases the first time you open the tab.',
       '**Card Generator & Cloze Selection** lets you pick a card type and preview it before saving.',
+    ],
+  },
+  {
+    id: 'synonyms-phrases',
+    title: 'Synonyms & phrases',
+    icon: Shuffle,
+    paragraphs: [
+      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word - shown as soon as the tab opens. Click the sparkle button on one to fetch AI usage & nuance: how formal it is and what makes it different from the headword.',
+      'Phrases show this word used in common expressions or word combinations, fetched on demand: the first time you open this tab (for a word with a card), any phrases already saved load automatically; "Explore with AI" generates the first batch, "Load more with AI" fetches another once you already have some.',
     ],
   },
   {
@@ -80,21 +95,30 @@ const HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
-/** Small per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers,
- * using desktop's own lucide-react/brand-icon assets instead of mobile's PNG logos. */
-const SOURCE_ICONS: Partial<Record<CardSource, React.ReactNode>> = {
-  openai: <Bot size={12} />,
-  mistral: <Bot size={12} />,
-  gemini: <Bot size={12} />,
-  anthropic: <Bot size={12} />,
-  deepseek: <DeepSeekIcon size={12} />,
-  groq: <GroqIcon size={12} />,
-  google: <Globe size={12} />,
-  deepl: <Globe size={12} />,
-  word_guide: <BookOpen size={12} />,
-  manual: <Pencil size={12} />,
-  local: <Sparkles size={12} />,
-};
+/** Per-result source badge icon — same CardSource set apps/mobile's CardSourceIcon covers, and
+ * the same official brand logos (SourceLogo, ported from mobile's PNG assets) for every source
+ * that has one; DeepSeek/Groq keep their own inline-SVG BrandIcons (real marks, not PNGs);
+ * anything else falls back to a plain lucide-react glyph. Size-parameterized (unlike a static
+ * map) since this renders at several different sizes across the screen - a 12px list-row badge, an
+ * 18px card header icon, a 14px pill icon. */
+function sourceIcon(source: CardSource, size = 12): React.ReactNode {
+  const logo = SourceLogo({ source, size });
+  if (logo) return logo;
+  switch (source) {
+    case 'deepseek':
+      return <DeepSeekIcon size={size} />;
+    case 'groq':
+      return <GroqIcon size={size} />;
+    case 'word_guide':
+      return <BookOpen size={size} />;
+    case 'manual':
+      return <Pencil size={size} />;
+    case 'local':
+      return <Sparkles size={size} />;
+    default:
+      return null;
+  }
+}
 
 /** A dictionary provider's `.name` ('google-translate', 'deepl', or a generation provider name
  * when it fills this slot too) isn't a label fit for the "X Active" badge below. */
@@ -104,23 +128,6 @@ function dictionaryProviderLabel(name: string): string {
   return PROVIDER_META_DATA[name as GenerationProviderName]?.label ?? name;
 }
 
-/** Cluster `context` values the synthetic "not found in DB yet" entry can carry (see
- * executeSearch), each rendered as its own distinctly-styled preview panel below — a genuine AI
- * gist reads differently from a free dictionary hit or a bare translation, so they shouldn't share
- * one undifferentiated look. */
-type PreviewKind = 'ai' | 'guide' | 'dictionary';
-
-const PREVIEW_KIND_META: Record<PreviewKind, { icon: LucideIcon; label: string; hint: string; accent: string }> = {
-  ai: { icon: Sparkles, label: 'AI Insight', hint: 'Instant AI gist - not saved yet', accent: 'var(--accent-primary)' },
-  guide: { icon: BookOpen, label: 'From Your Installed Dictionary', hint: 'Free, offline reference', accent: 'var(--info)' },
-  dictionary: { icon: Globe, label: 'Dictionary Translation', hint: 'Quick reference only', accent: 'var(--text-secondary)' },
-};
-
-function previewKindFor(context: string | undefined): PreviewKind {
-  if (context === 'AI Insight') return 'ai';
-  if (context === 'Installed Dictionary') return 'guide';
-  return 'dictionary';
-}
 
 /** Module-level, not component state — App.tsx only renders SearchLookupScreen while
  * activeScreen === 'search', so switching to another screen and back unmounts/remounts this
@@ -180,9 +187,17 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // translation at all for a genuinely new word. Cleared whenever a new search actually finds one.
   const [pendingGuideEntry, setPendingGuideEntry] = useState<{ form: string; entry: WordGuideEntry } | null>(null);
   const [pendingTranslation, setPendingTranslation] = useState<{ form: string; translation: string; providerName: string; explanation?: string } | null>(null);
+  // Raw preview data for a not-yet-saved word's "new word" cards, kept separate from the synthetic
+  // WordLemma used for Add to Deck/tabs - apps/mobile's Search screen renders the dictionary
+  // translation and the AI Insights gist as two independent, potentially simultaneously-visible
+  // cards (see quickTranslatePreview + the explainCard), so this can't be collapsed into the one
+  // `context`-tagged cluster the synthetic entry uses. Cleared alongside pendingGuideEntry/
+  // pendingTranslation at the same reset points.
+  const [previewTranslation, setPreviewTranslation] = useState<{ translation: string; alternatives: string[]; sourceLang: LanguageCode; targetLang: LanguageCode } | null>(null);
+  const [previewAiInsight, setPreviewAiInsight] = useState<string | null>(null);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
+  const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'synonyms' | 'builder'>('clusters');
 
   // Selected Cluster for Card Review
   const [selectedClusterId, setSelectedClusterId] = useState<string>('');
@@ -206,6 +221,31 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // its examples can be visually highlighted in the Semantic Context Clusters tab — same "these
   // are the ones you just asked for" cue as apps/mobile's word detail screen.
   const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null);
+
+  // "Grammar info" toggle - collapsed by default, matching apps/mobile's word detail screen's
+  // formsExpanded (part of speech/gender + inflected forms, one combined toggle, hidden until
+  // asked for). Keyed per word id rather than a single boolean, so switching selected words in
+  // this persistent split-view screen starts each one collapsed again, the way a fresh mobile
+  // screen instance naturally would.
+  const [formsExpandedMap, setFormsExpandedMap] = useState<Record<string, boolean>>({});
+  const formsExpanded = !!formsExpandedMap[selectedWord.id];
+  const grammarInfoLine = [
+    [selectedWord.pos, selectedWord.gender].filter(Boolean).join(' · '),
+    ...selectedWord.surfaceForms.filter((f) => f !== selectedWord.form),
+  ].filter(Boolean).join(' · ');
+
+  // Synonyms & Phrases tab — synonyms load eagerly with the cluster (see the enrichment loops'
+  // synRows query) since they're cheap and worth showing immediately, matching apps/mobile's
+  // "Synonyms" section; only a synonym's nuance is fetched on demand, when expanded. Phrases are
+  // the opposite: NOT fetched as part of every search result (that would multiply DB reads for a
+  // section most searches never open) - loaded once, the first time this tab is opened for a
+  // given word, then cached on selectedWord.phrases.
+  const [expandedSynonyms, setExpandedSynonyms] = useState<Record<string, boolean>>({});
+  const [loadingSynonymNuance, setLoadingSynonymNuance] = useState<Record<string, boolean>>({});
+  const [synonymError, setSynonymError] = useState<string | null>(null);
+  const [isLoadingPhrases, setIsLoadingPhrases] = useState(false);
+  const [isGeneratingPhrases, setIsGeneratingPhrases] = useState(false);
+  const [phrasesError, setPhrasesError] = useState<string | null>(null);
 
   // Word action bar (Lookup/Regenerate/Delete) — matches apps/mobile's word detail screen's
   // CardActionBar. Listen already exists (the speaker button in the header); Explain/More info
@@ -274,6 +314,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                     [c.id]
                   );
+                  const synRows = cardRow ? await getSynonymsForCard(db, cardRow.id, c.id) : [];
                   clusters.push({
                     id: c.id,
                     context: c.label || 'General Context',
@@ -281,6 +322,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     definition: meanRows[0]?.explanation || c.description || `Semantic context for ${l.form}`,
                     rawDescription: c.description,
                     moreInfo: c.moreInfo,
+                    synonyms: synRows.map(s => ({ id: s.id, word: s.word, cefrLevel: s.cefrLevel, formality: s.formality, nuance: s.nuance })),
                     examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                       { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                     ]
@@ -347,6 +389,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setSearchNotice(null);
     setPendingGuideEntry(null);
     setPendingTranslation(null);
+    setPreviewTranslation(null);
+    setPreviewAiInsight(null);
 
     try {
       const previews: LemmaSearchPreview[] = db ? await searchLemmasWithPreview(db, trimmed, targetLanguage, nativeLanguage) : [];
@@ -389,6 +433,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               console.warn('[Search & Lookup] Dictionary alternatives lookup failed:', err);
             }
           }
+          setPreviewTranslation({ translation: dictionaryTranslation, alternatives: dictionaryAlternatives, sourceLang: source, targetLang: target });
         } catch (err) {
           console.warn('[Search & Lookup] Dictionary translation failed:', err);
           if (isNetworkError(err)) setSearchNotice(networkErrorMessage((s) => s));
@@ -406,6 +451,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           try {
             const result = await activeAiProvider.explainWord(trimmed, { cefrLevel, language: targetLanguage, nativeLanguage });
             quickExplainText = result.data;
+            setPreviewAiInsight(quickExplainText);
           } catch (err) {
             console.warn('[Search & Lookup] AI quick-explain failed:', err);
           }
@@ -434,6 +480,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                 [c.id]
               );
+              const synRows = cardRow ? await getSynonymsForCard(db, cardRow.id, c.id) : [];
               clusters.push({
                 id: c.id,
                 context: c.label || 'General Context',
@@ -441,6 +488,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 definition: meanRows[0]?.explanation || c.description || '',
                 rawDescription: c.description,
                 moreInfo: c.moreInfo,
+                synonyms: synRows.map(s => ({ id: s.id, word: s.word, cefrLevel: s.cefrLevel, formality: s.formality, nuance: s.nuance })),
                 examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                   { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                 ]
@@ -607,6 +655,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         // here on, not the synthetic-entry persist functions.
         setPendingGuideEntry(null);
         setPendingTranslation(null);
+        setPreviewTranslation(null);
+        setPreviewAiInsight(null);
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
@@ -688,6 +738,93 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     const targetClusterId = activeCluster?.id;
     await executeSearch(selectedWord.form);
     if (targetClusterId) setSelectedClusterId(targetClusterId);
+  };
+
+  // Expand/collapse a synonym's nuance card - fetching the nuance from the AI (and persisting it)
+  // only the first time it's expanded with none saved yet, same on-demand pattern as apps/mobile's
+  // handleToggleSynonym.
+  const handleToggleSynonym = async (syn: { id: string; word: string; formality?: string | null; nuance?: string | null }) => {
+    const nextState = !expandedSynonyms[syn.id];
+    setExpandedSynonyms((prev) => ({ ...prev, [syn.id]: nextState }));
+    if (!nextState || (syn.nuance && syn.nuance.trim() !== '')) return;
+    if (!activeAiProvider || !db || !activeCluster) {
+      setSynonymError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: true }));
+    setSynonymError(null);
+    try {
+      const result = await activeAiProvider.generateSynonyms(
+        selectedWord.form,
+        { label: activeCluster.context, description: activeCluster.rawDescription || activeCluster.definition },
+        { cefrLevel, language: targetLanguage, nativeLanguage }
+      );
+      const match = result.data.find((item) => item.word.toLowerCase() === syn.word.toLowerCase()) ?? result.data[0];
+      if (match) {
+        const nuanceText = match.nuance ?? `Used as a ${match.formality} synonym for ${selectedWord.form}.`;
+        await updateSynonymNuance(db, syn.id, nuanceText, match.formality);
+        const targetClusterId = activeCluster.id;
+        await executeSearch(selectedWord.form);
+        setSelectedClusterId(targetClusterId);
+      }
+    } catch (err: any) {
+      setSynonymError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: false }));
+    }
+  };
+
+  // Fetches this word's existing phrases from the DB - only ever called once per word, the first
+  // time the Synonyms & Phrases tab opens (see the tab button's onClick), not as part of every
+  // search result. Patches selectedWord/searchResults directly rather than re-running executeSearch,
+  // so it doesn't pay for (or clobber) the rest of the word's data on a section most searches never
+  // even open.
+  const handleOpenSynonymsPhrasesTab = () => {
+    setActiveTab('synonyms');
+    if (!db || !selectedWord.cardId || selectedWord.phrases !== undefined) return;
+    setIsLoadingPhrases(true);
+    setPhrasesError(null);
+    getPhrasesForCard(db, selectedWord.cardId)
+      .then((rows) => {
+        const withPhrases: WordLemma = { ...selectedWord, phrases: rows };
+        setSelectedWord(withPhrases);
+        setSearchResults((prev) => prev.map((w) => (w.id === selectedWord.id ? withPhrases : w)));
+      })
+      .catch((err: any) => setPhrasesError(err?.message || 'Could not load phrases.'))
+      .finally(() => setIsLoadingPhrases(false));
+  };
+
+  // "Explore with AI" / "Load more with AI" - generates a fresh batch of phrases and appends them,
+  // matching apps/mobile's generatePhrases mutation (manual, AI-provider-gated, never automatic).
+  const handleGeneratePhrases = async () => {
+    if (!activeAiProvider || !db || !selectedWord.cardId) {
+      setPhrasesError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    setIsGeneratingPhrases(true);
+    setPhrasesError(null);
+    try {
+      const result = await activeAiProvider.generatePhrases(selectedWord.form, { cefrLevel, language: targetLanguage, nativeLanguage });
+      for (const phrase of result.data) {
+        await createPhrase(db, {
+          id: crypto.randomUUID(),
+          cardId: selectedWord.cardId,
+          expression: phrase.expression,
+          meaning: phrase.meaning,
+          exampleSentence: phrase.exampleSentence,
+          exampleTranslation: phrase.exampleTranslation,
+          cefrLevel: phrase.cefrLevel,
+        });
+      }
+      const rows = await getPhrasesForCard(db, selectedWord.cardId);
+      const withPhrases: WordLemma = { ...selectedWord, phrases: rows };
+      setSelectedWord(withPhrases);
+      setSearchResults((prev) => prev.map((w) => (w.id === selectedWord.id ? withPhrases : w)));
+    } catch (err: any) {
+      setPhrasesError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setIsGeneratingPhrases(false);
+    }
   };
 
   const handleLookup = () => {
@@ -982,7 +1119,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                Generating with {PROVIDER_META_DATA[selectedGenerationProvider].label}
+                Generating with AI
               </div>
               <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                 Building semantic clusters, meanings, and examples for <strong style={{ color: 'var(--accent-primary)' }}>"{selectedWord.form}"</strong>
@@ -1169,6 +1306,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   setSelectedClusterId(word.clusters[0]?.id || '');
                 }}
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '10px',
                   padding: '14px',
                   borderRadius: '10px',
                   backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-card)',
@@ -1177,29 +1318,27 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                   transition: 'all 0.15s ease'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {word.source && SOURCE_ICONS[word.source] && (
-                      <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
-                        {SOURCE_ICONS[word.source]}
-                      </span>
-                    )}
+                {/* Left: form + translation - same two-line content as apps/mobile's Search
+                    results row (renderItem's rowText), no CEFR badge or cluster count there. */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {word.form}
                   </span>
-                  <span className="badge badge-indigo">{word.cefr}</span>
-                </div>
-                <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600 }}>
-                  {word.clusters[0]?.translation}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    {word.clusters.length} semantic cluster{word.clusters.length > 1 ? 's' : ''}
-                  </span>
-                  {word.inDeck && (
-                    <span style={{ fontSize: '11px', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}>
-                      <Check size={12} /> In library
+                  {word.clusters[0]?.translation && (
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {word.clusters[0].translation}
                     </span>
                   )}
+                </div>
+
+                {/* Right: source icon + in-deck check - same as mobile's rowRight. */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                  {word.source && (
+                    <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
+                      {sourceIcon(word.source, 14)}
+                    </span>
+                  )}
+                  {word.inDeck && <Check size={18} color="var(--success)" />}
                 </div>
               </div>
             );
@@ -1226,38 +1365,35 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <span className="badge badge-sky">{selectedWord.pos}</span>
                 <span className="badge badge-emerald">{selectedWord.cefr}</span>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Globe size={15} color="var(--info)" />
-                Translation: <strong>"{selectedWord.clusters[0]?.translation}"</strong>
-              </div>
+              {/* Part of speech/gender and inflected forms collapsed behind one "Grammar info"
+                  toggle by default, matching apps/mobile's word detail screen exactly - same
+                  label, same plain "·"-joined text line (not capsules), same 13px caption size. */}
+              {grammarInfoLine !== '' && (
+                <>
+                  <button
+                    onClick={() => setFormsExpandedMap((prev) => ({ ...prev, [selectedWord.id]: !prev[selectedWord.id] }))}
+                    className="btn btn-ghost"
+                    style={{ padding: 0, fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)', gap: '4px' }}
+                  >
+                    <span>{formsExpanded ? 'Hide grammar info' : 'Grammar info'}</span>
+                    {formsExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                  </button>
+                  {formsExpanded && (
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>{grammarInfoLine}</div>
+                  )}
+                </>
+              )}
             </div>
 
 
 
-            {/* Target Deck & AI Generation Actions */}
+            {/* Target Deck & AI Generation Actions - only for a real, already-saved word. A
+                not-yet-saved word (the `search-` synthetic entry) gets its own "Add to deck"/
+                "Generate"/"Explore Full AI Flashcard" actions inside its preview card below,
+                matching apps/mobile's Search screen (no header-level buttons there either - every
+                action lives inside the card it belongs to). */}
+            {!selectedWord.id.startsWith('search-') && (
             <div style={{ display: 'flex', gap: '10px' }}>
-              {providers[selectedGenerationProvider]?.validated ? (
-                <button
-                  onClick={handleGenerateAI}
-                  disabled={isGeneratingAI}
-                  className="btn btn-secondary"
-                  style={{ padding: '10px 14px', fontSize: '13px' }}
-                >
-                  <Sparkles size={16} color="var(--success)" />
-                  <span>{`Generate with ${PROVIDER_META_DATA[selectedGenerationProvider].label}`}</span>
-                </button>
-              ) : (
-                <button
-                  onClick={onNavigateToAiProviderSettings}
-                  className="btn btn-secondary"
-                  style={{ padding: '10px 14px', fontSize: '13px' }}
-                  title="Add and validate an API key in Settings to enable AI generation"
-                >
-                  <AlertCircle size={16} color="var(--warning)" />
-                  <span>Add AI provider key</span>
-                </button>
-              )}
-
               <button
                 onClick={handleOpenDeckPicker}
                 className="btn btn-primary"
@@ -1323,6 +1459,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 </div>
               )}
             </div>
+            )}
           </div>
 
           {wordActionError && (
@@ -1369,59 +1506,143 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 Checking your dictionary and AI insight for <strong style={{ color: 'var(--text-primary)' }}>"{selectedWord.form}"</strong>...
               </span>
             </div>
-          ) : selectedWord.id.startsWith('search-') && previewKindFor(activeCluster?.context) !== 'dictionary' && (() => {
-            const kind = previewKindFor(activeCluster?.context);
-            const meta = PREVIEW_KIND_META[kind];
-            const Icon = meta.icon;
-            return (
-              <div
-                className="glass-card"
-                style={{
-                  padding: '20px',
-                  border: `1px solid ${meta.accent}`,
-                  background: kind === 'ai' ? 'linear-gradient(135deg, var(--accent-secondary), var(--bg-glass) 65%)' : 'var(--bg-glass)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  animation: 'fadeIn 0.2s ease-out',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Icon size={15} color={meta.accent} />
-                  <span style={{ fontSize: '11px', fontWeight: 800, color: meta.accent, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-                    {meta.label}
+          ) : selectedWord.id.startsWith('search-') && (
+            /* "Signal Thread" - one connected vertical thread instead of separate cards: the free
+               dictionary/word-guide hit, then the AI gist, then the generate step - reads as one
+               process with a visible next step, not two unrelated boxes. */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>{selectedWord.form}</span>
+                {previewTranslation && (
+                  <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    {previewTranslation.sourceLang} → {previewTranslation.targetLang}
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>· {meta.hint}</span>
-                </div>
-
-                <InlineMarkdown
-                  text={activeCluster?.definition || ''}
-                  style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
-                  boldStyle={{ fontWeight: 800 }}
-                  italicStyle={{ fontStyle: 'italic' }}
-                  codeStyle={{
-                    fontFamily: 'var(--font-mono)',
-                    backgroundColor: 'var(--bg-card)',
-                    padding: '1px 5px',
-                    borderRadius: '4px',
-                    color: meta.accent,
-                  }}
-                />
-
-                {kind === 'ai' && providers[selectedGenerationProvider]?.validated && (
-                  <button
-                    onClick={handleGenerateAI}
-                    disabled={isGeneratingAI}
-                    className="btn btn-primary"
-                    style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '8px 16px', marginTop: '2px' }}
-                  >
-                    <Sparkles size={14} />
-                    <span>Generate the full card</span>
-                  </button>
                 )}
               </div>
-            );
-          })()}
+
+              <div style={{ position: 'relative', paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ position: 'absolute', left: '6px', top: '6px', bottom: '6px', width: '1.5px', backgroundColor: 'var(--border-active)' }} />
+
+                {/* Step 1: dictionary / word-guide translation - "done" the instant it's loaded. */}
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                    backgroundColor: (pendingGuideEntry || previewTranslation) ? 'var(--success)' : 'var(--bg-surface)',
+                    border: `2px solid ${(pendingGuideEntry || previewTranslation) ? 'var(--success)' : 'var(--text-muted)'}`,
+                  }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                    {pendingGuideEntry && pendingGuideEntry.form === selectedWord.form
+                      ? sourceIcon('word_guide', 13)
+                      : sourceIcon(dictionaryNameToCardSource(dictionary.name), 13)}
+                    <span>{pendingGuideEntry && pendingGuideEntry.form === selectedWord.form ? 'Installed dictionary' : 'Dictionary translation'}</span>
+                    <button onClick={() => speak(selectedWord.form, previewTranslation?.sourceLang || targetLanguage)} className="btn btn-ghost" style={{ padding: '2px', marginLeft: '2px' }} aria-label="Listen">
+                      <Volume2 size={13} color="var(--text-muted)" />
+                    </button>
+                  </div>
+                  {pendingGuideEntry && pendingGuideEntry.form === selectedWord.form ? (
+                    <>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{pendingGuideEntry.entry.translation}</div>
+                      {pendingGuideEntry.entry.intro && (
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5, marginTop: '2px' }}>{pendingGuideEntry.entry.intro}</div>
+                      )}
+                    </>
+                  ) : previewTranslation ? (
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {previewTranslation.translation}
+                      {previewTranslation.alternatives.length > 0 ? `, ${previewTranslation.alternatives.join(', ')}` : ''}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No dictionary translation available yet.</div>
+                  )}
+                  {(pendingGuideEntry || previewTranslation) && (
+                    <button onClick={handleOpenDeckPicker} className="btn btn-secondary" style={{ marginTop: '8px', fontSize: '12px', padding: '8px 14px' }}>
+                      <Plus size={13} />
+                      <span>Add to deck</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Step 2: AI Insights gist - already delivered (a "done" dot, like step 1), not
+                    the thing meant to be clicked - that's step 3. Still gets its own bordered
+                    panel so it reads as real content, not filler text fading into the page. */}
+                {previewAiInsight && (
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                      backgroundColor: 'var(--success)', border: '2px solid var(--success)',
+                    }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                      {sourceIcon(selectedGenerationProvider, 13)}
+                      <span>AI Insights</span>
+                    </div>
+                    <div style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--bg-glass)', border: '1px solid var(--border-color)' }}>
+                      <InlineMarkdown
+                        text={previewAiInsight}
+                        style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.6, color: 'var(--text-primary)' }}
+                        boldStyle={{ fontWeight: 800 }}
+                        italicStyle={{ fontStyle: 'italic' }}
+                        codeStyle={{
+                          fontFamily: 'var(--font-mono)',
+                          backgroundColor: 'var(--bg-card)',
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          color: 'var(--accent-primary)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: the actual next step - generate the full card. This is the step meant
+                    to draw the eye and get clicked, so unlike the two read-only steps above it,
+                    it gets the accent-active dot/glow and a highlighted panel around the CTA -
+                    the opposite of "dimmed," on purpose. */}
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute', left: '-22px', top: '3px', width: '9px', height: '9px', borderRadius: '50%',
+                    backgroundColor: 'var(--accent-primary)', border: '2px solid var(--accent-primary)',
+                    boxShadow: '0 0 0 4px var(--accent-secondary)',
+                  }} />
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                    Full flashcard
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', flexWrap: 'wrap',
+                      padding: '14px 16px', borderRadius: '12px',
+                      background: 'linear-gradient(135deg, var(--accent-secondary), var(--bg-glass) 70%)',
+                      border: '1px solid var(--border-active)',
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Meanings, examples, grammar & more.
+                    </div>
+                    {providers[selectedGenerationProvider]?.validated ? (
+                      <button
+                        onClick={handleGenerateAI}
+                        disabled={isGeneratingAI}
+                        className="btn btn-primary"
+                        style={{ fontSize: '13px', padding: '10px 18px' }}
+                      >
+                        {isGeneratingAI ? <RefreshCw size={14} className="spin" /> : <ArrowRight size={14} />}
+                        <span>{isGeneratingAI ? 'Generating...' : 'Explore Full Card'}</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={onNavigateToAiProviderSettings}
+                        className="btn btn-primary"
+                        style={{ fontSize: '13px', padding: '10px 18px' }}
+                        title="Add and validate an API key in Settings to enable AI generation"
+                      >
+                        <AlertCircle size={14} />
+                        <span>Add AI provider key</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Everything below - inflected forms, grammar insights, the cluster/card-generator tabs
               - only makes sense once this word actually has real, saved data behind it (a DB
@@ -1433,30 +1654,6 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               preview and "Generate"/"Add to Deck", nothing else, until there's an actual card. */}
           {!selectedWord.id.startsWith('search-') && (
             <>
-              {/* Morphological Surface Forms */}
-              <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-                  Inflected Surface Forms (Lemma Normalization)
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {selectedWord.surfaceForms.map(form => (
-                    <span
-                      key={form}
-                      style={{
-                        fontSize: '12px',
-                        fontFamily: 'var(--font-mono)',
-                        padding: '4px 10px',
-                        backgroundColor: 'var(--bg-glass)',
-                        borderRadius: '6px',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid var(--border-color)'
-                      }}
-                    >
-                      {form}
-                    </span>
-                  ))}
-                </div>
-              </div>
 
               {/* Tab Navigation */}
           <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
@@ -1476,6 +1673,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             >
               <SlidersHorizontal size={15} />
               <span>Advanced Grammar Examples{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}</span>
+            </button>
+
+            <button
+              onClick={handleOpenSynonymsPhrasesTab}
+              className={`btn ${activeTab === 'synonyms' ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ fontSize: '13px', padding: '8px 14px' }}
+            >
+              <Shuffle size={15} />
+              <span>Synonyms & Phrases</span>
             </button>
 
             <button
@@ -1710,7 +1916,169 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </div>
           )}
 
-          {/* Tab 3: Card Builder & Cloze Selection */}
+          {/* Tab 3: Synonyms & Phrases — synonyms load with the cluster (see synRows in the
+              enrichment loops) and show immediately; a synonym's nuance is fetched on demand when
+              expanded. Phrases are fetched once, lazily, the first time this tab opens (see the tab
+              button's onClick, handleOpenSynonymsPhrasesTab) - both match apps/mobile's word detail
+              screen's Synonyms / Phrases & collocations sections. */}
+          {activeTab === 'synonyms' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.15s ease-out' }}>
+              {/* Explicit, always-visible target - same fix as Advanced Grammar Examples: a word
+                  with more than one sense must not silently show synonyms for whichever cluster
+                  happened to be selected (or none at all) elsewhere on the screen. */}
+              {selectedWord.clusters.length > 1 && (
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                    Target Cluster
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {selectedWord.clusters.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedClusterId(c.id)}
+                        className={`btn ${activeCluster?.id === c.id ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                      >
+                        {c.context}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
+                  Synonyms — {activeCluster?.context}
+                </div>
+                {synonymError && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px',
+                    padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--danger)', borderRadius: '10px',
+                    fontSize: '12px', color: 'var(--danger)'
+                  }}>
+                    <AlertCircle size={14} />
+                    <span>{synonymError}</span>
+                  </div>
+                )}
+                {(activeCluster?.synonyms ?? []).length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {(activeCluster?.synonyms ?? []).map((syn) => {
+                      const isExpanded = !!expandedSynonyms[syn.id];
+                      return (
+                        <div key={syn.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{syn.word}</span>
+                              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '2px 6px' }}>{syn.cefrLevel}</span>
+                            </div>
+                            <button
+                              onClick={() => void handleToggleSynonym(syn)}
+                              className={`btn ${isExpanded ? 'btn-primary' : 'btn-ghost'}`}
+                              style={{ padding: '8px' }}
+                              title="AI usage & nuance"
+                              aria-label="AI usage & nuance"
+                            >
+                              {loadingSynonymNuance[syn.id] ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                            </button>
+                          </div>
+                          {isExpanded && (
+                            <div style={{ padding: '0 14px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                              {loadingSynonymNuance[syn.id] ? (
+                                <span>Fetching AI usage & nuance for "{syn.word}"...</span>
+                              ) : (
+                                <>
+                                  <div>{syn.nuance || `Used as a ${syn.formality ?? 'general'} synonym for ${selectedWord.form}.`}</div>
+                                  {syn.formality && (
+                                    <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '10px', fontWeight: 700, color: 'var(--accent-primary)', border: '1px solid var(--border-active)', borderRadius: '6px', padding: '2px 8px' }}>
+                                      {syn.formality}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>No synonyms saved for this sense yet.</p>
+                )}
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>
+                  Phrases & Collocations
+                </div>
+                {/* Phrases are word-level, not cluster-scoped - the `phrases` table has no
+                    meaning_cluster_id, and apps/mobile's word detail screen shows the same list
+                    regardless of which sense is selected. Not a bug: idioms like "davon ausgehen"
+                    aren't tied to one specific meaning of "ausgehen". */}
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                  For "{selectedWord.form}" as a whole - not scoped to one sense, same as synonyms are.
+                </div>
+                {phrasesError && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px',
+                    padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--danger)', borderRadius: '10px',
+                    fontSize: '12px', color: 'var(--danger)'
+                  }}>
+                    <AlertCircle size={14} />
+                    <span>{phrasesError}</span>
+                  </div>
+                )}
+                {isLoadingPhrases ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    <RefreshCw size={14} className="spin" />
+                    <span>Loading phrases...</span>
+                  </div>
+                ) : (selectedWord.phrases ?? []).length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {(selectedWord.phrases ?? []).map((phrase) => (
+                      <div key={phrase.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Quote size={14} color="var(--accent-primary)" />
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{phrase.expression}</span>
+                          </div>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '2px 6px' }}>{phrase.cefrLevel}</span>
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '6px' }}>{phrase.meaning}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>„{phrase.exampleSentence}"</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{phrase.exampleTranslation}</div>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => void handleGeneratePhrases()}
+                      disabled={isGeneratingPhrases}
+                      className="btn btn-secondary"
+                      style={{ fontSize: '13px', padding: '10px 16px', alignSelf: 'flex-start' }}
+                    >
+                      {isGeneratingPhrases ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                      <span>{isGeneratingPhrases ? 'Generating...' : 'Load more with AI'}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Discover common expressions and word combinations for this word.</p>
+                    <button
+                      onClick={() => void handleGeneratePhrases()}
+                      disabled={isGeneratingPhrases}
+                      className="btn btn-primary"
+                      style={{ fontSize: '13px', padding: '10px 16px' }}
+                    >
+                      {isGeneratingPhrases ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                      <span>{isGeneratingPhrases ? 'Generating...' : 'Explore with AI'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 4: Card Builder & Cloze Selection */}
           {activeTab === 'builder' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', animation: 'fadeIn 0.15s ease-out' }}>
               <div>

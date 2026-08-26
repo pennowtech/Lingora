@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
@@ -221,6 +221,18 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // its examples can be visually highlighted in the Semantic Context Clusters tab — same "these
   // are the ones you just asked for" cue as apps/mobile's word detail screen.
   const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null);
+
+  // "Grammar info" toggle - collapsed by default, matching apps/mobile's word detail screen's
+  // formsExpanded (part of speech/gender + inflected forms, one combined toggle, hidden until
+  // asked for). Keyed per word id rather than a single boolean, so switching selected words in
+  // this persistent split-view screen starts each one collapsed again, the way a fresh mobile
+  // screen instance naturally would.
+  const [formsExpandedMap, setFormsExpandedMap] = useState<Record<string, boolean>>({});
+  const formsExpanded = !!formsExpandedMap[selectedWord.id];
+  const grammarInfoLine = [
+    [selectedWord.pos, selectedWord.gender].filter(Boolean).join(' · '),
+    ...selectedWord.surfaceForms.filter((f) => f !== selectedWord.form),
+  ].filter(Boolean).join(' · ');
 
   // Synonyms & Phrases tab — synonyms load eagerly with the cluster (see the enrichment loops'
   // synRows query) since they're cheap and worth showing immediately, matching apps/mobile's
@@ -1353,10 +1365,24 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 <span className="badge badge-sky">{selectedWord.pos}</span>
                 <span className="badge badge-emerald">{selectedWord.cefr}</span>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--info)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Globe size={15} color="var(--info)" />
-                Translation: <strong>"{selectedWord.clusters[0]?.translation}"</strong>
-              </div>
+              {/* Part of speech/gender and inflected forms collapsed behind one "Grammar info"
+                  toggle by default, matching apps/mobile's word detail screen exactly - same
+                  label, same plain "·"-joined text line (not capsules), same 13px caption size. */}
+              {grammarInfoLine !== '' && (
+                <>
+                  <button
+                    onClick={() => setFormsExpandedMap((prev) => ({ ...prev, [selectedWord.id]: !prev[selectedWord.id] }))}
+                    className="btn btn-ghost"
+                    style={{ padding: 0, fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)', gap: '4px' }}
+                  >
+                    <span>{formsExpanded ? 'Hide grammar info' : 'Grammar info'}</span>
+                    {formsExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                  </button>
+                  {formsExpanded && (
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>{grammarInfoLine}</div>
+                  )}
+                </>
+              )}
             </div>
 
 
@@ -1628,30 +1654,6 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               preview and "Generate"/"Add to Deck", nothing else, until there's an actual card. */}
           {!selectedWord.id.startsWith('search-') && (
             <>
-              {/* Morphological Surface Forms */}
-              <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-                  Inflected Surface Forms (Lemma Normalization)
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {selectedWord.surfaceForms.map(form => (
-                    <span
-                      key={form}
-                      style={{
-                        fontSize: '12px',
-                        fontFamily: 'var(--font-mono)',
-                        padding: '4px 10px',
-                        backgroundColor: 'var(--bg-glass)',
-                        borderRadius: '6px',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid var(--border-color)'
-                      }}
-                    >
-                      {form}
-                    </span>
-                  ))}
-                </div>
-              </div>
 
               {/* Tab Navigation */}
           <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>

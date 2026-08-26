@@ -10,6 +10,10 @@ export interface WordLemma {
   /** How the lemma's card was created (from LemmaSearchPreview.source) — drives the small source
    * badge in the results list, undefined for a not-yet-saved word. */
   source?: import('@lingora/types').CardSource | null;
+  /** The real `cards.id` for this lemma's card (this user's native language), when one exists —
+   * needed to persist grammar-targeted example regeneration against the right card. Undefined for
+   * a not-yet-saved word (the `search-` synthetic entry). */
+  cardId?: string;
   frequency: number;
   grammar: {
     partOfSpeech: string;
@@ -28,7 +32,24 @@ export interface WordLemma {
     context: string;
     translation: string;
     definition: string;
-    examples: { de: string; en: string }[];
+    /** The real `meaning_clusters.description` for this sense - distinct from `definition` above
+     * (which prefers a specific meaning's explanation for display). This is what actually scopes
+     * "Advanced Grammar Examples" generation to just this sense, not the whole word's every
+     * meaning - see MeaningCluster.description in @lingora/types. Undefined for a placeholder
+     * cluster with no real DB row (a not-yet-saved word). */
+    rawDescription?: string;
+    examples: {
+      de: string;
+      en: string;
+      /** Real `examples.id` for a DB-backed example — undefined for a placeholder/dummy sentence
+       * (a not-yet-saved word, or a cluster with no real examples yet), which can't be selected. */
+      id?: string;
+      isSelected?: boolean;
+      /** Matches persistRegeneratedExamples' returned generationMetadataId when this example came
+       * from an "Advanced Grammar Examples" targeted regeneration this session — drives the
+       * highlight so the learner can tell which examples they just asked for. */
+      generationMetadataId?: string | null;
+    }[];
   }[];
   surfaceForms: string[];
 }

@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle, type LucideIcon } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, Layers, BookOpen, Check, Layers2, FileText, CheckCircle2, Globe, RefreshCw, ArrowRight, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, type LucideIcon } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
-import { GrammarInsightsView } from '../components/GrammarInsightsView';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../components/HelpAccordionSheet';
 import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
 import {
+  getActivePromptVersion,
   getClustersForLemma,
   getWordGuide,
+  persistRegeneratedExamples,
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
+  updateSelectedExample,
   type LemmaSearchPreview,
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
-import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, type GenerationProviderName } from '@lingora/core';
+import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, getGrammarGroups, type GenerationProviderName } from '@lingora/core';
 import type { CardSource, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
@@ -46,7 +48,7 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: Layers2,
     paragraphs: [
       'A word can have more than one distinct sense - the **Semantic Context Clusters** tab lists each one, with its own translation, definition, and examples. Selecting a cluster scopes the Card Generator tab to that sense.',
-      '**Advanced Grammar Insights** shows conjugation, cases, and other grammar detail for the selected word.',
+      '**Advanced Grammar Examples** lets you pick grammar structures (tenses, sentence patterns, conjunctions) to target, then regenerates the active cluster\'s examples to exercise them.',
       '**Card Generator & Cloze Selection** lets you pick a card type and preview it before saving.',
     ],
   },
@@ -176,6 +178,31 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   const abortControllerRef = useRef<AbortController | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
+  // Advanced Grammar Examples — grammar structures to target in the next regenerated batch of
+  // examples for the active cluster, same feature as apps/mobile's word detail screen's "Advanced
+  // grammar options" panel (see @lingora/core's getGrammarGroups for the shared per-language data).
+  const [grammarSelection, setGrammarSelection] = useState<string[]>([]);
+  const [customGrammarInput, setCustomGrammarInput] = useState('');
+  const [isGeneratingExamples, setIsGeneratingExamples] = useState(false);
+  const [grammarError, setGrammarError] = useState<string | null>(null);
+  // Which generation batch (by generationMetadataId) just came from a targeted regeneration, so
+  // its examples can be visually highlighted in the Semantic Context Clusters tab — same "these
+  // are the ones you just asked for" cue as apps/mobile's word detail screen.
+  const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null);
+
+  const toggleGrammar = (option: string) => {
+    setGrammarSelection((prev) => (prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]));
+  };
+
+  const handleAddCustomGrammar = () => {
+    const trimmed = customGrammarInput.trim();
+    if (!trimmed) return;
+    if (!grammarSelection.includes(trimmed)) {
+      setGrammarSelection((prev) => [...prev, trimmed]);
+    }
+    setCustomGrammarInput('');
+  };
+
   // Load initial database words once on mount
   useEffect(() => {
     let isSubscribed = true;
@@ -190,12 +217,14 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               const inflRows = await db.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
               const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
               const dbClusters = await getClustersForLemma(db, l.id);
+              const cardRow = await db.querySingle<{ id: string }>(`SELECT id FROM cards WHERE lemma_id = ? LIMIT 1`, [l.id]);
 
               let clusters: any[] = [];
               if (dbClusters && dbClusters.length > 0) {
                 for (const c of dbClusters) {
-                  const exRows = await db.query<{ sentence: string; translation: string }>(
-                    `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
+                  const exRows = await db.query<{ id: string; sentence: string; translation: string; isSelected: number; generationMetadataId: string | null }>(
+                    `SELECT id, sentence, translation, is_selected AS isSelected, generation_meta_data_id AS generationMetadataId
+                     FROM examples WHERE meaning_cluster_id = ? ORDER BY is_selected DESC LIMIT 10`,
                     [c.id]
                   );
                   const meanRows = await db.query<{ translation: string; explanation: string }>(
@@ -207,7 +236,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     context: c.label || 'General Context',
                     translation: meanRows[0]?.translation || c.description || l.form,
                     definition: meanRows[0]?.explanation || c.description || `Semantic context for ${l.form}`,
-                    examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
+                    rawDescription: c.description,
+                    examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                       { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                     ]
                   });
@@ -229,6 +259,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 form: l.form,
                 pos: l.pos || 'noun',
                 gender: l.gender,
+                cardId: cardRow?.id,
                 cefr: dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
                 frequency: 250 + idx * 75,
                 grammar: {
@@ -345,12 +376,14 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           const inflRows = await db.query<{ form: string }>(`SELECT form FROM inflections WHERE lemma_id = ?`, [l.id]);
           const surfaceForms = inflRows.length > 0 ? inflRows.map(i => i.form) : [l.form];
           const dbClusters = await getClustersForLemma(db, l.id);
+          const cardRow = await db.querySingle<{ id: string }>(`SELECT id FROM cards WHERE lemma_id = ? LIMIT 1`, [l.id]);
 
           let clusters: any[] = [];
           if (dbClusters && dbClusters.length > 0) {
             for (const c of dbClusters) {
-              const exRows = await db.query<{ sentence: string; translation: string }>(
-                `SELECT sentence, translation FROM examples WHERE meaning_cluster_id = ? LIMIT 2`,
+              const exRows = await db.query<{ id: string; sentence: string; translation: string; isSelected: number; generationMetadataId: string | null }>(
+                `SELECT id, sentence, translation, is_selected AS isSelected, generation_meta_data_id AS generationMetadataId
+                 FROM examples WHERE meaning_cluster_id = ? ORDER BY is_selected DESC LIMIT 10`,
                 [c.id]
               );
               const meanRows = await db.query<{ translation: string; explanation: string }>(
@@ -362,7 +395,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 context: c.label || 'General Context',
                 translation: preview.translation || meanRows[0]?.translation || c.description || l.form,
                 definition: meanRows[0]?.explanation || c.description || '',
-                examples: exRows.length > 0 ? exRows.map(e => ({ de: e.sentence, en: e.translation })) : [
+                rawDescription: c.description,
+                examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                   { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                 ]
               });
@@ -386,6 +420,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             gender: l.gender as any,
             inDeck: preview.inDeck,
             source: preview.source,
+            cardId: cardRow?.id,
             cefr: preview.cefrLevel || dbClusters[0]?.cefrLevel || (idx % 2 === 0 ? 'B1' : 'B2'),
             frequency: 250 + idx * 75,
             grammar: {
@@ -545,6 +580,70 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   };
 
   const activeCluster = selectedWord.clusters.find(c => c.id === selectedClusterId) || selectedWord.clusters[0];
+
+  // Regenerates the active cluster's examples targeting whichever grammar structures are
+  // selected above, replacing them with the new batch — same effect as apps/mobile's
+  // generateExamples mutation (ai.generateExamples + persistRegeneratedExamples).
+  const handleGenerateTargetedExamples = async () => {
+    if (!activeAiProvider) {
+      setGrammarError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    if (!db || !selectedWord.cardId || !activeCluster) {
+      setGrammarError('This word has no card yet - add it to a deck or generate it with AI first.');
+      return;
+    }
+
+    setIsGeneratingExamples(true);
+    setGrammarError(null);
+    const targetClusterId = activeCluster.id;
+    try {
+      const result = await activeAiProvider.generateExamples(
+        selectedWord.form,
+        { label: activeCluster.context, description: activeCluster.rawDescription || activeCluster.definition },
+        { cefrLevel, language: targetLanguage, nativeLanguage },
+        { grammar: grammarSelection }
+      );
+      const promptVersion = await getActivePromptVersion(db, 'examples');
+      if (!promptVersion) throw new Error('Prompt versions are not seeded yet.');
+      const { generationMetadataId } = await persistRegeneratedExamples(db, {
+        cardId: selectedWord.cardId,
+        clusterId: targetClusterId,
+        examples: result.data,
+        usage: {
+          provider: activeAiProvider.name,
+          model: activeAiProvider.model,
+          promptVersionId: promptVersion.id,
+          generatedAt: Date.now(),
+          tokensUsed: result.usage.tokensUsed,
+          latencyMs: result.usage.latencyMs,
+        },
+      });
+      await executeSearch(selectedWord.form);
+      // executeSearch always re-selects the first cluster - restore whichever one was actually
+      // targeted, and jump to the tab where the new examples (and the "Select" action to make one
+      // of them the card's primary example) actually show up.
+      setSelectedClusterId(targetClusterId);
+      setGrammarHighlightMetadataId(generationMetadataId);
+      setActiveTab('clusters');
+    } catch (err: any) {
+      setGrammarError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setIsGeneratingExamples(false);
+    }
+  };
+
+  // Promotes one example to be this card's primary one - the "how do the newly generated examples
+  // actually reach the card" step, same as apps/mobile's word detail screen's own Select action.
+  // Only meaningful for a real, already-saved example (a real `examples.id`, not a placeholder
+  // sentence shown for a word/cluster with nothing generated yet).
+  const handleSelectExample = async (exampleId: string) => {
+    if (!db || !selectedWord.cardId) return;
+    await updateSelectedExample(db, selectedWord.cardId, exampleId);
+    const targetClusterId = activeCluster?.id;
+    await executeSearch(selectedWord.form);
+    if (targetClusterId) setSelectedClusterId(targetClusterId);
+  };
 
   const handleOpenDeckPicker = () => {
     setIsDeckPickerOpen(true);
@@ -1066,8 +1165,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               className={`btn ${activeTab === 'grammar' ? 'btn-primary' : 'btn-ghost'}`}
               style={{ fontSize: '13px', padding: '8px 14px' }}
             >
-              <FileText size={15} />
-              <span>Advanced Grammar Insights</span>
+              <SlidersHorizontal size={15} />
+              <span>Advanced Grammar Examples{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}</span>
             </button>
 
             <button
@@ -1127,21 +1226,45 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                       )}
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {cluster.examples.map((ex, exIdx) => (
-                          <div 
-                            key={exIdx}
-                            style={{
-                              fontSize: '13px',
-                              padding: '10px 14px',
-                              backgroundColor: 'var(--bg-glass)',
-                              borderRadius: '8px',
-                              borderLeft: '3px solid var(--accent-primary)'
-                            }}
-                          >
-                            <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{ex.en}</div>
-                          </div>
-                        ))}
+                        {cluster.examples.map((ex, exIdx) => {
+                          const justGenerated = !!ex.generationMetadataId && ex.generationMetadataId === grammarHighlightMetadataId;
+                          return (
+                            <div
+                              key={ex.id ?? exIdx}
+                              style={{
+                                fontSize: '13px',
+                                padding: '10px 14px',
+                                backgroundColor: justGenerated ? 'var(--accent-secondary)' : 'var(--bg-glass)',
+                                borderRadius: '8px',
+                                borderLeft: `3px solid ${ex.isSelected ? 'var(--success)' : 'var(--accent-primary)'}`,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                                gap: '10px'
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
+                                <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{ex.en}</div>
+                              </div>
+                              {ex.id && (
+                                ex.isSelected ? (
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, color: 'var(--success)', whiteSpace: 'nowrap' }}>
+                                    <CheckCircle2 size={13} /> Card example
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => void handleSelectExample(ex.id!)}
+                                    className="btn btn-ghost"
+                                    style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap' }}
+                                  >
+                                    Select
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -1150,9 +1273,132 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </div>
           )}
 
-          {/* Tab 2: Advanced Grammar Insights */}
+          {/* Tab 2: Advanced Grammar Examples — pick grammar structures to target in the active
+              cluster's next regenerated batch of examples. Same feature as apps/mobile's word
+              detail screen's "Advanced grammar options" panel, adapted from a popover into this
+              screen's existing tab pattern. */}
           {activeTab === 'grammar' && (
-            <GrammarInsightsView word={selectedWord} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.15s ease-out' }}>
+              {/* Explicit, always-visible target - a word with more than one sense must not
+                  silently fall back to whichever cluster happened to be selected (or none at
+                  all) elsewhere on the screen; generated examples land on whichever cluster is
+                  shown here, no exceptions. */}
+              {selectedWord.clusters.length > 1 && (
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                    Target Cluster
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {selectedWord.clusters.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedClusterId(c.id)}
+                        className={`btn ${activeCluster?.id === c.id ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                      >
+                        {c.context}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Select grammar structures to exercise in the examples for <strong style={{ color: 'var(--accent-primary)' }}>{activeCluster?.context}</strong> ({activeCluster?.translation}):
+              </div>
+
+              {getGrammarGroups(targetLanguage).map((group) => (
+                <div key={group.title}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                    {group.title}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {group.options.map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => toggleGrammar(option)}
+                        className={`btn ${grammarSelection.includes(option) ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                  Custom Grammar Rule
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={customGrammarInput}
+                    onChange={(e) => setCustomGrammarInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomGrammar()}
+                    placeholder="e.g. Past perfect continuous, reported speech..."
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-glass)',
+                      color: 'var(--text-primary)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      fontFamily: 'var(--font-primary)'
+                    }}
+                  />
+                  <button
+                    onClick={handleAddCustomGrammar}
+                    disabled={!customGrammarInput.trim()}
+                    className="btn btn-secondary"
+                    style={{ padding: '0 14px' }}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {grammarSelection.length > 0 && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--border-color)', borderRadius: '10px',
+                  fontSize: '12px', color: 'var(--text-secondary)'
+                }}>
+                  <Check size={14} color="var(--accent-primary)" />
+                  <span>Active: {grammarSelection.join(' + ')}</span>
+                </div>
+              )}
+
+              {grammarError && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--danger)', borderRadius: '10px',
+                  fontSize: '12px', color: 'var(--danger)'
+                }}>
+                  <AlertCircle size={14} />
+                  <span>{grammarError}</span>
+                </div>
+              )}
+
+              <button
+                onClick={handleGenerateTargetedExamples}
+                disabled={isGeneratingExamples}
+                className="btn btn-primary"
+                style={{ padding: '12px', alignSelf: 'flex-start' }}
+              >
+                {isGeneratingExamples ? (
+                  <RefreshCw size={16} className="spin" />
+                ) : (
+                  <Sparkles size={16} />
+                )}
+                <span>{isGeneratingExamples ? 'Generating examples...' : 'Generate targeted examples'}</span>
+              </button>
+            </div>
           )}
 
           {/* Tab 3: Card Builder & Cloze Selection */}

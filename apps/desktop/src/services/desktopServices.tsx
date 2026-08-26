@@ -601,7 +601,8 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       );
       // Get examples
       const examples = await adapter.query<any>(
-        `SELECT sentence AS de, translation AS en FROM examples WHERE meaning_cluster_id = ?`,
+        `SELECT id, sentence AS de, translation AS en, is_selected AS isSelected, generation_meta_data_id AS generationMetadataId
+         FROM examples WHERE meaning_cluster_id = ? ORDER BY is_selected DESC LIMIT 10`,
         [c.id]
       );
 
@@ -610,10 +611,14 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
         context: c.context,
         translation: meanings[0]?.translation || lemma.form,
         definition: meanings[0]?.explanation || c.definition || '',
+        rawDescription: c.definition,
         cefr: c.cefr || 'B2',
         examples: examples.map((ex: any) => ({
+          id: ex.id,
           de: ex.de || '',
-          en: ex.en || ''
+          en: ex.en || '',
+          isSelected: !!ex.isSelected,
+          generationMetadataId: ex.generationMetadataId
         }))
       };
     }));
@@ -623,6 +628,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       `SELECT usage_note, intro FROM word_guides WHERE headword = ? AND language = ? LIMIT 1`,
       [lemma.form, lemma.language]
     );
+    const cardRow = await adapter.querySingle<{ id: string }>(`SELECT id FROM cards WHERE lemma_id = ? LIMIT 1`, [lemmaId]);
 
     return {
       id: lemma.id,
@@ -630,6 +636,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       pos: lemma.pos || 'noun',
       cefr: guideRow?.cefr_level || enrichedClusters[0]?.cefr || 'B2',
       gender: lemma.gender,
+      cardId: cardRow?.id,
       frequency: 0,
       grammar: {
         partOfSpeech: lemma.pos || 'noun',

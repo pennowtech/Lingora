@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Bot, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, type LucideIcon } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
@@ -8,10 +8,13 @@ import { InlineMarkdown } from '../components/InlineMarkdown';
 import { useDesktopServices } from '../services/desktopServices';
 import {
   createChatMessage,
+  createPhrase,
   deleteLemma,
   getActivePromptVersion,
   getChatMessages,
   getClustersForLemma,
+  getPhrasesForCard,
+  getSynonymsForCard,
   getWordGuide,
   persistRegeneratedExamples,
   persistTranslationAsCard,
@@ -20,6 +23,7 @@ import {
   searchLemmasWithPreview,
   updateClusterMoreInfo,
   updateSelectedExample,
+  updateSynonymNuance,
   type LemmaSearchPreview,
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
@@ -54,7 +58,17 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       'A word can have more than one distinct sense - the **Semantic Context Clusters** tab lists each one, with its own translation, definition, and examples. Selecting a cluster scopes the Card Generator tab to that sense.',
       '**Advanced Grammar Examples** lets you pick grammar structures (tenses, sentence patterns, conjunctions) to target, then regenerates the active cluster\'s examples to exercise them.',
+      '**Synonyms & Phrases** shows this sense\'s synonyms right away, and phrases the first time you open the tab.',
       '**Card Generator & Cloze Selection** lets you pick a card type and preview it before saving.',
+    ],
+  },
+  {
+    id: 'synonyms-phrases',
+    title: 'Synonyms & phrases',
+    icon: Shuffle,
+    paragraphs: [
+      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word - shown as soon as the tab opens. Click the sparkle button on one to fetch AI usage & nuance: how formal it is and what makes it different from the headword.',
+      'Phrases show this word used in common expressions or word combinations, fetched on demand: the first time you open this tab (for a word with a card), any phrases already saved load automatically; "Explore with AI" generates the first batch, "Load more with AI" fetches another once you already have some.',
     ],
   },
   {
@@ -182,7 +196,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   const [pendingTranslation, setPendingTranslation] = useState<{ form: string; translation: string; providerName: string; explanation?: string } | null>(null);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'builder'>('clusters');
+  const [activeTab, setActiveTab] = useState<'clusters' | 'grammar' | 'synonyms' | 'builder'>('clusters');
 
   // Selected Cluster for Card Review
   const [selectedClusterId, setSelectedClusterId] = useState<string>('');
@@ -206,6 +220,19 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   // its examples can be visually highlighted in the Semantic Context Clusters tab — same "these
   // are the ones you just asked for" cue as apps/mobile's word detail screen.
   const [grammarHighlightMetadataId, setGrammarHighlightMetadataId] = useState<string | null>(null);
+
+  // Synonyms & Phrases tab — synonyms load eagerly with the cluster (see the enrichment loops'
+  // synRows query) since they're cheap and worth showing immediately, matching apps/mobile's
+  // "Synonyms" section; only a synonym's nuance is fetched on demand, when expanded. Phrases are
+  // the opposite: NOT fetched as part of every search result (that would multiply DB reads for a
+  // section most searches never open) - loaded once, the first time this tab is opened for a
+  // given word, then cached on selectedWord.phrases.
+  const [expandedSynonyms, setExpandedSynonyms] = useState<Record<string, boolean>>({});
+  const [loadingSynonymNuance, setLoadingSynonymNuance] = useState<Record<string, boolean>>({});
+  const [synonymError, setSynonymError] = useState<string | null>(null);
+  const [isLoadingPhrases, setIsLoadingPhrases] = useState(false);
+  const [isGeneratingPhrases, setIsGeneratingPhrases] = useState(false);
+  const [phrasesError, setPhrasesError] = useState<string | null>(null);
 
   // Word action bar (Lookup/Regenerate/Delete) — matches apps/mobile's word detail screen's
   // CardActionBar. Listen already exists (the speaker button in the header); Explain/More info
@@ -274,6 +301,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                     [c.id]
                   );
+                  const synRows = cardRow ? await getSynonymsForCard(db, cardRow.id, c.id) : [];
                   clusters.push({
                     id: c.id,
                     context: c.label || 'General Context',
@@ -281,6 +309,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                     definition: meanRows[0]?.explanation || c.description || `Semantic context for ${l.form}`,
                     rawDescription: c.description,
                     moreInfo: c.moreInfo,
+                    synonyms: synRows.map(s => ({ id: s.id, word: s.word, cefrLevel: s.cefrLevel, formality: s.formality, nuance: s.nuance })),
                     examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                       { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                     ]
@@ -434,6 +463,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 `SELECT translation, explanation FROM meanings WHERE meaning_cluster_id = ? LIMIT 1`,
                 [c.id]
               );
+              const synRows = cardRow ? await getSynonymsForCard(db, cardRow.id, c.id) : [];
               clusters.push({
                 id: c.id,
                 context: c.label || 'General Context',
@@ -441,6 +471,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
                 definition: meanRows[0]?.explanation || c.description || '',
                 rawDescription: c.description,
                 moreInfo: c.moreInfo,
+                synonyms: synRows.map(s => ({ id: s.id, word: s.word, cefrLevel: s.cefrLevel, formality: s.formality, nuance: s.nuance })),
                 examples: exRows.length > 0 ? exRows.map(e => ({ id: e.id, de: e.sentence, en: e.translation, isSelected: !!e.isSelected, generationMetadataId: e.generationMetadataId })) : [
                   { de: `Beispielsatz für ${l.form}.`, en: `Example sentence for ${l.form}.` }
                 ]
@@ -688,6 +719,93 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     const targetClusterId = activeCluster?.id;
     await executeSearch(selectedWord.form);
     if (targetClusterId) setSelectedClusterId(targetClusterId);
+  };
+
+  // Expand/collapse a synonym's nuance card - fetching the nuance from the AI (and persisting it)
+  // only the first time it's expanded with none saved yet, same on-demand pattern as apps/mobile's
+  // handleToggleSynonym.
+  const handleToggleSynonym = async (syn: { id: string; word: string; formality?: string | null; nuance?: string | null }) => {
+    const nextState = !expandedSynonyms[syn.id];
+    setExpandedSynonyms((prev) => ({ ...prev, [syn.id]: nextState }));
+    if (!nextState || (syn.nuance && syn.nuance.trim() !== '')) return;
+    if (!activeAiProvider || !db || !activeCluster) {
+      setSynonymError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: true }));
+    setSynonymError(null);
+    try {
+      const result = await activeAiProvider.generateSynonyms(
+        selectedWord.form,
+        { label: activeCluster.context, description: activeCluster.rawDescription || activeCluster.definition },
+        { cefrLevel, language: targetLanguage, nativeLanguage }
+      );
+      const match = result.data.find((item) => item.word.toLowerCase() === syn.word.toLowerCase()) ?? result.data[0];
+      if (match) {
+        const nuanceText = match.nuance ?? `Used as a ${match.formality} synonym for ${selectedWord.form}.`;
+        await updateSynonymNuance(db, syn.id, nuanceText, match.formality);
+        const targetClusterId = activeCluster.id;
+        await executeSearch(selectedWord.form);
+        setSelectedClusterId(targetClusterId);
+      }
+    } catch (err: any) {
+      setSynonymError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setLoadingSynonymNuance((prev) => ({ ...prev, [syn.id]: false }));
+    }
+  };
+
+  // Fetches this word's existing phrases from the DB - only ever called once per word, the first
+  // time the Synonyms & Phrases tab opens (see the tab button's onClick), not as part of every
+  // search result. Patches selectedWord/searchResults directly rather than re-running executeSearch,
+  // so it doesn't pay for (or clobber) the rest of the word's data on a section most searches never
+  // even open.
+  const handleOpenSynonymsPhrasesTab = () => {
+    setActiveTab('synonyms');
+    if (!db || !selectedWord.cardId || selectedWord.phrases !== undefined) return;
+    setIsLoadingPhrases(true);
+    setPhrasesError(null);
+    getPhrasesForCard(db, selectedWord.cardId)
+      .then((rows) => {
+        const withPhrases: WordLemma = { ...selectedWord, phrases: rows };
+        setSelectedWord(withPhrases);
+        setSearchResults((prev) => prev.map((w) => (w.id === selectedWord.id ? withPhrases : w)));
+      })
+      .catch((err: any) => setPhrasesError(err?.message || 'Could not load phrases.'))
+      .finally(() => setIsLoadingPhrases(false));
+  };
+
+  // "Explore with AI" / "Load more with AI" - generates a fresh batch of phrases and appends them,
+  // matching apps/mobile's generatePhrases mutation (manual, AI-provider-gated, never automatic).
+  const handleGeneratePhrases = async () => {
+    if (!activeAiProvider || !db || !selectedWord.cardId) {
+      setPhrasesError('No AI provider is active. Add and validate one in Settings → AI Providers.');
+      return;
+    }
+    setIsGeneratingPhrases(true);
+    setPhrasesError(null);
+    try {
+      const result = await activeAiProvider.generatePhrases(selectedWord.form, { cefrLevel, language: targetLanguage, nativeLanguage });
+      for (const phrase of result.data) {
+        await createPhrase(db, {
+          id: crypto.randomUUID(),
+          cardId: selectedWord.cardId,
+          expression: phrase.expression,
+          meaning: phrase.meaning,
+          exampleSentence: phrase.exampleSentence,
+          exampleTranslation: phrase.exampleTranslation,
+          cefrLevel: phrase.cefrLevel,
+        });
+      }
+      const rows = await getPhrasesForCard(db, selectedWord.cardId);
+      const withPhrases: WordLemma = { ...selectedWord, phrases: rows };
+      setSelectedWord(withPhrases);
+      setSearchResults((prev) => prev.map((w) => (w.id === selectedWord.id ? withPhrases : w)));
+    } catch (err: any) {
+      setPhrasesError(formatUserFriendlyProviderError(PROVIDER_META_DATA[selectedGenerationProvider].label, err));
+    } finally {
+      setIsGeneratingPhrases(false);
+    }
   };
 
   const handleLookup = () => {
@@ -1479,6 +1597,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </button>
 
             <button
+              onClick={handleOpenSynonymsPhrasesTab}
+              className={`btn ${activeTab === 'synonyms' ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ fontSize: '13px', padding: '8px 14px' }}
+            >
+              <Shuffle size={15} />
+              <span>Synonyms & Phrases</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('builder')}
               className={`btn ${activeTab === 'builder' ? 'btn-primary' : 'btn-ghost'}`}
               style={{ fontSize: '13px', padding: '8px 14px' }}
@@ -1710,7 +1837,139 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
             </div>
           )}
 
-          {/* Tab 3: Card Builder & Cloze Selection */}
+          {/* Tab 3: Synonyms & Phrases — synonyms load with the cluster (see synRows in the
+              enrichment loops) and show immediately; a synonym's nuance is fetched on demand when
+              expanded. Phrases are fetched once, lazily, the first time this tab opens (see the tab
+              button's onClick, handleOpenSynonymsPhrasesTab) - both match apps/mobile's word detail
+              screen's Synonyms / Phrases & collocations sections. */}
+          {activeTab === 'synonyms' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.15s ease-out' }}>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
+                  Synonyms — {activeCluster?.context}
+                </div>
+                {synonymError && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px',
+                    padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--danger)', borderRadius: '10px',
+                    fontSize: '12px', color: 'var(--danger)'
+                  }}>
+                    <AlertCircle size={14} />
+                    <span>{synonymError}</span>
+                  </div>
+                )}
+                {(activeCluster?.synonyms ?? []).length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {(activeCluster?.synonyms ?? []).map((syn) => {
+                      const isExpanded = !!expandedSynonyms[syn.id];
+                      return (
+                        <div key={syn.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{syn.word}</span>
+                              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '2px 6px' }}>{syn.cefrLevel}</span>
+                            </div>
+                            <button
+                              onClick={() => void handleToggleSynonym(syn)}
+                              className={`btn ${isExpanded ? 'btn-primary' : 'btn-ghost'}`}
+                              style={{ padding: '8px' }}
+                              title="AI usage & nuance"
+                              aria-label="AI usage & nuance"
+                            >
+                              {loadingSynonymNuance[syn.id] ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                            </button>
+                          </div>
+                          {isExpanded && (
+                            <div style={{ padding: '0 14px 14px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                              {loadingSynonymNuance[syn.id] ? (
+                                <span>Fetching AI usage & nuance for "{syn.word}"...</span>
+                              ) : (
+                                <>
+                                  <div>{syn.nuance || `Used as a ${syn.formality ?? 'general'} synonym for ${selectedWord.form}.`}</div>
+                                  {syn.formality && (
+                                    <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '10px', fontWeight: 700, color: 'var(--accent-primary)', border: '1px solid var(--border-active)', borderRadius: '6px', padding: '2px 8px' }}>
+                                      {syn.formality}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>No synonyms saved for this sense yet.</p>
+                )}
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
+                  Phrases & Collocations
+                </div>
+                {phrasesError && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px',
+                    padding: '10px 14px', backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--danger)', borderRadius: '10px',
+                    fontSize: '12px', color: 'var(--danger)'
+                  }}>
+                    <AlertCircle size={14} />
+                    <span>{phrasesError}</span>
+                  </div>
+                )}
+                {isLoadingPhrases ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    <RefreshCw size={14} className="spin" />
+                    <span>Loading phrases...</span>
+                  </div>
+                ) : (selectedWord.phrases ?? []).length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {(selectedWord.phrases ?? []).map((phrase) => (
+                      <div key={phrase.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Quote size={14} color="var(--accent-primary)" />
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{phrase.expression}</span>
+                          </div>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '2px 6px' }}>{phrase.cefrLevel}</span>
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '6px' }}>{phrase.meaning}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>„{phrase.exampleSentence}"</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{phrase.exampleTranslation}</div>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => void handleGeneratePhrases()}
+                      disabled={isGeneratingPhrases}
+                      className="btn btn-secondary"
+                      style={{ fontSize: '13px', padding: '10px 16px', alignSelf: 'flex-start' }}
+                    >
+                      {isGeneratingPhrases ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                      <span>{isGeneratingPhrases ? 'Generating...' : 'Load more with AI'}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', backgroundColor: 'var(--bg-glass)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Discover common expressions and word combinations for this word.</p>
+                    <button
+                      onClick={() => void handleGeneratePhrases()}
+                      disabled={isGeneratingPhrases}
+                      className="btn btn-primary"
+                      style={{ fontSize: '13px', padding: '10px 16px' }}
+                    >
+                      {isGeneratingPhrases ? <RefreshCw size={14} className="spin" /> : <Sparkles size={14} />}
+                      <span>{isGeneratingPhrases ? 'Generating...' : 'Explore with AI'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 4: Card Builder & Cloze Selection */}
           {activeTab === 'builder' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', animation: 'fadeIn 0.15s ease-out' }}>
               <div>

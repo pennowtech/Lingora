@@ -14,6 +14,19 @@ export interface WordLemma {
    * needed to persist grammar-targeted example regeneration against the right card. Undefined for
    * a not-yet-saved word (the `search-` synthetic entry). */
   cardId?: string;
+  /** Real `phrases` rows for this card, matching apps/mobile's on-demand "Phrases & collocations"
+   * section. Undefined = never fetched yet (Synonyms & Phrases tab hasn't been opened this
+   * session) - deliberately NOT loaded as part of every search result, since fetching it for every
+   * row would multiply per-search DB reads for a section most searches never look at. Fetched once
+   * on the tab's first open per word and cached here; empty array = fetched, none exist yet. */
+  phrases?: {
+    id: string;
+    expression: string;
+    meaning: string;
+    exampleSentence: string;
+    exampleTranslation: string;
+    cefrLevel: string;
+  }[];
   frequency: number;
   grammar: {
     partOfSpeech: string;
@@ -42,6 +55,18 @@ export interface WordLemma {
      * per-cluster via updateClusterMoreInfo. Undefined = never fetched yet; null/[] = fetched but
      * nothing came back; a real word-guide/placeholder cluster never has any. */
     moreInfo?: string[] | null;
+    /** Real `synonyms` rows for this cluster, matching apps/mobile's "Synonyms" section - loaded
+     * eagerly alongside the cluster (small, cheap, worth showing immediately), unlike phrases.
+     * `nuance`/`formality` start null/undefined until the learner expands one, which fetches them
+     * on demand via generateSynonyms and persists via updateSynonymNuance - same as mobile's
+     * sparkle-icon toggle. */
+    synonyms?: {
+      id: string;
+      word: string;
+      cefrLevel: string;
+      formality?: string | null;
+      nuance?: string | null;
+    }[];
     examples: {
       de: string;
       en: string;

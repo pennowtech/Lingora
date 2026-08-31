@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DatabaseAdapter } from '@lingora/database';
-import { 
-  getAllDecks, 
+import {
+  getAllDecks,
+  getDeckById,
+  setDeckQuestionTypes,
   getLemmaByForm,
   getClustersForLemma,
   addCardToDeck,
@@ -20,11 +22,12 @@ import {
   getCardsDueForReview,
   getClozeCardsDueForReview,
   getDefaultTemplate,
-  createCloze
+  createCloze,
+  setCloze
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
 import { buildCardContext, renderCardHtml, SEPARABLE_PREFIXES } from './templates';
-import type { LanguageCode, CefrLevel } from '@lingora/types';
+import type { LanguageCode, CefrLevel, QuestionType } from '@lingora/types';
 import {
   OpenAIProvider,
   MistralProvider,
@@ -45,7 +48,7 @@ import {
   type AIProvider,
   type DictionaryProvider
 } from '@lingora/ai';
-import { DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, type GenerationProviderName } from '@lingora/core';
+import { DEFAULT_ENABLED_QUESTION_TYPES, DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, type GenerationProviderName } from '@lingora/core';
 import { getDesktopDatabase } from './database';
 import { desktopFetch } from './desktopFetch';
 
@@ -118,8 +121,8 @@ interface DesktopServicesContextType {
   setLearningConfig: (cefr: CefrLevel, nativeLang: LanguageCode, targetLang: LanguageCode) => void;
   refreshData: () => Promise<void>;
   rateCard: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => Promise<void>;
-  addNewDeck: (title: string, type?: string) => Promise<string>;
-  addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => Promise<void>;
+  addNewDeck: (title: string, questionTypes?: QuestionType[]) => Promise<string>;
+  addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string, clozeOverride?: { sentence: string; answer: string; translation: string }) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
   dictionary: DictionaryProvider;
   activeAiProvider: AIProvider | null;
@@ -414,36 +417,36 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
-  const addNewDeck = async (title: string, type?: string) => {
+  const addNewDeck = async (title: string, questionTypes?: QuestionType[]) => {
     if (!db) return '';
     const deckId = `deck-${Date.now()}`;
+    // Which review formats this deck practices with - same five as apps/mobile's Mixed practice
+    // (Settings -> Learning), picked once at deck-creation time here rather than one global
+    // preference - the real decks.enabled_question_types column (migration 0022), shared with
+    // mobile's own equivalent deck-creation UI. `type` (the legacy BASIC/CLOZE/PHRASE
+    // card-content-type label) is no longer stored or enforced at all - see addNewCard's doc
+    // comment below for why.
     const newDeck = {
       id: deckId,
       name: title,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      ...(questionTypes && questionTypes.length > 0 && { enabledQuestionTypes: questionTypes }),
     };
     await createDeck(db, newDeck);
-
-    // Save the deck type in localStorage (default to BASIC)
-    const deckTypes = JSON.parse(localStorage.getItem('lingora.deck_types') || '{}');
-    deckTypes[deckId] = type ? type.toUpperCase() : 'BASIC';
-    localStorage.setItem('lingora.deck_types', JSON.stringify(deckTypes));
 
     await refreshData();
     return deckId;
   };
 
-  const addNewCard = async (lemmaForm: string, clusterId: string, deckId: string, cardType: string) => {
+  const addNewCard = async (lemmaForm: string, clusterId: string, deckId: string, cardType: string, clozeOverride?: { sentence: string; answer: string; translation: string }) => {
     if (!db) return;
     try {
-      // Validate that the card type matches the deck type
-      const deckTypes = JSON.parse(localStorage.getItem('lingora.deck_types') || '{}');
-      const deckType = deckTypes[deckId] || 'BASIC'; // default to BASIC
-      if (cardType.toUpperCase() !== deckType.toUpperCase()) {
-        throw new Error(`Cannot add a ${cardType.toUpperCase()} card to a ${deckType.toUpperCase()} deck.`);
-      }
-
+      // A deck no longer restricts which card content type (cloze/basic/phrase) can be saved
+      // into it - that used to be enforced here via the deck's own BASIC/CLOZE/PHRASE type
+      // (lingora.deck_types), but decks now have no such type: review modes (see
+      // components/ReviewModesGrid.tsx) govern how a deck is reviewed, not what content type its
+      // cards hold, matching apps/mobile (a deck there is just a card collection too).
       let lemma = await getLemmaByForm(db, lemmaForm);
       
       // If the lemma doesn't exist (e.g. from AI generation), create a basic one
@@ -499,60 +502,90 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
           await addCardToDeck(db, deckId, targetCardId);
         }
 
+        // A cloze-type card saved into a deck whose review modes don't include Cloze would be
+        // unreviewable in that format even though it was just explicitly generated as one - the
+        // deck's review modes are extended to cover it rather than silently rejecting the card
+        // or leaving a mismatch the learner never asked for.
+        if (cardType.toUpperCase() === 'CLOZE') {
+          const targetDeck = await getDeckById(db, deckId);
+          const current = targetDeck?.enabledQuestionTypes || [...DEFAULT_ENABLED_QUESTION_TYPES];
+          if (!current.includes('cloze')) {
+            await setDeckQuestionTypes(db, deckId, [...current, 'cloze']);
+          }
+        }
+
         // If card type is cloze, ensure cloze_cards has a valid row
         if (cardType.toUpperCase() === 'CLOZE') {
-          const clozes = await getClozesForCard(db, targetCardId);
-          if (clozes.length === 0) {
+          if (clozeOverride) {
+            // The learner picked the blank(s) themselves (components/DeckPickerModal.tsx's "Edit
+            // the Blank" wizard step) - always replace whatever's there (setCloze deletes first),
+            // never gated on "only if none exists yet" like the auto-guess below. An explicit
+            // edit must win even when a card already had an older, auto-guessed cloze - the
+            // clozes.length === 0 guard that used to wrap this whole block was silently dropping
+            // every override on a card that had already been added once before.
             const examples = await getExamplesForCard(db, targetCardId);
             const example = examples.find((e) => e.isSelected) ?? examples[0];
-            let sentence = example?.sentence || `Ich lerne ${lemmaForm}.`;
-            let translation = example?.translation || `I am learning ${lemmaForm}.`;
-            let answer = lemmaForm;
-
-            // Attempt to blank out the word in the sentence
-            const forms = new Set<string>([lemmaForm]);
-            const lower = lemmaForm.toLowerCase();
-            const prefix = SEPARABLE_PREFIXES.find((p) => lower.startsWith(p) && lemmaForm.length - p.length >= 3);
-            if (prefix) {
-              const stem = lemmaForm.slice(prefix.length);
-              forms.add(prefix);
-              forms.add(stem.length > 4 && stem.toLowerCase().endsWith('en') ? stem.slice(0, -2) : stem);
-            }
-
-            let bestMatch = '';
-            const lowerSentence = sentence.toLowerCase();
-            for (const form of forms) {
-              const lowerForm = form.toLowerCase();
-              if (lowerSentence.includes(lowerForm) && form.length > bestMatch.length) {
-                bestMatch = form;
-              }
-            }
-
-            if (bestMatch) {
-              const regex = new RegExp(bestMatch, 'i');
-              const match = sentence.match(regex);
-              if (match) {
-                sentence = sentence.replace(regex, '[...]');
-                answer = match[0];
-              }
-            } else {
-              const regex = new RegExp(lemmaForm, 'i');
-              if (regex.test(sentence)) {
-                sentence = sentence.replace(regex, '[...]');
-              } else {
-                sentence = `${sentence} (${lemmaForm} -> [...])`;
-              }
-            }
-
-            await createCloze(db, {
-              id: `cloze-${Date.now()}`,
-              cardId: targetCardId,
-              sentence,
-              answer,
-              translation,
+            await setCloze(db, targetCardId, {
+              sentence: clozeOverride.sentence,
+              answer: clozeOverride.answer,
+              translation: clozeOverride.translation,
               difficulty: 'easy',
               cefrLevel: example?.cefrLevel || 'B2'
             });
+          } else {
+            const clozes = await getClozesForCard(db, targetCardId);
+            if (clozes.length === 0) {
+              const examples = await getExamplesForCard(db, targetCardId);
+              const example = examples.find((e) => e.isSelected) ?? examples[0];
+              let sentence = example?.sentence || `Ich lerne ${lemmaForm}.`;
+              let translation = example?.translation || `I am learning ${lemmaForm}.`;
+              let answer = lemmaForm;
+
+              // Attempt to blank out the word in the sentence
+              const forms = new Set<string>([lemmaForm]);
+              const lower = lemmaForm.toLowerCase();
+              const prefix = SEPARABLE_PREFIXES.find((p) => lower.startsWith(p) && lemmaForm.length - p.length >= 3);
+              if (prefix) {
+                const stem = lemmaForm.slice(prefix.length);
+                forms.add(prefix);
+                forms.add(stem.length > 4 && stem.toLowerCase().endsWith('en') ? stem.slice(0, -2) : stem);
+              }
+
+              let bestMatch = '';
+              const lowerSentence = sentence.toLowerCase();
+              for (const form of forms) {
+                const lowerForm = form.toLowerCase();
+                if (lowerSentence.includes(lowerForm) && form.length > bestMatch.length) {
+                  bestMatch = form;
+                }
+              }
+
+              if (bestMatch) {
+                const regex = new RegExp(bestMatch, 'i');
+                const match = sentence.match(regex);
+                if (match) {
+                  sentence = sentence.replace(regex, '[...]');
+                  answer = match[0];
+                }
+              } else {
+                const regex = new RegExp(lemmaForm, 'i');
+                if (regex.test(sentence)) {
+                  sentence = sentence.replace(regex, '[...]');
+                } else {
+                  sentence = `${sentence} (${lemmaForm} -> [...])`;
+                }
+              }
+
+              await createCloze(db, {
+                id: `cloze-${Date.now()}`,
+                cardId: targetCardId,
+                sentence,
+                answer,
+                translation,
+                difficulty: 'easy',
+                cefrLevel: example?.cefrLevel || 'B2'
+              });
+            }
           }
         }
       }
@@ -697,15 +730,31 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       if (card) finalCards = [card];
     } else {
       const scopeDeckId = deckId === 'all' ? undefined : deckId;
-      const cards = clozeOnly
-        ? await getClozeCardsDueForReview(db, scopeDeckId)
-        : await getCardsDueForReview(db, scopeDeckId);
+      if (clozeOnly) {
+        finalCards = await getClozeCardsDueForReview(db, scopeDeckId);
+      } else {
+        // A plain review session mixes both card types that can actually be due - basic (via
+        // card_states) and cloze (via cloze_states) - rather than only ever the basic ones.
+        // getCardsDueForReview alone filters c.type = 'basic', so a deck holding only cloze cards
+        // (or a card generated as Cloze via the Card Generator/Add to Deck flow) would otherwise
+        // never turn up here at all, reporting the deck as empty even with real cards in it.
+        const [basicDue, clozeDue] = await Promise.all([
+          getCardsDueForReview(db, scopeDeckId),
+          getClozeCardsDueForReview(db, scopeDeckId),
+        ]);
+        finalCards = [...basicDue, ...clozeDue];
+      }
 
-      finalCards = cards;
       if (finalCards.length === 0) {
         if (scopeDeckId) {
+          // Real deck membership is deck_cards (many-to-many - a card can be linked to more than
+          // one deck), not cards.deck_id (a single-owner column that only ever reflects whichever
+          // deck last created/re-typed the card - see addNewCard). Querying deck_id directly here
+          // silently hid every card whose deck_id pointed at an earlier deck even though
+          // deck_cards correctly listed it in this one, making a deck with real cards report as
+          // empty on Review.
           finalCards = await db.query<any>(
-            `SELECT * FROM cards WHERE deck_id = ?`,
+            `SELECT c.* FROM cards c INNER JOIN deck_cards dc ON dc.card_id = c.id WHERE dc.deck_id = ?`,
             [scopeDeckId]
           );
         } else {
@@ -713,58 +762,75 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
             `SELECT * FROM cards`
           );
         }
+        if (clozeOnly) finalCards = finalCards.filter((c) => c.type === 'cloze');
       }
     }
 
-    const template = await getDefaultTemplate(db, clozeOnly ? 'cloze' : 'vocab');
-    const frontTemplate = template?.frontTemplate || '';
-    const backTemplate = template?.backTemplate || '';
-    const styles = template?.styles || '';
+    // Both templates are fetched once, up front, regardless of clozeOnly - a mixed plain-review
+    // queue needs both (see the per-card `isCardCloze` branch below); the dedicated Cloze
+    // Practice screen only ever hits the cloze branch, so fetching vocab too there is harmless.
+    const [vocabTemplate, clozeTemplate] = await Promise.all([
+      getDefaultTemplate(db, 'vocab'),
+      getDefaultTemplate(db, 'cloze'),
+    ]);
 
     const views: any[] = [];
     for (const card of finalCards) {
-      const lemma = await getLemmaById(db, card.lemmaId);
-      if (!lemma) continue;
+      try {
+        const lemma = await getLemmaById(db, card.lemmaId);
+        if (!lemma) continue;
 
-      const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
-        getMeaningsForCard(db, card.id),
-        getExamplesForCard(db, card.id),
-        getClozesForCard(db, card.id),
-        getSynonymsForCard(db, card.id),
-        getPhrasesForCard(db, card.id),
-        clozeOnly ? getClozeState(db, card.id) : getCardState(db, card.id),
-      ]);
+        const isCardCloze = clozeOnly || card.type === 'cloze';
+        const template = isCardCloze ? clozeTemplate : vocabTemplate;
+        const frontTemplate = template?.frontTemplate || '';
+        const backTemplate = template?.backTemplate || '';
+        const styles = template?.styles || '';
 
-      const cloze = clozes[0];
-      const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0];
-      const selectedExample = examples.find((e) => e.isSelected) ?? examples[0];
+        const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
+          getMeaningsForCard(db, card.id),
+          getExamplesForCard(db, card.id),
+          getClozesForCard(db, card.id),
+          getSynonymsForCard(db, card.id),
+          getPhrasesForCard(db, card.id),
+          isCardCloze ? getClozeState(db, card.id) : getCardState(db, card.id),
+        ]);
 
-      const templateContext = buildCardContext({
-        lemma,
-        meanings,
-        examples,
-        synonyms,
-        phrases,
-        cloze,
-        mode: clozeOnly ? 'cloze' : 'vocab',
-      });
+        const cloze = clozes[0];
+        const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0];
+        const selectedExample = examples.find((e) => e.isSelected) ?? examples[0];
 
-      const frontHtml = renderCardHtml(frontTemplate, styles, templateContext, 'front');
-      const backHtml = renderCardHtml(backTemplate, styles, templateContext, 'back');
+        const templateContext = buildCardContext({
+          lemma,
+          meanings,
+          examples,
+          synonyms,
+          phrases,
+          cloze,
+          mode: isCardCloze ? 'cloze' : 'vocab',
+        });
 
-      views.push({
-        id: card.id,
-        front: lemma.form,
-        back: primaryMeaning?.translation || '',
-        pos: lemma.partOfSpeech || 'noun',
-        cefr: primaryMeaning?.cefrLevel || 'B2',
-        context: primaryMeaning ? 'General' : '',
-        exampleDe: selectedExample?.sentence || '',
-        exampleEn: selectedExample?.translation || '',
-        frontHtml,
-        backHtml,
-        cardState: cardState || createInitialCardState(card.id),
-      });
+        const frontHtml = renderCardHtml(frontTemplate, styles, templateContext, 'front');
+        const backHtml = renderCardHtml(backTemplate, styles, templateContext, 'back');
+
+        views.push({
+          id: card.id,
+          front: lemma.form,
+          back: isCardCloze ? (cloze?.answer || primaryMeaning?.translation || '') : (primaryMeaning?.translation || ''),
+          pos: lemma.partOfSpeech || 'noun',
+          cefr: primaryMeaning?.cefrLevel || 'B2',
+          context: primaryMeaning ? 'General' : '',
+          exampleDe: isCardCloze ? (cloze?.sentence || '') : (selectedExample?.sentence || ''),
+          exampleEn: isCardCloze ? (cloze?.translation || '') : (selectedExample?.translation || ''),
+          frontHtml,
+          backHtml,
+          cardState: cardState || createInitialCardState(card.id),
+        });
+      } catch (err) {
+        // One card with malformed/missing data (a stale reference, a partial delete) must not
+        // sink the whole review session - skip it and keep going, same as the `!lemma` guard
+        // above already does for a missing lemma specifically.
+        console.warn('[loadReviewQueue] Skipping card that failed to build a review view:', card.id, err);
+      }
     }
 
     return views;

@@ -93,6 +93,10 @@ export interface Deck {
   retention: number;
   icon: string;
   color: string;
+  /** Which review formats this deck's cards get reviewed with (real `decks.enabled_question_types`
+   * column, migration 0022) - undefined/null falls back to the learner's global Settings ->
+   * Learning preference, same as apps/mobile. */
+  enabledQuestionTypes?: import('@lingora/types').QuestionType[] | null;
 }
 
 export interface MiningItem {

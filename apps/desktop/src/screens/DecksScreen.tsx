@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Plus, BookOpen, MoreVertical, Zap } from 'lucide-react';
+import { Layers, Plus, BookOpen, MoreVertical, Zap, Trash2, AlertTriangle } from 'lucide-react';
 import type { Deck } from '../mockData';
 import { useDesktopServices } from '../services/desktopServices';
+import { deleteDeck } from '@lingora/database';
+import { DEFAULT_ENABLED_QUESTION_TYPES } from '@lingora/core';
+import type { QuestionType } from '@lingora/types';
+import { ReviewModesGrid, toggleQuestionType } from '../components/ReviewModesGrid';
 
 interface DecksScreenProps {
   decks: Deck[];
@@ -9,15 +13,45 @@ interface DecksScreenProps {
 }
 
 export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }) => {
-  const { db, addNewDeck } = useDesktopServices();
+  const { db, addNewDeck, refreshData } = useDesktopServices();
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
   const [deckCards, setDeckCards] = useState<any[]>([]);
   const [loadingCards, setLoadingCards] = useState(false);
 
+  // Deck context menu (the "..." button, or right-click) - one open at a time, closed by
+  // clicking anywhere else.
+  const [contextMenuDeckId, setContextMenuDeckId] = useState<string | null>(null);
+  const [deleteConfirmDeck, setDeleteConfirmDeck] = useState<Deck | null>(null);
+  const [isDeletingDeck, setIsDeletingDeck] = useState(false);
+
+  useEffect(() => {
+    if (!contextMenuDeckId) return;
+    const close = () => setContextMenuDeckId(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [contextMenuDeckId]);
+
+  const handleDeleteDeck = async () => {
+    if (!db || !deleteConfirmDeck) return;
+    setIsDeletingDeck(true);
+    try {
+      await deleteDeck(db, deleteConfirmDeck.id);
+      if (selectedDeck?.id === deleteConfirmDeck.id) setSelectedDeck(null);
+      setDeleteConfirmDeck(null);
+      await refreshData();
+    } catch (err: any) {
+      alert('Error deleting deck: ' + err.message);
+    } finally {
+      setIsDeletingDeck(false);
+    }
+  };
+
   // Create Deck Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newDeckTitle, setNewDeckTitle] = useState('');
-  const [newDeckType, setNewDeckType] = useState('BASIC');
+  // Which review formats this deck practices - same five as apps/mobile's Mixed practice, same
+  // Review Modes grid as components/DeckPickerModal.tsx's "create new deck" step.
+  const [newDeckQuestionTypes, setNewDeckQuestionTypes] = useState<QuestionType[]>([...DEFAULT_ENABLED_QUESTION_TYPES]);
 
   // Fetch cards inside the selected deck dynamically
   useEffect(() => {
@@ -83,10 +117,10 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
       return;
     }
     try {
-      await addNewDeck(trimmed, newDeckType);
+      await addNewDeck(trimmed, newDeckQuestionTypes);
       setIsCreateModalOpen(false);
       setNewDeckTitle('');
-      setNewDeckType('BASIC');
+      setNewDeckQuestionTypes([...DEFAULT_ENABLED_QUESTION_TYPES]);
     } catch (err: any) {
       alert('Error creating deck: ' + err.message);
     }
@@ -112,15 +146,21 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
       {/* Grid of Decks */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
         {decks.map((deck) => (
-          <div 
+          <div
             key={deck.id}
             onClick={() => setSelectedDeck(deck)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setContextMenuDeckId(deck.id);
+            }}
             className="glass-card interactive"
             style={{
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               height: '220px',
+              position: 'relative',
               border: selectedDeck?.id === deck.id ? `1px solid ${deck.color}` : '1px solid var(--bg-surface-hover)'
             }}
           >
@@ -138,9 +178,59 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
                 }}>
                   <BookOpen size={20} color={deck.color} />
                 </div>
-                <button className="btn btn-ghost" style={{ padding: '4px' }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setContextMenuDeckId((prev) => (prev === deck.id ? null : deck.id));
+                  }}
+                  className="btn btn-ghost"
+                  style={{ padding: '4px' }}
+                >
                   <MoreVertical size={16} color="var(--text-secondary)" />
                 </button>
+
+                {contextMenuDeckId === deck.id && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      position: 'absolute',
+                      top: '44px',
+                      right: '14px',
+                      zIndex: 20,
+                      minWidth: '160px',
+                      backgroundColor: 'var(--bg-surface)',
+                      border: '1px solid var(--border-active)',
+                      borderRadius: '10px',
+                      boxShadow: 'var(--shadow-glow)',
+                      overflow: 'hidden',
+                      animation: 'fadeIn 0.12s ease-out'
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        setContextMenuDeckId(null);
+                        setDeleteConfirmDeck(deck);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '10px 14px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--danger)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete deck</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>{deck.title}</h3>
@@ -256,29 +346,14 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
                 />
               </div>
 
+              {/* Review modes - same shared ReviewModesGrid as components/DeckPickerModal.tsx's
+                  "create new deck" step, so a deck created from either entry point works the
+                  same way. */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>DECK TYPE</label>
-                <select
-                  value={newDeckType}
-                  onChange={(e) => setNewDeckType(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color)',
-                    backgroundColor: 'var(--bg-glass)',
-                    color: 'var(--text-primary)',
-                    outline: 'none',
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="BASIC">Basic Card Deck</option>
-                  <option value="CLOZE">Cloze Card Deck</option>
-                  <option value="PHRASE">Phrase Card Deck</option>
-                </select>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>REVIEW MODES</label>
+                <ReviewModesGrid value={newDeckQuestionTypes} onToggle={(type) => setNewDeckQuestionTypes((prev) => toggleQuestionType(prev, type))} />
                 <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                  Only cards matching this type can be saved into this deck.
+                  Only cards matching these types can be saved into this deck.
                 </p>
               </div>
 
@@ -300,6 +375,50 @@ export const DecksScreen: React.FC<DecksScreenProps> = ({ decks, onStartReview }
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete deck confirmation - destructive (permanently removes the deck and every card
+          exclusively in it - see deleteDeck's own doc comment). */}
+      {deleteConfirmDeck && (
+        <div className="modal-overlay" onClick={() => setDeleteConfirmDeck(null)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '420px',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--danger)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-glow)',
+              padding: '28px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              animation: 'fadeIn 0.15s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <AlertTriangle size={20} color="var(--danger)" />
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>Delete this deck?</h3>
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              This permanently deletes <strong style={{ color: 'var(--text-primary)' }}>"{deleteConfirmDeck.title}"</strong> and every card that's exclusively in it - any card also saved in another deck is kept there. This can't be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirmDeck(null)} className="btn btn-secondary" style={{ fontSize: '13px' }}>
+                Cancel
+              </button>
+              <button
+                onClick={() => void handleDeleteDeck()}
+                disabled={isDeletingDeck}
+                className="btn btn-primary"
+                style={{ fontSize: '13px', backgroundColor: 'var(--danger)', borderColor: 'var(--danger)' }}
+              >
+                <Trash2 size={14} />
+                <span>{isDeletingDeck ? 'Deleting...' : 'Delete'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

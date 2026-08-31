@@ -186,6 +186,10 @@ export interface Deck {
   name: string
   parentId?: string // if set, this deck is nested inside another
   emoji?: string // display emoji shown in deck lists
+  /** Which review formats this deck's cards get reviewed with in Mixed practice (see
+   * QuestionType) - undefined/null means "no override," which falls back to the learner's
+   * global Settings -> Learning preference, same as a deck created before this existed. */
+  enabledQuestionTypes?: QuestionType[] | null
   createdAt: number
   updatedAt: number
 }

@@ -1,7 +1,9 @@
 import React from 'react';
 import { ArrowLeftRight, CornerUpLeft, Type, CircleCheckBig, List, type LucideIcon } from 'lucide-react';
-import { ALL_QUESTION_TYPES, DEFAULT_ENABLED_QUESTION_TYPES, QUESTION_TYPE_META } from '@lingora/core';
+import { ALL_QUESTION_TYPES, DEFAULT_ENABLED_QUESTION_TYPES, QUESTION_TYPE_META, toggleQuestionType } from '@lingora/core';
 import type { QuestionType } from '@lingora/types';
+
+export { toggleQuestionType };
 
 /** Which review formats an existing deck was created with - the real decks.enabled_question_types
  * column (migration 0022, shared with apps/mobile). Falls back to the app-wide default for a deck
@@ -23,17 +25,6 @@ const QUESTION_TYPE_ICONS: Record<QuestionType, LucideIcon> = {
   trueFalse: CircleCheckBig,
   mcq: List,
 };
-
-/** Toggles one review format in/out of a selection, always keeping at least one enabled - a deck
- * with none picked can't be reviewed. Shared by every "create a deck" entry point (Add to Deck's
- * create-new-deck step, the Decks screen's own create button) so they can't drift apart. */
-export function toggleQuestionType(current: QuestionType[], type: QuestionType): QuestionType[] {
-  if (current.includes(type)) {
-    if (current.length === 1) return current;
-    return current.filter((t) => t !== type);
-  }
-  return [...current, type];
-}
 
 /** Which review formats a deck practices with - same five as apps/mobile's Mixed practice
  * (Settings -> Learning), picked once per deck here instead of one global preference. A 3x2

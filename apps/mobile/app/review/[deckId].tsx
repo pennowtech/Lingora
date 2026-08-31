@@ -8,6 +8,7 @@ import {
   getClozesForCard,
   getClozeState,
   getClustersForLemma,
+  getDeckById,
   getDefaultTemplate,
   getDistractorMeanings,
   getExamplesForCard,
@@ -580,12 +581,22 @@ export default function ReviewSessionScreen(): JSX.Element {
     enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
   })
 
-  // Mixed practice's per-card question type needs: the user's enabled types (Settings — see
-  // lib/reviewTypes.ts) and a shared pool of other cards' meanings to build true/false and
+  // Mixed practice's per-card question type needs: the enabled types for this session (the
+  // deck's own override if it was given one at creation — see Deck.enabledQuestionTypes and
+  // components/DeckPickerModal.tsx's "Create new deck" step — otherwise the user's global
+  // Settings preference) and a shared pool of other cards' meanings to build true/false and
   // multiple-choice wrong answers from. Both fetched once per session, not once per card.
   const enabledTypesQuery = useQuery({
-    queryKey: ['enabled-question-types'],
-    queryFn: getEnabledQuestionTypes,
+    queryKey: ['enabled-question-types', params.deckId],
+    queryFn: async () => {
+      if (params.deckId && params.deckId !== ALL_DECKS_ID) {
+        const deck = await getDeckById(db, params.deckId)
+        if (deck?.enabledQuestionTypes && deck.enabledQuestionTypes.length > 0) {
+          return deck.enabledQuestionTypes
+        }
+      }
+      return getEnabledQuestionTypes()
+    },
     enabled: mixedOnly,
   })
   const distractorScopeDeckId = params.deckId === ALL_DECKS_ID ? undefined : params.deckId

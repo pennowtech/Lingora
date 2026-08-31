@@ -16,7 +16,7 @@ import {
   SESSION_CARD_LIMIT_OPTIONS,
   setSessionCardLimit,
 } from '../../lib/reviewSession'
-import { ALL_QUESTION_TYPES, getEnabledQuestionTypes, QUESTION_TYPE_META, setEnabledQuestionTypes } from '../../lib/reviewTypes'
+import { ALL_QUESTION_TYPES, getEnabledQuestionTypes, QUESTION_TYPE_META, setEnabledQuestionTypes, toggleQuestionType } from '../../lib/reviewTypes'
 import {
   DEFAULT_NATIVE_LANGUAGE,
   DEFAULT_TARGET_LANGUAGE,
@@ -186,23 +186,21 @@ export default function LearningScreen(): JSX.Element {
     persist(STORE_KEYS.defaultCefr, level)
   }
 
-  // At least one type must stay enabled — otherwise Mixed practice would have nothing eligible to
-  // present and silently fall back to plain vocab every time (see pickEligibleTypes), which reads
-  // as the setting doing nothing rather than as a real constraint.
-  const toggleQuestionType = (questionType: QuestionType): void => {
-    const next =
-      enabledTypes.includes(questionType) && enabledTypes.length > 1
-        ? enabledTypes.filter((qt) => qt !== questionType)
-        : enabledTypes.includes(questionType)
-          ? enabledTypes
-          : [...enabledTypes, questionType]
+  // This is the global default, used whenever a deck has no review-modes override of its own
+  // (see Deck.enabledQuestionTypes, set at deck-creation time) - not the only place this can be
+  // configured any more, but still what every deck falls back to. At least one type must stay
+  // enabled here too — otherwise Mixed practice would have nothing eligible to present and
+  // silently fall back to plain vocab every time (see pickEligibleTypes), which reads as the
+  // setting doing nothing rather than as a real constraint.
+  const handleToggleQuestionType = (questionType: QuestionType): void => {
+    const next = toggleQuestionType(enabledTypes, questionType)
     setEnabledTypesState(next)
     void (async () => {
       await setEnabledQuestionTypes(next)
-      // Mixed practice is deck-agnostic (one global setting, not per-deck), so invalidating this
-      // one query key is what makes "the next Mixed practice session, on any deck" pick up the
-      // change — without it, review/[deckId].tsx's own ['enabled-question-types'] query could keep
-      // serving a cached pre-change value for up to its 30s staleTime.
+      // Invalidating this query key is what makes "the next Mixed practice session, on any deck
+      // with no override of its own" pick up the change — without it, review/[deckId].tsx's own
+      // ['enabled-question-types'] query could keep serving a cached pre-change value for up to
+      // its 30s staleTime.
       await queryClient.invalidateQueries({ queryKey: ['enabled-question-types'] })
     })()
   }
@@ -336,7 +334,7 @@ export default function LearningScreen(): JSX.Element {
                   ? { arrow: { from: t(meta.arrowFrom), to: t(meta.arrowTo) } }
                   : { label: t(meta.label) })}
                 selected={enabledTypes.includes(questionType)}
-                onPress={() => toggleQuestionType(questionType)}
+                onPress={() => handleToggleQuestionType(questionType)}
               />
             )
           })}

@@ -12,6 +12,7 @@ import type {
   Meaning,
   MeaningCluster,
   Phrase,
+  QuestionType,
   Synonym,
   WordGuideEntry,
 } from '@lingora/types'
@@ -634,10 +635,10 @@ export default function WordDetailScreen(): JSX.Element {
   // round-tripping through the Decks tab's own FAB — same card resolution as addToDeck above,
   // just with a deck-creation step first.
   const createDeckAndAdd = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       const cardId = await resolveTargetCardId(id)
       await addCardToDeck(db, id, cardId)
       return { cardId, deckName: name }
@@ -1673,7 +1674,7 @@ export default function WordDetailScreen(): JSX.Element {
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
         onSelectDeck={(deck) => addToDeck.mutate(deck)}
         selecting={addToDeck.isPending}
-        onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckAndAdd.mutate({ name, questionTypes })}
         creating={createDeckAndAdd.isPending}
         {...(addToDeck.isError && { selectError: String(addToDeck.error) })}
         {...(createDeckAndAdd.isError && { createError: String(createDeckAndAdd.error) })}

@@ -1,4 +1,4 @@
-import type { CaptureSource } from '@lingora/types'
+import type { CaptureSource, QuestionType } from '@lingora/types'
 import {
   createDeck,
   createMineEntry,
@@ -214,10 +214,10 @@ export default function MiningQueueScreen(): JSX.Element {
   // same silent-default-deck problem already fixed on Search and word/[form] earlier. Reuses the
   // same DeckPickerModal so all three "which deck?" moments in the app look and behave alike.
   const createDeckAndGenerate = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const now = Date.now()
       const deckId = crypto.randomUUID()
-      await createDeck(db, { id: deckId, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id: deckId, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return deckId
     },
     onSuccess: (deckId) => {
@@ -453,7 +453,7 @@ export default function MiningQueueScreen(): JSX.Element {
           generate.mutate(deck.id)
         }}
         selecting={generate.isPending}
-        onCreateDeck={(name) => createDeckAndGenerate.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckAndGenerate.mutate({ name, questionTypes })}
         creating={createDeckAndGenerate.isPending}
       />
     </View>

@@ -467,6 +467,19 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       let targetCardId = '';
 
       if (lemma) {
+        const targetDeck = await getDeckById(db, deckId);
+        const deckQuestionTypes = targetDeck?.enabledQuestionTypes || [...DEFAULT_ENABLED_QUESTION_TYPES];
+
+        // cards.type = 'cloze' makes getCardsDueForReview (vocab/reverse review) skip the card
+        // entirely (see that function's own doc comment: a cloze card has no example/translation
+        // to render as a plain flip card). A deck whose review modes are Cloze-only really does
+        // want that; a deck that ALSO reviews vocab/reverse needs the same card eligible for
+        // both, which only works if it stays 'basic' - the cloze content underneath (cloze_cards,
+        // created below) is what actually makes it reviewable as Cloze too, independent of this
+        // column. Only "CLOZE and nothing else enabled" ever persists type = 'cloze'.
+        const wantsClozeOnly = cardType.toUpperCase() === 'CLOZE' && deckQuestionTypes.every((t) => t === 'cloze');
+        const persistedType = wantsClozeOnly ? 'cloze' : (cardType.toUpperCase() === 'CLOZE' ? 'basic' : cardType.toLowerCase());
+
         // Check if a card already exists for this lemma in the cards table
         const existingCard = await db.querySingle<any>(
           `SELECT id FROM cards WHERE lemma_id = ? LIMIT 1`,
@@ -478,18 +491,18 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
           // Update the deck_id and type on the existing card
           await db.execute(
             `UPDATE cards SET deck_id = ?, type = ? WHERE id = ?`,
-            [deckId, cardType.toLowerCase(), targetCardId]
+            [deckId, persistedType, targetCardId]
           );
           // Link it to the deck
           await addCardToDeck(db, deckId, targetCardId);
         } else {
           targetCardId = `card-${Date.now()}`;
           const now = Date.now();
-          
+
           await db.execute(
             `INSERT INTO cards (id, lemma_id, deck_id, type, primary_meaning_id, created_at, updated_at, suspended_at, source, native_language)
              VALUES (?, ?, ?, ?, NULL, ?, ?, NULL, 'manual', ?)`,
-            [targetCardId, lemma.id, deckId, cardType.toLowerCase(), now, now, nativeLanguage]
+            [targetCardId, lemma.id, deckId, persistedType, now, now, nativeLanguage]
           );
 
           const initialState = createInitialCardState(targetCardId);
@@ -507,8 +520,7 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
         // deck's review modes are extended to cover it rather than silently rejecting the card
         // or leaving a mismatch the learner never asked for.
         if (cardType.toUpperCase() === 'CLOZE') {
-          const targetDeck = await getDeckById(db, deckId);
-          const current = targetDeck?.enabledQuestionTypes || [...DEFAULT_ENABLED_QUESTION_TYPES];
+          const current = deckQuestionTypes;
           if (!current.includes('cloze')) {
             await setDeckQuestionTypes(db, deckId, [...current, 'cloze']);
           }

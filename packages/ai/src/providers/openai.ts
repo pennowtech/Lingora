@@ -120,7 +120,11 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
     this.model = config.model ?? 'gpt-4.1-mini'
     this.baseUrl = (config.baseUrl ?? 'https://api.openai.com/v1').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis: a bare `fetch` reference called later as `this.fetchFn(...)` throws
+    // "Failed to execute 'fetch' on 'Window': Illegal invocation" in a real browser (native fetch
+    // is specified as a Window/WorkerGlobalScope method and enforces its receiver) - harmless in
+    // Node/React Native, which is why this only ever broke the desktop app, not mobile.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async generateWordPackage(

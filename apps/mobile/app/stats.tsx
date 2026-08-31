@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import {
   getDifficultWords,
   getRetentionRate,
@@ -17,9 +16,10 @@ import { router } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon } from '../components/Icon'
 import { Card, EmptyState, ErrorState, SectionHeader, Spinner } from '../components/ui'
 import { useServices } from '../lib/services'
-import { buildHeatmap, streakFromDayIndexes } from '../lib/stats'
+import { buildHeatmap, streakFromDayIndexes } from '@lingora/core'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -87,7 +87,7 @@ export default function StatsScreen(): JSX.Element {
   if (!hasAnyActivity) {
     return (
       <EmptyState
-        icon="stats-chart-outline"
+        icon="ChartColumn"
         title={t('No stats yet')}
         message={t('Add and review some words to see your learning statistics here.')}
       />
@@ -101,7 +101,6 @@ export default function StatsScreen(): JSX.Element {
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>{Math.round(stats.retention30d * 100)}%</Text>
           <Text style={styles.gridLabel}>{t('remembered (30 d)')}</Text>
-          <Text style={styles.gridHint}>{t('How often you recalled a word correctly')}</Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>🔥 {stats.streakDays}</Text>
@@ -194,7 +193,7 @@ export default function StatsScreen(): JSX.Element {
                   <Text style={styles.lapsesLabel}>{t('{{count}} lapses', { count: word.lapses })}</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              <Icon name="ChevronRight" size={16} color={colors.textMuted} />
             </Pressable>
           ))}
         </Card>

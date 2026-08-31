@@ -1,43 +1,51 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { LanguageCode } from '@lingora/types'
 import { VoiceQuality, type Voice } from 'expo-speech'
 import { Stack } from 'expo-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
 import { AlertModal, Button, Card, Chip, Dropdown, IconButton, Spinner } from '../../components/ui'
 import * as SecureStore from 'expo-secure-store'
 import {
   AUDIO_PROVIDERS,
   AUDIO_PROVIDER_META,
+  AUDIO_PROVIDER_USAGE_URL,
   AUDIO_SPEED_OPTIONS,
   AUDIO_STORE_KEYS,
   CLOUD_AUDIO_PROVIDERS,
+  CloudTtsError,
   DEFAULT_AUDIO_SPEED,
+  ELEVENLABS_DEFAULT_MODEL,
+  ELEVENLABS_MODELS,
+  fetchProviderVoices,
+  GOOGLE_TTS_VOICES_BY_LANGUAGE,
   getDefaultCloudVoice,
   OPENAI_RECOMMENDED_VOICES,
   OPENAI_TTS_VOICES,
   SPEED_CAPABLE_PROVIDERS,
   type AudioProviderName,
   type CloudAudioProviderName,
-} from '../../lib/audioProviderMeta'
+  type ProviderVoiceOption,
+} from '@lingora/core'
 import { validateAudioProviderKey } from '../../lib/audioProviderValidation'
-import { fetchProviderVoices, type ProviderVoiceOption } from '../../lib/audioProviderVoices'
 import { playCloudSpeech, stopCloudSpeech } from '../../lib/cloudTts'
-import { CloudTtsError } from '../../lib/cloudTtsProviders'
 import { speak } from '../../lib/speech'
 import { useServices } from '../../lib/services'
 import {
+  clearCloudAudioUsage,
   DEFAULT_TTS_PITCH,
   DEFAULT_TTS_RATE,
   getAudioProvider,
   getAvailableVoices,
   getCloudAudioConfig,
+  getCloudAudioUsage,
   getTtsSettings,
   setAudioProvider,
   setCloudAudioKey,
+  setCloudAudioModel,
   setCloudAudioSpeed,
   setCloudAudioVoice,
   setTtsPitch,
@@ -81,7 +89,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'overview',
     title: 'How Audio Settings works',
-    icon: 'information-circle',
+    icon: 'Info',
     paragraphs: [
       'Every speaker button in the app uses whichever engine is marked Active below.',
       'Cloud providers are bring-your-own-key - nothing is sent to them until you tap a speaker icon or press Test.',
@@ -91,7 +99,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'test',
     title: 'Testing a voice',
-    icon: 'volume-high',
+    icon: 'Volume2',
     paragraphs: [
       '"Test active engine" plays the Test phrase through whichever engine is marked Active - the same thing any real speaker button in the app does.',
       'Each provider\'s own "Test this provider" button plays through that card\'s current key/voice/speed directly, regardless of which engine is Active - use it to check a setup before switching to it.',
@@ -100,7 +108,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'device',
     title: 'Device (built-in)',
-    icon: 'phone-portrait',
+    icon: 'Smartphone',
     paragraphs: [
       'Uses your phone\'s own text-to-speech engine - offline, free, no API key.',
       'The voice list follows whatever language is set under Settings > Learning > "I\'m learning".',
@@ -110,7 +118,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'openai',
     title: 'OpenAI',
-    icon: 'sparkles',
+    icon: 'Sparkles',
     paragraphs: [
       'gpt-4o-mini-tts. Marin and Cedar (★) are OpenAI\'s newest, most natural-sounding voices.',
       'If Validate says a project doesn\'t have access to gpt-4o-mini-tts, but the model works fine on platform.openai.com, your API key is scoped to a specific OpenAI Project that hasn\'t enabled it.',
@@ -121,7 +129,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'elevenlabs',
     title: 'ElevenLabs',
-    icon: 'mic',
+    icon: 'Mic',
     paragraphs: [
       'eleven_multilingual_v2. Once your key is entered, choose from your own ElevenLabs voice library, or switch to manual entry to paste a voice ID directly.',
       'If no voice is picked, a known-good multilingual default voice is used automatically.',
@@ -130,7 +138,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'deepgram',
     title: 'Deepgram',
-    icon: 'radio',
+    icon: 'Radio',
     paragraphs: [
       'Aura-2. Once your key is entered, choose from Deepgram\'s available models, or switch to manual entry to enter a model name directly (see Deepgram\'s docs for exact names).',
       'If no model is picked, a default is chosen to match whatever language is set under Settings > Learning > "I\'m learning" (English, German, Spanish, or French) - other languages fall back to an English voice until you pick one manually.',
@@ -142,17 +150,22 @@ interface CloudProviderFormState {
   apiKey: string
   voice: string
   speed: number
+  /** Only meaningful for ElevenLabs (ELEVENLABS_MODELS) — empty string for every other provider. */
+  model: string
 }
 
-const EMPTY_CLOUD_PROVIDER: CloudProviderFormState = { apiKey: '', voice: '', speed: DEFAULT_AUDIO_SPEED }
+const EMPTY_CLOUD_PROVIDER: CloudProviderFormState = { apiKey: '', voice: '', speed: DEFAULT_AUDIO_SPEED, model: '' }
+const ZERO_AUDIO_USAGE = { requestsCount: 0, charactersUsed: 0 }
 
 /**
  * Audio Settings: which engine speaks (device or a cloud TTS provider — see
  * lib/audioProviderMeta.ts, lib/cloudTts.ts) plus per-provider configuration. Every speaker button
  * reads the active provider through lib/speech.ts#speak(), so switching it here changes
- * pronunciation everywhere uniformly rather than per screen. Cloud provider cards mirror
- * Settings > AI Providers' layout (expand/collapse, show/hide key, validate, clear, active toggle)
- * for a consistent provider-management pattern across the app.
+ * pronunciation everywhere uniformly rather than per screen.
+ *
+ * Layout mirrors Settings > AI Providers (and the desktop app's own Pronunciation tab): a grid of
+ * compact engine cards up top (tap to preview + activate) and a single detail box below for
+ * whichever card was tapped, instead of an always-rendered accordion row per engine.
  */
 export default function AudioSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
@@ -163,7 +176,6 @@ export default function AudioSettingsScreen(): JSX.Element {
   const [testing, setTesting] = useState(false)
 
   const [activeProvider, setActiveProviderState] = useState<AudioProviderName>('device')
-  const [loaded, setLoaded] = useState(false)
   const [expandedProvider, setExpandedProvider] = useState<AudioProviderName | null>(null)
   const [showKey, setShowKey] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
   const [validating, setValidating] = useState<Partial<Record<CloudAudioProviderName, boolean>>>({})
@@ -179,12 +191,19 @@ export default function AudioSettingsScreen(): JSX.Element {
     openai: EMPTY_CLOUD_PROVIDER,
     elevenlabs: EMPTY_CLOUD_PROVIDER,
     deepgram: EMPTY_CLOUD_PROVIDER,
+    google: EMPTY_CLOUD_PROVIDER,
+  })
+  const [audioUsage, setAudioUsage] = useState<Record<CloudAudioProviderName, { requestsCount: number; charactersUsed: number }>>({
+    openai: ZERO_AUDIO_USAGE,
+    elevenlabs: ZERO_AUDIO_USAGE,
+    deepgram: ZERO_AUDIO_USAGE,
+    google: ZERO_AUDIO_USAGE,
   })
   const help = useHelpAccordion('overview')
 
   useEffect(() => {
     const load = async (): Promise<void> => {
-      const [provider, entries, validatedEntries] = await Promise.all([
+      const [provider, entries, validatedEntries, usageEntries] = await Promise.all([
         getAudioProvider(),
         Promise.all(CLOUD_AUDIO_PROVIDERS.map(async (name) => [name, await getCloudAudioConfig(name)] as const)),
         Promise.all(
@@ -193,7 +212,13 @@ export default function AudioSettingsScreen(): JSX.Element {
             return [name, validatedKey] as const
           }),
         ),
+        Promise.all(CLOUD_AUDIO_PROVIDERS.map(async (name) => [name, await getCloudAudioUsage(name)] as const)),
       ])
+      setAudioUsage((prev) => {
+        const next = { ...prev }
+        for (const [name, usage] of usageEntries) next[name] = usage
+        return next
+      })
       setCloudProviders((prev) => {
         const next = { ...prev }
         for (const [name, config] of entries) next[name] = config
@@ -215,7 +240,6 @@ export default function AudioSettingsScreen(): JSX.Element {
       const resolvedProvider = stillConfigured ? provider : 'device'
       setActiveProviderState(resolvedProvider)
       if (resolvedProvider !== provider) void setAudioProvider(resolvedProvider)
-      setLoaded(true)
     }
     void load()
   }, [])
@@ -284,11 +308,15 @@ export default function AudioSettingsScreen(): JSX.Element {
     updateCloudProvider(name, { speed: value })
     void setCloudAudioSpeed(name, value)
   }
+  const changeModel = (name: CloudAudioProviderName, value: string): void => {
+    updateCloudProvider(name, { model: value })
+    void setCloudAudioModel(name, value)
+  }
   const validate = (name: CloudAudioProviderName): void => {
-    const { apiKey, voice, speed } = cloudProviders[name]
+    const { apiKey, voice, speed, model } = cloudProviders[name]
     if (!apiKey.trim()) return
     setValidating((prev) => ({ ...prev, [name]: true }))
-    void validateAudioProviderKey(name, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
+    void validateAudioProviderKey(name, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed, model || undefined)
       .then((result) => {
         if (result.ok) {
           void SecureStore.setItemAsync(AUDIO_STORE_KEYS[name].validatedKey, apiKey.trim())
@@ -314,11 +342,11 @@ export default function AudioSettingsScreen(): JSX.Element {
    * including its silent fallback-to-device) — this one is for checking a provider's own
    * configuration directly, and surfaces the real error instead of silently falling back. */
   const testCloudProvider = (name: CloudAudioProviderName): void => {
-    const { apiKey, voice, speed } = cloudProviders[name]
+    const { apiKey, voice, speed, model } = cloudProviders[name]
     if (!apiKey.trim()) return
     stopCloudSpeech()
     setTestingCloud((prev) => ({ ...prev, [name]: true }))
-    void playCloudSpeech(name, sampleText, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed)
+    void playCloudSpeech(name, sampleText, apiKey, getDefaultCloudVoice(name, targetLanguage, voice), speed, model || undefined)
       .catch((error: unknown) => {
         setNotice({
           title: t('{{provider}} playback failed', { provider: t(AUDIO_PROVIDER_META[name].label) }),
@@ -332,6 +360,7 @@ export default function AudioSettingsScreen(): JSX.Element {
     updateCloudProvider(name, { apiKey: '' })
     void setCloudAudioKey(name, '')
     invalidateCloudKey(name)
+    void clearCloudAudioUsage(name).then(() => setAudioUsage((prev) => ({ ...prev, [name]: ZERO_AUDIO_USAGE })))
     // Can't leave the active engine without a key — Device is always the fallback.
     if (activeProvider === name) changeActiveProvider('device')
   }
@@ -342,6 +371,14 @@ export default function AudioSettingsScreen(): JSX.Element {
     setTimeout(() => setTesting(false), 2000)
   }
 
+  const gridModelLabel = (name: AudioProviderName): string => {
+    if (name === 'device') return deviceSettings.voice ?? t('Device default')
+    const cloud = cloudProviders[name]
+    if (name === 'openai') return cloud.voice || 'marin'
+    if (name === 'elevenlabs') return cloud.model || ELEVENLABS_DEFAULT_MODEL
+    return getDefaultCloudVoice(name, targetLanguage, cloud.voice)
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {/* Help lives in the native header, next to the "Audio Settings" title (set by
@@ -350,65 +387,114 @@ export default function AudioSettingsScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
           ),
         }}
       />
-      <Text style={styles.fieldLabel}>{t('Speech engine')}</Text>
-      <Card style={styles.providerCard}>
-        {AUDIO_PROVIDERS.map((name) => (
-          <AudioProviderCard
-            key={name}
-            name={name}
-            active={activeProvider === name}
-            loaded={loaded}
-            expanded={expandedProvider === name}
-            targetLanguage={targetLanguage}
-            onToggleExpanded={() => setExpandedProvider((prev) => (prev === name ? null : name))}
-            onActivate={() => changeActiveProvider(name)}
-            onOpenHelp={() => help.openSection(name)}
-            device={
-              name === 'device'
-                ? {
-                    settings: deviceSettings,
-                    voices,
-                    voicesLoading: voicesQuery.isPending,
-                    onChangeRate: handleRate,
-                    onChangePitch: handlePitch,
-                    onChangeVoice: handleVoice,
-                  }
-                : undefined
-            }
-            cloud={
-              name !== 'device'
-                ? {
-                    state: cloudProviders[name],
-                    showKey: showKey[name] ?? false,
-                    validating: validating[name] ?? false,
-                    validated: validated[name] ?? false,
-                    testing: testingCloud[name] ?? false,
-                    onToggleShowKey: () => setShowKey((prev) => ({ ...prev, [name]: !prev[name] })),
-                    onChangeApiKey: (value) => changeApiKey(name, value),
-                    onChangeVoice: (value) => changeVoice(name, value),
-                    onChangeSpeed: (value) => changeSpeed(name, value),
-                    onValidate: () => validate(name),
-                    onClearKey: () => clearKey(name),
-                    onTest: () => testCloudProvider(name),
-                    ...(name in voiceOptionsQueries && {
-                      voiceOptions: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].data ?? [],
-                      voiceOptionsLoading: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].isFetching,
-                      voiceEntryMode: voiceEntryMode[name],
-                      onToggleVoiceEntryMode: () =>
-                        setVoiceEntryMode((prev) => ({
-                          ...prev,
-                          [name]: prev[name] === 'manual' ? 'picker' : 'manual',
-                        })),
-                    }),
-                  }
-                : undefined
-            }
-          />
-        ))}
+
+      <Card>
+        <Text style={styles.sectionTitle}>{t('Speech engine')}</Text>
+        <Text style={styles.sectionSubtitle}>
+          {t('Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.')}
+        </Text>
+        <View style={styles.grid}>
+          {AUDIO_PROVIDERS.map((name) => {
+            const meta = AUDIO_PROVIDER_META[name]
+            const hasKey = name === 'device' ? true : cloudProviders[name].apiKey.trim() !== ''
+            const isValidated = name === 'device' ? true : (validated[name] ?? false)
+            const canActivate = name === 'device' || hasKey
+            const isActive = name === activeProvider
+            const isPreviewed = expandedProvider === name
+            return (
+              <View key={name}>
+                <Pressable
+                  testID={`audio-grid-${name}`}
+                  style={[styles.gridCard, isPreviewed && styles.gridCardPreviewed]}
+                  onPress={() => {
+                    if (canActivate) changeActiveProvider(name)
+                    setExpandedProvider((prev) => (prev === name ? null : name))
+                  }}
+                >
+                  <View style={styles.gridCardIcon}>
+                    <Icon name={meta.icon as IconName} size={20} color={colors.primary} />
+                  </View>
+                  <View style={styles.gridCardBody}>
+                    <View style={styles.gridCardHeader}>
+                      <Text style={styles.gridCardLabel} numberOfLines={1}>{t(meta.label)}</Text>
+                      {isActive ? (
+                        <View style={styles.activeBadge}>
+                          <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <Text style={styles.gridCardModel} numberOfLines={1}>{t('Voice')}: {gridModelLabel(name)}</Text>
+                    <Text
+                      style={[
+                        styles.gridCardStatus,
+                        isValidated && styles.gridCardStatusSuccess,
+                        hasKey && !isValidated && styles.gridCardStatusWarning,
+                      ]}
+                    >
+                      {name === 'device' ? t('Always available') : isValidated ? t('Validated') : hasKey ? t('Key configured') : t('No key set')}
+                    </Text>
+                  </View>
+                  <Icon name={isPreviewed ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
+                </Pressable>
+
+                {isPreviewed ? (
+                  <ProviderDetailBody
+                    name={name}
+                    active={isActive}
+                    targetLanguage={targetLanguage}
+                    onOpenHelp={() => help.openSection(name)}
+                    device={
+                      name === 'device'
+                        ? {
+                            settings: deviceSettings,
+                            voices,
+                            voicesLoading: voicesQuery.isPending,
+                            onChangeRate: handleRate,
+                            onChangePitch: handlePitch,
+                            onChangeVoice: handleVoice,
+                          }
+                        : undefined
+                    }
+                    cloud={
+                      name !== 'device'
+                        ? {
+                            state: cloudProviders[name],
+                            showKey: showKey[name] ?? false,
+                            validating: validating[name] ?? false,
+                            validated: validated[name] ?? false,
+                            testing: testingCloud[name] ?? false,
+                            onToggleShowKey: () => setShowKey((prev) => ({ ...prev, [name]: !prev[name] })),
+                            onChangeApiKey: (value) => changeApiKey(name, value),
+                            onChangeVoice: (value) => changeVoice(name, value),
+                            onChangeSpeed: (value) => changeSpeed(name, value),
+                            onChangeModel: (value) => changeModel(name, value),
+                            onValidate: () => validate(name),
+                            onClearKey: () => clearKey(name),
+                            onTest: () => testCloudProvider(name),
+                            usage: audioUsage[name],
+                            ...(name in voiceOptionsQueries && {
+                              voiceOptions: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].data ?? [],
+                              voiceOptionsLoading: voiceOptionsQueries[name as keyof typeof voiceOptionsQueries].isFetching,
+                              voiceEntryMode: voiceEntryMode[name],
+                              onToggleVoiceEntryMode: () =>
+                                setVoiceEntryMode((prev) => ({
+                                  ...prev,
+                                  [name]: prev[name] === 'manual' ? 'picker' : 'manual',
+                                })),
+                            }),
+                          }
+                        : undefined
+                    }
+                  />
+                ) : null}
+              </View>
+            )
+          })}
+        </View>
       </Card>
 
       <Card>
@@ -425,7 +511,7 @@ export default function AudioSettingsScreen(): JSX.Element {
 
       <Button
         label={testing ? t('Playing...') : t('Test active engine')}
-        icon="volume-high"
+        icon="Volume2"
         variant="secondary"
         onPress={handleTest}
         disabled={testing}
@@ -452,14 +538,12 @@ export default function AudioSettingsScreen(): JSX.Element {
   )
 }
 
-function AudioProviderCard(props: {
+/** The single config box for whichever engine's grid card was tapped — mirrors ai-providers.tsx's
+ * own ProviderDetailCard and the desktop app's Pronunciation tab. */
+function ProviderDetailBody(props: {
   name: AudioProviderName
   active: boolean
-  loaded: boolean
-  expanded: boolean
   targetLanguage: LanguageCode
-  onToggleExpanded: () => void
-  onActivate: () => void
   onOpenHelp: () => void
   device?:
     | {
@@ -482,6 +566,7 @@ function AudioProviderCard(props: {
         onChangeApiKey: (value: string) => void
         onChangeVoice: (value: string) => void
         onChangeSpeed: (value: number) => void
+        onChangeModel: (value: string) => void
         onValidate: () => void
         onClearKey: () => void
         onTest: () => void
@@ -489,59 +574,26 @@ function AudioProviderCard(props: {
         voiceOptionsLoading?: boolean
         voiceEntryMode?: 'picker' | 'manual'
         onToggleVoiceEntryMode?: () => void
+        usage: { requestsCount: number; charactersUsed: number }
       }
     | undefined
 }): JSX.Element {
-  const { name, active, expanded } = props
+  const { name } = props
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const meta = AUDIO_PROVIDER_META[name]
   const hasKey = props.cloud ? props.cloud.state.apiKey.trim() !== '' : true
-  const canActivate = name === 'device' || hasKey
   const speedCapable = (SPEED_CAPABLE_PROVIDERS as readonly string[]).includes(name)
 
   return (
-    <View style={styles.providerBlock}>
-      {/* Switch kept as a sibling of the expand-toggle Pressable — see ai-providers.tsx's
-          ProviderCard for why a Switch nested inside a Pressable is an Android touch-target bug. */}
-      <View style={styles.providerHeader}>
-        <Pressable testID={`audio-provider-header-${name}`} style={styles.providerHeaderMain} onPress={props.onToggleExpanded}>
-          <View style={styles.providerIcon}>
-            <Ionicons name={meta.icon} size={18} color={colors.primary} />
-          </View>
-          <View style={styles.optionText}>
-            <View style={styles.providerNameRow}>
-              <Text style={styles.optionLabel}>{t(meta.label)}</Text>
-              {active ? (
-                <View style={styles.activeBadge}>
-                  <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
-                </View>
-              ) : null}
-            </View>
-            <Text style={styles.optionDetail}>{t(meta.description)}</Text>
-          </View>
-        </Pressable>
-        <IconButton
-          testID={`audio-provider-help-${name}`}
-          icon="help-circle-outline"
-          size={20}
-          onPress={props.onOpenHelp}
-        />
-        <Switch
-          testID={`audio-provider-toggle-${name}`}
-          value={active}
-          onValueChange={(value) => {
-            if (value) props.onActivate()
-          }}
-          disabled={active || !canActivate}
-        />
-        <Pressable onPress={props.onToggleExpanded} hitSlop={8}>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-        </Pressable>
+    <View style={styles.detailPanel}>
+      <View style={styles.detailHeader}>
+        <Text style={styles.optionDetail}>{t(meta.description)}</Text>
+        <IconButton testID={`audio-provider-help-${name}`} icon="CircleQuestionMark" size={20} onPress={props.onOpenHelp} />
       </View>
 
-      {expanded && props.device ? (
+      {props.device ? (
         <View style={styles.providerBody}>
           <Text style={styles.fieldLabel}>{t('Speaking rate')}</Text>
           <View style={styles.chipRow}>
@@ -586,7 +638,7 @@ function AudioProviderCard(props: {
         </View>
       ) : null}
 
-      {expanded && props.cloud ? (
+      {props.cloud ? (
         <View style={styles.providerBody}>
           <View style={styles.keyInputWrap}>
             <TextInput
@@ -607,12 +659,12 @@ function AudioProviderCard(props: {
               onPress={props.cloud.onToggleShowKey}
               style={styles.keyInputEye}
             >
-              <Ionicons name={props.cloud.showKey ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textSecondary} />
+              <Icon name={props.cloud.showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
             </Pressable>
           </View>
 
           <Text style={[styles.fieldLabel, styles.fieldSpacing]}>
-            {name === 'openai' ? t('Voice') : name === 'elevenlabs' ? t('Voice') : t('Model')}
+            {name === 'openai' ? t('Voice') : name === 'elevenlabs' ? t('Voice') : name === 'google' ? t('Voice') : t('Model')}
           </Text>
           {name === 'openai' ? (
             <View style={styles.chipRow}>
@@ -625,6 +677,18 @@ function AudioProviderCard(props: {
                 />
               ))}
             </View>
+          ) : name === 'google' ? (
+            (() => {
+              const languageVoices = GOOGLE_TTS_VOICES_BY_LANGUAGE[props.targetLanguage]
+              const current = props.cloud?.state.voice || languageVoices.neural2
+              return (
+                <View style={styles.chipRow}>
+                  <Chip label={`Neural2 (${languageVoices.neural2})`} selected={current === languageVoices.neural2} onPress={() => props.cloud?.onChangeVoice(languageVoices.neural2)} />
+                  <Chip label={`WaveNet (${languageVoices.wavenet})`} selected={current === languageVoices.wavenet} onPress={() => props.cloud?.onChangeVoice(languageVoices.wavenet)} />
+                  <Chip label={`Standard (${languageVoices.standard})`} selected={current === languageVoices.standard} onPress={() => props.cloud?.onChangeVoice(languageVoices.standard)} />
+                </View>
+              )
+            })()
           ) : (
             (() => {
               const fetched = props.cloud?.voiceOptions ?? []
@@ -675,6 +739,22 @@ function AudioProviderCard(props: {
             })()
           )}
 
+          {name === 'elevenlabs' ? (
+            <>
+              <Text style={[styles.fieldLabel, styles.fieldSpacing]}>{t('Model')}</Text>
+              <View style={styles.chipRow}>
+                {ELEVENLABS_MODELS.map((model) => (
+                  <Chip
+                    key={model}
+                    label={model}
+                    selected={(props.cloud?.state.model || ELEVENLABS_DEFAULT_MODEL) === model}
+                    onPress={() => props.cloud?.onChangeModel(model)}
+                  />
+                ))}
+              </View>
+            </>
+          ) : null}
+
           {speedCapable ? (
             <>
               <Text style={[styles.fieldLabel, styles.fieldSpacing]}>{t('Speaking speed')}</Text>
@@ -708,7 +788,7 @@ function AudioProviderCard(props: {
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : props.cloud.validated ? (
                 <View style={styles.validatedRow}>
-                  <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+                  <Icon name="CircleCheck" size={15} color={colors.success} />
                   <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
                 </View>
               ) : (
@@ -733,6 +813,17 @@ function AudioProviderCard(props: {
               )}
             </Pressable>
           </View>
+
+          <View style={styles.usageBox}>
+            <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
+            <Text style={styles.usageDetail}>
+              {t('{{count}} requests', { count: props.cloud.usage.requestsCount.toLocaleString() })} ·{' '}
+              {t('{{count}} characters', { count: props.cloud.usage.charactersUsed.toLocaleString() })}
+            </Text>
+            <Pressable onPress={() => void Linking.openURL(AUDIO_PROVIDER_USAGE_URL[name as CloudAudioProviderName])}>
+              <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
+            </Pressable>
+          </View>
         </View>
       ) : null}
     </View>
@@ -742,27 +833,58 @@ function AudioProviderCard(props: {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
-    providerCard: { gap: 0 },
-    providerBlock: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.md, paddingTop: spacing.md },
-    providerHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    providerHeaderMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    providerIcon: {
-      width: 34,
-      height: 34,
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.xl },
+    sectionTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+    sectionSubtitle: { fontSize: type.caption, color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg, lineHeight: 19 },
+    grid: { gap: spacing.md },
+    gridCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      backgroundColor: colors.surface,
+    },
+    gridCardPreviewed: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primarySoft,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      borderBottomWidth: 0,
+    },
+    gridCardIcon: {
+      width: 44,
+      height: 44,
       borderRadius: radius.md,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.primarySoft,
     },
-    providerNameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 1 },
+    gridCardBody: { flex: 1, gap: 3 },
+    gridCardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    gridCardLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, flexShrink: 1 },
+    gridCardModel: { fontSize: type.caption, color: colors.textSecondary },
+    gridCardStatus: { fontSize: type.caption, color: colors.textMuted },
+    gridCardStatusSuccess: { color: colors.success },
+    gridCardStatusWarning: { color: colors.warning },
+    detailPanel: {
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderColor: colors.primary,
+      borderBottomLeftRadius: radius.lg,
+      borderBottomRightRadius: radius.lg,
+      backgroundColor: colors.background,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.lg,
+    },
+    detailHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.sm, paddingTop: spacing.md },
+    activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
     activeBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.success },
-    providerBody: { marginTop: spacing.md, gap: spacing.sm },
+    providerBody: { marginTop: spacing.md, gap: spacing.md },
     providerActionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
-    optionText: { flex: 1 },
-    optionLabel: { fontSize: type.body, fontWeight: '600', color: colors.text },
-    optionDetail: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
+    optionDetail: { flex: 1, fontSize: type.caption, color: colors.textMuted, lineHeight: 18 },
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
     fieldSpacing: { marginTop: spacing.md },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
@@ -795,4 +917,8 @@ const createStyles = (colors: ThemeColors) =>
     secondaryButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
     validatedRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     testButton: { marginTop: spacing.md },
+    usageBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.md, padding: spacing.lg, gap: 4, marginTop: spacing.sm },
+    usageLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textSecondary },
+    usageDetail: { fontSize: type.caption, color: colors.textSecondary },
+    usageLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, marginTop: 2 },
   })

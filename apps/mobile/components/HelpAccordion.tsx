@@ -1,6 +1,7 @@
-import { Ionicons } from '@expo/vector-icons'
 import { useState, type JSX } from 'react'
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon, type IconName } from './Icon'
+import { InlineMarkdown } from './InlineMarkdown'
 import { Card, IconButton } from './ui'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -34,7 +35,7 @@ export interface HelpParagraph {
 export interface HelpSection {
   id: string
   title: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   /** Plain strings render as regular paragraphs — use `HelpParagraph` only where a paragraph
    * needs the code style. */
   paragraphs: (string | HelpParagraph)[]
@@ -83,7 +84,7 @@ export function HelpAccordionSheet(props: {
         <View style={styles.sheet}>
           <View style={styles.header}>
             <Text style={styles.title}>{t(props.title)}</Text>
-            <IconButton icon="close" onPress={props.onClose} />
+            <IconButton icon="X" onPress={props.onClose} />
           </View>
           <ScrollView>
             {props.sections.map((section) => {
@@ -92,20 +93,32 @@ export function HelpAccordionSheet(props: {
                 <View key={section.id} style={styles.accordionItem}>
                   <Card onPress={() => props.onSectionPress(section.id)} style={styles.accordionHeader}>
                     <View style={styles.accordionHeaderRow}>
-                      <Ionicons name={section.icon} size={18} color={colors.primary} />
+                      <Icon name={section.icon} size={18} color={colors.primary} />
                       <Text style={styles.sectionTitle}>{t(section.title)}</Text>
                       <View style={styles.accordionSpacer} />
-                      <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+                      <Icon name={isOpen ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
                     </View>
                   </Card>
                   {isOpen ? (
                     <View style={styles.accordionBody}>
                       {section.paragraphs.map((paragraph, index) => {
                         const p = typeof paragraph === 'string' ? { text: paragraph } : paragraph
+                        if (p.code) {
+                          return (
+                            <Text key={index} style={styles.code}>
+                              {t(p.text)}
+                            </Text>
+                          )
+                        }
                         return (
-                          <Text key={index} style={[p.code ? styles.code : styles.body, p.bold && styles.bold]}>
-                            {t(p.text)}
-                          </Text>
+                          <InlineMarkdown
+                            key={index}
+                            text={t(p.text)}
+                            style={[styles.body, p.bold && styles.bold]}
+                            boldStyle={styles.inlineBold}
+                            italicStyle={styles.inlineItalic}
+                            codeStyle={styles.inlineCode}
+                          />
                         )
                       })}
                     </View>
@@ -149,5 +162,15 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primarySoft,
       borderRadius: radius.sm,
       padding: spacing.sm,
+    },
+    // Inline markdown spans within an ordinary paragraph (see InlineMarkdown) — **bold**, *italic*,
+    // `code` — separate from the code/bold above, which style an entire paragraph at once.
+    inlineBold: { fontWeight: '800', color: colors.text },
+    inlineItalic: { fontStyle: 'italic' },
+    inlineCode: {
+      fontFamily: 'monospace',
+      backgroundColor: colors.primarySoft,
+      color: colors.primary,
+      fontSize: type.micro,
     },
   })

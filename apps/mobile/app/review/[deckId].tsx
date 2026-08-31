@@ -1,40 +1,28 @@
-import type { Card as CardRow, CardState, LanguageCode, QuestionType, ReviewRating, Synonym, Template, WordGuideEntry } from '@lingora/types'
+import type { QuestionType, ReviewRating, Template, WordGuideEntry } from '@lingora/types'
 import {
-  getCardById,
-  getCardsByLemma,
-  getCardsDueForReview,
-  getCardState,
-  getClozeCardsDueForReview,
-  getClozesForCard,
-  getClozeState,
-  getClustersForLemma,
+  getDeckById,
   getDefaultTemplate,
   getDistractorMeanings,
-  getExamplesForCard,
-  getLemmaById,
-  getMeaningsForCard,
-  getPhrasesForCard,
-  getSynonymsForCard,
   getWordGuide,
+  loadReviewQueue,
   recordClozeReview,
   recordReview,
   revealClozeSentence,
   updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
-  type DatabaseAdapter,
 } from '@lingora/database'
-import { createInitialCardState, schedule } from '@lingora/srs'
+import { schedule } from '@lingora/srs'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Icon } from '../../components/Icon'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
 import { MultipleChoiceQuestion } from '../../components/MultipleChoiceQuestion'
@@ -53,7 +41,6 @@ import {
 } from '../../components/ui'
 import { speak } from '../../lib/speech'
 import {
-  buildCardContext,
   CLOZE_BACK_TEMPLATE,
   CLOZE_FRONT_TEMPLATE,
   CLOZE_STYLES,
@@ -61,8 +48,8 @@ import {
   DEFAULT_FRONT_TEMPLATE,
   DEFAULT_STYLES,
   renderCardHtml,
-  type CardTemplateContext,
-} from '../../lib/templates'
+  AI_GENERATED_SOURCES,
+} from '@lingora/core'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { getSessionCardLimit } from '../../lib/reviewSession'
 import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
@@ -72,9 +59,6 @@ import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'srs', screen: 'ReviewSessionScreen' })
-
-/** Cards created by one of the AI providers — see word/[form].tsx's identical constant. */
-const AI_SOURCES = ['openai', 'mistral', 'gemini', 'anthropic', 'local']
 
 const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
   { rating: 'again', label: 'Again' },
@@ -227,190 +211,6 @@ function SwipeableCard(props: {
       </Animated.View>
     </GestureDetector>
   )
-}
-
-/** One review-ready card: its FSRS state plus enough content to render front/back. */
-interface ReviewCard {
-  card: CardRow
-  cardState: CardState
-  form: string
-  language: LanguageCode
-  meta: string
-  meaningId: string | null
-  meaning: string | null
-  explanation: string | null
-  usage: string | null
-  partOfSpeech: string
-  synonyms: Synonym[]
-  /** The meaning's own cluster — needed to call ai.generateMeaning() for an on-demand explanation. */
-  clusterRef: { label: string; description: string } | null
-  /** The same cluster's id and persisted "More info" paragraphs (see MeaningCluster.moreInfo) —
-   * kept separate from clusterRef since most callers only need label/description. */
-  clusterId: string | null
-  moreInfo: string[] | null
-  exampleId: string | null
-  example: string | null
-  exampleTranslation: string | null
-  clozeSentence: string | null
-  clozeAnswer: string | null
-  /** The full render context for the LiquidJS template renderer — see lib/templates.ts. */
-  templateContext: CardTemplateContext
-  /** Only set in single-card mode (see cardId below) — whether this word has content for the
-   * *other* view too, so the card-preview header can offer a toggle. A CSV/Anki import can put
-   * word-meaning and cloze content on two separate sibling cards of the same lemma rather than
-   * one (see import-shared.ts#importRow), so "does the other view exist" isn't always answerable
-   * from this one card alone — hasVocabVariant/hasClozeVariant already account for that. */
-  hasVocabVariant?: boolean
-  hasClozeVariant?: boolean
-}
-
-/** Builds one ReviewCard from an already-resolved card row — the per-card body shared by the due
- * queue and the single-card preview (see loadReviewQueue below). */
-async function loadCardView(db: DatabaseAdapter, card: CardRow, clozeOnly: boolean): Promise<ReviewCard | null> {
-  const lemma = await getLemmaById(db, card.lemmaId)
-  if (!lemma) return null
-
-  const [meanings, examples, clozes, synonyms, phrases, cardState, clusters] = await Promise.all([
-    getMeaningsForCard(db, card.id),
-    getExamplesForCard(db, card.id),
-    getClozesForCard(db, card.id),
-    getSynonymsForCard(db, card.id),
-    getPhrasesForCard(db, card.id),
-    clozeOnly ? getClozeState(db, card.id) : getCardState(db, card.id),
-    getClustersForLemma(db, card.lemmaId),
-  ])
-  const cloze = clozes[0]
-
-  // Same selection buildCardContext uses (primary meaning / selected
-  // example, falling back to the first row) — keeps the id an edit
-  // targets in sync with what's actually rendered on the card.
-  const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0]
-  const selectedExample = examples.find((e) => e.isSelected) ?? examples[0]
-  const meaningCluster = primaryMeaning ? clusters.find((c) => c.id === primaryMeaning.clusterId) : undefined
-
-  const meta = [lemma.partOfSpeech, lemma.gender].filter(Boolean).join(' · ')
-  return {
-    card,
-    cardState: cardState ?? createInitialCardState(card.id),
-    form: lemma.form,
-    language: lemma.language,
-    meta,
-    meaningId: primaryMeaning?.id ?? null,
-    meaning: primaryMeaning?.translation ?? null,
-    explanation: primaryMeaning?.explanation ?? null,
-    usage: primaryMeaning?.usage ?? null,
-    partOfSpeech: lemma.partOfSpeech,
-    synonyms,
-    clusterRef: meaningCluster ? { label: meaningCluster.label, description: meaningCluster.description } : null,
-    clusterId: meaningCluster?.id ?? null,
-    moreInfo: meaningCluster?.moreInfo ?? null,
-    exampleId: selectedExample?.id ?? null,
-    example: selectedExample?.sentence ?? null,
-    exampleTranslation: selectedExample?.translation ?? null,
-    clozeSentence: cloze?.sentence ?? null,
-    clozeAnswer: cloze?.answer ?? null,
-    // Default from this card's own content — loadReviewQueue's single-card path overrides these
-    // with a sibling-aware value (a CSV/Anki import can put cloze/vocab content on a separate
-    // sibling card of the same lemma), but the normal due-queue path never did until mixed-session
-    // eligibility (see pickEligibleTypes) needed to know it per due card.
-    hasVocabVariant: meanings.length > 0,
-    hasClozeVariant: clozes.length > 0,
-    templateContext: buildCardContext({
-      lemma,
-      meanings,
-      examples,
-      synonyms,
-      phrases,
-      cloze,
-      mode: clozeOnly ? 'cloze' : 'vocab',
-    }),
-  }
-}
-
-/** What loadReviewQueue returns: the (possibly capped) cards to review, and whether more due cards
- * exist beyond the cap — the done screen's "Practice more" button (see review/[deckId].tsx) uses
- * `hasMore` to offer another session immediately, instead of making the rest wait for their own
- * natural due date just because they didn't fit in this one sitting. */
-interface ReviewQueueResult {
-  views: ReviewCard[]
-  hasMore: boolean
-}
-
-/**
- * Loads the due cards in a deck with the content the review session needs, capped at
- * `sessionCardLimit` cards (0 = no cap) — applies to every review mode (plain/cloze/reverse/mixed).
- * `clozeOnly` switches to an entirely independent due query/FSRS state (cloze_states, migration
- * 0013) — cloze practice and word-meaning review of the same card are separately scheduled, so a
- * card can be due for one, both, or neither at any given moment. getClozeCardsDueForReview
- * already only returns cards with at least one cloze variant, so there's no need to filter that
- * again afterward the way this used to. Both due queries already sort most-overdue-first, so
- * capping is just taking the front of that list — the cards that most need reviewing today.
- *
- * `cardId` — set when opened from the deck detail screen's card list (tapping a specific word),
- * not a practice session — builds a one-card "queue" for that exact card regardless of its due
- * status (uncapped — a single card is never subject to the session cap), so a card row always
- * opens something to look at. A CSV/Anki import can put word-meaning and cloze content on two
- * separate sibling cards of the same lemma (import-shared.ts#importRow) rather than one, so asking
- * for `cardId` in cloze mode when *that* card has no cloze of its own falls back to its cloze-type
- * sibling if one exists — `hasVocabVariant`/`hasClozeVariant` (set from every sibling, not just the
- * resolved one) tell the screen whether a toggle makes sense.
- *
- * `card.type` covers `basic`, `reverse`, `phrase`, and `image`, but nothing
- * in the generation/import pipeline creates anything other than `basic`
- * cards yet — `reverse`/`phrase`/`image` fall back to the same basic
- * front/back shape (reverse additionally swaps which side shows first) so
- * the switch is exhaustive and won't crash the day something does produce
- * one, rather than because there's real content to render differently.
- */
-async function loadReviewQueue(
-  db: DatabaseAdapter,
-  deckId: string,
-  clozeOnly: boolean,
-  sessionCardLimit: number,
-  cardId?: string,
-): Promise<ReviewQueueResult> {
-  if (cardId) {
-    const requested = await getCardById(db, cardId)
-    if (!requested) return { views: [], hasMore: false }
-
-    const siblings = await getCardsByLemma(db, requested.lemmaId)
-    const clozeCounts = await Promise.all(siblings.map((c) => getClozesForCard(db, c.id)))
-    const hasClozeVariant = clozeCounts.some((clozes) => clozes.length > 0)
-    const meaningCounts = await Promise.all(siblings.map((c) => getMeaningsForCard(db, c.id)))
-    const hasVocabVariant = meaningCounts.some((meanings) => meanings.length > 0)
-
-    // This exact card has no cloze of its own but a sibling does — resolve to that sibling so
-    // clozeOnly mode has real content to show instead of an empty card.
-    let resolvedCard = requested
-    if (clozeOnly) {
-      const ownClozes = clozeCounts[siblings.findIndex((c) => c.id === requested.id)] ?? []
-      if (ownClozes.length === 0) {
-        const clozeSibling = siblings.find(
-          (c, i) => c.id !== requested.id && (clozeCounts[i]?.length ?? 0) > 0,
-        )
-        if (clozeSibling) resolvedCard = clozeSibling
-      }
-    }
-
-    const view = await loadCardView(db, resolvedCard, clozeOnly)
-    if (!view) return { views: [], hasMore: false }
-    return { views: [{ ...view, hasVocabVariant, hasClozeVariant }], hasMore: false }
-  }
-
-  // ALL_DECKS_ID means "everywhere", not a real deck — the due-card queries treat an omitted
-  // deckId as unfiltered, so translate the sentinel to undefined right at the query boundary.
-  const scopeDeckId = deckId === ALL_DECKS_ID ? undefined : deckId
-  const allDueCards = clozeOnly
-    ? await getClozeCardsDueForReview(db, scopeDeckId)
-    : await getCardsDueForReview(db, scopeDeckId)
-  const hasMore = sessionCardLimit > 0 && allDueCards.length > sessionCardLimit
-  const cards = sessionCardLimit > 0 ? allDueCards.slice(0, sessionCardLimit) : allDueCards
-  const views: ReviewCard[] = []
-  for (const card of cards) {
-    const view = await loadCardView(db, card, clozeOnly)
-    if (view) views.push(view)
-  }
-  return { views, hasMore }
 }
 
 /** "1 min" / "3 h" / "2 d" — coarse enough for a rating-button hint. */
@@ -582,12 +382,22 @@ export default function ReviewSessionScreen(): JSX.Element {
     enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
   })
 
-  // Mixed practice's per-card question type needs: the user's enabled types (Settings — see
-  // lib/reviewTypes.ts) and a shared pool of other cards' meanings to build true/false and
+  // Mixed practice's per-card question type needs: the enabled types for this session (the
+  // deck's own override if it was given one at creation — see Deck.enabledQuestionTypes and
+  // components/DeckPickerModal.tsx's "Create new deck" step — otherwise the user's global
+  // Settings preference) and a shared pool of other cards' meanings to build true/false and
   // multiple-choice wrong answers from. Both fetched once per session, not once per card.
   const enabledTypesQuery = useQuery({
-    queryKey: ['enabled-question-types'],
-    queryFn: getEnabledQuestionTypes,
+    queryKey: ['enabled-question-types', params.deckId],
+    queryFn: async () => {
+      if (params.deckId && params.deckId !== ALL_DECKS_ID) {
+        const deck = await getDeckById(db, params.deckId)
+        if (deck?.enabledQuestionTypes && deck.enabledQuestionTypes.length > 0) {
+          return deck.enabledQuestionTypes
+        }
+      }
+      return getEnabledQuestionTypes()
+    },
     enabled: mixedOnly,
   })
   const distractorScopeDeckId = params.deckId === ALL_DECKS_ID ? undefined : params.deckId
@@ -882,7 +692,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     onError: (error: unknown) => showError(t('Could not generate an example'), error),
   })
 
-  const isAiCard = !!view?.card.source && AI_SOURCES.includes(view.card.source)
+  const isAiCard = !!view?.card.source && AI_GENERATED_SOURCES.includes(view.card.source)
 
   // AI cards: generated on demand (only when "More info" is tapped and nothing's stored yet — see
   // handleExplain) and persisted via updateMeaningText, so it's free to re-show next time — never
@@ -1123,7 +933,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     <SafeAreaView style={styles.safe}>
       {/* Header: close, progress, mode, counter */}
       <View style={styles.header}>
-        <IconButton icon="close" onPress={() => router.back()} />
+        <IconButton icon="X" onPress={() => router.back()} />
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
@@ -1179,7 +989,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       ) : done || !view ? (
         <View style={styles.doneWrap}>
           <EmptyState
-            icon={queue.length === 0 ? 'checkmark-done' : 'trophy'}
+            icon={queue.length === 0 ? 'CheckCheck' : 'Trophy'}
             title={queue.length === 0 ? t('Nothing due right now') : t('Session complete!')}
             message={
               queue.length === 0
@@ -1256,7 +1066,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               onExplain={handleExplain}
               explainVisible={isAiCard || explainVisible}
               explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
               onEdit={openEdit}
               onLookup={handleLookup}
               onAskAI={handleAskAI}
@@ -1302,7 +1112,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                 onExplain={handleExplain}
                 explainVisible={isAiCard || explainVisible}
                 explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'information-circle-outline' })}
+                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
                 onEdit={openEdit}
                 onLookup={handleLookup}
                 onAskAI={handleAskAI}
@@ -1368,18 +1178,18 @@ export default function ReviewSessionScreen(): JSX.Element {
               <Text style={styles.editTitle}>{t('Edit this card')}</Text>
               <View style={styles.editHeaderActions}>
                 <IconButton
-                  icon="arrow-undo-outline"
+                  icon="Undo2"
                   accessibilityLabel={t('Undo')}
                   onPress={undoEdit}
                   disabled={editHistory.index === 0}
                 />
                 <IconButton
-                  icon="arrow-redo-outline"
+                  icon="Redo2"
                   accessibilityLabel={t('Redo')}
                   onPress={redoEdit}
                   disabled={editHistory.index >= editHistory.stack.length - 1}
                 />
-                <IconButton icon="close" onPress={() => setEditOpen(false)} />
+                <IconButton icon="X" onPress={() => setEditOpen(false)} />
               </View>
             </View>
             {/* Capped + scrollable (see editSheet's maxHeight) — three multiline fields plus the
@@ -1410,7 +1220,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                   {generateEditExample.isPending ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
-                    <Ionicons name="sparkles" size={14} color={colors.primary} />
+                    <Icon name="Sparkles" size={14} color={colors.primary} />
                   )}
                   <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
                 </Pressable>
@@ -1446,7 +1256,7 @@ export default function ReviewSessionScreen(): JSX.Element {
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
               <Button
                 label={saveEdit.isPending ? t('Saving...') : t('Save changes')}
-                icon="save"
+                icon="Save"
                 onPress={() => saveEdit.mutate()}
                 disabled={saveEdit.isPending}
               />

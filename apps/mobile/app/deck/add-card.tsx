@@ -8,7 +8,7 @@ import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { ClozeMarkupEditor, type ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { FormattableTextInput } from '../../components/FormattableTextInput'
 import { AlertModal, Button, Card, Chip, Dropdown, SectionHeader } from '../../components/ui'
-import { hasTemplateField } from '../../lib/templates'
+import { hasTemplateField } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -197,7 +197,7 @@ export default function AddCardScreen(): JSX.Element {
                     {tier === 'full' ? (
                       <Button
                         label={generateExample.isPending ? t('Generating...') : t('Generate with AI')}
-                        icon="sparkles"
+                        icon="Sparkles"
                         variant="secondary"
                         small
                         onPress={() => generateExample.mutate()}
@@ -278,7 +278,7 @@ export default function AddCardScreen(): JSX.Element {
 
         <Button
           label={create.isPending ? t('Adding...') : t('Add card')}
-          icon="add-circle"
+          icon="CirclePlus"
           onPress={() => create.mutate()}
           disabled={!canSubmit || create.isPending}
           style={styles.submitButton}

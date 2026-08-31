@@ -1,5 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
-import type { Deck } from '@lingora/types'
+import type { Deck, QuestionType } from '@lingora/types'
 import {
   createDeck,
   deleteDeck,
@@ -28,8 +27,11 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { Icon } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
+import { ReviewModesPicker } from '../../components/ReviewModesPicker'
+import { DEFAULT_ENABLED_QUESTION_TYPES, toggleQuestionType } from '../../lib/reviewTypes'
 import {
   AlertModal,
   Button,
@@ -44,7 +46,7 @@ import {
   type ImportFormat,
 } from '../../components/ui'
 import { CloudSyncNotConfiguredError, requestCloudSync, useCloudSync } from '../../lib/cloudSync'
-import { collectDescendantIds } from '../../lib/deckTree'
+import { collectDescendantIds } from '@lingora/core'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -53,10 +55,10 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
 
-const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lin-import'> = {
+const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lem-import'> = {
   csv: '/settings/csv-import',
   apkg: '/settings/apkg-import',
-  lin: '/settings/lin-import',
+  lem: '/settings/lem-import',
 }
 
 /** A deck with its computed counts and resolved children. */
@@ -95,6 +97,9 @@ export default function DecksScreen(): JSX.Element {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
+  // Which review formats the new deck practices with - defaults to the same starting point as
+  // Settings -> Learning's global picker, overridable per deck right here at creation time.
+  const [newQuestionTypes, setNewQuestionTypes] = useState<QuestionType[]>([...DEFAULT_ENABLED_QUESTION_TYPES])
   const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
   const [importDeck, setImportDeck] = useState<Deck | null>(null)
   const [exportDeck, setExportDeck] = useState<Deck | null>(null)
@@ -133,6 +138,7 @@ export default function DecksScreen(): JSX.Element {
         id: crypto.randomUUID(),
         name,
         ...(newEmoji.trim() !== '' && { emoji: newEmoji.trim() }),
+        enabledQuestionTypes: newQuestionTypes,
         createdAt: now,
         updatedAt: now,
       })
@@ -141,6 +147,7 @@ export default function DecksScreen(): JSX.Element {
       setCreateOpen(false)
       setNewName('')
       setNewEmoji('')
+      setNewQuestionTypes([...DEFAULT_ENABLED_QUESTION_TYPES])
       await invalidateDecks()
     },
   })
@@ -150,10 +157,10 @@ export default function DecksScreen(): JSX.Element {
   // on to the add-card screen instead of just closing the picker, since the whole point of this
   // flow is getting a card written, not just having a deck to put it in later.
   const createDeckForAddCard = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return id
     },
     onSuccess: async (id) => {
@@ -166,10 +173,10 @@ export default function DecksScreen(): JSX.Element {
   // Same shape as createDeckForAddCard, but for the "Import" menu item's deck picker — hands off
   // to the existing showImport/ImportFormatSheet flow instead of the add-card screen.
   const createDeckForImport = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      const deck: Deck = { id, name, createdAt: now, updatedAt: now }
+      const deck: Deck = { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now }
       await createDeck(db, deck)
       return deck
     },
@@ -362,7 +369,7 @@ export default function DecksScreen(): JSX.Element {
                 <ActivityIndicator size="small" color={colors.primary} />
               </View>
             ) : (
-              <IconButton testID="deck-sync-now-button" icon="sync" onPress={handleSyncNow} />
+              <IconButton testID="deck-sync-now-button" icon="RefreshCw" onPress={handleSyncNow} />
             ),
         }}
       />
@@ -372,7 +379,7 @@ export default function DecksScreen(): JSX.Element {
         <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
       ) : decksQuery.data.length === 0 ? (
         <EmptyState
-          icon="albums"
+          icon="Layers"
           title={t('No decks yet')}
           message={t('Create your first deck with the + button.')}
         />
@@ -385,7 +392,7 @@ export default function DecksScreen(): JSX.Element {
       )}
 
       <Pressable testID="create-deck-fab" style={styles.fab} onPress={() => setActionMenuOpen(true)}>
-        <Ionicons name="add" size={28} color={colors.textOnPrimary} />
+        <Icon name="Plus" size={28} color={colors.textOnPrimary} />
       </Pressable>
 
       {/* ── "+" action menu — add deck, add card, or import a file ── */}
@@ -400,7 +407,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-add-deck"
               label={t('Add deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -410,7 +417,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-add-card"
               label={t('Add card')}
-              icon="add-circle-outline"
+              icon="CirclePlus"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -420,7 +427,7 @@ export default function DecksScreen(): JSX.Element {
             <Button
               testID="action-menu-import"
               label={t('Import file')}
-              icon="download-outline"
+              icon="Download"
               variant="secondary"
               onPress={() => {
                 setActionMenuOpen(false)
@@ -440,7 +447,7 @@ export default function DecksScreen(): JSX.Element {
           setAddCardPickerOpen(false)
           router.push({ pathname: '/deck/add-card', params: { deckId: deck.id } })
         }}
-        onCreateDeck={(name) => createDeckForAddCard.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckForAddCard.mutate({ name, questionTypes })}
         creating={createDeckForAddCard.isPending}
         {...(createDeckForAddCard.isError && { createError: String(createDeckForAddCard.error) })}
       />
@@ -454,7 +461,7 @@ export default function DecksScreen(): JSX.Element {
           setImportPickerOpen(false)
           showImport(deck)
         }}
-        onCreateDeck={(name) => createDeckForImport.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckForImport.mutate({ name, questionTypes })}
         creating={createDeckForImport.isPending}
         {...(createDeckForImport.isError && { createError: String(createDeckForImport.error) })}
       />
@@ -486,12 +493,17 @@ export default function DecksScreen(): JSX.Element {
               onChangeText={setNewEmoji}
               maxLength={4}
             />
+            <ReviewModesPicker
+              label={t('Review modes')}
+              value={newQuestionTypes}
+              onToggle={(qt) => setNewQuestionTypes((prev) => toggleQuestionType(prev, qt))}
+            />
             {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
               <Button
                 label={create.isPending ? t('Creating...') : t('Create deck')}
-                icon="add"
+                icon="Plus"
                 disabled={create.isPending}
                 onPress={() => create.mutate()}
               />
@@ -527,7 +539,7 @@ export default function DecksScreen(): JSX.Element {
                   }}
                 >
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+                    <Icon name="CirclePlus" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Add Card')}</Text>
                 </Pressable>
@@ -542,21 +554,21 @@ export default function DecksScreen(): JSX.Element {
                   }}
                 >
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="folder-open-outline" size={20} color={colors.primary} />
+                    <Icon name="FolderOpen" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Open Deck')}</Text>
                 </Pressable>
 
                 <Pressable style={styles.gridActionTile} onPress={() => showImport(menuDeck)}>
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="download-outline" size={20} color={colors.primary} />
+                    <Icon name="Download" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Import')}</Text>
                 </Pressable>
 
                 <Pressable style={styles.gridActionTile} onPress={() => showExport(menuDeck)}>
                   <View style={styles.gridActionIcon}>
-                    <Ionicons name="cloud-download-outline" size={20} color={colors.primary} />
+                    <Icon name="CloudDownload" size={20} color={colors.primary} />
                   </View>
                   <Text style={styles.gridActionLabel}>{t('Export')}</Text>
                 </Pressable>
@@ -572,30 +584,30 @@ export default function DecksScreen(): JSX.Element {
                     setMenuDeck(null)
                   }}
                 >
-                  <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="Pencil" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Rename deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => showMove(menuDeck)}>
-                  <Ionicons name="folder-open-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="FolderOpen" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Move deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => showMerge(menuDeck)}>
-                  <Ionicons name="git-merge-outline" size={18} color={colors.textSecondary} />
+                  <Icon name="GitMerge" size={18} color={colors.textSecondary} />
                   <Text style={styles.menuRowLabel}>{t('Merge into another deck')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
                 </Pressable>
 
                 <Pressable style={styles.menuRowItem} onPress={() => confirmResetProgress(menuDeck)}>
-                  <Ionicons name="refresh-outline" size={18} color={colors.warning} />
+                  <Icon name="RefreshCw" size={18} color={colors.warning} />
                   <Text style={[styles.menuRowLabel, { color: colors.warning }]}>{t('Reset progress')}</Text>
                 </Pressable>
 
                 <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={() => confirmDelete(menuDeck)}>
-                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                  <Icon name="Trash2" size={18} color={colors.danger} />
                   <Text style={[styles.menuRowLabel, { color: colors.danger }]}>{t('Delete deck')}</Text>
                 </Pressable>
               </View>
@@ -669,7 +681,7 @@ export default function DecksScreen(): JSX.Element {
                       onPress={() => move.mutate(null)}
                       disabled={move.isPending || pickerDeck.parentId === undefined}
                     >
-                      <Ionicons name="apps-outline" size={18} color={colors.textSecondary} />
+                      <Icon name="LayoutGrid" size={18} color={colors.textSecondary} />
                       <Text style={styles.pickerRowLabel}>{t('Top level (no parent)')}</Text>
                     </Pressable>
                   ) : null}
@@ -831,9 +843,9 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
             <Text style={styles.dueBadgeLabel}>{t('{{count}} due', { count: node.dueCount })}</Text>
           </Pressable>
         ) : (
-          <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+          <Icon name="CircleCheck" size={20} color={colors.success} />
         )}
-        <IconButton icon="ellipsis-vertical" onPress={() => onOpenMenu(node.deck)} />
+        <IconButton icon="EllipsisVertical" onPress={() => onOpenMenu(node.deck)} />
       </Card>
       {node.children.map((child) => (
         <DeckRow key={child.deck.id} node={child} depth={depth + 1} onOpenMenu={onOpenMenu} />

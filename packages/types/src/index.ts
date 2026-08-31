@@ -186,6 +186,10 @@ export interface Deck {
   name: string
   parentId?: string // if set, this deck is nested inside another
   emoji?: string // display emoji shown in deck lists
+  /** Which review formats this deck's cards get reviewed with in Mixed practice (see
+   * QuestionType) - undefined/null means "no override," which falls back to the learner's
+   * global Settings -> Learning preference, same as a deck created before this existed. */
+  enabledQuestionTypes?: QuestionType[] | null
   createdAt: number
   updatedAt: number
 }
@@ -306,7 +310,7 @@ export interface SentenceMineEntry {
 
 // ─── AI and generation ────────────────────────────────────────────────────────
 //TODO: this is very OpenAI-centric right now. As we add more providers, we may want to split this into provider-agnostic metadata + provider-specific metadata.
-export type AIProviderName = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'local'
+export type AIProviderName = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'deepseek' | 'groq' | 'local'
 
 export interface GenerationMetadata {
   id: string
@@ -408,8 +412,11 @@ export interface WordGenerationPayload {
   }
   inflections: string[]
   clusters: GeneratedCluster[] // at least one
-  phrases: GeneratedPhrase[]
-  clozes: GeneratedCloze[]
+  // Phrases and clozes are deliberately NOT part of the initial word-package generation — both
+  // are on-demand only (see generatePhrases in app/word/[form].tsx and the manual cloze editor),
+  // and persistWordGeneration/regenerateWordPackage never wrote them from this payload even when
+  // it did carry them. Asking every provider to generate them here was pure waste (extra output
+  // tokens, extra required fields, extra validation surface) for content that was discarded.
 }
 
 /** Provenance and cost of one generation call, recorded as GenerationMetadata. */

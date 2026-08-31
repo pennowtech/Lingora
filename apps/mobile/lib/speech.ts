@@ -1,9 +1,9 @@
 import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import * as Speech from 'expo-speech'
-import { getDefaultCloudVoice } from './audioProviderMeta'
+import { CloudTtsError, getDefaultCloudVoice, pickPreferredOfflineVoice, speakOnDeviceWithRetry, type DeviceVoice } from '@lingora/core'
 import { playCloudSpeech, stopCloudSpeech } from './cloudTts'
-import { CloudTtsError } from './cloudTtsProviders'
+import { expoDeviceTts } from './deviceTts'
 import { getAudioProvider, getAvailableVoices, getCloudAudioConfig, getTtsSettings } from './ttsSettings'
 
 const log = logger.child({ feature: 'app', component: 'speech' })
@@ -30,35 +30,18 @@ export function warmUpSpeechEngine(): void {
   void Speech.getAvailableVoicesAsync().catch(() => undefined)
 }
 
-/**
- * Android's TTS engine can offer a network/server-backed voice as the
- * language's OS default (observed identifier shape: `*-x-*-server`) as well
- * as an on-device one (`*-embedded`/`*-lstm-embedded`). The network variant
- * calls out to a synthesis server over HTTPS and can time out for minutes
- * at a time on networks that intercept/block that traffic (this project's
- * corporate-VPN dev machines, in particular — the same class of problem as
- * the Zscaler cert issue documented for AI-provider fetch() calls) while
- * every other network path in the app works fine. There's no cross-voice
- * "requires network" flag exposed through expo-speech's Voice type, so this
- * is a best-effort identifier heuristic, not a guarantee.
- */
-const NETWORK_VOICE_PATTERN = /-server\b/i
-
-/** Per-language, process-lifetime cache — voice availability doesn't change mid-session. */
+/** Per-language, process-lifetime cache — voice availability doesn't change mid-session. See
+ * @lingora/core's pickPreferredOfflineVoice for why a network-backed voice is avoided (this
+ * project's corporate-VPN dev machines, in particular, can time out for minutes on Android's
+ * network/server-backed TTS voices — the same class of problem as the Zscaler cert issue
+ * documented for AI-provider fetch() calls). */
 const preferredVoiceCache: Partial<Record<LanguageCode, string | null>> = {}
 
-/**
- * The first available voice for `language` that doesn't look network-backed
- * (see NETWORK_VOICE_PATTERN), or null if lookup fails or every voice for
- * that language looks network-backed — callers fall back to no explicit
- * voice (OS default) in that case, same as before this existed.
- */
 async function getPreferredOfflineVoice(language: LanguageCode): Promise<string | null> {
   const cached = preferredVoiceCache[language]
   if (cached !== undefined) return cached
-  const voices = await getAvailableVoices(language).catch(() => [])
-  const offlineVoice = voices.find((v) => !NETWORK_VOICE_PATTERN.test(v.identifier))
-  const chosen = offlineVoice?.identifier ?? null
+  const voices: DeviceVoice[] = await getAvailableVoices(language).catch(() => [])
+  const chosen = pickPreferredOfflineVoice(voices)
   preferredVoiceCache[language] = chosen
   return chosen
 }
@@ -89,7 +72,7 @@ export function speak(text: string, language: LanguageCode): void {
         speakOnDevice(trimmed, language)
         return
       }
-      const { apiKey, voice, speed } = await getCloudAudioConfig(provider)
+      const { apiKey, voice, speed, model } = await getCloudAudioConfig(provider)
       if (apiKey === '') {
         // No key configured for the chosen cloud provider yet — fall back to device TTS
         // rather than a silent no-op on speaker-button tap.
@@ -98,7 +81,7 @@ export function speak(text: string, language: LanguageCode): void {
       }
       try {
         const effectiveVoice = getDefaultCloudVoice(provider, language, voice)
-        await playCloudSpeech(provider, trimmed, apiKey, effectiveVoice, speed)
+        await playCloudSpeech(provider, trimmed, apiKey, effectiveVoice, speed, model || undefined)
       } catch (error) {
         log.warn('app.cloud_speech_failed', {
           message: 'Cloud text-to-speech failed, falling back to device voice',
@@ -128,25 +111,11 @@ function speakOnDevice(trimmed: string, language: LanguageCode): void {
     })
 }
 
-function speakWithSettings(
-  trimmed: string,
-  language: LanguageCode,
-  settings: { rate: number; pitch: number; voice: string | null },
-  isRetry = false,
-): void {
-  Speech.speak(trimmed, {
-    language: LOCALES[language],
-    rate: settings.rate,
-    pitch: settings.pitch,
-    ...(settings.voice !== null && { voice: settings.voice }),
-    onError: () => {
-      log.warn('app.speech_failed', {
-        message: 'Text-to-speech playback failed',
-        metadata: { retryCount: isRetry ? 1 : 0 },
-      })
-      if (!isRetry) {
-        setTimeout(() => speakWithSettings(trimmed, language, settings, true), 200)
-      }
-    },
+function speakWithSettings(trimmed: string, language: LanguageCode, settings: { rate: number; pitch: number; voice: string | null }): void {
+  speakOnDeviceWithRetry(expoDeviceTts, trimmed, { language: LOCALES[language], ...settings }, (retryCount) => {
+    log.warn('app.speech_failed', {
+      message: 'Text-to-speech playback failed after retry',
+      metadata: { retryCount },
+    })
   })
 }

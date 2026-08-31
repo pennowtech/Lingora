@@ -7,11 +7,87 @@ import type { LanguageCode, PartOfSpeech, QuestionType, ReviewRating } from '@li
  * app itself (or, once desktop lands and both apps need it, in packages/ui for RN-Web-compatible
  * components). New platform-agnostic logic should land here from the start rather than in an app's
  * own lib/ with reuse retrofitted later.
+ *
+ * NOTE: logic that needs @lingora/ai's provider classes or error types (AI-provider-key
+ * validation, network-error classification, dictionary-language detection) does NOT belong here —
+ * @lingora/database already depends on @lingora/core, and @lingora/ai depends on
+ * @lingora/database, so a dependency the other way would be circular. That logic lives in
+ * packages/ai instead (see packages/ai/src/validation.ts, networkError.ts, languageDetection.ts).
  */
+
+export * from './audio'
+export * from './audioPlayback'
+export * from './cardSource'
+export * from './constants'
+export * from './deviceTts'
+export * from './deckTree'
+export * from './fileStorage'
+export * from './format'
+export * from './grammarGroups'
+export * from './onboarding'
+export * from './providerMeta'
+export * from './providerUsage'
+export * from './stats'
+export * from './templates'
 
 // ─── Review question types ─────────────────────────────────────────────────────
 
 export const ALL_QUESTION_TYPES: readonly QuestionType[] = ['vocab', 'reverse', 'cloze', 'trueFalse', 'mcq']
+
+/** Display data for the Settings "Practice question types" picker. `icon` is a Lucide icon name
+ * (see packages/core's own doc comment on that convention) — shared with the desktop app, once it
+ * builds an equivalent screen. `arrowFrom`/`arrowTo` are set only for the two types that describe a
+ * direction (vocab: word->meaning, reverse: meaning->word); the UI renders those as
+ * "{arrowFrom} [arrow icon] {arrowTo}" instead of embedding a literal "->" in translatable text.
+ * `label` is always present as the plain-text fallback (accessibility labels, any non-arrow
+ * rendering context). */
+export interface QuestionTypeMeta {
+  label: string
+  arrowFrom?: string
+  arrowTo?: string
+  icon: string
+}
+
+export const QUESTION_TYPE_META: Record<QuestionType, QuestionTypeMeta> = {
+  vocab: { label: 'Word -> Meaning', arrowFrom: 'Word', arrowTo: 'Meaning', icon: 'ArrowLeftRight' },
+  reverse: { label: 'Meaning -> Word', arrowFrom: 'Meaning', arrowTo: 'Word', icon: 'CornerUpLeft' },
+  cloze: { label: 'Fill in the blank', icon: 'Type' },
+  trueFalse: { label: 'True or False', icon: 'CircleCheckBig' },
+  mcq: { label: 'Multiple choice', icon: 'List' },
+}
+
+export function isQuestionType(value: string): value is QuestionType {
+  return (ALL_QUESTION_TYPES as readonly string[]).includes(value)
+}
+
+/** Every user starts with plain word->meaning only — the other formats are opt-in via Settings,
+ * not sprung on an existing reviewer the first time this ships. */
+export const DEFAULT_ENABLED_QUESTION_TYPES: readonly QuestionType[] = ['vocab']
+
+/** Toggles one review format in/out of a selection, always keeping at least one enabled — a
+ * selection with none picked has nothing eligible to review (see pickEligibleTypes), which would
+ * read as the picker silently doing nothing rather than as a real constraint. Shared by every
+ * review-mode picker: mobile's Settings -> Learning global picker and both apps' per-deck picker
+ * (deck-creation, where a deck's own choice overrides the global one — see Deck.enabledQuestionTypes). */
+export function toggleQuestionType(current: readonly QuestionType[], type: QuestionType): QuestionType[] {
+  if (current.includes(type)) {
+    if (current.length === 1) return [...current]
+    return current.filter((t) => t !== type)
+  }
+  return [...current, type]
+}
+
+/** How many due cards a single review session pulls in, before expanding into per-format entries
+ * (Mixed practice) — applies to every review mode (plain, cloze, reverse, mixed), not just Mixed.
+ * A big deck coming due all at once (fresh import, first day back after a break) would otherwise
+ * dump its entire due queue into one sitting; capping it and letting the learner start another
+ * session immediately once they finish keeps a single sitting a manageable size without making the
+ * rest wait until the cards' next natural due date. */
+export const SESSION_CARD_LIMIT_OPTIONS: readonly number[] = [10, 20, 30, 50, 100]
+
+/** 0 means "no limit" — pulls every due card into one session, the pre-cap behavior. */
+export const NO_SESSION_LIMIT = 0
+export const DEFAULT_SESSION_CARD_LIMIT = 20
 
 /** The minimal per-card facts pickEligibleTypes needs — a structural subset of whatever
  * review-card shape the caller has (apps/mobile's ReviewCard, eventually desktop's own), kept

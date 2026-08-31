@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { CardSource } from '@lingora/types'
 import type { JSX } from 'react'
 import { Image, type ImageSourcePropType } from 'react-native'
@@ -9,6 +8,10 @@ import claudeLogo from '../assets/source-icons/claude.png'
 import googleLogo from '../assets/source-icons/google.png'
 import deeplLogo from '../assets/source-icons/deepl.png'
 import { colors } from './theme'
+import { dictionaryNameToCardSource, SOURCE_LABELS } from '@lingora/core'
+import { Icon, type IconName } from '../components/Icon'
+
+export { dictionaryNameToCardSource, SOURCE_LABELS }
 
 /** Official brand logos (provided as source image files — see apps/mobile/assets/source-icons/)
  * for every source except `word_guide`, which has no logo to match; `local` (a hypothetical
@@ -22,35 +25,21 @@ const SOURCE_LOGOS: Partial<Record<CardSource, ImageSourcePropType>> = {
   deepl: deeplLogo,
 }
 
-const SOURCE_LABELS: Record<CardSource, string> = {
-  openai: 'Generated with OpenAI',
-  mistral: 'Generated with Mistral',
-  gemini: 'Generated with Gemini',
-  anthropic: 'Generated with Claude',
-  local: 'Generated locally',
-  google: 'Google Translate',
-  deepl: 'DeepL',
-  word_guide: 'From your installed dictionary',
-  manual: 'Added manually',
-}
-
-/** Ionicons fallback for every CardSource with no brand logo to match. */
-const SOURCE_FALLBACK_ICONS: Partial<Record<CardSource, keyof typeof Ionicons.glyphMap>> = {
-  word_guide: 'book-outline',
-  manual: 'create-outline',
-}
-
-/** Maps a `DictionaryProvider`/`AIProvider`'s own `.name` (e.g. `dictionary.name` from
- * `useServices()`) to the `CardSource` it corresponds to. Only Google Translate's provider name
- * ('google-translate') doesn't match its CardSource ('google') directly. */
-export function dictionaryNameToCardSource(name: string): Exclude<CardSource, 'word_guide'> {
-  return name === 'google-translate' ? 'google' : (name as Exclude<CardSource, 'word_guide'>)
+/** Icon fallback for every CardSource with no `Image`-based brand logo (a raster PNG) to match.
+ * DeepSeek/Groq route here rather than SOURCE_LOGOS because their real brand marks are simple
+ * single-path SVGs, drawn as regular Icon.tsx entries (components/BrandIcons.tsx) instead of a
+ * PNG asset. */
+const SOURCE_FALLBACK_ICONS: Partial<Record<CardSource, IconName>> = {
+  word_guide: 'BookOpen',
+  manual: 'SquarePen',
+  deepseek: 'DeepSeek',
+  groq: 'Groq',
 }
 
 /** Small icon indicating how a card/result was created — Search results and word detail only,
  * per the app's own scope for this: not shown on deck card lists, imports, etc. Official brand
  * logos where one exists; anything else (word_guide, manual, and `local`, a hypothetical
- * on-device AI provider not yet built) gets a plain Ionicons glyph instead. */
+ * on-device AI provider not yet built) gets a plain Lucide glyph instead. */
 export function CardSourceIcon(props: { source: CardSource | null | undefined; size?: number }): JSX.Element | null {
   if (!props.source) return null
   const size = props.size ?? 16
@@ -65,11 +54,15 @@ export function CardSourceIcon(props: { source: CardSource | null | undefined; s
       />
     )
   }
+  const fallbackIcon = SOURCE_FALLBACK_ICONS[props.source] ?? 'Cpu'
+  // DeepSeek/Groq draw their own real brand color (see BrandIcons.tsx's defaults) — only the
+  // generic Lucide fallbacks (BookOpen, SquarePen, Cpu) get tinted to the app's primary color.
+  const isBrandIcon = fallbackIcon === 'DeepSeek' || fallbackIcon === 'Groq'
   return (
-    <Ionicons
-      name={SOURCE_FALLBACK_ICONS[props.source] ?? 'hardware-chip-outline'}
+    <Icon
+      name={fallbackIcon}
       size={size}
-      color={colors.primary}
+      {...(!isBrandIcon && { color: colors.primary })}
       accessibilityLabel={SOURCE_LABELS[props.source]}
     />
   )

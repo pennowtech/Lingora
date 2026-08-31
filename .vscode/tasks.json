@@ -18,6 +18,12 @@
       "description": "ADB serial from the 'Android Target: List connected' task (for example emulator-5554)"
     },
     {
+      "id": "desktopDevPort",
+      "type": "promptString",
+      "default": "3000",
+      "description": "Port for the desktop app's Vite dev server (default 3000, set in apps/desktop/vite.config.ts)"
+    },
+    {
       "id": "maestroFlow",
       "type": "pickString",
       "description": "Maestro flow to run",
@@ -294,6 +300,47 @@
       },
       "detail": "Reads the fingerprints of the auto-generated Android debug keystore (apps/mobile/android/app/debug.keystore, created by Expo prebuild — run 'Build: Native Android dev client' at least once first if it doesn't exist yet). Add both to the Firebase console (Project settings > your Android app > Add fingerprint) so Google Sign-In works against debug builds. A release build needs the equivalent fingerprints from its own release keystore instead — this task only covers debug.",
       "presentation": { "reveal": "always", "panel": "shared", "group": "android" },
+      "problemMatcher": []
+    },
+
+    // ── Desktop (Tauri v2 + Vite) ─────────────────────────────────────────
+    {
+      "label": "Desktop: Run app (Tauri, native window)",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/desktop tauri dev",
+      "detail": "Builds the Rust shell and launches the real desktop app in a native window, with the Tauri HTTP/dialog/fs plugins available (required for AI-provider/cloud-TTS requests and file import/export — see apps/desktop/src/services/desktopFetch.ts). Slower to start than the browser preview below; rebuilds Rust on native-side changes.",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "desktop" }
+    },
+    {
+      "label": "Desktop: Start dev server (browser preview)",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/desktop exec vite --port ${input:desktopDevPort} --strictPort",
+      "detail": "Vite only — fast for UI iteration, but no Tauri runtime: file picking/saving and any request routed through desktopFetch (AI providers, cloud TTS) will hit the browser's own CORS restrictions instead of the Tauri HTTP plugin. Use 'Desktop: Run app (Tauri, native window)' to test those. Prompts for a port, defaulting to 3000 (apps/desktop/vite.config.ts); --strictPort fails fast instead of silently picking a different port if it's already taken.",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "____never_matches____" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE v",
+          "endsPattern": "ready in"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "desktop" }
+    },
+    {
+      "label": "Desktop: Typecheck",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/desktop run typecheck",
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Desktop: Build",
+      "type": "shell",
+      "command": "pnpm --filter @lingora/desktop run build",
+      "presentation": { "reveal": "always", "panel": "shared", "group": "desktop" },
       "problemMatcher": []
     },
 

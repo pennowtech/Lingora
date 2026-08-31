@@ -43,7 +43,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'theme',
     title: 'Theme',
-    icon: 'color-palette-outline',
+    icon: 'Palette',
     paragraphs: [
       'Pick a look for the whole app, from bright to dark and everything between.',
       'This only changes colors - nothing about how the app works.',
@@ -52,13 +52,13 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'audio',
     title: 'Audio Settings',
-    icon: 'volume-high-outline',
+    icon: 'Volume2',
     paragraphs: ['This opens a separate screen for the voice that reads words out loud, and how fast it speaks.'],
   },
   {
     id: 'language',
     title: 'App Language',
-    icon: 'language-outline',
+    icon: 'Languages',
     paragraphs: [
       'This changes the language of the app itself - its buttons and menus - not the language you\'re learning.',
       '"Follow device" just matches whatever language your phone is already set to.',
@@ -67,7 +67,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'capture',
     title: 'Share & Search',
-    icon: 'share-outline',
+    icon: 'Share2',
     paragraphs: [
       'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.',
       'You can also share text from another app straight to Lemmory, the same way you\'d share a link or a photo.',
@@ -158,7 +158,7 @@ export default function GeneralSettingsScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('theme')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('theme')} color={colors.primary} size={22} />
           ),
         }}
       />
@@ -174,7 +174,7 @@ export default function GeneralSettingsScreen(): JSX.Element {
 
       <Card>
         <LinkRow
-          icon="volume-high"
+          icon="Volume2"
           label={t('Audio Settings')}
           detail={t('Voice, rate, pitch')}
           onPress={() => router.push('/settings/tts')}

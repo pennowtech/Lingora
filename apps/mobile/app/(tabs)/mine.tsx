@@ -1,5 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
-import type { CaptureSource } from '@lingora/types'
+import type { CaptureSource, QuestionType } from '@lingora/types'
 import {
   createDeck,
   createMineEntry,
@@ -17,9 +16,10 @@ import { useTranslation } from 'react-i18next'
 import { Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { AlertModal, Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
-import { timeAgo } from '../../lib/format'
+import { timeAgo } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -27,23 +27,23 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'mining', screen: 'MiningQueueScreen' })
 
-const SOURCE_ICONS: Record<CaptureSource, keyof typeof Ionicons.glyphMap> = {
-  netflix: 'tv',
-  youtube: 'logo-youtube',
-  article: 'newspaper',
-  clipboard: 'clipboard',
-  manual: 'pencil',
-  share_sheet: 'share-social',
-  process_text: 'text',
-  extension: 'extension-puzzle',
-  pdf: 'document',
+const SOURCE_ICONS: Record<CaptureSource, IconName> = {
+  netflix: 'Tv',
+  youtube: 'Video',
+  article: 'Newspaper',
+  clipboard: 'Clipboard',
+  manual: 'Pencil',
+  share_sheet: 'Share2',
+  process_text: 'Type',
+  extension: 'Puzzle',
+  pdf: 'File',
 }
 
 const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'what',
     title: 'What this screen is for',
-    icon: 'download-outline',
+    icon: 'Download',
     paragraphs: [
       'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.',
       'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
@@ -52,7 +52,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'curate',
     title: 'Choosing what to keep',
-    icon: 'checkbox-outline',
+    icon: 'SquareCheck',
     paragraphs: [
       'Everything in the queue is selected by default. Tap a card to include or leave it out, or use the trash icon to remove it for good.',
       'Only bother with this if you want to be selective - otherwise everything gets turned into cards together.',
@@ -61,7 +61,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'generate',
     title: 'Turning captures into cards',
-    icon: 'sparkles-outline',
+    icon: 'Sparkles',
     paragraphs: [
       'The button at the bottom turns your selected sentences into real vocabulary cards, one at a time.',
       'This is the one step that actually does the work - nothing before it does anything with your captured text.',
@@ -70,7 +70,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'from-outside',
     title: 'Adding from other apps',
-    icon: 'share-outline',
+    icon: 'Share2',
     paragraphs: [
       'Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you\'d share it to any other app.',
       'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.',
@@ -214,10 +214,10 @@ export default function MiningQueueScreen(): JSX.Element {
   // same silent-default-deck problem already fixed on Search and word/[form] earlier. Reuses the
   // same DeckPickerModal so all three "which deck?" moments in the app look and behave alike.
   const createDeckAndGenerate = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const now = Date.now()
       const deckId = crypto.randomUUID()
-      await createDeck(db, { id: deckId, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id: deckId, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return deckId
     },
     onSuccess: (deckId) => {
@@ -239,7 +239,7 @@ export default function MiningQueueScreen(): JSX.Element {
     <View style={styles.fab}>
       <IconButton
         testID="mine-capture-fab"
-        icon="add"
+        icon="Plus"
         size={28}
         color={colors.textOnPrimary}
         onPress={() => setCaptureOpen(true)}
@@ -254,7 +254,7 @@ export default function MiningQueueScreen(): JSX.Element {
     <Stack.Screen
       options={{
         headerRight: () => (
-          <IconButton icon="help-circle-outline" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
+          <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
         ),
       }}
     />
@@ -303,7 +303,7 @@ export default function MiningQueueScreen(): JSX.Element {
             <Button
               label={t('Paste from clipboard')}
               variant="secondary"
-              icon="clipboard-outline"
+              icon="Clipboard"
               onPress={handlePasteFromClipboard}
               small
             />
@@ -356,7 +356,7 @@ export default function MiningQueueScreen(): JSX.Element {
     return (
       <View style={styles.container}>
         <EmptyState
-          icon="download"
+          icon="Download"
           title={t('Queue is empty')}
           message={t('Add a sentence manually, paste one from your clipboard, or capture text from the share sheet - it lands here before any AI processing.')}
         />
@@ -394,12 +394,12 @@ export default function MiningQueueScreen(): JSX.Element {
             <Card key={entry.id} style={styles.entryCard} onPress={() => toggle(entry.id)}>
               <View style={styles.entryHeader}>
                 <View style={styles.sourceRow}>
-                  <Ionicons name={SOURCE_ICONS[entry.sourceType]} size={13} color={colors.textMuted} />
+                  <Icon name={SOURCE_ICONS[entry.sourceType]} size={13} color={colors.textMuted} />
                   <Text style={styles.sourceLabel}>{entry.sourceTitle ?? entry.sourceType}</Text>
                   <Text style={styles.timeLabel}>· {timeAgo(entry.capturedAt)}</Text>
                 </View>
-                <Ionicons
-                  name={isSelected ? 'checkbox' : 'square-outline'}
+                <Icon
+                  name={isSelected ? 'SquareCheck' : 'Square'}
                   size={20}
                   color={isSelected ? colors.primary : colors.textMuted}
                 />
@@ -407,7 +407,7 @@ export default function MiningQueueScreen(): JSX.Element {
               <Text style={styles.entryText}>„{entry.rawText}"</Text>
               <View style={styles.entryActions}>
                 <IconButton
-                  icon="trash-outline"
+                  icon="Trash2"
                   size={17}
                   color={colors.danger}
                   onPress={() => discard.mutate(entry.id)}
@@ -424,14 +424,14 @@ export default function MiningQueueScreen(): JSX.Element {
         {tier === 'full' ? (
           <Button
             label={progress ?? t('Generate {{count}} cards with AI', { count: selectedIds.length })}
-            icon="sparkles"
+            icon="Sparkles"
             onPress={() => setDeckPickerOpen(true)}
             disabled={selectedIds.length === 0 || generate.isPending}
           />
         ) : (
           <Button
             label={t('No AI provider active - open Settings')}
-            icon="key"
+            icon="Key"
             variant="secondary"
             onPress={() => router.push('/settings')}
           />
@@ -453,7 +453,7 @@ export default function MiningQueueScreen(): JSX.Element {
           generate.mutate(deck.id)
         }}
         selecting={generate.isPending}
-        onCreateDeck={(name) => createDeckAndGenerate.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckAndGenerate.mutate({ name, questionTypes })}
         creating={createDeckAndGenerate.isPending}
       />
     </View>

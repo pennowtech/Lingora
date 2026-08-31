@@ -2,7 +2,7 @@ import type { DistractorMeaning } from '@lingora/database'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { Icon } from './Icon'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -81,8 +81,8 @@ export function TrueFalseQuestion(props: TrueFalseQuestionProps): JSX.Element {
           onPress={() => choose(true)}
           disabled={answered}
         >
-          <Ionicons
-            name="checkmark-circle-outline"
+          <Icon
+            name="CircleCheckBig"
             size={20}
             color={answered && choice === true ? (guessedCorrectly ? colors.success : colors.danger) : colors.text}
           />
@@ -96,8 +96,8 @@ export function TrueFalseQuestion(props: TrueFalseQuestionProps): JSX.Element {
           onPress={() => choose(false)}
           disabled={answered}
         >
-          <Ionicons
-            name="close-circle-outline"
+          <Icon
+            name="CircleX"
             size={20}
             color={answered && choice === false ? (guessedCorrectly ? colors.success : colors.danger) : colors.text}
           />

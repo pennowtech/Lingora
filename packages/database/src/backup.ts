@@ -32,7 +32,7 @@ export const BACKUP_FORMAT_VERSION = 1
 export const TABLE_COLUMNS = {
   lemmas: ['id', 'form', 'language', 'gender', 'plural', 'part_of_speech', 'created_at', 'updated_at'],
   inflections: ['id', 'form', 'lemma_id', 'features', 'created_at', 'updated_at'],
-  decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji'],
+  decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji', 'enabled_question_types'],
   meaning_clusters: ['id', 'label', 'description', 'lemma_id', 'cefr_level', 'order_index', 'more_info'],
   cards: ['id', 'lemma_id', 'deck_id', 'type', 'primary_meaning_id', 'created_at', 'updated_at', 'suspended_at', 'source', 'native_language'],
   meanings: [
@@ -294,10 +294,10 @@ function inClause(values: readonly string[]): { sql: string; params: string[] } 
 }
 
 /**
- * Same `.lin` payload shape as `createBackup`, but filtered down to one
+ * Same `.lem` payload shape as `createBackup`, but filtered down to one
  * deck's own data — a "share this deck" file, not a full-library backup.
  * Export-only by design: `restoreBackup`'s full-replace policy has no
- * matching partial-restore mode, so a deck `.lin` isn't meant to be
+ * matching partial-restore mode, so a deck `.lem` isn't meant to be
  * restored back through this app (it's for sharing/inspection, same
  * audience as the CSV/Markdown/Anki exports).
  *
@@ -312,7 +312,7 @@ function inClause(values: readonly string[]): { sql: string; params: string[] } 
  * version of this function stripped meanings/examples/synonyms/phrases down to a bare reference
  * for word-guide-sourced cards (the idea being that dictionary content installed locally shouldn't
  * be redistributed), but for a deck built mostly or entirely from word-guide lookups that produced
- * a `.lin` file with empty content tables — a badly broken result for the file's actual purpose
+ * a `.lem` file with empty content tables — a badly broken result for the file's actual purpose
  * (sharing/inspection). Reverted; full content export is simpler and actually useful.
  */
 export async function createDeckBackup(
@@ -322,7 +322,7 @@ export async function createDeckBackup(
   appVersion: string,
 ): Promise<BackupPayload> {
   const startedAt = Date.now()
-  exportLog.info('export.deck_backup_started', { message: 'Deck-scoped .lin export started' })
+  exportLog.info('export.deck_backup_started', { message: 'Deck-scoped .lem export started' })
 
   const cardRows = await db.query<{ id: string }>(`SELECT card_id AS id FROM deck_cards WHERE deck_id = ?`, [deckId])
   const cardIds = cardRows.map((r) => r.id)
@@ -382,7 +382,7 @@ export async function createDeckBackup(
   }
 
   exportLog.info('export.deck_backup_completed', {
-    message: 'Deck-scoped .lin export completed',
+    message: 'Deck-scoped .lem export completed',
     result: 'success',
     durationMs: Date.now() - startedAt,
     metadata: { itemCount: rowCount },

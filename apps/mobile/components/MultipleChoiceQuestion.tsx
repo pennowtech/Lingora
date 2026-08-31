@@ -2,7 +2,7 @@ import type { DistractorMeaning } from '@lingora/database'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { Icon } from './Icon'
 import { shuffleArray } from '../lib/reviewTypes'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -91,8 +91,8 @@ export function MultipleChoiceQuestion(props: MultipleChoiceQuestionProps): JSX.
               disabled={answered}
             >
               <Text style={styles.optionLabel}>{option}</Text>
-              {showAsCorrect ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
-              {showAsWrong ? <Ionicons name="close-circle" size={18} color={colors.danger} /> : null}
+              {showAsCorrect ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
+              {showAsWrong ? <Icon name="CircleX" size={18} color={colors.danger} /> : null}
             </Pressable>
           )
         })}

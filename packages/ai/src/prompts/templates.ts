@@ -92,6 +92,32 @@ export const PROMPTS = {
    */
   wordPackage: {
     name: 'word_package',
+    // v9: SEMANTIC CLUSTERS reworded from permission ("one cluster is fine") to an active push to
+    // enumerate every real sense, only falling back to one when genuinely justified — confirmed
+    // live that Groq (openai/gpt-oss-20b, the lighter/faster of its two GPT-OSS models) was
+    // reliably collapsing multi-sense words to a single cluster. json_object-mode providers
+    // (DeepSeek/Groq) have zero schema-level signal here either: toOpenAIJsonSchema strips
+    // minItems/maxItems from the JSON schema before it's sent anywhere (json-schema.ts's
+    // UNSUPPORTED_KEYWORDS, needed because OpenAI's real strict mode rejects them) — for
+    // json_schema-mode providers that's moot since minItems 1 never demanded more than one anyway,
+    // but for DeepSeek/Groq that same stripped schema is just descriptive text now (see
+    // deepseek.ts/groq.ts's performChat), so the wording carries the entire "look for multiple
+    // senses" signal with nothing backing it up structurally.
+    // v8: dropped the PHRASES and CLOZE sections entirely (and their fields from the schema —
+    // see schemas/generation.ts) — persistWordGeneration/regenerateWordPackage never wrote either
+    // one from this payload in the first place (both are on-demand only: generatePhrases/the
+    // manual cloze editor in app/word/[form].tsx), so every provider was generating and every
+    // learner was waiting on throwaway content on every single word lookup. Found while chasing a
+    // DeepSeek generation failure; the v7 cefrLevel fix below is now moot for clozes specifically
+    // but left as history since the same "strict mode was silently covering for prompt gaps"
+    // lesson applies to every remaining enum field too.
+    // v7: the CLOZE section now tells the model what to put in each cloze's cefrLevel field —
+    // previously unmentioned there (every other section — clusters, meanings, examples, synonyms —
+    // explicitly says "its own CEFR level"). Strict-schema providers (OpenAI/Mistral/Gemini/Claude)
+    // never exposed this gap, since their APIs force a valid enum value into the field regardless
+    // of whether the prompt explains what to put there; providers without server-side schema
+    // enforcement (DeepSeek/Groq, both on json_object mode — see deepseek.ts/groq.ts) had nothing
+    // to go on for this one field and returned an out-of-enum value, confirmed against a live key.
     // v6: the LEMMA section now tells the model to use the searched word's own casing as a
     // part-of-speech disambiguation signal where the target language's orthography makes that
     // meaningful (German capitalizes every common noun) — confirmed in the wild that "Ausreden"/
@@ -100,7 +126,7 @@ export const PROMPTS = {
     // searched, since capitalization was previously only ever mentioned as an output-formatting
     // rule, never as evidence the model should read from its own input.
     // v5: conversational explanations (no academic "<word> means that..." or "This term denotes...")
-    version: 6,
+    version: 9,
 
     template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
 
@@ -126,8 +152,8 @@ INFLECTIONS
 - List the surface forms a learner will actually meet (key conjugations for verbs, plural/case forms for nouns, comparative/superlative for adjectives). 3–8 forms, without the lemma itself.
 
 SEMANTIC CLUSTERS
-- Group meanings by semantic context, one cluster per genuinely distinct context ("social going-out" vs "a lamp going out" vs "supplies running out").
-- Only create clusters that are real, established usages. One cluster is fine for unambiguous words; never invent contexts to fill space.
+- Actively identify EVERY genuinely distinct, established semantic context this word has — most words that aren't trivially simple have 2 or more ("social going-out" vs "a lamp going out" vs "supplies running out" for "ausgehen"). Think through the word's range of real usages before deciding how many clusters it needs; do not default to a single cluster out of caution.
+- Only create clusters that are real, established usages — never invent a context to fill space. A single cluster is correct only for a word that is genuinely unambiguous with no other established sense, not a default or a safe fallback.
 - Each cluster needs: a short lowercase label and a one-line description (both in {{nativeLanguage}}), its own CEFR level, 1–3 meanings, exactly 2 examples, and 0–4 synonyms.
 - SYNONYMS IN WORDPACKAGE: For each synonym item, provide only the target-language word and its cefrLevel. Set nuance to null and formality to "neutral" — never write nuance or usage explanations in wordPackage (they are fetched on-demand).
 - CRITICAL: every example, meaning and synonym inside a cluster must stay strictly within that cluster's semantic context. An example for the 'electricity' cluster must never describe a social evening.
@@ -142,13 +168,7 @@ EXAMPLES
 - Tag each example with the notable grammar structures it uses, in {{targetLanguage}}'s own grammatical terminology (grammarTags); use null when nothing stands out.
 - Each example's translation is in {{nativeLanguage}} — the learner's own language.
 
-PHRASES
-- 1–4 established {{targetLanguage}} idioms, collocations or fixed patterns built on this word, each with its {{nativeLanguage}} meaning, one {{targetLanguage}} example sentence and that sentence's {{nativeLanguage}} translation.
-
-CLOZE
-- 1–3 {{targetLanguage}} cloze sentences. Replace exactly the target word (or its separated prefix, if {{targetLanguage}} has one) with the literal gap marker [...]. The "answer" field holds what fills the gap, in {{targetLanguage}}. The "translation" field holds the full sentence's translation in {{nativeLanguage}}. difficulty: easy = obvious from context, contextual = needs the context understood, grammar = tests an inflected form.
-
-Translations, explanations, meanings and usage notes: always in {{nativeLanguage}}. Lemma, inflections, example/phrase/cloze sentences and synonyms: always in {{targetLanguage}}.
+Translations, explanations, meanings and usage notes: always in {{nativeLanguage}}. Lemma, inflections, example sentences and synonyms: always in {{targetLanguage}}.
 
 Return strict JSON only, matching the provided schema exactly. No markdown, no commentary.`,
   },
@@ -250,12 +270,12 @@ Return strict JSON only: {"phrases": [{"expression": "...", "meaning": "...", "e
   /** Cloze sentences for the word. */
   cloze: {
     name: 'cloze',
-    version: 3, // v3: explicit anti-swap warning (see ANTI_SWAP_WARNING)
+    version: 4, // v4: explicit cefrLevel instruction (see wordPackage v7's doc comment for why)
     template: `Write 1–3 {{targetLanguage}} cloze sentences for the word "{{word}}" at learner level {{cefrLevel}}.
 
 ${ANTI_SWAP_WARNING}
 
-Replace exactly the target word (or its separated prefix, if {{targetLanguage}} has one) with the literal gap marker [...]. The "answer" field holds what fills the gap, in {{targetLanguage}}. The "translation" field holds the full sentence's translation in {{nativeLanguage}} — the learner's own language. difficulty: easy = obvious from context, contextual = needs the context understood, grammar = tests an inflected form.
+Replace exactly the target word (or its separated prefix, if {{targetLanguage}} has one) with the literal gap marker [...]. The "answer" field holds what fills the gap, in {{targetLanguage}}. The "translation" field holds the full sentence's translation in {{nativeLanguage}} — the learner's own language. difficulty: easy = obvious from context, contextual = needs the context understood, grammar = tests an inflected form. cefrLevel: this cloze's own honest CEFR level (one of A1, A2, B1, B2, C1, C2) — normally {{cefrLevel}}, unless this specific sentence is genuinely easier or harder.
 
 Return strict JSON only: {"clozes": [{"sentence": "...", "answer": "...", "translation": "...", "difficulty": "...", "cefrLevel": "..."}]}`,
   },
@@ -345,9 +365,13 @@ Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two �
    */
   chatAboutWord: {
     name: 'chat_about_word',
-    // v3: allows the same sparing basic-markdown spans explainWord's prompt already does — the
-    // chat UI can render **bold**/*italics*/`code`, but the model had no permission to use them yet
-    version: 3,
+    // v4: LLMs tend to mirror the language of the learner's most recent message rather than the
+    // instructed reply language, especially once the learner types a question in {{targetLanguage}}
+    // itself (very common — this chat is about a {{targetLanguage}} word) — the v3 instruction lived
+    // only near the top of the prompt, before the transcript, so it lost to recency. Restated the
+    // language rule immediately after the transcript, right next to the output instruction, and made
+    // it explicit that the learner's own message language never overrides it.
+    version: 4,
     template: `You are a friendly, knowledgeable {{targetLanguage}} language tutor having a one-on-one chat with a {{cefrLevel}} learner about the {{targetLanguage}} word "{{word}}" in this specific sense — {{clusterLabel}}: {{clusterDescription}}.
 
 ${ANTI_SWAP_WARNING}
@@ -358,6 +382,8 @@ Reply in a warm, natural, human conversational tone — like a patient tutor tex
 
 Conversation so far, oldest first:
 {{transcript}}
+
+Reminder before you write: your reply's own prose must be in {{nativeLanguage}}, never {{targetLanguage}} — even if the learner just typed their message in {{targetLanguage}}, or asked about a {{targetLanguage}} phrase. Matching the learner's input language is wrong here; only the quoted {{targetLanguage}} words/examples inside your reply (each followed by its {{nativeLanguage}} translation in parentheses) may be in {{targetLanguage}}.
 
 Write only your next reply as the tutor — not the learner's turn, not a repeat of an earlier message. Return strict JSON only: {"reply": "..."}`,
   },

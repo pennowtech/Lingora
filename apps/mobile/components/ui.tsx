@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { useEffect, useState, type JSX, type ReactNode } from 'react'
 import {
@@ -15,6 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon, type IconName } from './Icon'
 import type { ExportFormat } from '../lib/export'
 import { speak } from '../lib/speech'
 import { cefrColors, radius, spacing, type } from '../lib/theme'
@@ -80,7 +80,7 @@ export function Button(props: {
   label: string
   onPress: () => void
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
-  icon?: keyof typeof Ionicons.glyphMap
+  icon?: IconName
   small?: boolean
   disabled?: boolean
   style?: StyleProp<ViewStyle>
@@ -118,7 +118,7 @@ export function Button(props: {
         style,
       ]}
     >
-      {icon ? <Ionicons name={icon} size={small ? 15 : 18} color={fg} /> : null}
+      {icon ? <Icon name={icon} size={small ? 15 : 18} color={fg} /> : null}
       <Text
         maxFontSizeMultiplier={1.25}
         numberOfLines={1}
@@ -132,14 +132,14 @@ export function Button(props: {
 }
 
 export function IconButton(props: {
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   onPress: () => void
   color?: string
   size?: number
   disabled?: boolean
   testID?: string
   /** An icon-only button has nothing else for a screen reader to announce — worth setting whenever
-   * the icon alone (e.g. "arrow-undo-outline") wouldn't be obvious out of context. */
+   * the icon alone (e.g. "Undo2") wouldn't be obvious out of context. */
   accessibilityLabel?: string
 }): JSX.Element {
   const colors = useColors()
@@ -153,7 +153,7 @@ export function IconButton(props: {
       {...(props.accessibilityLabel !== undefined && { accessibilityLabel: props.accessibilityLabel })}
       style={({ pressed }) => [props.disabled && { opacity: 0.4 }, pressed && { opacity: 0.6 }]}
     >
-      <Ionicons name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />
+      <Icon name={props.icon} size={props.size ?? 22} color={props.color ?? colors.textSecondary} />
     </Pressable>
   )
 }
@@ -168,7 +168,7 @@ export function SpeakerButton(props: {
   const colors = useColors()
   return (
     <IconButton
-      icon="volume-medium-outline"
+      icon="Volume1"
       size={props.size ?? 20}
       color={props.color ?? colors.primary}
       onPress={() => speak(props.text, props.language)}
@@ -190,7 +190,7 @@ export function CardActionBar(props: {
    * info" for an AI card, where the explanation already shows inline and this opens the
    * follow-up sheet instead. */
   explainLabel?: string
-  explainIcon?: keyof typeof Ionicons.glyphMap
+  explainIcon?: IconName
   /** Optional — omitted for AI-generated cards, which already have Regenerate (whole-card redo)
    * and per-field regenerate actions instead of a manual text editor. */
   onEdit?: () => void
@@ -219,10 +219,17 @@ export function CardActionBar(props: {
   return (
     <View style={styles.cardActionBar}>
       {props.onListen ? (
-        <CardActionButton icon="volume-medium-outline" label="Listen" onPress={props.onListen} />
+        <CardActionButton
+          icon="Volume1"
+          label="Listen"
+          onPress={props.onListen}
+        />
       ) : null}
       <CardActionButton
-        icon={props.explainIcon ?? (props.explainVisible ? 'book' : 'book-outline')}
+        icon={
+          props.explainIcon ??
+          (props.explainVisible ? 'Book' : 'BookOpen')
+        }
         label={props.explainLabel ?? 'Explain'}
         active={props.explainVisible}
         onPress={props.onExplain}
@@ -231,7 +238,7 @@ export function CardActionBar(props: {
       />
       {props.onAskAI ? (
         <CardActionButton
-          icon="chatbubble-ellipses-outline"
+          icon="MessageCircle"
           label="Ask AI"
           onPress={props.onAskAI}
           {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
@@ -239,7 +246,7 @@ export function CardActionBar(props: {
       ) : null}
       {props.onRegenerate ? (
         <CardActionButton
-          icon="refresh-circle-outline"
+          icon="RefreshCw"
           label="Regenerate"
           onPress={props.onRegenerate}
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
@@ -247,24 +254,24 @@ export function CardActionBar(props: {
         />
       ) : null}
       {props.onEdit ? (
-        <CardActionButton icon="pencil-outline" label="Edit" onPress={props.onEdit} />
+        <CardActionButton icon="Pencil" label="Edit" onPress={props.onEdit} />
       ) : null}
       {props.onDelete ? (
         <CardActionButton
-          icon="trash-outline"
+          icon="Trash2"
           label="Delete"
           destructive
           onPress={props.onDelete}
           {...(props.deleteLoading !== undefined && { loading: props.deleteLoading })}
         />
       ) : null}
-      <CardActionButton icon="logo-google" label="Look up" onPress={props.onLookup} />
+      <CardActionButton icon="Globe" label="Look up" onPress={props.onLookup} />
     </View>
   )
 }
 
 function CardActionButton(props: {
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   label: string
   active?: boolean
   destructive?: boolean
@@ -291,7 +298,7 @@ function CardActionButton(props: {
       {props.loading ? (
         <ActivityIndicator size="small" color={props.destructive ? colors.danger : colors.primary} />
       ) : (
-        <Ionicons name={props.icon} size={20} color={textColor} />
+        <Icon name={props.icon} size={20} color={textColor} />
       )}
       <Text style={[styles.cardActionLabel, { color: textColor }]}>{props.label}</Text>
     </Pressable>
@@ -301,13 +308,17 @@ function CardActionButton(props: {
 // ─── Chips ────────────────────────────────────────────────────────────────────
 
 export function Chip(props: {
-  label: string
+  label?: string
+  /** An alternative to `label` for a "direction" chip (e.g. Word -> Meaning) — renders as
+   * "{from} [arrow icon] {to}" instead of embedding a literal "->" in translatable text. Exactly
+   * one of `label`/`arrow` should be set. */
+  arrow?: { from: string; to: string }
   selected?: boolean
   onPress?: () => void
   color?: { fg: string; bg: string }
   testID?: string
 }): JSX.Element {
-  const { label, selected = false, onPress, color } = props
+  const { label, arrow, selected = false, onPress, color } = props
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const bg = selected ? (color?.fg ?? colors.primary) : (color?.bg ?? colors.surfaceMuted)
@@ -319,7 +330,15 @@ export function Chip(props: {
       disabled={!onPress}
       style={({ pressed }) => [styles.chip, { backgroundColor: bg }, pressed && { opacity: 0.7 }]}
     >
-      <Text style={[styles.chipLabel, { color: fg }]}>{label}</Text>
+      {arrow ? (
+        <View style={styles.chipArrowRow}>
+          <Text style={[styles.chipLabel, { color: fg }]}>{arrow.from}</Text>
+          <Icon name="ArrowRight" size={16} color={fg} strokeWidth={2.5} />
+          <Text style={[styles.chipLabel, { color: fg }]}>{arrow.to}</Text>
+        </View>
+      ) : (
+        <Text style={[styles.chipLabel, { color: fg }]}>{label}</Text>
+      )}
     </Pressable>
   )
 }
@@ -329,7 +348,7 @@ export function Chip(props: {
 export interface DropdownOption {
   label: string
   value: string
-  icon?: keyof typeof Ionicons.glyphMap
+  icon?: IconName
   badgeCount?: number
 }
 
@@ -364,7 +383,7 @@ export function Dropdown(props: {
         <View style={styles.dropdownValueRow}>
           {selected?.icon ? (
             <View style={styles.dropdownSelectedIconWrap}>
-              <Ionicons name={selected.icon} size={13} color={colors.primary} />
+              <Icon name={selected.icon} size={13} color={colors.primary} />
             </View>
           ) : null}
           <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
@@ -376,7 +395,7 @@ export function Dropdown(props: {
             </View>
           ) : null}
         </View>
-        <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
+        <Icon name="ChevronDown" size={14} color={colors.textMuted} />
       </Pressable>
       <Modal visible={open} animationType="fade" transparent onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.dropdownBackdrop} onPress={() => setOpen(false)} />
@@ -394,7 +413,7 @@ export function Dropdown(props: {
                 </Text>
                 {props.value === null ? (
                   <View style={styles.dropdownCheckCircle}>
-                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                    <Icon name="Check" size={12} color="#FFFFFF" />
                   </View>
                 ) : null}
               </Pressable>
@@ -410,7 +429,7 @@ export function Dropdown(props: {
                   <View style={styles.dropdownOptionLeft}>
                     {opt.icon ? (
                       <View style={[styles.dropdownOptionIconWrap, isSelected && styles.dropdownOptionIconWrapSelected]}>
-                        <Ionicons name={opt.icon} size={16} color={isSelected ? colors.primary : colors.textSecondary} />
+                        <Icon name={opt.icon} size={16} color={isSelected ? colors.primary : colors.textSecondary} />
                       </View>
                     ) : null}
                     <Text style={[styles.dropdownOptionLabel, isSelected && styles.dropdownOptionLabelSelected]} numberOfLines={2}>
@@ -426,7 +445,7 @@ export function Dropdown(props: {
                   </View>
                   {isSelected ? (
                     <View style={styles.dropdownCheckCircle}>
-                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                      <Icon name="Check" size={12} color="#FFFFFF" />
                     </View>
                   ) : null}
                 </Pressable>
@@ -445,14 +464,14 @@ interface ExportFormatOption {
   format: ExportFormat
   label: string
   description: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
 }
 
 const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
-  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'grid' },
-  { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'albums' },
-  { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'document-text' },
-  { format: 'lin', label: 'Lemmory (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'cloud-download' },
+  { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'LayoutGrid' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'Layers' },
+  { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'FileText' },
+  { format: 'lem', label: 'Lemmory (.lem)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'CloudDownload' },
 ]
 
 /**
@@ -479,13 +498,13 @@ export function ExportFormatSheet(props: {
           {EXPORT_FORMAT_OPTIONS.map((opt) => (
             <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
               <View style={styles.exportOptionIcon}>
-                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+                <Icon name={opt.icon} size={18} color={colors.primary} />
               </View>
               <View style={styles.exportOptionText}>
                 <Text style={styles.exportOptionLabel}>{opt.label}</Text>
                 <Text style={styles.exportOptionDescription}>{opt.description}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              <Icon name="ChevronRight" size={16} color={colors.textMuted} />
             </Pressable>
           ))}
         </ScrollView>
@@ -496,19 +515,19 @@ export function ExportFormatSheet(props: {
 
 // ─── Import format sheet ────────────────────────────────────────────────────
 
-export type ImportFormat = 'csv' | 'apkg' | 'lin'
+export type ImportFormat = 'csv' | 'apkg' | 'lem'
 
 interface ImportFormatOption {
   format: ImportFormat
   label: string
   description: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
 }
 
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
-  { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'grid' },
-  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'albums' },
-  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'sparkles' },
+  { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'LayoutGrid' },
+  { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'Layers' },
+  { format: 'lem', label: 'Lemmory (.lem)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'Sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */
@@ -530,13 +549,13 @@ export function ImportFormatSheet(props: {
           {IMPORT_FORMAT_OPTIONS.map((opt) => (
             <Pressable key={opt.format} style={styles.exportOptionRow} onPress={() => props.onSelect(opt.format)}>
               <View style={styles.exportOptionIcon}>
-                <Ionicons name={opt.icon} size={18} color={colors.primary} />
+                <Icon name={opt.icon} size={18} color={colors.primary} />
               </View>
               <View style={styles.exportOptionText}>
                 <Text style={styles.exportOptionLabel}>{opt.label}</Text>
                 <Text style={styles.exportOptionDescription}>{opt.description}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              <Icon name="ChevronRight" size={16} color={colors.textMuted} />
             </Pressable>
           ))}
         </ScrollView>
@@ -560,7 +579,7 @@ export function CefrBadge(props: { level?: CefrLevel | null | undefined }): JSX.
  * that navigates elsewhere (a screen, an external link). `detail` doubles as a one-line summary
  * of the destination's current state (e.g. "2 of 4 configured") when the caller has one handy. */
 export function LinkRow(props: {
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   label: string
   detail?: string
   onPress: () => void
@@ -582,10 +601,10 @@ export function LinkRow(props: {
     >
       {props.tint ? (
         <View style={[styles.linkRowIconTile, { backgroundColor: props.tint.bg }]}>
-          <Ionicons name={props.icon} size={18} color={props.tint.fg} />
+          <Icon name={props.icon} size={18} color={props.tint.fg} />
         </View>
       ) : (
-        <Ionicons name={props.icon} size={20} color={colors.primary} />
+        <Icon name={props.icon} size={20} color={colors.primary} />
       )}
       <View style={styles.optionText}>
         <Text style={styles.optionLabel}>{props.label}</Text>
@@ -595,7 +614,7 @@ export function LinkRow(props: {
           </Text>
         ) : null}
       </View>
-      <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+      <Icon name="ChevronRight" size={16} color={colors.textMuted} />
     </Pressable>
   )
 }
@@ -620,19 +639,25 @@ export function EvalBar(props: {
   return (
     <View style={styles.evalBar}>
       <IconButton
-        icon={props.activeRating === 'up' ? 'thumbs-up' : 'thumbs-up-outline'}
+        icon="ThumbsUp"
         size={17}
         onPress={props.onUp ?? noop}
         {...(props.activeRating === 'up' && { color: colors.success })}
       />
       <IconButton
-        icon={props.activeRating === 'down' ? 'thumbs-down' : 'thumbs-down-outline'}
+        icon="ThumbsDown"
         size={17}
         onPress={props.onDown ?? noop}
         {...(props.activeRating === 'down' && { color: colors.danger })}
       />
-      {props.onReport ? <IconButton icon="flag-outline" size={17} onPress={props.onReport} /> : null}
-      {props.onRegen ? <IconButton icon="refresh-outline" size={17} onPress={props.onRegen} /> : null}
+      {props.onReport ? (
+        <IconButton
+          icon="Flag"
+          size={17}
+          onPress={props.onReport}
+        />
+      ) : null}
+      {props.onRegen ? <IconButton icon="RefreshCw" size={17} onPress={props.onRegen} /> : null}
     </View>
   )
 }
@@ -640,7 +665,7 @@ export function EvalBar(props: {
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 export function EmptyState(props: {
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   title: string
   message: string
 }): JSX.Element {
@@ -649,7 +674,7 @@ export function EmptyState(props: {
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
-        <Ionicons name={props.icon} size={32} color={colors.primary} />
+        <Icon name={props.icon} size={32} color={colors.primary} />
       </View>
       <Text style={styles.emptyTitle}>{props.title}</Text>
       <Text style={styles.emptyMessage}>{props.message}</Text>
@@ -672,7 +697,7 @@ export function AlertModal(props: {
   title: string
   message: string
   onClose: () => void
-  icon?: keyof typeof Ionicons.glyphMap
+  icon?: IconName
   /** Defaults to "OK" — pass a translated label from the caller (ui.tsx components don't call
    * `t()` themselves; see ExportFormatSheet's `title` prop for the same convention). */
   closeLabel?: string
@@ -707,7 +732,7 @@ export function AlertModal(props: {
 export function Toast(props: {
   message: string | null
   onHide: () => void
-  icon?: keyof typeof Ionicons.glyphMap
+  icon?: IconName
   durationMs?: number
 }): JSX.Element | null {
   const colors = useColors()
@@ -731,7 +756,7 @@ export function Toast(props: {
   return (
     <View style={[styles.toastWrap, { top: insets.top + headerHeight + spacing.sm }]} pointerEvents="box-none">
       <Pressable style={styles.toast} onPress={props.onHide}>
-        <Ionicons name={props.icon ?? 'checkmark-circle'} size={18} color={colors.textOnPrimary} />
+        <Icon name={props.icon ?? 'CircleCheck'} size={18} color={colors.textOnPrimary} />
         <Text style={styles.toastText}>{props.message}</Text>
       </Pressable>
     </View>
@@ -813,7 +838,7 @@ export function ErrorState(props: { message: string; onRetry?: () => void }): JS
   return (
     <View style={styles.empty}>
       <View style={[styles.emptyIcon, { backgroundColor: colors.dangerSoft }]}>
-        <Ionicons name="alert-circle-outline" size={32} color={colors.danger} />
+        <Icon name="CircleAlert" size={32} color={colors.danger} />
       </View>
       <Text style={styles.emptyTitle}>Something went wrong</Text>
       <Text style={styles.emptyMessage}>{props.message}</Text>
@@ -900,6 +925,11 @@ const createStyles = (colors: ThemeColors) =>
     chipLabel: {
       fontSize: type.caption,
       fontWeight: '600',
+    },
+    chipArrowRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
     },
     dropdownField: {
       flexDirection: 'row',

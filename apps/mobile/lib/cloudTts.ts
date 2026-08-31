@@ -1,8 +1,8 @@
 import { logger } from '@lingora/observability'
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio'
 import { File, Paths } from 'expo-file-system'
-import type { CloudAudioProviderName } from './audioProviderMeta'
-import { synthesizeSpeech } from './cloudTtsProviders'
+import { playCloudSpeech as playCloudSpeechShared, stopCloudSpeech as stopCloudSpeechShared, type AudioPlayback, type CloudAudioProviderName } from '@lingora/core'
+import { recordCloudAudioUsage } from './ttsSettings'
 
 const log = logger.child({ feature: 'app', component: 'cloudTts' })
 
@@ -22,64 +22,50 @@ function cleanupActive(): void {
   }
 }
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+/** expo-audio's implementation of @lingora/core's AudioPlayback — its player only accepts a URI,
+ * not raw bytes, so play() writes a temp file to the cache directory first (deleted on stop or
+ * once playback finishes). The fetch-then-play-then-retry-once orchestration itself lives in
+ * @lingora/core's playCloudSpeech, shared with the desktop app. */
+const expoAudioPlayback: AudioPlayback = {
+  play(bytes: Uint8Array, _mimeType: string): Promise<void> {
+    cleanupActive()
+    const file = new File(Paths.cache, `lingora-tts-${Date.now()}.mp3`)
+    file.create()
+    file.write(bytes)
+    activeFile = file
 
-async function synthesizeAndPlay(provider: CloudAudioProviderName, text: string, apiKey: string, voice: string, speed?: number): Promise<void> {
-  cleanupActive()
-  const bytes = await synthesizeSpeech(provider, { text, apiKey, voice, ...(speed !== undefined && { speed }) })
-  const file = new File(Paths.cache, `lingora-tts-${Date.now()}.mp3`)
-  file.create()
-  file.write(new Uint8Array(bytes))
-  activeFile = file
-
-  const player = createAudioPlayer(file.uri)
-  activePlayer = player
-  player.addListener('playbackStatusUpdate', (status) => {
-    if (status.didJustFinish) cleanupActive()
-  })
-  player.play()
+    const player = createAudioPlayer(file.uri)
+    activePlayer = player
+    player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish) cleanupActive()
+    })
+    player.play()
+    return Promise.resolve()
+  },
+  stop(): void {
+    cleanupActive()
+  },
 }
 
 /** Fetches speech audio from `provider` and plays it — the cloud-TTS half of lib/speech.ts#speak().
- * Writes the response to a temp file in the cache directory (expo-audio needs a URI, not raw
- * bytes) and deletes it once playback finishes.
- *
- * Retries once on failure (same convention as lib/speech.ts's device-TTS retry): observed in
- * practice as an occasional first-attempt-only failure right after switching a cloud provider's
- * voice, symptom consistent with expo-audio's native player still finishing its async load of the
- * freshly-written file when play() is called — a transient race, not a real synthesis/key problem,
- * so silently retrying once is more useful than surfacing it as an error. */
-export async function playCloudSpeech(
-  provider: CloudAudioProviderName,
-  text: string,
-  apiKey: string,
-  voice: string,
-  speed?: number,
-): Promise<void> {
+ * Delegates the fetch-then-play-then-retry-once orchestration to @lingora/core's playCloudSpeech;
+ * this wrapper only supplies the expo-audio playback and logs a failure after the shared retry is
+ * exhausted. */
+export async function playCloudSpeech(provider: CloudAudioProviderName, text: string, apiKey: string, voice: string, speed?: number, model?: string): Promise<void> {
   try {
-    await synthesizeAndPlay(provider, text, apiKey, voice, speed)
+    await playCloudSpeechShared(expoAudioPlayback, provider, text, apiKey, voice, speed, undefined, model)
+    // Device-observed only (see AUDIO_USAGE_STORE_KEYS' doc comment) — a real synthesis call
+    // succeeded, so it counts even though this device can't see the provider's own billing meter.
+    void recordCloudAudioUsage(provider, text.length).catch(() => undefined)
   } catch (error) {
     log.warn('app.cloud_speech_playback_failed', {
-      message: 'Cloud TTS audio failed to start playing, retrying once',
-      metadata: { provider },
+      message: 'Cloud TTS audio failed to start playing after retry',
+      metadata: { provider, retryCount: 1 },
     })
-    cleanupActive()
-    await wait(250)
-    try {
-      await synthesizeAndPlay(provider, text, apiKey, voice, speed)
-    } catch (retryError) {
-      log.warn('app.cloud_speech_playback_failed', {
-        message: 'Cloud TTS audio failed to start playing on retry',
-        metadata: { provider, retryCount: 1 },
-      })
-      cleanupActive()
-      throw retryError
-    }
+    throw error
   }
 }
 
 export function stopCloudSpeech(): void {
-  cleanupActive()
+  stopCloudSpeechShared(expoAudioPlayback)
 }

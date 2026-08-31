@@ -56,7 +56,7 @@ const CLOZE_COLUMNS: DataTableColumn<ExportableCard>[] = [
 /**
  * Read-only tabular view of every card in a deck — reached from the deck detail screen's "⋯"
  * menu. Reuses `getExportableCards` (the same query CSV/Markdown/Anki export already read from)
- * for the data, and `DataTable` (the same table the CSV/Anki/.lin import wizards' "Preview" step
+ * for the data, and `DataTable` (the same table the CSV/Anki/.lem import wizards' "Preview" step
  * renders) for the view. Word and cloze cards get separate tables (see WORD_COLUMNS/CLOZE_COLUMNS)
  * switched via a Word/Cloze toggle — the toggle itself only shows up when the deck actually has
  * cloze cards, same reasoning as the deck detail screen's "Practice cloze" button.
@@ -91,7 +91,7 @@ export default function DeckTableScreen(): JSX.Element {
         <ErrorState message={String(cardsQuery.error)} onRetry={() => void cardsQuery.refetch()} />
       ) : cardsQuery.data.length === 0 ? (
         <EmptyState
-          icon="grid-outline"
+          icon="LayoutGrid"
           title={t('No cards yet')}
           message={t('Add words from Search or import a file to see them here.')}
         />

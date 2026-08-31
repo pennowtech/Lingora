@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { BackupValidationError } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useQueryClient } from '@tanstack/react-query'
@@ -6,6 +5,7 @@ import { router } from 'expo-router'
 import { useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Icon, type IconName } from '../../components/Icon'
 import { AlertModal, Card, ConfirmModal, SectionHeader } from '../../components/ui'
 import { ExportNameModal } from '../../components/ExportNameModal'
 import { applyBackupRestore, exportBackupToFile, pickAndParseBackupFile, type PickedBackup } from '../../lib/backup'
@@ -20,16 +20,16 @@ const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
 type OptionId =
   | 'import-apkg'
   | 'import-csv'
-  | 'import-lin-deck'
+  | 'import-lem-deck'
   | 'import-restore'
-  | 'export-lin'
+  | 'export-lem'
   | 'export-csv'
   | 'export-apkg'
   | 'export-markdown'
 
 /** One collapsible option row — header always visible, detail + action only when expanded. */
 function OptionAccordion(props: {
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   iconBg: string
   iconColor: string
   title: string
@@ -44,7 +44,7 @@ function OptionAccordion(props: {
     <Card style={styles.optionCard}>
       <Pressable style={styles.optionHeader} onPress={props.onToggle}>
         <View style={[styles.optionIcon, { backgroundColor: props.iconBg }]}>
-          <Ionicons name={props.icon} size={20} color={props.iconColor} />
+          <Icon name={props.icon} size={20} color={props.iconColor} />
         </View>
         <View style={styles.optionText}>
           <Text style={styles.optionTitle}>{props.title}</Text>
@@ -54,7 +54,7 @@ function OptionAccordion(props: {
             </Text>
           ) : null}
         </View>
-        <Ionicons name={props.expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+        <Icon name={props.expanded ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
       </Pressable>
       {props.expanded ? (
         <View style={styles.optionBody}>
@@ -180,7 +180,7 @@ export default function ImportExportScreen(): JSX.Element {
       <SectionHeader title={t('Import')} />
 
       <OptionAccordion
-        icon="albums"
+        icon="Layers"
         iconBg={colors.infoSoft}
         iconColor={colors.info}
         title={t('Anki deck (.apkg)')}
@@ -189,13 +189,13 @@ export default function ImportExportScreen(): JSX.Element {
         onToggle={() => toggle('import-apkg')}
       >
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/apkg-import')}>
-          <Ionicons name="folder-open" size={16} color={colors.primary} />
+          <Icon name="FolderOpen" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{t('Choose .apkg file')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="grid"
+        icon="LayoutGrid"
         iconBg={colors.successSoft}
         iconColor={colors.success}
         title={t('CSV with column mapping')}
@@ -204,37 +204,37 @@ export default function ImportExportScreen(): JSX.Element {
         onToggle={() => toggle('import-csv')}
       >
         <Pressable style={styles.actionButton} onPress={() => router.push('/settings/csv-import')}>
-          <Ionicons name="folder-open" size={16} color={colors.primary} />
+          <Icon name="FolderOpen" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{t('Choose CSV file')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="sparkles"
+        icon="Sparkles"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('A shared deck (.lin)')}
+        title={t('A shared deck (.lem)')}
         detail={t("Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.")}
-        expanded={expanded.has('import-lin-deck')}
-        onToggle={() => toggle('import-lin-deck')}
+        expanded={expanded.has('import-lem-deck')}
+        onToggle={() => toggle('import-lem-deck')}
       >
-        <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lin-import')}>
-          <Ionicons name="folder-open" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{t('Choose .lin file')}</Text>
+        <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lem-import')}>
+          <Icon name="FolderOpen" size={16} color={colors.primary} />
+          <Text style={styles.actionButtonLabel}>{t('Choose .lem file')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="cloud-upload"
+        icon="CloudUpload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Restore from Lemmory backup (.lin)')}
+        title={t('Restore from Lemmory backup (.lem)')}
         detail={t('Replaces everything on this device with a previously exported backup.')}
         expanded={expanded.has('import-restore')}
         onToggle={() => toggle('import-restore')}
       >
         <Pressable style={styles.actionButton} onPress={handleRestore} disabled={restoring}>
-          <Ionicons name="folder-open" size={16} color={colors.primary} />
+          <Icon name="FolderOpen" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{restoring ? t('Restoring...') : t('Choose backup file')}</Text>
           {restoring ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
@@ -243,23 +243,23 @@ export default function ImportExportScreen(): JSX.Element {
       <SectionHeader title={t('Export')} />
 
       <OptionAccordion
-        icon="cloud-download"
+        icon="CloudDownload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Lemmory backup (.lin)')}
+        title={t('Lemmory backup (.lem)')}
         detail={t('Your full library - decks, cards, review history. Your data is always yours. API keys are never included.')}
-        expanded={expanded.has('export-lin')}
-        onToggle={() => toggle('export-lin')}
+        expanded={expanded.has('export-lem')}
+        onToggle={() => toggle('export-lem')}
       >
         <Pressable style={styles.actionButton} onPress={handleExport} disabled={exporting}>
-          <Ionicons name="download" size={16} color={colors.primary} />
+          <Icon name="Download" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{exporting ? t('Exporting...') : t('Export everything')}</Text>
           {exporting ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="grid"
+        icon="LayoutGrid"
         iconBg={colors.successSoft}
         iconColor={colors.success}
         title={t('CSV')}
@@ -268,13 +268,13 @@ export default function ImportExportScreen(): JSX.Element {
         onToggle={() => toggle('export-csv')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('csv')} disabled={exportingFormat !== null}>
-          <Ionicons name="download" size={16} color={colors.primary} />
+          <Icon name="Download" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{exportingFormat === 'csv' ? t('Exporting...') : t('Export as CSV')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="albums"
+        icon="Layers"
         iconBg={colors.infoSoft}
         iconColor={colors.info}
         title={t('Anki deck (.apkg)')}
@@ -283,13 +283,13 @@ export default function ImportExportScreen(): JSX.Element {
         onToggle={() => toggle('export-apkg')}
       >
         <Pressable style={styles.actionButton} onPress={() => handleFormatExport('apkg')} disabled={exportingFormat !== null}>
-          <Ionicons name="download" size={16} color={colors.primary} />
+          <Icon name="Download" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{exportingFormat === 'apkg' ? t('Exporting...') : t('Export as .apkg')}</Text>
         </Pressable>
       </OptionAccordion>
 
       <OptionAccordion
-        icon="document-text"
+        icon="FileText"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
         title={t('Markdown')}
@@ -302,7 +302,7 @@ export default function ImportExportScreen(): JSX.Element {
           onPress={() => handleFormatExport('markdown')}
           disabled={exportingFormat !== null}
         >
-          <Ionicons name="download" size={16} color={colors.primary} />
+          <Icon name="Download" size={16} color={colors.primary} />
           <Text style={styles.actionButtonLabel}>{exportingFormat === 'markdown' ? t('Exporting...') : t('Export as Markdown')}</Text>
         </Pressable>
       </OptionAccordion>

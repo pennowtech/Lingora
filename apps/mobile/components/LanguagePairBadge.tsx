@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon } from './Icon'
 import { LANGUAGE_FLAGS, useServices } from '../lib/services'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
@@ -68,7 +68,7 @@ function LanguagePairPill({ compact = false }: { compact?: boolean }): JSX.Eleme
         )}
       </View>
       <View style={[styles.arrowDot, compact && styles.arrowDotCompact]}>
-        <Ionicons name="arrow-forward" size={compact ? 9 : 11} color={colors.textOnPrimary} />
+        <Icon name="ArrowRight" size={compact ? 9 : 11} color={colors.textOnPrimary} />
       </View>
       <View style={[styles.chip, styles.chipTarget, compact && styles.chipCompact]}>
         <Text style={[styles.flag, compact && styles.flagCompact]}>

@@ -1,4 +1,5 @@
 import type { CsvColumnMapping, CsvField, CsvRowPreview, DuplicatePolicy } from '@lingora/database'
+import type { QuestionType } from '@lingora/types'
 import { buildCsvImportPreview, createDeck, getDeckById, getDecksForLemma, importCsvRows, parseCsv } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -150,12 +151,12 @@ export default function CsvImportScreen(): JSX.Element {
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const trimmed = name.trim()
       if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name: trimmed, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return { id, name: trimmed }
     },
     onSuccess: async ({ id, name }) => {
@@ -464,7 +465,7 @@ export default function CsvImportScreen(): JSX.Element {
               ) : (
                 <>
                   <EmptyState
-                    icon="checkmark-circle"
+                    icon="CircleCheck"
                     title={t('Import complete')}
                     message={t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}
                   />
@@ -498,7 +499,7 @@ export default function CsvImportScreen(): JSX.Element {
           <Text style={styles.body}>
             {t("From Quizlet, Memrise, or a spreadsheet export. You'll choose which column means what next.")}
           </Text>
-          <Button label={t('Choose CSV file')} icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose CSV file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -582,7 +583,7 @@ export default function CsvImportScreen(): JSX.Element {
             <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
             <Button
               label={deckName ?? t('Choose a deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />
@@ -608,7 +609,7 @@ export default function CsvImportScreen(): JSX.Element {
           setDeckName(deck.name)
           setDeckPickerOpen(false)
         }}
-        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createNewDeck.mutate({ name, questionTypes })}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
       />

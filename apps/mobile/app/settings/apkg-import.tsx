@@ -1,4 +1,5 @@
 import type { ApkgField, ApkgFieldMapping, ApkgRowPreview, DuplicatePolicy } from '@lingora/database'
+import type { QuestionType } from '@lingora/types'
 import {
   buildApkgImportPreview,
   createDeck,
@@ -164,12 +165,12 @@ export default function ApkgImportScreen(): JSX.Element {
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const trimmed = name.trim()
       if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name: trimmed, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return { id, name: trimmed }
     },
     onSuccess: async ({ id, name }) => {
@@ -512,7 +513,7 @@ export default function ApkgImportScreen(): JSX.Element {
               ) : (
                 <>
                   <EmptyState
-                    icon="checkmark-circle"
+                    icon="CircleCheck"
                     title={result.cancelled ? t('Import canceled') : t('Import complete')}
                     message={`${t('Imported {{count}} words.', { count: result.imported.toLocaleString() })}${result.cancelled ? ` ${t('The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).')}` : ''}`}
                   />
@@ -546,7 +547,7 @@ export default function ApkgImportScreen(): JSX.Element {
           <Text style={styles.body}>
             {t("Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.")}
           </Text>
-          <Button label={t('Choose .apkg file')} icon="folder-open" onPress={handlePickFile} />
+          <Button label={t('Choose .apkg file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -632,7 +633,7 @@ export default function ApkgImportScreen(): JSX.Element {
             <Text style={styles.fieldLabel}>{t('Add to deck')}</Text>
             <Button
               label={deckName ?? t('Choose a deck')}
-              icon="albums-outline"
+              icon="Layers"
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />
@@ -658,7 +659,7 @@ export default function ApkgImportScreen(): JSX.Element {
           setDeckName(deck.name)
           setDeckPickerOpen(false)
         }}
-        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createNewDeck.mutate({ name, questionTypes })}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
       />

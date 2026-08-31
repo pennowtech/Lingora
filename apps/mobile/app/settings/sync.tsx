@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { TFunction } from 'i18next'
 import { Stack } from 'expo-router'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
+import { Icon } from '../../components/Icon'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AlertModal, Button, Card, Chip, ConfirmModal, IconButton, SectionHeader } from '../../components/ui'
 import {
@@ -35,7 +35,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'overview',
     title: 'How sync works',
-    icon: 'sync-circle',
+    icon: 'RefreshCw',
     paragraphs: [
       'Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemmory on two devices, you\'re not starting from zero on the second one.',
       'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.',
@@ -45,7 +45,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'automatic',
     title: 'Automatic sync',
-    icon: 'time',
+    icon: 'Clock',
     paragraphs: [
       'When this is on, Lemmory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.',
       '"At most every" is a cooldown, not a schedule - it won\'t sync more often than that, but it also won\'t force a sync if you haven\'t opened the app in the meantime.',
@@ -55,7 +55,7 @@ const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'delete',
     title: 'Deleting your account & data',
-    icon: 'trash',
+    icon: 'Trash2',
     paragraphs: [
       { text: 'This is the one action here you genuinely can\'t undo - read this before you tap it.', bold: true },
       'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.',
@@ -129,7 +129,7 @@ export default function SyncScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="help-circle-outline" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('overview')} color={colors.primary} size={22} />
           ),
         }}
       />
@@ -138,7 +138,7 @@ export default function SyncScreen(): JSX.Element {
         {sync.account ? (
           <View style={styles.accountRow}>
             <View style={styles.accountAvatar}>
-              <Ionicons name="person" size={18} color={colors.primary} />
+              <Icon name="User" size={18} color={colors.primary} />
             </View>
             <View style={styles.optionText}>
               <Text style={styles.optionLabel}>{sync.account.displayName ?? sync.account.email}</Text>
@@ -151,7 +151,7 @@ export default function SyncScreen(): JSX.Element {
         ) : (
           <Button
             label={signingIn ? t('Signing in...') : t('Sign in with Google')}
-            icon="logo-google"
+            icon="Globe"
             variant="secondary"
             onPress={handleSignIn}
             disabled={signingIn}
@@ -161,7 +161,7 @@ export default function SyncScreen(): JSX.Element {
         <Button
           testID="sync-now-button"
           label={sync.phase === 'syncing' ? t('Syncing...') : t('Sync now')}
-          icon="sync"
+          icon="RefreshCw"
           onPress={handleSyncNow}
           disabled={sync.phase === 'syncing' || !sync.account}
         />
@@ -226,7 +226,7 @@ export default function SyncScreen(): JSX.Element {
           </Pressable>
           <Button
             label={deleting ? t('Deleting...') : t('Delete account & sync data')}
-            icon="trash"
+            icon="Trash2"
             variant="danger"
             onPress={() => setDeleteConfirmOpen(true)}
             disabled={deleting}

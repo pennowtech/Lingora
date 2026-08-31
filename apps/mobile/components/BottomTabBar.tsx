@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { getPendingMineEntries } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { router, usePathname } from 'expo-router'
@@ -6,6 +5,7 @@ import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon, type IconName } from './Icon'
 import { useServices } from '../lib/services'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -13,7 +13,7 @@ import type { ThemeColors } from '../lib/themes'
 interface TabEntry {
   route: '/' | '/search' | '/decks' | '/mine' | '/settings'
   label: string
-  icon: keyof typeof Ionicons.glyphMap
+  icon: IconName
   testID: string
   badge?: number
 }
@@ -43,17 +43,17 @@ export function BottomTabBar(): JSX.Element {
   const pendingCount = mineQuery.data?.length ?? 0
 
   const tabs: TabEntry[] = [
-    { route: '/', label: t('Home'), icon: 'home', testID: 'tab-home' },
-    { route: '/search', label: t('Search'), icon: 'search', testID: 'tab-search' },
-    { route: '/decks', label: t('Decks'), icon: 'albums', testID: 'tab-decks' },
+    { route: '/', label: t('Home'), icon: 'House', testID: 'tab-home' },
+    { route: '/search', label: t('Search'), icon: 'Search', testID: 'tab-search' },
+    { route: '/decks', label: t('Decks'), icon: 'Layers', testID: 'tab-decks' },
     {
       route: '/mine',
       label: t('Queue'),
-      icon: 'download',
+      icon: 'Download',
       testID: 'tab-mine',
       ...(pendingCount > 0 && { badge: pendingCount }),
     },
-    { route: '/settings', label: t('Settings'), icon: 'settings-sharp', testID: 'tab-settings' },
+    { route: '/settings', label: t('Settings'), icon: 'Settings', testID: 'tab-settings' },
   ]
 
   return (
@@ -77,7 +77,7 @@ export function BottomTabBar(): JSX.Element {
                   active ? styles.centerFabActive : styles.centerFabInactive,
                 ]}
               >
-                <Ionicons
+                <Icon
                   name={tab.icon}
                   size={24}
                   color={active ? '#FFFFFF' : colors.primary}
@@ -106,7 +106,7 @@ export function BottomTabBar(): JSX.Element {
             hitSlop={4}
           >
             <View>
-              <Ionicons name={tab.icon} size={22} color={active ? colors.primary : colors.textMuted} />
+              <Icon name={tab.icon} size={22} color={active ? colors.primary : colors.textMuted} />
               {tab.badge ? (
                 <View style={styles.badge}>
                   <Text style={styles.badgeLabel}>{tab.badge}</Text>

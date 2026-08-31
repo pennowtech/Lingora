@@ -1,0 +1,390 @@
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Sizing and Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 25px var(--accent-primary-alpha25, rgba(99, 102, 241, 0.25));
+
+  /* Modal backdrop scrim - deliberately theme-independent (always a dark, translucent tint) so it
+     dims the page behind a popup on every theme. --bg-card is opaque #FFFFFF on every light theme
+     (lingoraLight/arctic/warmSand/paperlight), so .modal-overlay used to whitewash the whole screen
+     there instead of dimming it. */
+  --overlay-scrim: rgba(10, 10, 18, 0.55);
+}
+
+/* 1. Lingora Light */
+body[data-theme="lingoraLight"] {
+  --bg-dark: #F7F6FB;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F1EFF8;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --border-color: #E5E2F0;
+  --border-active: rgba(83, 74, 183, 0.4);
+  --text-primary: #1C1B22;
+  --text-secondary: #5F5E6A;
+  --text-muted: #9C9AAB;
+  --accent-primary: #534AB7;
+  --accent-primary-hover: #3E3789;
+  --accent-secondary: #534AB7;
+  --btn-primary-text: #FFFFFF;
+  --success: #2E9E5B;
+  --success-bg: #E3F5EA;
+  --warning: #D97706;
+  --warning-bg: #FCF0DF;
+  --danger: #D64545;
+  --danger-bg: #FBE9E9;
+  --info: #2D7FF9;
+  --info-bg: #E7F0FE;
+}
+
+/* 2. Midnight Indigo (Default Dark) */
+body[data-theme="midnight"],
+body:not([data-theme]) {
+  --bg-dark: #0D0F1E;
+  --bg-surface: #1B1E38;
+  --bg-surface-hover: #2E3260;
+  --bg-card: rgba(27, 30, 56, 0.7);
+  --bg-glass: rgba(20, 22, 41, 0.65);
+  --border-color: #2E3260;
+  --border-active: rgba(108, 99, 255, 0.4);
+  --text-primary: #EEF0FF;
+  --text-secondary: #9DA4CC;
+  --text-muted: #5A6090;
+  --accent-primary: #6C63FF;
+  --accent-primary-hover: #A89FFF;
+  --accent-secondary: #2E2B6E;
+  --btn-primary-text: #FFFFFF;
+  --success: #4ADE80;
+  --success-bg: rgba(74, 222, 128, 0.15);
+  --warning: #FBBF24;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --danger: #F87171;
+  --danger-bg: rgba(248, 113, 113, 0.15);
+  --info: #38BDF8;
+  --info-bg: rgba(56, 189, 248, 0.15);
+}
+
+/* 3. Carbon Noir */
+body[data-theme="carbon"] {
+  --bg-dark: #0A0A0A;
+  --bg-surface: #1A1A1A;
+  --bg-surface-hover: #2A2A2A;
+  --bg-card: rgba(26, 26, 26, 0.7);
+  --bg-glass: rgba(17, 17, 17, 0.65);
+  --border-color: #2A2A2A;
+  --border-active: rgba(229, 229, 229, 0.4);
+  --text-primary: #F5F5F5;
+  --text-secondary: #888888;
+  --text-muted: #444444;
+  --accent-primary: #E5E5E5;
+  --accent-primary-hover: #FFFFFF;
+  --accent-secondary: #2A2A2A;
+  --btn-primary-text: #000000;
+  --success: #22C55E;
+  --success-bg: rgba(34, 197, 94, 0.15);
+  --warning: #EAB308;
+  --warning-bg: rgba(234, 179, 8, 0.15);
+  --danger: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --info: #60A5FA;
+  --info-bg: rgba(96, 165, 250, 0.15);
+}
+
+/* 4. Arctic Day */
+body[data-theme="arctic"] {
+  --bg-dark: #F0F4F8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #E2E8F0;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --border-color: #D0DBE8;
+  --border-active: rgba(37, 99, 235, 0.4);
+  --text-primary: #0F1A2E;
+  --text-secondary: #4A5F7A;
+  --text-muted: #94A8BE;
+  --accent-primary: #2563EB;
+  --accent-primary-hover: #1D4ED8;
+  --accent-secondary: #DBEAFE;
+  --btn-primary-text: #FFFFFF;
+  --success: #16A34A;
+  --success-bg: rgba(22, 163, 74, 0.15);
+  --warning: #D97706;
+  --warning-bg: rgba(217, 119, 6, 0.15);
+  --danger: #DC2626;
+  --danger-bg: rgba(220, 38, 38, 0.15);
+  --info: #0284C7;
+  --info-bg: rgba(2, 132, 199, 0.15);
+}
+
+/* 5. Warm Sand */
+body[data-theme="warmSand"] {
+  --bg-dark: #F5F0E8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #FAF7F2;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --border-color: #D8CEBA;
+  --border-active: rgba(194, 117, 42, 0.4);
+  --text-primary: #2A1F0F;
+  --text-secondary: #7A6040;
+  --text-muted: #B8A888;
+  --accent-primary: #C2752A;
+  --accent-primary-hover: #9A5A1A;
+  --accent-secondary: #FDE8CF;
+  --btn-primary-text: #FFFFFF;
+  --success: #3A8A3A;
+  --success-bg: rgba(58, 138, 58, 0.15);
+  --warning: #C08020;
+  --warning-bg: rgba(192, 128, 32, 0.15);
+  --danger: #C03020;
+  --danger-bg: rgba(192, 48, 32, 0.15);
+  --info: #1A6A9A;
+  --info-bg: rgba(26, 106, 154, 0.15);
+}
+
+/* 6. Paperlight */
+body[data-theme="paperlight"] {
+  --bg-dark: #FFFFFF;
+  --bg-surface: #FAFAFA;
+  --bg-surface-hover: #F4F4F5;
+  --bg-card: #FAFAFA;
+  --bg-glass: rgba(250, 250, 250, 0.8);
+  --border-color: #E4E4E7;
+  --border-active: rgba(37, 99, 235, 0.4);
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --accent-primary: #2563EB;
+  --accent-primary-hover: #1D4ED8;
+  --accent-secondary: #EAF2FF;
+  --btn-primary-text: #FFFFFF;
+  --success: #15803D;
+  --success-bg: rgba(21, 128, 61, 0.15);
+  --warning: #B45309;
+  --warning-bg: rgba(180, 83, 9, 0.15);
+  --danger: #B91C1C;
+  --danger-bg: rgba(185, 28, 28, 0.15);
+  --info: #0369A1;
+  --info-bg: rgba(3, 105, 161, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.page-container {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card:hover {
+  border-color: var(--border-active);
+}
+.glass-card.interactive {
+  cursor: pointer;
+}
+.glass-card.interactive:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--btn-primary-text);
+  box-shadow: 0 4px 14px var(--shadow-glow);
+}
+.btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--shadow-glow);
+}
+.btn-secondary {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-secondary:hover {
+  background: var(--bg-glass);
+  border-color: var(--border-active);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-indigo {
+  background: var(--bg-surface-hover);
+  color: var(--accent-primary);
+  border: 1px solid var(--border-active);
+}
+.badge-emerald {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-amber {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-sky {
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+/* Form Inputs */
+.input-field {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.input-field:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--border-active);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-scrim);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}

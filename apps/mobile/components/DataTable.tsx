@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native'
+import { Icon } from './Icon'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -38,7 +38,7 @@ const SELECT_COLUMN_WIDTH = 48
 const ROW_NUMBER_COLUMN_WIDTH = 40
 
 /**
- * The "Preview" table shared by the CSV/Anki/.lin import wizards (pick → map → **preview** →
+ * The "Preview" table shared by the CSV/Anki/.lem import wizards (pick → map → **preview** →
  * confirm) and the deck detail screen's read-only "View all cards" table — one column-header row
  * pinned above a vertically-scrolling body, both wrapped in a single horizontal ScrollView so
  * columns stay aligned when scrolling sideways. Selection (the checkbox column + row tap-to-toggle)
@@ -56,8 +56,8 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
         <View style={styles.headerRow}>
           {selection ? (
             <Pressable style={[styles.headerCheckboxCell, { width: SELECT_COLUMN_WIDTH }]} onPress={selection.onToggleAll}>
-              <Ionicons
-                name={selection.allSelected ? 'checkbox' : 'square-outline'}
+              <Icon
+                name={selection.allSelected ? 'SquareCheck' : 'Square'}
                 size={18}
                 color={selection.allSelected ? colors.primary : colors.textMuted}
               />
@@ -85,8 +85,8 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                   style={[styles.checkboxCell, { width: SELECT_COLUMN_WIDTH }]}
                   onPress={() => selection.onToggle(row)}
                 >
-                  <Ionicons
-                    name={selection.isSelected(row) ? 'checkbox' : 'square-outline'}
+                  <Icon
+                    name={selection.isSelected(row) ? 'SquareCheck' : 'Square'}
                     size={18}
                     color={selection.isSelected(row) ? colors.primary : colors.textMuted}
                   />

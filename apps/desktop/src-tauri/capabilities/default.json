@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default permissions for the main window - grants the HTTP plugin so AI provider (BYOK) requests can be made from Rust, bypassing the WebView's browser CORS restrictions, plus the dialog/fs plugins for backup/CSV/Markdown/Anki export-import (see src/services/desktopFileStorage.ts). dialog:default covers the native open/save pickers; fs:default covers reading/writing whatever path the user picked through them - no broader filesystem scope than that is granted.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "http:default",
+    "dialog:default",
+    "fs:default"
+  ]
+}

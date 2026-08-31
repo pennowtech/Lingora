@@ -1,14 +1,16 @@
-import { Ionicons } from '@expo/vector-icons'
-import type { Deck } from '@lingora/types'
+import type { Deck, QuestionType } from '@lingora/types'
 import { getAllDecks, type DatabaseAdapter } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Icon } from './Icon'
 import { Button, ErrorState, IconButton, Spinner } from './ui'
+import { ReviewModesPicker } from './ReviewModesPicker'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
+import { DEFAULT_ENABLED_QUESTION_TYPES, toggleQuestionType } from '../lib/reviewTypes'
 
 /**
  * The "which deck?" centered dialog — a list of every deck (checkmarked where the card already
@@ -34,7 +36,7 @@ export function DeckPickerModal(props: {
   onSelectDeck: (deck: Deck) => void
   selecting?: boolean
   selectError?: string
-  onCreateDeck: (name: string) => void
+  onCreateDeck: (name: string, questionTypes: QuestionType[]) => void
   creating?: boolean
   createError?: string
 }): JSX.Element {
@@ -43,6 +45,9 @@ export function DeckPickerModal(props: {
   const styles = useThemedStyles(createStyles)
   const [newDeckMode, setNewDeckMode] = useState(false)
   const [newDeckName, setNewDeckName] = useState('')
+  // Which review formats the new deck practices with - defaults to the same starting point as
+  // Settings -> Learning's global picker, overridable per deck right here at creation time.
+  const [newDeckQuestionTypes, setNewDeckQuestionTypes] = useState<QuestionType[]>([...DEFAULT_ENABLED_QUESTION_TYPES])
 
   const decksQuery = useQuery({
     queryKey: ['decks'],
@@ -57,12 +62,13 @@ export function DeckPickerModal(props: {
   const close = (): void => {
     setNewDeckMode(false)
     setNewDeckName('')
+    setNewDeckQuestionTypes([...DEFAULT_ENABLED_QUESTION_TYPES])
     props.onClose()
   }
 
   const submitNewDeck = (): void => {
     if (newDeckName.trim() === '' || creating) return
-    props.onCreateDeck(newDeckName.trim())
+    props.onCreateDeck(newDeckName.trim(), newDeckQuestionTypes)
   }
 
   return (
@@ -73,16 +79,24 @@ export function DeckPickerModal(props: {
           <Text style={styles.title}>{props.title}</Text>
 
           {newDeckMode ? (
-            <View style={styles.newDeckRow}>
-              <TextInput
-                testID="deck-picker-new-name-input"
-                style={styles.newDeckInput}
-                placeholder={t('New deck name')}
-                placeholderTextColor={colors.textMuted}
-                value={newDeckName}
-                onChangeText={setNewDeckName}
-                autoFocus
-                onSubmitEditing={submitNewDeck}
+            <View style={styles.newDeckForm}>
+              <View style={styles.newDeckRow}>
+                <TextInput
+                  testID="deck-picker-new-name-input"
+                  style={styles.newDeckInput}
+                  placeholder={t('New deck name')}
+                  placeholderTextColor={colors.textMuted}
+                  value={newDeckName}
+                  onChangeText={setNewDeckName}
+                  autoFocus
+                  onSubmitEditing={submitNewDeck}
+                />
+                <IconButton icon="X" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
+              </View>
+              <ReviewModesPicker
+                label={t('Review modes')}
+                value={newDeckQuestionTypes}
+                onToggle={(qt) => setNewDeckQuestionTypes((prev) => toggleQuestionType(prev, qt))}
               />
               <Button
                 label={creating ? t('Creating...') : t('Create')}
@@ -90,11 +104,10 @@ export function DeckPickerModal(props: {
                 onPress={submitNewDeck}
                 disabled={creating || newDeckName.trim() === ''}
               />
-              <IconButton icon="close" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
             </View>
           ) : (
             <Pressable testID="deck-picker-new-toggle" style={styles.newDeckButton} onPress={() => setNewDeckMode(true)}>
-              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+              <Icon name="CirclePlus" size={20} color={colors.primary} />
               <Text style={styles.newDeckButtonLabel}>{t('Create new deck')}</Text>
             </Pressable>
           )}
@@ -118,7 +131,7 @@ export function DeckPickerModal(props: {
                   >
                     <Text style={styles.emoji}>{deck.emoji ?? '📚'}</Text>
                     <Text style={styles.name}>{deck.name}</Text>
-                    {already ? <Ionicons name="checkmark-circle" size={18} color={colors.success} /> : null}
+                    {already ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
                   </Pressable>
                 )
               })}
@@ -152,7 +165,8 @@ const createStyles = (colors: ThemeColors) =>
     rowDisabled: { opacity: 0.5 },
     emoji: { fontSize: 20 },
     name: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-    newDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
+    newDeckForm: { gap: spacing.md, paddingVertical: spacing.sm },
+    newDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     newDeckInput: {
       flex: 1,
       borderWidth: 1,

@@ -64,7 +64,8 @@ export class GoogleTranslateProvider implements DictionaryProvider {
   constructor(config: GoogleTranslateProviderConfig = {}) {
     this.baseUrl = (config.baseUrl ?? 'https://translate.googleapis.com').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 15_000
-    this.fetchFn = config.fetchFn ?? fetch
+    // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
+    this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
 
   async translate(

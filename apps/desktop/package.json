@@ -1,5 +1,40 @@
 {
   "name": "@lingora/desktop",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@lingora/ai": "workspace:*",
+    "@lingora/core": "workspace:*",
+    "@lingora/database": "workspace:*",
+    "@lingora/observability": "workspace:*",
+    "@lingora/srs": "workspace:*",
+    "@lingora/types": "workspace:*",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2",
+    "@tauri-apps/plugin-fs": "^2",
+    "@tauri-apps/plugin-http": "^2",
+    "fts5-sql-bundle": "^1.0.2",
+    "liquidjs": "^10.27.2",
+    "lucide-react": "^0.475.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sql.js": "^1.12.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/sql.js": "^1.4.11",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.4.0",
+    "vite": "^6.1.0"
+  }
 }

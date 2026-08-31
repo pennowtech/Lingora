@@ -20,7 +20,7 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ cards, onFinishRevie
 
   const handleNextCard = (rating: 'again' | 'hard' | 'good' | 'easy') => {
     if (currentCard) {
-      rateCard(currentCard.id, rating);
+      rateCard(currentCard.id, rating, (currentCard as any).isCloze === true);
     }
     setIsFlipped(false);
     if (currentIndex + 1 < cards.length) {

@@ -8,7 +8,7 @@ import type { ThemeColors } from '../lib/themes'
 
 /**
  * The "what should this file be called?" prompt shown before every export (CSV/Markdown/Anki/
- * `.lin`) — prefilled with a sensible default (`defaultExportFileName` in lib/save-file.ts:
+ * `.lem`) — prefilled with a sensible default (`defaultExportFileName` in lib/save-file.ts:
  * `deckname_YYYY-MM-DD_HHmm`) but always editable, and always shown, rather than silently
  * generating a name the user never sees. The actual save location is a separate, native step
  * (Android's Storage Access Framework folder picker, or the share sheet) that `saveExportFile`

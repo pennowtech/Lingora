@@ -19,7 +19,7 @@ export { defaultExportFileName } from '@lingora/core'
 
 const log = logger.child({ feature: 'export', component: 'export' })
 
-export type ExportFormat = 'csv' | 'markdown' | 'apkg' | 'lin'
+export type ExportFormat = 'csv' | 'markdown' | 'apkg' | 'lem'
 
 export interface ExportOptions {
   /** Narrows to one deck's cards; omit for the whole library. */
@@ -121,6 +121,6 @@ export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptio
 export async function runExport(db: DatabaseAdapter, format: ExportFormat, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   if (format === 'csv') return exportCsvToFile(db, options)
   if (format === 'markdown') return exportMarkdownToFile(db, options)
-  if (format === 'lin') return exportBackupToFile(db, options)
+  if (format === 'lem') return exportBackupToFile(db, options)
   return exportApkgToFile(db, options)
 }

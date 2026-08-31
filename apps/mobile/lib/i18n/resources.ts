@@ -340,14 +340,14 @@ const ENGLISH_PHRASES = [
   'CSV with column mapping',
   'From Quizlet, Memrise, or spreadsheets.',
   'Choose CSV file',
-  'A shared deck (.lin)',
+  'A shared deck (.lem)',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.",
-  'Choose .lin file',
-  'Restore from Lemmory backup (.lin)',
+  'Choose .lem file',
+  'Restore from Lemmory backup (.lem)',
   'Replaces everything on this device with a previously exported backup.',
   'Restoring...',
   'Choose backup file',
-  'Lemmory backup (.lin)',
+  'Lemmory backup (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.',
   'Export everything',
   'CSV',
@@ -368,7 +368,7 @@ const ENGLISH_PHRASES = [
   'Invalid backup file',
   'Could not read file',
 
-  // CSV / Anki / .lin import wizards
+  // CSV / Anki / .lem import wizards
   'Preview',
   'Will import',
   'Duplicates',
@@ -428,8 +428,8 @@ const ENGLISH_PHRASES = [
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).',
   'Tags',
 
-  'Import from a .lin file',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.',
+  'Import from a .lem file',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.',
   'This file has more than one deck. Which one do you want to import?',
   'This file has no decks to import.',
   'Importing "{{name}}" ({{count}} cards).',
@@ -1391,16 +1391,16 @@ const de: Partial<Record<Phrase, string>> = {
   'CSV with column mapping': 'CSV mit Spaltenzuordnung',
   'From Quizlet, Memrise, or spreadsheets.': 'Von Quizlet, Memrise oder Tabellenkalkulationen.',
   'Choose CSV file': 'CSV-Datei auswählen',
-  'A shared deck (.lin)': 'Ein geteilter Stapel (.lin)',
+  'A shared deck (.lem)': 'Ein geteilter Stapel (.lem)',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     'Füge einen Stapel hinzu, den dir jemand geteilt hat - vollständig, inklusive Wiederholungsverlauf. Berührt nichts anderes auf diesem Gerät.',
-  'Choose .lin file': '.lin-Datei auswählen',
-  'Restore from Lemmory backup (.lin)': 'Aus Lemmory-Sicherung wiederherstellen (.lin)',
+  'Choose .lem file': '.lem-Datei auswählen',
+  'Restore from Lemmory backup (.lem)': 'Aus Lemmory-Sicherung wiederherstellen (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'Ersetzt alles auf diesem Gerät durch eine zuvor exportierte Sicherung.',
   'Restoring...': 'Wird wiederhergestellt...',
   'Choose backup file': 'Sicherungsdatei auswählen',
-  'Lemmory backup (.lin)': 'Lemmory-Sicherung (.lin)',
+  'Lemmory backup (.lem)': 'Lemmory-Sicherung (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'Deine gesamte Bibliothek - Stapel, Karten, Wiederholungsverlauf. Deine Daten gehören immer dir. API-Schlüssel sind nie enthalten.',
   'Export everything': 'Alles exportieren',
@@ -1487,9 +1487,9 @@ const de: Partial<Record<Phrase, string>> = {
   'Import canceled': 'Import abgebrochen',
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'Der Rest wurde nicht verändert - du kannst dieselbe Datei erneut importieren, um dort weiterzumachen (bereits importierte Wörter werden als Duplikate übersprungen).',
-  'Import from a .lin file': 'Aus einer .lin-Datei importieren',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Wähle eine Lemmory-`.lin`-Datei - einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
+  'Import from a .lem file': 'Aus einer .lem-Datei importieren',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Wähle eine Lemmory-`.lem`-Datei - einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
   'This file has more than one deck. Which one do you want to import?':
     'Diese Datei enthält mehr als einen Stapel. Welchen möchtest du importieren?',
   'This file has no decks to import.': 'Diese Datei enthält keine importierbaren Stapel.',
@@ -2622,16 +2622,16 @@ const fr: Partial<Record<Phrase, string>> = {
   'CSV with column mapping': 'CSV avec mappage de colonnes',
   'From Quizlet, Memrise, or spreadsheets.': 'Depuis Quizlet, Memrise ou des feuilles de calcul.',
   'Choose CSV file': 'Choisir un fichier CSV',
-  'A shared deck (.lin)': 'Un paquet partagé (.lin)',
+  'A shared deck (.lem)': 'Un paquet partagé (.lem)',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     "Ajoutez un paquet que quelqu'un a partagé avec vous - fidélité totale, y compris l'historique de révision. Ne touche à rien d'autre sur cet appareil.",
-  'Choose .lin file': 'Choisir un fichier .lin',
-  'Restore from Lemmory backup (.lin)': 'Restaurer depuis une sauvegarde Lemmory (.lin)',
+  'Choose .lem file': 'Choisir un fichier .lem',
+  'Restore from Lemmory backup (.lem)': 'Restaurer depuis une sauvegarde Lemmory (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'Remplace tout sur cet appareil par une sauvegarde exportée précédemment.',
   'Restoring...': 'Restauration...',
   'Choose backup file': 'Choisir un fichier de sauvegarde',
-  'Lemmory backup (.lin)': 'Sauvegarde Lemmory (.lin)',
+  'Lemmory backup (.lem)': 'Sauvegarde Lemmory (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'Toute votre bibliothèque - paquets, cartes, historique de révision. Vos données vous appartiennent toujours. Les clés API ne sont jamais incluses.',
   'Export everything': 'Tout exporter',
@@ -2720,9 +2720,9 @@ const fr: Partial<Record<Phrase, string>> = {
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'Le reste a été laissé intact - vous pouvez réimporter le même fichier pour reprendre où vous en étiez (les mots déjà importés sont ignorés comme doublons).',
   Tags: 'Étiquettes',
-  'Import from a .lin file': 'Importer depuis un fichier .lin',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    "Choisissez un fichier Lemmory `.lin` - un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
+  'Import from a .lem file': 'Importer depuis un fichier .lem',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    "Choisissez un fichier Lemmory `.lem` - un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
   'This file has more than one deck. Which one do you want to import?':
     'Ce fichier contient plusieurs paquets. Lequel voulez-vous importer ?',
   'This file has no decks to import.': 'Ce fichier ne contient aucun paquet à importer.',
@@ -3848,16 +3848,16 @@ const es: Partial<Record<Phrase, string>> = {
   'CSV with column mapping': 'CSV con asignación de columnas',
   'From Quizlet, Memrise, or spreadsheets.': 'Desde Quizlet, Memrise u hojas de cálculo.',
   'Choose CSV file': 'Elegir archivo CSV',
-  'A shared deck (.lin)': 'Un mazo compartido (.lin)',
+  'A shared deck (.lem)': 'Un mazo compartido (.lem)',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     'Añade un mazo que alguien compartió contigo - fidelidad total, incluido el historial de repaso. No afecta nada más en este dispositivo.',
-  'Choose .lin file': 'Elegir archivo .lin',
-  'Restore from Lemmory backup (.lin)': 'Restaurar desde una copia de seguridad de Lemmory (.lin)',
+  'Choose .lem file': 'Elegir archivo .lem',
+  'Restore from Lemmory backup (.lem)': 'Restaurar desde una copia de seguridad de Lemmory (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'Reemplaza todo en este dispositivo con una copia de seguridad exportada previamente.',
   'Restoring...': 'Restaurando...',
   'Choose backup file': 'Elegir archivo de copia de seguridad',
-  'Lemmory backup (.lin)': 'Copia de seguridad de Lemmory (.lin)',
+  'Lemmory backup (.lem)': 'Copia de seguridad de Lemmory (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'Toda tu biblioteca - mazos, tarjetas, historial de repaso. Tus datos siempre son tuyos. Las claves API nunca se incluyen.',
   'Export everything': 'Exportar todo',
@@ -3946,9 +3946,9 @@ const es: Partial<Record<Phrase, string>> = {
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'El resto se dejó sin cambios - puedes volver a importar el mismo archivo para continuar donde lo dejaste (las palabras ya importadas se omiten como duplicados).',
   Tags: 'Etiquetas',
-  'Import from a .lin file': 'Importar desde un archivo .lin',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Elige un archivo Lemmory `.lin` - un mazo que alguien compartió contigo, o una de tus propias exportaciones de mazo. Fidelidad total: significados, ejemplos, sinónimos, tarjetas de huecos, historial de repaso y programación FSRS se transfieren todos.',
+  'Import from a .lem file': 'Importar desde un archivo .lem',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Elige un archivo Lemmory `.lem` - un mazo que alguien compartió contigo, o una de tus propias exportaciones de mazo. Fidelidad total: significados, ejemplos, sinónimos, tarjetas de huecos, historial de repaso y programación FSRS se transfieren todos.',
   'This file has more than one deck. Which one do you want to import?':
     'Este archivo tiene más de un mazo. ¿Cuál quieres importar?',
   'This file has no decks to import.': 'Este archivo no tiene mazos para importar.',
@@ -5077,16 +5077,16 @@ const hi: Partial<Record<Phrase, string>> = {
   'CSV with column mapping': 'कॉलम मैपिंग के साथ CSV',
   'From Quizlet, Memrise, or spreadsheets.': 'Quizlet, Memrise, या स्प्रेडशीट से।',
   'Choose CSV file': 'CSV फ़ाइल चुनें',
-  'A shared deck (.lin)': 'एक साझा किया गया डेक (.lin)',
+  'A shared deck (.lem)': 'एक साझा किया गया डेक (.lem)',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     'किसी ने आपके साथ साझा किया गया डेक जोड़ें - पूरी निष्ठा के साथ, दोहराव इतिहास सहित। यह इस डिवाइस पर कुछ और नहीं छूता।',
-  'Choose .lin file': '.lin फ़ाइल चुनें',
-  'Restore from Lemmory backup (.lin)': 'Lemmory बैकअप से पुनर्स्थापित करें (.lin)',
+  'Choose .lem file': '.lem फ़ाइल चुनें',
+  'Restore from Lemmory backup (.lem)': 'Lemmory बैकअप से पुनर्स्थापित करें (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'यह पहले निर्यात किए गए बैकअप से इस डिवाइस पर सब कुछ बदल देता है।',
   'Restoring...': 'पुनर्स्थापित हो रहा है...',
   'Choose backup file': 'बैकअप फ़ाइल चुनें',
-  'Lemmory backup (.lin)': 'Lemmory बैकअप (.lin)',
+  'Lemmory backup (.lem)': 'Lemmory बैकअप (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'आपकी पूरी लाइब्रेरी - डेक, कार्ड, दोहराव इतिहास। आपका डेटा हमेशा आपका ही रहता है। API कुंजियाँ कभी शामिल नहीं होतीं।',
   'Export everything': 'सब कुछ निर्यात करें',
@@ -5174,9 +5174,9 @@ const hi: Partial<Record<Phrase, string>> = {
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'बाकी को नहीं बदला गया - आप जहाँ छोड़ा था वहीं से जारी रखने के लिए वही फ़ाइल फिर से आयात कर सकते हैं (पहले से आयातित शब्द डुप्लिकेट के रूप में छोड़ दिए जाते हैं)।',
   Tags: 'टैग',
-  'Import from a .lin file': '.lin फ़ाइल से आयात करें',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'एक Lemmory `.lin` फ़ाइल चुनें - किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक निर्यातों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, समानार्थी शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
+  'Import from a .lem file': '.lem फ़ाइल से आयात करें',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'एक Lemmory `.lem` फ़ाइल चुनें - किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक निर्यातों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, समानार्थी शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
   'This file has more than one deck. Which one do you want to import?':
     'इस फ़ाइल में एक से अधिक डेक हैं। आप कौन सा आयात करना चाहते हैं?',
   'This file has no decks to import.': 'इस फ़ाइल में आयात करने के लिए कोई डेक नहीं है।',
@@ -5997,7 +5997,7 @@ const vi: Partial<Record<Phrase, string>> = {
     'Dấu tích xanh nghĩa là từ đó đã có trong một bộ thẻ của bạn.',
   'A readable word - meaning - example list. Not meant to re-import.':
     'Danh sách từ - nghĩa - ví dụ dễ đọc. Không dùng để nhập lại.',
-  'A shared deck (.lin)': 'Bộ thẻ được chia sẻ (.lin)',
+  'A shared deck (.lem)': 'Bộ thẻ được chia sẻ (.lem)',
   'A short summary': 'Một tóm tắt ngắn gọn',
   AGAIN: 'LẠI',
   'AI Providers': 'Nhà cung cấp AI',
@@ -6151,10 +6151,10 @@ const vi: Partial<Record<Phrase, string>> = {
     'Những thẻ chỉ có trong bộ thẻ này sẽ bị xóa cùng nó. Thẻ nằm trong các bộ thẻ khác vẫn được giữ nguyên.',
   'Checking...': 'Đang kiểm tra...',
   'Choose .apkg file': 'Chọn tệp .apkg',
-  'Choose .lin file': 'Chọn tệp .lin',
+  'Choose .lem file': 'Chọn tệp .lem',
   'Choose CSV file': 'Chọn tệp CSV',
-  'Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Chọn một tệp Lemmory `.lin` - bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
+  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Chọn một tệp Lemmory `.lem` - bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
   "Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.":
     'Chọn một bản xuất `.apkg`. Lịch sử ôn tập không được nhập - mọi thẻ đều bắt đầu lại từ đầu - và media (âm thanh/hình ảnh) sẽ bị loại bỏ thay vì được sao chép.',
   'Choose a voice...': 'Chọn một giọng đọc...',
@@ -6412,7 +6412,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'Import failed': 'Nhập thất bại',
   'Import from Anki': 'Nhập từ Anki',
   'Import from CSV': 'Nhập từ CSV',
-  'Import from a .lin file': 'Nhập từ tệp .lin',
+  'Import from a .lem file': 'Nhập từ tệp .lem',
   'Import into "{{name}}"': 'Nhập vào "{{name}}"',
   'Import into deck': 'Nhập vào bộ thẻ',
   'Import into this deck': 'Nhập vào bộ thẻ này',
@@ -6443,7 +6443,7 @@ const vi: Partial<Record<Phrase, string>> = {
   'Layout & style': 'Bố cục & kiểu dáng',
   Learning: 'Học tập',
   'Limited mode': 'Chế độ giới hạn',
-  'Lemmory backup (.lin)': 'Bản sao lưu Lemmory (.lin)',
+  'Lemmory backup (.lem)': 'Bản sao lưu Lemmory (.lem)',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Các trường dạng danh sách (Nghĩa khác, Từ đồng nghĩa, Cụm từ liên quan) vốn đã cần một vòng lặp {% for %} để hiển thị - vòng lặp đó là yêu cầu về cấu trúc, không phải lựa chọn về kiểu dáng. Để tạo kiểu riêng cho từng mục, hãy bọc mục đó bên trong vòng lặp:',
   'Local Dictionaries': 'Từ điển ngoại tuyến',
@@ -6644,7 +6644,7 @@ const vi: Partial<Record<Phrase, string>> = {
   Restore: 'Khôi phục',
   'Restore complete': 'Đã khôi phục xong',
   'Restore failed': 'Khôi phục thất bại',
-  'Restore from Lemmory backup (.lin)': 'Khôi phục từ bản sao lưu Lemmory (.lin)',
+  'Restore from Lemmory backup (.lem)': 'Khôi phục từ bản sao lưu Lemmory (.lem)',
   'Restore from backup?': 'Khôi phục từ bản sao lưu?',
   'Restored {{count}} rows.': 'Đã khôi phục {{count}} dòng.',
   'Restoring...': 'Đang khôi phục...',

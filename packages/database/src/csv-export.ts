@@ -7,7 +7,7 @@ import { getExportableCards, mergeCardsByWord, type ExportableCard } from './exp
  * with zero manual column remapping. One row per *word*, using its primary
  * meaning/selected example (a card with several meanings/examples is
  * exported with just the one — see `packages/database/src/export-shared.ts`
- * for why this is lossy relative to the JSON `.lin` backup, which is the
+ * for why this is lossy relative to the JSON `.lem` backup, which is the
  * only full-fidelity format); a word with both a basic and a cloze card is
  * merged into one row via `mergeCardsByWord`, not exported twice.
  *

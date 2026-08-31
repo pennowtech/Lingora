@@ -48,7 +48,7 @@ function applyBackupSettings(settings: BackupSettings): void {
 }
 
 /** Builds the backup — the whole library, or (with `deckId`) just one deck's own cards via
- * createDeckBackup — and saves it via desktopFileStorage (a native "Save As" dialog). '.lin' - the
+ * createDeckBackup — and saves it via desktopFileStorage (a native "Save As" dialog). '.lem' - the
  * Lemmory backup format's own extension, still plain JSON underneath (see createBackup's own doc
  * comment in @lingora/database). */
 export async function exportBackupToFile(
@@ -64,7 +64,7 @@ export async function exportBackupToFile(
   const itemCount = backup.tables.cards?.length ?? 0;
 
   const outcome = await desktopFileStorage.saveFile({
-    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lin`,
+    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lem`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
     dialogTitle: 'Save Lemmory backup',

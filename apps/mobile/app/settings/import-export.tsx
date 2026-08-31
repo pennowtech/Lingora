@@ -20,9 +20,9 @@ const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
 type OptionId =
   | 'import-apkg'
   | 'import-csv'
-  | 'import-lin-deck'
+  | 'import-lem-deck'
   | 'import-restore'
-  | 'export-lin'
+  | 'export-lem'
   | 'export-csv'
   | 'export-apkg'
   | 'export-markdown'
@@ -213,14 +213,14 @@ export default function ImportExportScreen(): JSX.Element {
         icon="Sparkles"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('A shared deck (.lin)')}
+        title={t('A shared deck (.lem)')}
         detail={t("Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.")}
-        expanded={expanded.has('import-lin-deck')}
-        onToggle={() => toggle('import-lin-deck')}
+        expanded={expanded.has('import-lem-deck')}
+        onToggle={() => toggle('import-lem-deck')}
       >
-        <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lin-import')}>
+        <Pressable style={styles.actionButton} onPress={() => router.push('/settings/lem-import')}>
           <Icon name="FolderOpen" size={16} color={colors.primary} />
-          <Text style={styles.actionButtonLabel}>{t('Choose .lin file')}</Text>
+          <Text style={styles.actionButtonLabel}>{t('Choose .lem file')}</Text>
         </Pressable>
       </OptionAccordion>
 
@@ -228,7 +228,7 @@ export default function ImportExportScreen(): JSX.Element {
         icon="CloudUpload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Restore from Lemmory backup (.lin)')}
+        title={t('Restore from Lemmory backup (.lem)')}
         detail={t('Replaces everything on this device with a previously exported backup.')}
         expanded={expanded.has('import-restore')}
         onToggle={() => toggle('import-restore')}
@@ -246,10 +246,10 @@ export default function ImportExportScreen(): JSX.Element {
         icon="CloudDownload"
         iconBg={colors.primarySoft}
         iconColor={colors.primary}
-        title={t('Lemmory backup (.lin)')}
+        title={t('Lemmory backup (.lem)')}
         detail={t('Your full library - decks, cards, review history. Your data is always yours. API keys are never included.')}
-        expanded={expanded.has('export-lin')}
-        onToggle={() => toggle('export-lin')}
+        expanded={expanded.has('export-lem')}
+        onToggle={() => toggle('export-lem')}
       >
         <Pressable style={styles.actionButton} onPress={handleExport} disabled={exporting}>
           <Icon name="Download" size={16} color={colors.primary} />

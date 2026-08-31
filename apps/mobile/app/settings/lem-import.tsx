@@ -1,6 +1,6 @@
-import type { BackupPayload, LinDeckOption, LinDuplicatePolicy, LinLemmaPreview } from '@lingora/database'
+import type { BackupPayload, LemDeckOption, LemDuplicatePolicy, LemLemmaPreview } from '@lingora/database'
 import type { QuestionType } from '@lingora/types'
-import { buildLinImportPreview, createDeck, getDeckById, getDecksForLemma, getDecksInPayload, importLinDeck } from '@lingora/database'
+import { buildLemImportPreview, createDeck, getDeckById, getDecksForLemma, getDecksInPayload, importLemDeck } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
@@ -14,9 +14,9 @@ import { pickAndParseBackupFile } from '../../lib/backup'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
 
-const log = logger.child({ feature: 'import', screen: 'LinImportScreen' })
+const log = logger.child({ feature: 'import', screen: 'LemImportScreen' })
 
-const DUPLICATE_POLICIES: { value: LinDuplicatePolicy; label: string; hint: string }[] = [
+const DUPLICATE_POLICIES: { value: LemDuplicatePolicy; label: string; hint: string }[] = [
   { value: 'skip', label: 'Skip', hint: "Don't touch the word already in your library." },
   { value: 'duplicate', label: 'Keep both', hint: 'Add a second, separate card for the same word.' },
 ]
@@ -24,7 +24,7 @@ const DUPLICATE_POLICIES: { value: LinDuplicatePolicy; label: string; hint: stri
 interface TableColumn {
   label: string
   width: number
-  cell: (preview: LinLemmaPreview) => string
+  cell: (preview: LemLemmaPreview) => string
 }
 // Built inside the component — "Existing deck" needs the existingDeckNames lookup, same shape as
 // csv-import.tsx/apkg-import.tsx's buildTableColumns.
@@ -53,16 +53,16 @@ const SELECT_COLUMN_WIDTH = 48
 type Step = 'pick' | 'source-deck' | 'target' | 'preview'
 
 /**
- * Deck-scoped `.lin` **import** — the counterpart to `createDeckBackup`'s
+ * Deck-scoped `.lem` **import** — the counterpart to `createDeckBackup`'s
  * export. Additive, not a restore: a word already in your library is
- * flagged 'duplicate' and handled per `LinDuplicatePolicy` ('skip' or
+ * flagged 'duplicate' and handled per `LemDuplicatePolicy` ('skip' or
  * 'duplicate' — "keep both", the schema-respecting equivalent since
- * `lemmas.form` is UNIQUE, see `lin-import.ts`), exactly like CSV/Anki
+ * `lemmas.form` is UNIQUE, see `lem-import.ts`), exactly like CSV/Anki
  * import already does. Full fidelity otherwise: FSRS state, review
  * history, meanings/examples/synonyms/phrases/cloze variants all carry
  * over with fresh IDs.
  */
-export default function LinImportScreen(): JSX.Element {
+export default function LemImportScreen(): JSX.Element {
   const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -71,7 +71,7 @@ export default function LinImportScreen(): JSX.Element {
   const [step, setStep] = useState<Step>('pick')
   const [fileName, setFileName] = useState('')
   const [payload, setPayload] = useState<BackupPayload | null>(null)
-  const [deckOptions, setDeckOptions] = useState<LinDeckOption[]>([])
+  const [deckOptions, setDeckOptions] = useState<LemDeckOption[]>([])
   const [sourceDeckId, setSourceDeckId] = useState<string | null>(null)
   // Pre-selected when opened from a deck's own "Import into this deck" menu
   // (`deck/[id].tsx`/`decks.tsx`, same param the CSV/Anki importers take);
@@ -79,8 +79,8 @@ export default function LinImportScreen(): JSX.Element {
   const [targetDeckId, setTargetDeckId] = useState<string | null>(params.deckId ?? null)
   const [targetDeckName, setTargetDeckName] = useState<string | null>(null)
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
-  const [duplicatePolicy, setDuplicatePolicy] = useState<LinDuplicatePolicy>('skip')
-  const [previews, setPreviews] = useState<LinLemmaPreview[]>([])
+  const [duplicatePolicy, setDuplicatePolicy] = useState<LemDuplicatePolicy>('skip')
+  const [previews, setPreviews] = useState<LemLemmaPreview[]>([])
   const [existingDeckNames, setExistingDeckNames] = useState<Map<string, string[]>>(new Map())
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [pickError, setPickError] = useState<string | null>(null)
@@ -110,7 +110,7 @@ export default function LinImportScreen(): JSX.Element {
 
   const handlePickFile = (): void => {
     setPickError(null)
-    log.info('import.lin_file_picker_opened', { message: 'User opened the .lin file picker' })
+    log.info('import.lin_file_picker_opened', { message: 'User opened the .lem file picker' })
     pickAndParseBackupFile()
       .then((picked) => {
         if (!picked) {
@@ -136,14 +136,14 @@ export default function LinImportScreen(): JSX.Element {
         }
       })
       .catch((error: unknown) => {
-        log.error('import.lin_file_pick_failed', error, { message: '.lin file picking or parsing failed' })
+        log.error('import.lin_file_pick_failed', error, { message: '.lem file picking or parsing failed' })
         setPickError(String(error))
       })
   }
 
   // Opens the file browser immediately on landing here — same reasoning as csv-import.tsx/
-  // apkg-import.tsx's identical effect: the Settings screen's .lin option should feel like it goes
-  // straight to the file browser rather than requiring a second "Choose .lin file" tap.
+  // apkg-import.tsx's identical effect: the Settings screen's .lem option should feel like it goes
+  // straight to the file browser rather than requiring a second "Choose .lem file" tap.
   const autoPicked = useRef(false)
   useEffect(() => {
     if (autoPicked.current) return
@@ -184,8 +184,8 @@ export default function LinImportScreen(): JSX.Element {
   const handleBuildPreview = (): void => {
     if (!payload || !sourceDeckId || !targetDeckId) return
     setPreviewLoading(true)
-    log.info('import.lin_preview_started', { message: 'Building .lin import preview' })
-    buildLinImportPreview(db, payload, sourceDeckId, targetLanguage)
+    log.info('import.lem_preview_started', { message: 'Building .lem import preview' })
+    buildLemImportPreview(db, payload, sourceDeckId, targetLanguage)
       .then(async (built) => {
         setPreviews(built)
         setCheckedIds(new Set(built.map((p) => p.sourceLemmaId)))
@@ -198,7 +198,7 @@ export default function LinImportScreen(): JSX.Element {
         setStep('preview')
       })
       .catch((error: unknown) => {
-        log.error('import.lin_preview_failed', error, { message: 'Building .lin import preview failed' })
+        log.error('import.lem_preview_failed', error, { message: 'Building .lem import preview failed' })
         showError(t('Could not read this file'), error)
       })
       .finally(() => setPreviewLoading(false))
@@ -210,8 +210,8 @@ export default function LinImportScreen(): JSX.Element {
   }, [previews])
 
   // Rows sharing a form with another row in this file — see csv-import.tsx's
-  // sameWordRowIndexes for why. Each .lin preview row is already one lemma (with every one of
-  // its cards nested under it, see LinLemmaPreview), so this is mostly defensive: a well-formed
+  // sameWordRowIndexes for why. Each .lem preview row is already one lemma (with every one of
+  // its cards nested under it, see LemLemmaPreview), so this is mostly defensive: a well-formed
   // export shouldn't have two rows for the same form, but nothing enforces that on the way in.
   const sameFormIds = useMemo(() => {
     const counts = new Map<string, number>()
@@ -257,16 +257,16 @@ export default function LinImportScreen(): JSX.Element {
     const toImport = previews.filter((p) => checkedIds.has(p.sourceLemmaId))
     setImporting(true)
     log.info('import.lin_import_confirmed', {
-      message: 'User confirmed .lin import',
+      message: 'User confirmed .lem import',
       metadata: { itemCount: toImport.length },
     })
-    importLinDeck(db, payload, sourceDeckId, targetDeckId, targetLanguage, toImport, duplicatePolicy)
+    importLemDeck(db, payload, sourceDeckId, targetDeckId, targetLanguage, toImport, duplicatePolicy)
       .then(async (outcome) => {
         setResult(outcome)
         await queryClient.invalidateQueries()
       })
       .catch((error: unknown) => {
-        log.error('import.lin_import_failed', error, { message: '.lin import failed' })
+        log.error('import.lem_import_failed', error, { message: '.lem import failed' })
         showError(t('Import failed'), error)
       })
       .finally(() => setImporting(false))
@@ -432,11 +432,11 @@ export default function LinImportScreen(): JSX.Element {
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {step === 'pick' ? (
         <Card style={styles.card}>
-          <Text style={styles.title}>{t('Import from a .lin file')}</Text>
+          <Text style={styles.title}>{t('Import from a .lem file')}</Text>
           <Text style={styles.body}>
-            {t('Choose a Lemmory `.lin` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
+            {t('Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
-          <Button label={t('Choose .lin file')} icon="FolderOpen" onPress={handlePickFile} />
+          <Button label={t('Choose .lem file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
         </Card>
       ) : null}
@@ -527,12 +527,12 @@ function SummaryStat(props: { label: string; value: number; color: string }): JS
   )
 }
 
-const STATUS_COLOR: Record<LinLemmaPreview['status'], string> = {
+const STATUS_COLOR: Record<LemLemmaPreview['status'], string> = {
   ok: colors.success,
   duplicate: colors.warning,
 }
 
-function statusCellStyle(preview: LinLemmaPreview, columnLabel: string): TextStyle | undefined {
+function statusCellStyle(preview: LemLemmaPreview, columnLabel: string): TextStyle | undefined {
   if (columnLabel === 'Status') return { color: STATUS_COLOR[preview.status], fontWeight: '700' }
   return undefined
 }

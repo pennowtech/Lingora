@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createBackup, type BackupPayload } from './backup'
 import { buildCsvImportPreview, importCsvRows, parseCsv } from './csv-import'
 import {
-  buildLinImportPreview,
+  buildLemImportPreview,
   getDecksInPayload,
-  importLinDeck,
-  parseLinImportFile,
-} from './lin-import'
+  importLemDeck,
+  parseLemImportFile,
+} from './lem-import'
 import { migrate } from './migrations'
 import { getCardsByLemma, getCardsForDeck } from './repositories/cards'
 import { createDeck } from './repositories/decks'
@@ -58,7 +58,7 @@ async function seedTwoDeckSource(db: NodeSqliteAdapter): Promise<{ deckAId: stri
   return { deckAId, deckBId }
 }
 
-describe('lin-import (deck-scoped .lin import)', () => {
+describe('lem-import (deck-scoped .lem import)', () => {
   let source: NodeSqliteAdapter
   let target: NodeSqliteAdapter
   let deckAId: string
@@ -80,8 +80,8 @@ describe('lin-import (deck-scoped .lin import)', () => {
     target.close()
   })
 
-  it('parseLinImportFile round-trips through parseBackup validation', () => {
-    const parsed = parseLinImportFile(JSON.stringify(payload))
+  it('parseLemImportFile round-trips through parseBackup validation', () => {
+    const parsed = parseLemImportFile(JSON.stringify(payload))
     expect(parsed.tables.lemmas?.length).toBeGreaterThan(0)
   })
 
@@ -96,12 +96,12 @@ describe('lin-import (deck-scoped .lin import)', () => {
     const now = Date.now()
     await createDeck(target, { id: 'target-deck', name: 'Imported', createdAt: now, updatedAt: now })
 
-    const previews = await buildLinImportPreview(target, payload, deckAId, 'de')
+    const previews = await buildLemImportPreview(target, payload, deckAId, 'de')
     expect(previews).toHaveLength(2)
     expect(previews.every((p) => p.status === 'ok')).toBe(true)
     expect(previews.map((p) => p.form).sort()).toEqual(['Auto', 'Haus'])
 
-    const result = await importLinDeck(target, payload, deckAId, 'target-deck', 'de', previews)
+    const result = await importLemDeck(target, payload, deckAId, 'target-deck', 'de', previews)
     expect(result).toEqual({ imported: 2, skipped: 0, cardsImported: 2 })
 
     const cards = await getCardsForDeck(target, 'target-deck')
@@ -115,8 +115,8 @@ describe('lin-import (deck-scoped .lin import)', () => {
   it('carries over FSRS state and review history for the imported card', async () => {
     const now = Date.now()
     await createDeck(target, { id: 'target-deck', name: 'Imported', createdAt: now, updatedAt: now })
-    const previews = await buildLinImportPreview(target, payload, deckAId, 'de')
-    await importLinDeck(target, payload, deckAId, 'target-deck', 'de', previews)
+    const previews = await buildLemImportPreview(target, payload, deckAId, 'de')
+    await importLemDeck(target, payload, deckAId, 'target-deck', 'de', previews)
 
     const lemma = await getLemmaByForm(target, 'Haus', 'de')
     const card = (await getCardsByLemma(target, lemma!.id))[0]!
@@ -133,13 +133,13 @@ describe('lin-import (deck-scoped .lin import)', () => {
   it("flags a word that already exists locally as 'duplicate', and 'skip' policy leaves it untouched", async () => {
     const now = Date.now()
     await createDeck(target, { id: 'target-deck', name: 'Imported', createdAt: now, updatedAt: now })
-    const firstPass = await buildLinImportPreview(target, payload, deckAId, 'de')
-    await importLinDeck(target, payload, deckAId, 'target-deck', 'de', firstPass)
+    const firstPass = await buildLemImportPreview(target, payload, deckAId, 'de')
+    await importLemDeck(target, payload, deckAId, 'target-deck', 'de', firstPass)
 
-    const secondPass = await buildLinImportPreview(target, payload, deckAId, 'de')
+    const secondPass = await buildLemImportPreview(target, payload, deckAId, 'de')
     expect(secondPass.every((p) => p.status === 'duplicate')).toBe(true)
 
-    const result = await importLinDeck(target, payload, deckAId, 'target-deck', 'de', secondPass, 'skip')
+    const result = await importLemDeck(target, payload, deckAId, 'target-deck', 'de', secondPass, 'skip')
     expect(result).toEqual({ imported: 0, skipped: 2, cardsImported: 0 })
 
     const lemma = await getLemmaByForm(target, 'Haus', 'de')
@@ -150,11 +150,11 @@ describe('lin-import (deck-scoped .lin import)', () => {
   it("'duplicate' policy adds a second card under the existing local lemma — never a second lemma", async () => {
     const now = Date.now()
     await createDeck(target, { id: 'target-deck', name: 'Imported', createdAt: now, updatedAt: now })
-    const firstPass = await buildLinImportPreview(target, payload, deckAId, 'de')
-    await importLinDeck(target, payload, deckAId, 'target-deck', 'de', firstPass)
+    const firstPass = await buildLemImportPreview(target, payload, deckAId, 'de')
+    await importLemDeck(target, payload, deckAId, 'target-deck', 'de', firstPass)
 
-    const secondPass = await buildLinImportPreview(target, payload, deckAId, 'de')
-    const result = await importLinDeck(target, payload, deckAId, 'target-deck', 'de', secondPass, 'duplicate')
+    const secondPass = await buildLemImportPreview(target, payload, deckAId, 'de')
+    const result = await importLemDeck(target, payload, deckAId, 'target-deck', 'de', secondPass, 'duplicate')
     expect(result).toEqual({ imported: 2, skipped: 0, cardsImported: 2 })
 
     const lemmas = await target.query(`SELECT id FROM lemmas WHERE form = ?`, ['Haus'])

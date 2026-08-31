@@ -471,7 +471,7 @@ const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'LayoutGrid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'Layers' },
   { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'FileText' },
-  { format: 'lin', label: 'Lemmory (.lin)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'CloudDownload' },
+  { format: 'lem', label: 'Lemmory (.lem)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'CloudDownload' },
 ]
 
 /**
@@ -515,7 +515,7 @@ export function ExportFormatSheet(props: {
 
 // ─── Import format sheet ────────────────────────────────────────────────────
 
-export type ImportFormat = 'csv' | 'apkg' | 'lin'
+export type ImportFormat = 'csv' | 'apkg' | 'lem'
 
 interface ImportFormatOption {
   format: ImportFormat
@@ -527,7 +527,7 @@ interface ImportFormatOption {
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'LayoutGrid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'Layers' },
-  { format: 'lin', label: 'Lemmory (.lin)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'Sparkles' },
+  { format: 'lem', label: 'Lemmory (.lem)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'Sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */

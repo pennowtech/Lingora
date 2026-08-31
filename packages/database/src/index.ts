@@ -77,16 +77,16 @@ export {
 } from './apkg-import'
 
 export {
-  buildLinImportPreview,
+  buildLemImportPreview,
   getDecksInPayload,
-  importLinDeck,
-  parseLinImportFile,
-  type LinDeckOption,
-  type LinCardPreview,
-  type LinDuplicatePolicy,
-  type LinImportResult,
-  type LinLemmaPreview,
-} from './lin-import'
+  importLemDeck,
+  parseLemImportFile,
+  type LemDeckOption,
+  type LemCardPreview,
+  type LemDuplicatePolicy,
+  type LemImportResult,
+  type LemLemmaPreview,
+} from './lem-import'
 
 export {
   ALL_MIGRATIONS,

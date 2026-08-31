@@ -38,7 +38,7 @@ const SELECT_COLUMN_WIDTH = 48
 const ROW_NUMBER_COLUMN_WIDTH = 40
 
 /**
- * The "Preview" table shared by the CSV/Anki/.lin import wizards (pick → map → **preview** →
+ * The "Preview" table shared by the CSV/Anki/.lem import wizards (pick → map → **preview** →
  * confirm) and the deck detail screen's read-only "View all cards" table — one column-header row
  * pinned above a vertically-scrolling body, both wrapped in a single horizontal ScrollView so
  * columns stay aligned when scrolling sideways. Selection (the checkbox column + row tap-to-toggle)

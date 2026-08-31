@@ -64,6 +64,19 @@ export function isQuestionType(value: string): value is QuestionType {
  * not sprung on an existing reviewer the first time this ships. */
 export const DEFAULT_ENABLED_QUESTION_TYPES: readonly QuestionType[] = ['vocab']
 
+/** Toggles one review format in/out of a selection, always keeping at least one enabled — a
+ * selection with none picked has nothing eligible to review (see pickEligibleTypes), which would
+ * read as the picker silently doing nothing rather than as a real constraint. Shared by every
+ * review-mode picker: mobile's Settings -> Learning global picker and both apps' per-deck picker
+ * (deck-creation, where a deck's own choice overrides the global one — see Deck.enabledQuestionTypes). */
+export function toggleQuestionType(current: readonly QuestionType[], type: QuestionType): QuestionType[] {
+  if (current.includes(type)) {
+    if (current.length === 1) return [...current]
+    return current.filter((t) => t !== type)
+  }
+  return [...current, type]
+}
+
 /** How many due cards a single review session pulls in, before expanding into per-format entries
  * (Mixed practice) — applies to every review mode (plain, cloze, reverse, mixed), not just Mixed.
  * A big deck coming due all at once (fresh import, first day back after a break) would otherwise

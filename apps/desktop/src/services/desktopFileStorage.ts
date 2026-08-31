@@ -11,7 +11,7 @@ import type { FileStorage, PickedFile, SaveFileOptions, SaveOutcome } from '@lin
  * browser file API — nothing here is subject to the WebView's usual sandboxing around local files.
  *
  * Unlike mobile, there's no MIME-type filter applied to the open dialog: Tauri's dialog filters
- * work by file extension, and the loose MIME-type lists callers pass (e.g. '.lin' backups have no
+ * work by file extension, and the loose MIME-type lists callers pass (e.g. '.lem' backups have no
  * registered system MIME type at all) don't translate cleanly - showing every file, same as
  * mobile's own reasoning for its equally-loose wildcard fallback, is safer than hiding the file
  * the user is actually looking for.

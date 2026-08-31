@@ -1,8 +1,29 @@
-import type { Deck } from '@lingora/types'
+import type { Deck, QuestionType } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
-/** The columns of a deck row, aliased to the camelCase names of the Deck type. */
-const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, created_at AS createdAt, updated_at AS updatedAt`
+/** The columns of a deck row, aliased to the camelCase names of the Deck type -
+ * enabledQuestionTypes stays a raw JSON string here (see DeckRow) until toDeck parses it. */
+const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, enabled_question_types AS enabledQuestionTypesJson, created_at AS createdAt, updated_at AS updatedAt`
+
+/** Raw deck row as it comes back from SQLite (enabled_question_types is a JSON string column, or
+ * NULL for a deck with no override - see migration 0022's doc comment). */
+interface DeckRow extends Omit<Deck, 'enabledQuestionTypes'> {
+  enabledQuestionTypesJson: string | null
+}
+
+function toDeck(row: DeckRow): Deck {
+  const { enabledQuestionTypesJson, ...rest } = row
+  let enabledQuestionTypes: QuestionType[] | null = null
+  if (enabledQuestionTypesJson) {
+    try {
+      const parsed: unknown = JSON.parse(enabledQuestionTypesJson)
+      if (Array.isArray(parsed)) enabledQuestionTypes = parsed as QuestionType[]
+    } catch {
+      enabledQuestionTypes = null
+    }
+  }
+  return { ...rest, enabledQuestionTypes }
+}
 
 /**
  * Get all decks in the database.
@@ -10,7 +31,8 @@ const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, created_at AS crea
  * @returns An array of decks.
  */
 export async function getAllDecks(db: DatabaseAdapter): Promise<Deck[]> {
-  return db.query<Deck>(`SELECT ${DECK_COLUMNS} FROM decks ORDER BY name ASC`)
+  const rows = await db.query<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks ORDER BY name ASC`)
+  return rows.map(toDeck)
 }
 
 /**
@@ -20,9 +42,8 @@ export async function getAllDecks(db: DatabaseAdapter): Promise<Deck[]> {
  * @returns The deck if found, otherwise null.
  */
 export async function getDeckById(db: DatabaseAdapter, deckId: string): Promise<Deck | null> {
-  return (
-    (await db.querySingle<Deck>(`SELECT ${DECK_COLUMNS} FROM decks WHERE id = ?`, [deckId])) ?? null
-  )
+  const row = await db.querySingle<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks WHERE id = ?`, [deckId])
+  return row ? toDeck(row) : null
 }
 
 /**
@@ -34,8 +55,8 @@ export async function getDeckById(db: DatabaseAdapter, deckId: string): Promise<
  * @param lemmaId The ID of the lemma to look up deck membership for.
  */
 export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Promise<Deck[]> {
-  return db.query<Deck>(
-    `SELECT DISTINCT d.id, d.name, d.parent_id AS parentId, d.emoji, d.created_at AS createdAt, d.updated_at AS updatedAt
+  const rows = await db.query<DeckRow>(
+    `SELECT DISTINCT d.id, d.name, d.parent_id AS parentId, d.emoji, d.enabled_question_types AS enabledQuestionTypesJson, d.created_at AS createdAt, d.updated_at AS updatedAt
      FROM decks d
      JOIN deck_cards dc ON dc.deck_id = d.id
      JOIN cards c ON c.id = dc.card_id
@@ -43,6 +64,7 @@ export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Pr
      ORDER BY d.name ASC`,
     [lemmaId],
   )
+  return rows.map(toDeck)
 }
 
 /**
@@ -53,9 +75,10 @@ export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Pr
  * @returns An array of child decks.
  */
 export async function getChildDecks(db: DatabaseAdapter, parentId: string): Promise<Deck[]> {
-  return db.query<Deck>(`SELECT ${DECK_COLUMNS} FROM decks WHERE parent_id = ? ORDER BY name ASC`, [
+  const rows = await db.query<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks WHERE parent_id = ? ORDER BY name ASC`, [
     parentId,
   ])
+  return rows.map(toDeck)
 }
 
 /**
@@ -65,10 +88,37 @@ export async function getChildDecks(db: DatabaseAdapter, parentId: string): Prom
  */
 export async function createDeck(db: DatabaseAdapter, deck: Deck): Promise<void> {
   await db.execute(
-    `INSERT INTO decks (id, name, parent_id, emoji, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [deck.id, deck.name, deck.parentId ?? null, deck.emoji ?? null, deck.createdAt, deck.updatedAt],
+    `INSERT INTO decks (id, name, parent_id, emoji, enabled_question_types, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      deck.id,
+      deck.name,
+      deck.parentId ?? null,
+      deck.emoji ?? null,
+      deck.enabledQuestionTypes ? JSON.stringify(deck.enabledQuestionTypes) : null,
+      deck.createdAt,
+      deck.updatedAt,
+    ],
   )
+}
+
+/**
+ * Update which review formats a deck's cards get reviewed with - null clears the override,
+ * falling back to the learner's global Settings -> Learning preference again.
+ * @param db The database adapter to use for the query.
+ * @param deckId The ID of the deck to update.
+ * @param enabledQuestionTypes The new review formats, or null to clear the override.
+ */
+export async function setDeckQuestionTypes(
+  db: DatabaseAdapter,
+  deckId: string,
+  enabledQuestionTypes: Deck['enabledQuestionTypes'],
+): Promise<void> {
+  await db.execute(`UPDATE decks SET enabled_question_types = ?, updated_at = ? WHERE id = ?`, [
+    enabledQuestionTypes && enabledQuestionTypes.length > 0 ? JSON.stringify(enabledQuestionTypes) : null,
+    Date.now(),
+    deckId,
+  ])
 }
 
 /**

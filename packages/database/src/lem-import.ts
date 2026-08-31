@@ -23,7 +23,7 @@ import { addTagToCard, getOrCreateTag } from './repositories/tags'
 export { BackupValidationError } from './backup'
 
 /**
- * Deck-scoped `.lin` **import** — the counterpart to `createDeckBackup`.
+ * Deck-scoped `.lem` **import** — the counterpart to `createDeckBackup`.
  * Unlike `restoreBackup` (whole-library, full-replace), this is additive: it
  * never deletes anything already on this device, always creates fresh IDs
  * for the rows it writes, and — like the CSV/Anki importers — treats a word
@@ -34,14 +34,14 @@ export { BackupValidationError } from './backup'
  * local lemma, never a second lemma).
  *
  * Three phases, mirroring the CSV/Anki import wizard shape:
- * 1. `parseLinImportFile` / `getDecksInPayload` — parse and validate the
- *    file, and list which deck(s) it contains (a deck-scoped `.lin` always
- *    has exactly one; a whole-library `.lin` used as an import source may
+ * 1. `parseLemImportFile` / `getDecksInPayload` — parse and validate the
+ *    file, and list which deck(s) it contains (a deck-scoped `.lem` always
+ *    has exactly one; a whole-library `.lem` used as an import source may
  *    have several — the caller lets the user pick).
- * 2. `buildLinImportPreview` — one row per lemma in the chosen source deck,
+ * 2. `buildLemImportPreview` — one row per lemma in the chosen source deck,
  *    with its cards' types/translations for display and a
  *    'ok' | 'duplicate' status — without writing anything.
- * 3. `importLinDeck` — imports every non-skipped lemma's full subgraph
+ * 3. `importLemDeck` — imports every non-skipped lemma's full subgraph
  *    (inflections, clusters, meanings, examples, synonyms, phrases, cloze
  *    variants, FSRS state, review history, tags) into the target deck, all
  *    in one transaction.
@@ -55,23 +55,23 @@ export { BackupValidationError } from './backup'
  * device's template list or mining queue).
  */
 
-const importLog = logger.child({ feature: 'import', component: 'lin-import' })
+const importLog = logger.child({ feature: 'import', component: 'lem-import' })
 
-export type LinDuplicatePolicy = 'skip' | 'duplicate'
+export type LemDuplicatePolicy = 'skip' | 'duplicate'
 
-/** Parses and validates a `.lin` file — same format as the JSON backup, see `backup.ts#parseBackup`. */
-export function parseLinImportFile(raw: string): BackupPayload {
+/** Parses and validates a `.lem` file — same format as the JSON backup, see `backup.ts#parseBackup`. */
+export function parseLemImportFile(raw: string): BackupPayload {
   return parseBackup(raw)
 }
 
-export interface LinDeckOption {
+export interface LemDeckOption {
   id: string
   name: string
   cardCount: number
 }
 
-/** The deck(s) present in a `.lin` file, for the user to pick an import source from. */
-export function getDecksInPayload(payload: BackupPayload): LinDeckOption[] {
+/** The deck(s) present in a `.lem` file, for the user to pick an import source from. */
+export function getDecksInPayload(payload: BackupPayload): LemDeckOption[] {
   const decks = payload.tables.decks ?? []
   const deckCards = payload.tables.deck_cards ?? []
   return decks.map((deck) => ({
@@ -81,7 +81,7 @@ export function getDecksInPayload(payload: BackupPayload): LinDeckOption[] {
   }))
 }
 
-export interface LinCardPreview {
+export interface LemCardPreview {
   type: string
   translation: string | null
   example: string | null
@@ -89,11 +89,11 @@ export interface LinCardPreview {
   synonyms: string[]
 }
 
-export interface LinLemmaPreview {
+export interface LemLemmaPreview {
   /** The lemma's id *in the file* — only used to re-look-up its subgraph during import, never written as-is. */
   sourceLemmaId: string
   form: string
-  cards: LinCardPreview[]
+  cards: LemCardPreview[]
   status: 'ok' | 'duplicate'
   /** Set when `status === 'duplicate'` — the local lemma a 'duplicate' (keep-both) import attaches new cards to. */
   existingLemmaId: string | null
@@ -104,12 +104,12 @@ export interface LinLemmaPreview {
  * device's existing lemmas by form — the same duplicate-detection
  * `getLemmaByForm` the CSV/Anki importers use. Nothing is written yet.
  */
-export async function buildLinImportPreview(
+export async function buildLemImportPreview(
   db: DatabaseAdapter,
   payload: BackupPayload,
   sourceDeckId: string,
   language: LanguageCode,
-): Promise<LinLemmaPreview[]> {
+): Promise<LemLemmaPreview[]> {
   const cardIdsInDeck = new Set(
     (payload.tables.deck_cards ?? [])
       .filter((row) => row.deck_id === sourceDeckId)
@@ -122,11 +122,11 @@ export async function buildLinImportPreview(
   const lemmaIds = new Set(cards.map((c) => String(c.lemma_id)))
   const lemmas = (payload.tables.lemmas ?? []).filter((l) => lemmaIds.has(String(l.id)))
 
-  const previews: LinLemmaPreview[] = []
+  const previews: LemLemmaPreview[] = []
   for (const lemma of lemmas) {
     const sourceLemmaId = String(lemma.id)
     const lemmaCards = cards.filter((c) => String(c.lemma_id) === sourceLemmaId)
-    const cardPreviews: LinCardPreview[] = lemmaCards.map((c) => {
+    const cardPreviews: LemCardPreview[] = lemmaCards.map((c) => {
       const primaryMeaning = meanings.find((m) => m.id === c.primary_meaning_id)
       const cardExamples = examples.filter((e) => e.card_id === c.id)
       const selectedExample = cardExamples.find((e) => Boolean(e.is_selected)) ?? cardExamples[0]
@@ -151,7 +151,7 @@ export async function buildLinImportPreview(
   return previews.sort((a, b) => a.form.localeCompare(b.form))
 }
 
-export interface LinImportResult {
+export interface LemImportResult {
   imported: number
   skipped: number
   cardsImported: number
@@ -196,18 +196,18 @@ function buildCardState(cardId: string, row: Record<string, unknown> | undefined
  * variants/FSRS state/review history/tags), with brand-new IDs throughout —
  * into `targetDeckId`, all in one transaction.
  */
-export async function importLinDeck(
+export async function importLemDeck(
   db: DatabaseAdapter,
   payload: BackupPayload,
   sourceDeckId: string,
   targetDeckId: string,
   language: LanguageCode,
-  previews: readonly LinLemmaPreview[],
-  duplicatePolicy: LinDuplicatePolicy = 'skip',
-): Promise<LinImportResult> {
+  previews: readonly LemLemmaPreview[],
+  duplicatePolicy: LemDuplicatePolicy = 'skip',
+): Promise<LemImportResult> {
   const startedAt = Date.now()
-  importLog.info('import.lin_deck_import_started', {
-    message: 'Deck-scoped .lin import started',
+  importLog.info('import.lem_deck_import_started', {
+    message: 'Deck-scoped .lem import started',
     metadata: { itemCount: previews.length },
   })
 
@@ -299,7 +299,7 @@ export async function importLinDeck(
         const state = buildCardState(newCardId, srcState, now)
         const suspendedAt = nullableString(c.suspended_at)
 
-        // Older .lin backups (before migration 0017) never recorded native_language — 'en' matches
+        // Older .lem backups (before migration 0017) never recorded native_language — 'en' matches
         // the same fallback the migration itself backfills existing rows with.
         const nativeLanguage = nullableString(c.native_language) ?? 'en'
 
@@ -438,8 +438,8 @@ export async function importLinDeck(
     }
   })
 
-  importLog.info('import.lin_deck_import_completed', {
-    message: 'Deck-scoped .lin import completed',
+  importLog.info('import.lem_deck_import_completed', {
+    message: 'Deck-scoped .lem import completed',
     result: 'success',
     durationMs: Date.now() - startedAt,
     metadata: { itemCount: imported },

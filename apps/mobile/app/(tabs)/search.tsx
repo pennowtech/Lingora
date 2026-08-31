@@ -9,7 +9,7 @@ import {
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
-import type { LanguageCode } from '@lingora/types'
+import type { LanguageCode, QuestionType } from '@lingora/types'
 
 const log = logger.child({ feature: 'search', component: 'search-screen' })
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -316,10 +316,10 @@ export default function SearchScreen(): JSX.Element {
   // deck, then runs whichever of the two persist calls above `deckPickerFor` points at with the
   // new deck's id.
   const createDeckAndAdd = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       if (deckPickerFor === 'guide') {
         if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
         return persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
@@ -847,7 +847,7 @@ export default function SearchScreen(): JSX.Element {
           else if (deckPickerFor === 'translation') addFromTranslation.mutate(deck.id)
         }}
         selecting={addFromGuide.isPending || addFromTranslation.isPending}
-        onCreateDeck={(name) => createDeckAndAdd.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckAndAdd.mutate({ name, questionTypes })}
         creating={createDeckAndAdd.isPending}
         {...((addFromGuide.isError || addFromTranslation.isError) && {
           selectError: String(addFromGuide.error ?? addFromTranslation.error),

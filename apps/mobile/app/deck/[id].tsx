@@ -47,10 +47,10 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DeckDetailScreen' })
 
-const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lin-import'> = {
+const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lem-import'> = {
   csv: '/settings/csv-import',
   apkg: '/settings/apkg-import',
-  lin: '/settings/lin-import',
+  lem: '/settings/lem-import',
 }
 
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {

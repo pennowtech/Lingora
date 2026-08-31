@@ -45,13 +45,13 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
 
 /**
  * Builds the backup — the whole library, or (with `deckId`) just one deck's
- * own cards via `createDeckBackup`, export-only (a deck `.lin` has no
+ * own cards via `createDeckBackup`, export-only (a deck `.lem` has no
  * matching restore path, see `createDeckBackup`'s doc comment) — and saves
  * it (`saveExportFile` — a real folder picker on Android, the share sheet
- * elsewhere). `.lin` — the Lemmory backup format's own extension. The
+ * elsewhere). `.lem` — the Lemmory backup format's own extension. The
  * content is still plain JSON (`BackupPayload`, unchanged) — this is a
  * naming/branding decision (a backup is "a Lemmory file", not "a JSON
- * file" to the user), not a new serialization. `.lin` has no registered
+ * file" to the user), not a new serialization. `.lem` has no registered
  * system MIME type, so the share sheet and file picker below use
  * `application/octet-stream` rather than `application/json`.
  */
@@ -74,7 +74,7 @@ export async function exportBackupToFile(
   const itemCount = backup.tables.cards?.length ?? 0
 
   const outcome = await expoFileStorage.saveFile({
-    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lin`,
+    fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lem`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
     dialogTitle: 'Save Lemmory backup',
@@ -93,7 +93,7 @@ export interface PickedBackup {
 
 /** Opens the native file picker and validates the chosen file — throws BackupValidationError on a bad file. */
 export async function pickAndParseBackupFile(): Promise<PickedBackup | null> {
-  // '*/*' rather than a specific MIME type: '.lin' has no registered system
+  // '*/*' rather than a specific MIME type: '.lem' has no registered system
   // MIME type, and Android's picker resolves unknown extensions to
   // 'application/octet-stream' inconsistently across OEMs — filtering by a
   // specific type risks hiding the very file the user is looking for.

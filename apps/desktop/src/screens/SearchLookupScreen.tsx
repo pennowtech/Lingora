@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight, ArrowLeft, ChevronUp, ChevronDown } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
 import { DeepSeekIcon, GroqIcon } from '../components/BrandIcons';
@@ -29,7 +29,7 @@ import {
 } from '@lingora/database';
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai';
 import { PROVIDER_META_DATA, SOURCE_LABELS, dictionaryNameToCardSource, getGrammarGroups, type GenerationProviderName } from '@lingora/core';
-import type { CardSource, ChatMessage, LanguageCode, WordGuideEntry } from '@lingora/types';
+import type { CardSource, ChatMessage, LanguageCode, QuestionType, WordGuideEntry } from '@lingora/types';
 import { speak } from '../services/desktopSpeech';
 
 const HELP_SECTIONS: HelpSection[] = [
@@ -150,7 +150,7 @@ function useDebounced<T>(value: T, delayMs: number): T {
 interface SearchLookupScreenProps {
   words: WordLemma[];
   decks: Deck[];
-  onAddCard: (wordForm: string, context: string, deckId: string, cardType: string, deckTitle?: string) => void;
+  onAddCard: (wordForm: string, context: string, deckId: string, cardType: string, deckTitle?: string, clozeOverride?: { sentence: string; answer: string; translation: string }) => void;
   /** Jumps to Settings' AI Providers tab — used by the "no AI provider configured" prompt below,
    * which replaces "Generate with AI" when the active generation provider has no validated key. */
   onNavigateToAiProviderSettings: () => void;
@@ -162,10 +162,18 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
   const [selectedWord, setSelectedWord] = useState<WordLemma>(words[0]);
+  // Left pane mode: the search results list, or (once a real card is open) a "Cluster Index" -
+  // that word's own senses, replacing the list until "back to results" is clicked. Reset to the
+  // list on every fresh query (typing/clearing/submitting) so comparing candidates never gets
+  // silently skipped; set false only by an explicit "open this word" action (a results-row click,
+  // or generating a brand-new card) - never by executeSearch's own internal refresh-after-mutation
+  // calls, which reuse the same function to reload the currently open word's data in place.
+  const [forceResultsList, setForceResultsList] = useState(true);
 
   const setQuery = (value: string) => {
     lastSearchQuery = value;
     setQueryState(value);
+    setForceResultsList(true);
   };
 
   const [isSearching, setIsSearching] = useState(false);
@@ -657,6 +665,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         setPendingTranslation(null);
         setPreviewTranslation(null);
         setPreviewAiInsight(null);
+        setForceResultsList(false);
       }
     } catch (err: any) {
       if (!abortController.signal.aborted) {
@@ -675,6 +684,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   };
 
   const activeCluster = selectedWord.clusters.find(c => c.id === selectedClusterId) || selectedWord.clusters[0];
+  // Left pane shows the "Cluster Index" (this word's own senses + a footer switcher for the other
+  // three tabs) once a real card is open, instead of the search results list - until "back to
+  // results" is clicked. A not-yet-saved word has no senses to index, so it always shows the list.
+  const showSenseIndex = !selectedWord.id.startsWith('search-') && !forceResultsList;
 
   // Regenerates the active cluster's examples targeting whichever grammar structures are
   // selected above, replacing them with the new batch — same effect as apps/mobile's
@@ -1027,10 +1040,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
     setIsDeckPickerOpen(true);
   };
 
-  const handleConfirmDeckAdd = async (deckId: string, deckTitle: string, isNew?: boolean, finalCardType?: string) => {
+  const handleConfirmDeckAdd = async (deckId: string, deckTitle: string, isNew?: boolean, finalCardType?: string, questionTypes?: QuestionType[], clozeOverride?: { sentence: string; answer: string; translation: string }) => {
     let targetDeckId = deckId;
     if (isNew) {
-      targetDeckId = await addNewDeck(deckTitle, finalCardType);
+      targetDeckId = await addNewDeck(deckTitle, questionTypes);
     }
     const typeToUse = finalCardType || selectedCardType.toUpperCase();
 
@@ -1080,7 +1093,7 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
     // Already a real lemma (from the DB, or a completed AI generation) — the generic path is
     // correct here since the lemma/meanings already exist; this only links it to a deck.
-    onAddCard(selectedWord.form, activeCluster?.context || 'General', targetDeckId, typeToUse, deckTitle);
+    onAddCard(selectedWord.form, activeCluster?.context || 'General', targetDeckId, typeToUse, deckTitle, clozeOverride);
   };
 
   return (
@@ -1285,64 +1298,138 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
 
       {/* Main Split Inspector View */}
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', minHeight: 0 }}>
-        {/* Left List of Matches */}
+        {/* Left pane: search results list, or (once a real card is open) this word's own Cluster
+            Index - see showSenseIndex above. */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              {hasSearched ? `Search Results (${searchResults.length})` : `Database Words (${searchResults.length})`}
-            </span>
-            <span className="badge badge-sky" style={{ fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Globe size={11} /> {dictionaryProviderLabel(dictionary.name)} Active
-            </span>
-          </div>
-
-          {searchResults.map(word => {
-            const isSelected = selectedWord.id === word.id;
-            return (
-              <div
-                key={word.id}
-                onClick={() => {
-                  setSelectedWord(word);
-                  setSelectedClusterId(word.clusters[0]?.id || '');
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '10px',
-                  padding: '14px',
-                  borderRadius: '10px',
-                  backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-card)',
-                  border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
+          {showSenseIndex ? (
+            <>
+              <button
+                onClick={() => setForceResultsList(true)}
+                className="btn btn-ghost"
+                style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '6px 8px', color: 'var(--text-secondary)', marginBottom: '4px' }}
               >
-                {/* Left: form + translation - same two-line content as apps/mobile's Search
-                    results row (renderItem's rowText), no CEFR badge or cluster count there. */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {word.form}
-                  </span>
-                  {word.clusters[0]?.translation && (
-                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {word.clusters[0].translation}
-                    </span>
-                  )}
-                </div>
+                <ArrowLeft size={13} />
+                <span>Back to results</span>
+              </button>
 
-                {/* Right: source icon + in-deck check - same as mobile's rowRight. */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                  {word.source && (
-                    <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
-                      {sourceIcon(word.source, 14)}
-                    </span>
-                  )}
-                  {word.inDeck && <Check size={18} color="var(--success)" />}
-                </div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', paddingBottom: '2px' }}>
+                Senses ({selectedWord.clusters.length})
               </div>
-            );
-          })}
+              {selectedWord.clusters.map((cluster, idx) => {
+                const isActive = cluster.id === (selectedClusterId || selectedWord.clusters[0]?.id) && activeTab === 'clusters';
+                return (
+                  <div
+                    key={cluster.id}
+                    onClick={() => { setSelectedClusterId(cluster.id); setActiveTab('clusters'); }}
+                    style={{
+                      padding: '12px',
+                      borderRadius: '10px',
+                      backgroundColor: isActive ? 'var(--accent-secondary)' : 'var(--bg-card)',
+                      border: isActive ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)' }}>
+                      {idx + 1} · {cluster.context}
+                    </div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {cluster.translation}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Footer switcher - the other three tabs, moved out of the top of the right pane
+                  now that this list owns all navigation for an open card. */}
+              <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', paddingTop: '10px', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  onClick={() => setActiveTab('grammar')}
+                  className={`btn ${activeTab === 'grammar' ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ justifyContent: 'flex-start', fontSize: '12.5px', padding: '9px 10px' }}
+                >
+                  <SlidersHorizontal size={14} />
+                  <span>Advanced Grammar Examples{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}</span>
+                </button>
+                <button
+                  onClick={handleOpenSynonymsPhrasesTab}
+                  className={`btn ${activeTab === 'synonyms' ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ justifyContent: 'flex-start', fontSize: '12.5px', padding: '9px 10px' }}
+                >
+                  <Shuffle size={14} />
+                  <span>Synonyms & Phrases</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('builder')}
+                  className={`btn ${activeTab === 'builder' ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ justifyContent: 'flex-start', fontSize: '12.5px', padding: '9px 10px' }}
+                >
+                  <Sparkles size={14} color="var(--success)" />
+                  <span>Card Generator & Cloze Selection</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '8px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                  {hasSearched ? `Search Results (${searchResults.length})` : `Database Words (${searchResults.length})`}
+                </span>
+                <span className="badge badge-sky" style={{ fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Globe size={11} /> {dictionaryProviderLabel(dictionary.name)} Active
+                </span>
+              </div>
+
+              {searchResults.map(word => {
+                const isSelected = selectedWord.id === word.id;
+                return (
+                  <div
+                    key={word.id}
+                    onClick={() => {
+                      setSelectedWord(word);
+                      setSelectedClusterId(word.clusters[0]?.id || '');
+                      setForceResultsList(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '10px',
+                      padding: '14px',
+                      borderRadius: '10px',
+                      backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-card)',
+                      border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {/* Left: form + translation - same two-line content as apps/mobile's Search
+                        results row (renderItem's rowText), no CEFR badge or cluster count there. */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {word.form}
+                      </span>
+                      {word.clusters[0]?.translation && (
+                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {word.clusters[0].translation}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Right: source icon + in-deck check - same as mobile's rowRight. */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      {word.source && (
+                        <span title={SOURCE_LABELS[word.source]} style={{ display: 'flex', color: 'var(--text-muted)' }}>
+                          {sourceIcon(word.source, 14)}
+                        </span>
+                      )}
+                      {word.inDeck && <Check size={18} color="var(--success)" />}
+                    </div>
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
 
         {/* Right Word Detail Inspector */}
@@ -1655,136 +1742,74 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           {!selectedWord.id.startsWith('search-') && (
             <>
 
-              {/* Tab Navigation */}
-          <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-            <button
-              onClick={() => setActiveTab('clusters')}
-              className={`btn ${activeTab === 'clusters' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ fontSize: '13px', padding: '8px 14px' }}
-            >
-              <Layers2 size={15} />
-              <span>Semantic Context Clusters ({selectedWord.clusters.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('grammar')}
-              className={`btn ${activeTab === 'grammar' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ fontSize: '13px', padding: '8px 14px' }}
-            >
-              <SlidersHorizontal size={15} />
-              <span>Advanced Grammar Examples{grammarSelection.length > 0 ? ` (${grammarSelection.length})` : ''}</span>
-            </button>
-
-            <button
-              onClick={handleOpenSynonymsPhrasesTab}
-              className={`btn ${activeTab === 'synonyms' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ fontSize: '13px', padding: '8px 14px' }}
-            >
-              <Shuffle size={15} />
-              <span>Synonyms & Phrases</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('builder')}
-              className={`btn ${activeTab === 'builder' ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ fontSize: '13px', padding: '8px 14px' }}
-            >
-              <Sparkles size={15} color="var(--success)" />
-              <span>Card Generator & Cloze Selection</span>
-            </button>
-          </div>
-
-          {/* Tab 1: Semantic Clusters & Cluster Selector */}
+          {/* Tab 1: Semantic Clusters & Cluster Selector - navigation (which sense, which of the
+              four tabs) now lives entirely in the left pane's Cluster Index; this shows only the
+              currently active cluster's own detail, not every sense stacked. */}
           {activeTab === 'clusters' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.15s ease-out' }}>
-              {/* A single-cluster word has no real choice to make - the instruction and the
-                  "Selected for Review" badge below both only make sense once there's more than
-                  one sense to pick between. */}
-              {selectedWord.clusters.length > 1 && (
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  Select a cluster below to configure context scoping for your review deck:
+              {activeCluster && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div
+                    style={{
+                      backgroundColor: 'var(--accent-secondary)',
+                      border: '1px solid var(--accent-primary)',
+                      borderRadius: '12px',
+                      padding: '18px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span className="badge badge-amber">{activeCluster.context}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--info)' }}>{activeCluster.translation}</span>
+                    </div>
+
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', fontStyle: 'italic' }}>
+                      "{activeCluster.definition}"
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {activeCluster.examples.map((ex, exIdx) => {
+                        const justGenerated = !!ex.generationMetadataId && ex.generationMetadataId === grammarHighlightMetadataId;
+                        return (
+                          <div
+                            key={ex.id ?? exIdx}
+                            style={{
+                              fontSize: '13px',
+                              padding: '10px 14px',
+                              backgroundColor: justGenerated ? 'var(--bg-surface)' : 'var(--bg-glass)',
+                              borderRadius: '8px',
+                              borderLeft: `3px solid ${ex.isSelected ? 'var(--success)' : 'var(--accent-primary)'}`,
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              justifyContent: 'space-between',
+                              gap: '10px'
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
+                              <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{ex.en}</div>
+                            </div>
+                            {ex.id && (
+                              ex.isSelected ? (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, color: 'var(--success)', whiteSpace: 'nowrap' }}>
+                                  <CheckCircle2 size={13} /> Card example
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => void handleSelectExample(ex.id!)}
+                                  className="btn btn-ghost"
+                                  style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap' }}
+                                >
+                                  Select
+                                </button>
+                              )
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {selectedWord.clusters.map((cluster) => {
-                  const isSelected = cluster.id === (selectedClusterId || selectedWord.clusters[0]?.id);
-                  const singleCluster = selectedWord.clusters.length === 1;
-                  return (
-                    <div
-                      key={cluster.id}
-                      onClick={() => setSelectedClusterId(cluster.id)}
-                      style={{
-                        backgroundColor: isSelected ? 'var(--accent-secondary)' : 'var(--bg-glass)',
-                        border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        padding: '18px',
-                        cursor: singleCluster ? 'default' : 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span className="badge badge-amber">{cluster.context}</span>
-                          {isSelected && !singleCluster && <span className="badge badge-emerald">Selected for Review</span>}
-                        </div>
-                        <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--info)' }}>{cluster.translation}</span>
-                      </div>
-
-                      {/* Already shown, more prominently, in the preview panel above for a word
-                          with no card yet (see selectedWord.id's `search-` prefix) - repeating it
-                          here would just be the same paragraph twice. */}
-                      {!selectedWord.id.startsWith('search-') && (
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', fontStyle: 'italic' }}>
-                          "{cluster.definition}"
-                        </p>
-                      )}
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {cluster.examples.map((ex, exIdx) => {
-                          const justGenerated = !!ex.generationMetadataId && ex.generationMetadataId === grammarHighlightMetadataId;
-                          return (
-                            <div
-                              key={ex.id ?? exIdx}
-                              style={{
-                                fontSize: '13px',
-                                padding: '10px 14px',
-                                backgroundColor: justGenerated ? 'var(--accent-secondary)' : 'var(--bg-glass)',
-                                borderRadius: '8px',
-                                borderLeft: `3px solid ${ex.isSelected ? 'var(--success)' : 'var(--accent-primary)'}`,
-                                display: 'flex',
-                                alignItems: 'flex-start',
-                                justifyContent: 'space-between',
-                                gap: '10px'
-                              }}
-                            >
-                              <div style={{ flex: 1 }}>
-                                <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2px' }}>{ex.de}</div>
-                                <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{ex.en}</div>
-                              </div>
-                              {ex.id && (
-                                ex.isSelected ? (
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, color: 'var(--success)', whiteSpace: 'nowrap' }}>
-                                    <CheckCircle2 size={13} /> Card example
-                                  </span>
-                                ) : (
-                                  <button
-                                    onClick={() => void handleSelectExample(ex.id!)}
-                                    className="btn btn-ghost"
-                                    style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap' }}
-                                  >
-                                    Select
-                                  </button>
-                                )
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           )}
 
@@ -1794,30 +1819,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               screen's existing tab pattern. */}
           {activeTab === 'grammar' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.15s ease-out' }}>
-              {/* Explicit, always-visible target - a word with more than one sense must not
-                  silently fall back to whichever cluster happened to be selected (or none at
-                  all) elsewhere on the screen; generated examples land on whichever cluster is
-                  shown here, no exceptions. */}
-              {selectedWord.clusters.length > 1 && (
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-                    Target Cluster
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {selectedWord.clusters.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedClusterId(c.id)}
-                        className={`btn ${activeCluster?.id === c.id ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '12px', padding: '6px 12px' }}
-                      >
-                        {c.context}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+              {/* Which cluster this targets is now picked once, in the left pane's Cluster Index -
+                  no separate picker duplicated in here. */}
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                 Select grammar structures to exercise in the examples for <strong style={{ color: 'var(--accent-primary)' }}>{activeCluster?.context}</strong> ({activeCluster?.translation}):
               </div>
@@ -1923,29 +1926,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
               screen's Synonyms / Phrases & collocations sections. */}
           {activeTab === 'synonyms' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.15s ease-out' }}>
-              {/* Explicit, always-visible target - same fix as Advanced Grammar Examples: a word
-                  with more than one sense must not silently show synonyms for whichever cluster
-                  happened to be selected (or none at all) elsewhere on the screen. */}
-              {selectedWord.clusters.length > 1 && (
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-                    Target Cluster
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {selectedWord.clusters.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedClusterId(c.id)}
-                        className={`btn ${activeCluster?.id === c.id ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '12px', padding: '6px 12px' }}
-                      >
-                        {c.context}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+              {/* Which cluster this is scoped to is now picked once, in the left pane's Cluster
+                  Index - no separate picker duplicated in here. */}
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
                   Synonyms — {activeCluster?.context}
@@ -2081,24 +2063,10 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
           {/* Tab 4: Card Builder & Cloze Selection */}
           {activeTab === 'builder' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', animation: 'fadeIn 0.15s ease-out' }}>
+              {/* Which cluster this card comes from is picked once, in the left pane's Cluster
+                  Index - the preview below reflects it directly, no separate picker duplicated here. */}
               <div>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>1. Select Target Cluster</h4>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {selectedWord.clusters.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => setSelectedClusterId(c.id)}
-                      className={`btn ${selectedClusterId === c.id ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ fontSize: '12px', padding: '6px 12px' }}
-                    >
-                      {c.context}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>2. Select Card Type</h4>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>1. Select Card Type</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                   {[
                     { id: 'cloze', label: 'Cloze Deletion', desc: 'Fill-in the blank' },
@@ -2161,6 +2129,8 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         wordForm={selectedWord.form}
         clusterContext={activeCluster?.context || 'General'}
         cardType={selectedCardType.toUpperCase()}
+        exampleSentence={(activeCluster?.examples.find((e) => e.isSelected) ?? activeCluster?.examples[0])?.de}
+        exampleTranslation={(activeCluster?.examples.find((e) => e.isSelected) ?? activeCluster?.examples[0])?.en}
         onConfirmAdd={handleConfirmDeckAdd}
       />
 

@@ -5,6 +5,7 @@ import {
   pickEligibleTypes,
   QUESTION_TYPE_META,
   shuffleArray,
+  toggleQuestionType,
   worstRating,
   type EligibilityCard,
   type QuestionTypeMeta,
@@ -25,10 +26,12 @@ const log = logger.child({ feature: 'srs', component: 'reviewTypes' })
 // two functions; everything else is re-exported so existing import sites in this app keep working.
 export {
   ALL_QUESTION_TYPES,
+  DEFAULT_ENABLED_QUESTION_TYPES,
   isQuestionType,
   pickEligibleTypes,
   QUESTION_TYPE_META,
   shuffleArray,
+  toggleQuestionType,
   worstRating,
   type EligibilityCard,
   type QuestionTypeMeta,

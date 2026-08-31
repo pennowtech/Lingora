@@ -1,4 +1,5 @@
 import type { ApkgField, ApkgFieldMapping, ApkgRowPreview, DuplicatePolicy } from '@lingora/database'
+import type { QuestionType } from '@lingora/types'
 import {
   buildApkgImportPreview,
   createDeck,
@@ -164,12 +165,12 @@ export default function ApkgImportScreen(): JSX.Element {
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
 
   const createNewDeck = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const trimmed = name.trim()
       if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name: trimmed, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name: trimmed, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return { id, name: trimmed }
     },
     onSuccess: async ({ id, name }) => {
@@ -658,7 +659,7 @@ export default function ApkgImportScreen(): JSX.Element {
           setDeckName(deck.name)
           setDeckPickerOpen(false)
         }}
-        onCreateDeck={(name) => createNewDeck.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createNewDeck.mutate({ name, questionTypes })}
         creating={createNewDeck.isPending}
         {...(createNewDeck.isError && { createError: String(createNewDeck.error) })}
       />

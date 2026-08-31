@@ -1,4 +1,4 @@
-import type { Deck } from '@lingora/types'
+import type { Deck, QuestionType } from '@lingora/types'
 import {
   createDeck,
   deleteDeck,
@@ -30,6 +30,8 @@ import {
 import { Icon } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
+import { ReviewModesPicker } from '../../components/ReviewModesPicker'
+import { DEFAULT_ENABLED_QUESTION_TYPES, toggleQuestionType } from '../../lib/reviewTypes'
 import {
   AlertModal,
   Button,
@@ -53,10 +55,10 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
 
-const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lin-import'> = {
+const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lem-import'> = {
   csv: '/settings/csv-import',
   apkg: '/settings/apkg-import',
-  lin: '/settings/lin-import',
+  lem: '/settings/lem-import',
 }
 
 /** A deck with its computed counts and resolved children. */
@@ -95,6 +97,9 @@ export default function DecksScreen(): JSX.Element {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
+  // Which review formats the new deck practices with - defaults to the same starting point as
+  // Settings -> Learning's global picker, overridable per deck right here at creation time.
+  const [newQuestionTypes, setNewQuestionTypes] = useState<QuestionType[]>([...DEFAULT_ENABLED_QUESTION_TYPES])
   const [menuDeck, setMenuDeck] = useState<Deck | null>(null)
   const [importDeck, setImportDeck] = useState<Deck | null>(null)
   const [exportDeck, setExportDeck] = useState<Deck | null>(null)
@@ -133,6 +138,7 @@ export default function DecksScreen(): JSX.Element {
         id: crypto.randomUUID(),
         name,
         ...(newEmoji.trim() !== '' && { emoji: newEmoji.trim() }),
+        enabledQuestionTypes: newQuestionTypes,
         createdAt: now,
         updatedAt: now,
       })
@@ -141,6 +147,7 @@ export default function DecksScreen(): JSX.Element {
       setCreateOpen(false)
       setNewName('')
       setNewEmoji('')
+      setNewQuestionTypes([...DEFAULT_ENABLED_QUESTION_TYPES])
       await invalidateDecks()
     },
   })
@@ -150,10 +157,10 @@ export default function DecksScreen(): JSX.Element {
   // on to the add-card screen instead of just closing the picker, since the whole point of this
   // flow is getting a card written, not just having a deck to put it in later.
   const createDeckForAddCard = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, createdAt: now, updatedAt: now })
+      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       return id
     },
     onSuccess: async (id) => {
@@ -166,10 +173,10 @@ export default function DecksScreen(): JSX.Element {
   // Same shape as createDeckForAddCard, but for the "Import" menu item's deck picker — hands off
   // to the existing showImport/ImportFormatSheet flow instead of the add-card screen.
   const createDeckForImport = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      const deck: Deck = { id, name, createdAt: now, updatedAt: now }
+      const deck: Deck = { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now }
       await createDeck(db, deck)
       return deck
     },
@@ -440,7 +447,7 @@ export default function DecksScreen(): JSX.Element {
           setAddCardPickerOpen(false)
           router.push({ pathname: '/deck/add-card', params: { deckId: deck.id } })
         }}
-        onCreateDeck={(name) => createDeckForAddCard.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckForAddCard.mutate({ name, questionTypes })}
         creating={createDeckForAddCard.isPending}
         {...(createDeckForAddCard.isError && { createError: String(createDeckForAddCard.error) })}
       />
@@ -454,7 +461,7 @@ export default function DecksScreen(): JSX.Element {
           setImportPickerOpen(false)
           showImport(deck)
         }}
-        onCreateDeck={(name) => createDeckForImport.mutate(name)}
+        onCreateDeck={(name, questionTypes) => createDeckForImport.mutate({ name, questionTypes })}
         creating={createDeckForImport.isPending}
         {...(createDeckForImport.isError && { createError: String(createDeckForImport.error) })}
       />
@@ -485,6 +492,11 @@ export default function DecksScreen(): JSX.Element {
               value={newEmoji}
               onChangeText={setNewEmoji}
               maxLength={4}
+            />
+            <ReviewModesPicker
+              label={t('Review modes')}
+              value={newQuestionTypes}
+              onToggle={(qt) => setNewQuestionTypes((prev) => toggleQuestionType(prev, qt))}
             />
             {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
             <View style={styles.centerModalActions}>

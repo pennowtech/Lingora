@@ -9,25 +9,24 @@ import {
   addCardToDeck,
   createCardForSense,
   createDeck,
+  getCardById,
   getCardsByLemma,
   recordReview,
-  getLemmaById,
-  getMeaningsForCard,
+  recordClozeReview,
   getExamplesForCard,
   getClozesForCard,
-  getSynonymsForCard,
-  getPhrasesForCard,
   getCardState,
   getClozeState,
   getCardsDueForReview,
   getClozeCardsDueForReview,
   getDefaultTemplate,
+  loadCardView,
   createCloze,
   setCloze
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
-import { buildCardContext, renderCardHtml, SEPARABLE_PREFIXES } from './templates';
-import type { LanguageCode, CefrLevel, QuestionType } from '@lingora/types';
+import { renderCardHtml, SEPARABLE_PREFIXES } from './templates';
+import type { Card, LanguageCode, CefrLevel, QuestionType } from '@lingora/types';
 import {
   OpenAIProvider,
   MistralProvider,
@@ -120,7 +119,7 @@ interface DesktopServicesContextType {
   setTheme: (themeKey: string) => void;
   setLearningConfig: (cefr: CefrLevel, nativeLang: LanguageCode, targetLang: LanguageCode) => void;
   refreshData: () => Promise<void>;
-  rateCard: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => Promise<void>;
+  rateCard: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy', isCloze?: boolean) => Promise<void>;
   addNewDeck: (title: string, questionTypes?: QuestionType[]) => Promise<string>;
   addNewCard: (lemmaForm: string, clusterId: string, deckId: string, cardType: string, clozeOverride?: { sentence: string; answer: string; translation: string }) => Promise<void>;
   translateText: (text: string, source?: LanguageCode, target?: LanguageCode) => Promise<string>;
@@ -391,19 +390,19 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     loadDatabase();
   }, []);
 
-  const rateCard = async (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => {
+  // isCloze picks which schedule/table gets updated - card_states (recordReview) for a plain/
+  // reverse-mode card or cloze_states (recordClozeReview) for one reviewed in Cloze form, matching
+  // loadReviewQueue's own per-card `isCloze` flag (see above) so a rating always lands in the same
+  // FSRS schedule the due-card query pulled it from, instead of always writing card_states
+  // regardless of mode.
+  const rateCard = async (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy', isCloze: boolean = false) => {
     if (!db) return;
     try {
-      const cardStateRow = await db.querySingle<any>(
-        `SELECT stability, difficulty, retrievability, next_review_date AS nextReviewAt, lapses, state, reps, learning_steps AS learningSteps
-         FROM card_states WHERE card_id = ?`,
-        [cardId]
-      );
-
-      const currentState = cardStateRow || createInitialCardState(cardId);
+      const currentState = (isCloze ? await getClozeState(db, cardId) : await getCardState(db, cardId)) ?? createInitialCardState(cardId);
       const newState = schedule(currentState, rating, Date.now());
 
-      await recordReview(db, {
+      const recordFn = isCloze ? recordClozeReview : recordReview;
+      await recordFn(db, {
         id: `rev-${Date.now()}`,
         cardId,
         rating,
@@ -733,12 +732,20 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     }
   };
 
+  // The per-card content assembly (meanings/examples/clozes/synonyms/phrases/cardState ->
+  // templateContext) is @lingora/database's shared loadCardView (packages/database/src/
+  // repositories/reviewQueue.ts) - the exact same code mobile's review session uses, so a bug
+  // fixed there (e.g. hasClozeVariant vs card.type) never has to be fixed twice. What stays
+  // desktop-specific is due-card *selection*: desktop has one Review button per deck instead of
+  // mobile's three (Practice/Cloze/Reverse), so a plain (non-clozeOnly) session here still merges
+  // both due queues rather than only the basic one - without a dedicated Cloze entry point, a
+  // cloze-only deck would otherwise never show up as reviewable at all.
   const loadReviewQueue = async (deckId?: string, clozeOnly: boolean = false, cardId?: string): Promise<any[]> => {
     if (!db) return [];
 
-    let finalCards: any[] = [];
+    let finalCards: Card[] = [];
     if (cardId) {
-      const card = await db.querySingle<any>(`SELECT * FROM cards WHERE id = ?`, [cardId]);
+      const card = await getCardById(db, cardId);
       if (card) finalCards = [card];
     } else {
       const scopeDeckId = deckId === 'all' ? undefined : deckId;
@@ -758,22 +765,24 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       }
 
       if (finalCards.length === 0) {
-        if (scopeDeckId) {
-          // Real deck membership is deck_cards (many-to-many - a card can be linked to more than
-          // one deck), not cards.deck_id (a single-owner column that only ever reflects whichever
-          // deck last created/re-typed the card - see addNewCard). Querying deck_id directly here
-          // silently hid every card whose deck_id pointed at an earlier deck even though
-          // deck_cards correctly listed it in this one, making a deck with real cards report as
-          // empty on Review.
-          finalCards = await db.query<any>(
-            `SELECT c.* FROM cards c INNER JOIN deck_cards dc ON dc.card_id = c.id WHERE dc.deck_id = ?`,
-            [scopeDeckId]
-          );
-        } else {
-          finalCards = await db.query<any>(
-            `SELECT * FROM cards`
-          );
-        }
+        // Real deck membership is deck_cards (many-to-many - a card can be linked to more than
+        // one deck), not cards.deck_id (a single-owner column that only ever reflects whichever
+        // deck last created/re-typed the card - see addNewCard). Querying deck_id directly here
+        // silently hid every card whose deck_id pointed at an earlier deck even though
+        // deck_cards correctly listed it in this one, making a deck with real cards report as
+        // empty on Review. Columns are aliased to Card's camelCase shape (matching
+        // getCardById/getCardsDueForReview) - a bare `SELECT *`/`c.*` here previously returned raw
+        // snake_case rows, so card.lemmaId was silently undefined and every card got skipped.
+        finalCards = scopeDeckId
+          ? await db.query<Card>(
+              `SELECT c.id, c.lemma_id AS lemmaId, c.deck_id AS deckId, c.type, c.primary_meaning_id AS primaryMeaningId, c.created_at AS createdAt, c.updated_at AS updatedAt, c.suspended_at AS suspendedAt, c.source, c.native_language AS nativeLanguage
+               FROM cards c INNER JOIN deck_cards dc ON dc.card_id = c.id WHERE dc.deck_id = ?`,
+              [scopeDeckId]
+            )
+          : await db.query<Card>(
+              `SELECT id, lemma_id AS lemmaId, deck_id AS deckId, type, primary_meaning_id AS primaryMeaningId, created_at AS createdAt, updated_at AS updatedAt, suspended_at AS suspendedAt, source, native_language AS nativeLanguage
+               FROM cards`
+            );
         if (clozeOnly) finalCards = finalCards.filter((c) => c.type === 'cloze');
       }
     }
@@ -789,58 +798,32 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     const views: any[] = [];
     for (const card of finalCards) {
       try {
-        const lemma = await getLemmaById(db, card.lemmaId);
-        if (!lemma) continue;
-
         const isCardCloze = clozeOnly || card.type === 'cloze';
+        const view = await loadCardView(db, card, isCardCloze);
+        if (!view) continue;
+
         const template = isCardCloze ? clozeTemplate : vocabTemplate;
-        const frontTemplate = template?.frontTemplate || '';
-        const backTemplate = template?.backTemplate || '';
-        const styles = template?.styles || '';
-
-        const [meanings, examples, clozes, synonyms, phrases, cardState] = await Promise.all([
-          getMeaningsForCard(db, card.id),
-          getExamplesForCard(db, card.id),
-          getClozesForCard(db, card.id),
-          getSynonymsForCard(db, card.id),
-          getPhrasesForCard(db, card.id),
-          isCardCloze ? getClozeState(db, card.id) : getCardState(db, card.id),
-        ]);
-
-        const cloze = clozes[0];
-        const primaryMeaning = meanings.find((m) => m.isPrimary) ?? meanings[0];
-        const selectedExample = examples.find((e) => e.isSelected) ?? examples[0];
-
-        const templateContext = buildCardContext({
-          lemma,
-          meanings,
-          examples,
-          synonyms,
-          phrases,
-          cloze,
-          mode: isCardCloze ? 'cloze' : 'vocab',
-        });
-
-        const frontHtml = renderCardHtml(frontTemplate, styles, templateContext, 'front');
-        const backHtml = renderCardHtml(backTemplate, styles, templateContext, 'back');
+        const frontHtml = renderCardHtml(template?.frontTemplate || '', template?.styles || '', view.templateContext, 'front');
+        const backHtml = renderCardHtml(template?.backTemplate || '', template?.styles || '', view.templateContext, 'back');
 
         views.push({
           id: card.id,
-          front: lemma.form,
-          back: isCardCloze ? (cloze?.answer || primaryMeaning?.translation || '') : (primaryMeaning?.translation || ''),
-          pos: lemma.partOfSpeech || 'noun',
-          cefr: primaryMeaning?.cefrLevel || 'B2',
-          context: primaryMeaning ? 'General' : '',
-          exampleDe: isCardCloze ? (cloze?.sentence || '') : (selectedExample?.sentence || ''),
-          exampleEn: isCardCloze ? (cloze?.translation || '') : (selectedExample?.translation || ''),
+          front: view.form,
+          back: isCardCloze ? (view.clozeAnswer || view.meaning || '') : (view.meaning || ''),
+          pos: view.partOfSpeech || 'noun',
+          cefr: view.cefrLevel || 'B2',
+          context: view.meaning ? 'General' : '',
+          exampleDe: isCardCloze ? (view.clozeSentence || '') : (view.example || ''),
+          exampleEn: isCardCloze ? (view.clozeTranslation || '') : (view.exampleTranslation || ''),
           frontHtml,
           backHtml,
-          cardState: cardState || createInitialCardState(card.id),
+          cardState: view.cardState,
+          isCloze: isCardCloze,
         });
       } catch (err) {
         // One card with malformed/missing data (a stale reference, a partial delete) must not
-        // sink the whole review session - skip it and keep going, same as the `!lemma` guard
-        // above already does for a missing lemma specifically.
+        // sink the whole review session - skip it and keep going, same as loadCardView's own
+        // `!lemma` guard does for a missing lemma specifically.
         console.warn('[loadReviewQueue] Skipping card that failed to build a review view:', card.id, err);
       }
     }

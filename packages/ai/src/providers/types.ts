@@ -166,7 +166,7 @@ export interface AIProvider {
   suggestWordOfTheDay(
     ctx: GenerationContext,
     excludeWords: string[],
-  ): Promise<AIResult<{ word: string; explanation: string }>>
+  ): Promise<AIResult<{ word: string; explanation: string; exampleSentence?: string; exampleTranslation?: string }>>
 
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
 

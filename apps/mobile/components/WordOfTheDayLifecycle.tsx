@@ -1,5 +1,6 @@
 import { useEffect, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import * as Linking from 'expo-linking'
 import * as Notifications from 'expo-notifications'
 import { logger } from '@lingora/observability'
@@ -18,17 +19,20 @@ const log = logger.child({ feature: 'vocabulary', component: 'WordOfTheDayLifecy
 export function WordOfTheDayLifecycle(): JSX.Element | null {
   const { ai, db, tier, targetLanguage, nativeLanguage, defaultCefr } = useServices()
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (tier !== 'full' || !ai) return
-    refreshWordOfTheDayIfNeeded({ ai, db, targetLanguage, nativeLanguage, cefrLevel: defaultCefr, t }).catch(
-      (error: unknown) => {
+    refreshWordOfTheDayIfNeeded({ ai, db, targetLanguage, nativeLanguage, cefrLevel: defaultCefr, t })
+      .then(() => {
+        void queryClient.invalidateQueries({ queryKey: ['word-of-the-day'] })
+      })
+      .catch((error: unknown) => {
         log.error('vocabulary.word_of_the_day_lifecycle_failed', error, {
           message: 'Word of the Day refresh threw outside its own try/catch',
         })
-      },
-    )
-  }, [ai, db, tier, targetLanguage, nativeLanguage, defaultCefr])
+      })
+  }, [ai, db, tier, targetLanguage, nativeLanguage, defaultCefr, queryClient, t])
 
   // Tapping the daily notification opens the word directly — same cold-start-safe
   // Linking.openURL pattern CaptureIntentHandler uses, for the same reason: this listener can fire

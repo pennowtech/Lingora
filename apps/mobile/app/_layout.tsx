@@ -65,7 +65,7 @@ function AppStack(): JSX.Element {
   const isReviewScreen = pathname.startsWith('/review/')
   // Home is the only screen with `headerShown: false` (see (tabs)/_layout.tsx) — it gets the
   // floating LanguagePairBadge standing in for a header; every other screen shows the same pair
-  // via AppHeader's own embedded compact pill instead (see AppHeader.tsx's doc comment for why).
+  // via AppHeader's own embedded compact pill instead.
   const isHomeScreen = pathname === '/'
 
   return (

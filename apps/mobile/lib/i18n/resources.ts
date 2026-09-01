@@ -50,6 +50,7 @@ const ENGLISH_PHRASES = [
   // Settings — labels
   'App Language',
   'Follow device',
+  'System (Auto)',
   'Default CEFR level',
   'Examples and explanations are calibrated to this level.',
   'Word of the Day reminder',
@@ -1119,6 +1120,7 @@ const de: Partial<Record<Phrase, string>> = {
   About: 'Über',
   'App Language': 'App-Sprache',
   'Follow device': 'Gerätesprache verwenden',
+  'System (Auto)': 'System (Automatisch)',
   'Default CEFR level': 'Standard-Niveaustufe (GER)',
   'Examples and explanations are calibrated to this level.':
     'Beispiele und Erklärungen sind auf dieses Niveau abgestimmt.',
@@ -2391,6 +2393,7 @@ const fr: Partial<Record<Phrase, string>> = {
   'e.g. Past perfect continuous, reported speech...': 'ex. Plus-que-parfait continu, discours rapporté...',
   'App Language': "Langue de l'application",
   'Follow device': "Suivre la langue de l'appareil",
+  'System (Auto)': 'Système (Automatique)',
   'Default CEFR level': 'Niveau CECRL par défaut',
   'Examples and explanations are calibrated to this level.':
     'Les exemples et explications sont calibrés sur ce niveau.',
@@ -3620,6 +3623,7 @@ const es: Partial<Record<Phrase, string>> = {
   'e.g. Past perfect continuous, reported speech...': 'ej. Pasado perfecto continuo, estilo indirecto...',
   'App Language': 'Idioma de la aplicación',
   'Follow device': 'Seguir el idioma del dispositivo',
+  'System (Auto)': 'Sistema (Automático)',
   'Default CEFR level': 'Nivel MCER predeterminado',
   'Examples and explanations are calibrated to this level.':
     'Los ejemplos y explicaciones están calibrados para este nivel.',
@@ -4848,6 +4852,7 @@ const hi: Partial<Record<Phrase, string>> = {
   'e.g. Past perfect continuous, reported speech...': 'जैसे: पूर्ण भूतकाल निरंतर, अप्रत्यक्ष कथन...',
   'App Language': 'ऐप की भाषा',
   'Follow device': 'डिवाइस की भाषा उपयोग करें',
+  'System (Auto)': 'सिस्टम (स्वचालित)',
   'Default CEFR level': 'डिफ़ॉल्ट CEFR स्तर',
   'Examples and explanations are calibrated to this level.':
     'उदाहरण और स्पष्टीकरण इसी स्तर के अनुसार तैयार किए गए हैं।',

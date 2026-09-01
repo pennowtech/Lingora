@@ -71,7 +71,7 @@ export const cefrColors: Record<CefrLevel, { fg: string; bg: string }> = {
  * mode the same way: `theme.mode === 'dark' ? darkSettingsCategoryColors : settingsCategoryColors`
  * (see app/review/[deckId].tsx's identical pattern for ratingColors).
  */
-export type SettingsCategoryKey = 'general' | 'learning' | 'data' | 'ai' | 'translation' | 'sync' | 'about'
+export type SettingsCategoryKey = 'general' | 'learning' | 'data' | 'ai' | 'translation' | 'sync' | 'about' | 'audio'
 
 export const settingsCategoryColors: Record<SettingsCategoryKey, { fg: string; bg: string }> = {
   general: { fg: '#64748B', bg: '#EEF1F5' },
@@ -81,6 +81,7 @@ export const settingsCategoryColors: Record<SettingsCategoryKey, { fg: string; b
   translation: { fg: '#0891B2', bg: '#DFF6FA' },
   sync: { fg: '#2563EB', bg: '#E5EDFE' },
   about: { fg: '#6B7280', bg: '#F1F2F4' },
+  audio: { fg: '#DB2777', bg: '#FCE7F3' },
 }
 
 export const darkSettingsCategoryColors: Record<SettingsCategoryKey, { fg: string; bg: string }> = {
@@ -91,6 +92,7 @@ export const darkSettingsCategoryColors: Record<SettingsCategoryKey, { fg: strin
   translation: { fg: '#7DD3E8', bg: '#113138' },
   sync: { fg: '#72ADFF', bg: '#122646' },
   about: { fg: '#9AA1AE', bg: '#23262C' },
+  audio: { fg: '#F472B6', bg: '#3B1828' },
 }
 
 /** 4-based spacing scale. */

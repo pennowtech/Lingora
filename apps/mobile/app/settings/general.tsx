@@ -19,8 +19,7 @@ import {
 import { FULLY_SUPPORTED_VOCAB_LANGUAGES, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
-import { THEMES, THEME_ORDER } from '../../lib/themes'
-import type { ThemeColors, ThemeKey } from '../../lib/themes'
+import { THEMES, THEME_ORDER, type ThemeColors, type ThemeKey, type ThemePreference } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'GeneralSettingsScreen' })
 
@@ -85,7 +84,7 @@ export default function GeneralSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
-  const { themeKey, setThemeKey } = useTheme()
+  const { themePreference, setThemePreference } = useTheme()
   const { nativeLanguage, targetLanguage, reloadServices } = useServices()
   const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
   const [captureDestination, setCaptureDestinationState] = useState<CaptureDestination>('search')
@@ -166,9 +165,15 @@ export default function GeneralSettingsScreen(): JSX.Element {
         <Text style={styles.fieldLabel}>{t('Theme')}</Text>
         <Dropdown
           label={t('Theme')}
-          value={themeKey}
-          onChange={(value) => value && setThemeKey(value as ThemeKey)}
-          options={THEME_ORDER.map((key) => ({ label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`, value: key }))}
+          value={themePreference}
+          onChange={(value) => value && setThemePreference(value as ThemePreference)}
+          options={[
+            { label: `⚙️  ${t('System (Auto)')}`, value: 'system' },
+            ...THEME_ORDER.map((key) => ({
+              label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`,
+              value: key,
+            })),
+          ]}
         />
       </Card>
 

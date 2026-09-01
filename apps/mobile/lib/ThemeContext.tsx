@@ -1,12 +1,25 @@
 import * as SecureStore from 'expo-secure-store'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type JSX, type ReactNode } from 'react'
-import { DEFAULT_THEME_KEY, THEME_ORDER, THEMES, type AppTheme, type ThemeColors, type ThemeKey } from './themes'
+import { useColorScheme } from 'react-native'
+import {
+  DEFAULT_THEME_KEY,
+  DEFAULT_THEME_PREFERENCE,
+  THEME_ORDER,
+  THEMES,
+  resolveThemeKey,
+  type AppTheme,
+  type ThemeColors,
+  type ThemeKey,
+  type ThemePreference,
+} from './themes'
 
 const THEME_STORE_KEY = 'lingora.theme_key'
 
 interface ThemeContextValue {
   theme: AppTheme
   themeKey: ThemeKey
+  themePreference: ThemePreference
+  setThemePreference: (pref: ThemePreference) => void
   setThemeKey: (key: ThemeKey) => void
 }
 
@@ -16,24 +29,45 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
  * renders the default theme until that read resolves, same pattern as every other SecureStore-backed
  * setting in this app (see lib/ttsSettings.ts), rather than blocking the first frame on it. */
 export function ThemeProvider(props: { children: ReactNode }): JSX.Element {
-  const [themeKey, setThemeKeyState] = useState<ThemeKey>(DEFAULT_THEME_KEY)
+  const systemColorScheme = useColorScheme()
+  const [themePreference, setThemePreferenceState] = useState<ThemePreference>(DEFAULT_THEME_PREFERENCE)
 
   useEffect(() => {
     SecureStore.getItemAsync(THEME_STORE_KEY)
       .then((stored) => {
-        if (stored && (THEME_ORDER as string[]).includes(stored)) setThemeKeyState(stored as ThemeKey)
+        if (stored && (stored === 'system' || (THEME_ORDER as string[]).includes(stored))) {
+          setThemePreferenceState(stored as ThemePreference)
+        }
       })
       .catch(() => undefined)
   }, [])
 
-  const setThemeKey = useCallback((key: ThemeKey) => {
-    setThemeKeyState(key)
-    void SecureStore.setItemAsync(THEME_STORE_KEY, key)
+  const setThemePreference = useCallback((pref: ThemePreference) => {
+    setThemePreferenceState(pref)
+    void SecureStore.setItemAsync(THEME_STORE_KEY, pref)
   }, [])
 
+  const setThemeKey = useCallback(
+    (key: ThemeKey) => {
+      setThemePreference(key)
+    },
+    [setThemePreference],
+  )
+
+  const resolvedThemeKey = useMemo(
+    () => resolveThemeKey(themePreference, systemColorScheme),
+    [themePreference, systemColorScheme],
+  )
+
   const value = useMemo<ThemeContextValue>(
-    () => ({ theme: THEMES[themeKey], themeKey, setThemeKey }),
-    [themeKey, setThemeKey],
+    () => ({
+      theme: THEMES[resolvedThemeKey] ?? THEMES[DEFAULT_THEME_KEY],
+      themeKey: resolvedThemeKey,
+      themePreference,
+      setThemePreference,
+      setThemeKey,
+    }),
+    [resolvedThemeKey, themePreference, setThemePreference, setThemeKey],
   )
 
   return <ThemeContext.Provider value={value}>{props.children}</ThemeContext.Provider>
@@ -41,7 +75,15 @@ export function ThemeProvider(props: { children: ReactNode }): JSX.Element {
 
 function useThemeContext(): ThemeContextValue {
   const ctx = useContext(ThemeContext)
-  if (!ctx) throw new Error('useThemeContext must be used within a ThemeProvider')
+  if (!ctx) {
+    return {
+      theme: THEMES[DEFAULT_THEME_KEY],
+      themeKey: DEFAULT_THEME_KEY,
+      themePreference: DEFAULT_THEME_PREFERENCE,
+      setThemePreference: () => {},
+      setThemeKey: () => {},
+    }
+  }
   return ctx
 }
 

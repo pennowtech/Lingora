@@ -101,7 +101,7 @@ const midnight: AppTheme = {
     success: '#4ADE80',
     successSoft: soft('#4ADE80'),
     warning: '#FBBF24',
-    warningSoft: soft('#FBBF24'),
+    warningSoft: '#2B2412',
     danger: '#F87171',
     dangerSoft: soft('#F87171'),
     info: '#38BDF8',
@@ -129,7 +129,7 @@ const carbon: AppTheme = {
     success: '#22C55E',
     successSoft: soft('#22C55E'),
     warning: '#EAB308',
-    warningSoft: soft('#EAB308'),
+    warningSoft: '#282310',
     danger: '#EF4444',
     dangerSoft: soft('#EF4444'),
     info: '#60A5FA',
@@ -157,7 +157,7 @@ const arctic: AppTheme = {
     success: '#16A34A',
     successSoft: soft('#16A34A'),
     warning: '#D97706',
-    warningSoft: soft('#D97706'),
+    warningSoft: '#FEF3C7',
     danger: '#DC2626',
     dangerSoft: soft('#DC2626'),
     info: '#0284C7',
@@ -185,7 +185,7 @@ const warmSand: AppTheme = {
     success: '#3A8A3A',
     successSoft: soft('#3A8A3A'),
     warning: '#C08020',
-    warningSoft: soft('#C08020'),
+    warningSoft: '#F8EDE0',
     danger: '#C03020',
     dangerSoft: soft('#C03020'),
     info: '#1A6A9A',
@@ -213,7 +213,7 @@ const paperlight: AppTheme = {
     success: '#15803D',
     successSoft: soft('#15803D'),
     warning: '#B45309',
-    warningSoft: soft('#B45309'),
+    warningSoft: '#FEF3C7',
     danger: '#B91C1C',
     dangerSoft: soft('#B91C1C'),
     info: '#0369A1',
@@ -221,6 +221,25 @@ const paperlight: AppTheme = {
   },
 }
 
+export type ThemePreference = 'system' | ThemeKey
+
 export const THEMES: Record<ThemeKey, AppTheme> = { lingoraLight, midnight, carbon, arctic, warmSand, paperlight }
 export const THEME_ORDER: ThemeKey[] = ['lingoraLight', 'midnight', 'carbon', 'arctic', 'warmSand', 'paperlight']
+export const DEFAULT_THEME_PREFERENCE: ThemePreference = 'system'
 export const DEFAULT_THEME_KEY: ThemeKey = 'lingoraLight'
+export const DEFAULT_LIGHT_THEME_KEY: ThemeKey = 'lingoraLight'
+export const DEFAULT_DARK_THEME_KEY: ThemeKey = 'midnight'
+
+/**
+ * Resolves the active ThemeKey based on the user's preference and device system color scheme.
+ * When set to 'system', automatically maps to Midnight Indigo for dark mode and Lemmory Light for light mode.
+ */
+export function resolveThemeKey(
+  preference: ThemePreference,
+  systemColorScheme?: string | null,
+): ThemeKey {
+  if (preference === 'system') {
+    return systemColorScheme === 'dark' ? DEFAULT_DARK_THEME_KEY : DEFAULT_LIGHT_THEME_KEY
+  }
+  return preference
+}

@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import type { JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from './Icon'
 import { LANGUAGE_FLAGS, useServices } from '../lib/services'
@@ -13,21 +13,17 @@ import type { ThemeColors } from '../lib/themes'
  * The full, floating native→target language-pair indicator. Rendered only on Home (see
  * app/_layout.tsx — the one screen with `headerShown: false`), where it visually stands in for
  * the header that screen doesn't have. Every other screen shows `CompactLanguagePairPill` below
- * instead, embedded inside AppHeader.tsx's custom header — see that file's doc comment for why a
- * floating badge can't be used on native-header screens (the header always reserves the
- * status-bar inset internally, so anything stacked above it just wastes space).
+ * instead, embedded inside AppHeader.tsx's custom header.
  *
  * Doubles as the shortcut to the one setting it displays: tapping it opens Settings → Learning.
- * Replaces word/[form].tsx's old approach of overwriting its own Stack.Screen header *title* with
- * the direction text (e.g. "EN → HI") — that only ever showed on the word-detail screen, in
- * target→native order, and stole the header title slot from anything else that might want it.
  */
 export function LanguagePairBadge(): JSX.Element {
   const insets = useSafeAreaInsets()
   const styles = useThemedStyles(createStyles)
+  const topInset = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0)
 
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top }]}>
+    <View style={[styles.wrap, { paddingTop: topInset }]}>
       <LanguagePairPill />
     </View>
   )

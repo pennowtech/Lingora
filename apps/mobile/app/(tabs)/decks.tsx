@@ -1036,7 +1036,7 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
     syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
     scroll: { padding: spacing.lg, paddingBottom: 96 },
     masteryHero: {

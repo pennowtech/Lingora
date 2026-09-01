@@ -11,14 +11,17 @@ import {
 } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { router, Stack, useFocusEffect } from 'expo-router'
-import { useCallback, useState, type JSX } from 'react'
+import { useCallback, useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AISetupModal } from '../../components/AISetupModal'
+import { WhatsNewModal } from '../../components/WhatsNewModal'
 import { Icon, type IconName } from '../../components/Icon'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { Button, Card, CefrBadge, EmptyState, IconButton, SectionHeader } from '../../components/ui'
+import { shouldShowWhatsNew, markWhatsNewSeen } from '../../lib/whatsNew'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { speak } from '../../lib/speech'
 import { streakFromDayIndexes } from '@lingora/core'
@@ -121,6 +124,18 @@ export default function HomeScreen(): JSX.Element {
 
   const [wotdModalOpen, setWotdModalOpen] = useState(false)
   const [aiSetupModalOpen, setAiSetupModalOpen] = useState(false)
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false)
+
+  useEffect(() => {
+    void shouldShowWhatsNew().then((show) => {
+      if (show) setWhatsNewOpen(true)
+    })
+  }, [])
+
+  const handleCloseWhatsNew = () => {
+    setWhatsNewOpen(false)
+    void markWhatsNewSeen()
+  }
   const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
   const recentQuery = useQuery({
     queryKey: ['recent-words'],
@@ -299,34 +314,31 @@ export default function HomeScreen(): JSX.Element {
                   <Text style={styles.aiLiveBadgeText}>AI Discovery</Text>
                 </View>
               </View>
-              <Pressable
+              <Card
                 disabled={!wordOfTheDay}
                 onPress={() => setWotdModalOpen(true)}
+                style={styles.wotdCard}
               >
-                {({ pressed }) => (
-                  <Card style={[styles.wotdCard, pressed && styles.wotdCardPressed]}>
-                    {wordOfTheDay ? (
-                      <>
-                        <View style={styles.wotdTop}>
-                          <Text style={styles.wotdWord}>{wordOfTheDay.word}</Text>
-                          <View style={styles.wotdLearnAction}>
-                            <Text style={styles.wotdLearnText}>{t('Explore')}</Text>
-                            <Icon name="ArrowRight" size={13} color={colors.warning} />
-                          </View>
-                        </View>
-                        <Text style={styles.wotdExplanation} numberOfLines={2}>
-                          {wordOfTheDay.explanation}
-                        </Text>
-                      </>
-                    ) : (
-                      <View style={styles.wotdLoadingRow}>
-                        <ActivityIndicator color={colors.warning} />
-                        <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
+                {wordOfTheDay ? (
+                  <>
+                    <View style={styles.wotdTop}>
+                      <Text style={styles.wotdWord}>{wordOfTheDay.word}</Text>
+                      <View style={styles.wotdLearnAction}>
+                        <Text style={styles.wotdLearnText}>{t('Explore')}</Text>
+                        <Icon name="ArrowRight" size={13} color={colors.warning} />
                       </View>
-                    )}
-                  </Card>
+                    </View>
+                    <Text style={styles.wotdExplanation} numberOfLines={2}>
+                      {wordOfTheDay.explanation}
+                    </Text>
+                  </>
+                ) : (
+                  <View style={styles.wotdLoadingRow}>
+                    <ActivityIndicator color={colors.warning} />
+                    <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
+                  </View>
                 )}
-              </Pressable>
+              </Card>
             </View>
           ) : null
         ) : (
@@ -338,22 +350,21 @@ export default function HomeScreen(): JSX.Element {
                 <Text style={[styles.aiLiveBadgeText, { color: colors.textSecondary }]}>{t('Offline Mode')}</Text>
               </View>
             </View>
-            <Pressable onPress={() => setAiSetupModalOpen(true)}>
-              {({ pressed }) => (
-                <Card style={[styles.wotdCard, pressed && styles.wotdCardPressed]}>
-                  <View style={styles.wotdTop}>
-                    <Text style={styles.wotdWord}>{t('Daily Word Discovery')}</Text>
-                    <View style={styles.wotdLearnAction}>
-                      <Text style={styles.wotdLearnText}>{t('More info')}</Text>
-                      <Icon name="ArrowRight" size={13} color={colors.warning} />
-                    </View>
-                  </View>
-                  <Text style={styles.wotdExplanation} numberOfLines={2}>
-                    {t('Configure an AI provider in Settings to get daily curated words, or install local dictionaries for offline use.')}
-                  </Text>
-                </Card>
-              )}
-            </Pressable>
+            <Card
+              onPress={() => setAiSetupModalOpen(true)}
+              style={styles.wotdCard}
+            >
+              <View style={styles.wotdTop}>
+                <Text style={styles.wotdWord}>{t('Daily Word Discovery')}</Text>
+                <View style={styles.wotdLearnAction}>
+                  <Text style={styles.wotdLearnText}>{t('More info')}</Text>
+                  <Icon name="ArrowRight" size={13} color={colors.warning} />
+                </View>
+              </View>
+              <Text style={styles.wotdExplanation} numberOfLines={2}>
+                {t('Configure an AI provider in Settings to get daily curated words, or install local dictionaries for offline use.')}
+              </Text>
+            </Card>
           </View>
         )}
 
@@ -469,86 +480,16 @@ export default function HomeScreen(): JSX.Element {
       </Modal>
 
       {/* ── AI & Local Dictionaries Setup Info Dialog ── */}
-      <Modal
+      <AISetupModal
         visible={aiSetupModalOpen}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setAiSetupModalOpen(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable style={styles.modalBackdrop} onPress={() => setAiSetupModalOpen(false)} />
-          <View style={styles.wotdDialog}>
-            <View style={styles.wotdSheetHeader}>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
-                  <Text style={styles.wotdSheetHeadword}>{t('Word Discovery Setup')}</Text>
-                </View>
-                <Text style={styles.wotdSheetMeta}>{t('How to configure AI & local dictionaries')}</Text>
-              </View>
-              <IconButton icon="X" size={20} onPress={() => setAiSetupModalOpen(false)} />
-            </View>
+        onClose={() => setAiSetupModalOpen(false)}
+      />
 
-            {/* Step 1: Configure AI Keys */}
-            <View style={styles.wotdSheetDefBox}>
-              <Text style={styles.wotdSheetSectionTitle}>{t('1. Configure AI Provider')}</Text>
-              <InlineMarkdown
-                text={t(
-                  'Add your API key (**OpenAI**, **Anthropic**, **Gemini**, **Groq**, **Mistral**, or **DeepSeek**) in **Settings → AI Providers** to unlock automatic daily word discovery, rich context explanations, and real-world examples.',
-                )}
-                style={styles.wotdSheetDefText}
-                boldStyle={styles.wotdSheetDefBold}
-              />
-              <Button
-                label={t('Configure AI Providers ↗')}
-                variant="secondary"
-                small
-                icon="Key"
-                style={{ marginTop: spacing.xs }}
-                onPress={() => {
-                  setAiSetupModalOpen(false)
-                  router.push('/settings/ai-providers')
-                }}
-              />
-            </View>
-
-            {/* Step 2: Install Local Dictionaries */}
-            <View style={styles.wotdSheetExampleBox}>
-              <Text style={styles.wotdSheetSectionTitle}>{t('2. Install Local Dictionaries')}</Text>
-              <InlineMarkdown
-                text={t(
-                  'Install **local word guides** and dictionaries in **Settings → Word Guides & Data** to look up translations, inflections, and grammatical details **completely offline** without needing an internet connection.',
-                )}
-                style={styles.wotdSheetDefText}
-                boldStyle={styles.wotdSheetDefBold}
-              />
-              <Button
-                label={t('Manage Word Guides & Data ↗')}
-                variant="secondary"
-                small
-                icon="BookOpen"
-                style={{ marginTop: spacing.xs }}
-                onPress={() => {
-                  setAiSetupModalOpen(false)
-                  router.push('/settings/word-guides')
-                }}
-              />
-            </View>
-
-            {/* Actions Dock */}
-            <View style={styles.wotdSheetActions}>
-              <Button
-                label={t('Open Settings')}
-                icon="Settings"
-                onPress={() => {
-                  setAiSetupModalOpen(false)
-                  router.push('/settings')
-                }}
-                style={styles.wotdExploreBtn}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* ── What's New in Update Modal ── */}
+      <WhatsNewModal
+        visible={whatsNewOpen}
+        onClose={handleCloseWhatsNew}
+      />
 
       <HelpAccordionSheet
         visible={help.visible}
@@ -736,7 +677,7 @@ const createStyles = (colors: ThemeColors) =>
     wotdCard: {
       backgroundColor: colors.warningSoft,
       borderRadius: 24,
-      borderWidth: 1,
+      borderWidth: 1.5,
       borderColor: colors.warning,
       padding: spacing.lg,
       gap: spacing.xs,
@@ -745,18 +686,21 @@ const createStyles = (colors: ThemeColors) =>
       shadowOpacity: 0.06,
       shadowRadius: 10,
       elevation: 2,
+      overflow: 'hidden',
     },
     wotdCardPressed: { opacity: 0.85 },
     wotdTop: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      backgroundColor: 'transparent',
     },
-    wotdWord: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.2 },
+    wotdWord: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.2, backgroundColor: 'transparent' },
     wotdLearnAction: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 3,
+      backgroundColor: 'transparent',
     },
     wotdLearnText: {
       fontSize: type.micro,
@@ -765,7 +709,7 @@ const createStyles = (colors: ThemeColors) =>
       textTransform: 'uppercase',
       letterSpacing: 0.5,
     },
-    wotdExplanation: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19, fontStyle: 'italic' },
+    wotdExplanation: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19, fontStyle: 'italic', backgroundColor: 'transparent' },
     wotdLoadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs },
     wotdLoadingText: { fontSize: type.body, color: colors.warning },
 
@@ -845,6 +789,78 @@ const createStyles = (colors: ThemeColors) =>
       borderColor: colors.border,
       padding: spacing.md,
       gap: 4,
+    },
+    wotdActionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    wotdActionRowPressed: {
+      backgroundColor: colors.surface,
+      borderColor: colors.primary,
+    },
+    wotdActionIconBubble: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    wotdActionContent: {
+      flex: 1,
+      gap: 2,
+    },
+    wotdActionTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    wotdActionSubtitle: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    wotdActionBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 5,
+      borderRadius: radius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    wotdActionBadgeText: {
+      fontSize: 11.5,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    wotdCompactHelpFooter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      marginTop: 2,
+    },
+    wotdCompactHelpText: {
+      fontSize: 12.5,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    wotdCompactHelpBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    wotdCompactHelpLink: {
+      fontSize: 12.5,
+      fontWeight: '700',
+      color: colors.primary,
     },
     wotdSheetExDe: {
       fontSize: 13.5,

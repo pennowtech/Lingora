@@ -19,7 +19,7 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { Icon, type IconName } from '../../components/Icon'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { AlertModal, Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
-import { timeAgo } from '@lingora/core'
+import { timeAgo, VOCAB_LANGUAGE_NAMES } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -83,7 +83,7 @@ const HELP_SECTIONS: HelpSection[] = [
  * the user discards what they don't want, then generates the rest in one go.
  */
 export default function MiningQueueScreen(): JSX.Element {
-  const { db, pipeline, tier, defaultCefr, nativeLanguage } = useServices()
+  const { db, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -217,7 +217,15 @@ export default function MiningQueueScreen(): JSX.Element {
     mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const now = Date.now()
       const deckId = crypto.randomUUID()
-      await createDeck(db, { id: deckId, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id: deckId,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       return deckId
     },
     onSuccess: (deckId) => {
@@ -286,7 +294,9 @@ export default function MiningQueueScreen(): JSX.Element {
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
             <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
             <Text style={styles.modalHint}>
-              {t('Paste or type a German sentence. It joins the queue below - nothing is sent to AI until you generate.')}
+              {t('Paste or type a {{target}} sentence. It joins the queue below - nothing is sent to AI until you generate.', {
+                target: t(VOCAB_LANGUAGE_NAMES[targetLanguage] ?? 'German'),
+              })}
             </Text>
             <TextInput
               testID="mine-capture-input"
@@ -448,6 +458,8 @@ export default function MiningQueueScreen(): JSX.Element {
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
         title={t('Generate {{count}} cards to...', { count: selectedIds.length })}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         onSelectDeck={(deck) => {
           setDeckPickerOpen(false)
           generate.mutate(deck.id)

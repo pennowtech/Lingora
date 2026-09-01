@@ -1,4 +1,5 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
+import { VOCAB_LANGUAGE_NAMES } from '@lingora/core'
 import { useVideoPlayer, VideoView } from 'expo-video'
 import { useEffect, useState, type JSX } from 'react'
 
@@ -48,15 +49,6 @@ const LANG_EMOJIS: Record<LanguageCode, string> = {
   vi: '🇻🇳',
 }
 
-const LANG_LABELS: Record<LanguageCode, string> = {
-  de: 'German',
-  en: 'English',
-  es: 'Spanish',
-  fr: 'French',
-  hi: 'Hindi',
-  ja: 'Japanese',
-  vi: 'Vietnamese',
-}
 
 function FullVideoSplash(props: { onEnded: () => void }): JSX.Element {
   const colors = useColors()
@@ -279,7 +271,9 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
           {/* Title & Subtitle */}
           <Text style={styles.title}>{t('Welcome to Lemmory')}</Text>
           <Text style={styles.subtitle}>
-            {t('Learn German the way it actually works - in context, at your level, with real examples.')}
+            {t('Learn {{target}} the way it actually works - in context, at your level, with real examples.', {
+              target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German'),
+            })}
           </Text>
 
           {/* Language Pair Selector (Native Left -> Target Right) */}
@@ -302,13 +296,17 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
             </Pressable>
           </View>
           <Text style={styles.comingSoonText}>
-            {LANG_LABELS[nativeLang]} ({t('Native')})
+            {VOCAB_LANGUAGE_NAMES[nativeLang]} ({t('Native')})
             {' > '}
-            {LANG_LABELS[targetLang]} ({t('Learning')})
+            {VOCAB_LANGUAGE_NAMES[targetLang]} ({t('Learning')})
           </Text>
 
           {/* CEFR Level Selector */}
-          <Text style={styles.sectionHeader}>{t('YOUR CURRENT GERMAN LEVEL')}</Text>
+          <Text style={styles.sectionHeader}>
+            {t('YOUR CURRENT {{target}} LEVEL', {
+              target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German').toUpperCase(),
+            })}
+          </Text>
           <View style={styles.levelPillsRow}>
             {CEFR_LEVELS.map((item) => {
               const isSelected = item.level === selectedLevel

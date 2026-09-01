@@ -180,6 +180,8 @@ export async function loadReviewQueue(
   clozeOnly: boolean,
   sessionCardLimit: number,
   cardId?: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
 ): Promise<ReviewQueueResult> {
   if (cardId) {
     const requested = await getCardById(db, cardId)
@@ -213,8 +215,8 @@ export async function loadReviewQueue(
   // deckId as unfiltered, so translate the sentinel to undefined right at the query boundary.
   const scopeDeckId = deckId === ALL_DECKS_ID ? undefined : deckId
   const allDueCards = clozeOnly
-    ? await getClozeCardsDueForReview(db, scopeDeckId)
-    : await getCardsDueForReview(db, scopeDeckId)
+    ? await getClozeCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
+    : await getCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
   const hasMore = sessionCardLimit > 0 && allDueCards.length > sessionCardLimit
   const cards = sessionCardLimit > 0 ? allDueCards.slice(0, sessionCardLimit) : allDueCards
   const views: ReviewCard[] = []

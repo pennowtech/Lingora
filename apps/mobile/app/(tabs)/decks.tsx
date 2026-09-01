@@ -1,4 +1,4 @@
-import type { Deck, QuestionType } from '@lingora/types'
+import type { Deck, LanguageCode, QuestionType } from '@lingora/types'
 import {
   createDeck,
   deleteDeck,
@@ -111,13 +111,17 @@ interface DecksTreeStats {
   retentionRate: number
 }
 
-async function loadDeckTreeWithStats(db: DatabaseAdapter): Promise<DecksTreeStats> {
+async function loadDeckTreeWithStats(
+  db: DatabaseAdapter,
+  targetLanguage: LanguageCode,
+  nativeLanguage: LanguageCode,
+): Promise<DecksTreeStats> {
   const [decks, counts, totalCards, totalDue, retentionRate] = await Promise.all([
-    getAllDecks(db),
-    getDeckCounts(db),
-    getTotalCardCount(db),
-    getDueCardsCount(db),
-    getRetentionRate(db, 30),
+    getAllDecks(db, targetLanguage, nativeLanguage),
+    getDeckCounts(db, targetLanguage, nativeLanguage),
+    getTotalCardCount(db, targetLanguage, nativeLanguage),
+    getDueCardsCount(db, undefined, targetLanguage, nativeLanguage),
+    getRetentionRate(db, 30, targetLanguage, nativeLanguage),
   ])
   const countByDeck = new Map(counts.map((c) => [c.deckId, c]))
 
@@ -142,7 +146,7 @@ async function loadDeckTreeWithStats(db: DatabaseAdapter): Promise<DecksTreeStat
  * "⋮" menu offers import/export/rename/delete for that specific deck.
  */
 export default function DecksScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -171,10 +175,13 @@ export default function DecksScreen(): JSX.Element {
   const [mergeConfirmTarget, setMergeConfirmTarget] = useState<Deck | null>(null)
   const showError = (title: string, error: unknown): void => setExportNotice({ title, message: String(error) })
 
-  const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTreeWithStats(db) })
+  const decksQuery = useQuery({
+    queryKey: ['deck-counts', targetLanguage, nativeLanguage],
+    queryFn: () => loadDeckTreeWithStats(db, targetLanguage, nativeLanguage),
+  })
   const allDecksQuery = useQuery({
-    queryKey: ['decks'],
-    queryFn: () => getAllDecks(db),
+    queryKey: ['decks', targetLanguage, nativeLanguage],
+    queryFn: () => getAllDecks(db, targetLanguage, nativeLanguage),
     enabled: pickerDeck !== null,
   })
 
@@ -199,6 +206,8 @@ export default function DecksScreen(): JSX.Element {
         id: crypto.randomUUID(),
         name,
         enabledQuestionTypes: newQuestionTypes,
+        targetLanguage,
+        nativeLanguage,
         createdAt: now,
         updatedAt: now,
       })
@@ -219,7 +228,15 @@ export default function DecksScreen(): JSX.Element {
     mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       return id
     },
     onSuccess: async (id) => {
@@ -235,7 +252,15 @@ export default function DecksScreen(): JSX.Element {
     mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      const deck: Deck = { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now }
+      const deck: Deck = {
+        id,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      }
       await createDeck(db, deck)
       return deck
     },
@@ -544,6 +569,8 @@ export default function DecksScreen(): JSX.Element {
         visible={addCardPickerOpen}
         onClose={() => setAddCardPickerOpen(false)}
         title={t('Add card to which deck?')}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         onSelectDeck={(deck) => {
           setAddCardPickerOpen(false)
           router.push({ pathname: '/deck/add-card', params: { deckId: deck.id } })
@@ -558,6 +585,8 @@ export default function DecksScreen(): JSX.Element {
         visible={importPickerOpen}
         onClose={() => setImportPickerOpen(false)}
         title={t('Import into which deck?')}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         onSelectDeck={(deck) => {
           setImportPickerOpen(false)
           showImport(deck)

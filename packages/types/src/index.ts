@@ -190,6 +190,10 @@ export interface Deck {
    * QuestionType) - undefined/null means "no override," which falls back to the learner's
    * global Settings -> Learning preference, same as a deck created before this existed. */
   enabledQuestionTypes?: QuestionType[] | null
+  /** The target language being learned in this deck (e.g. 'de', 'es'). Defaults to 'de'. */
+  targetLanguage?: LanguageCode
+  /** The learner's native language for translations in this deck (e.g. 'en', 'hi'). Defaults to 'en'. */
+  nativeLanguage?: LanguageCode
   createdAt: number
   updatedAt: number
 }

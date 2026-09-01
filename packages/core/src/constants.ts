@@ -102,6 +102,17 @@ export const LANGUAGE_FLAGS: Record<LanguageCode, string> = {
   vi: '🇻🇳',
 }
 
+export const VOCAB_LANGUAGE_NAMES: Record<LanguageCode, string> = {
+  de: 'German',
+  en: 'English',
+  es: 'Spanish',
+  fr: 'French',
+  hi: 'Hindi',
+  ja: 'Japanese',
+  vi: 'Vietnamese',
+}
+
 /** Preserves the app's original hardcoded German->English behavior for users who never open the setting. */
 export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
 export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'
+

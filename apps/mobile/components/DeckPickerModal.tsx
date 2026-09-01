@@ -1,4 +1,4 @@
-import type { Deck, QuestionType } from '@lingora/types'
+import type { Deck, LanguageCode, QuestionType } from '@lingora/types'
 import { getAllDecks, type DatabaseAdapter } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
@@ -58,6 +58,8 @@ export function DeckPickerModal(props: {
   visible: boolean
   onClose: () => void
   title: string
+  targetLanguage?: LanguageCode
+  nativeLanguage?: LanguageCode
   /** Deck ids the card is already in — shown with a checkmark and not tappable again. Omit (or
    * pass an empty array) for a card that doesn't exist yet. */
   existingDeckIds?: string[]
@@ -89,8 +91,8 @@ export function DeckPickerModal(props: {
   const [clozeBlankIndices, setClozeBlankIndices] = useState<Set<number>>(new Set())
 
   const decksQuery = useQuery({
-    queryKey: ['decks'],
-    queryFn: () => getAllDecks(props.db),
+    queryKey: ['decks', props.targetLanguage, props.nativeLanguage],
+    queryFn: () => getAllDecks(props.db, props.targetLanguage, props.nativeLanguage),
     enabled: props.visible,
   })
 

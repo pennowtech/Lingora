@@ -1,9 +1,10 @@
-import type { Deck, QuestionType } from '@lingora/types'
+import type { Deck, LanguageCode, QuestionType } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
+import { DEFAULT_NATIVE_LANGUAGE, DEFAULT_TARGET_LANGUAGE } from '@lingora/core'
 
 /** The columns of a deck row, aliased to the camelCase names of the Deck type -
  * enabledQuestionTypes stays a raw JSON string here (see DeckRow) until toDeck parses it. */
-const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, enabled_question_types AS enabledQuestionTypesJson, created_at AS createdAt, updated_at AS updatedAt`
+const DECK_COLUMNS = `id, name, parent_id AS parentId, emoji, enabled_question_types AS enabledQuestionTypesJson, target_language AS targetLanguage, native_language AS nativeLanguage, created_at AS createdAt, updated_at AS updatedAt`
 
 /** Raw deck row as it comes back from SQLite (enabled_question_types is a JSON string column, or
  * NULL for a deck with no override - see migration 0022's doc comment). */
@@ -26,12 +27,31 @@ function toDeck(row: DeckRow): Deck {
 }
 
 /**
- * Get all decks in the database.
+ * Get all decks in the database, optionally filtered by the active language pair.
  * @param db The database adapter to use for the query.
+ * @param targetLanguage Optional target language (learning language).
+ * @param nativeLanguage Optional learner's native language.
  * @returns An array of decks.
  */
-export async function getAllDecks(db: DatabaseAdapter): Promise<Deck[]> {
-  const rows = await db.query<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks ORDER BY name ASC`)
+export async function getAllDecks(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<Deck[]> {
+  const conditions: string[] = []
+  const params: unknown[] = []
+
+  if (targetLanguage) {
+    conditions.push(`target_language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
+  const rows = await db.query<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks${whereClause} ORDER BY name ASC`, params)
   return rows.map(toDeck)
 }
 
@@ -56,7 +76,7 @@ export async function getDeckById(db: DatabaseAdapter, deckId: string): Promise<
  */
 export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Promise<Deck[]> {
   const rows = await db.query<DeckRow>(
-    `SELECT DISTINCT d.id, d.name, d.parent_id AS parentId, d.emoji, d.enabled_question_types AS enabledQuestionTypesJson, d.created_at AS createdAt, d.updated_at AS updatedAt
+    `SELECT DISTINCT d.id, d.name, d.parent_id AS parentId, d.emoji, d.enabled_question_types AS enabledQuestionTypesJson, d.target_language AS targetLanguage, d.native_language AS nativeLanguage, d.created_at AS createdAt, d.updated_at AS updatedAt
      FROM decks d
      JOIN deck_cards dc ON dc.deck_id = d.id
      JOIN cards c ON c.id = dc.card_id
@@ -72,30 +92,52 @@ export async function getDecksForLemma(db: DatabaseAdapter, lemmaId: string): Pr
  * Used to render nested deck trees.
  * @param db The database adapter to use for the query.
  * @param parentId The ID of the parent deck.
+ * @param targetLanguage Optional target language.
+ * @param nativeLanguage Optional native language.
  * @returns An array of child decks.
  */
-export async function getChildDecks(db: DatabaseAdapter, parentId: string): Promise<Deck[]> {
-  const rows = await db.query<DeckRow>(`SELECT ${DECK_COLUMNS} FROM decks WHERE parent_id = ? ORDER BY name ASC`, [
-    parentId,
-  ])
+export async function getChildDecks(
+  db: DatabaseAdapter,
+  parentId: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<Deck[]> {
+  const conditions = [`parent_id = ?`]
+  const params: unknown[] = [parentId]
+
+  if (targetLanguage) {
+    conditions.push(`target_language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  const rows = await db.query<DeckRow>(
+    `SELECT ${DECK_COLUMNS} FROM decks WHERE ${conditions.join(' AND ')} ORDER BY name ASC`,
+    params,
+  )
   return rows.map(toDeck)
 }
 
 /**
- * Create a new deck.
+ * Create a new deck with target and native language scoping.
  * @param db The database adapter to use for the query.
  * @param deck The deck to create.
  */
 export async function createDeck(db: DatabaseAdapter, deck: Deck): Promise<void> {
   await db.execute(
-    `INSERT INTO decks (id, name, parent_id, emoji, enabled_question_types, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO decks (id, name, parent_id, emoji, enabled_question_types, target_language, native_language, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       deck.id,
       deck.name,
       deck.parentId ?? null,
       deck.emoji ?? null,
       deck.enabledQuestionTypes ? JSON.stringify(deck.enabledQuestionTypes) : null,
+      deck.targetLanguage ?? DEFAULT_TARGET_LANGUAGE,
+      deck.nativeLanguage ?? DEFAULT_NATIVE_LANGUAGE,
       deck.createdAt,
       deck.updatedAt,
     ],
@@ -242,20 +284,45 @@ export interface DeckCounts {
 
 /**
  * Card and due counts for every deck in one query (single GROUP BY instead of
- * two queries per deck). Decks with no cards are absent from the result.
+ * two queries per deck), optionally scoped to the active language pair.
+ * Decks with no cards are absent from the result.
+ *
+ * Scoping is based solely on the deck's own `target_language` / `native_language`
+ * columns — not on the lemma's language — so that cards imported via third-party
+ * sources (APKG, CSV) whose lemma language may not exactly match the deck tag are
+ * still counted correctly.
  */
-export async function getDeckCounts(db: DatabaseAdapter): Promise<DeckCounts[]> {
-  return db.query<DeckCounts>(
-    `SELECT dc.deck_id AS deckId,
+export async function getDeckCounts(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<DeckCounts[]> {
+  let query = `SELECT dc.deck_id AS deckId,
             COUNT(*) AS cardCount,
             SUM(CASE WHEN (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL
                      THEN 1 ELSE 0 END) AS dueCount
      FROM deck_cards dc
      JOIN cards c ON c.id = dc.card_id
      JOIN card_states cs ON cs.card_id = c.id
-     GROUP BY dc.deck_id`,
-    [Date.now()],
-  )
+     JOIN decks d ON d.id = dc.deck_id`
+  const params: unknown[] = [Date.now()]
+  const conditions: string[] = []
+
+  if (targetLanguage) {
+    conditions.push(`d.target_language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`d.native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`
+  }
+  query += ` GROUP BY dc.deck_id`
+
+  return db.query<DeckCounts>(query, params)
 }
 
 /**
@@ -303,13 +370,7 @@ export async function removeCardFromDeck(
 }
 
 /**
- * Reset every card in a deck back to a fresh, never-reviewed FSRS state — both the word-meaning
- * schedule (card_states) and the independent cloze schedule (cloze_states, migration 0013), since
- * practicing one no longer touches the other's due date. Review history (review_events) is left
- * alone; this resets what's due next, not the record of what was already studied — "reset
- * progress" means the learning schedule starts over, not that the study log gets erased.
- * @param db The database adapter to use for the query.
- * @param deckId The ID of the deck whose cards' progress should be reset.
+ * Reset every card in a deck back to a fresh, never-reviewed FSRS state.
  */
 export async function resetDeckProgress(db: DatabaseAdapter, deckId: string): Promise<void> {
   await db.transaction(async (tx) => {

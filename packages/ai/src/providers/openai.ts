@@ -90,6 +90,8 @@ const explainWordDetailResponseSchema = z.object({
 const suggestWordOfTheDayResponseSchema = z.object({
   word: z.string().min(1),
   explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+  exampleSentence: z.string().optional(),
+  exampleTranslation: z.string().optional(),
 })
 const chatAboutWordResponseSchema = z.object({
   reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),

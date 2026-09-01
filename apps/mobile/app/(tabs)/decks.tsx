@@ -4,6 +4,9 @@ import {
   deleteDeck,
   getAllDecks,
   getDeckCounts,
+  getDueCardsCount,
+  getRetentionRate,
+  getTotalCardCount,
   mergeDecks,
   moveDeck,
   renameDeck,
@@ -12,8 +15,8 @@ import {
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router, Stack } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { router, Stack, useFocusEffect } from 'expo-router'
+import { useCallback, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -32,7 +35,7 @@ import { Icon } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
 import { ReviewModesPicker } from '../../components/ReviewModesPicker'
-import { DEFAULT_ENABLED_QUESTION_TYPES, toggleQuestionType } from '../../lib/reviewTypes'
+import { DEFAULT_ENABLED_QUESTION_TYPES, QUESTION_TYPE_META, toggleQuestionType } from '../../lib/reviewTypes'
 import {
   AlertModal,
   Button,
@@ -100,8 +103,22 @@ interface DeckNode {
   children: DeckNode[]
 }
 
-async function loadDeckTree(db: DatabaseAdapter): Promise<DeckNode[]> {
-  const [decks, counts] = await Promise.all([getAllDecks(db), getDeckCounts(db)])
+interface DecksTreeStats {
+  tree: DeckNode[]
+  totalCards: number
+  totalDue: number
+  totalDecks: number
+  retentionRate: number
+}
+
+async function loadDeckTreeWithStats(db: DatabaseAdapter): Promise<DecksTreeStats> {
+  const [decks, counts, totalCards, totalDue, retentionRate] = await Promise.all([
+    getAllDecks(db),
+    getDeckCounts(db),
+    getTotalCardCount(db),
+    getDueCardsCount(db),
+    getRetentionRate(db, 30),
+  ])
   const countByDeck = new Map(counts.map((c) => [c.deckId, c]))
 
   const toNode = (deck: Deck): DeckNode => ({
@@ -111,7 +128,13 @@ async function loadDeckTree(db: DatabaseAdapter): Promise<DeckNode[]> {
     children: decks.filter((d) => d.parentId === deck.id).map(toNode),
   })
 
-  return decks.filter((d) => !d.parentId).map(toNode)
+  return {
+    tree: decks.filter((d) => !d.parentId).map(toNode),
+    totalCards,
+    totalDue,
+    totalDecks: decks.length,
+    retentionRate,
+  }
 }
 
 /**
@@ -128,7 +151,6 @@ export default function DecksScreen(): JSX.Element {
   const help = useHelpAccordion('nesting')
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newEmoji, setNewEmoji] = useState('')
   // Which review formats the new deck practices with - defaults to the same starting point as
   // Settings -> Learning's global picker, overridable per deck right here at creation time.
   const [newQuestionTypes, setNewQuestionTypes] = useState<QuestionType[]>([...DEFAULT_ENABLED_QUESTION_TYPES])
@@ -149,16 +171,23 @@ export default function DecksScreen(): JSX.Element {
   const [mergeConfirmTarget, setMergeConfirmTarget] = useState<Deck | null>(null)
   const showError = (title: string, error: unknown): void => setExportNotice({ title, message: String(error) })
 
-  const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTree(db) })
+  const decksQuery = useQuery({ queryKey: ['deck-counts'], queryFn: () => loadDeckTreeWithStats(db) })
   const allDecksQuery = useQuery({
     queryKey: ['decks'],
     queryFn: () => getAllDecks(db),
     enabled: pickerDeck !== null,
   })
 
+  useFocusEffect(
+    useCallback(() => {
+      void decksQuery.refetch()
+    }, []),
+  )
+
   const invalidateDecks = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     await queryClient.invalidateQueries({ queryKey: ['decks'] })
+    await queryClient.invalidateQueries({ queryKey: ['home-stats'] })
   }
 
   const create = useMutation({
@@ -169,7 +198,6 @@ export default function DecksScreen(): JSX.Element {
       await createDeck(db, {
         id: crypto.randomUUID(),
         name,
-        ...(newEmoji.trim() !== '' && { emoji: newEmoji.trim() }),
         enabledQuestionTypes: newQuestionTypes,
         createdAt: now,
         updatedAt: now,
@@ -178,7 +206,6 @@ export default function DecksScreen(): JSX.Element {
     onSuccess: async () => {
       setCreateOpen(false)
       setNewName('')
-      setNewEmoji('')
       setNewQuestionTypes([...DEFAULT_ENABLED_QUESTION_TYPES])
       await invalidateDecks()
     },
@@ -413,7 +440,7 @@ export default function DecksScreen(): JSX.Element {
         <Spinner />
       ) : decksQuery.isError ? (
         <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
-      ) : decksQuery.data.length === 0 ? (
+      ) : (decksQuery.data?.totalDecks ?? 0) === 0 ? (
         <EmptyState
           icon="Layers"
           title={t('No decks yet')}
@@ -421,7 +448,45 @@ export default function DecksScreen(): JSX.Element {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          {decksQuery.data.map((node) => (
+          {/* ── Editorial Mastery Hero Banner ── */}
+          <View style={styles.masteryHero}>
+            <View style={styles.masteryHeroTop}>
+              <View style={styles.masteryTextGroup}>
+                <Text style={styles.masteryTitle}>{t('Mastery & Retention')}</Text>
+                <Text style={styles.masterySubtitle}>
+                  {decksQuery.data?.totalDue === 0
+                    ? t('All caught up across {{decks}} study collections.', { decks: decksQuery.data?.totalDecks ?? 0 })
+                    : t('{{due}} cards due across {{decks}} study collections today.', {
+                        due: decksQuery.data?.totalDue ?? 0,
+                        decks: decksQuery.data?.totalDecks ?? 0,
+                      })}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${Math.min(100, Math.max(8, decksQuery.data?.retentionRate ?? 0))}%` },
+                ]}
+              />
+            </View>
+          </View>
+
+          {/* ── Section Title Row ── */}
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>{t('Your Study Decks')}</Text>
+            <Pressable
+              style={styles.newDeckHeaderButton}
+              onPress={() => setCreateOpen(true)}
+            >
+              <Icon name="Plus" size={14} color={colors.primary} />
+              <Text style={styles.newDeckHeaderButtonLabel}>{t('New Deck')}</Text>
+            </Pressable>
+          </View>
+
+          {decksQuery.data?.tree.map((node) => (
             <DeckRow key={node.deck.id} node={node} depth={0} onOpenMenu={setMenuDeck} />
           ))}
         </ScrollView>
@@ -502,8 +567,7 @@ export default function DecksScreen(): JSX.Element {
         {...(createDeckForImport.isError && { createError: String(createDeckForImport.error) })}
       />
 
-      {/* ── New deck modal — a centered dialog, not a bottom sheet, since it's reached from the
-          "+" action menu rather than a specific deck's own context ── */}
+      {/* ── New deck modal — a web/desktop app styled dialog ── */}
       <Modal visible={createOpen} animationType="fade" transparent onRequestClose={() => setCreateOpen(false)}>
         <KeyboardAvoidingView
           style={styles.centerModalKeyboardAvoider}
@@ -511,36 +575,43 @@ export default function DecksScreen(): JSX.Element {
         >
           <Pressable style={styles.modalBackdropAbsolute} onPress={() => setCreateOpen(false)} />
           <View style={styles.centerModalCard}>
-            <Text style={styles.modalTitle}>{t('New deck')}</Text>
-            <TextInput
-              testID="new-deck-name-input"
-              style={styles.inputField}
-              placeholder={t('Deck name')}
-              placeholderTextColor={colors.textMuted}
-              value={newName}
-              onChangeText={setNewName}
-              autoFocus
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder={t('Emoji (optional)')}
-              placeholderTextColor={colors.textMuted}
-              value={newEmoji}
-              onChangeText={setNewEmoji}
-              maxLength={4}
-            />
-            <ReviewModesPicker
-              label={t('Review modes')}
-              value={newQuestionTypes}
-              onToggle={(qt) => setNewQuestionTypes((prev) => toggleQuestionType(prev, qt))}
-            />
+            <View style={styles.formHeaderRow}>
+              <Text style={styles.formTitle}>{t('Create New Study Deck')}</Text>
+              <IconButton icon="X" size={20} onPress={() => setCreateOpen(false)} disabled={create.isPending} />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>{t('DECK TITLE')}</Text>
+              <TextInput
+                testID="new-deck-name-input"
+                style={styles.inputField}
+                placeholder={t('e.g. German Verbs')}
+                placeholderTextColor={colors.textMuted}
+                value={newName}
+                onChangeText={setNewName}
+                autoFocus
+              />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>{t('REVIEW MODES')}</Text>
+              <ReviewModesPicker
+                value={newQuestionTypes}
+                onToggle={(qt) => setNewQuestionTypes((prev) => toggleQuestionType(prev, qt))}
+              />
+              <Text style={styles.formHelperText}>
+                {t('Only cards matching these types can be saved into this deck.')}
+              </Text>
+            </View>
+
             {create.isError ? <Text style={styles.errorLabel}>{String(create.error)}</Text> : null}
+
             <View style={styles.centerModalActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setCreateOpen(false)} disabled={create.isPending} />
               <Button
-                label={create.isPending ? t('Creating...') : t('Create deck')}
+                label={create.isPending ? t('Creating...') : t('Create Deck')}
                 icon="Plus"
-                disabled={create.isPending}
+                disabled={create.isPending || newName.trim() === ''}
                 onPress={() => create.mutate()}
               />
             </View>
@@ -561,7 +632,7 @@ export default function DecksScreen(): JSX.Element {
           {menuDeck ? (
             <>
               <View style={styles.menuHeader}>
-                <Text style={styles.menuTitle}>{menuDeck.emoji ?? '📚'} {menuDeck.name}</Text>
+                <Text style={styles.menuTitle}>{menuDeck.name}</Text>
               </View>
 
               {/* Quick Action Grid (2x2) */}
@@ -737,7 +808,7 @@ export default function DecksScreen(): JSX.Element {
                         onPress={() => handlePickTarget(target)}
                         disabled={move.isPending || merge.isPending}
                       >
-                        <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                        <Icon name="BookOpen" size={18} color={colors.primary} />
                         <Text style={styles.pickerRowLabel}>{target.name}</Text>
                       </Pressable>
                     ))
@@ -861,174 +932,337 @@ export default function DecksScreen(): JSX.Element {
   )
 }
 
+function getModeDisplayLabel(type: QuestionType): string {
+  switch (type) {
+    case 'cloze':
+      return 'Cloze'
+    case 'vocab':
+      return 'Vocab'
+    case 'reverse':
+      return 'Reverse'
+    case 'mcq':
+      return 'MCQ'
+    case 'trueFalse':
+      return 'True/False'
+  }
+}
+
+function getModeTagTheme(type: QuestionType, colors: ThemeColors) {
+  switch (type) {
+    case 'cloze':
+      return { bg: 'rgba(168, 85, 247, 0.15)', text: '#c084fc' }
+    case 'vocab':
+    case 'reverse':
+      return { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa' }
+    case 'mcq':
+      return { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24' }
+    case 'trueFalse':
+      return { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399' }
+    default:
+      return { bg: colors.surfaceMuted, text: colors.textSecondary }
+  }
+}
+
 function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck) => void }): JSX.Element {
   const { node, depth, onOpenMenu } = props
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const questionTypes = node.deck.enabledQuestionTypes ?? DEFAULT_ENABLED_QUESTION_TYPES
+
   return (
-    <>
-      <Card
-        style={[styles.deckCard, depth > 0 && { marginLeft: depth * spacing.xl }]}
+    <View style={[styles.deckRowContainer, depth > 0 && { marginLeft: depth * spacing.lg }]}>
+      {depth > 0 ? <View style={styles.subDeckIndicator} /> : null}
+      <Pressable
+        style={styles.deckCard}
         onPress={() => router.push({ pathname: '/deck/[id]', params: { id: node.deck.id } })}
       >
-        <Text style={styles.deckEmoji}>{node.deck.emoji ?? '📚'}</Text>
-        <View style={styles.deckText}>
-          <Text style={styles.deckName}>{node.deck.name}</Text>
-          <Text style={styles.deckMeta}>
-            {t('{{due}} due/{{total}} cards', { due: node.dueCount.toLocaleString(), total: node.cardCount.toLocaleString() })}
-          </Text>
+        <View style={styles.deckCardTopRow}>
+          <View style={styles.deckHeaderInfo}>
+            <Text style={styles.deckName} numberOfLines={1}>
+              {node.deck.name}
+            </Text>
+            <View style={styles.modesRow}>
+              {questionTypes.map((type) => {
+                const label = getModeDisplayLabel(type)
+                const tagTheme = getModeTagTheme(type, colors)
+                return (
+                  <View key={type} style={[styles.modeMiniBadge, { backgroundColor: tagTheme.bg }]}>
+                    <Text style={[styles.modeMiniBadgeLabel, { color: tagTheme.text }]}>{label}</Text>
+                  </View>
+                )
+              })}
+            </View>
+          </View>
+
+          <View style={styles.deckTopRightGroup}>
+            {node.dueCount > 0 ? (
+              <View style={styles.dueCountHeroBox}>
+                <Text style={styles.dueCountHeroNumber}>{node.dueCount}</Text>
+                <Text style={styles.dueCountHeroLabel}>{t('due')}</Text>
+              </View>
+            ) : (
+              <View style={styles.upToDateHeroBox}>
+                <Icon name="CircleCheck" size={18} color={colors.success} />
+              </View>
+            )}
+            <IconButton
+              icon="EllipsisVertical"
+              size={18}
+              onPress={() => onOpenMenu(node.deck)}
+              accessibilityLabel={t('Deck options')}
+            />
+          </View>
         </View>
-        {node.dueCount > 0 ? (
-          <Pressable
-            style={styles.dueBadge}
-            onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: node.deck.id } })
-            }
-          >
-            <Text style={styles.dueBadgeLabel}>{t('{{count}} due', { count: node.dueCount })}</Text>
-          </Pressable>
-        ) : (
-          <Icon name="CircleCheck" size={20} color={colors.success} />
-        )}
-        <IconButton icon="EllipsisVertical" onPress={() => onOpenMenu(node.deck)} />
-      </Card>
+
+        <View style={styles.deckCardDivider} />
+
+        <View style={styles.deckCardBottomRow}>
+          <Text style={styles.cardCountText}>
+            {t('{{count}} cards registered', { count: node.cardCount.toLocaleString() })}
+          </Text>
+          <View style={styles.viewDeckArrow}>
+            <Icon name="ChevronRight" size={16} color={colors.textMuted} />
+          </View>
+        </View>
+      </Pressable>
       {node.children.map((child) => (
         <DeckRow key={child.deck.id} node={child} depth={depth + 1} onOpenMenu={onOpenMenu} />
       ))}
-    </>
+    </View>
   )
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  headerActions: { flexDirection: 'row', alignItems: 'center' },
-  syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: spacing.lg, paddingBottom: 96 },
-  deckCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  deckEmoji: { fontSize: 22 },
-  deckText: { flex: 1 },
-  deckName: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  deckMeta: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
-  dueBadge: {
-    backgroundColor: colors.primarySoft,
-    paddingVertical: 4,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-  },
-  dueBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
-  fab: {
-    position: 'absolute',
-    right: spacing.xl,
-    bottom: spacing.xl,
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  modalKeyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
-  centerModalKeyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  centerModalCard: {
-    width: '100%',
-    maxWidth: 400,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  centerModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
-  // Absolutely positioned (rather than flex: 1, like the plain `modalBackdrop` other modals in
-  // this file use) because it now sits inside a KeyboardAvoidingView laid out with
-  // justifyContent: 'flex-end' — the backdrop needs to fill behind the sheet, not push it, so the
-  // sheet stays pinned above a shrinking keyboard-avoider instead of getting shoved off-screen.
-  modalBackdropAbsolute: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
-  modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.md,
-    // At large system font/display scaling this sheet's content (especially the per-deck menu's
-    // 2x2 grid + row list) can grow taller than the screen — capped here and made scrollable
-    // (see the ScrollView wrapping each sheet's content) instead of silently overflowing the
-    // screen edge with no way to reach the rest.
-    maxHeight: '85%',
-  },
-  modalSheetScrollContent: { gap: spacing.md },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.border,
-  },
-  modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
-  inputField: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-  },
-  errorLabel: { fontSize: type.caption, color: colors.danger },
-  pickerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  pickerRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-  hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
-  menuHeader: { alignItems: 'center', marginBottom: spacing.xs },
-  menuTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, textAlign: 'center' },
-  menuActionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
-  gridActionTile: {
-    flex: 1,
-    minWidth: '45%',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  gridActionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.full,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gridActionLabel: { fontSize: type.caption, fontWeight: '700', color: colors.text },
-  menuListGroup: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    marginTop: spacing.sm,
-  },
-  menuRowItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  menuRowItemLast: { borderBottomWidth: 0 },
-  menuRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-})
+    container: { flex: 1, backgroundColor: colors.background },
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
+    scroll: { padding: spacing.lg, paddingBottom: 96 },
+    masteryHero: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 3,
+    },
+    masteryHeroTop: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
+    masteryTextGroup: { flex: 1, gap: 4 },
+    masteryTitle: { fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.4 },
+    masterySubtitle: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
+    progressTrack: {
+      height: 6,
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: radius.full,
+    },
+    sectionHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: { fontSize: type.body, fontWeight: '800', color: colors.text, letterSpacing: 0.2 },
+    newDeckHeaderButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.primarySoft,
+      paddingVertical: 5,
+      paddingHorizontal: spacing.sm,
+      borderRadius: radius.full,
+    },
+    newDeckHeaderButtonLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    deckRowContainer: { position: 'relative', marginBottom: spacing.md },
+    subDeckIndicator: {
+      position: 'absolute',
+      left: -12,
+      top: 0,
+      bottom: 0,
+      width: 2,
+      backgroundColor: colors.border,
+      borderRadius: radius.full,
+    },
+    deckCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.lg,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    deckCardTopRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+    },
+    deckHeaderInfo: { flex: 1, gap: 6 },
+    deckName: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.2 },
+    modesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    modeMiniBadge: {
+      borderRadius: radius.full,
+      paddingVertical: 3,
+      paddingHorizontal: 8,
+    },
+    modeMiniBadgeLabel: {
+      fontSize: 11,
+      fontWeight: '500',
+    },
+    deckTopRightGroup: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    dueCountHeroBox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primarySoft,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: radius.md,
+      minWidth: 36,
+    },
+    dueCountHeroNumber: { fontSize: 15, fontWeight: '800', color: colors.primary },
+    dueCountHeroLabel: { fontSize: 9, fontWeight: '800', color: colors.primary, textTransform: 'uppercase' },
+    upToDateHeroBox: {
+      padding: 6,
+    },
+    deckCardDivider: { height: 1, backgroundColor: colors.border },
+    deckCardBottomRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    cardCountText: { fontSize: type.caption, color: colors.textSecondary, fontWeight: '500' },
+    viewDeckArrow: { paddingLeft: spacing.xs },
+    fab: {
+      position: 'absolute',
+      right: spacing.xl,
+      bottom: spacing.xl,
+      width: 56,
+      height: 56,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
+    },
+    modalKeyboardAvoider: { flex: 1, justifyContent: 'flex-end' },
+    centerModalKeyboardAvoider: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    centerModalCard: {
+      width: '100%',
+      maxWidth: 440,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.xl,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.25,
+      shadowRadius: 20,
+      elevation: 10,
+    },
+    formHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
+    formTitle: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    formGroup: { gap: spacing.xs },
+    formLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 },
+    formHelperText: { fontSize: type.micro, color: colors.textMuted, marginTop: 2 },
+    centerModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.sm },
+    modalBackdropAbsolute: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
+    modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
+    modalSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      gap: spacing.md,
+      maxHeight: '85%',
+    },
+    modalSheetScrollContent: { gap: spacing.md },
+    modalHandle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.border,
+    },
+    modalTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    inputField: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      fontSize: type.body,
+      color: colors.text,
+    },
+    errorLabel: { fontSize: type.caption, color: colors.danger },
+    pickerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    pickerRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+    hint: { fontSize: type.caption, color: colors.textMuted, paddingVertical: spacing.md },
+    menuHeader: { alignItems: 'center', marginBottom: spacing.xs },
+    menuTitle: { fontSize: type.subheading, fontWeight: '800', color: colors.text, textAlign: 'center' },
+    menuActionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+    gridActionTile: {
+      flex: 1,
+      minWidth: '45%',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    gridActionIcon: {
+      width: 38,
+      height: 38,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    gridActionLabel: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+    menuListGroup: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      overflow: 'hidden',
+      marginTop: spacing.sm,
+    },
+    menuRowItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    menuRowItemLast: { borderBottomWidth: 0 },
+    menuRowLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+  })

@@ -260,30 +260,45 @@ export function DeckPickerModal(props: {
             </ScrollView>
           ) : newDeckMode ? (
             <View style={styles.newDeckForm}>
-              <View style={styles.newDeckRow}>
+              <View style={styles.formHeaderRow}>
+                <Text style={styles.formTitle}>{t('Create New Study Deck')}</Text>
+                <IconButton icon="X" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>{t('DECK TITLE')}</Text>
                 <TextInput
                   testID="deck-picker-new-name-input"
                   style={styles.newDeckInput}
-                  placeholder={t('New deck name')}
+                  placeholder={t('e.g. German Verbs')}
                   placeholderTextColor={colors.textMuted}
                   value={newDeckName}
                   onChangeText={setNewDeckName}
                   autoFocus
                   onSubmitEditing={submitNewDeck}
                 />
-                <IconButton icon="X" size={20} onPress={() => setNewDeckMode(false)} disabled={creating} />
               </View>
-              <ReviewModesPicker
-                label={t('Review modes')}
-                value={newDeckQuestionTypes}
-                onToggle={(qt) => setNewDeckQuestionTypes((prev) => toggleQuestionType(prev, qt))}
-              />
-              <Button
-                label={creating ? t('Creating...') : t('Create')}
-                small
-                onPress={submitNewDeck}
-                disabled={creating || newDeckName.trim() === ''}
-              />
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>{t('REVIEW MODES')}</Text>
+                <ReviewModesPicker
+                  value={newDeckQuestionTypes}
+                  onToggle={(qt) => setNewDeckQuestionTypes((prev) => toggleQuestionType(prev, qt))}
+                />
+                <Text style={styles.formHelperText}>
+                  {t('Only cards matching these types can be saved into this deck.')}
+                </Text>
+              </View>
+
+              <View style={styles.formActions}>
+                <Button label={t('Cancel')} variant="ghost" onPress={() => setNewDeckMode(false)} disabled={creating} />
+                <Button
+                  label={creating ? t('Creating...') : t('Create Deck')}
+                  icon="Plus"
+                  onPress={submitNewDeck}
+                  disabled={creating || newDeckName.trim() === ''}
+                />
+              </View>
             </View>
           ) : (
             <Pressable testID="deck-picker-new-toggle" style={styles.newDeckButton} onPress={() => setNewDeckMode(true)}>
@@ -310,7 +325,7 @@ export function DeckPickerModal(props: {
                         onPress={() => selectDeck(deck)}
                         disabled={selecting || already}
                       >
-                        <Text style={styles.emoji}>{deck.emoji ?? '📚'}</Text>
+                        <Icon name="BookOpen" size={18} color={colors.primary} />
                         <Text style={styles.name}>{deck.name}</Text>
                         {already ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
                       </Pressable>
@@ -344,32 +359,44 @@ const createStyles = (colors: ThemeColors) =>
     backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000066' },
     sheet: {
       width: '100%',
-      maxWidth: 400,
-      maxHeight: '80%',
+      maxWidth: 440,
+      maxHeight: '85%',
       backgroundColor: colors.surface,
       borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
       padding: spacing.xl,
-      gap: spacing.sm,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.25,
+      shadowRadius: 20,
+      elevation: 10,
     },
-    title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
+    title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.xs },
     headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     list: { maxHeight: 280 },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
     rowDisabled: { opacity: 0.5 },
     emoji: { fontSize: 20 },
     name: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
-    newDeckForm: { gap: spacing.md, paddingVertical: spacing.sm },
+    newDeckForm: { gap: spacing.md, paddingVertical: spacing.xs },
+    formHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
+    formTitle: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text },
+    formGroup: { gap: spacing.xs },
+    formLabel: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 },
+    formHelperText: { fontSize: type.micro, color: colors.textMuted, marginTop: 2 },
+    formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.md },
     newDeckRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     newDeckInput: {
-      flex: 1,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: radius.sm,
-      paddingVertical: spacing.sm,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
       paddingHorizontal: spacing.md,
       fontSize: type.body,
       color: colors.text,
-      backgroundColor: colors.background,
+      backgroundColor: colors.surfaceMuted,
     },
     newDeckButton: {
       flexDirection: 'row',

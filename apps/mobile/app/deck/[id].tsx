@@ -321,7 +321,7 @@ export default function DeckDetailScreen(): JSX.Element {
     <>
       <Stack.Screen
         options={{
-          title: `${deck.emoji ?? '📚'} ${deck.name}`,
+          title: deck.name,
           headerRight: () => (
             <View style={styles.headerActions}>
               <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('stats')} />
@@ -443,7 +443,7 @@ export default function DeckDetailScreen(): JSX.Element {
           <View style={styles.modalHandle} />
           
           <View style={styles.menuHeader}>
-            <Text style={styles.menuTitle}>{deck.emoji ?? '📚'} {deck.name}</Text>
+            <Text style={styles.menuTitle}>{deck.name}</Text>
             <Text style={styles.menuSubtitle}>{t('{{count}} cards in deck', { count: cards.length })}</Text>
           </View>
 
@@ -619,7 +619,7 @@ export default function DeckDetailScreen(): JSX.Element {
                     onPress={() => handlePickTarget(target)}
                     disabled={move.isPending || merge.isPending}
                   >
-                    <Text style={styles.deckEmoji}>{target.emoji ?? '📚'}</Text>
+                    <Icon name="BookOpen" size={18} color={colors.primary} />
                     <Text style={styles.deckRowLabel}>{target.name}</Text>
                   </Pressable>
                 ))

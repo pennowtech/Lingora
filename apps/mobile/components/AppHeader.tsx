@@ -1,6 +1,6 @@
 import type { NativeStackHeaderProps } from 'expo-router/build/react-navigation/native-stack/types'
 import type { JSX } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from './Icon'
 import { CompactLanguagePairPill } from './LanguagePairBadge'
@@ -16,12 +16,7 @@ import type { ThemeColors } from '../lib/themes'
  * placed as a sibling above it just adds a second, wasted block of blank space with no prop able
  * to cancel the header's own reservation from outside. Rendering the whole header ourselves is
  * the only way to control that space, so the compact pill sits inside it directly, at zero extra
- * cost. A stable, module-level function reference (not an inline arrow) is used for
- * `screenOptions.header` so React Navigation doesn't treat it as a new component on every parent
- * render.
- *
- * Still calls through to `options.headerRight` / `options.title` so per-screen customizations
- * (e.g. word/[form].tsx's help-icon headerRight) keep working exactly as before.
+ * cost.
  */
 export function AppHeader({ back, options, navigation }: NativeStackHeaderProps): JSX.Element {
   const insets = useSafeAreaInsets()
@@ -30,9 +25,10 @@ export function AppHeader({ back, options, navigation }: NativeStackHeaderProps)
 
   const title = options.title ?? ''
   const headerRightContent = options.headerRight?.({ tintColor: colors.text, canGoBack: !!back })
+  const topInset = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0)
 
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top }]}>
+    <View style={[styles.wrap, { paddingTop: topInset }]}>
       <View style={styles.row}>
         {back ? (
           <Pressable
@@ -74,5 +70,5 @@ const createStyles = (colors: ThemeColors) =>
     backButton: { padding: spacing.xs },
     title: { flex: 1, fontSize: type.heading, fontWeight: '700', color: colors.text },
     titleSpacer: { flex: 1 },
-    rightGroup: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    rightGroup: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
   })

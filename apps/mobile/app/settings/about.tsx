@@ -1,12 +1,14 @@
 import { logger } from '@lingora/observability'
 import Constants from 'expo-constants'
-import { Stack } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { Stack, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import appIcon from '../../assets/icon-lingora.png'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { AlertModal, Button, Card, Chip, IconButton } from '../../components/ui'
+import { Icon } from '../../components/Icon'
+import { AlertModal, Button, Card, IconButton } from '../../components/ui'
+import { submitFeedback, type FeedbackPayload } from '../../lib/feedbackService'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -14,23 +16,46 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'AboutScreen' })
 
-type Category = 'bug' | 'feature' | 'general'
+type Category = 'support' | 'bug' | 'feature' | 'general'
 
-const CATEGORY_META: Record<Category, { label: string; icon: 'Bug' | 'Lightbulb' | 'MessagesSquare' }> = {
-  bug: { label: 'Bug / Issue', icon: 'Bug' },
-  feature: { label: 'Feature request', icon: 'Lightbulb' },
-  general: { label: 'General feedback', icon: 'MessagesSquare' },
+interface CategoryItem {
+  label: string
+  description: string
+  icon: 'CircleQuestionMark' | 'Bug' | 'Lightbulb' | 'MessagesSquare'
+}
+
+const CATEGORY_META: Record<Category, CategoryItem> = {
+  support: {
+    label: 'Help & Support',
+    description: 'Setup questions, troubleshooting & guidance',
+    icon: 'CircleQuestionMark',
+  },
+  bug: {
+    label: 'Bug / Issue',
+    description: 'Report unexpected behavior or errors',
+    icon: 'Bug',
+  },
+  feature: {
+    label: 'Feature request',
+    description: 'Suggest improvements or new tools',
+    icon: 'Lightbulb',
+  },
+  general: {
+    label: 'General feedback',
+    description: 'Thoughts, suggestions & ideas',
+    icon: 'MessagesSquare',
+  },
 }
 const CATEGORIES = Object.keys(CATEGORY_META) as Category[]
 
 const HELP_SECTIONS: HelpSection[] = [
   {
     id: 'public',
-    title: 'This becomes a public issue',
+    title: 'How your feedback is handled',
     icon: 'Globe',
     paragraphs: [
-      'Submitting posts your message as a GitHub issue on Lemmory\'s public repository - anyone can read it, including your contact email if you provide one.',
-      'Please don\'t include anything private in your message.',
+      'Your feedback is delivered directly to the Lemmory engineering team to help improve the app, resolve issues, and build requested features.',
+      'Please don\'t include sensitive private credentials or passwords in your message.',
     ],
   },
   {
@@ -44,41 +69,34 @@ const HELP_SECTIONS: HelpSection[] = [
   },
   {
     id: 'status',
-    title: 'Why nothing sends yet',
+    title: 'Direct and secure delivery',
     icon: 'Wrench',
     paragraphs: [
-      'Creating a GitHub issue needs a token with write access to the repo - that can never ship inside the app, since a compiled build can be decompiled and any embedded secret treated as public.',
-      'This screen is a preview of the full flow; submitting just confirms locally for now. A small server-side function will handle real submission in a future update.',
+      'Submissions are processed securely through the feedback service backend.',
+      'If you provide an email address, our team can follow up with you regarding your message.',
     ],
   },
 ]
 
-/**
- * "About & Support" — the app identity card (unchanged from the standalone About screen) plus the
- * "Send Feedback" form (also unchanged — see below), merged into one settings-menu destination so
- * the main menu doesn't need a separate row for each. Kept as two distinct sections in one
- * ScrollView rather than actually interleaving their logic — they have nothing to share, and
- * keeping the feedback form's own code block intact (instead of restructuring it) minimizes the
- * chance of breaking its working submission-preview flow.
- *
- * The feedback form itself — UI shell for the flow designed in
- * LingoraDocs/10_feedback_to_github_issue.md. Deliberately frontend-only for now: creating a
- * GitHub issue needs a repo-write token that can never ship inside the app (see that doc's §2), so
- * there is no real submission path yet — Submit just confirms locally.
- *
- * TODO(feedback-backend): once the Firebase Cloud Function from doc 10 §5 exists, replace
- * handleSubmit's local confirmation with a real call to it (category/title/message/diagnostics/
- * contactEmail, exactly the fields already collected here) and surface the created issue's URL or
- * a rate-limit error instead of the placeholder Alert.
- */
 export default function AboutScreen(): JSX.Element {
   const { t } = useTranslation()
   const { tier } = useServices()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const help = useHelpAccordion('public')
+  const params = useLocalSearchParams<{ category?: Category }>()
 
-  const [category, setCategory] = useState<Category>('bug')
+  const initialCategory: Category = params.category && CATEGORIES.includes(params.category) ? params.category : 'support'
+  const [category, setCategory] = useState<Category>(initialCategory)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const selectedCategoryMeta = CATEGORY_META[category]
+
+  useEffect(() => {
+    if (params.category && CATEGORIES.includes(params.category)) {
+      setCategory(params.category)
+    }
+  }, [params.category])
+
   const [title, setTitle] = useState('')
   const [message, setMessage] = useState('')
   const [includeDiagnostics, setIncludeDiagnostics] = useState(true)
@@ -99,26 +117,56 @@ export default function AboutScreen(): JSX.Element {
 
   const canSubmit = title.trim() !== '' && message.trim() !== '' && !submitting
 
-  const handleSubmit = (): void => {
+  const handleSubmit = async (): Promise<void> => {
     if (!canSubmit) return
     setSubmitting(true)
-    log.info('settings.feedback_submitted_locally', {
-      message: 'User completed the feedback form (no backend wired up yet)',
+
+    const payload: FeedbackPayload = {
+      category,
+      title: title.trim(),
+      message: message.trim(),
+      contactEmail: contactEmail.trim() || undefined,
+      diagnostics: includeDiagnostics
+        ? {
+            appVersion,
+            buildNumber,
+            platform: platformLabel,
+            tier: tier === 'full' ? 'Full' : 'Translation-only',
+          }
+        : null,
+    }
+
+    log.info('settings.feedback_submitted', {
+      message: 'User submitted feedback form',
       metadata: { settingKey: category },
     })
-    // No backend yet (see file doc comment) — this is where the real submission call goes once
-    // LingoraDocs/10_feedback_to_github_issue.md's Cloud Function exists.
-    setTimeout(() => {
+
+    try {
+      const result = await submitFeedback(payload)
+      setSubmitting(false)
+
+      if (result.success) {
+        setNotice({
+          title: t('Feedback Sent!'),
+          message: t('Thank you for reaching out! Your message has been received and our team will review it.'),
+        })
+        setCategory('support')
+        setTitle('')
+        setMessage('')
+        setContactEmail('')
+      } else {
+        setNotice({
+          title: t('Could not send feedback'),
+          message: t('We could not send your feedback at this time. Please check your connection and try again.'),
+        })
+      }
+    } catch {
       setSubmitting(false)
       setNotice({
-        title: t('Thanks for the feedback'),
-        message: t("This is a preview of the feedback form - sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
+        title: t('Could not send feedback'),
+        message: t('Something went wrong while sending your feedback. Please check your connection and try again.'),
       })
-      setCategory('bug')
-      setTitle('')
-      setMessage('')
-      setContactEmail('')
-    }, 400)
+    }
   }
 
   return (
@@ -148,23 +196,83 @@ export default function AboutScreen(): JSX.Element {
       <Text style={styles.sectionLabel}>{t('Send Feedback')}</Text>
 
       <Text style={styles.fieldLabel}>{t('What kind of feedback?')}</Text>
-      <Card>
-        <View style={styles.categoryRow}>
-          {CATEGORIES.map((key) => {
-            const meta = CATEGORY_META[key]
-            const selected = category === key
-            return (
-              <Chip
-                key={key}
-                testID={`feedback-category-${key}`}
-                label={t(meta.label)}
-                selected={selected}
-                onPress={() => setCategory(key)}
-              />
-            )
-          })}
-        </View>
-      </Card>
+      <View style={[styles.dropdownContainer, dropdownOpen && styles.dropdownContainerOpen]}>
+        <Pressable
+          style={({ pressed }) => [styles.dropdownHeader, pressed && styles.dropdownHeaderPressed]}
+          onPress={() => setDropdownOpen((prev) => !prev)}
+          accessibilityRole="button"
+          accessibilityLabel={t('Feedback category')}
+        >
+          <View style={[styles.dropdownIconBubble, { backgroundColor: colors.primarySoft }]}>
+            <Icon name={selectedCategoryMeta.icon} size={18} color={colors.primary} />
+          </View>
+          <View style={styles.dropdownHeaderTextWrap}>
+            <Text style={styles.dropdownSelectedLabel}>{t(selectedCategoryMeta.label)}</Text>
+            <Text style={styles.dropdownSelectedDesc} numberOfLines={1}>
+              {t(selectedCategoryMeta.description)}
+            </Text>
+          </View>
+          <Icon
+            name={dropdownOpen ? 'ChevronUp' : 'ChevronDown'}
+            size={18}
+            color={colors.textSecondary}
+          />
+        </Pressable>
+
+        {dropdownOpen ? (
+          <View style={styles.dropdownMenu}>
+            <View style={styles.dropdownDivider} />
+            {CATEGORIES.map((key) => {
+              const meta = CATEGORY_META[key]
+              const isSelected = category === key
+              return (
+                <Pressable
+                  key={key}
+                  testID={`feedback-category-${key}`}
+                  style={({ pressed }) => [
+                    styles.dropdownOption,
+                    isSelected && styles.dropdownOptionSelected,
+                    pressed && styles.dropdownOptionPressed,
+                  ]}
+                  onPress={() => {
+                    setCategory(key)
+                    setDropdownOpen(false)
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.optionIconBubble,
+                      { backgroundColor: isSelected ? colors.primarySoft : colors.surfaceMuted },
+                    ]}
+                  >
+                    <Icon
+                      name={meta.icon}
+                      size={16}
+                      color={isSelected ? colors.primary : colors.textSecondary}
+                    />
+                  </View>
+                  <View style={styles.optionTextWrap}>
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        isSelected && { color: colors.primary, fontWeight: '700' },
+                      ]}
+                    >
+                      {t(meta.label)}
+                    </Text>
+                    <Text style={styles.optionDesc} numberOfLines={1}>
+                      {t(meta.description)}
+                    </Text>
+                  </View>
+                  {isSelected ? (
+                    <Icon name="Check" size={16} color={colors.primary} />
+                  ) : null}
+                </Pressable>
+              )
+            })}
+          </View>
+        ) : null}
+      </View>
 
       <Card style={styles.detailsCard}>
         <Text style={styles.fieldLabel}>{t('Title')}</Text>
@@ -292,7 +400,95 @@ const createStyles = (colors: ThemeColors) =>
     fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
     fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.xs, lineHeight: 16 },
     fieldSpacing: { marginTop: spacing.md },
-    categoryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    dropdownContainer: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+      marginTop: spacing.xs,
+    },
+    dropdownContainerOpen: {
+      borderColor: colors.primary,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 3,
+    },
+    dropdownHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    dropdownHeaderPressed: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    dropdownIconBubble: {
+      width: 38,
+      height: 38,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dropdownHeaderTextWrap: {
+      flex: 1,
+      gap: 2,
+    },
+    dropdownSelectedLabel: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    dropdownSelectedDesc: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    dropdownMenu: {
+      paddingBottom: spacing.xs,
+    },
+    dropdownDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginHorizontal: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    dropdownOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      gap: spacing.sm,
+      borderRadius: radius.md,
+      marginHorizontal: spacing.xs,
+    },
+    dropdownOptionSelected: {
+      backgroundColor: colors.primarySoft,
+    },
+    dropdownOptionPressed: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    optionIconBubble: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    optionTextWrap: {
+      flex: 1,
+      gap: 1,
+    },
+    optionLabel: {
+      fontSize: 13.5,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    optionDesc: {
+      fontSize: 11.5,
+      color: colors.textSecondary,
+    },
     detailsCard: { gap: 0 },
     input: {
       borderWidth: 1,

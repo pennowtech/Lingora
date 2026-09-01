@@ -23,6 +23,7 @@ import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton }
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AISetupModal } from '../../components/AISetupModal'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
@@ -149,6 +150,7 @@ export default function SearchScreen(): JSX.Element {
   const params = useLocalSearchParams<{ q?: string }>()
   const [query, setQueryState] = useState(params.q ?? lastSearchQuery)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
+  const [aiSetupModalOpen, setAiSetupModalOpen] = useState(false)
   // Which "Add to deck" button opened the picker — decides which persist call the picker's
   // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
   const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
@@ -799,14 +801,21 @@ export default function SearchScreen(): JSX.Element {
                     </Card>
                   )
                 ) : (
-                  <Pressable onPress={() => router.push('/settings/ai-providers')}>
-                    <Card style={styles.limitedCard}>
-                      <Icon name="Key" size={18} color={colors.textSecondary} />
-                      <Text style={styles.limitedLabel}>
-                        {t('No AI provider is active - add and enable one in Settings to generate new words')}
-                      </Text>
-                    </Card>
-                  </Pressable>
+                  <Card
+                    onPress={() => setAiSetupModalOpen(true)}
+                    style={styles.limitedCard}
+                  >
+                    <View style={styles.limitedTop}>
+                      <Text style={styles.limitedWord}>{t('AI Word Generation')}</Text>
+                      <View style={styles.limitedLearnAction}>
+                        <Text style={styles.limitedLearnText}>{t('More info')}</Text>
+                        <Icon name="ArrowRight" size={13} color={colors.warning} />
+                      </View>
+                    </View>
+                    <Text style={styles.limitedExplanation} numberOfLines={2}>
+                      {t('Configure an AI provider in Settings to search & generate new words, or install local dictionaries for offline use.')}
+                    </Text>
+                  </Card>
                 )}
                 {generate.isError ? (
                   <Text style={styles.generateError}>
@@ -843,6 +852,14 @@ export default function SearchScreen(): JSX.Element {
           }}
         />
       )}
+
+      {/* ── AI & Local Dictionaries Setup Info Dialog ── */}
+      <AISetupModal
+        visible={aiSetupModalOpen}
+        onClose={() => setAiSetupModalOpen(false)}
+        title={t('Word Lookup Setup')}
+        subtitle={t("Choose how you'd like to search & generate words")}
+      />
 
       {/* ── Deck picker — shared by the dictionary-preview and translation-preview "Add to deck"
           buttons above, whichever last set deckPickerFor. Neither preview has a real card yet, so
@@ -1077,19 +1094,52 @@ const createStyles = (colors: ThemeColors) =>
     },
     explainLoadingLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.primary },
     limitedCard: {
+      gap: spacing.xs,
+      padding: spacing.lg,
+      borderWidth: 1.5,
+      borderColor: colors.warning,
+      backgroundColor: colors.warningSoft,
+      borderRadius: radius.xl,
+      marginTop: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.06,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    limitedTop: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
       gap: spacing.sm,
-      marginTop: spacing.md,
-      backgroundColor: colors.surfaceMuted,
-      borderColor: colors.border,
+      backgroundColor: 'transparent',
     },
-    limitedLabel: {
-      flex: 1,
+    limitedWord: {
+      fontSize: type.body,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -0.2,
+      backgroundColor: 'transparent',
+    },
+    limitedLearnAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: 'transparent',
+    },
+    limitedLearnText: {
+      fontSize: type.micro,
+      fontWeight: '800',
+      color: colors.warning,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    limitedExplanation: {
       fontSize: type.caption,
-      fontWeight: '600',
       color: colors.textSecondary,
+      lineHeight: 19,
+      fontStyle: 'italic',
+      backgroundColor: 'transparent',
     },
     generateError: {
       marginTop: spacing.md,

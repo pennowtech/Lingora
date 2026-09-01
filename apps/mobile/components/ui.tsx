@@ -36,16 +36,18 @@ export function Card(props: {
   onPress?: () => void
   onLongPress?: () => void
   onLayout?: (event: LayoutChangeEvent) => void
+  disabled?: boolean
 }): JSX.Element {
-  const { children, style, onPress, onLongPress, onLayout } = props
+  const { children, style, onPress, onLongPress, onLayout, disabled } = props
   const styles = useThemedStyles(createStyles)
   if (onPress) {
     return (
       <Pressable
+        disabled={disabled}
         onPress={onPress}
         onLongPress={onLongPress}
         onLayout={onLayout}
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed, style]}
+        style={({ pressed }) => [styles.card, pressed && !disabled && styles.cardPressed, style]}
       >
         {children}
       </Pressable>
@@ -869,6 +871,7 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1,
       borderColor: colors.border,
       padding: spacing.lg,
+      overflow: 'hidden',
     },
     cardPressed: {
       opacity: 0.85,

@@ -93,8 +93,8 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
 
   { key: 'sync', label: 'Cloud Sync', group: 'System & Account', keywords: ['google', 'cloud', 'backup', 'account', 'sign in', 'sync'], route: '/settings/sync', icon: 'RefreshCw' },
   { key: 'general', label: 'General & Appearance', group: 'System & Account', keywords: ['theme', 'dark', 'light', 'app language', 'locale', 'ui', 'share'], route: '/settings/general', icon: 'SlidersHorizontal' },
-  { key: 'about', label: 'About & Support', group: 'System & Account', keywords: ['version', 'info', 'feedback', 'bug', 'report', 'issue', 'github'], route: '/settings/about', icon: 'Info' },
-  { key: 'feedback', label: 'Send Feedback', group: 'System & Account', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact'], route: '/settings/about', icon: 'MessageSquareText' },
+  { key: 'feedback', label: 'Send Feedback', group: 'System & Account', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact', 'help', 'support'], route: '/settings/feedback', icon: 'MessageSquareText' },
+  { key: 'about', label: 'About Lemmory', group: 'System & Account', keywords: ['version', 'info', 'whats new', 'changelog', 'release', 'github'], route: '/settings/about', icon: 'Info' },
 ]
 
 function routeToCategory(route: string): SettingsCategoryKey {
@@ -103,7 +103,7 @@ function routeToCategory(route: string): SettingsCategoryKey {
   if (route === '/settings/translation') return 'translation'
   if (route === '/settings/learning') return 'learning'
   if (route === '/settings/sync') return 'sync'
-  if (route === '/settings/about') return 'about'
+  if (route === '/settings/about' || route === '/settings/feedback') return 'about'
   if (route === '/settings/data' || route === '/settings/import-export' || route === '/settings/word-guides') return 'data'
   if (route === '/settings/templates') return 'general'
   return 'general'
@@ -378,22 +378,22 @@ export default function SettingsScreen(): JSX.Element {
               tint={categoryColors.general}
             />
             <LinkRow
+              testID="settings-menu-feedback"
+              icon="MessageSquareText"
+              label={t('Send Feedback')}
+              detail={t('Report an issue, suggest features, or get help')}
+              onPress={() => router.push('/settings/feedback')}
+              divider
+              tint={categoryColors.ai}
+            />
+            <LinkRow
               testID="settings-menu-about"
               icon="Info"
-              label={t('About & Support')}
-              detail={t('App info, send feedback or report an issue')}
+              label={t('About Lemmory')}
+              detail={t('App version, release highlights, and open source')}
               onPress={() => router.push('/settings/about')}
               divider
               tint={categoryColors.about}
-            />
-            <LinkRow
-              testID="settings-menu-whats-new"
-              icon="Sparkles"
-              label={t("What's New in Update")}
-              detail={t('See release highlights & improvements')}
-              onPress={() => setWhatsNewModalOpen(true)}
-              divider
-              tint={categoryColors.ai}
             />
           </Card>
 

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Icon } from './Icon'
 import { Button, ErrorState, IconButton, Spinner } from './ui'
-import { ReviewModesPicker } from './ReviewModesPicker'
+import { ReviewModeBadges, ReviewModesPicker } from './ReviewModesPicker'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
@@ -328,7 +328,10 @@ export function DeckPickerModal(props: {
                         disabled={selecting || already}
                       >
                         <Icon name="BookOpen" size={18} color={colors.primary} />
-                        <Text style={styles.name}>{deck.name}</Text>
+                        <View style={styles.deckInfo}>
+                          <Text style={styles.name}>{deck.name}</Text>
+                          <ReviewModeBadges modes={deck.enabledQuestionTypes} size="sm" />
+                        </View>
                         {already ? <Icon name="CircleCheck" size={18} color={colors.success} /> : null}
                       </Pressable>
                     )
@@ -378,10 +381,11 @@ const createStyles = (colors: ThemeColors) =>
     title: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text, marginBottom: spacing.xs },
     headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     list: { maxHeight: 280 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
     rowDisabled: { opacity: 0.5 },
     emoji: { fontSize: 20 },
-    name: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.text },
+    deckInfo: { flex: 1, gap: 4 },
+    name: { fontSize: type.body, fontWeight: '700', color: colors.text },
     newDeckForm: { gap: spacing.md, paddingVertical: spacing.xs },
     formHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
     formTitle: { flex: 1, fontSize: type.subheading, fontWeight: '800', color: colors.text },

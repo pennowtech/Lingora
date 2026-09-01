@@ -187,6 +187,15 @@ export default function WordGuidesScreen(): JSX.Element {
         )}
       </Card>
 
+      <View style={styles.dictionaryHintCard}>
+        <View style={styles.dictionaryHintIconWrap}>
+          <Icon name="Info" size={16} color={colors.primary} />
+        </View>
+        <Text style={styles.dictionaryHintText}>
+          {t('Our offline starter dictionaries are currently in active development. We are continuously adding more vocabulary and improving accuracy with each update — thank you for your support as we grow!')}
+        </Text>
+      </View>
+
       <SectionHeader title={t('Chunks')} />
 
       <FlatList
@@ -256,6 +265,26 @@ const createStyles = (colors: ThemeColors) =>
     title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
     progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
     installAllButton: { marginTop: spacing.sm },
+    dictionaryHintCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    dictionaryHintIconWrap: {
+      marginTop: 2,
+    },
+    dictionaryHintText: {
+      flex: 1,
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
     listContent: { paddingBottom: spacing.xxl },
     chunkRow: {
       flexDirection: 'row',

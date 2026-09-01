@@ -108,3 +108,71 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.primary,
     },
   })
+
+/**
+ * Compact row of review mode / card type icon badges (icons only, matching deck creation).
+ */
+export function ReviewModeBadges(props: {
+  modes?: QuestionType[] | null | undefined
+  label?: string | undefined
+  size?: 'sm' | 'md' | undefined
+}): JSX.Element | null {
+  const colors = useColors()
+  const styles = useThemedStyles(createBadgeStyles)
+  const modes = props.modes && props.modes.length > 0 ? props.modes : ALL_QUESTION_TYPES
+
+  return (
+    <View style={styles.badgeContainer}>
+      {props.label ? <Text style={styles.badgeGroupLabel}>{props.label}</Text> : null}
+      <View style={styles.badgeRow}>
+        {modes.map((mode) => {
+          const icon = QUESTION_TYPE_ICONS[mode]
+          const meta = QUESTION_TYPE_META[mode]
+          if (!icon) return null
+          return (
+            <View
+              key={mode}
+              style={[styles.badge, props.size === 'sm' && styles.badgeSm]}
+              accessibilityLabel={meta?.label ?? mode}
+            >
+              <Icon name={icon} size={props.size === 'sm' ? 12 : 14} color={colors.primary} />
+            </View>
+          )
+        })}
+      </View>
+    </View>
+  )
+}
+
+const createBadgeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    badgeContainer: {
+      gap: 3,
+    },
+    badgeGroupLabel: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.textMuted,
+    },
+    badgeRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 4,
+    },
+    badge: {
+      width: 24,
+      height: 24,
+      borderRadius: radius.sm,
+      backgroundColor: colors.primarySoft,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badgeSm: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+    },
+  })

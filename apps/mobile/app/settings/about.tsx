@@ -125,6 +125,7 @@ export default function AboutScreen(): JSX.Element {
       category,
       title: title.trim(),
       message: message.trim(),
+      app: Platform.OS === 'ios' ? 'ios-lemmory' : 'android-lemmory',
       contactEmail: contactEmail.trim() || undefined,
       diagnostics: includeDiagnostics
         ? {

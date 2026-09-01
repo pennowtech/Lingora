@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_QUESTION_TYPES, guessPartOfSpeechFromCasing, pickEligibleTypes, shuffleArray, worstRating } from './index'
+import {
+  ALL_QUESTION_TYPES,
+  buildGitHubIssueUrl,
+  formatIssueBody,
+  formatIssueTitle,
+  guessPartOfSpeechFromCasing,
+  pickEligibleTypes,
+  shuffleArray,
+  worstRating,
+} from './index'
 
 describe('pickEligibleTypes', () => {
   it('returns only enabled types the card is eligible for', () => {
@@ -103,3 +112,46 @@ describe('guessPartOfSpeechFromCasing', () => {
     expect(guessPartOfSpeechFromCasing('123', 'de')).toBe('verb')
   })
 })
+
+describe('Feedback helpers', () => {
+  it('formats issue title with category prefix', () => {
+    expect(formatIssueTitle('bug', 'App crashes on start')).toBe('[Bug] App crashes on start')
+    expect(formatIssueTitle('feature', '[Feature] Already prefixed')).toBe('[Feature] Already prefixed')
+  })
+
+  it('formats issue body with diagnostics and message', () => {
+    const body = formatIssueBody({
+      category: 'bug',
+      title: 'Crash',
+      message: 'Here is what happened',
+      contactEmail: 'user@example.com',
+      diagnostics: {
+        appVersion: '0.2.0',
+        buildNumber: '15',
+        platform: 'macOS',
+        tier: 'full',
+      },
+    })
+    expect(body).toContain('### 💬 User Message')
+    expect(body).toContain('Here is what happened')
+    expect(body).toContain('`user@example.com`')
+    expect(body).toContain('`0.2.0`')
+    expect(body).toContain('`macOS`')
+  })
+
+  it('builds a prefilled GitHub issue URL with custom repo and app target', () => {
+    const url = buildGitHubIssueUrl({
+      category: 'bug',
+      title: 'Window resize glitch',
+      message: 'Sidebar collapses incorrectly',
+      targetOwner: 'custom-org',
+      targetRepo: 'custom-repo',
+      app: 'desktop-lemmory',
+    })
+    expect(url).toContain('https://github.com/custom-org/custom-repo/issues/new?')
+    expect(url).toContain('title=%5BBug%5D+Window+resize+glitch')
+    expect(url).toContain('labels=user-feedback%2Cfeedback%3Abug%2Cbug%2Capp%3Adesktop-lemmory')
+  })
+})
+
+

@@ -94,6 +94,12 @@ describe('revealClozeSentence', () => {
     )
   })
 
+  it('reveals legacy desktop multi-blank answers joined with slashes', () => {
+    expect(revealClozeSentence('Der [...] und der [...] sind ähnlich.', 'Wettbewerb / Wettstreit')).toBe(
+      'Der Wettbewerb und der Wettstreit sind ähnlich.',
+    )
+  })
+
   it('round-trips a real Cloze row (sentence = blanked, answer = joined) the same way buildClozeMarkup does', () => {
     const original = 'Wir gehen heute Abend {{c1::aus}}.'
     const parsed = parseClozeMarkup(original)!

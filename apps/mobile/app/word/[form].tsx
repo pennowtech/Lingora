@@ -613,17 +613,20 @@ export default function WordDetailScreen(): JSX.Element {
   } | null>(null)
 
   const addToDeck = useMutation({
-    mutationFn: async (deck: { id: string; name: string }) => {
+    mutationFn: async ({ deck, cloze }: { deck: { id: string; name: string }; cloze?: ClozeEditorResult }) => {
       const cardId = await resolveTargetCardId(deck.id)
       await addCardToDeck(db, deck.id, cardId)
+      if (cloze) {
+        await setCloze(db, cardId, {
+          ...cloze,
+          difficulty: 'contextual',
+          cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
+        })
+      }
       return { cardId, deckName: deck.name }
     },
-    // "Add to deck" only ever adds to the deck — it used to also auto-open the cloze editor, but
-    // that conflated two separate, deliberately opt-in actions (see the sticky bottom bar's own
-    // "Add to Cloze" button below, which is the one place cloze content actually gets created).
-    // Every review format except cloze (word->meaning, reverse, true/false, multiple choice) is
-    // already available for this card the moment it's in a deck; cloze only joins the rotation
-    // once its own button is used.
+    // A Cloze-enabled deck routes through DeckPickerModal's desktop-parity blank editor first;
+    // its result is persisted in the same add operation instead of requiring a separate action.
     onSuccess: async ({ deckName }) => {
       setDeckPickerOpen(false)
       await invalidateAfterDeckChange()
@@ -635,12 +638,19 @@ export default function WordDetailScreen(): JSX.Element {
   // round-tripping through the Decks tab's own FAB — same card resolution as addToDeck above,
   // just with a deck-creation step first.
   const createDeckAndAdd = useMutation({
-    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
+    mutationFn: async ({ name, questionTypes, cloze }: { name: string; questionTypes: QuestionType[]; cloze?: ClozeEditorResult }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       const cardId = await resolveTargetCardId(id)
       await addCardToDeck(db, id, cardId)
+      if (cloze) {
+        await setCloze(db, cardId, {
+          ...cloze,
+          difficulty: 'contextual',
+          cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
+        })
+      }
       return { cardId, deckName: name }
     },
     onSuccess: async ({ deckName }) => {
@@ -1672,9 +1682,14 @@ export default function WordDetailScreen(): JSX.Element {
         onClose={() => setDeckPickerOpen(false)}
         title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
-        onSelectDeck={(deck) => addToDeck.mutate(deck)}
+        word={word.lemma.form}
+        {...(selectedExample?.sentence && { exampleSentence: selectedExample.sentence })}
+        {...(selectedExample?.translation && { exampleTranslation: selectedExample.translation })}
+        onSelectDeck={(deck, cloze) => addToDeck.mutate({ deck, ...(cloze && { cloze }) })}
         selecting={addToDeck.isPending}
-        onCreateDeck={(name, questionTypes) => createDeckAndAdd.mutate({ name, questionTypes })}
+        onCreateDeck={(name, questionTypes, cloze) =>
+          createDeckAndAdd.mutate({ name, questionTypes, ...(cloze && { cloze }) })
+        }
         creating={createDeckAndAdd.isPending}
         {...(addToDeck.isError && { selectError: String(addToDeck.error) })}
         {...(createDeckAndAdd.isError && { createError: String(createDeckAndAdd.error) })}

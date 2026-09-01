@@ -118,8 +118,8 @@ function isEligible(card: EligibilityCard, type: QuestionType, distractorPool: D
 }
 
 /**
- * Every question type a given card should be tested in for a Mixed practice session — the
- * intersection of what's enabled (a settings preference) and what's eligible for this specific
+ * Every question type a given card should be tested in for a multi-format review session — the
+ * intersection of what's enabled for its deck and what's eligible for this specific
  * card, falling back to just 'vocab' (always eligible) if nothing else qualifies. A card with,
  * say, 4 enabled and eligible types appears 4 separate times in the session — once per format, all
  * counting toward that one card's FSRS schedule as a single aggregated rating (see worstRating

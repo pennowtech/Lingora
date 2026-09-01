@@ -27,6 +27,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
@@ -61,6 +62,36 @@ const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/ap
   lem: '/settings/lem-import',
 }
 
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'nesting',
+    title: 'Decks and sub-decks',
+    icon: 'Layers',
+    paragraphs: [
+      'Decks can be nested - a deck moved under another shows indented in this list. Card counts on a parent deck include everything in its children.',
+      'Tap a deck to open it; the "+" button creates a new one, or adds a card/imports a file into an existing one.',
+    ],
+  },
+  {
+    id: 'menu',
+    title: 'The "..." menu',
+    icon: 'EllipsisVertical',
+    paragraphs: [
+      'Long-press or tap the "..." on a deck for rename, move, merge, export, reset progress, and delete - delete always asks for confirmation first.',
+    ],
+  },
+  {
+    id: 'modes',
+    title: 'Review modes',
+    icon: 'SquareCheck',
+    paragraphs: [
+      'Each deck uses its own mix of review formats (word, reverse, cloze, true/false, multiple choice). Choose them when creating the deck, and Review will include every selected format that the card can support.',
+      '**True/false requires at least 1 other saved card** and **multiple choice requires at least 3 other saved cards** to provide meaningful wrong answers. Those cards can come from any deck. A format is skipped when there are not enough suitable cards yet.',
+      '**True/false and multiple choice are graded automatically:** a correct answer counts as **Good**, and an incorrect answer counts as **Again**. They do not show the Again, Hard, Good, and Easy rating buttons.',
+    ],
+  },
+]
+
 /** A deck with its computed counts and resolved children. */
 interface DeckNode {
   deck: Deck
@@ -94,6 +125,7 @@ export default function DecksScreen(): JSX.Element {
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const sync = useCloudSync()
+  const help = useHelpAccordion('nesting')
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
@@ -363,14 +395,18 @@ export default function DecksScreen(): JSX.Element {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          headerRight: () =>
-            sync.phase === 'syncing' ? (
-              <View style={styles.syncButton}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : (
-              <IconButton testID="deck-sync-now-button" icon="RefreshCw" onPress={handleSyncNow} />
-            ),
+          headerRight: () => (
+            <View style={styles.headerActions}>
+              {sync.phase === 'syncing' ? (
+                <View style={styles.syncButton}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                </View>
+              ) : (
+                <IconButton testID="deck-sync-now-button" icon="RefreshCw" onPress={handleSyncNow} />
+              )}
+              <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('nesting')} />
+            </View>
+          ),
         }}
       />
       {decksQuery.isPending ? (
@@ -811,6 +847,16 @@ export default function DecksScreen(): JSX.Element {
         confirmLabel={t('Merge')}
         destructive
       />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Decks help')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
     </View>
   )
 }
@@ -857,6 +903,7 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
   syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: spacing.lg, paddingBottom: 96 },
   deckCard: {

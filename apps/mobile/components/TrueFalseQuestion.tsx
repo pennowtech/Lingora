@@ -17,6 +17,7 @@ export interface TrueFalseQuestionProps {
   cardKey: string
   word: string
   meaning: string
+  onListen: () => void
   distractors: DistractorMeaning[]
   onAnswered: (correct: boolean) => void
 }
@@ -69,9 +70,20 @@ export function TrueFalseQuestion(props: TrueFalseQuestionProps): JSX.Element {
   return (
     <View style={styles.wrap}>
       <Text style={styles.prompt}>{t('True or false?')}</Text>
-      <Text style={styles.statement}>
-        {t('"{{word}}" means "{{meaning}}"', { word: props.word, meaning: shownMeaning })}
-      </Text>
+      <View style={styles.statementRow}>
+        <Text style={styles.statement}>
+          {t('"{{word}}" means "{{meaning}}"', { word: props.word, meaning: shownMeaning })}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Listen')}
+          hitSlop={8}
+          style={styles.listenButton}
+          onPress={props.onListen}
+        >
+          <Icon name="Volume1" size={20} color={colors.primary} />
+        </Pressable>
+      </View>
       <View style={styles.optionRow}>
         <Pressable
           style={[
@@ -131,10 +143,20 @@ const createStyles = (colors: ThemeColors) =>
       letterSpacing: 0.5,
     },
     statement: {
+      flexShrink: 1,
       fontSize: type.heading,
       fontWeight: '600',
       color: colors.text,
       textAlign: 'center',
+    },
+    statementRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    listenButton: {
+      width: 34,
+      height: 34,
+      borderRadius: radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primarySoft,
     },
     optionRow: {
       flexDirection: 'row',

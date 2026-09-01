@@ -4,10 +4,8 @@ import {
   getAllDecks,
   getCardCountForDeck,
   getCardsForDeck,
-  getClozeCardCountForDeck,
   getDeckById,
   getDueCardsCount,
-  getDueClozeCount,
   getRetentionRate,
   mergeDecks,
   moveDeck,
@@ -36,6 +34,7 @@ import {
   Spinner,
   type ImportFormat,
 } from '../../components/ui'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon } from '../../components/Icon'
 import { ExportNameModal } from '../../components/ExportNameModal'
 import { collectDescendantIds } from '@lingora/core'
@@ -53,21 +52,43 @@ const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/ap
   lem: '/settings/lem-import',
 }
 
+const HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'stats',
+    title: 'The stats row',
+    icon: 'ChartColumn',
+    paragraphs: [
+      'Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.',
+    ],
+  },
+  {
+    id: 'practice',
+    title: 'Review',
+    icon: 'Play',
+    paragraphs: [
+      'Review presents this deck\'s due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.',
+    ],
+  },
+  {
+    id: 'menu',
+    title: 'The "..." menu',
+    icon: 'Ellipsis',
+    paragraphs: [
+      'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.',
+    ],
+  },
+]
+
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
-  const [cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards] = await Promise.all([
+  const [cardCount, dueCount, retention, cards] = await Promise.all([
     getCardCountForDeck(db, deckId),
     getDueCardsCount(db, deckId),
-    // Cloze practice has its own independent FSRS schedule (migration 0013) — separate due count,
-    // separate from word-meaning review's dueCount above.
-    getDueClozeCount(db, deckId),
-    // Total (not just due) — decides whether "Practice cloze" is offered at all.
-    getClozeCardCountForDeck(db, deckId),
     getRetentionRate(db, 30), // global for now — per-deck retention lands with Phase 5 stats
     getCardsForDeck(db, deckId),
   ])
-  return { deck, cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards }
+  return { deck, cardCount, dueCount, retention, cards }
 }
 
 /**
@@ -80,6 +101,7 @@ export default function DeckDetailScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
+  const help = useHelpAccordion('stats')
   const [menuOpen, setMenuOpen] = useState(false)
   const [importSheetOpen, setImportSheetOpen] = useState(false)
   const [exportSheetOpen, setExportSheetOpen] = useState(false)
@@ -288,7 +310,7 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
-  const { deck, cardCount, dueCount, dueClozeCount, clozeCardCount, retention, cards } = deckQuery.data
+  const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -301,7 +323,10 @@ export default function DeckDetailScreen(): JSX.Element {
         options={{
           title: `${deck.emoji ?? '📚'} ${deck.name}`,
           headerRight: () => (
-            <IconButton testID="deck-menu-button" icon="Ellipsis" onPress={() => setMenuOpen(true)} />
+            <View style={styles.headerActions}>
+              <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('stats')} />
+              <IconButton testID="deck-menu-button" icon="Ellipsis" onPress={() => setMenuOpen(true)} />
+            </View>
           ),
         }}
       />
@@ -323,54 +348,17 @@ export default function DeckDetailScreen(): JSX.Element {
           </Card>
         </View>
 
-        {/* All three actions pull from a deck that actually has the matching kind of card —
-            offering "Review"/"Practice reverse" on a deck with zero cards, or "Practice cloze" on
-            a deck with no cloze cards at all, would just open an empty review session. */}
+        {/* One clear entry point: the review session expands every due card into the formats saved
+            on this deck at creation time, skipping formats that are not eligible for that card. */}
         {cardCount > 0 ? (
           <Button
-            label={dueCount > 0 ? t('Review {{count}} words', { count: dueCount }) : t('Nothing due - study ahead')}
+            testID="deck-review-button"
+            label={t('Review')}
             icon="Play"
-            onPress={() => router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id } })}
-            style={styles.reviewButton}
-          />
-        ) : null}
-        {clozeCardCount > 0 ? (
-          <Button
-            label={dueClozeCount > 0 ? t('Practice {{count}} cloze', { count: dueClozeCount }) : t('Practice cloze')}
-            icon="SquarePen"
-            variant="secondary"
-            onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'cloze' } })
-            }
-            style={styles.clozeButton}
-          />
-        ) : null}
-        {/* Same due queue/schedule as "Review N words" above — reverse is a direction, not a
-            separate skill the way cloze is, so there's no separate due count for it. */}
-        {cardCount > 0 ? (
-          <Button
-            label={t('Practice reverse')}
-            icon="ArrowLeftRight"
-            variant="secondary"
-            onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'reverse' } })
-            }
-            style={styles.clozeButton}
-          />
-        ) : null}
-        {/* Also the same due queue/schedule as "Review N words" — every presentation it picks
-            (including a cloze-formatted one) is scored the same way reverse is, never touching
-            cloze's own independent schedule. Which formats it draws from is set in
-            Settings > Learning > Practice question types. */}
-        {cardCount > 0 ? (
-          <Button
-            label={t('Mixed practice')}
-            icon="Shuffle"
-            variant="secondary"
             onPress={() =>
               router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
             }
-            style={styles.clozeButton}
+            style={styles.reviewButton}
           />
         ) : null}
 
@@ -745,6 +733,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     scroll: { padding: spacing.lg },
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     fab: {
       position: 'absolute',
       right: spacing.xl,
@@ -765,7 +754,6 @@ const createStyles = (colors: ThemeColors) =>
     statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
     statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
     reviewButton: { marginTop: spacing.lg },
-    clozeButton: { marginTop: spacing.sm },
     cardRow: {
       flexDirection: 'row',
       alignItems: 'center',

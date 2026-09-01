@@ -52,7 +52,9 @@ export function parseClozeMarkup(text: string): ParsedCloze | null {
  */
 export function buildClozeMarkup(blankedSentence: string, answerJoined: string): string {
   const answers = answerJoined
-    .split(';')
+    // Semicolon is the canonical mobile/database separator. Desktop's token editor historically
+    // stored multiple answers with " / ", so accept both when revealing/editing existing cards.
+    .split(/\s*(?:;|\/)\s*/)
     .map((a) => a.trim())
     .filter((a) => a.length > 0)
   const parts = blankedSentence.split(CLOZE_BLANK)
@@ -140,7 +142,8 @@ export function markWordAsCloze(text: string, word: string): string | null {
  */
 export function revealClozeSentence(blankedSentence: string, answerJoined: string): string {
   const answers = answerJoined
-    .split(';')
+    // Semicolon is canonical; accept the desktop editor's historical " / " separator too.
+    .split(/\s*(?:;|\/)\s*/)
     .map((a) => a.trim())
     .filter((a) => a.length > 0)
   const parts = blankedSentence.split(CLOZE_BLANK)

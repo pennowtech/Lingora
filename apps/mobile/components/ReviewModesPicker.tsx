@@ -8,11 +8,9 @@ import type { ThemeColors } from '../lib/themes'
 import { ALL_QUESTION_TYPES, QUESTION_TYPE_META } from '../lib/reviewTypes'
 
 /**
- * Which review formats a deck's cards get reviewed with - same five chips as Settings -> Learning's
- * global "Practice question types" picker (settings/learning.tsx), same Chip component and layout,
- * just controlled by the caller instead of persisted to SecureStore directly. Used at deck-creation
- * time (DeckPickerModal's inline "Create new deck" row, and the Decks tab's own new-deck modal) so
- * a deck can override the learner's global default from the moment it's created.
+ * Which formats a deck's cards use during Review. This is selected and saved per deck at creation
+ * time (DeckPickerModal's inline "Create new deck" row and the Decks tab's new-deck modal), so two
+ * decks can intentionally use different review experiences.
  */
 export function ReviewModesPicker(props: {
   value: QuestionType[]

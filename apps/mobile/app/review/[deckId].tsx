@@ -8,6 +8,7 @@ import {
   recordClozeReview,
   recordReview,
   revealClozeSentence,
+  setCloze,
   updateClusterMoreInfo,
   updateExampleText,
   updateMeaningText,
@@ -27,6 +28,8 @@ import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
 import { MultipleChoiceQuestion } from '../../components/MultipleChoiceQuestion'
 import { TrueFalseQuestion } from '../../components/TrueFalseQuestion'
+import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import {
@@ -52,7 +55,7 @@ import {
 } from '@lingora/core'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { getSessionCardLimit } from '../../lib/reviewSession'
-import { getEnabledQuestionTypes, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
+import { DEFAULT_ENABLED_QUESTION_TYPES, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
@@ -67,6 +70,26 @@ const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
   { rating: 'easy', label: 'Easy' },
 ]
 
+const WORD_EDIT_HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'example',
+    title: 'Editing a word card',
+    icon: 'SquarePen',
+    paragraphs: [
+      'Edit the **example sentence** and **example translation** here. Tap words in the token list to highlight the parts you want emphasized on the answer card.',
+      'You can **highlight more than one word**. Tap a highlighted word again to remove its emphasis, then tap **Save changes**.',
+    ],
+  },
+  {
+    id: 'formatting',
+    title: 'Optional text formatting',
+    icon: 'Palette',
+    paragraphs: [
+      'Use HTML tags for optional formatting: `<b>bold</b>`, `<i>italic</i>`, or `<span style="color:#D64545">colored text</span>`.',
+    ],
+  },
+]
+
 /**
  * Swipe direction → rating, the same four-way mapping shown as an overlay
  * label while dragging: right = Good, left = Again, up = Easy, down = Hard.
@@ -74,6 +97,29 @@ const RATINGS: Array<{ rating: ReviewRating; label: string }> = [
  * extended to up/down for the two extra FSRS ratings.
  */
 const SWIPE_THRESHOLD = 96
+
+function tokenizeEditableExample(sentence: string): string[] {
+  return sentence.split(/(\s+)/).filter((token) => token.length > 0)
+}
+
+function stripExampleHighlights(sentence: string): string {
+  return sentence.replace(/<mark class="dc-hl">(.*?)<\/mark>/g, '$1')
+}
+
+function guessExampleHighlight(tokens: string[], word: string): Set<number> {
+  const lowerWord = word.toLowerCase()
+  const index = tokens.findIndex((token) => {
+    const core = token.replace(/[.,!?;:"'()]+$/, '').replace(/^[.,!?;:"'()]+/, '').toLowerCase()
+    return core.length > 0 && (lowerWord.includes(core) || core.includes(lowerWord))
+  })
+  return index >= 0 ? new Set([index]) : new Set()
+}
+
+function applyExampleHighlights(sentence: string, selected: Set<number>): string {
+  return tokenizeEditableExample(sentence)
+    .map((token, index) => selected.has(index) ? `<mark class="dc-hl">${token}</mark>` : token)
+    .join('')
+}
 
 function resolveSwipeRating(dx: number, dy: number): ReviewRating | null {
   'worklet'
@@ -243,6 +289,7 @@ export default function ReviewSessionScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const wordEditHelp = useHelpAccordion('example')
   const queryClient = useQueryClient()
   const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings'))
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
@@ -296,8 +343,10 @@ export default function ReviewSessionScreen(): JSX.Element {
   // through the same unescaped-by-default LiquidJS pipeline as any other
   // example text.
   const [editOpen, setEditOpen] = useState(false)
+  const [clozeEditOpen, setClozeEditOpen] = useState(false)
   const [editMeaning, setEditMeaning] = useState('')
   const [editExample, setEditExample] = useState('')
+  const [editExampleHighlights, setEditExampleHighlights] = useState<Set<number>>(new Set())
   const [editTranslation, setEditTranslation] = useState('')
 
   // Undo/redo for the edit modal — one shared history across all three fields (and the "Generate
@@ -353,6 +402,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     isRestoringEdit.current = true
     setEditMeaning(snapshot.meaning)
     setEditExample(snapshot.example)
+    setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(snapshot.example), view?.form ?? ''))
     setEditTranslation(snapshot.translation)
     setEditHistory((prev) => ({ ...prev, index: newIndex }))
   }
@@ -364,6 +414,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     isRestoringEdit.current = true
     setEditMeaning(snapshot.meaning)
     setEditExample(snapshot.example)
+    setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(snapshot.example), view?.form ?? ''))
     setEditTranslation(snapshot.translation)
     setEditHistory((prev) => ({ ...prev, index: newIndex }))
   }
@@ -382,13 +433,14 @@ export default function ReviewSessionScreen(): JSX.Element {
     enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
   })
 
-  // Mixed practice's per-card question type needs: the enabled types for this session (the
-  // deck's own override if it was given one at creation — see Deck.enabledQuestionTypes and
-  // components/DeckPickerModal.tsx's "Create new deck" step — otherwise the user's global
-  // Settings preference) and a shared pool of other cards' meanings to build true/false and
-  // multiple-choice wrong answers from. Both fetched once per session, not once per card.
+  // Each deck owns the formats used by Review (saved when the deck is created). Legacy decks
+  // without that field fall back to the safe word→meaning format; there is no global override.
+  // The distractor pool builds true/false and multiple-choice wrong answers when those deck-owned
+  // formats are enabled. Distractors may come from any saved deck: scoping them to the active deck
+  // silently removed both formats from small decks even when the learner explicitly selected them.
+  // Both are fetched once per session, not once per card.
   const enabledTypesQuery = useQuery({
-    queryKey: ['enabled-question-types', params.deckId],
+    queryKey: ['deck-question-types', params.deckId],
     queryFn: async () => {
       if (params.deckId && params.deckId !== ALL_DECKS_ID) {
         const deck = await getDeckById(db, params.deckId)
@@ -396,14 +448,13 @@ export default function ReviewSessionScreen(): JSX.Element {
           return deck.enabledQuestionTypes
         }
       }
-      return getEnabledQuestionTypes()
+      return [...DEFAULT_ENABLED_QUESTION_TYPES]
     },
     enabled: mixedOnly,
   })
-  const distractorScopeDeckId = params.deckId === ALL_DECKS_ID ? undefined : params.deckId
   const distractorPoolQuery = useQuery({
     queryKey: ['review-distractor-pool', params.deckId],
-    queryFn: () => getDistractorMeanings(db, '', distractorScopeDeckId, 30),
+    queryFn: () => getDistractorMeanings(db, '', undefined, 30),
     enabled: mixedOnly,
   })
   // Per-card rating aggregation for a session where the same card appears more than once (Mixed
@@ -641,13 +692,15 @@ export default function ReviewSessionScreen(): JSX.Element {
 
   const openEdit = (): void => {
     if (!view) return
+    const plainExample = stripExampleHighlights(view.example ?? '')
     const initial: EditSnapshot = {
       meaning: view.meaning ?? '',
-      example: view.example ?? '',
+      example: plainExample,
       translation: view.exampleTranslation ?? '',
     }
     setEditMeaning(initial.meaning)
     setEditExample(initial.example)
+    setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(plainExample), view.form))
     setEditTranslation(initial.translation)
     setEditHistory({ stack: [initial], index: 0 })
     setEditOpen(true)
@@ -658,7 +711,9 @@ export default function ReviewSessionScreen(): JSX.Element {
       if (!view) throw new Error(t('No card to edit.'))
       await Promise.all([
         view.meaningId ? updateMeaningText(db, view.meaningId, editMeaning, view.explanation ?? '') : Promise.resolve(),
-        view.exampleId ? updateExampleText(db, view.exampleId, editExample, editTranslation) : Promise.resolve(),
+        view.exampleId
+          ? updateExampleText(db, view.exampleId, applyExampleHighlights(editExample, editExampleHighlights), editTranslation)
+          : Promise.resolve(),
       ])
     },
     onSuccess: async () => {
@@ -669,6 +724,22 @@ export default function ReviewSessionScreen(): JSX.Element {
       log.error('srs.card_edit_failed', error, { message: 'Saving a manual card edit failed' })
       showError(t('Could not save your changes'), error)
     },
+  })
+
+  const saveClozeEdit = useMutation({
+    mutationFn: async (result: ClozeEditorResult) => {
+      if (!view) throw new Error(t('No card to edit.'))
+      await setCloze(db, view.card.id, {
+        ...result,
+        difficulty: 'contextual',
+        cefrLevel: defaultCefr,
+      })
+    },
+    onSuccess: async () => {
+      setClozeEditOpen(false)
+      await queryClient.invalidateQueries({ queryKey: ['review-queue'] })
+    },
+    onError: (error: unknown) => showError(t('Could not save the cloze card'), error),
   })
 
   // Fills the edit modal's example fields from a fresh AI generation — doesn't persist anything
@@ -687,6 +758,7 @@ export default function ReviewSessionScreen(): JSX.Element {
     onSuccess: (generated) => {
       if (!generated) return
       setEditExample(generated.sentence)
+      setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(generated.sentence), view?.form ?? ''))
       setEditTranslation(generated.translation)
     },
     onError: (error: unknown) => showError(t('Could not generate an example'), error),
@@ -897,6 +969,13 @@ export default function ReviewSessionScreen(): JSX.Element {
         : null
       : view.example
 
+  // The native speaker beside a word→meaning answer reads the retrieval target first, then its
+  // target-language example as one utterance. A card without an example still pronounces the word.
+  const vocabBackSpeech = view
+    ? [view.form, view.example].filter((part): part is string => Boolean(part?.trim())).join('. ')
+    : ''
+  const backSpeechText = isCloze ? (speakableSentence ?? '') : vocabBackSpeech
+
   const renderedContext = view
     ? isReverse
       ? { ...view.templateContext, word: view.templateContext.meaning, meaning: view.templateContext.word }
@@ -1045,6 +1124,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                 cardKey={view.card.id}
                 word={view.form}
                 meaning={view.meaning}
+                onListen={() => speak(view.form, view.language)}
                 distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
                 onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
               />
@@ -1054,20 +1134,20 @@ export default function ReviewSessionScreen(): JSX.Element {
                 cardKey={view.card.id}
                 word={view.form}
                 meaning={view.meaning}
+                onListen={() => speak(view.form, view.language)}
                 distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
                 onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
               />
             )}
-            {/* Same action bar as every other card format (word/[form].tsx's identical reasoning) —
-                the question type is just a different way of testing this word, not a different
-                word, so Explain/More info, Ask AI, and Look up all still apply to it. */}
+            {/* Auto-graded formats keep contextual actions such as Explain, Ask AI, and Look up,
+                but intentionally omit Edit: changing the answer while answering a generated
+                true/false or multiple-choice prompt is confusing and can invalidate that prompt.
+                Listen also lives beside the prompt word above, so it is not duplicated here. */}
             <CardActionBar
-              {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
               onExplain={handleExplain}
               explainVisible={isAiCard || explainVisible}
               explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
               {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
-              onEdit={openEdit}
               onLookup={handleLookup}
               onAskAI={handleAskAI}
             />
@@ -1097,23 +1177,28 @@ export default function ReviewSessionScreen(): JSX.Element {
               <CardRenderer
                 html={backHtml}
                 style={styles.templateFrontWrap}
-                {...(speakableSentence && {
-                  onMessage: (data: string) => {
-                    if (data === 'speak') speak(speakableSentence, view.language)
-                  },
-                })}
               />
+              {(activeQuestionType === 'vocab' || activeQuestionType === 'cloze') && backSpeechText ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('Listen')}
+                  hitSlop={8}
+                  style={[styles.wordSpeakerButton, styles.wordSpeakerBack]}
+                  onPress={() => speak(backSpeechText, view.language)}
+                >
+                  <Icon name="Volume1" size={20} color={colors.primary} />
+                </Pressable>
+              ) : null}
 
               {/* Shown for cloze too now (dedicated Cloze Practice and Mixed practice's
                   cloze-formatted cards alike) — a cloze presentation is still testing the same
                   underlying word, so Explain/More info/Ask AI/Look up/Edit all still apply. */}
               <CardActionBar
-                {...(speakableSentence && { onListen: () => speak(speakableSentence, view.language) })}
                 onExplain={handleExplain}
                 explainVisible={isAiCard || explainVisible}
                 explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
                 {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
-                onEdit={openEdit}
+                onEdit={isCloze ? () => setClozeEditOpen(true) : openEdit}
                 onLookup={handleLookup}
                 onAskAI={handleAskAI}
               />
@@ -1122,6 +1207,17 @@ export default function ReviewSessionScreen(): JSX.Element {
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
               <View style={styles.templateFrontWrap}>
                 <CardRenderer html={frontHtml} />
+                {activeQuestionType === 'vocab' ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('Listen')}
+                    hitSlop={8}
+                    style={[styles.wordSpeakerButton, styles.wordSpeakerFront]}
+                    onPress={() => speak(view.form, view.language)}
+                  >
+                    <Icon name="Volume1" size={20} color={colors.primary} />
+                  </Pressable>
+                ) : null}
                 <Text style={styles.tapHint}>{t('tap to reveal')}</Text>
               </View>
             </Pressable>
@@ -1171,12 +1267,31 @@ export default function ReviewSessionScreen(): JSX.Element {
       )}
 
       {/* Edit this card — Anki-style: fix the actual meaning/example text on the card itself. */}
+      <ClozeEditorSheet
+        visible={clozeEditOpen}
+        title={t('Edit the Blank')}
+        initialSentence={
+          view?.clozeSentence ? revealClozeSentence(view.clozeSentence, view.clozeAnswer ?? '') : ''
+        }
+        initialTranslation={view?.clozeTranslation ?? ''}
+        {...(view?.form && { word: view.form })}
+        onCancel={() => setClozeEditOpen(false)}
+        onSave={(result) => saveClozeEdit.mutate(result)}
+        saving={saveClozeEdit.isPending}
+        {...(saveClozeEdit.isError && { saveError: String(saveClozeEdit.error) })}
+      />
+
       <Modal visible={editOpen} animationType="slide" transparent onRequestClose={() => setEditOpen(false)}>
         <View style={styles.editBackdrop}>
           <View style={styles.editSheet}>
             <View style={styles.editHeader}>
-              <Text style={styles.editTitle}>{t('Edit this card')}</Text>
+              <Text style={styles.editTitle}>{t('Edit word card')}</Text>
               <View style={styles.editHeaderActions}>
+                <IconButton
+                  icon="CircleQuestionMark"
+                  accessibilityLabel={t('Help')}
+                  onPress={() => wordEditHelp.openSection('example')}
+                />
                 <IconButton
                   icon="Undo2"
                   accessibilityLabel={t('Undo')}
@@ -1200,15 +1315,6 @@ export default function ReviewSessionScreen(): JSX.Element {
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.editScrollContent}
             >
-            <Text style={styles.editLabel}>{t('Meaning')}</Text>
-            <TextInput
-              style={styles.editInput}
-              value={editMeaning}
-              onChangeText={setEditMeaning}
-              multiline
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
             <View style={styles.editLabelRow}>
               <Text style={styles.editLabel}>{t('Example sentence')}</Text>
               {tier === 'full' ? (
@@ -1229,11 +1335,37 @@ export default function ReviewSessionScreen(): JSX.Element {
             <TextInput
               style={styles.editInput}
               value={editExample}
-              onChangeText={setEditExample}
+              onChangeText={(text) => {
+                setEditExample(text)
+                setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(text), view?.form ?? ''))
+              }}
               multiline
               autoCapitalize="none"
               autoCorrect={false}
             />
+            <Text style={styles.editHighlightHint}>{t('Tap words below to highlight them.')}</Text>
+            <View style={styles.editTokenCard}>
+              <View style={styles.editTokenWrap}>
+                {tokenizeEditableExample(editExample).map((token, tokenIndex) => {
+                  if (/^\s+$/.test(token)) return null
+                  const selected = editExampleHighlights.has(tokenIndex)
+                  return (
+                    <Pressable
+                      key={tokenIndex}
+                      style={[styles.editToken, selected && styles.editTokenSelected]}
+                      onPress={() => setEditExampleHighlights((current) => {
+                        const next = new Set(current)
+                        if (next.has(tokenIndex)) next.delete(tokenIndex)
+                        else next.add(tokenIndex)
+                        return next
+                      })}
+                    >
+                      <Text style={[styles.editTokenText, selected && styles.editTokenTextSelected]}>{token}</Text>
+                    </Pressable>
+                  )
+                })}
+              </View>
+            </View>
             <Text style={styles.editLabel}>{t('Example translation')}</Text>
             <TextInput
               style={styles.editInput}
@@ -1243,13 +1375,6 @@ export default function ReviewSessionScreen(): JSX.Element {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <Text style={styles.editHint}>
-              {t('Basic inline HTML works too - {{bold}}, {{italic}}, {{colored}}.', {
-                bold: '<b>bold</b>',
-                italic: '<i>italic</i>',
-                colored: '<span style="color:#D64545">red</span>',
-              })}
-            </Text>
             {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
             </ScrollView>
             <View style={styles.editActions}>
@@ -1264,6 +1389,16 @@ export default function ReviewSessionScreen(): JSX.Element {
           </View>
         </View>
       </Modal>
+
+      <HelpAccordionSheet
+        visible={wordEditHelp.visible}
+        onClose={wordEditHelp.close}
+        title={t('Word card editor help')}
+        sections={WORD_EDIT_HELP_SECTIONS}
+        activeSectionId={wordEditHelp.sectionId}
+        onSectionPress={(id) => wordEditHelp.setSectionId(wordEditHelp.sectionId === id ? null : id)}
+        translate={t}
+      />
 
       <WordGuideModal
         visible={guideModalOpen || aiExplanationGuide !== null}
@@ -1379,6 +1514,18 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
     },
     templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
+    wordSpeakerButton: {
+      position: 'absolute',
+      zIndex: 2,
+      width: 34,
+      height: 34,
+      borderRadius: radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primarySoft,
+    },
+    wordSpeakerFront: { top: '50%', right: spacing.xl, marginTop: -34 },
+    wordSpeakerBack: { top: spacing.lg, right: spacing.lg },
     swipeBadgeRight: { top: spacing.xl, right: spacing.xl, transform: [{ rotate: '12deg' }] },
     swipeBadgeLeft: { top: spacing.xl, left: spacing.xl, transform: [{ rotate: '-12deg' }] },
     swipeBadgeTop: { top: spacing.xl, alignSelf: 'center' },
@@ -1433,7 +1580,13 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.sm,
       padding: spacing.sm,
     },
-    editHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.sm, lineHeight: 16 },
+    editHighlightHint: { fontSize: type.caption, color: colors.textMuted, lineHeight: 18 },
+    editTokenCard: { backgroundColor: colors.surfaceMuted, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: spacing.md },
+    editTokenWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+    editToken: { paddingVertical: 3, paddingHorizontal: spacing.xs, borderRadius: radius.sm },
+    editTokenSelected: { backgroundColor: colors.primarySoft },
+    editTokenText: { fontSize: type.body, lineHeight: 24, color: colors.text },
+    editTokenTextSelected: { color: colors.primary, fontWeight: '800' },
     editActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.lg },
     doneWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl },
     doneButton: {

@@ -6,6 +6,7 @@ import {
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
+  setCloze,
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -20,6 +21,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, Vi
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
+import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
@@ -225,9 +227,13 @@ export default function SearchScreen(): JSX.Element {
   })
 
   const addFromGuide = useMutation({
-    mutationFn: (deckId: string) => {
+    mutationFn: async ({ deckId, cloze }: { deckId: string; cloze?: ClozeEditorResult }) => {
       if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      return persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      const result = await persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      if (cloze) {
+        await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
+      }
+      return result
     },
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
@@ -316,13 +322,17 @@ export default function SearchScreen(): JSX.Element {
   // deck, then runs whichever of the two persist calls above `deckPickerFor` points at with the
   // new deck's id.
   const createDeckAndAdd = useMutation({
-    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
+    mutationFn: async ({ name, questionTypes, cloze }: { name: string; questionTypes: QuestionType[]; cloze?: ClozeEditorResult }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
       await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
       if (deckPickerFor === 'guide') {
         if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-        return persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        const result = await persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        if (cloze) {
+          await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
+        }
+        return result
       }
       if (deckPickerFor === 'translation') {
         const args = translationAsCardArgs()
@@ -842,12 +852,19 @@ export default function SearchScreen(): JSX.Element {
         visible={deckPickerFor !== null}
         onClose={() => setDeckPickerFor(null)}
         title={t('Add "{{term}}" to...', { term })}
-        onSelectDeck={(deck) => {
-          if (deckPickerFor === 'guide') addFromGuide.mutate(deck.id)
+        {...(deckPickerFor === 'guide' && wordGuide.data ? {
+          word: wordGuide.data.headword,
+          ...(wordGuide.data.examples[0]?.sentence && { exampleSentence: wordGuide.data.examples[0].sentence }),
+          ...(wordGuide.data.examples[0]?.translation && { exampleTranslation: wordGuide.data.examples[0].translation }),
+        } : {})}
+        onSelectDeck={(deck, cloze) => {
+          if (deckPickerFor === 'guide') addFromGuide.mutate({ deckId: deck.id, ...(cloze && { cloze }) })
           else if (deckPickerFor === 'translation') addFromTranslation.mutate(deck.id)
         }}
         selecting={addFromGuide.isPending || addFromTranslation.isPending}
-        onCreateDeck={(name, questionTypes) => createDeckAndAdd.mutate({ name, questionTypes })}
+        onCreateDeck={(name, questionTypes, cloze) =>
+          createDeckAndAdd.mutate({ name, questionTypes, ...(cloze && { cloze }) })
+        }
         creating={createDeckAndAdd.isPending}
         {...((addFromGuide.isError || addFromTranslation.isError) && {
           selectError: String(addFromGuide.error ?? addFromTranslation.error),

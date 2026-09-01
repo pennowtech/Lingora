@@ -1,11 +1,5 @@
-# LINGORA-E2E-007 — cloze review mode via deck detail's "Practice cloze" button.
-# Fixture: "ausgehen" ships with a seeded cloze_cards row — the SAME due card
-# review_session_rate_card.yaml uses. Rating it in either flow advances its shared FSRS
-# card_states row (real app behavior — one card_states row per card, not per review mode, not a
-# flow bug), so whichever of these two flows runs SECOND on an already-seeded install will see
-# "Nothing due right now" and fail. A full-suite run only gets one of them to pass unless the app
-# gains a real "reset review state" dev affordance or the db is reseeded between them — tracked as
-# an open item, not silently worked around here.
+# LINGORA-E2E-007 — deck detail exposes one Review action. The review session itself chooses all
+# eligible formats enabled for the deck instead of asking the learner to pick a mode here.
 appId: com.lingora.mobile
 name: cloze_review_mode
 tags:
@@ -20,8 +14,14 @@ tags:
 - tapOn:
     id: "tab-decks"
 - tapOn: "My Vocabulary"
-- tapOn: "Practice cloze"
-- assertVisible: "cloze"
+- assertVisible:
+    id: "deck-review-button"
+- assertNotVisible: "Practice cloze"
+- assertNotVisible: "Practice reverse"
+- assertNotVisible: "Mixed practice"
+- tapOn:
+    id: "deck-review-button"
+- assertVisible: "mixed"
 - assertVisible: "tap to reveal"
 - tapOn: "tap to reveal"
 - assertVisible: "Good"

@@ -9,13 +9,14 @@ import {
   type DatabaseAdapter,
 } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
-import { router, useFocusEffect } from 'expo-router'
+import { router, Stack, useFocusEffect } from 'expo-router'
 import { useCallback, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Icon } from '../../components/Icon'
-import { Button, Card, CefrBadge, EmptyState, SectionHeader } from '../../components/ui'
+import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { Icon, type IconName } from '../../components/Icon'
+import { Button, Card, CefrBadge, EmptyState, IconButton, SectionHeader } from '../../components/ui'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { streakFromDayIndexes } from '@lingora/core'
 import { radius, spacing, type } from '../../lib/theme'
@@ -51,6 +52,51 @@ async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
   }
 }
 
+/** The three-step walkthrough shown in the "Find your first word" banner below, replacing the
+ * due-count hero card for a genuinely new account (stats.totalCards === 0) instead of showing a
+ * hero built entirely of zeroes. */
+const GETTING_STARTED_STEPS: { icon: IconName; label: string }[] = [
+  { icon: 'Search', label: 'Search a German word' },
+  { icon: 'Sparkles', label: 'Generate a card and save it to a deck' },
+  { icon: 'BookOpen', label: 'Review it to make it stick' },
+]
+
+const HOME_HELP_SECTIONS: HelpSection[] = [
+  {
+    id: 'due',
+    title: 'Cards due for review',
+    icon: 'Play',
+    paragraphs: [
+      'The number at the top counts every card across every deck that\'s due right now, using spaced repetition (FSRS) - not just cards added today.',
+      '"Start review" opens all of them in one session; the streak pill next to your greeting counts consecutive days you\'ve reviewed at least one card.',
+    ],
+  },
+  {
+    id: 'stats',
+    title: 'The stats strip',
+    icon: 'ChartColumn',
+    paragraphs: [
+      '"Remembered" is your last-30-days retention - the share of reviews where you rated a card above "Again". Tap it, or "total cards", to open the fuller Statistics screen.',
+    ],
+  },
+  {
+    id: 'wotd',
+    title: 'Word of the Day',
+    icon: 'Sparkles',
+    paragraphs: [
+      'A fresh word picked once a day, only shown when an AI provider is configured in Settings > AI Providers - it\'s a discovery prompt, not something you need to review.',
+    ],
+  },
+  {
+    id: 'actions',
+    title: 'Quick actions',
+    icon: 'Layers',
+    paragraphs: [
+      'Shortcuts to the same review modes, plus looking up a word, your sentence-mining queue, and Statistics - nothing here is exclusive to this screen, just faster to reach.',
+    ],
+  },
+]
+
 /** Morning/afternoon/evening greeting, computed once per render from the device clock — a static
  * "Guten Tag!" read the same at 7am and 11pm, which felt stale on a screen that's otherwise all
  * about "right now". */
@@ -68,6 +114,7 @@ export default function HomeScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const help = useHelpAccordion('due')
 
   const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
   const recentQuery = useQuery({
@@ -95,19 +142,31 @@ export default function HomeScreen(): JSX.Element {
   const stats = statsQuery.data
   const recent = recentQuery.data ?? []
   const wordOfTheDay = wordOfTheDayQuery.data
+  // A genuinely fresh account, not just "nothing due today" - swaps the due-count hero (which
+  // would otherwise show a hero card built entirely of zeroes) for a getting-started banner.
+  const isNewUser = statsQuery.isSuccess && stats?.totalCards === 0
 
   return (
     // No 'top' edge — LanguagePairBadge (app/_layout.tsx, above every non-review screen) already
     // consumes the top safe-area inset; adding it again here doubled the gap below the badge.
     <SafeAreaView style={styles.safe} edges={[]}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('due')} />
+          ),
+        }}
+      />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>{greetingFor(new Date().getHours(), t)} 👋</Text>
             <Text style={styles.subGreeting}>
-              {stats && stats.dueNow === 0
-                ? t('All caught up - nothing due right now.')
-                : t('Nice to see you back.')}
+              {isNewUser
+                ? t('Let\'s find your first word.')
+                : stats && stats.dueNow === 0
+                  ? t('All caught up - nothing due right now.')
+                  : t('Nice to see you back.')}
             </Text>
           </View>
           <View style={styles.streakPill}>
@@ -132,50 +191,84 @@ export default function HomeScreen(): JSX.Element {
           </View>
         ) : null}
 
-        {/* Due-today hero card. Reviews across every deck (ALL_DECKS_ID), never a single hardcoded
-            one — the count above the button and the cards the button actually opens always match,
-            whatever decks exist right now. */}
-        <Card style={styles.heroCard}>
-          <Text style={styles.heroCount}>{stats?.dueNow ?? '-'}</Text>
-          <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
-          <Button
-            label={t('Start review')}
-            icon="Play"
-            onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
-            }
-            disabled={stats?.dueNow === 0}
-            style={styles.heroButton}
-          />
-        </Card>
-
-        {/* Stats strip */}
-        <View style={styles.statsRow}>
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.reviewedToday ?? '-'}</Text>
-            <Text style={styles.statLabel}>{t('reviewed today')}</Text>
-          </Card>
-          <Card style={styles.statCard} onPress={() => router.push('/stats')}>
-            <Text style={styles.statValue}>
-              {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
+        {isNewUser ? (
+          // Getting-started banner — a brand-new account (zero cards, any language pair) has
+          // nothing to show in a due-count hero built entirely of zeroes, so this replaces it with
+          // the three-step path to a first card instead.
+          <Card style={styles.startCard}>
+            <View style={styles.startIconBadge}>
+              <Icon name="Sparkles" size={22} color={colors.textOnPrimary} />
+            </View>
+            <Text style={styles.startTitle}>{t('Find your first word')}</Text>
+            <Text style={styles.startSubtitle}>
+              {t('Look up any German word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.')}
             </Text>
-            {/* "Retention" is SRS jargon — this is plainly the share of your last-30-days reviews
-                where you actually remembered the word (rated it above "Again"), so say that
-                instead. Tappable to /stats like "total cards" for the fuller explanation — a real
-                chevron icon signals that, not an ASCII "->" glued onto the label text. */}
-            <View style={styles.statLabelRow}>
-              <Text style={styles.statLabel}>{t('remembered')}</Text>
-              <Icon name="ChevronRight" size={10} color={colors.textMuted} />
+            <View style={styles.startSteps}>
+              {GETTING_STARTED_STEPS.map((step, index) => (
+                <View key={step.label} style={styles.startStep}>
+                  <View style={styles.startStepNumber}>
+                    <Text style={styles.startStepNumberText}>{index + 1}</Text>
+                  </View>
+                  <Icon name={step.icon} size={16} color={colors.textOnPrimary} />
+                  <Text style={styles.startStepText}>{t(step.label)}</Text>
+                </View>
+              ))}
             </View>
+            <Button
+              label={t('Search your first word')}
+              icon="Search"
+              onPress={() => router.push('/search')}
+              style={styles.heroButton}
+            />
           </Card>
-          <Card style={styles.statCard} onPress={() => router.push('/stats')}>
-            <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
-            <View style={styles.statLabelRow}>
-              <Text style={styles.statLabel}>{t('total cards')}</Text>
-              <Icon name="ChevronRight" size={10} color={colors.textMuted} />
+        ) : (
+          <>
+            {/* Due-today hero card. Reviews across every deck (ALL_DECKS_ID), never a single
+                hardcoded one — the count above the button and the cards the button actually opens
+                always match, whatever decks exist right now. */}
+            <Card style={styles.heroCard}>
+              <Text style={styles.heroCount}>{stats?.dueNow ?? '-'}</Text>
+              <Text style={styles.heroLabel}>{t('cards due for review')}</Text>
+              <Button
+                label={t('Start review')}
+                icon="Play"
+                onPress={() =>
+                  router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
+                }
+                disabled={stats?.dueNow === 0}
+                style={styles.heroButton}
+              />
+            </Card>
+
+            {/* Stats strip */}
+            <View style={styles.statsRow}>
+              <Card style={styles.statCard}>
+                <Text style={styles.statValue}>{stats?.reviewedToday ?? '-'}</Text>
+                <Text style={styles.statLabel}>{t('reviewed today')}</Text>
+              </Card>
+              <Card style={styles.statCard} onPress={() => router.push('/stats')}>
+                <Text style={styles.statValue}>
+                  {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
+                </Text>
+                {/* "Retention" is SRS jargon — this is plainly the share of your last-30-days
+                    reviews where you actually remembered the word (rated it above "Again"), so say
+                    that instead. Tappable to /stats like "total cards" for the fuller explanation -
+                    a real chevron icon signals that, not an ASCII "->" glued onto the label text. */}
+                <View style={styles.statLabelRow}>
+                  <Text style={styles.statLabel}>{t('remembered')}</Text>
+                  <Icon name="ChevronRight" size={10} color={colors.textMuted} />
+                </View>
+              </Card>
+              <Card style={styles.statCard} onPress={() => router.push('/stats')}>
+                <Text style={styles.statValue}>{stats?.totalCards ?? '-'}</Text>
+                <View style={styles.statLabelRow}>
+                  <Text style={styles.statLabel}>{t('total cards')}</Text>
+                  <Icon name="ChevronRight" size={10} color={colors.textMuted} />
+                </View>
+              </Card>
             </View>
-          </Card>
-        </View>
+          </>
+        )}
 
         {/* Word of the Day — entirely absent without an AI provider configured (tier !== 'full'),
             not just disabled: there's nothing useful to show, and no CTA to configure one here
@@ -292,6 +385,15 @@ export default function HomeScreen(): JSX.Element {
           ))
         )}
       </ScrollView>
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Home help')}
+        sections={HOME_HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
+        translate={t}
+      />
     </SafeAreaView>
   )
 }
@@ -339,6 +441,43 @@ const createStyles = (colors: ThemeColors) =>
   heroCount: { fontSize: 56, fontWeight: '800', color: colors.textOnPrimary, lineHeight: 60 },
   heroLabel: { fontSize: type.body, color: '#CFCBEF', marginBottom: spacing.lg },
   heroButton: { alignSelf: 'stretch', backgroundColor: '#FFFFFF22', borderWidth: 1, borderColor: '#FFFFFF55' },
+  // Getting-started banner — same primary-tinted world as heroCard above (not a new visual
+  // language), just with a step-by-step body instead of a due-count.
+  startCard: {
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  startIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.full,
+    backgroundColor: '#FFFFFF22',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startTitle: { fontSize: type.heading, fontWeight: '800', color: colors.textOnPrimary, textAlign: 'center' },
+  startSubtitle: {
+    fontSize: type.body,
+    color: '#CFCBEF',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  startSteps: { alignSelf: 'stretch', gap: spacing.sm },
+  startStep: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  startStepNumber: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.full,
+    backgroundColor: '#FFFFFF22',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startStepNumberText: { fontSize: type.micro, fontWeight: '800', color: colors.textOnPrimary },
+  startStepText: { flex: 1, fontSize: type.caption, fontWeight: '600', color: colors.textOnPrimary },
   statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   statCard: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center' },
   statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },

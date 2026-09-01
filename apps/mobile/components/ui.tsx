@@ -300,7 +300,9 @@ function CardActionButton(props: {
       ) : (
         <Icon name={props.icon} size={20} color={textColor} />
       )}
-      <Text style={[styles.cardActionLabel, { color: textColor }]}>{props.label}</Text>
+      <Text numberOfLines={1} style={[styles.cardActionLabel, { color: textColor }]}>
+        {props.label}
+      </Text>
     </Pressable>
   )
 }
@@ -877,7 +879,14 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       paddingVertical: spacing.sm,
     },
-    cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    cardActionButton: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center',
+      gap: 2,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+    },
     cardActionButtonDisabled: { opacity: 0.4 },
     cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
     sectionHeader: {

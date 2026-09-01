@@ -16,6 +16,7 @@ export interface MultipleChoiceQuestionProps {
   cardKey: string
   word: string
   meaning: string
+  onListen: () => void
   distractors: DistractorMeaning[]
   onAnswered: (correct: boolean) => void
 }
@@ -70,7 +71,18 @@ export function MultipleChoiceQuestion(props: MultipleChoiceQuestionProps): JSX.
   return (
     <View style={styles.wrap}>
       <Text style={styles.prompt}>{t('What does this mean?')}</Text>
-      <Text style={styles.word}>{props.word}</Text>
+      <View style={styles.wordRow}>
+        <Text style={styles.word}>{props.word}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Listen')}
+          hitSlop={8}
+          style={styles.listenButton}
+          onPress={props.onListen}
+        >
+          <Icon name="Volume1" size={20} color={colors.primary} />
+        </Pressable>
+      </View>
       <View style={styles.optionList}>
         {options.map((option, index) => {
           const isCorrectOption = option === props.meaning
@@ -117,10 +129,20 @@ const createStyles = (colors: ThemeColors) =>
       textAlign: 'center',
     },
     word: {
+      flexShrink: 1,
       fontSize: type.heading,
       fontWeight: '700',
       color: colors.text,
       textAlign: 'center',
+    },
+    wordRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    listenButton: {
+      width: 34,
+      height: 34,
+      borderRadius: radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primarySoft,
     },
     optionList: {
       gap: spacing.sm,

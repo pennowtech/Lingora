@@ -66,6 +66,7 @@ export const STORE_KEYS = {
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
   hasSeeded: 'lingora.has_seeded',
+  seedCleanupDone: 'lingora.seed_cleanup_done',
   reviewQuestionTypes: 'lingora.review_question_types',
   sessionCardLimit: 'lingora.session_card_limit',
 } as const

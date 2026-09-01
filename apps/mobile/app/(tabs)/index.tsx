@@ -99,6 +99,15 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
       'Shortcuts to the same review modes, plus looking up a word, your sentence-mining queue, and Statistics - nothing here is exclusive to this screen, just faster to reach.',
     ],
   },
+  {
+    id: 'feedback',
+    title: 'Help & Feedback',
+    icon: 'MessageSquareText',
+    paragraphs: [
+      'Need help with setup, found a bug, or want to suggest new features?',
+      'You can reach our engineering team anytime via **Settings → Send Feedback**.',
+    ],
+  },
 ]
 
 /** Morning/afternoon/evening greeting, computed once per render from the device clock — a static

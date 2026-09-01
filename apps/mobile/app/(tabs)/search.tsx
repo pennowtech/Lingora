@@ -21,6 +21,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, Vi
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
+import { ReviewModeBadges } from '../../components/ReviewModesPicker'
 import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AISetupModal } from '../../components/AISetupModal'
@@ -55,7 +56,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Instant lookup',
     icon: 'Search',
     paragraphs: [
-      'Type a word in either language you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
+      'Type a word in **either language** you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
       'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
     ],
   },
@@ -64,9 +65,23 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'When a word is new to you',
     icon: 'Sparkles',
     paragraphs: [
-      'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview - both are read-only until you choose to add one to a deck.',
-      'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.',
-      '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
+      'If a word isn\'t in your library yet, you may see a **quick built-in dictionary entry** or a **translation preview** - both are ready to be added to a deck.',
+      'The **"Word Guide"** preview gives a concise explanation of meaning and usage, and lets you open detailed grammar tables.',
+      '**"Generate with AI"** creates a rich flashcard with meanings, examples, synonyms, and phrases using your active AI provider.',
+    ],
+  },
+  {
+    id: 'modes',
+    title: 'Card types & review modes',
+    icon: 'SlidersHorizontal',
+    paragraphs: [
+      'Small **icon badges** next to cards and decks show which *study formats* they support:',
+      '• **Vocab** (⇄): Classic word-to-translation recall.',
+      '• **Reverse** (⮌): Translation-to-word recall.',
+      '• **Cloze** (T): Fill-in-the-blank practice inside example sentences.',
+      '• **Multiple Choice** (☰): Fast quiz practice with distractors.',
+      '• **True / False** (✓): Rapid verification practice.',
+      'When adding a card to a deck, it will automatically be practiced across that deck\'s enabled modes.',
     ],
   },
   {
@@ -74,8 +89,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding to a deck',
     icon: 'Layers',
     paragraphs: [
-      'Tapping "Add to deck" always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
-      'A green checkmark means the word is already in one of your decks.',
+      'Tapping **"Add to deck"** opens the deck selector where you can pick which deck(s) will practice this card.',
+      'Each deck displays its enabled **review mode icons** so you know exactly which exercises it generates.',
+      'A green checkmark (**✓**) means the word is already saved in that deck.',
     ],
   },
   {
@@ -83,9 +99,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Search from anywhere',
     icon: 'Share2',
     paragraphs: [
-      'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemmory." It opens right here with that word ready to go.',
+      'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemmory."** It opens right here with that word ready to go.',
       'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
-      'Want it to work a bit differently? There\'s a setting for that in Settings, under "Share & Search."',
+      'Configure search integration in **Settings → Share & Search**.',
     ],
   },
 ]
@@ -587,6 +603,7 @@ export default function SearchScreen(): JSX.Element {
         </View>
       ) : (
         <View style={styles.guideFooterRow}>
+          <ReviewModeBadges size="sm" />
           <Button
             label={t('Add to deck')}
             icon="CirclePlus"
@@ -725,20 +742,23 @@ export default function SearchScreen(): JSX.Element {
                     ) : null}
 
                     <View style={styles.guideFooterRow}>
-                      <Button
-                        label={t('Add to deck')}
-                        icon="CirclePlus"
-                        variant="primary"
-                        small
-                        onPress={() => setDeckPickerFor('guide')}
-                      />
-                      <Button
-                        label={t('More info')}
-                        icon="BookOpen"
-                        variant="secondary"
-                        small
-                        onPress={() => setGuideModalOpen(true)}
-                      />
+                      <ReviewModeBadges size="sm" />
+                      <View style={styles.guideActionsRow}>
+                        <Button
+                          label={t('Add to deck')}
+                          icon="CirclePlus"
+                          variant="primary"
+                          small
+                          onPress={() => setDeckPickerFor('guide')}
+                        />
+                        <Button
+                          label={t('More info')}
+                          icon="BookOpen"
+                          variant="secondary"
+                          small
+                          onPress={() => setGuideModalOpen(true)}
+                        />
+                      </View>
                     </View>
                   </Card>
                 ) : null}
@@ -858,6 +878,19 @@ export default function SearchScreen(): JSX.Element {
               </Card>
             )
           }}
+          ListFooterComponent={
+            term !== '' ? (
+              <Pressable
+                style={styles.searchFeedbackRow}
+                onPress={() => router.push({ pathname: '/settings/feedback', params: { category: 'support' } })}
+              >
+                <Icon name="MessageSquareText" size={14} color={colors.textMuted} />
+                <Text style={styles.searchFeedbackText}>
+                  {t("Can't find a word or need help? Send feedback")}
+                </Text>
+              </Pressable>
+            ) : null
+          }
         />
       )}
 
@@ -1000,9 +1033,14 @@ const createStyles = (colors: ThemeColors) =>
     guideFooterRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
       gap: spacing.sm,
       marginTop: spacing.xs,
+    },
+    guideActionsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
     },
     translateCard: {
       marginTop: spacing.md,
@@ -1021,6 +1059,19 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: type.caption,
       fontWeight: '600',
       color: colors.success,
+    },
+    searchFeedbackRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+    },
+    searchFeedbackText: {
+      fontSize: type.caption,
+      color: colors.textMuted,
+      fontWeight: '500',
     },
     translateDirectionRow: {
       flexDirection: 'row',

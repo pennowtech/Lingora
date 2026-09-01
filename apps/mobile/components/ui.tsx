@@ -1,5 +1,6 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { useEffect, useState, type JSX, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Modal,
@@ -221,13 +222,14 @@ export function CardActionBar(props: {
   isDecked?: boolean
   deckLabel?: string
 }): JSX.Element {
+  const { t } = useTranslation()
   const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.cardActionBar}>
       {props.onAddToDeck ? (
         <CardActionButton
           icon="Star"
-          label={props.deckLabel ?? 'Deck'}
+          label={props.deckLabel ?? t('Deck')}
           {...(props.isDecked !== undefined && { active: props.isDecked })}
           onPress={props.onAddToDeck}
         />
@@ -235,7 +237,7 @@ export function CardActionBar(props: {
       {props.onListen ? (
         <CardActionButton
           icon="Volume1"
-          label="Listen"
+          label={t('Listen')}
           onPress={props.onListen}
         />
       ) : null}
@@ -244,7 +246,7 @@ export function CardActionBar(props: {
           props.explainIcon ??
           (props.explainVisible ? 'Book' : 'BookOpen')
         }
-        label={props.explainLabel ?? 'Explain'}
+        label={props.explainLabel ?? t('Explain')}
         active={props.explainVisible}
         onPress={props.onExplain}
         {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
@@ -253,7 +255,7 @@ export function CardActionBar(props: {
       {props.onAskAI ? (
         <CardActionButton
           icon="MessageCircle"
-          label="Ask AI"
+          label={t('Ask AI')}
           onPress={props.onAskAI}
           {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
@@ -261,25 +263,25 @@ export function CardActionBar(props: {
       {props.onRegenerate ? (
         <CardActionButton
           icon="RefreshCw"
-          label="Regenerate"
+          label={t('Regenerate')}
           onPress={props.onRegenerate}
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
           {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
       ) : null}
       {props.onEdit ? (
-        <CardActionButton icon="Pencil" label="Edit" onPress={props.onEdit} />
+        <CardActionButton icon="Pencil" label={t('Edit')} onPress={props.onEdit} />
       ) : null}
       {props.onDelete ? (
         <CardActionButton
           icon="Trash2"
-          label="Delete"
+          label={t('Delete')}
           destructive
           onPress={props.onDelete}
           {...(props.deleteLoading !== undefined && { loading: props.deleteLoading })}
         />
       ) : null}
-      <CardActionButton icon="Globe" label="Look up" onPress={props.onLookup} />
+      <CardActionButton icon="Globe" label={t('Look up')} onPress={props.onLookup} />
     </View>
   )
 }
@@ -383,6 +385,7 @@ export function Dropdown(props: {
   onChange: (value: string | null) => void
   clearable?: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -403,7 +406,7 @@ export function Dropdown(props: {
             </View>
           ) : null}
           <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
-            {selected?.label ?? props.placeholder ?? 'Select...'}
+            {selected?.label ?? props.placeholder ?? t('Select...')}
           </Text>
           {selected?.badgeCount !== undefined ? (
             <View style={styles.dropdownBadge}>
@@ -425,7 +428,7 @@ export function Dropdown(props: {
                 onPress={() => choose(null)}
               >
                 <Text style={[styles.dropdownOptionLabel, props.value === null && styles.dropdownOptionLabelSelected]}>
-                  None
+                  {t('None')}
                 </Text>
                 {props.value === null ? (
                   <View style={styles.dropdownCheckCircle}>
@@ -849,6 +852,7 @@ export function Spinner(props: { message?: string }): JSX.Element {
 
 /** Query/mutation failure with an optional retry. */
 export function ErrorState(props: { message: string; onRetry?: () => void }): JSX.Element {
+  const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   return (
@@ -856,11 +860,11 @@ export function ErrorState(props: { message: string; onRetry?: () => void }): JS
       <View style={[styles.emptyIcon, { backgroundColor: colors.dangerSoft }]}>
         <Icon name="CircleAlert" size={32} color={colors.danger} />
       </View>
-      <Text style={styles.emptyTitle}>Something went wrong</Text>
+      <Text style={styles.emptyTitle}>{t('Something went wrong')}</Text>
       <Text style={styles.emptyMessage}>{props.message}</Text>
       {props.onRetry ? (
         <View style={styles.errorRetry}>
-          <Button label="Try again" onPress={props.onRetry} variant="secondary" small />
+          <Button label={t('Try again')} onPress={props.onRetry} variant="secondary" small />
         </View>
       ) : null}
     </View>

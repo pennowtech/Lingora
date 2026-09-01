@@ -330,7 +330,7 @@ export default function HomeScreen(): JSX.Element {
                 <Text style={styles.sectionTitle}>{t('Word of the Day')}</Text>
                 <View style={styles.aiLiveBadge}>
                   <Icon name="Sparkles" size={12} color={colors.warning} />
-                  <Text style={styles.aiLiveBadgeText}>AI Discovery</Text>
+                  <Text style={styles.aiLiveBadgeText}>{t('AI Discovery')}</Text>
                 </View>
               </View>
               <Card

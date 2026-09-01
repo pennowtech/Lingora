@@ -1,5 +1,6 @@
 import type { NativeStackHeaderProps } from 'expo-router/build/react-navigation/native-stack/types'
 import type { JSX } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Platform, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from './Icon'
@@ -19,6 +20,7 @@ import type { ThemeColors } from '../lib/themes'
  * cost.
  */
 export function AppHeader({ back, options, navigation }: NativeStackHeaderProps): JSX.Element {
+  const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -35,7 +37,7 @@ export function AppHeader({ back, options, navigation }: NativeStackHeaderProps)
             onPress={() => navigation.goBack()}
             hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('Go back')}
             style={styles.backButton}
           >
             <Icon name="ArrowLeft" size={24} color={colors.text} />

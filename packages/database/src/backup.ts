@@ -32,7 +32,7 @@ export const BACKUP_FORMAT_VERSION = 1
 export const TABLE_COLUMNS = {
   lemmas: ['id', 'form', 'language', 'gender', 'plural', 'part_of_speech', 'created_at', 'updated_at'],
   inflections: ['id', 'form', 'lemma_id', 'features', 'created_at', 'updated_at'],
-  decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji', 'enabled_question_types'],
+  decks: ['id', 'name', 'parent_id', 'created_at', 'updated_at', 'emoji', 'enabled_question_types', 'target_language', 'native_language'],
   meaning_clusters: ['id', 'label', 'description', 'lemma_id', 'cefr_level', 'order_index', 'more_info'],
   cards: ['id', 'lemma_id', 'deck_id', 'type', 'primary_meaning_id', 'created_at', 'updated_at', 'suspended_at', 'source', 'native_language'],
   meanings: [

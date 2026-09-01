@@ -1,4 +1,4 @@
-import type { CardState, ReviewEvent } from '@lingora/types'
+import type { CardState, LanguageCode, ReviewEvent } from '@lingora/types'
 import type { DatabaseAdapter } from '../adapter'
 
 /** The columns of a review event row, aliased to the camelCase names of the ReviewEvent type. */
@@ -13,7 +13,7 @@ const REVIEW_EVENT_COLUMNS = `id, card_id AS cardId, rating, review_date AS revi
  * wrong state forever.
  *
  * reviewEvents:  is immutable history — never touched again
- * card_states:  overwritten with new FSRS parameters or  scheduling parameters.
+ * card_states:   overwritten with new FSRS parameters or scheduling parameters.
  *
  * @param db The database adapter to use for the query.
  * @param event The review event to record.
@@ -94,6 +94,9 @@ export async function getCardState(db: DatabaseAdapter, cardId: string): Promise
  * Cloze practice's own FSRS state — see recordClozeReview and migration 0013. Same shape and
  * same "state='new' is always due" rule as getCardState/card_states, just a different table so
  * cloze practice is scheduled entirely independently of the card's word-meaning review.
+ * @param db The database adapter to use for the query.
+ * @param cardId The ID of the card to get the cloze state for.
+ * @returns The cloze state if found, otherwise null.
  */
 export async function getClozeState(db: DatabaseAdapter, cardId: string): Promise<CardState | null> {
   const row = await db.querySingle<Omit<CardState, 'lastReviewAt'> & { lastReviewAt: number | null }>(
@@ -121,6 +124,10 @@ export async function getClozeState(db: DatabaseAdapter, cardId: string): Promis
  * Cloze practice's own recordReview — writes to the same immutable review_events log (a cloze
  * review is still a real review for streak/today-count/retention purposes) but updates
  * cloze_states instead of card_states, so it never touches the card's word-meaning schedule.
+ * @param db The database adapter to use for the query.
+ * @param event The review event to record.
+ * @param newState The new FSRS state for the cloze card.
+ * @returns A promise that resolves when the operation is complete.
  */
 export async function recordClozeReview(
   db: DatabaseAdapter,
@@ -131,7 +138,7 @@ export async function recordClozeReview(
     await tx.execute(
       `INSERT INTO review_events (id, card_id, rating, review_date, duration_ms, question_type)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs, event.questionType ?? null],
+      [event.id, event.cardId, event.rating, event.reviewedAt, event.durationMs, event.questionType ?? 'cloze'],
     )
 
     await tx.execute(
@@ -163,81 +170,147 @@ export async function recordClozeReview(
 }
 
 /**
- * Get the full review history for a card.
- * Ordered newest first. Used on the card detail screen and debugging.
- * @param db The database adapter to use for the query.
- * @param cardId The ID of the card to get review history for.
- * @returns An array of review events.
+ * Get all review events for a card, ordered by date ascending.
  */
-export async function getCardReviewHistory(
+export async function getReviewHistoryForCard(
   db: DatabaseAdapter,
   cardId: string,
 ): Promise<ReviewEvent[]> {
   return db.query<ReviewEvent>(
-    `SELECT ${REVIEW_EVENT_COLUMNS} FROM review_events
+    `SELECT ${REVIEW_EVENT_COLUMNS}
+     FROM review_events
      WHERE card_id = ?
-     ORDER BY review_date DESC`,
+     ORDER BY review_date ASC`,
     [cardId],
   )
 }
 
 /**
- * Count reviews completed today.
- * Used on the home screen stats strip.
- * @param db The database adapter to use for the query.
- * @returns The number of reviews completed today.
+ * Count total reviews recorded for a card.
  */
-export async function getTodayReviewCount(db: DatabaseAdapter): Promise<number> {
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-
+export async function getReviewCountForCard(db: DatabaseAdapter, cardId: string): Promise<number> {
   const result = await db.querySingle<{ count: number }>(
-    `SELECT COUNT(*) as count
-     FROM review_events
-     WHERE review_date >= ?`,
-    [startOfDay.getTime()],
+    `SELECT COUNT(*) as count FROM review_events WHERE card_id = ?`,
+    [cardId],
   )
   return result?.count ?? 0
 }
 
 /**
- * Distinct UTC day indexes (unix ms / 86400000) that have at least one
- * review, newest first. The home screen computes the streak from this:
- * consecutive day indexes counting back from today.
+ * Count reviews completed today, optionally scoped to language pair.
  */
-export async function getReviewedDayIndexes(db: DatabaseAdapter, limit = 366): Promise<number[]> {
-  const rows = await db.query<{ day: number }>(
-    `SELECT DISTINCT CAST(review_date / 86400000 AS INTEGER) AS day
-     FROM review_events
-     ORDER BY day DESC
-     LIMIT ?`,
-    [limit],
-  )
-  return rows.map((row) => row.day)
+export async function getTodayReviewCount(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+  const params: unknown[] = [startOfDay.getTime()]
+
+  let query = `SELECT COUNT(*) as count
+     FROM review_events re
+     JOIN cards c ON c.id = re.card_id
+     JOIN lemmas l ON l.id = c.lemma_id
+     WHERE re.review_date >= ?`
+
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
+  }
+
+  const result = await db.querySingle<{ count: number }>(query, params)
+  return result?.count ?? 0
 }
 
 /**
- * Review counts per UTC day index (unix ms / 86400000) for the last `days`
- * days, including days with zero reviews — the stats screen's heatmap
- * needs a real count per cell (intensity), not just which days had any
- * review at all (`getReviewedDayIndexes`, still used for the streak).
+ * Distinct UTC day indexes (unix ms / 86400000) that have at least one review, newest first.
+ * Used to calculate the study streak heatmap.
+ *
+ * Uses an INNER JOIN from review_events → cards → lemmas so that language-pair filtering is
+ * possible. As a consequence, review events for a card that has since been deleted will not
+ * appear in the heatmap — this is deliberate: deleted cards should no longer contribute to the
+ * learner's activity record.
+ * @param db The database adapter to use for the query.
+ * @param limit Max number of distinct day indexes to return (defaults to one year's worth).
+ * @param targetLanguage Optional target language to scope the streak to.
+ * @param nativeLanguage Optional native language to scope the streak to.
  */
+export async function getReviewedDayIndexes(
+  db: DatabaseAdapter,
+  limit = 366,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number[]> {
+  const params: unknown[] = []
+  const conditions: string[] = []
+
+  let query = `SELECT DISTINCT CAST(re.review_date / 86400000 AS INTEGER) AS day
+     FROM review_events re
+     JOIN cards c ON c.id = re.card_id
+     JOIN lemmas l ON l.id = c.lemma_id`
+
+  if (targetLanguage) {
+    conditions.push(`l.language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`c.native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`
+  }
+
+  query += ` ORDER BY day DESC LIMIT ?`
+  params.push(limit)
+
+  const rows = await db.query<{ day: number }>(query, params)
+  return rows.map((row) => row.day)
+}
+
+/** Review counts per UTC day index. */
 export interface DayReviewCount {
   day: number
   count: number
 }
 
-export async function getReviewCountsByDay(db: DatabaseAdapter, days = 35): Promise<DayReviewCount[]> {
+/**
+ * Review counts per UTC day index for the last `days` days.
+ */
+export async function getReviewCountsByDay(
+  db: DatabaseAdapter,
+  days = 35,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<DayReviewCount[]> {
   const today = Math.floor(Date.now() / 86_400_000)
   const since = (today - days + 1) * 86_400_000
+  const params: unknown[] = [since]
 
-  const rows = await db.query<DayReviewCount>(
-    `SELECT CAST(review_date / 86400000 AS INTEGER) AS day, COUNT(*) AS count
-     FROM review_events
-     WHERE review_date >= ?
-     GROUP BY day`,
-    [since],
-  )
+  let query = `SELECT CAST(re.review_date / 86400000 AS INTEGER) AS day, COUNT(*) AS count
+     FROM review_events re
+     JOIN cards c ON c.id = re.card_id
+     JOIN lemmas l ON l.id = c.lemma_id
+     WHERE re.review_date >= ?`
+
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
+  }
+
+  query += ` GROUP BY day`
+
+  const rows = await db.query<DayReviewCount>(query, params)
   const countByDay = new Map(rows.map((r) => [r.day, r.count]))
 
   const result: DayReviewCount[] = []
@@ -248,29 +321,38 @@ export async function getReviewCountsByDay(db: DatabaseAdapter, days = 35): Prom
 }
 
 /**
- * Get the retention rate over the last N days.
- * Retention = (hard + good + easy) / total reviews.
- *
- * Returns a value between 0 and 1.
- * 0.85 means 85% of reviews were remembered.
- * @param db The database adapter to use for the query.
- * @param days The number of days to look back for reviews.
- * @returns The retention rate as a decimal between 0 and 1.
+ * Get the retention rate over the last N days, optionally scoped to language pair.
  */
-export async function getRetentionRate(db: DatabaseAdapter, days = 30): Promise<number> {
+export async function getRetentionRate(
+  db: DatabaseAdapter,
+  days = 30,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
   const since = Date.now() - days * 24 * 60 * 60 * 1000
+  const params: unknown[] = [since]
+
+  let query = `SELECT
+       COUNT(*) as total,
+       SUM(CASE WHEN re.rating != 'again' THEN 1 ELSE 0 END) as remembered
+     FROM review_events re
+     JOIN cards c ON c.id = re.card_id
+     JOIN lemmas l ON l.id = c.lemma_id
+     WHERE re.review_date >= ?`
+
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
+  }
 
   const result = await db.querySingle<{
     total: number
     remembered: number
-  }>(
-    `SELECT
-       COUNT(*) as total,
-       SUM(CASE WHEN rating != 'again' THEN 1 ELSE 0 END) as remembered
-     FROM review_events
-     WHERE review_date >= ?`,
-    [since],
-  )
+  }>(query, params)
 
   if (!result || result.total === 0) return 0
   return result.remembered / result.total
@@ -283,25 +365,39 @@ export interface DifficultWord {
 }
 
 /**
- * Words with the most FSRS lapses ("again" ratings that dropped a card
- * back to relearning), most-lapsed first, `lapses = 0` excluded (nothing
- * difficult about a card that's never been forgotten). A lemma with
- * several cards (e.g. a basic + cloze pair, see import-shared.ts) sums
- * their lapses — the word itself is what's difficult, not one specific
- * card of it.
+ * Words with the most FSRS lapses, optionally scoped to language pair.
  */
-export async function getDifficultWords(db: DatabaseAdapter, limit = 10): Promise<DifficultWord[]> {
-  return db.query<DifficultWord>(
-    `SELECT l.form AS form, SUM(cs.lapses) AS lapses
+export async function getDifficultWords(
+  db: DatabaseAdapter,
+  limit = 10,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<DifficultWord[]> {
+  const params: unknown[] = []
+  const conditions: string[] = []
+
+  let query = `SELECT l.form AS form, SUM(cs.lapses) AS lapses
      FROM card_states cs
      JOIN cards c ON c.id = cs.card_id
-     JOIN lemmas l ON l.id = c.lemma_id
-     GROUP BY l.id
-     HAVING SUM(cs.lapses) > 0
-     ORDER BY lapses DESC
-     LIMIT ?`,
-    [limit],
-  )
+     JOIN lemmas l ON l.id = c.lemma_id`
+
+  if (targetLanguage) {
+    conditions.push(`l.language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`c.native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`
+  }
+
+  query += ` GROUP BY l.id HAVING SUM(cs.lapses) > 0 ORDER BY lapses DESC LIMIT ?`
+  params.push(limit)
+
+  return db.query<DifficultWord>(query, params)
 }
 
 /** One day of the FSRS review forecast. */
@@ -312,29 +408,66 @@ export interface ReviewForecastDay {
 }
 
 /**
+ * Builds the parameterised SQL to fetch scheduled-card rows from one state table, filtered by
+ * the active language pair. Shared by both the basic and cloze branches of getReviewForecast
+ * to avoid duplicating the same language-filter logic twice.
+ *
+ * @param stateTable  Either 'card_states' (basic) or 'cloze_states' (cloze).
+ * @param stateAlias  Column alias used in the SELECT (e.g. 'cs' or 'cls').
+ * @param cardType    'basic' or 'cloze' — used in the WHERE clause.
+ * @param targetLanguage  Optional target language filter.
+ * @param nativeLanguage  Optional native language filter.
+ */
+function buildForecastCardQuery(
+  stateTable: string,
+  stateAlias: string,
+  cardType: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): { query: string; params: unknown[] } {
+  const params: unknown[] = []
+  let query = `SELECT ${stateAlias}.state, ${stateAlias}.next_review_date AS nextReviewDate
+     FROM ${stateTable} ${stateAlias}
+     JOIN cards c ON c.id = ${stateAlias}.card_id
+     JOIN deck_cards dc ON dc.card_id = c.id
+     JOIN lemmas l ON l.id = c.lemma_id
+     WHERE c.suspended_at IS NULL AND c.type = '${cardType}'`
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
+  }
+  return { query, params }
+}
+
+/**
  * Calculates projected review workload for the upcoming N days (default 7 days).
  * Combines basic cards and cloze cards from card_states and cloze_states.
+ * Optionally scoped to the active language pair.
+ * @param db The database adapter to use for the query.
+ * @param days The number of days to forecast.
+ * @param targetLanguage Optional target language to scope the forecast to.
+ * @param nativeLanguage Optional native language to scope the forecast to.
  */
-export async function getReviewForecast(db: DatabaseAdapter, days = 7): Promise<ReviewForecastDay[]> {
+export async function getReviewForecast(
+  db: DatabaseAdapter,
+  days = 7,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<ReviewForecastDay[]> {
   const now = new Date()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   const dayMs = 24 * 60 * 60 * 1000
 
+  const basicQ = buildForecastCardQuery('card_states', 'cs', 'basic', targetLanguage, nativeLanguage)
+  const clozeQ = buildForecastCardQuery('cloze_states', 'cls', 'cloze', targetLanguage, nativeLanguage)
+
   const [basicRows, clozeRows] = await Promise.all([
-    db.query<{ state: string; nextReviewDate: number }>(
-      `SELECT cs.state, cs.next_review_date AS nextReviewDate
-       FROM card_states cs
-       JOIN cards c ON c.id = cs.card_id
-       JOIN deck_cards dc ON dc.card_id = c.id
-       WHERE c.suspended_at IS NULL AND c.type = 'basic'`,
-    ),
-    db.query<{ state: string; nextReviewDate: number }>(
-      `SELECT cls.state, cls.next_review_date AS nextReviewDate
-       FROM cloze_states cls
-       JOIN cards c ON c.id = cls.card_id
-       JOIN deck_cards dc ON dc.card_id = c.id
-       WHERE c.suspended_at IS NULL AND c.type = 'cloze'`,
-    ),
+    db.query<{ state: string; nextReviewDate: number }>(basicQ.query, basicQ.params),
+    db.query<{ state: string; nextReviewDate: number }>(clozeQ.query, clozeQ.params),
   ])
 
   const allCards = [...basicRows, ...clozeRows]

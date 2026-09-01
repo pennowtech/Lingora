@@ -125,6 +125,11 @@ const ENGLISH_PHRASES = [
   'See all',
   'No words yet',
   'Look up a word to add your first card.',
+  'Search a {{target}} word',
+  'Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.',
+  'Paste or type a {{target}} sentence. It joins the queue below - nothing is sent to AI until you generate.',
+  'Learn {{target}} the way it actually works - in context, at your level, with real examples.',
+  'YOUR CURRENT {{target}} LEVEL',
 
   // Search
   'Type a German or English word...',

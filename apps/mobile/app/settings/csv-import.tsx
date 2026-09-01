@@ -156,7 +156,15 @@ export default function CsvImportScreen(): JSX.Element {
       if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name: trimmed, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name: trimmed,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       return { id, name: trimmed }
     },
     onSuccess: async ({ id, name }) => {
@@ -604,6 +612,8 @@ export default function CsvImportScreen(): JSX.Element {
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
         title={t('Add to deck')}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         onSelectDeck={(deck) => {
           setDeckId(deck.id)
           setDeckName(deck.name)

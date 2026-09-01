@@ -327,7 +327,15 @@ export default function SearchScreen(): JSX.Element {
     mutationFn: async ({ name, questionTypes, cloze }: { name: string; questionTypes: QuestionType[]; cloze?: ClozeEditorResult }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       if (deckPickerFor === 'guide') {
         if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
         const result = await persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
@@ -869,6 +877,8 @@ export default function SearchScreen(): JSX.Element {
         visible={deckPickerFor !== null}
         onClose={() => setDeckPickerFor(null)}
         title={t('Add "{{term}}" to...', { term })}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         {...(deckPickerFor === 'guide' && wordGuide.data ? {
           word: wordGuide.data.headword,
           ...(wordGuide.data.examples[0]?.sentence && { exampleSentence: wordGuide.data.examples[0].sentence }),

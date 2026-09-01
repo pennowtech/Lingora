@@ -57,29 +57,46 @@ export async function getCardByLemmaAndNativeLanguage(
  * - Its state is 'new' (never reviewed)
  * - OR its next_review_date timestamp is in the past
  * - AND it is not suspended
+ *
+ * INNER JOIN decks (not just deck_cards) so a deck_cards row surviving its deck's own deletion —
+ * orphaned membership, seen in practice when a deletion path didn't cascade — can never resurrect
+ * a card as "due" once every real deck it belonged to is gone.
+ *
+ * c.type = 'basic': every card gets a card_states row at creation regardless of type (see
+ * upsertCard in import-shared.ts), so without this filter a cloze card would show up here too —
+ * with no example/translation to show, since that content lives in cloze_cards instead. Cloze
+ * cards have their own dedicated queue, getClozeCardsDueForReview, via cloze_states.
  * @param db The database adapter to use for the query.
  * @param deckId Optional deck ID to filter cards by deck.
+ * @param targetLanguage Optional target language to scope cards to.
+ * @param nativeLanguage Optional native language to scope cards to.
  * @returns An array of cards due for review.
  */
-export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string): Promise<Card[]> {
+export async function getCardsDueForReview(
+  db: DatabaseAdapter,
+  deckId?: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<Card[]> {
   const params: unknown[] = [Date.now()]
 
-  // INNER JOIN decks (not just deck_cards) so a deck_cards row surviving its deck's own deletion —
-  // orphaned membership, seen in practice when a deletion path didn't cascade — can never resurrect
-  // a card as "due" once every real deck it belonged to is gone.
-  //
-  // c.type = 'basic': every card gets a card_states row at creation regardless of type (see
-  // upsertCard in import-shared.ts), so without this filter a cloze card would show up here too —
-  // with no example/translation to show, since that content lives in cloze_cards instead. Cloze
-  // cards have their own dedicated queue, getClozeCardsDueForReview, via cloze_states.
   let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
     INNER JOIN deck_cards dc ON c.id = dc.card_id
     INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN card_states cs ON c.id = cs.card_id
+    INNER JOIN lemmas l ON l.id = c.lemma_id
     WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
+  }
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
   }
   // A stable order matters beyond display: the review session (apps/mobile/app/review/[deckId].tsx)
   // indexes into this array by position and re-fetches it mid-session (e.g. after generating an
@@ -96,23 +113,41 @@ export async function getCardsDueForReview(db: DatabaseAdapter, deckId?: string)
  * suspended" rule as getCardsDueForReview, but against cloze_states (migration 0013), entirely
  * independent of the card's word-meaning schedule. INNER JOIN cloze_cards so a card without any
  * cloze variant never shows up here regardless of its cloze_states row.
+ *
+ * Same orphaned-membership guard as getCardsDueForReview: INNER JOIN decks prevents a surviving
+ * deck_cards row from resurrecting a card whose deck was deleted.
  * @param db The database adapter to use for the query.
  * @param deckId Optional deck ID to filter cards by deck.
+ * @param targetLanguage Optional target language to scope cards to.
+ * @param nativeLanguage Optional native language to scope cards to.
  * @returns An array of cards due for cloze practice.
  */
-export async function getClozeCardsDueForReview(db: DatabaseAdapter, deckId?: string): Promise<Card[]> {
+export async function getClozeCardsDueForReview(
+  db: DatabaseAdapter,
+  deckId?: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<Card[]> {
   const params: unknown[] = [Date.now()]
 
-  // Same orphaned-membership guard as getCardsDueForReview above.
   let query = `SELECT DISTINCT ${cardColumns('c')} FROM cards c
     INNER JOIN deck_cards dc ON c.id = dc.card_id
     INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN cloze_states cs ON c.id = cs.card_id
     INNER JOIN cloze_cards cc ON c.id = cc.card_id
+    INNER JOIN lemmas l ON l.id = c.lemma_id
     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
+  }
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
   }
   // Same stable-order reasoning as getCardsDueForReview above — a re-fetched, silently-reordered
   // array desyncs from the session's numeric index into it.
@@ -320,15 +355,34 @@ function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
 export async function getRecentlyAddedWords(
   db: DatabaseAdapter,
   limit = 10,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
 ): Promise<CardListItem[]> {
+  const conditions: string[] = []
+  const params: unknown[] = []
+
+  if (targetLanguage) {
+    conditions.push(`l.language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`c.native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
+  params.push(limit)
   const rows = await db.query<RawCardListRow>(
     `${CARD_LIST_SELECT}, c.created_at AS createdAt
      FROM cards c
      JOIN lemmas l ON l.id = c.lemma_id
      LEFT JOIN meanings m ON m.id = c.primary_meaning_id
-     ORDER BY c.created_at DESC`,
+     ${whereClause}
+     ORDER BY c.created_at DESC
+     LIMIT ?`,
+    params,
   )
-  return collapseByLemma(rows).slice(0, limit)
+  return collapseByLemma(rows)
 }
 
 /**
@@ -361,10 +415,37 @@ export async function getCardsForDeck(
  * every deck's own card count would show, which is confusing on a screen whose whole point is "how
  * many cards do I actually have." Counts distinct cards, not deck_cards rows, so a card added to
  * more than one deck is still only counted once.
+ *
+ * Optionally scoped to the active language pair via `targetLanguage` / `nativeLanguage`.
+ * @param db The database adapter to use for the query.
+ * @param targetLanguage Optional target language to scope count to.
+ * @param nativeLanguage Optional native language to scope count to.
+ * @returns The total number of distinct cards in any deck.
  */
-export async function getTotalCardCount(db: DatabaseAdapter): Promise<number> {
+export async function getTotalCardCount(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
+  const conditions: string[] = []
+  const params: unknown[] = []
+
+  if (targetLanguage) {
+    conditions.push(`l.language = ?`)
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    conditions.push(`c.native_language = ?`)
+    params.push(nativeLanguage)
+  }
+
+  const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
   const result = await db.querySingle<{ count: number }>(
-    `SELECT COUNT(DISTINCT card_id) AS count FROM deck_cards`,
+    `SELECT COUNT(DISTINCT dc.card_id) AS count
+     FROM deck_cards dc
+     JOIN cards c ON c.id = dc.card_id
+     JOIN lemmas l ON l.id = c.lemma_id${whereClause}`,
+    params,
   )
   return result?.count ?? 0
 }
@@ -382,14 +463,33 @@ export interface WeeklyGrowth {
  * cards: a single import row can now create both a basic and a cloze card
  * for the same word at once (see import-shared.ts#importRow) — counting
  * cards would show a word as "2 new words" the day it's added.
+ *
+ * Scoped by `targetLanguage` only (lemmas carry the target language, not
+ * the native language — the same German lemma is shared by EN→DE and
+ * HI→DE learners). A `nativeLanguage` param is accepted for API consistency
+ * but has no effect at the lemma level.
+ * @param db The database adapter to use for the query.
+ * @param weeks The number of weeks to look back.
+ * @param targetLanguage Optional target language (filters by lemma.language).
+ * @param nativeLanguage Optional native language (not filterable at lemma level; accepted for API consistency).
  */
-export async function getVocabularyGrowth(db: DatabaseAdapter, weeks = 7): Promise<WeeklyGrowth[]> {
+export async function getVocabularyGrowth(
+  db: DatabaseAdapter,
+  weeks = 7,
+  targetLanguage?: LanguageCode,
+  _nativeLanguage?: LanguageCode,
+): Promise<WeeklyGrowth[]> {
   const weekMs = 7 * 24 * 60 * 60 * 1000
   const since = Date.now() - weeks * weekMs
+  const params: unknown[] = [since]
+  let query = `SELECT created_at AS createdAt FROM lemmas WHERE created_at >= ?`
 
-  const rows = await db.query<{ createdAt: number }>(`SELECT created_at AS createdAt FROM lemmas WHERE created_at >= ?`, [
-    since,
-  ])
+  if (targetLanguage) {
+    query += ` AND language = ?`
+    params.push(targetLanguage)
+  }
+
+  const rows = await db.query<{ createdAt: number }>(query, params)
 
   const buckets: WeeklyGrowth[] = []
   for (let i = 0; i < weeks; i++) {
@@ -406,20 +506,34 @@ export async function getVocabularyGrowth(db: DatabaseAdapter, weeks = 7): Promi
  * Used on the home screen to show the due count badge.
  * @param db The database adapter to use for the query.
  * @param deckId The ID of the deck to count due cards for.
+ * @param targetLanguage Optional target language.
+ * @param nativeLanguage Optional native language.
  * @returns The number of cards due for review.
  */
-export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
+export async function getDueCardsCount(
+  db: DatabaseAdapter,
+  deckId?: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
   const params: unknown[] = [Date.now()]
-  // Same orphaned-membership guard, and same c.type = 'basic' filter, as getCardsDueForReview —
-  // see its comment.
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
      INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN card_states cs ON c.id = cs.card_id
+     INNER JOIN lemmas l ON l.id = c.lemma_id
      WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
+  }
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
   }
   const result = await db.querySingle<{ count: number }>(query, params)
   return result?.count ?? 0
@@ -428,35 +542,39 @@ export async function getDueCardsCount(db: DatabaseAdapter, deckId?: string): Pr
 /**
  * Count of cards due for cloze practice right now — the cloze_states equivalent of
  * getDueCardsCount, for the deck detail screen's "Practice N cloze" label.
- * @param db The database adapter to use for the query.
- * @param deckId The ID of the deck to count due cloze cards for.
- * @returns The number of cards due for cloze practice.
  */
-export async function getDueClozeCount(db: DatabaseAdapter, deckId?: string): Promise<number> {
+export async function getDueClozeCount(
+  db: DatabaseAdapter,
+  deckId?: string,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
   const params: unknown[] = [Date.now()]
-  // Same orphaned-membership guard as getCardsDueForReview — see its comment.
   let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
      INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN cloze_states cs ON c.id = cs.card_id
      INNER JOIN cloze_cards cc ON c.id = cc.card_id
+     INNER JOIN lemmas l ON l.id = c.lemma_id
      WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
+  }
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
   }
   const result = await db.querySingle<{ count: number }>(query, params)
   return result?.count ?? 0
 }
 
 /**
- * Total count of cards in a deck that have a cloze variant at all, regardless of due state — unlike
- * `getDueClozeCount`, which only counts what's due *right now*. Used to decide whether the "Practice
- * cloze" action should be offered at all (a deck with zero cloze cards has nothing to practice,
- * today or ever, until one is imported/generated) rather than just how urgent it is.
- * @param db The database adapter to use for the query.
- * @param deckId The ID of the deck to count cloze cards for.
- * @returns The number of cards in the deck that have a cloze variant.
+ * Total count of cards in a deck that have a cloze variant at all, regardless of due state.
  */
 export async function getClozeCardCountForDeck(db: DatabaseAdapter, deckId: string): Promise<number> {
   const result = await db.querySingle<{ count: number }>(
@@ -477,22 +595,15 @@ export interface DistractorMeaning {
 }
 
 /**
- * Random other cards' primary meanings, for building true/false and multiple-choice wrong
- * answers in mixed review sessions (see apps/mobile/app/review/[deckId].tsx `mode=mixed`).
- * Fetched once per session and sampled client-side, not once per question. `excludeCardId` keeps
- * the card currently being tested out of its own distractor pool; callers must additionally
- * exclude it when checking eligibility, since a card can still appear here as a distractor for a
- * *different* card in the same session.
- * @param db The database adapter to use for the query.
- * @param excludeCardId The card currently being tested — excluded from the pool.
- * @param deckId Optional deck ID to scope the pool to (undefined = all decks).
- * @param limit Maximum number of distractor rows to return.
+ * Random other cards' primary meanings, for building true/false and multiple-choice wrong answers.
  */
 export async function getDistractorMeanings(
   db: DatabaseAdapter,
   excludeCardId: string,
   deckId: string | undefined,
   limit: number,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
 ): Promise<DistractorMeaning[]> {
   const params: unknown[] = []
   let query = `SELECT DISTINCT c.id AS cardId, l.form AS word, m.translation AS meaning
@@ -503,7 +614,19 @@ export async function getDistractorMeanings(
     query += ` INNER JOIN deck_cards dc ON dc.card_id = c.id AND dc.deck_id = ?`
     params.push(deckId)
   }
-  query += ` WHERE c.id != ? ORDER BY RANDOM() LIMIT ?`
-  params.push(excludeCardId, limit)
+  query += ` WHERE c.id != ?`
+  params.push(excludeCardId)
+
+  if (targetLanguage) {
+    query += ` AND l.language = ?`
+    params.push(targetLanguage)
+  }
+  if (nativeLanguage) {
+    query += ` AND c.native_language = ?`
+    params.push(nativeLanguage)
+  }
+
+  query += ` ORDER BY RANDOM() LIMIT ?`
+  params.push(limit)
   return db.query<DistractorMeaning>(query, params)
 }

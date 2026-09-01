@@ -641,7 +641,15 @@ export default function WordDetailScreen(): JSX.Element {
     mutationFn: async ({ name, questionTypes, cloze }: { name: string; questionTypes: QuestionType[]; cloze?: ClozeEditorResult }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       const cardId = await resolveTargetCardId(id)
       await addCardToDeck(db, id, cardId)
       if (cloze) {
@@ -1681,6 +1689,8 @@ export default function WordDetailScreen(): JSX.Element {
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
         title={t('Add "{{form}}" to...', { form: word.lemma.form })}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
         word={word.lemma.form}
         {...(selectedExample?.sentence && { exampleSentence: selectedExample.sentence })}

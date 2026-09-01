@@ -285,7 +285,7 @@ function formatTimeRemaining(remainingCards: number, avgMsPerCard: number): stri
  */
 export default function ReviewSessionScreen(): JSX.Element {
   const params = useLocalSearchParams<{ deckId: string; mode?: string; cardId?: string }>()
-  const { db, ai, tier, defaultCefr, nativeLanguage } = useServices()
+  const { db, ai, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -428,8 +428,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   })
   const sessionCardLimit = sessionLimitQuery.data
   const queueQuery = useQuery({
-    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId, sessionCardLimit],
-    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, sessionCardLimit ?? 0, singleCardId),
+    queryKey: ['review-queue', params.deckId, clozeOnly, mixedOnly, singleCardId, sessionCardLimit, targetLanguage, nativeLanguage],
+    queryFn: () => loadReviewQueue(db, params.deckId ?? '', clozeOnly, sessionCardLimit ?? 0, singleCardId, targetLanguage, nativeLanguage),
     enabled: (params.deckId ?? '') !== '' && sessionCardLimit !== undefined,
   })
 
@@ -453,8 +453,8 @@ export default function ReviewSessionScreen(): JSX.Element {
     enabled: mixedOnly,
   })
   const distractorPoolQuery = useQuery({
-    queryKey: ['review-distractor-pool', params.deckId],
-    queryFn: () => getDistractorMeanings(db, '', undefined, 30),
+    queryKey: ['review-distractor-pool', params.deckId, targetLanguage, nativeLanguage],
+    queryFn: () => getDistractorMeanings(db, '', undefined, 30, targetLanguage, nativeLanguage),
     enabled: mixedOnly,
   })
   // Per-card rating aggregation for a session where the same card appears more than once (Mixed

@@ -1,3 +1,4 @@
+import type { LanguageCode } from '@lingora/types'
 import {
   getDueCardsCount,
   getDueClozeCount,
@@ -24,7 +25,7 @@ import { Button, Card, CefrBadge, EmptyState, IconButton, SectionHeader } from '
 import { shouldShowWhatsNew, markWhatsNewSeen } from '../../lib/whatsNew'
 import { ALL_DECKS_ID, useServices } from '../../lib/services'
 import { speak } from '../../lib/speech'
-import { streakFromDayIndexes } from '@lingora/core'
+import { streakFromDayIndexes, VOCAB_LANGUAGE_NAMES } from '@lingora/core'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -39,14 +40,18 @@ interface HomeStats {
   streakDays: number
 }
 
-async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
+async function loadHomeStats(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<HomeStats> {
   const [dueNow, dueCloze, reviewedToday, retention30d, totalCards, days] = await Promise.all([
-    getDueCardsCount(db),
-    getDueClozeCount(db),
-    getTodayReviewCount(db),
-    getRetentionRate(db, 30),
-    getTotalCardCount(db),
-    getReviewedDayIndexes(db),
+    getDueCardsCount(db, undefined, targetLanguage, nativeLanguage),
+    getDueClozeCount(db, undefined, targetLanguage, nativeLanguage),
+    getTodayReviewCount(db, targetLanguage, nativeLanguage),
+    getRetentionRate(db, 30, targetLanguage, nativeLanguage),
+    getTotalCardCount(db, targetLanguage, nativeLanguage),
+    getReviewedDayIndexes(db, 366, targetLanguage, nativeLanguage),
   ])
   return {
     dueNow,
@@ -58,14 +63,7 @@ async function loadHomeStats(db: DatabaseAdapter): Promise<HomeStats> {
   }
 }
 
-/** The three-step walkthrough shown in the "Find your first word" banner below, replacing the
- * due-count hero card for a genuinely new account (stats.totalCards === 0) instead of showing a
- * hero built entirely of zeroes. */
-const GETTING_STARTED_STEPS: { icon: IconName; label: string }[] = [
-  { icon: 'Search', label: 'Search a German word' },
-  { icon: 'Sparkles', label: 'Generate a card and save it to a deck' },
-  { icon: 'BookOpen', label: 'Review it to make it stick' },
-]
+
 
 const HOME_HELP_SECTIONS: HelpSection[] = [
   {
@@ -136,10 +134,13 @@ export default function HomeScreen(): JSX.Element {
     setWhatsNewOpen(false)
     void markWhatsNewSeen()
   }
-  const statsQuery = useQuery({ queryKey: ['home-stats'], queryFn: () => loadHomeStats(db) })
+  const statsQuery = useQuery({
+    queryKey: ['home-stats', targetLanguage, nativeLanguage],
+    queryFn: () => loadHomeStats(db, targetLanguage, nativeLanguage),
+  })
   const recentQuery = useQuery({
-    queryKey: ['recent-words'],
-    queryFn: () => getRecentlyAddedWords(db, 3),
+    queryKey: ['recent-words', targetLanguage, nativeLanguage],
+    queryFn: () => getRecentlyAddedWords(db, 3, targetLanguage, nativeLanguage),
   })
   // The actual daily generation/refresh happens once, app-wide, in WordOfTheDayLifecycle — this
   // is just reading whatever it already wrote. Unavailable without an AI provider (tier !== 'full'
@@ -170,6 +171,13 @@ export default function HomeScreen(): JSX.Element {
   // A genuinely fresh account, not just "nothing due today" - swaps the due-count hero (which
   // would otherwise show a hero card built entirely of zeroes) for a getting-started banner.
   const isNewUser = statsQuery.isSuccess && stats?.totalCards === 0
+  const targetLanguageLabel = t(VOCAB_LANGUAGE_NAMES[targetLanguage] ?? 'German')
+
+  const gettingStartedSteps: { icon: IconName; label: string }[] = [
+    { icon: 'Search', label: t('Search a {{target}} word', { target: targetLanguageLabel }) },
+    { icon: 'Sparkles', label: t('Generate a card and save it to a deck') },
+    { icon: 'BookOpen', label: t('Review it to make it stick') },
+  ]
 
   return (
     // No 'top' edge — LanguagePairBadge (app/_layout.tsx, above every non-review screen) already
@@ -224,18 +232,20 @@ export default function HomeScreen(): JSX.Element {
             <View style={styles.startIconBadge}>
               <Icon name="Sparkles" size={22} color={colors.textOnPrimary} />
             </View>
-            <Text style={styles.startTitle}>{t('Find your first word')}</Text>
+            <Text style={styles.startTitle}>{t('Add your first word')}</Text>
             <Text style={styles.startSubtitle}>
-              {t('Look up any German word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.')}
+              {t('Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.', {
+                target: targetLanguageLabel,
+              })}
             </Text>
             <View style={styles.startSteps}>
-              {GETTING_STARTED_STEPS.map((step, index) => (
+              {gettingStartedSteps.map((step, index) => (
                 <View key={step.label} style={styles.startStep}>
                   <View style={styles.startStepNumber}>
                     <Text style={styles.startStepNumberText}>{index + 1}</Text>
                   </View>
                   <Icon name={step.icon} size={16} color={colors.textOnPrimary} />
-                  <Text style={styles.startStepText}>{t(step.label)}</Text>
+                  <Text style={styles.startStepText}>{step.label}</Text>
                 </View>
               ))}
             </View>

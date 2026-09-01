@@ -132,9 +132,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Meaning',
     icon: 'BookOpen',
     paragraphs: [
-      'The translation at the top is what actually appears on your flashcard.',
-      'On an AI-generated card, the short explanation right below the translation states directly what the word means and where or why it\'s used - not a hint to figure out yourself.',
-      'If this word has more than one distinct sense - say, a casual meaning and a business one - you\'ll see small labeled capsules (like "social" or "formal") just above the translation. Tap one to switch; each keeps its own examples and synonyms.',
+      'The **translation** at the top is what actually appears on your flashcard.',
+      'On an AI-generated card, the short explanation right below the translation states *directly* what the word means and where or why it is used - not a hint to figure out yourself.',
+      'If this word has multiple senses (e.g. *social* vs *formal*), tap the **labeled sense capsules** above the translation to switch; each keeps its own examples and synonyms.',
     ],
   },
   {
@@ -142,10 +142,10 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Example sentences',
     icon: 'MessageCircle',
     paragraphs: [
-      'Example sentences show the word used in context, with a translation underneath.',
-      'Tap the star on any example to choose which one appears on your flashcard - only one shows at a time.',
-      'The dropdown above the examples ("all", "travel", "business", and so on) filters them down to a particular tone or situation, if you only want to see those.',
-      'Underneath each example, thumbs up/down let you mark whether it\'s good or worth double-checking later. The flag icon reports a specific problem (like unnatural phrasing or a grammar mistake) with an optional note. The circular arrow regenerates a fresh batch of examples for this sense - the same thing "Generate more examples" below the list does.',
+      'Example sentences show the word used in real context with translations underneath.',
+      'Tap the **`+` (Add Card)** icon on any individual example to create a dedicated flashcard for that specific sentence in any deck.',
+      'The **`⋯` (Three-Dots)** menu lets you designate which example appears on your *primary flashcard* (`⭐ Use on Flashcard`), or rate example quality (`👍 Good` / `👎 Bad`).',
+      'The dropdown above the examples filters them by tone or situation (e.g. *daily life*, *business*, *travel*).',
     ],
   },
   {
@@ -153,9 +153,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Advanced grammar options',
     icon: 'SlidersHorizontal',
     paragraphs: [
-      'This collapsible panel below the examples lets you pick a specific grammar pattern - a tense, a sentence structure, a particular conjunction - that you want the next batch of examples to practice, instead of leaving it to chance.',
-      'Don\'t see the pattern you want? Type your own under "Custom Grammar Rule" and tap the + to add it to the selection - it\'s sent to the AI exactly as written, alongside any picked chips.',
-      '"Generate targeted examples" replaces the current examples with fresh ones written to practice your selection. Examples generated this way get a highlighted background, so you can tell which ones came from your request.',
+      'This collapsible panel lets you pick a **specific grammar pattern** - a tense, sentence structure, or conjunction - to practice in targeted example sentences.',
+      'Type your own rule under **"Custom Grammar Rule"** and tap `+` to send custom prompts directly to the AI.',
+      '**"Generate targeted examples"** creates fresh sentences matching your selection, marked with a *highlighted badge*.',
     ],
   },
   {
@@ -163,11 +163,11 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Explain, Ask AI & more',
     icon: 'MessageCircle',
     paragraphs: [
-      'The row of small icon buttons under the meaning gives you a few more ways to dig into this word.',
-      '"Explain" (or "More info" on an AI-generated card) shows or expands a direct explanation of what the word means and where or why it\'s used.',
-      '"Ask AI" opens a small chat where you can type a follow-up question about this specific word.',
-      '"Regenerate" throws away this card\'s meanings, examples, synonyms, phrases, and cloze cards, and generates all of it fresh - useful if the current version isn\'t working for you. This can\'t be undone.',
-      'The pencil icon lets you edit the meaning or example text directly (dictionary-sourced cards only - an AI card uses Regenerate and the per-field AI tools instead). The trash icon deletes this card entirely, after confirming. The last icon opens a quick web search for the word, for a second opinion outside the app.',
+      'The action toolbar under the meaning provides tools to deepen your understanding:',
+      '• **Explain / More info**: Shows a detailed breakdown of usage, register, and nuance.',
+      '• **Ask AI**: Opens an interactive chat to ask follow-up questions about this word.',
+      '• **Regenerate**: Refreshes meanings, examples, synonyms, and phrases with fresh AI content.',
+      '• **Edit & Delete**: Lets you edit dictionary cards directly or remove cards from your library.',
     ],
   },
   {
@@ -175,18 +175,18 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Synonyms & phrases',
     icon: 'ArrowLeftRight',
     paragraphs: [
-      'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. Tap the sparkle icon on one to fetch AI usage & nuance - how formal it is and what makes it different from the headword. The icon next to it opens that synonym as its own flashcard.',
-      'Phrases show this word used in common expressions or word combinations, fetched on demand: tap "Explore with AI" the first time, or "Load more with AI" for another batch once you already have some.',
+      '**Synonyms** expand related vocabulary. Tap `✨` on a synonym to fetch *AI nuance and formality explanations*, or open it as its own card.',
+      '**Phrases** show common idioms and collocations - tap **"Explore with AI"** or **"Load more with AI"** to fetch more.',
     ],
   },
   {
     id: 'cloze',
-    title: 'Cloze cards',
+    title: 'Cloze cards & review modes',
     icon: 'SquarePen',
     paragraphs: [
-      'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.',
-      '"Add to Cloze" (or "Edit Cloze" once one exists) at the bottom opens the editor pre-filled with the currently selected example. Select a word or phrase in the sentence and tap "Mark as cloze" to blank it out - it defaults to blanking the headword itself - then adjust the translation and save.',
-      'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.',
+      '**Cloze cards** blank out key words for active recall practice.',
+      'With **unified deck review modes**, your decks automatically generate *Cloze*, *Multiple Choice*, *Reverse*, and *Vocab* exercises based on deck settings.',
+      'You can also preview and customize dedicated cloze sentences in the editor below.',
     ],
   },
   {
@@ -194,9 +194,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding to a deck',
     icon: 'Layers',
     paragraphs: [
-      '"Add to deck" at the bottom is how you start reviewing this word - you can add it to more than one deck, or create a new one on the spot.',
-      'Whatever translation at this moment is selected/shown will be added to deck along with its relevant example.',
-      'You can add your cards to multiple decks even if it is added before.'
+      '**"Add to deck"** at the bottom adds the word and its active example into your chosen study decks.',
+      'You can also tap the **`+` icon** on any individual example to add that specific sentence card.',
+      'Cards can be added to *multiple decks* simultaneously without duplicates.',
     ],
   },
 ]
@@ -345,6 +345,8 @@ export default function WordDetailScreen(): JSX.Element {
     setCustomGrammarInput('')
   }
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
+  const [deckPickerForExample, setDeckPickerForExample] = useState<Example | null>(null)
+  const [evalMenuExampleId, setEvalMenuExampleId] = useState<string | null>(null)
   // "Added to My Vocabulary" / "Cloze added" — a brief confirmation for actions that otherwise
   // leave no visible trace (adding an already-open word's card to another deck, or a cloze,
   // doesn't navigate anywhere or change what's on screen). See components/ui.tsx#Toast.
@@ -1290,40 +1292,112 @@ export default function WordDetailScreen(): JSX.Element {
                     ex.generationMetadataId === grammarHighlightMetadataId && styles.exampleCardGrammarHighlight,
                   ]}
                 >
-                  <View style={styles.exampleHeaderRow}>
+                  <View style={styles.exampleSentenceRow}>
+                    <Text style={styles.exampleSentence} selectable>{ex.sentence}</Text>
+                  </View>
+                  <Text style={styles.exampleTranslation} selectable>{ex.translation}</Text>
+
+                  <View style={styles.exampleFooter}>
                     {ex.isSelected ? (
                       <View style={styles.selectedBanner}>
                         <Icon name="Star" size={14} color={colors.primary} />
                         <Text style={styles.selectedBannerLabel}>{t('Shown on flashcard')}</Text>
                       </View>
                     ) : (
-                      <Pressable
-                        style={styles.selectedBanner}
-                        onPress={() => selectExample.mutate(ex.id)}
-                        disabled={selectExample.isPending}
-                        hitSlop={10}
-                      >
-                        <Icon name="Star" size={14} color={colors.textMuted} />
-                        <Text style={styles.useOnFlashcardLabel}>{t('Display on Flashcard')}</Text>
-                      </Pressable>
+                      <View />
                     )}
 
-                    <SpeakerButton text={ex.sentence} language={word.lemma.language} size={16} />
+                    <View style={styles.exampleActionsCluster}>
+                      <SpeakerButton text={ex.sentence} language={word.lemma.language} size={18} />
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.exampleIconButton,
+                          pressed && styles.exampleIconButtonPressed,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('Add this example to a deck')}
+                        onPress={() => setDeckPickerForExample(ex)}
+                        hitSlop={6}
+                      >
+                        <Icon name="CirclePlus" size={18} color={colors.primary} />
+                      </Pressable>
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.exampleIconButton,
+                          evalMenuExampleId === ex.id && styles.exampleIconButtonActive,
+                          pressed && styles.exampleIconButtonPressed,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('More actions')}
+                        onPress={() => setEvalMenuExampleId(evalMenuExampleId === ex.id ? null : ex.id)}
+                        hitSlop={6}
+                      >
+                        <Icon
+                          name="Ellipsis"
+                          size={18}
+                          color={evalMenuExampleId === ex.id ? colors.primary : ratingFor(ex.id) ? colors.primary : colors.textSecondary}
+                        />
+                      </Pressable>
+                    </View>
                   </View>
 
-                  <View style={styles.exampleSentenceRow}>
-                    <Text style={styles.exampleSentence} selectable>{ex.sentence}</Text>
-                  </View>
-                  <Text style={styles.exampleTranslation} selectable>{ex.translation}</Text>
-                  <View style={styles.exampleFooter}>
-                    <EvalBar
-                      activeRating={ratingFor(ex.id)}
-                      onUp={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })}
-                      onDown={() => evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'down' })}
-                      onReport={() => setReportTarget({ targetType: 'example', targetId: ex.id })}
-                      {...(tier === 'full' && { onRegen: () => generateExamples.mutate() })}
-                    />
-                  </View>
+                  {evalMenuExampleId === ex.id && (
+                    <>
+                      <Pressable
+                        style={styles.dropdownBackdrop}
+                        onPress={() => setEvalMenuExampleId(null)}
+                      />
+                      <View style={styles.exampleDropdownMenu}>
+                        <Pressable
+                          style={[styles.dropdownMenuItem, ex.isSelected && styles.dropdownMenuItemActive]}
+                          onPress={() => {
+                            selectExample.mutate(ex.id)
+                            setEvalMenuExampleId(null)
+                          }}
+                          disabled={selectExample.isPending || ex.isSelected}
+                        >
+                          <Icon name="Star" size={14} color={ex.isSelected ? colors.primary : colors.textSecondary} />
+                          <Text style={[styles.dropdownMenuItemText, ex.isSelected && { color: colors.primary, fontWeight: '700' }]}>
+                            {ex.isSelected ? t('Shown on Flashcard') : t('Use on Flashcard')}
+                          </Text>
+                        </Pressable>
+
+                        <View style={styles.dropdownDivider} />
+
+                        <View style={styles.dropdownQualityRow}>
+                          <Text style={styles.dropdownQualityTitle}>{t('Quality')}:</Text>
+                          <View style={styles.dropdownQualityButtons}>
+                            <Pressable
+                              style={[styles.dropdownQualityBtn, ratingFor(ex.id) === 'up' && styles.dropdownQualityBtnUp]}
+                              onPress={() => {
+                                evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'up' })
+                                setEvalMenuExampleId(null)
+                              }}
+                              hitSlop={4}
+                            >
+                              <Icon name="ThumbsUp" size={12} color={ratingFor(ex.id) === 'up' ? colors.success : colors.textSecondary} />
+                              <Text style={[styles.dropdownQualityBtnText, ratingFor(ex.id) === 'up' && { color: colors.success }]}>
+                                {t('Good')}
+                              </Text>
+                            </Pressable>
+                            <Pressable
+                              style={[styles.dropdownQualityBtn, ratingFor(ex.id) === 'down' && styles.dropdownQualityBtnDown]}
+                              onPress={() => {
+                                evaluate.mutate({ targetType: 'example', targetId: ex.id, rating: 'down' })
+                                setEvalMenuExampleId(null)
+                              }}
+                              hitSlop={4}
+                            >
+                              <Icon name="ThumbsDown" size={12} color={ratingFor(ex.id) === 'down' ? colors.danger : colors.textSecondary} />
+                              <Text style={[styles.dropdownQualityBtnText, ratingFor(ex.id) === 'down' && { color: colors.danger }]}>
+                                {t('Bad')}
+                              </Text>
+                            </Pressable>
+                          </View>
+                        </View>
+                      </View>
+                    </>
+                  )}
                 </Card>
               ))}
 
@@ -1537,9 +1611,9 @@ export default function WordDetailScreen(): JSX.Element {
                                   {syn.nuance
                                     ? syn.nuance
                                     : t('Used as a {{formality}} synonym for {{word}}.', {
-                                        formality: syn.formality ?? 'general',
-                                        word: form,
-                                      })}
+                                      formality: syn.formality ?? 'general',
+                                      word: form,
+                                    })}
                                 </Text>
                                 {syn.formality ? (
                                   <View style={styles.synTagRow}>
@@ -1654,31 +1728,18 @@ export default function WordDetailScreen(): JSX.Element {
         <View style={{ height: 96 }} />
       </ScrollView>
 
-      {/* ── Sticky bottom actions bar: Add to deck & Add to cloze ── */}
+      {/* ── Sticky bottom actions bar: Add to deck ── */}
       {word.card ? (
         <View style={styles.bottomBar}>
-          <View style={styles.bottomBarButtonRow}>
-            <Button
-              label={t('Add to deck')}
-              icon="CirclePlus"
-              onPress={() => setDeckPickerOpen(true)}
-              style={styles.bottomBarButton}
-            />
-            <Button
-              label={word.clozes.length > 0 ? t('Edit Cloze') : t('Add to Cloze')}
-              icon="SquarePen"
-              variant="secondary"
-              onPress={() =>
-                setClozeEditor({
-                  cardId: word.card!.id,
-                  sentence: selectedExample?.sentence ?? '',
-                  translation: selectedExample?.translation ?? '',
-                  cefrLevel: active?.cluster.cefrLevel ?? defaultCefr,
-                })
-              }
-              style={styles.bottomBarButton}
-            />
-          </View>
+          <Button
+            label={t('Add to deck')}
+            icon="CirclePlus"
+            onPress={() => {
+              setDeckPickerForExample(null)
+              setDeckPickerOpen(true)
+            }}
+            style={styles.bottomBarButtonFull}
+          />
         </View>
       ) : null}
 
@@ -1686,15 +1747,22 @@ export default function WordDetailScreen(): JSX.Element {
           picker itself, so the button below is always the same one action. ── */}
       <DeckPickerModal
         db={db}
-        visible={deckPickerOpen}
-        onClose={() => setDeckPickerOpen(false)}
+        visible={deckPickerOpen || deckPickerForExample !== null}
+        onClose={() => {
+          setDeckPickerOpen(false)
+          setDeckPickerForExample(null)
+        }}
         title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         targetLanguage={targetLanguage}
         nativeLanguage={nativeLanguage}
         existingDeckIds={existingDecksQuery.data?.map((d) => d.id) ?? []}
         word={word.lemma.form}
-        {...(selectedExample?.sentence && { exampleSentence: selectedExample.sentence })}
-        {...(selectedExample?.translation && { exampleTranslation: selectedExample.translation })}
+        {...((deckPickerForExample?.sentence || selectedExample?.sentence)
+          ? { exampleSentence: (deckPickerForExample?.sentence ?? selectedExample?.sentence)! }
+          : {})}
+        {...((deckPickerForExample?.translation || selectedExample?.translation)
+          ? { exampleTranslation: (deckPickerForExample?.translation ?? selectedExample?.translation)! }
+          : {})}
         onSelectDeck={(deck, cloze) => addToDeck.mutate({ deck, ...(cloze && { cloze }) })}
         selecting={addToDeck.isPending}
         onCreateDeck={(name, questionTypes, cloze) =>
@@ -2031,17 +2099,21 @@ const createStyles = (colors: ThemeColors) =>
     },
     examplesTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
     examplesFilterDropdown: { width: 175 },
-    exampleCard: { marginBottom: spacing.sm },
+    exampleCard: {
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.sm + 2,
+    },
     exampleCardGrammarHighlight: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
     selectedBanner: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
-      marginBottom: spacing.sm,
-      paddingVertical: spacing.xs,
+      paddingVertical: 2,
     },
     selectedBannerLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-    useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textMuted },
+    useOnFlashcardLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },
     reportNoteInput: {
       minHeight: 72,
       borderWidth: 1,
@@ -2077,9 +2149,117 @@ const createStyles = (colors: ThemeColors) =>
     exampleTranslation: { fontSize: type.caption, color: colors.textSecondary, marginTop: 4 },
     exampleFooter: {
       flexDirection: 'row',
-      justifyContent: 'flex-end',
+      justifyContent: 'space-between',
       alignItems: 'center',
       marginTop: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      minHeight: 38,
+    },
+    exampleActionsCluster: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    exampleIconButton: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceMuted,
+    },
+    exampleIconButtonActive: {
+      backgroundColor: colors.primarySoft,
+    },
+    exampleIconButtonPressed: {
+      opacity: 0.7,
+    },
+    dropdownBackdrop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 90,
+    },
+    exampleDropdownMenu: {
+      position: 'absolute',
+      right: spacing.md,
+      bottom: spacing.md + 28,
+      minWidth: 195,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      zIndex: 100,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 10,
+      elevation: 8,
+    },
+    dropdownMenuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: 7,
+      paddingHorizontal: spacing.sm,
+      borderRadius: radius.sm,
+    },
+    dropdownMenuItemActive: {
+      backgroundColor: colors.primarySoft,
+    },
+    dropdownMenuItemText: {
+      fontSize: type.caption,
+      color: colors.text,
+      fontWeight: '600',
+    },
+    dropdownDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: 3,
+    },
+    dropdownQualityRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+    },
+    dropdownQualityTitle: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.textSecondary,
+    },
+    dropdownQualityButtons: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    dropdownQualityBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 3,
+      borderRadius: radius.sm,
+      backgroundColor: colors.surfaceMuted,
+    },
+    dropdownQualityBtnUp: {
+      backgroundColor: colors.successSoft,
+    },
+    dropdownQualityBtnDown: {
+      backgroundColor: colors.dangerSoft,
+    },
+    dropdownQualityBtnText: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.textSecondary,
     },
     grammarToggle: {
       flexDirection: 'row',
@@ -2359,6 +2539,9 @@ const createStyles = (colors: ThemeColors) =>
     },
     bottomBarButton: {
       flex: 1,
+    },
+    bottomBarButtonFull: {
+      width: '100%',
     },
     modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
     modalSheet: {

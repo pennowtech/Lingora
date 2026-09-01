@@ -216,10 +216,22 @@ export function CardActionBar(props: {
   /** "Delete" — permanently deletes this generated card. */
   onDelete?: () => void
   deleteLoading?: boolean
+  /** "Add to Deck" / "In Deck" star button */
+  onAddToDeck?: () => void
+  isDecked?: boolean
+  deckLabel?: string
 }): JSX.Element {
   const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.cardActionBar}>
+      {props.onAddToDeck ? (
+        <CardActionButton
+          icon="Star"
+          label={props.deckLabel ?? 'Deck'}
+          {...(props.isDecked !== undefined && { active: props.isDecked })}
+          onPress={props.onAddToDeck}
+        />
+      ) : null}
       {props.onListen ? (
         <CardActionButton
           icon="Volume1"

@@ -118,7 +118,7 @@ export class DeepSeekProvider implements AIProvider, DictionaryProvider {
 
   constructor(config: DeepSeekProviderConfig) {
     this.apiKey = config.apiKey
-    this.model = config.model ?? 'deepseek-v4-flash'
+    this.model = config.model ?? 'deepseek-chat'
     this.baseUrl = (config.baseUrl ?? 'https://api.deepseek.com/v1').replace(/\/$/, '')
     // Confirmed against a live key: DeepSeek consistently takes roughly 2x as long as the other
     // providers for the same request over this network (a one-word translate validation probe

@@ -145,15 +145,9 @@ export default function SettingsScreen(): JSX.Element {
           const [keyPresence, storedTranslation, storedCefr, storedNativeLanguage, storedTargetLanguage, storedRateRaw] = await Promise.all([
             Promise.all(
               GENERATION_PROVIDERS.map(async (name: GenerationProviderName) => {
-                const [apiKey, model, enabledRaw, validatedKeyRaw] = await Promise.all([
-                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key),
-                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].model),
-                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].enabled),
-                  SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].validatedKey),
-                ])
+                const apiKey = await SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].key)
                 const key = (apiKey ?? '').trim()
-                const loadedModel = model ?? DEFAULT_MODELS[name]
-                return key !== '' && enabledRaw !== 'false' && validatedKeyRaw !== 'invalid'
+                return key !== ''
               }),
             ),
             SecureStore.getItemAsync(STORE_KEYS.translationProvider),

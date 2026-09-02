@@ -54,7 +54,14 @@
             "extraProguardRules": "-keep class com.swmansion.reanimated.** { *; }\n-keep class com.facebook.react.turbomodule.** { *; }"
           }
         }
-      ]
+      ],
+      "expo-audio",
+      "expo-font",
+      "expo-router",
+      "expo-sharing",
+      "expo-video",
+      "expo-asset",
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {

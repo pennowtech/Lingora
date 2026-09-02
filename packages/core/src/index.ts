@@ -78,6 +78,21 @@ export function toggleQuestionType(current: readonly QuestionType[], type: Quest
   return [...current, type]
 }
 
+/** A deck's effective review modes — `enabledQuestionTypes` when set, else falling back to
+ * DEFAULT_ENABLED_QUESTION_TYPES (word->meaning only), matching Deck.enabledQuestionTypes's own
+ * doc comment ("null -> falls back to the global Settings preference"). Deliberately NOT
+ * ALL_QUESTION_TYPES - a deck created before this feature existed (or with every type explicitly
+ * left off) has `null` here, and a card in it that only ever supports plain word->meaning review
+ * would otherwise show every review-mode icon as if it supported reverse/cloze/true-false/
+ * multiple-choice too, which is what it actually reviews as. Shared by both apps' deck-picker/deck-
+ * list badges (see ReviewModeBadges on mobile, DecksScreen/DeckPickerModal on desktop) so a fixed
+ * default only ever needs updating in one place. */
+export function getDeckQuestionTypes(deck: { enabledQuestionTypes?: QuestionType[] | null }): QuestionType[] {
+  return deck.enabledQuestionTypes && deck.enabledQuestionTypes.length > 0
+    ? deck.enabledQuestionTypes
+    : [...DEFAULT_ENABLED_QUESTION_TYPES]
+}
+
 /** How many due cards a single review session pulls in, before expanding into per-format entries
  * (Mixed practice) — applies to every review mode (plain, cloze, reverse, mixed), not just Mixed.
  * A big deck coming due all at once (fresh import, first day back after a break) would otherwise

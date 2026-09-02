@@ -266,14 +266,6 @@ async function runValidation(
     message: 'Provider key validation started',
     metadata: { provider: providerName },
   })
-  if (!(await canReachProviderHost(hostUrl, fetchFn))) {
-    log.warn('ai.provider_validation_failed', {
-      message: 'Provider host unreachable - device appears offline',
-      durationMs: Date.now() - startedAt,
-      metadata: { provider: providerName, networkType: 'unavailable' },
-    })
-    return { ok: false, networkUnavailable: true, message: offlineMessage(providerName) }
-  }
   try {
     const detail = await probe()
     log.info('ai.provider_validation_completed', {
@@ -286,15 +278,21 @@ async function runValidation(
   } catch (error) {
     const aiError = asAIErrorLike(error)
     const status = aiError?.code === 'provider' ? aiError.status : undefined
+    const isNetwork = isNetworkError(error)
     log.warn('ai.provider_validation_failed', {
       message: 'Provider key validation failed',
       durationMs: Date.now() - startedAt,
       metadata: {
         provider: providerName,
+        ...(isNetwork ? { networkType: 'unavailable' } : {}),
         ...(status !== undefined ? { statusCode: status } : {}),
       },
     })
-    return { ok: false, message: formatUserFriendlyProviderError(providerName, error) }
+    return {
+      ok: false,
+      networkUnavailable: isNetwork,
+      message: isNetwork ? offlineMessage(providerName) : formatUserFriendlyProviderError(providerName, error),
+    }
   }
 }
 

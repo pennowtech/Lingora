@@ -22,7 +22,6 @@ export const vi: Partial<Record<Phrase, string>> = {
   '"{{name}}" will be removed.': '"{{name}}" sẽ bị xóa.',
   '"{{term}}" is new': '"{{term}}" là từ mới',
   '+ New': '+ Mới',
-  '+ New deck': '+ Bộ thẻ mới',
   'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.':
     'Thẻ điền khuyết ẩn đi một phần của câu để bạn điền vào - một cách khác để luyện tập cùng một từ.',
   'A green checkmark means the word is already in one of your decks.':
@@ -1174,8 +1173,9 @@ export const vi: Partial<Record<Phrase, string>> = {
   // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
   // matching Audio Settings labels
   'Active Generation Provider': 'Nhà cung cấp tạo nội dung đang hoạt động',
-  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
-    'Chọn công cụ AI nào được dùng để phân biệt ngữ cảnh, tạo gói từ vựng và soạn câu ví dụ theo cấp độ CEFR.',
+  'Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?':
+    'Chọn công cụ AI đang hoạt động để tạo định nghĩa từ và tạo thẻ thông minh. Lưu ý rằng các dịch vụ AI bên thứ ba có thể huấn luyện trên câu lệnh theo một số gói nhất định. Cần trợ giúp hoặc có câu hỏi?',
+  'Contact us →': 'Liên hệ chúng tôi →',
   'Key configured': 'Đã cấu hình khóa',
   'No key set': 'Chưa đặt khóa',
   'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
@@ -1285,4 +1285,24 @@ export const vi: Partial<Record<Phrase, string>> = {
     '**Tùy chọn trả phí theo mức sử dụng**: Các nhà cung cấp như **OpenAI**, **Anthropic (Claude)**, **Mistral** và **DeepSeek** sử dụng số dư trả trước theo mức dùng. Tạo một thẻ từ vựng đầy đủ thường có giá dưới 1/10 xu ($0.0001 - $0.001 mỗi thẻ), vì vậy một khoản nạp nhỏ có thể dùng cho hàng nghìn từ.',
   "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
     'Sau khi khóa đã được xác thực, liên kết cổng nhà phát triển vẫn luôn có thể truy cập bất kỳ lúc nào trong phần **Công cụ nâng cao & mô hình tùy chỉnh**.',
+  'Selected Model': 'Mô hình đã chọn',
+  'Pending: {{model}}': 'Đang chờ: {{model}}',
+  'Needs Key Validation': 'Cần xác thực khóa',
+  'Test & Switch Model': 'Kiểm tra & chuyển mô hình',
+  'Fastest next-gen lightweight Gemini model': 'Mô hình Gemini thế hệ mới nhẹ và nhanh nhất',
+  'Lightweight ultra-fast model': 'Mô hình nhẹ siêu nhanh',
+  'Next-gen lightweight model': 'Mô hình nhẹ thế hệ mới',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'Khi bạn chạm vào **"Thêm vào bộ thẻ"**, các **huy hiệu biểu tượng** nhỏ bên cạnh mỗi bộ thẻ cho biết những *định dạng học* mà nó hỗ trợ:',
+  'AI Enrichment Incomplete': 'Dữ liệu bổ sung AI chưa hoàn tất',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'Phản hồi AI cho từ này chưa hoàn tất nên chưa lưu nội dung nào. Nhấn Tạo lại để thử lại.',
+  'Study Progress and Decks': 'Tiến độ học tập và bộ thẻ',
+  'Study Progress': 'Tiến độ học tập',
+  '{{rate}}% 30-day memory retention': '{{rate}}% tỷ lệ ghi nhớ 30 ngày',
+  'Review cards regularly to build retention': 'Ôn tập thẻ thường xuyên để củng cố trí nhớ',
+  'Stats ↗': 'Thống kê ↗',
+  'View study statistics': 'Xem thống kê học tập',
+  '{{due}} cards due today': '{{due}} thẻ cần ôn hôm nay',
+  '{{total}} total cards in {{decks}} decks': 'Tổng cộng {{total}} thẻ trong {{decks}} bộ thẻ',
 }

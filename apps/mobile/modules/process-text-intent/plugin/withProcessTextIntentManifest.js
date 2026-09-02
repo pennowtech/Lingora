@@ -1,4 +1,4 @@
-const { withAndroidManifest, AndroidConfig } = require('@expo/config-plugins')
+const { withAndroidManifest, AndroidConfig } = require('expo/config-plugins')
 
 // The label shown as the entry in Android's text-selection toolbar (long-press a word in any
 // app -> Copy / Web search / "Search in Lemmory"). Without an explicit label Android would fall

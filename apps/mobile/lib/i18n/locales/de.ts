@@ -1482,8 +1482,9 @@ export const de: Record<Phrase, string> = {
   // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
   // matching Audio Settings labels
   'Active Generation Provider': 'Aktiver Generierungsanbieter',
-  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
-    'Wähle, welche KI zur Kontext-Unterscheidung, Wortpaket-Erstellung und GER-Beispielsatzerstellung genutzt wird.',
+  'Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?':
+    'Wähle deine aktive KI zur Erstellung von Wortdefinitionen und Lernkarten. Beachte, dass Drittanbieter-KI-Dienste bei bestimmten Tarifen mit Prompts trainieren können. Brauchst du Hilfe oder hast du Fragen?',
+  'Contact us →': 'Kontaktiere uns →',
   'Key configured': 'Schlüssel konfiguriert',
   'No key set': 'Kein Schlüssel hinterlegt',
   'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
@@ -1593,4 +1594,24 @@ export const de: Record<Phrase, string> = {
     '**Nutzungsbasierte Optionen**: Anbieter wie **OpenAI**, **Anthropic (Claude)**, **Mistral** und **DeepSeek** nutzen Prepaid-Guthaben. Das Erstellen einer vollständigen Vokabelkarte kostet in der Regel weniger als einen Zehntel-Cent (0,0001 $ - 0,001 $ pro Karte), sodass ein kleines Guthaben für Tausende von Wörtern reicht.',
   "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
     'Sobald ein Schlüssel überprüft wurde, bleibt der Link zum Entwicklerportal jederzeit unter **Erweiterte Engine & benutzerdefinierte Modelle** erreichbar.',
+  'Selected Model': 'Ausgewähltes Modell',
+  'Pending: {{model}}': 'Ausstehend: {{model}}',
+  'Needs Key Validation': 'Schlüsselüberprüfung erforderlich',
+  'Test & Switch Model': 'Modell testen & wechseln',
+  'Fastest next-gen lightweight Gemini model': 'Schnellstes Gemini-Modell der nächsten Generation',
+  'Lightweight ultra-fast model': 'Leichtes, ultraschnelles Modell',
+  'Next-gen lightweight model': 'Leichtes Modell der nächsten Generation',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'Wenn du auf **„Zum Stapel hinzufügen“** tippst, zeigen kleine **Symbolabzeichen** neben jedem Stapel, welche *Lernformate* darin geübt werden:',
+  'AI Enrichment Incomplete': 'KI-Ergänzung unvollständig',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'Die KI-Antwort für dieses Wort war unvollständig, daher wurde nichts gespeichert. Versuche es erneut mit „Neu generieren“.',
+  'Study Progress and Decks': 'Lernfortschritt & Decks',
+  'Study Progress': 'Lernfortschritt',
+  '{{rate}}% 30-day memory retention': '{{rate}} % 30-Tage-Erinnerungsrate',
+  'Review cards regularly to build retention': 'Lerne regelmäßig, um deine Erinnerung zu festigen',
+  'Stats ↗': 'Statistiken ↗',
+  'View study statistics': 'Lernstatistiken anzeigen',
+  '{{due}} cards due today': '{{due}} Karten heute fällig',
+  '{{total}} total cards in {{decks}} decks': '{{total}} Karten insgesamt in {{decks}} Decks',
 }

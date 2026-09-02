@@ -53,10 +53,12 @@ import {
   renderCardHtml,
   AI_GENERATED_SOURCES,
 } from '@lingora/core'
+import { formatUserFriendlyProviderError } from '@lingora/ai'
+import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { getSessionCardLimit } from '../../lib/reviewSession'
 import { DEFAULT_ENABLED_QUESTION_TYPES, pickEligibleTypes, shuffleArray, worstRating } from '../../lib/reviewTypes'
-import { ALL_DECKS_ID, useServices } from '../../lib/services'
+import { ALL_DECKS_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
@@ -294,6 +296,14 @@ export default function ReviewSessionScreen(): JSX.Element {
   const aiRequiredAlert = useAIProviderRequiredAlert(() => router.push('/settings'))
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
+  // For mutations that call an AI provider directly - same reasoning as word/[form].tsx's identical
+  // helper: showError's raw String(error) means a provider-level failure (e.g. Groq/OpenAI
+  // rejecting a request) shows its literal HTTP status + JSON error body as the alert message
+  // instead of a friendly one.
+  const showAIError = (title: string, error: unknown): void => {
+    const providerLabel = ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI'
+    setErrorNotice({ title, message: formatUserFriendlyProviderError(providerLabel, error, t) })
+  }
   const clozeOnly = params.mode === 'cloze'
   // Reverse practice shares the exact same due queue/FSRS schedule as normal word-meaning review
   // (getCardsDueForReview/card_states, unchanged below) — it's the same fact, just prompted in
@@ -747,8 +757,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   const generateEditExample = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('No AI provider is active.'))
-      if (!view?.clusterRef) throw new Error(t('This word has no meaning yet.'))
-      const result = await ai.generateExamples(view.form, view.clusterRef, {
+      if (!view || !effectiveClusterRef) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.generateExamples(view.form, effectiveClusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
         nativeLanguage,
@@ -761,10 +771,20 @@ export default function ReviewSessionScreen(): JSX.Element {
       setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(generated.sentence), view?.form ?? ''))
       setEditTranslation(generated.translation)
     },
-    onError: (error: unknown) => showError(t('Could not generate an example'), error),
+    onError: (error: unknown) => showAIError(t('Could not generate an example'), error),
   })
 
   const isAiCard = !!view?.card.source && AI_GENERATED_SOURCES.includes(view.card.source)
+
+  // Explain/More info/Ask AI all need *some* cluster (label/description) to give the AI provider
+  // as context - normally the card's own real meaning cluster, always present for a genuinely
+  // persisted card (every persist path creates a cluster with its meaning, atomically - see
+  // persistTranslationAsCard/persistWordGeneration). This falls back to a minimal one built from
+  // whatever's on `view` (its translation, or worst case just the word itself) for the rare case a
+  // real one isn't resolved, so these three actions work on any card with AI configured instead of
+  // refusing outright - "no meaning yet" was blocking Ask AI (and, briefly, More info) on cards
+  // that had every right to work, including plain Google/DeepL-sourced ones.
+  const effectiveClusterRef = view ? (view.clusterRef ?? { label: 'general', description: view.meaning || view.form }) : null
 
   // AI cards: generated on demand (only when "More info" is tapped and nothing's stored yet — see
   // handleExplain) and persisted via updateMeaningText, so it's free to re-show next time — never
@@ -775,8 +795,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   const generateExplanation = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
-      if (!view?.meaningId || !view.clusterRef) throw new Error(t('This word has no meaning yet.'))
-      const result = await ai.generateMeaning(view.form, view.clusterRef, {
+      if (!view?.meaningId || !effectiveClusterRef) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.generateMeaning(view.form, effectiveClusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
         nativeLanguage,
@@ -800,8 +820,8 @@ export default function ReviewSessionScreen(): JSX.Element {
   const generateMoreInfo = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
-      if (!view?.clusterRef) throw new Error(t('This word has no meaning yet.'))
-      const result = await ai.explainWordDetail(view.form, view.clusterRef, {
+      if (!view || !effectiveClusterRef) throw new Error(t('This word has no meaning yet.'))
+      const result = await ai.explainWordDetail(view.form, effectiveClusterRef, {
         cefrLevel: defaultCefr,
         language: view.language,
         nativeLanguage,
@@ -922,16 +942,6 @@ export default function ReviewSessionScreen(): JSX.Element {
   const handleAskAI = (): void => {
     if (!ai) {
       aiRequiredAlert.show(t('chat with your AI tutor'))
-      return
-    }
-    // A card with no resolvable meaning/cluster (e.g. content removed via moderation, or an
-    // import that didn't attach one) has nothing for the chat to discuss — surfacing that
-    // explicitly instead of silently doing nothing when the button is tapped.
-    if (!view?.clusterRef) {
-      setErrorNotice({
-        title: t('Nothing to chat about yet'),
-        message: t("This card has no meaning content yet, so there's nothing to discuss. Open it from the word's own page and try Regenerate there."),
-      })
       return
     }
     setAskAiOpen(true)
@@ -1178,7 +1188,13 @@ export default function ReviewSessionScreen(): JSX.Element {
                 html={backHtml}
                 style={styles.templateFrontWrap}
               />
-              {(activeQuestionType === 'vocab' || activeQuestionType === 'cloze') && backSpeechText ? (
+              {/* Reverse's back is exactly where the German word gets revealed (see the swapped
+                  renderedContext above) - the same moment vocab/cloze already show a speaker for,
+                  so it belongs in this list too. Its front stays excluded: the front shows the
+                  English meaning as the prompt, and speaking German there would leak the answer
+                  before the card is even flipped. */}
+              {(activeQuestionType === 'vocab' || activeQuestionType === 'cloze' || activeQuestionType === 'reverse') &&
+              backSpeechText ? (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t('Listen')}
@@ -1434,7 +1450,7 @@ export default function ReviewSessionScreen(): JSX.Element {
           not. handleAskAI already guards opening it without `ai`/`view`; this just keeps the type
           checker honest. initialMessage carries over a question typed into "More info"'s composer
           (see bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
-      {ai && view?.clusterRef ? (
+      {ai && view && effectiveClusterRef ? (
         <WordChatSheet
           visible={askAiOpen}
           onClose={() => setAskAiOpen(false)}
@@ -1442,7 +1458,7 @@ export default function ReviewSessionScreen(): JSX.Element {
           ai={ai}
           cardId={view.card.id}
           word={view.form}
-          cluster={view.clusterRef}
+          cluster={effectiveClusterRef}
           cefrLevel={defaultCefr}
           language={view.language}
           nativeLanguage={nativeLanguage}

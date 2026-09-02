@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router'
+import { router, Stack } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
@@ -349,7 +349,10 @@ export default function AiProvidersScreen(): JSX.Element {
       <Card>
         <Text style={styles.sectionTitle}>{t('Active Generation Provider')}</Text>
         <Text style={styles.sectionSubtitle}>
-          {t('Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.')}
+          {t('Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?')}{' '}
+          <Text style={styles.feedbackLink} onPress={() => router.push('/settings/feedback')}>
+            {t('Contact us →')}
+          </Text>
         </Text>
         <View style={styles.grid}>
           {GENERATION_PROVIDERS.map((name) => {
@@ -773,6 +776,7 @@ const createStyles = (colors: ThemeColors) =>
     bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
     sectionTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
     sectionSubtitle: { fontSize: type.caption, color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg, lineHeight: 19 },
+    feedbackLink: { color: colors.primary, fontWeight: '700' },
     grid: { gap: spacing.md },
     providerCardContainer: {
       borderWidth: 1,

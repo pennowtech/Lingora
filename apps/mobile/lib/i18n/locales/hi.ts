@@ -1175,8 +1175,9 @@ Home: 'होम',
   // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
   // matching Audio Settings labels
   'Active Generation Provider': 'एक्टिव जनरेशन प्रोवाइडर',
-  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
-    'चुनें कि संदर्भ स्पष्ट करने, वर्ड पैकेज बनाने और सीईएफआर उदाहरण वाक्य तैयार करने के लिए कौन सा एआई इंजन उपयोग किया जाए।',
+  'Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?':
+    'शब्द परिभाषाएँ और स्मार्ट कार्ड बनाने के लिए अपना एक्टिव AI इंजन चुनें। ध्यान दें कि तृतीय-पक्ष AI सेवाएँ कुछ प्लान्स के तहत प्रॉम्प्ट्स पर मॉडल को प्रशिक्षित कर सकती हैं। क्या आपको मदद चाहिए या कोई सवाल है?',
+  'Contact us →': 'हमसे संपर्क करें →',
   'Key configured': 'key कॉन्फ़िगर की गई',
   'No key set': 'कोई key सेट नहीं है',
   'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
@@ -1580,4 +1581,16 @@ Home: 'होम',
     '**पे-ऐज़-यू-गो विकल्प**: **OpenAI**, **Anthropic (Claude)**, **Mistral**, और **DeepSeek** जैसे प्रदाता उपयोग-आधारित प्रीपेड बैलेंस का उपयोग करते हैं। एक पूरा वोकैबुलरी कार्ड बनाने में आमतौर पर एक सेंट के दसवें हिस्से से भी कम ($0.0001 - $0.001 प्रति कार्ड) खर्च आता है, इसलिए थोड़ा सा क्रेडिट भी हज़ारों शब्दों के लिए पर्याप्त होता है।',
   "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
     'एक बार कुंजी सत्यापित हो जाने के बाद, डेवलपर पोर्टल लिंक **उन्नत इंजन और कस्टम मॉडल** के अंतर्गत किसी भी समय आसानी से उपलब्ध रहता है।',
+  'Selected Model': 'चयनित मॉडल',
+  'Pending: {{model}}': 'प्रतीक्षारत: {{model}}',
+  'Needs Key Validation': 'कुंजी सत्यापन आवश्यक',
+  'Test & Switch Model': 'मॉडल का परीक्षण करें और बदलें',
+  'Fastest next-gen lightweight Gemini model': 'अगली पीढ़ी का सबसे तेज़ हल्का जेमिनी मॉडल',
+  'Lightweight ultra-fast model': 'हल्का और अत्यधिक तेज़ मॉडल',
+  'Next-gen lightweight model': 'अगली पीढ़ी का हल्का मॉडल',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'जब आप **“Add to deck”** पर टैप करते हैं, तो हर डेक के पास छोटे **आइकन बैज** दिखाते हैं कि उसमें कौन-से *study formats* की practice होती है:',
+  'AI Enrichment Incomplete': 'AI जानकारी अधूरी है',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'इस शब्द के लिए AI का जवाब पूरा नहीं था, इसलिए कुछ भी save नहीं हुआ। दोबारा कोशिश करने के लिए Regenerate दबाएँ।',
 }

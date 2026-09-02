@@ -1178,8 +1178,9 @@ Home: 'Inicio',
 
   // Newly added — the redesigned AI Providers help sheet and its matching Audio Settings labels
   'Active Generation Provider': 'Proveedor de generación activo',
-  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
-    'Elige qué motor de IA se usa para desambiguar el contexto, generar el paquete de la palabra y crear frases de ejemplo según el nivel MCER.',
+  'Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?':
+    'Elige tu motor de IA activo para generar definiciones de palabras y crear tarjetas inteligentes. Ten en cuenta que los servicios de IA de terceros pueden usar los mensajes para entrenar modelos según ciertos planes. ¿Necesitas ayuda o tienes preguntas?',
+  'Contact us →': 'Contáctanos →',
   'Key configured': 'Clave configurada',
   'No key set': 'Sin clave configurada',
   'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
@@ -1289,4 +1290,11 @@ Home: 'Inicio',
     '**Opciones de pago por uso**: Proveedores como **OpenAI**, **Anthropic (Claude)**, **Mistral** y **DeepSeek** utilizan saldo prepagado por uso. Generar una tarjeta completa suele costar menos de una décima de centavo ($0.0001 - $0.001 por tarjeta), por lo que un crédito pequeño rinde para miles de palabras.',
   "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
     'Una vez validada la clave, el enlace al portal para desarrolladores permanece siempre accesible en **Motor avanzado y modelos personalizados**.',
+  'Selected Model': 'Modelo seleccionado',
+  'Pending: {{model}}': 'Pendiente: {{model}}',
+  'Needs Key Validation': 'Requiere validación de clave',
+  'Test & Switch Model': 'Probar y cambiar modelo',
+  'Fastest next-gen lightweight Gemini model': 'Modelo Gemini ligero de última generación más rápido',
+  'Lightweight ultra-fast model': 'Modelo ligero ultrarrápido',
+  'Next-gen lightweight model': 'Modelo ligero de nueva generación',
 }

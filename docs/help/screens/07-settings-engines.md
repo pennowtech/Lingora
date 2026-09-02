@@ -94,12 +94,19 @@ Define your active learning pair, default difficulty level, review session sizes
 ### A. ✨ AI Providers & Models (Bring-Your-Own-Key)
 Connect personal API keys from leading AI providers. Lemmory processes generations directly from your device to the AI provider with zero middleman servers.
 
+> **Privacy Notice**: Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans (especially on free tiers and select paid accounts). Have questions? You can reach out directly via the in-app feedback form (**Settings > About & Support > Send Feedback**).
+
 ```
 ┌────────────────────────────────────────────────────────┐
+│  Active Generation Provider                            │
+│  Pick your active AI engine to generate word           │
+│  definitions, and for smart card creation...           │
+│  [ Contact us → ]                                      │
+├────────────────────────────────────────────────────────┤
 │  Google Gemini                          [ Active ✓ ]   │
-│  Gemini 2.0 Flash · Fast & Free Tier                   │
+│  Gemini 3.5 Flash Lite · Ultra-Light (Default)         │
 │  [ Validated Key: ••••••••••••abcd ]                   │
-│  [ Profile: Smart & Fast ▾ ]  [ Test & Save Key ]      │
+│  [ Profile: Gemini 3.5 Flash Lite ▾ ]                  │
 ├────────────────────────────────────────────────────────┤
 │  OpenAI                                                │
 │  GPT-4o Mini · Balanced Generation                     │
@@ -112,16 +119,16 @@ Connect personal API keys from leading AI providers. Lemmory processes generatio
 ```
 
 - **Supported AI Providers**:
-  - **Google Gemini**: Generous free-tier limits via Google AI Studio (`gemini-2.0-flash`, `gemini-1.5-pro`).
+  - **Google Gemini**: Generous free-tier limits via Google AI Studio (`gemini-3.5-flash-lite`, `gemini-2.5-flash`).
   - **Groq**: Ultra-low latency open models running on LPU chips (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`).
-  - **OpenAI**: Industry-standard structured linguistic output (`gpt-4o`, `gpt-4o-mini`, `o1`, `o3-mini`).
-  - **Mistral**: European-hosted, privacy-conscious models (`mistral-large-latest`, `mistral-small-latest`).
-  - **Claude (Anthropic)**: Exceptional linguistic reasoning and natural idiom explanations (`claude-3-5-sonnet`, `claude-3-5-haiku`).
+  - **OpenAI**: Industry-standard structured linguistic output (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-4o`, `gpt-3.5-turbo`).
+  - **Mistral**: European-hosted, privacy-conscious models (`mistral-small-latest`, `mistral-medium-latest`).
+  - **Claude (Anthropic)**: Exceptional linguistic reasoning and natural idiom explanations (`claude-haiku-4-5-20251001`, `claude-sonnet-5`).
   - **DeepSeek**: High capability and economical pricing (`deepseek-chat`, `deepseek-reasoner`).
-- **Curated Model Profiles**: Select preset profiles tagged by performance (e.g. *Fast & Cheap*, *Smart & Nuanced*, *Multilingual Expert*).
+- **Curated Model Profiles**: Select preset profiles tagged by performance (e.g. *⚡ Ultra-Light*, *🌟 Recommended*, *🧠 Deep Quality*).
 - **Custom Model Override**: Advanced users can type any custom model identifier string supported by the provider.
+- **Draft Model Selection**: Selecting a new model in the drawer acts as a non-destructive draft. Your existing active connection continues running uninterrupted until you tap **`Test & Switch Model`**.
 - **Direct Portal Links (`Get key from... ↗`)**: One-tap shortcut opens the provider's developer portal in your browser to generate a key. Once a key is validated, the setup link automatically collapses into an advanced drawer.
-- **Automatic Fallback Pool**: If your active provider experiences a temporary outage or hits a rate limit, Lemmory automatically fails over to your other validated keys so your study flow is never interrupted.
 - **Security & Privacy**: API keys are stored solely inside your device's native hardware-backed secure storage (**Apple Keychain** on iOS, **Android Keystore** on Android).
 - **Delete All AI Keys**: A dedicated one-tap safety button to securely wipe all stored API keys from device storage.
 

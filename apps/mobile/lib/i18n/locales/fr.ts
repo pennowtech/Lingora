@@ -1180,8 +1180,9 @@ Home: 'Accueil',
   // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
   // matching Audio Settings labels
   'Active Generation Provider': 'Fournisseur de génération actif',
-  'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
-    'Choisis quel moteur IA est utilisé pour la désambiguïsation du contexte, la génération du pack de mots et la création des phrases d\'exemple selon le niveau CECR.',
+  'Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans. Need help or have questions?':
+    'Choisis ton moteur IA actif pour générer les définitions de mots et créer des cartes intelligentes. Note que les services IA tiers peuvent utiliser les invites pour l\'entraînement selon certains forfaits. Besoin d\'aide ou des questions ?',
+  'Contact us →': 'Contacte-nous →',
   'Key configured': 'Clé configurée',
   'No key set': 'Aucune clé définie',
   'Select which engine speaks aloud - device voices are free and offline; cloud providers are bring-your-own-key.':
@@ -1291,4 +1292,11 @@ Home: 'Accueil',
     '**Options payantes à l\'usage** : Les fournisseurs comme **OpenAI**, **Anthropic (Claude)**, **Mistral** et **DeepSeek** fonctionnent avec un solde prépayé. La génération d\'une carte de vocabulaire complète coûte généralement moins d\'un dixième de centime (0,0001 $ - 0,001 $ par carte), ainsi un petit crédit permet de générer des milliers de mots.',
   "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
     'Une fois la clé validée, le lien vers le portail développeur reste accessible à tout moment sous **Moteur avancé et modèles personnalisés**.',
+  'Selected Model': 'Modèle sélectionné',
+  'Pending: {{model}}': 'En attente : {{model}}',
+  'Needs Key Validation': 'Validation de clé requise',
+  'Test & Switch Model': 'Tester et changer de modèle',
+  'Fastest next-gen lightweight Gemini model': 'Modèle Gemini léger de nouvelle génération le plus rapide',
+  'Lightweight ultra-fast model': 'Modèle léger ultra-rapide',
+  'Next-gen lightweight model': 'Modèle léger de nouvelle génération',
 }

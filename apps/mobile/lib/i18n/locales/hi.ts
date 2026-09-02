@@ -1183,7 +1183,7 @@ Home: 'होम',
     'चुनें कि कौन सा इंजन बोलकर सुनाए - डिवाइस की आवाज़ें मुफ़्त हैं और ऑफ़लाइन काम करती हैं; क्लाउड प्रोवाइडर आपकी अपनी API key का उपयोग करते हैं।',
   'Always available': 'हमेशा उपलब्ध',
   'Validated': 'वेरिफ़ाइड',
-  '"Active" vs "Enabled" - what\'s the difference?': '"एक्टिव" बनाम "सक्षम" - अंतर क्या है?',
+  'Active provider & automatic fallback': 'सक्रिय प्रदाता और स्वचालित फ़ॉलबैक',
   'Adding and validating a key': 'key जोड़ना और वेरिफ़ाइड करना',
   'Which provider should I pick?': 'कौन सा प्रोवाइडर चुनें?',
   'What the usage numbers mean': 'उपयोग के आंकड़ों का क्या मतलब है',
@@ -1193,16 +1193,16 @@ Home: 'होम',
     'यह **"अपनी key लाएं"** तरीके पर काम करता है: Lingora के साथ कोई साझा एआई सब्सक्रिप्शन नहीं आता, इसलिए जब तक आप नीचे दिए गए किसी प्रोवाइडर में अपनी खुद की API key नहीं डालते, तब तक कुछ भी जनरेट नहीं होता। इसका मतलब यह भी है कि जब तक आप वाकई कोई शब्द नहीं खोजते, तब तक कहीं कुछ नहीं भेजा जाता - सिर्फ़ key सेव होने से कोई अनुरोध शुरू नहीं होता।',
   'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
     'आपको हर प्रोवाइडर में जानकारी भरने की ज़रूरत नहीं है। एक काम करने वाली, वेरिफ़ाइड key ही काफी है - जिस सेवा का खाता आपके पास पहले से है, या जिसे आज़माने में आपकी दिलचस्पी है, उसे चुनें और वहीं से शुरू करें।',
-  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
-    '**एक्टिव** वह एकमात्र प्रोवाइडर है जो अभी वाकई काम कर रहा है - वह इंजन जो शब्द खोजने पर जवाब देता है। एक समय में केवल एक ही प्रोवाइडर एक्टिव हो सकता है, और किसी वेरिफ़ाइड प्रोवाइडर के कार्ड पर टैप करते ही तुरंत उस पर स्विच हो जाता है।',
-  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
-    '**सक्षम** एक हल्का संकेतक है, जो हर प्रोवाइडर के अपने सेटिंग्स पैनल में छिपा होता है। यह तय करता है कि उस प्रोवाइडर को चुना जा सकता है या नहीं (फ़ॉलबैक के रूप में, और ऐप में कहीं और, जैसे सेटिंग्स > अनुवाद में विकल्प के रूप में भी) - अगर आप किसी key को बाद के लिए सेव रखना चाहते हैं पर अभी उसका उपयोग नहीं होने देना चाहते, तो इसे बंद कर दें।',
-  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
-    'अगर किसी प्रोवाइडर के एक्टिव रहते हुए उसकी key मिटा दी जाती है या जाँच में विफल हो जाती है, तो Lingora चुपचाप अगले सबसे अच्छे विकल्प पर स्विच हो जाता है - जो प्रोवाइडर सक्षम है और जिसकी key वेरिफ़ाइड है - ताकि सिर्फ़ एक key के पुरानी पड़ जाने से आप कभी बिना जनरेशन के न रह जाएं।',
-  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
-    'किसी प्रोवाइडर की सेटिंग्स खोलने के लिए उसके कार्ड पर टैप करें, अपनी API key पेस्ट करें, और अगर डिफ़ॉल्ट से अलग मॉडल चाहिए तो उसे चुनें। फिर **वेरिफ़ाई करें** पर टैप करें - इससे एक छोटा असली अनुरोध भेजा जाता है, जो यह पुष्टि करता है कि key वाकई काम करती है, इससे पहले कि आप शब्द जनरेशन के लिए उस पर भरोसा करें।',
-  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
-    'कोई प्रोवाइडर तभी एक्टिव बनने के योग्य होता है जब उसकी key सफलतापूर्वक वेरिफ़ाइड हो चुकी हो। यह जानबूझकर किया गया है - इससे कोई गलत टाइप की गई या समय-सीमा समाप्त key चुपचाप आपके और नए कार्ड के बीच एकमात्र रुकावट नहीं बन पाती।',
+  '**Active** is the primary engine currently generating your cards and word explanations. Only one provider is Active at a time, and tapping **Activate** on any validated card sets it as primary immediately.':
+    '**सक्रिय** वह मुख्य इंजन है जो वर्तमान में आपके कार्ड और शब्द व्याख्याएं तैयार कर रहा है। एक समय में केवल एक ही प्रदाता सक्रिय हो सकता है; किसी भी सत्यापित कार्ड पर **सक्रिय करें** पर टैप करने से वह तुरंत प्राथमिक बन जाता है।',
+  'As soon as you test and validate an API key, that provider is ready to use and automatically joins your fallback pool.':
+    'जैसे ही आप किसी एपीआई कुंजी का परीक्षण और सत्यापन करते हैं, वह प्रदाता उपयोग के लिए तैयार हो जाता है और स्वचालित रूप से आपके फ़ॉलबैक पूल में शामिल हो जाता है।',
+  'If your Active key runs out of credits or encounters an unexpected rate limit, Lingora automatically falls back to your other validated providers so your card creation never fails.':
+    'यदि आपकी सक्रिय कुंजी का क्रेडिट समाप्त हो जाता है या दर सीमा आ जाती है, तो Lingora स्वचालित रूप से आपके अन्य सत्यापित प्रदाताओं पर स्विच हो जाता है ताकि कार्ड निर्माण कभी न रुके।',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Test & Save Key** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'किसी प्रदाता की सेटिंग्स खोलने के लिए उसके कार्ड पर टैप करें, अपनी एपीआई कुंजी दर्ज करें और मॉडल चुनें। फिर **कुंजी जांचें और सहेजें** दबाएं - यह कुंजी की पुष्टि के लिए एक छोटा सा परीक्षण अनुरोध भेजता है।',
+  'A provider becomes eligible to be Active as soon as its key validates successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'जैसे ही किसी प्रदाता की कुंजी सत्यापित होती है, वह सक्रिय होने के योग्य हो जाता है। यह अमान्य या समाप्त हो चुकी कुंजी को रुकावट बनने से रोकता है।',
   '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
     '**मिटाएं** इस डिवाइस से key को पूरी तरह हटा देता है (और उसका जाँच व उपयोग इतिहास रीसेट कर देता है)। कुछ भी इस डिवाइस के सुरक्षित स्टोरेज के अलावा कहीं और सेव नहीं होता - न Lingora के अपने सर्वर पर, न कहीं सिंक होता है, जब तक कि आप खुद बैकअप लेकर उसे पुनर्इंस्टॉल न करें।',
   '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
@@ -1517,4 +1517,67 @@ Home: 'होम',
   "**Tap a word** to hide it, and tap it again to un-hide it. You can **select more than one word or phrase**.": "**किसी शब्द को छिपाने के लिए उस पर टैप करें**, और उसे खोलने के लिए उस पर दोबारा टैप करें। आप **एक से अधिक शब्द या Phrases चुन सकते हैं**।",
   "**Preview** shows exactly how the sentence will appear on the front of the cloze card. **Translation** appears on the answer side.": "**प्रीव्यू** ठीक वही दिखाता है जो क्लोज़ कार्ड के सामने दिखाई देगा। **अनुवाद** उत्तर वाले भाग में दिखाई देता है।",
   "Keep at least **one blank** selected, then tap **Add to Deck** or **Save cloze card** to keep your changes.": "कम से कम **एक खाली** सिलेक्ट किया हुआ रखें, फिर अपने परिवर्तनों को रखने के लिए **डेक में जोड़ें** या **क्लोज़ कार्ड सेव करें** पर टैप करें।",
+  ACTIVE: 'सक्रिय',
+  Activate: 'सक्रिय करें',
+  'Active Model': 'सक्रिय मॉडल',
+  'Key saved': 'कुंजी सहेजी गई',
+  'No key pasted yet': 'अभी तक कोई कुंजी पेस्ट नहीं की गई',
+  'Validated · Ready to use': 'सत्यापित · उपयोग के लिए तैयार',
+  'Connected & Active': 'कनेक्टेड और सक्रिय',
+  'Get key from {{portal}} ↗': '{{portal}} से कुंजी प्राप्त करें ↗',
+  'Test & Save Key': 'कुंजी जांचें और सहेजें',
+  'Key Validated': 'कुंजी सत्यापित',
+  'Advanced Engine & Custom Models': 'उन्नत इंजन और कस्टम मॉडल',
+  'Custom Model Identifier': 'कस्टम मॉडल पहचानकर्ता',
+  'Active Custom Model': 'सक्रिय कस्टम मॉडल',
+  Default: 'डिफ़ॉल्ट',
+  'e.g. {{defaultModel}}, custom fine-tune...': 'उदा. {{defaultModel}}, कस्टम मॉडल...',
+  '{{count}} cards generated': '{{count}} कार्ड जनरेट किए गए',
+  'Usage Console ↗': 'उपयोग कंसोल ↗',
+  Paste: 'पेस्ट करें',
+  '⚡ Fastest': '⚡ सबसे तेज़',
+  '🧠 Deep Nuance': '🧠 गहरा भाषाई ज्ञान',
+  '🌐 Multilingual': '🌐 बहुभाषी',
+  '🌟 Recommended': '🌟 अनुशंसित',
+  '⚡ Fast': '⚡ तेज़',
+  '🧠 Deep Quality': '🧠 उच्च गुणवत्ता',
+  Legacy: 'क्लासिक',
+  '🆓 Free Tier / Fast': '🆓 मुफ़्त टीयर / तेज़',
+  '⚡ Ultra-Light': '⚡ अल्ट्रा-लाइट',
+  '⚡ Fast & Smart': '⚡ तेज़ और स्मार्ट',
+  '🧠 Best Nuance': '🧠 सर्वोत्तम भाषाई समझ',
+  '🧠 Deep Grammar': '🧠 गहन व्याकरण',
+  '💰 Economical': '💰 किफायती',
+  '🧠 Deep Reasoning': '🧠 गहन तार्किक समझ',
+  'Ultra-low latency (~200ms) on Groq LPUs': 'Groq LPU पर अल्ट्रा-लो लेटेंसी (~200ms)',
+  'Massive open weights model for complex words': 'जटिल शब्दों के लिए विशाल ओपन वेट्स मॉडल',
+  'Strong multilingual translation & grammar': 'मजबूत बहुभाषी अनुवाद और व्याकरण',
+  'Multi-model routing for optimal accuracy': 'सटीक परिणाम के लिए मल्टी-मॉडल रूटिंग',
+  'Fast, accurate & cost-effective ($0.0001/card)': 'तेज़, सटीक और किफ़ायती ($0.0001/कार्ड)',
+  'Next-gen mini reasoning model': 'अगली पीढ़ी का मिनी रीज़निंग मॉडल',
+  'Highest quality reasoning & nuance': 'तर्क और भाषाई समझ के लिए सर्वोच्च गुणवत्ता',
+  'Classic lightweight model': 'क्लासिक हल्का मॉडल',
+  'High speed, generous free quota limits': 'तेज़ गति, उदार मुफ़्त कोटा सीमाएं',
+  'Fastest lightweight Gemini endpoint': 'सबसे तेज़ हल्का Gemini एंडपॉइंट',
+  'Rapid responses with Anthropic precision': 'Anthropic सटीकता के साथ तेज़ प्रतिक्रियाएं',
+  'Gold standard for example sentences & idioms': 'उदाहरण वाक्यों और मुहावरों के लिए सर्वश्रेष्ठ मानक',
+  'Fast, cost-efficient European hosting': 'तेज़ और किफ़ायती यूरोपीय होस्टिंग',
+  'Higher capacity for advanced linguistic queries': 'उन्नत भाषाई प्रश्नों के लिए उच्च क्षमता',
+  'Very low cost with capable language generation': 'सक्षम भाषा निर्माण के साथ बहुत कम लागत',
+  'Chain-of-thought analysis for complex grammar': 'जटिल व्याकरण के लिए चरणबद्ध विश्लेषण',
+  '{{provider}} API Key': '{{provider}} एपीआई कुंजी',
+  'Engine profiles and custom models': 'इंजन प्रोफ़ाइल और कस्टम मॉडल',
+  'Each provider offers curated **preset engine profiles** tagged with their strengths (such as speed, reasoning, or multilingual quality) so you can pick the best balance for your learning.':
+    'प्रत्येक प्रदाता अपनी ताकत (जैसे गति, तार्किक समझ, या बहुभाषी गुणवत्ता) के साथ टैग किए गए विशेष **प्रीसेट इंजन प्रोफ़ाइल** प्रदान करता है ताकि आप अपनी पढ़ाई के लिए सही संतुलन चुन सकें।',
+  'Under **Advanced Engine & Custom Models**, you can also access provider portal links or enter a **Custom Model Identifier** (e.g. newly released checkpoints, preview models, or private fine-tunes). Setting a custom model identifier automatically overrides the preset profiles.':
+    '**उन्नत इंजन और कस्टम मॉडल** के तहत, आप प्रदाता पोर्टल लिंक तक भी पहुंच सकते हैं या एक **कस्टम मॉडल पहचानकर्ता** दर्ज कर सकते हैं (उदा. नए जारी किए गए मॉडल, पूर्वावलोकन मॉडल, या निजी कस्टम मॉडल)। कस्टम मॉडल पहचानकर्ता सेट करने से प्रीसेट प्रोफ़ाइल स्वतः ओवरराइड हो जाती हैं।',
+  'How to get an API key': 'एपीआई कुंजी कैसे प्राप्त करें',
+  "Getting an API key takes about a minute. Each provider has a developer portal where you sign up, create a key, and copy it into Lingora. You can tap the **Get key from... ↗** link on any card to open that provider's official portal directly in your browser.":
+    'एपीआई कुंजी प्राप्त करने में केवल एक मिनट का समय लगता है। प्रत्येक प्रदाता का एक डेवलपर पोर्टल होता है जहाँ आप साइन अप करते हैं, एक कुंजी बनाते हैं और उसे Lingora में पेस्ट करते हैं। प्रदाता का आधिकारिक पोर्टल सीधे ब्राउज़र में खोलने के लिए किसी भी कार्ड पर **... से कुंजी प्राप्त करें ↗** लिंक पर टैप करें।',
+  "**Free-tier options**: If you want to start without adding a payment method, **Google Gemini** (via Google AI Studio) and **Groq** (via Groq Console) offer generous free-tier quotas suitable for daily vocabulary lookups.":
+    '**मुफ़्त विकल्प**: यदि आप बिना कोई भुगतान विधि जोड़े शुरुआत करना चाहते हैं, तो **Google Gemini** (Google AI Studio के माध्यम से) और **Groq** (Groq Console के माध्यम से) दैनिक शब्दावली के लिए उदार मुफ़्त कोटा प्रदान करते हैं।',
+  "**Pay-as-you-go options**: Providers like **OpenAI**, **Anthropic (Claude)**, **Mistral**, and **DeepSeek** use pay-as-you-go billing with prepaid balances. Generating a full vocabulary card typically costs less than a tenth of a cent ($0.0001 - $0.001 per card), so a small credit can last for thousands of words.":
+    '**पे-ऐज़-यू-गो विकल्प**: **OpenAI**, **Anthropic (Claude)**, **Mistral**, और **DeepSeek** जैसे प्रदाता उपयोग-आधारित प्रीपेड बैलेंस का उपयोग करते हैं। एक पूरा वोकैबुलरी कार्ड बनाने में आमतौर पर एक सेंट के दसवें हिस्से से भी कम ($0.0001 - $0.001 प्रति कार्ड) खर्च आता है, इसलिए थोड़ा सा क्रेडिट भी हज़ारों शब्दों के लिए पर्याप्त होता है।',
+  "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
+    'एक बार कुंजी सत्यापित हो जाने के बाद, डेवलपर पोर्टल लिंक **उन्नत इंजन और कस्टम मॉडल** के अंतर्गत किसी भी समय आसानी से उपलब्ध रहता है।',
 }

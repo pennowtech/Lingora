@@ -1176,8 +1176,7 @@ Home: 'Inicio',
   'Saving always replaces this card\'s cloze sentence rather than adding a second one - there\'s only ever one per card.':
     'Guardar siempre reemplaza la oración de huecos existente de esta tarjeta en lugar de añadir una segunda - solo puede haber una por tarjeta.',
 
-  // Newly added — the redesigned AI Providers help sheet (grid + single detail panel) and its
-  // matching Audio Settings labels
+  // Newly added — the redesigned AI Providers help sheet and its matching Audio Settings labels
   'Active Generation Provider': 'Proveedor de generación activo',
   'Select which AI engine is used for context disambiguation, word package generation, and CEFR example sentence creation.':
     'Elige qué motor de IA se usa para desambiguar el contexto, generar el paquete de la palabra y crear frases de ejemplo según el nivel MCER.',
@@ -1187,7 +1186,7 @@ Home: 'Inicio',
     'Elige qué motor habla en voz alta - las voces del dispositivo son gratuitas y funcionan sin conexión; los proveedores en la nube usan tu propia clave API.',
   'Always available': 'Siempre disponible',
   'Validated': 'Validada',
-  '"Active" vs "Enabled" - what\'s the difference?': '«Activo» frente a «Habilitado» - ¿cuál es la diferencia?',
+  'Active provider & automatic fallback': 'Proveedor activo y respaldo automático',
   'Adding and validating a key': 'Añadir y validar una clave',
   'Which provider should I pick?': '¿Qué proveedor debería elegir?',
   'What the usage numbers mean': 'Qué significan las cifras de uso',
@@ -1197,16 +1196,16 @@ Home: 'Inicio',
     'Funciona con el principio de **"trae tu propia clave"**: Lingora no incluye una suscripción de IA compartida, así que no se genera nada hasta que pegues tu propia clave API en uno de los proveedores de abajo. Eso también significa que nunca se envía nada a ningún sitio hasta que realmente busques una palabra - guardar una clave por sí sola no dispara ninguna solicitud.',
   'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
     'No necesitas rellenar todos los proveedores. Con una sola clave que funcione y esté validada es suficiente - elige el servicio con el que ya tengas cuenta, o el que te dé curiosidad probar, y empieza por ahí.',
-  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
-    '**Activo** es el único proveedor que realmente está trabajando ahora mismo - el motor que responde cuando buscas una palabra. Solo un proveedor puede estar Activo a la vez, y tocar la tarjeta de un proveedor validado cambia a él al instante.',
-  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
-    '**Habilitado** es un indicador más suave, dentro del propio panel de ajustes de cada proveedor. Controla si ese proveedor puede elegirse en absoluto (incluso como alternativa de respaldo, y como opción en otras partes de la app, como Ajustes > Traducción) - desactívalo si quieres guardar una clave para más adelante sin que se pueda usar ahora.',
-  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
-    'Si una clave se borra o falla la validación mientras su proveedor está Activo, Lingora cambia discretamente a la siguiente mejor opción - un proveedor que esté habilitado y tenga una clave validada - para que nunca te quedes sin generación solo porque una clave dejó de ser válida.',
-  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
-    'Toca la tarjeta de un proveedor para abrir sus ajustes, pega tu clave API y elige un modelo distinto del predeterminado si quieres. Luego pulsa **Validar** - esto envía una pequeña solicitud real para confirmar que la clave funciona antes de que confíes en ella para generar palabras.',
-  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
-    'Un proveedor solo se vuelve elegible para ser Activo una vez que su clave se ha validado correctamente. Es a propósito - así se evita que una clave mal escrita o caducada se convierta, sin que te des cuenta, en lo único que te separa de una tarjeta nueva.',
+  '**Active** is the primary engine currently generating your cards and word explanations. Only one provider is Active at a time, and tapping **Activate** on any validated card sets it as primary immediately.':
+    '**Activo** es el motor principal que actualmente genera tus tarjetas y explicaciones de palabras. Solo un proveedor puede estar Activo a la vez; tocar **Activar** en cualquier tarjeta validada lo establece como principal inmediatamente.',
+  'As soon as you test and validate an API key, that provider is ready to use and automatically joins your fallback pool.':
+    'Tan pronto como pruebes y valides una clave API, ese proveedor estará listo para usarse y se unirá automáticamente a tu grupo de respaldo.',
+  'If your Active key runs out of credits or encounters an unexpected rate limit, Lingora automatically falls back to your other validated providers so your card creation never fails.':
+    'Si tu clave activa se queda sin créditos o encuentra un límite de frecuencia, Lingora cambia automáticamente a tus otros proveedores validados para que la creación de tarjetas nunca falle.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Test & Save Key** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Toca la tarjeta de un proveedor, pega tu clave API y elige un modelo. Luego pulsa **Probar y guardar clave** para verificar que funciona correctamente.',
+  'A provider becomes eligible to be Active as soon as its key validates successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Un proveedor puede activarse tan pronto como su clave se valide con éxito. Esto evita que una clave errónea o caducada impida la generación de tarjetas.',
   '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
     '**Borrar** elimina la clave de este dispositivo por completo (y reinicia su historial de validación y uso). No se guarda nada en ningún otro sitio salvo en el almacenamiento seguro de este dispositivo - no en los servidores de Lingora, ni sincronizado en ningún sitio, a menos que tú mismo hagas una copia de seguridad y la restaures.',
   '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
@@ -1227,4 +1226,67 @@ Home: 'Inicio',
     'El panel de cada proveedor muestra un recuadro de **uso observado por el dispositivo** - el número de solicitudes y tokens que este dispositivo ha enviado realmente con esa clave. Es una referencia práctica, no una factura: solo cuenta lo que ha pasado aquí, así que no coincidirá con una clave compartida entre varios dispositivos o apps.',
   'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
     'Para las cifras reales y oficiales - y para cualquier cosa relacionada con facturación o límites de uso - usa el enlace «Abrir uso», que te lleva directamente al panel propio de ese proveedor.',
+  ACTIVE: 'ACTIVO',
+  Activate: 'Activar',
+  'Active Model': 'Modelo activo',
+  'Key saved': 'Clave guardada',
+  'No key pasted yet': 'Aún no se ha pegado ninguna clave',
+  'Validated · Ready to use': 'Validado · Listo para usar',
+  'Connected & Active': 'Conectado y activo',
+  'Get key from {{portal}} ↗': 'Obtener clave en {{portal}} ↗',
+  'Test & Save Key': 'Probar y guardar clave',
+  'Key Validated': 'Clave validada',
+  'Advanced Engine & Custom Models': 'Motor avanzado y modelos personalizados',
+  'Custom Model Identifier': 'Identificador de modelo personalizado',
+  'Active Custom Model': 'Modelo personalizado activo',
+  Default: 'Predeterminado',
+  'e.g. {{defaultModel}}, custom fine-tune...': 'ej. {{defaultModel}}, modelo personalizado...',
+  '{{count}} cards generated': '{{count}} tarjetas generadas',
+  'Usage Console ↗': 'Consola de uso ↗',
+  Paste: 'Pegar',
+  '⚡ Fastest': '⚡ Más rápido',
+  '🧠 Deep Nuance': '🧠 Matices profundos',
+  '🌐 Multilingual': '🌐 Multilingüe',
+  '🌟 Recommended': '🌟 Recomendado',
+  '⚡ Fast': '⚡ Rápido',
+  '🧠 Deep Quality': '🧠 Alta calidad',
+  Legacy: 'Clásico',
+  '🆓 Free Tier / Fast': '🆓 Nivel gratuito / Rápido',
+  '⚡ Ultra-Light': '⚡ Ultraligero',
+  '⚡ Fast & Smart': '⚡ Rápido e inteligente',
+  '🧠 Best Nuance': '🧠 Mejores matices',
+  '🧠 Deep Grammar': '🧠 Gramática profunda',
+  '💰 Economical': '💰 Económico',
+  '🧠 Deep Reasoning': '🧠 Razonamiento profundo',
+  'Ultra-low latency (~200ms) on Groq LPUs': 'Latencia ultrabaja (~200 ms) en LPUs de Groq',
+  'Massive open weights model for complex words': 'Modelo open-weights masivo para palabras complejas',
+  'Strong multilingual translation & grammar': 'Gran traducción multilingüe y gramática',
+  'Multi-model routing for optimal accuracy': 'Enrutamiento multimodelo para máxima precisión',
+  'Fast, accurate & cost-effective ($0.0001/card)': 'Rápido, preciso y económico (0.0001 $/tarjeta)',
+  'Next-gen mini reasoning model': 'Modelo mini de razonamiento de última generación',
+  'Highest quality reasoning & nuance': 'Máxima calidad en razonamiento y matices',
+  'Classic lightweight model': 'Modelo ligero clásico',
+  'High speed, generous free quota limits': 'Alta velocidad y generosos límites gratuitos',
+  'Fastest lightweight Gemini endpoint': 'Extremo de Gemini ligero más rápido',
+  'Rapid responses with Anthropic precision': 'Respuestas rápidas con precisión Anthropic',
+  'Gold standard for example sentences & idioms': 'El estándar de oro para frases de ejemplo y modismos',
+  'Fast, cost-efficient European hosting': 'Alojamiento europeo rápido y económico',
+  'Higher capacity for advanced linguistic queries': 'Mayor capacity para consultas lingüísticas avanzadas',
+  'Very low cost with capable language generation': 'Costo muy bajo con generación sólida de lenguaje',
+  'Chain-of-thought analysis for complex grammar': 'Análisis paso a paso para gramática compleja',
+  '{{provider}} API Key': 'Clave API de {{provider}}',
+  'Engine profiles and custom models': 'Perfiles de motor y modelos personalizados',
+  'Each provider offers curated **preset engine profiles** tagged with their strengths (such as speed, reasoning, or multilingual quality) so you can pick the best balance for your learning.':
+    'Cada proveedor ofrece **perfiles de motor predefinidos** con etiquetas que destacan sus fortalezas (como velocidad, razonamiento o calidad multilingüe) para que elijas el equilibrio ideal para tu aprendizaje.',
+  'Under **Advanced Engine & Custom Models**, you can also access provider portal links or enter a **Custom Model Identifier** (e.g. newly released checkpoints, preview models, or private fine-tunes). Setting a custom model identifier automatically overrides the preset profiles.':
+    'En **Motor avanzado y modelos personalizados**, también puedes acceder a los enlaces del portal del proveedor o introducir un **Identificador de modelo personalizado** (ej. versiones recién lanzadas, modelos de vista previa o ajustes privados). Configurar un identificador personalizado anula automáticamente los perfiles predefinidos.',
+  'How to get an API key': 'Cómo obtener una clave API',
+  "Getting an API key takes about a minute. Each provider has a developer portal where you sign up, create a key, and copy it into Lingora. You can tap the **Get key from... ↗** link on any card to open that provider's official portal directly in your browser.":
+    'Obtener una clave API solo toma un minuto. Cada proveedor tiene un portal para desarrolladores donde te registras, creas una clave y la pegas en Lingora. Puedes tocar el enlace **Obtener clave en... ↗** en cualquier tarjeta para abrir su portal oficial en el navegador.',
+  "**Free-tier options**: If you want to start without adding a payment method, **Google Gemini** (via Google AI Studio) and **Groq** (via Groq Console) offer generous free-tier quotas suitable for daily vocabulary lookups.":
+    '**Opciones gratuitas**: Si deseas comenzar sin añadir un método de pago, **Google Gemini** (mediante Google AI Studio) y **Groq** (mediante Groq Console) ofrecen cuotas gratuitas generosas para el estudio diario.',
+  "**Pay-as-you-go options**: Providers like **OpenAI**, **Anthropic (Claude)**, **Mistral**, and **DeepSeek** use pay-as-you-go billing with prepaid balances. Generating a full vocabulary card typically costs less than a tenth of a cent ($0.0001 - $0.001 per card), so a small credit can last for thousands of words.":
+    '**Opciones de pago por uso**: Proveedores como **OpenAI**, **Anthropic (Claude)**, **Mistral** y **DeepSeek** utilizan saldo prepagado por uso. Generar una tarjeta completa suele costar menos de una décima de centavo ($0.0001 - $0.001 por tarjeta), por lo que un crédito pequeño rinde para miles de palabras.',
+  "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
+    'Una vez validada la clave, el enlace al portal para desarrolladores permanece siempre accesible en **Motor avanzado y modelos personalizados**.',
 }

@@ -353,7 +353,7 @@ async function buildAIServices(
 
   const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude, deepseek, groq }
   const configured = GENERATION_PROVIDERS.filter(
-    (name) => configs[name].enabled && configs[name].key !== '' && configs[name].validated,
+    (name) => configs[name].key !== '' && configs[name].validated,
   )
   const preferred = (GENERATION_PROVIDERS as readonly string[]).includes(storedGenerationProvider ?? '')
     ? (storedGenerationProvider as GenerationProviderName)

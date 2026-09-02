@@ -30,6 +30,11 @@ export interface ExpoSQLiteDatabase {
  *   const db = await ExpoSQLiteAdapter.create(await openDatabaseAsync('lingora.db'))
  *   await migrate(db)
  */
+function sanitizeParams(params?: unknown[]): unknown[] {
+  if (!params || !Array.isArray(params)) return []
+  return params.map((p) => (p === undefined ? null : p))
+}
+
 export class ExpoSQLiteAdapter implements DatabaseAdapter {
   private readonly db: ExpoSQLiteDatabase
 
@@ -70,26 +75,39 @@ export class ExpoSQLiteAdapter implements DatabaseAdapter {
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
-    await this.enqueue(() => this.db.runAsync(sql, params ?? []))
+    const trimmed = typeof sql === 'string' ? sql.trim() : ''
+    if (!trimmed) return
+    const safeParams = sanitizeParams(params)
+    await this.enqueue(() => this.db.runAsync(trimmed, safeParams))
   }
 
   // Split and run one statement at a time via runAsync rather than handing
   // the whole script to execAsync — see sql-split.ts for why.
   async executeScript(sql: string): Promise<void> {
+    if (!sql || typeof sql !== 'string' || !sql.trim()) return
     const statements = splitSqlStatements(sql)
     await this.enqueue(async () => {
       for (const statement of statements) {
-        await this.db.runAsync(statement, [])
+        const trimmed = statement.trim()
+        if (trimmed && trimmed !== ';') {
+          await this.db.runAsync(trimmed, [])
+        }
       }
     })
   }
 
   async query<T = unknown>(sql: string, params?: unknown[]): Promise<T[]> {
-    return this.enqueue(() => this.db.getAllAsync<T>(sql, params ?? []))
+    const trimmed = typeof sql === 'string' ? sql.trim() : ''
+    if (!trimmed) return []
+    const safeParams = sanitizeParams(params)
+    return this.enqueue(() => this.db.getAllAsync<T>(trimmed, safeParams))
   }
 
   async querySingle<T = unknown>(sql: string, params?: unknown[]): Promise<T | undefined> {
-    const result = await this.enqueue(() => this.db.getFirstAsync<T>(sql, params ?? []))
+    const trimmed = typeof sql === 'string' ? sql.trim() : ''
+    if (!trimmed) return undefined
+    const safeParams = sanitizeParams(params)
+    const result = await this.enqueue(() => this.db.getFirstAsync<T>(trimmed, safeParams))
     return result ?? undefined
   }
 

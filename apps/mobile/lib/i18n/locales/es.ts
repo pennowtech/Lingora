@@ -1297,4 +1297,17 @@ Home: 'Inicio',
   'Fastest next-gen lightweight Gemini model': 'Modelo Gemini ligero de última generación más rápido',
   'Lightweight ultra-fast model': 'Modelo ligero ultrarrápido',
   'Next-gen lightweight model': 'Modelo ligero de nueva generación',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'Al tocar **"Añadir al mazo"**, pequeñas **insignias de iconos** junto a cada mazo muestran con qué *formatos de estudio* se practica:',
+  'AI Enrichment Incomplete': 'Enriquecimiento por IA incompleto',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'La respuesta de la IA para esta palabra no fue completa, por lo que no se guardó nada. Toca Regenerar para volver a intentarlo.',
+  'Study Progress and Decks': 'Progreso de estudio y mazos',
+  'Study Progress': 'Progreso de estudio',
+  '{{rate}}% 30-day memory retention': '{{rate}}% de retención a 30 días',
+  'Review cards regularly to build retention': 'Repasa tarjetas con frecuencia para consolidar la memoria',
+  'Stats ↗': 'Estadísticas ↗',
+  'View study statistics': 'Ver estadísticas de estudio',
+  '{{due}} cards due today': '{{due}} tarjetas pendientes hoy',
+  '{{total}} total cards in {{decks}} decks': '{{total}} tarjetas en total en {{decks}} mazos',
 }

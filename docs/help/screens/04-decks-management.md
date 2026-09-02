@@ -14,7 +14,7 @@ The **Decks** tab is where you track overall study progress, organize vocabulary
 │  42 cards due across 4 study collections today         │
 │  [████████████████████░░░░░░░░] 88% Retention          │
 ├────────────────────────────────────────────────────────┤
-│  YOUR STUDY DECKS                          [ + New Deck]│
+│  YOUR STUDY DECKS                                      │
 │                                                        │
 │  📁 German B1 Exam Prep                      84  · 12 ▾│
 │     [ ⇄ ⮌ T ☰ ]  (Review Modes)             [ ⋮ Menu ]│

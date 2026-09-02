@@ -357,7 +357,6 @@ export const ENGLISH_PHRASES = [
   "Everything is optional. Leave Word/Meaning unmapped for Cloze-style notes - they're derived from the example's cloze markup and its translation.",
   "None",
   "Import into deck",
-  "+ New deck",
   "If the word already exists",
   "Applies to every duplicate row you leave checked in the next step.",
   "Checking...",
@@ -1333,6 +1332,14 @@ export const ENGLISH_PHRASES = [
   'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:',
   'AI Enrichment Incomplete',
   "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.",
+  'Study Progress and Decks',
+  'Study Progress',
+  '{{rate}}% 30-day memory retention',
+  'Review cards regularly to build retention',
+  'Stats ↗',
+  'View study statistics',
+  '{{due}} cards due today',
+  '{{total}} total cards in {{decks}} decks',
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

@@ -1299,4 +1299,17 @@ Home: 'Accueil',
   'Fastest next-gen lightweight Gemini model': 'Modèle Gemini léger de nouvelle génération le plus rapide',
   'Lightweight ultra-fast model': 'Modèle léger ultra-rapide',
   'Next-gen lightweight model': 'Modèle léger de nouvelle génération',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'Lorsque vous appuyez sur **« Ajouter au paquet »**, de petits **badges d\'icônes** à côté de chaque paquet indiquent les *formats d\'apprentissage* utilisés :',
+  'AI Enrichment Incomplete': 'Enrichissement IA incomplet',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'La réponse de l\'IA pour ce mot était incomplète, rien n\'a donc été enregistré. Appuyez sur Régénérer pour réessayer.',
+  'Study Progress and Decks': 'Progression d\'étude et paquets',
+  'Study Progress': 'Progression d\'étude',
+  '{{rate}}% 30-day memory retention': '{{rate}} % de rétention mémorielle à 30 jours',
+  'Review cards regularly to build retention': 'Révisez régulièrement pour consolider votre rétention',
+  'Stats ↗': 'Stats ↗',
+  'View study statistics': 'Voir les statistiques d\'apprentissage',
+  '{{due}} cards due today': '{{due}} cartes à revoir aujourd\'hui',
+  '{{total}} total cards in {{decks}} decks': '{{total}} cartes au total dans {{decks}} paquets',
 }

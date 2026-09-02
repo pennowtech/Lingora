@@ -22,7 +22,6 @@ export const vi: Partial<Record<Phrase, string>> = {
   '"{{name}}" will be removed.': '"{{name}}" sẽ bị xóa.',
   '"{{term}}" is new': '"{{term}}" là từ mới',
   '+ New': '+ Mới',
-  '+ New deck': '+ Bộ thẻ mới',
   'A cloze card blanks out part of a sentence for you to fill in - a different way of practicing the same word.':
     'Thẻ điền khuyết ẩn đi một phần của câu để bạn điền vào - một cách khác để luyện tập cùng một từ.',
   'A green checkmark means the word is already in one of your decks.':
@@ -1293,4 +1292,17 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Fastest next-gen lightweight Gemini model': 'Mô hình Gemini thế hệ mới nhẹ và nhanh nhất',
   'Lightweight ultra-fast model': 'Mô hình nhẹ siêu nhanh',
   'Next-gen lightweight model': 'Mô hình nhẹ thế hệ mới',
+  'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:':
+    'Khi bạn chạm vào **"Thêm vào bộ thẻ"**, các **huy hiệu biểu tượng** nhỏ bên cạnh mỗi bộ thẻ cho biết những *định dạng học* mà nó hỗ trợ:',
+  'AI Enrichment Incomplete': 'Dữ liệu bổ sung AI chưa hoàn tất',
+  "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
+    'Phản hồi AI cho từ này chưa hoàn tất nên chưa lưu nội dung nào. Nhấn Tạo lại để thử lại.',
+  'Study Progress and Decks': 'Tiến độ học tập và bộ thẻ',
+  'Study Progress': 'Tiến độ học tập',
+  '{{rate}}% 30-day memory retention': '{{rate}}% tỷ lệ ghi nhớ 30 ngày',
+  'Review cards regularly to build retention': 'Ôn tập thẻ thường xuyên để củng cố trí nhớ',
+  'Stats ↗': 'Thống kê ↗',
+  'View study statistics': 'Xem thống kê học tập',
+  '{{due}} cards due today': '{{due}} thẻ cần ôn hôm nay',
+  '{{total}} total cards in {{decks}} decks': 'Tổng cộng {{total}} thẻ trong {{decks}} bộ thẻ',
 }

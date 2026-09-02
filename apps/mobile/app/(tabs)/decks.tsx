@@ -473,42 +473,56 @@ export default function DecksScreen(): JSX.Element {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* ── Editorial Mastery Hero Banner ── */}
-          <View style={styles.masteryHero}>
+          {/* ── Study Progress and Decks Hero Card (Concept 4) ── */}
+          <Pressable
+            style={styles.masteryHero}
+            onPress={() => router.push('/stats')}
+            accessibilityRole="button"
+            accessibilityLabel={t('View study statistics')}
+          >
             <View style={styles.masteryHeroTop}>
               <View style={styles.masteryTextGroup}>
-                <Text style={styles.masteryTitle}>{t('Mastery & Retention')}</Text>
+                <Text style={styles.masteryTitle}>{t('Study Progress')}</Text>
                 <Text style={styles.masterySubtitle}>
-                  {decksQuery.data?.totalDue === 0
-                    ? t('All caught up across {{decks}} study collections.', { decks: decksQuery.data?.totalDecks ?? 0 })
-                    : t('{{due}} cards due across {{decks}} study collections today.', {
-                        due: decksQuery.data?.totalDue ?? 0,
-                        decks: decksQuery.data?.totalDecks ?? 0,
-                      })}
+                  {decksQuery.data?.retentionRate !== undefined && decksQuery.data.retentionRate > 0
+                    ? t('{{rate}}% 30-day memory retention', { rate: Math.round(decksQuery.data.retentionRate) })
+                    : t('Review cards regularly to build retention')}
                 </Text>
               </View>
+
+              <Pressable
+                style={styles.statsLinkButton}
+                onPress={(e) => {
+                  e.stopPropagation()
+                  router.push('/stats')
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={t('Learning Statistics')}
+              >
+                <Icon name="BarChart2" size={13} color={colors.primary} />
+                <Text style={styles.statsLinkButtonText}>{t('Stats ↗')}</Text>
+              </Pressable>
             </View>
 
             <View style={styles.progressTrack}>
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${Math.min(100, Math.max(8, decksQuery.data?.retentionRate ?? 0))}%` },
+                  { width: `${Math.min(100, Math.max(6, decksQuery.data?.retentionRate ?? 0))}%` },
                 ]}
               />
             </View>
-          </View>
+
+            <View style={styles.masteryFootnoteRow}>
+              <Text style={styles.masteryFootnoteText}>
+                {t('{{due}} cards due today', { due: decksQuery.data?.totalDue ?? 0 })} · {t('{{total}} total cards in {{decks}} decks', { total: decksQuery.data?.totalCards ?? 0, decks: decksQuery.data?.totalDecks ?? 0 })}
+              </Text>
+            </View>
+          </Pressable>
 
           {/* ── Section Title Row ── */}
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>{t('Your Study Decks')}</Text>
-            <Pressable
-              style={styles.newDeckHeaderButton}
-              onPress={() => setCreateOpen(true)}
-            >
-              <Icon name="Plus" size={14} color={colors.primary} />
-              <Text style={styles.newDeckHeaderButtonLabel}>{t('New Deck')}</Text>
-            </Pressable>
           </View>
 
           {decksQuery.data?.tree.map((node) => (
@@ -1102,14 +1116,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primary,
       borderRadius: radius.full,
     },
-    sectionHeaderRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: spacing.md,
-    },
-    sectionTitle: { fontSize: type.body, fontWeight: '800', color: colors.text, letterSpacing: 0.2 },
-    newDeckHeaderButton: {
+    statsLinkButton: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
@@ -1117,8 +1124,32 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: 5,
       paddingHorizontal: spacing.sm,
       borderRadius: radius.full,
+      borderWidth: 1,
+      borderColor: `${colors.primary}20`,
     },
-    newDeckHeaderButtonLabel: { fontSize: type.micro, fontWeight: '700', color: colors.primary },
+    statsLinkButtonText: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    masteryFootnoteRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingTop: 2,
+    },
+    masteryFootnoteText: {
+      fontSize: 12,
+      color: colors.textMuted,
+      fontWeight: '500',
+    },
+    sectionHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: { fontSize: type.body, fontWeight: '800', color: colors.text, letterSpacing: 0.2 },
     deckRowContainer: { position: 'relative', marginBottom: spacing.md },
     subDeckIndicator: {
       position: 'absolute',

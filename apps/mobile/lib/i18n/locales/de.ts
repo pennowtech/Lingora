@@ -1606,4 +1606,12 @@ export const de: Record<Phrase, string> = {
   'AI Enrichment Incomplete': 'KI-Ergänzung unvollständig',
   "The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again.":
     'Die KI-Antwort für dieses Wort war unvollständig, daher wurde nichts gespeichert. Versuche es erneut mit „Neu generieren“.',
+  'Study Progress and Decks': 'Lernfortschritt & Decks',
+  'Study Progress': 'Lernfortschritt',
+  '{{rate}}% 30-day memory retention': '{{rate}} % 30-Tage-Erinnerungsrate',
+  'Review cards regularly to build retention': 'Lerne regelmäßig, um deine Erinnerung zu festigen',
+  'Stats ↗': 'Statistiken ↗',
+  'View study statistics': 'Lernstatistiken anzeigen',
+  '{{due}} cards due today': '{{due}} Karten heute fällig',
+  '{{total}} total cards in {{decks}} decks': '{{total}} Karten insgesamt in {{decks}} Decks',
 }

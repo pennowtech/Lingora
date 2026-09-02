@@ -1490,7 +1490,7 @@ export const de: Record<Phrase, string> = {
     'Wähle, welches System vorliest - Gerätestimmen sind kostenlos und offline nutzbar; Cloud-Anbieter nutzen deinen eigenen API-Schlüssel.',
   'Always available': 'Immer verfügbar',
   'Validated': 'Validiert',
-  '"Active" vs "Enabled" - what\'s the difference?': '„Aktiv" vs. „Aktiviert" - was ist der Unterschied?',
+  'Active provider & automatic fallback': 'Aktiver Anbieter & automatischer Fallback',
   'Adding and validating a key': 'Einen Schlüssel hinzufügen und validieren',
   'Which provider should I pick?': 'Welchen Anbieter sollte ich wählen?',
   'What the usage numbers mean': 'Was die Nutzungszahlen bedeuten',
@@ -1500,16 +1500,16 @@ export const de: Record<Phrase, string> = {
     'Es funktioniert nach dem Prinzip **„eigener Schlüssel"**: Lingora liefert kein gemeinsames KI-Abo mit, daher wird nichts erzeugt, bevor du deinen eigenen API-Schlüssel bei einem der Anbieter unten eingibst. Das bedeutet auch: Solange du kein Wort nachschlägst, wird nichts gesendet - ein gespeicherter Schlüssel allein löst keine Anfrage aus.',
   'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
     'Du musst nicht jeden Anbieter ausfüllen. Ein einziger funktionierender, validierter Schlüssel reicht - wähle den Dienst, bei dem du bereits ein Konto hast, oder einen, den du einfach ausprobieren möchtest, und leg dort los.',
-  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
-    '**Aktiv** ist der eine Anbieter, der gerade wirklich arbeitet - die KI, die antwortet, wenn du ein Wort nachschlägst. Nur ein Anbieter kann gleichzeitig aktiv sein, und ein Tipp auf die Karte eines validierten Anbieters schaltet sofort dorthin um.',
-  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
-    '**Aktiviert** ist eine sanftere Markierung, versteckt im eigenen Einstellungsbereich eines Anbieters. Sie legt fest, ob dieser Anbieter überhaupt ausgewählt werden darf (auch als Ausweichoption sowie an anderen Stellen der App wie Einstellungen > Übersetzung) - schalte sie aus, wenn du einen Schlüssel für später aufheben, ihn aber gerade nicht nutzbar machen willst.',
-  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
-    'Wird ein Schlüssel gelöscht oder schlägt die Validierung fehl, während sein Anbieter aktiv ist, wechselt Lingora unbemerkt zur nächstbesten Option - dem Anbieter, der sowohl aktiviert ist als auch einen validierten Schlüssel hat - damit du nie ohne Generierung dastehst, nur weil ein Schlüssel ungültig geworden ist.',
-  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
-    'Tippe auf die Karte eines Anbieters, um dessen Einstellungen zu öffnen, füge deinen API-Schlüssel ein und wähle bei Bedarf ein anderes Modell als das Standardmodell. Tippe dann auf **Validieren** - dabei wird eine kleine echte Anfrage gesendet, um zu bestätigen, dass der Schlüssel funktioniert, bevor du dich bei der Worterstellung darauf verlässt.',
-  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
-    'Ein Anbieter kann erst aktiv werden, wenn sein Schlüssel erfolgreich validiert wurde. Das ist Absicht - so verhindert es, dass ein vertippter oder abgelaufener Schlüssel unbemerkt zum einzigen Hindernis zwischen dir und einer neuen Karte wird.',
+  '**Active** is the primary engine currently generating your cards and word explanations. Only one provider is Active at a time, and tapping **Activate** on any validated card sets it as primary immediately.':
+    '**Aktiv** ist der primäre Anbieter, der derzeit deine Karten und Worterklärungen generiert. Es kann immer nur ein Anbieter gleichzeitig aktiv sein; ein Tipp auf **Aktivieren** bei einer validierten Karte schaltet ihn sofort als Hauptanbieter ein.',
+  'As soon as you test and validate an API key, that provider is ready to use and automatically joins your fallback pool.':
+    'Sobald du einen API-Schlüssel testest und validierst, ist der Anbieter einsatzbereit und wird automatisch Teil deines Fallback-Pools.',
+  'If your Active key runs out of credits or encounters an unexpected rate limit, Lingora automatically falls back to your other validated providers so your card creation never fails.':
+    'Sollte dein aktiver Schlüssel keine Credits mehr haben oder an ein Ratenlimit stoßen, wechselt Lingora automatisch zu deinen anderen validierten Anbietern, damit die Kartenerstellung nie unterbrochen wird.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Test & Save Key** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Tippe auf die Karte eines Anbieters, füge deinen API-Schlüssel ein und wähle bei Bedarf ein Modell. Tippe dann auf **Schlüssel testen & speichern** - dabei wird eine kleine Anfrage gesendet, um die Funktionsfähigkeit zu prüfen, bevor du dich darauf verlässt.',
+  'A provider becomes eligible to be Active as soon as its key validates successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Ein Anbieter kann aktiviert werden, sobald sein Schlüssel erfolgreich validiert wurde. Das verhindert, dass ein fehlerhafter oder abgelaufener Schlüssel die Kartengenerierung blockiert.',
   '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
     '**Löschen** entfernt den Schlüssel vollständig von diesem Gerät (und setzt Validierung und Nutzungsverlauf zurück). Alles wird ausschließlich im sicheren Speicher dieses Geräts abgelegt - nicht auf Lingoras eigenen Servern und nirgendwo synchronisiert, außer du sicherst und stellst es selbst wieder her.',
   '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
@@ -1530,4 +1530,67 @@ export const de: Record<Phrase, string> = {
     'Im Bereich jedes Anbieters zeigt ein Feld die **geräteseitig erfasste Nutzung** - Anfrage- und Token-Anzahl, die dieses Gerät tatsächlich über diesen Schlüssel gesendet hat. Das ist eine Orientierungshilfe, keine Rechnung: Es zählt nur, was hier auf diesem Gerät passiert ist, und stimmt daher nicht mit einem Schlüssel überein, der auf mehreren Geräten oder in mehreren Apps genutzt wird.',
   'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
     'Für die echten, verbindlichen Zahlen - und für alles rund um Abrechnung oder Ratenlimits - nutze den Link „Nutzung öffnen", der dich direkt zum eigenen Dashboard des jeweiligen Anbieters bringt.',
+  ACTIVE: 'AKTIV',
+  Activate: 'Aktivieren',
+  'Active Model': 'Aktives Modell',
+  'Key saved': 'Schlüssel gespeichert',
+  'No key pasted yet': 'Noch kein Schlüssel eingefügt',
+  'Validated · Ready to use': 'Überprüft · Bereit zur Verwendung',
+  'Connected & Active': 'Verbunden & Aktiv',
+  'Get key from {{portal}} ↗': 'Schlüssel von {{portal}} abrufen ↗',
+  'Test & Save Key': 'Schlüssel testen & speichern',
+  'Key Validated': 'Schlüssel überprüft',
+  'Advanced Engine & Custom Models': 'Erweiterte Engine & benutzerdefinierte Modelle',
+  'Custom Model Identifier': 'Benutzerdefinierte Modellkennung',
+  'Active Custom Model': 'Aktives benutzerdefiniertes Modell',
+  Default: 'Standard',
+  'e.g. {{defaultModel}}, custom fine-tune...': 'z. B. {{defaultModel}}, eigenes Modell...',
+  '{{count}} cards generated': '{{count}} Karten generiert',
+  'Usage Console ↗': 'Nutzungs-Konsole ↗',
+  Paste: 'Einfügen',
+  '⚡ Fastest': '⚡ Am schnellsten',
+  '🧠 Deep Nuance': '🧠 Tiefe Nuancen',
+  '🌐 Multilingual': '🌐 Mehrsprachig',
+  '🌟 Recommended': '🌟 Empfohlen',
+  '⚡ Fast': '⚡ Schnell',
+  '🧠 Deep Quality': '🧠 Hohe Qualität',
+  Legacy: 'Klassisch',
+  '🆓 Free Tier / Fast': '🆓 Kostenlos / Schnell',
+  '⚡ Ultra-Light': '⚡ Ultra-Leicht',
+  '⚡ Fast & Smart': '⚡ Schnell & Klug',
+  '🧠 Best Nuance': '🧠 Beste Nuancen',
+  '🧠 Deep Grammar': '🧠 Tiefe Grammatik',
+  '💰 Economical': '💰 Kostengünstig',
+  '🧠 Deep Reasoning': '🧠 Tiefes logisches Denken',
+  'Ultra-low latency (~200ms) on Groq LPUs': 'Ultra-niedrige Latenz (~200 ms) auf Groq-LPUs',
+  'Massive open weights model for complex words': 'Großes Open-Weights-Modell für komplexe Begriffe',
+  'Strong multilingual translation & grammar': 'Starke mehrsprachige Übersetzung & Grammatik',
+  'Multi-model routing for optimal accuracy': 'Multi-Modell-Routing für optimale Genauigkeit',
+  'Fast, accurate & cost-effective ($0.0001/card)': 'Schnell, präzise & kostengünstig (0,0001 $/Karte)',
+  'Next-gen mini reasoning model': 'Mini-Reasoning-Modell der nächsten Generation',
+  'Highest quality reasoning & nuance': 'Höchste Qualität für Sprachnuancen & Logik',
+  'Classic lightweight model': 'Klassisches leichtgewichtiges Modell',
+  'High speed, generous free quota limits': 'Hohe Geschwindigkeit, großzügiges kostenloses Kontingent',
+  'Fastest lightweight Gemini endpoint': 'Schnellster leichtgewichtiger Gemini-Endpunkt',
+  'Rapid responses with Anthropic precision': 'Schnelle Antworten mit Anthropic-Präzision',
+  'Gold standard for example sentences & idioms': 'Goldstandard für Beispielsätze & Redewendungen',
+  'Fast, cost-efficient European hosting': 'Schnelles, kosteneffizientes europäisches Hosting',
+  'Higher capacity for advanced linguistic queries': 'Höhere Kapazität für anspruchsvolle Sprachfragen',
+  'Very low cost with capable language generation': 'Sehr niedrige Kosten bei solider Sprachgenerierung',
+  'Chain-of-thought analysis for complex grammar': 'Schrittweises Denken für komplexe Grammatik',
+  '{{provider}} API Key': '{{provider}}-API-Schlüssel',
+  'Engine profiles and custom models': 'Engine-Profile und benutzerdefinierte Modelle',
+  'Each provider offers curated **preset engine profiles** tagged with their strengths (such as speed, reasoning, or multilingual quality) so you can pick the best balance for your learning.':
+    'Jeder Anbieter bietet ausgewählte **vordefinierte Engine-Profile**, versehen mit ihren Stärken (wie Geschwindigkeit, Logik oder mehrsprachige Qualität), damit du die beste Balance für dein Lernen wählen kannst.',
+  'Under **Advanced Engine & Custom Models**, you can also access provider portal links or enter a **Custom Model Identifier** (e.g. newly released checkpoints, preview models, or private fine-tunes). Setting a custom model identifier automatically overrides the preset profiles.':
+    'Unter **Erweiterte Engine & benutzerdefinierte Modelle** kannst du auch auf Entwicklerportal-Links zugreifen oder eine **Benutzerdefinierte Modellkennung** angeben (z. B. neu veröffentlichte Checkpoints, Preview-Modelle oder eigene Feinabstimmungen). Das Setzen einer eigenen Modellkennung überschreibt automatisch die vordefinierten Profile.',
+  'How to get an API key': 'So erhältst du einen API-Schlüssel',
+  "Getting an API key takes about a minute. Each provider has a developer portal where you sign up, create a key, and copy it into Lingora. You can tap the **Get key from... ↗** link on any card to open that provider's official portal directly in your browser.":
+    'Einen API-Schlüssel zu erstellen dauert etwa eine Minute. Jeder Anbieter hat ein Entwicklerportal, auf dem du dich anmeldest, einen Schlüssel erstellst und ihn in Lingora einfügst. Tippe einfach auf den Link **Schlüssel von... abrufen ↗** auf einer Karte, um das offizielle Portal direkt im Browser zu öffnen.',
+  "**Free-tier options**: If you want to start without adding a payment method, **Google Gemini** (via Google AI Studio) and **Groq** (via Groq Console) offer generous free-tier quotas suitable for daily vocabulary lookups.":
+    '**Kostenlose Optionen**: Wenn du ohne Zahlungsmethode starten möchtest, bieten **Google Gemini** (über Google AI Studio) und **Groq** (über die Groq Console) großzügige kostenlose Kontingente, die für das tägliche Vokabellernen völlig ausreichen.',
+  "**Pay-as-you-go options**: Providers like **OpenAI**, **Anthropic (Claude)**, **Mistral**, and **DeepSeek** use pay-as-you-go billing with prepaid balances. Generating a full vocabulary card typically costs less than a tenth of a cent ($0.0001 - $0.001 per card), so a small credit can last for thousands of words.":
+    '**Nutzungsbasierte Optionen**: Anbieter wie **OpenAI**, **Anthropic (Claude)**, **Mistral** und **DeepSeek** nutzen Prepaid-Guthaben. Das Erstellen einer vollständigen Vokabelkarte kostet in der Regel weniger als einen Zehntel-Cent (0,0001 $ - 0,001 $ pro Karte), sodass ein kleines Guthaben für Tausende von Wörtern reicht.',
+  "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
+    'Sobald ein Schlüssel überprüft wurde, bleibt der Link zum Entwicklerportal jederzeit unter **Erweiterte Engine & benutzerdefinierte Modelle** erreichbar.',
 }

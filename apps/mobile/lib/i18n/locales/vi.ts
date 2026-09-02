@@ -1182,7 +1182,7 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Chọn công cụ nào sẽ đọc to - giọng thiết bị miễn phí và hoạt động ngoại tuyến; các nhà cung cấp đám mây dùng khóa API của riêng bạn.',
   'Always available': 'Luôn khả dụng',
   'Validated': 'Đã xác thực',
-  '"Active" vs "Enabled" - what\'s the difference?': '"Đang hoạt động" khác "Bật" thế nào?',
+  'Active provider & automatic fallback': 'Nhà cung cấp đang hoạt động & dự phòng tự động',
   'Adding and validating a key': 'Thêm và xác thực khóa',
   'Which provider should I pick?': 'Nên chọn nhà cung cấp nào?',
   'What the usage numbers mean': 'Các con số sử dụng nghĩa là gì',
@@ -1192,16 +1192,16 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Đây là mô hình **"tự mang khóa của bạn"**: Lingora không đi kèm gói AI dùng chung, nên sẽ không có gì được tạo ra cho đến khi bạn dán khóa API của riêng mình vào một trong các nhà cung cấp bên dưới. Điều đó cũng có nghĩa là không có gì được gửi đi đâu cả cho đến khi bạn thực sự tra một từ - chỉ lưu khóa thôi thì không kích hoạt yêu cầu nào.',
   'You don\'t need every provider filled in. One working, validated key is all it takes - pick whichever service you already have an account with, or whichever one you\'re curious to try, and start there.':
     'Bạn không cần điền đầy đủ mọi nhà cung cấp. Chỉ cần một khóa hoạt động và đã xác thực là đủ - chọn dịch vụ mà bạn đã có tài khoản, hoặc dịch vụ nào bạn tò mò muốn thử, rồi bắt đầu từ đó.',
-  '**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider\'s card here switches to it immediately.':
-    '**Đang hoạt động** là nhà cung cấp duy nhất thực sự đang làm việc ngay lúc này - công cụ trả lời khi bạn tra một từ. Chỉ một nhà cung cấp có thể Đang hoạt động tại một thời điểm, và chạm vào thẻ của một nhà cung cấp đã xác thực sẽ chuyển sang nó ngay lập tức.',
-  '**Enabled** is a softer flag, tucked inside a provider\'s own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.':
-    '**Bật** là một cờ nhẹ nhàng hơn, nằm trong bảng cài đặt riêng của từng nhà cung cấp. Nó quyết định nhà cung cấp đó có được phép chọn hay không (kể cả làm phương án dự phòng, và như một lựa chọn ở nơi khác trong ứng dụng như Cài đặt > Dịch) - tắt nó nếu bạn muốn giữ một khóa để dùng sau mà chưa cho phép sử dụng ngay bây giờ.',
-  'If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you\'re never stuck without generation just because one key went stale.':
-    'Nếu một khóa bị xóa hoặc xác thực thất bại trong khi nhà cung cấp của nó đang hoạt động, Lingora sẽ âm thầm chuyển sang phương án tốt nhất tiếp theo - nhà cung cấp vừa được bật vừa có khóa đã xác thực - để bạn không bao giờ mất khả năng tạo nội dung chỉ vì một khóa bị hỏng.',
-  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
-    'Chạm vào thẻ của một nhà cung cấp để mở cài đặt của nó, dán khóa API của bạn vào, và chọn một mô hình khác nếu bạn muốn thay vì mô hình mặc định. Sau đó chạm **Xác thực** - thao tác này gửi một yêu cầu thực nhỏ để xác nhận khóa thực sự hoạt động trước khi bạn dựa vào nó để tạo từ.',
-  'A provider only becomes eligible to be Active once its key has validated successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
-    'Một nhà cung cấp chỉ đủ điều kiện trở thành Đang hoạt động khi khóa của nó đã được xác thực thành công. Đây là chủ ý - để tránh một khóa gõ sai hoặc hết hạn âm thầm trở thành trở ngại duy nhất giữa bạn và một thẻ mới.',
+  '**Active** is the primary engine currently generating your cards and word explanations. Only one provider is Active at a time, and tapping **Activate** on any validated card sets it as primary immediately.':
+    '**Đang hoạt động** là công cụ chính hiện đang tạo thẻ và giải thích từ vựng cho bạn. Chỉ một nhà cung cấp hoạt động tại một thời điểm; chạm **Kích hoạt** trên thẻ đã xác thực sẽ đặt nhà cung cấp đó làm chính ngay lập tức.',
+  'As soon as you test and validate an API key, that provider is ready to use and automatically joins your fallback pool.':
+    'Ngay khi bạn kiểm tra và xác thực khóa API, nhà cung cấp đó đã sẵn sàng sử dụng và tự động tham gia vào nhóm dự phòng.',
+  'If your Active key runs out of credits or encounters an unexpected rate limit, Lingora automatically falls back to your other validated providers so your card creation never fails.':
+    'Nếu khóa đang dùng hết tiền hoặc gặp giới hạn tần suất, Lingora sẽ tự động chuyển sang các nhà cung cấp đã xác thực khác để việc tạo thẻ không bao giờ gián đoạn.',
+  'Tap a provider\'s card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Test & Save Key** - this sends one small real request to confirm the key actually works before you rely on it for word generation.':
+    'Chạm vào thẻ nhà cung cấp, dán khóa API và chọn mô hình. Sau đó nhấn **Kiểm tra & lưu khóa** để kiểm tra hoạt động trước khi tạo thẻ.',
+  'A provider becomes eligible to be Active as soon as its key validates successfully. That\'s deliberate - it stops a typo\'d or expired key from silently becoming the one thing standing between you and a new card.':
+    'Nhà cung cấp đủ điều kiện kích hoạt ngay khi khóa được xác thực thành công. Điều này ngăn khóa sai hoặc hết hạn làm gián đoạn quá trình tạo thẻ.',
   '**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device\'s secure storage - not in Lingora\'s own servers, not synced anywhere, unless you back up and restore it yourself.':
     '**Xóa** sẽ gỡ bỏ hoàn toàn khóa khỏi thiết bị này (và đặt lại lịch sử xác thực cũng như sử dụng của nó). Không có gì được lưu ở đâu khác ngoài bộ nhớ an toàn của thiết bị này - không lưu trên máy chủ của Lingora, không đồng bộ ở bất kỳ đâu, trừ khi chính bạn sao lưu và khôi phục nó.',
   '**OpenAI** is the default and a safe general-purpose choice - reliable structured output, widely used, easy to get a key for at `platform.openai.com`.':
@@ -1222,4 +1222,67 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Bảng của mỗi nhà cung cấp hiển thị một ô **sử dụng được ghi nhận trên thiết bị** - số yêu cầu và token mà thiết bị này thực sự đã gửi qua khóa đó. Đây là thông tin tham khảo tiện lợi, không phải hóa đơn: nó chỉ đếm những gì xảy ra ở đây, nên sẽ không khớp với một khóa được dùng chung trên nhiều thiết bị hoặc ứng dụng.',
   'For the real, authoritative numbers - and anything to do with billing or rate limits - use the "Open usage" link, which takes you straight to that provider\'s own dashboard.':
     'Để xem số liệu thực tế, chính xác - và mọi thứ liên quan đến thanh toán hay giới hạn tốc độ - hãy dùng liên kết "Mở trang sử dụng", liên kết này sẽ đưa bạn thẳng đến bảng điều khiển riêng của nhà cung cấp đó.',
+  ACTIVE: 'ĐANG HOẠT ĐỘNG',
+  Activate: 'Kích hoạt',
+  'Active Model': 'Mô hình đang hoạt động',
+  'Key saved': 'Đã lưu khóa',
+  'No key pasted yet': 'Chưa dán khóa nào',
+  'Validated · Ready to use': 'Đã xác thực · Sẵn sàng sử dụng',
+  'Connected & Active': 'Đã kết nối & đang hoạt động',
+  'Get key from {{portal}} ↗': 'Lấy khóa từ {{portal}} ↗',
+  'Test & Save Key': 'Kiểm tra & lưu khóa',
+  'Key Validated': 'Khóa đã xác thực',
+  'Advanced Engine & Custom Models': 'Công cụ nâng cao & mô hình tùy chỉnh',
+  'Custom Model Identifier': 'Mã định danh mô hình tùy chỉnh',
+  'Active Custom Model': 'Mô hình tùy chỉnh đang dùng',
+  Default: 'Mặc định',
+  'e.g. {{defaultModel}}, custom fine-tune...': 'vd: {{defaultModel}}, mô hình tùy chỉnh...',
+  '{{count}} cards generated': 'Đã tạo {{count}} thẻ',
+  'Usage Console ↗': 'Bảng điều khiển sử dụng ↗',
+  Paste: 'Dán',
+  '⚡ Fastest': '⚡ Nhanh nhất',
+  '🧠 Deep Nuance': '🧠 Sắc thái chuyên sâu',
+  '🌐 Multilingual': '🌐 Đa ngôn ngữ',
+  '🌟 Recommended': '🌟 Đề xuất',
+  '⚡ Fast': '⚡ Nhanh',
+  '🧠 Deep Quality': '🧠 Chất lượng cao',
+  Legacy: 'Cổ điển',
+  '🆓 Free Tier / Fast': '🆓 Gói miễn phí / Nhanh',
+  '⚡ Ultra-Light': '⚡ Siêu nhẹ',
+  '⚡ Fast & Smart': '⚡ Nhanh & thông minh',
+  '🧠 Best Nuance': '🧠 Sắc thái tốt nhất',
+  '🧠 Deep Grammar': '🧠 Ngữ pháp chuyên sâu',
+  '💰 Economical': '💰 Tiết kiệm',
+  '🧠 Deep Reasoning': '🧠 Lập luận chuyên sâu',
+  'Ultra-low latency (~200ms) on Groq LPUs': 'Độ trễ cực thấp (~200ms) trên LPU Groq',
+  'Massive open weights model for complex words': 'Mô hình trọng số mở lớn cho từ vựng phức tạp',
+  'Strong multilingual translation & grammar': 'Dịch đa ngôn ngữ & ngữ pháp mạnh mẽ',
+  'Multi-model routing for optimal accuracy': 'Điều hướng đa mô hình để đạt độ chính xác tối ưu',
+  'Fast, accurate & cost-effective ($0.0001/card)': 'Nhanh, chính xác & tiết kiệm chi phí ($0.0001/thẻ)',
+  'Next-gen mini reasoning model': 'Mô hình suy luận mini thế hệ mới',
+  'Highest quality reasoning & nuance': 'Chất lượng cao nhất về lập luận & sắc thái',
+  'Classic lightweight model': 'Mô hình nhẹ cổ điển',
+  'High speed, generous free quota limits': 'Tốc độ cao, hạn mức miễn phí rộng rãi',
+  'Fastest lightweight Gemini endpoint': 'Điểm cuối Gemini nhẹ và nhanh nhất',
+  'Rapid responses with Anthropic precision': 'Phản hồi nhanh với độ chính xác Anthropic',
+  'Gold standard for example sentences & idioms': 'Chuẩn mực vàng cho câu ví dụ & thành ngữ',
+  'Fast, cost-efficient European hosting': 'Máy chủ Châu Âu nhanh & tiết kiệm chi phí',
+  'Higher capacity for advanced linguistic queries': 'Dung lượng lớn hơn cho các câu hỏi ngôn ngữ nâng cao',
+  'Very low cost with capable language generation': 'Chi phí rất thấp với khả năng tạo ngôn ngữ tốt',
+  'Chain-of-thought analysis for complex grammar': 'Phân tích theo chuỗi suy nghĩ cho ngữ pháp phức tạp',
+  '{{provider}} API Key': 'Khóa API {{provider}}',
+  'Engine profiles and custom models': 'Hồ sơ công cụ và mô hình tùy chỉnh',
+  'Each provider offers curated **preset engine profiles** tagged with their strengths (such as speed, reasoning, or multilingual quality) so you can pick the best balance for your learning.':
+    'Mỗi nhà cung cấp đều có các **hồ sơ công cụ cài đặt sẵn** được gắn thẻ điểm mạnh (như tốc độ, suy luận hoặc chất lượng đa ngôn ngữ) để bạn chọn cấu hình tối ưu nhất.',
+  'Under **Advanced Engine & Custom Models**, you can also access provider portal links or enter a **Custom Model Identifier** (e.g. newly released checkpoints, preview models, or private fine-tunes). Setting a custom model identifier automatically overrides the preset profiles.':
+    'Trong phần **Công cụ nâng cao & mô hình tùy chỉnh**, bạn cũng có thể truy cập liên kết cổng thông tin nhà cung cấp hoặc nhập **Mã định danh mô hình tùy chỉnh** (ví dụ: các checkpoint mới phát hành, mô hình bản thử nghiệm hoặc tinh chỉnh riêng). Việc chỉ định mô hình tùy chỉnh sẽ tự động ghi đè các hồ sơ cài sẵn.',
+  'How to get an API key': 'Cách lấy khóa API',
+  "Getting an API key takes about a minute. Each provider has a developer portal where you sign up, create a key, and copy it into Lingora. You can tap the **Get key from... ↗** link on any card to open that provider's official portal directly in your browser.":
+    'Lấy khóa API chỉ mất khoảng một phút. Mỗi nhà cung cấp đều có cổng thông tin nhà phát triển để bạn đăng ký, tạo khóa và dán vào Lingora. Bạn có thể chạm vào liên kết **Lấy khóa từ... ↗** trên bất kỳ thẻ nào để mở cổng chính thức trong trình duyệt.',
+  "**Free-tier options**: If you want to start without adding a payment method, **Google Gemini** (via Google AI Studio) and **Groq** (via Groq Console) offer generous free-tier quotas suitable for daily vocabulary lookups.":
+    '**Tùy chọn miễn phí**: Nếu muốn bắt đầu mà không cần thêm phương thức thanh toán, **Google Gemini** (qua Google AI Studio) và **Groq** (qua Groq Console) cung cấp hạn mức miễn phí rộng rãi phù hợp để tra từ vựng hàng ngày.',
+  "**Pay-as-you-go options**: Providers like **OpenAI**, **Anthropic (Claude)**, **Mistral**, and **DeepSeek** use pay-as-you-go billing with prepaid balances. Generating a full vocabulary card typically costs less than a tenth of a cent ($0.0001 - $0.001 per card), so a small credit can last for thousands of words.":
+    '**Tùy chọn trả phí theo mức sử dụng**: Các nhà cung cấp như **OpenAI**, **Anthropic (Claude)**, **Mistral** và **DeepSeek** sử dụng số dư trả trước theo mức dùng. Tạo một thẻ từ vựng đầy đủ thường có giá dưới 1/10 xu ($0.0001 - $0.001 mỗi thẻ), vì vậy một khoản nạp nhỏ có thể dùng cho hàng nghìn từ.',
+  "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.":
+    'Sau khi khóa đã được xác thực, liên kết cổng nhà phát triển vẫn luôn có thể truy cập bất kỳ lúc nào trong phần **Công cụ nâng cao & mô hình tùy chỉnh**.',
 }

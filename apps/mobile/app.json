@@ -6,7 +6,7 @@
       "lemmory",
       "lingora"
     ],
-    "version": "0.1.0",
+    "version": "0.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon-lingora.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json",
-      "versionCode": 10
+      "versionCode": 12
     },
     "web": {
       "favicon": "./assets/favicon.png"

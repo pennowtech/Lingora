@@ -1,16 +1,19 @@
 import { Stack } from 'expo-router'
+import * as Clipboard from 'expo-clipboard'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { logger } from '@lingora/observability'
 import { Icon } from '../../components/Icon'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { AlertModal, Card, Chip, ConfirmModal, IconButton } from '../../components/ui'
+import { AlertModal, Card, ConfirmModal, IconButton } from '../../components/ui'
 import { CardSourceIcon } from '../../lib/cardSource'
 import {
   emptyProviderState,
   PROVIDER_META,
+  PROVIDER_MODEL_PROFILES,
+  PROVIDER_PORTAL_URLS,
   PROVIDER_STORE_KEYS,
   VALIDATORS,
   ZERO_USAGE,
@@ -38,13 +41,24 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
   {
-    id: 'active-vs-enabled',
-    title: '"Active" vs "Enabled" - what\'s the difference?',
+    id: 'how-to-get-key',
+    title: 'How to get an API key',
+    icon: 'Key',
+    paragraphs: [
+      "Getting an API key takes about a minute. Each provider has a developer portal where you sign up, create a key, and copy it into Lingora. You can tap the **Get key from... ↗** link on any card to open that provider's official portal directly in your browser.",
+      "**Free-tier options**: If you want to start without adding a payment method, **Google Gemini** (via Google AI Studio) and **Groq** (via Groq Console) offer generous free-tier quotas suitable for daily vocabulary lookups.",
+      "**Pay-as-you-go options**: Providers like **OpenAI**, **Anthropic (Claude)**, **Mistral**, and **DeepSeek** use pay-as-you-go billing with prepaid balances. Generating a full vocabulary card typically costs less than a tenth of a cent ($0.0001 - $0.001 per card), so a small credit can last for thousands of words.",
+      "Once a key is validated, the developer portal link remains readily accessible anytime under **Advanced Engine & Custom Models**.",
+    ],
+  },
+  {
+    id: 'active-and-fallback',
+    title: 'Active provider & automatic fallback',
     icon: 'SlidersHorizontal',
     paragraphs: [
-      "**Active** is the one provider actually doing the work right now - the engine that responds when you look up a word. Only one provider can be Active at a time, and tapping a validated provider's card here switches to it immediately.",
-      "**Enabled** is a softer flag, tucked inside a provider's own settings panel. It controls whether that provider is allowed to be picked at all (including as a fallback, and as an option elsewhere in the app like Settings > Translation) - flip it off if you want to keep a key saved for later without it being usable right now.",
-      "If a key gets cleared or fails validation while its provider is Active, Lingora quietly falls back to the next best option - whichever provider is both enabled and has a validated key - so you're never stuck without generation just because one key went stale.",
+      "**Active** is the primary engine currently generating your cards and word explanations. Only one provider is Active at a time, and tapping **Activate** on any validated card sets it as primary immediately.",
+      "As soon as you test and validate an API key, that provider is ready to use and automatically joins your fallback pool.",
+      "If your Active key runs out of credits or encounters an unexpected rate limit, Lingora automatically falls back to your other validated providers so your card creation never fails.",
     ],
   },
   {
@@ -52,9 +66,18 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding and validating a key',
     icon: 'Key',
     paragraphs: [
-      "Tap a provider's card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Validate** - this sends one small real request to confirm the key actually works before you rely on it for word generation.",
-      "A provider only becomes eligible to be Active once its key has validated successfully. That's deliberate - it stops a typo'd or expired key from silently becoming the one thing standing between you and a new card.",
+      "Tap a provider's card to open its settings, paste in your API key, and pick a model if you want something other than the default. Then hit **Test & Save Key** - this sends one small real request to confirm the key actually works before you rely on it for word generation.",
+      "A provider becomes eligible to be Active as soon as its key validates successfully. That's deliberate - it stops a typo'd or expired key from silently becoming the one thing standing between you and a new card.",
       "**Clear** removes the key from this device entirely (and resets its validation and usage history). Nothing is stored anywhere except this device's secure storage - not in Lingora's own servers, not synced anywhere, unless you back up and restore it yourself.",
+    ],
+  },
+  {
+    id: 'engines',
+    title: 'Engine profiles and custom models',
+    icon: 'Cpu',
+    paragraphs: [
+      "Each provider offers curated **preset engine profiles** tagged with their strengths (such as speed, reasoning, or multilingual quality) so you can pick the best balance for your learning.",
+      "Under **Advanced Engine & Custom Models**, you can also access provider portal links or enter a **Custom Model Identifier** (e.g. newly released checkpoints, preview models, or private fine-tunes). Setting a custom model identifier automatically overrides the preset profiles.",
     ],
   },
   {
@@ -83,14 +106,12 @@ const HELP_SECTIONS: HelpSection[] = [
 ]
 
 /**
- * The "AI Providers" sub-screen (formerly the Settings screen's own "Generation" section) —
- * split out so the top-level Settings menu isn't a single mega-scroll. Fully self-contained: loads
- * its own slice of SecureStore on mount rather than receiving it from the parent menu.
- *
- * Layout mirrors the desktop app's Settings > AI Providers exactly: a grid of compact provider
- * cards (tap to preview + activate) plus a single detail box below for whichever card was tapped —
- * not an always-rendered accordion row per provider. Nothing shows in the detail area until a card
- * is tapped, and tapping a different card swaps it rather than stacking multiple open sections.
+ * The "AI Providers" screen:
+ * Displays providers in a dashboard layout:
+ * - Active provider is highlighted with an ACTIVE badge
+ * - Inactive validated providers display an "Activate" pill button
+ * - Inactive unconfigured/unvalidated providers display status subtext
+ * - Tapping any card unfolds the progressive configuration inspector.
  */
 export default function AiProvidersScreen(): JSX.Element {
   const { reloadServices } = useServices()
@@ -203,14 +224,6 @@ export default function AiProvidersScreen(): JSX.Element {
     persist(PROVIDER_STORE_KEYS[name].model, value)
     invalidateProviderKey(name)
   }
-  const changeEnabled = (name: GenerationProviderName, value: boolean): void => {
-    updateProvider(name, { enabled: value })
-    persist(PROVIDER_STORE_KEYS[name].enabled, value ? 'true' : 'false')
-    log.info('settings.provider_enabled_changed', {
-      message: `${value ? 'Enabled' : 'Disabled'} a generation provider`,
-      metadata: { provider: name, settingKey: 'enabled' },
-    })
-  }
   const changeGenerationProvider = (name: GenerationProviderName): void => {
     setGenerationProviderState(name)
     persist(STORE_KEYS.generationProvider, name)
@@ -228,13 +241,14 @@ export default function AiProvidersScreen(): JSX.Element {
       .then(async (result) => {
         if (result.ok) {
           await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${apiKey.trim()}:::${model}`)
+          changeGenerationProvider(name)
         } else {
           await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, 'invalid')
         }
         setValidated((prev) => ({ ...prev, [name]: result.ok }))
         await reloadServices()
         setNotice({
-          title: result.ok ? t('Connected') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
+          title: result.ok ? t('Connected & Active') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
           message: result.message,
         })
       })
@@ -307,42 +321,65 @@ export default function AiProvidersScreen(): JSX.Element {
             const state = providers[name]
             const meta = PROVIDER_META[name]
             const hasKey = state.apiKey.trim() !== ''
+            const isValidated = Boolean(validated[name])
             const isActive = name === activeGenerationProvider
             const isPreviewed = expandedProvider === name
+
             return (
-              <View key={name}>
+              <View
+                key={name}
+                style={[
+                  styles.providerCardContainer,
+                  isActive && styles.providerCardContainerActive,
+                  isPreviewed && styles.providerCardContainerExpanded,
+                ]}
+              >
                 <Pressable
                   testID={`provider-grid-${name}`}
-                  style={[styles.gridCard, isPreviewed && styles.gridCardPreviewed]}
+                  style={[
+                    styles.gridCardHeader,
+                    isPreviewed && styles.gridCardHeaderExpanded,
+                  ]}
                   onPress={() => {
-                    if (validated[name]) changeGenerationProvider(name)
                     setExpandedProvider((prev) => (prev === name ? null : name))
                   }}
                 >
                   <View style={[styles.gridCardIcon, { backgroundColor: `${meta.color}1A` }]}>
-                    <CardSourceIcon source={name} size={20} />
+                    <CardSourceIcon source={name} size={22} />
                   </View>
+
                   <View style={styles.gridCardBody}>
-                    <View style={styles.gridCardHeader}>
-                      <Text style={styles.gridCardLabel} numberOfLines={1}>{meta.label}</Text>
-                      {isActive ? (
-                        <View style={styles.activeBadge}>
-                          <Text style={styles.activeBadgeLabel}>{t('Active')}</Text>
-                        </View>
-                      ) : null}
-                    </View>
-                    <Text style={styles.gridCardModel} numberOfLines={1}>{t('Model')}: {state.model}</Text>
-                    <Text
-                      style={[
-                        styles.gridCardStatus,
-                        validated[name] && styles.gridCardStatusSuccess,
-                        hasKey && !validated[name] && styles.gridCardStatusWarning,
-                      ]}
-                    >
-                      {validated[name] ? t('Validated') : hasKey ? t('Key configured') : t('No key set')}
+                    <Text style={styles.gridCardLabel} numberOfLines={1}>{meta.label}</Text>
+                    <Text style={styles.gridCardSubtitle} numberOfLines={1}>
+                      {isActive
+                        ? t('Connected & Active')
+                        : isValidated
+                        ? t('Validated')
+                        : hasKey
+                        ? t('Key saved')
+                        : t('No key pasted yet')}
                     </Text>
                   </View>
-                  <Icon name={isPreviewed ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
+
+                  {/* Right Action: ACTIVE pill or Activate button or Chevron */}
+                  <View style={styles.gridCardRightAction}>
+                    {isActive ? (
+                      <View style={styles.activeBadge}>
+                        <Text style={styles.activeBadgeLabel}>{t('ACTIVE')}</Text>
+                      </View>
+                    ) : isValidated ? (
+                      <Pressable
+                        style={styles.activatePillButton}
+                        onPress={(e) => {
+                          e.stopPropagation()
+                          changeGenerationProvider(name)
+                        }}
+                      >
+                        <Text style={styles.activatePillButtonText}>{t('Activate')}</Text>
+                      </Pressable>
+                    ) : null}
+                    <Icon name={isPreviewed ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />
+                  </View>
                 </Pressable>
 
                 {isPreviewed ? (
@@ -352,9 +389,8 @@ export default function AiProvidersScreen(): JSX.Element {
                     active={isActive}
                     showKey={showKey[name] ?? false}
                     validating={validating[name] ?? false}
-                    validated={validated[name] ?? false}
+                    validated={isValidated}
                     usage={usage[name]}
-                    onToggleEnabled={(value) => changeEnabled(name, value)}
                     onToggleShowKey={() => setShowKey((prev) => ({ ...prev, [name]: !prev[name] }))}
                     onChangeApiKey={(value) => changeApiKey(name, value)}
                     onChangeModel={(value) => changeModel(name, value)}
@@ -380,19 +416,7 @@ export default function AiProvidersScreen(): JSX.Element {
         </Pressable>
       </Card>
 
-      <ConfirmModal
-        visible={deleteAllConfirmOpen}
-        title={t('Delete all AI provider keys?')}
-        message={t('This removes every OpenAI/Mistral/Gemini/Claude/DeepSeek/Groq key from this device. Vocabulary and progress are unaffected.')}
-        onCancel={() => setDeleteAllConfirmOpen(false)}
-        onConfirm={() => {
-          setDeleteAllConfirmOpen(false)
-          deleteAllProviderKeys()
-        }}
-        confirmLabel={t('Delete')}
-        destructive
-      />
-
+      {/* Alert Notices */}
       <AlertModal
         visible={notice !== null}
         title={notice?.title ?? ''}
@@ -400,6 +424,22 @@ export default function AiProvidersScreen(): JSX.Element {
         onClose={() => setNotice(null)}
       />
 
+      {/* Delete All Confirm Modal */}
+      <ConfirmModal
+        visible={deleteAllConfirmOpen}
+        title={t('Delete all AI provider keys?')}
+        message={t('This removes every OpenAI/Mistral/Gemini/Claude/DeepSeek/Groq key from this device. Vocabulary and progress are unaffected.')}
+        confirmLabel={t('Delete')}
+        cancelLabel={t('Cancel')}
+        destructive={true}
+        onConfirm={() => {
+          setDeleteAllConfirmOpen(false)
+          void deleteAllProviderKeys()
+        }}
+        onCancel={() => setDeleteAllConfirmOpen(false)}
+      />
+
+      {/* Help sheet */}
       <HelpAccordionSheet
         visible={help.visible}
         onClose={help.close}
@@ -413,9 +453,14 @@ export default function AiProvidersScreen(): JSX.Element {
   )
 }
 
-/** The config panel that unfolds directly beneath a tapped provider row, merged visually into the
- * same box rather than a separate card at the bottom of the list — model chips, API key,
- * Enabled/Validate/Clear, device-observed usage. */
+/**
+ * Collapsible Provider Detail Body:
+ * - Active Model Summary badge
+ * - Key input with direct portal link and integrated Paste button
+ * - Primary [Test & Save Key] button
+ * - Collapsible "Advanced Engine & Custom Models" drawer with curated profiles & custom model input
+ * - Sleek telemetry footer
+ */
 function ProviderDetailBody(props: {
   name: GenerationProviderName
   state: ProviderFormState
@@ -424,30 +469,69 @@ function ProviderDetailBody(props: {
   validating: boolean
   validated: boolean
   usage: UsageSnapshot
-  onToggleEnabled: (value: boolean) => void
   onToggleShowKey: () => void
   onChangeApiKey: (value: string) => void
   onChangeModel: (value: string) => void
   onValidate: () => void
   onClearKey: () => void
 }): JSX.Element {
-  const { name, state, showKey, validating, validated, usage } = props
+  const { name, state, active, showKey, validating, validated, usage } = props
   const meta = PROVIDER_META[name]
+  const portal = PROVIDER_PORTAL_URLS[name]
+  const profiles = PROVIDER_MODEL_PROFILES[name] ?? []
   const hasKey = state.apiKey.trim() !== ''
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const isKeyReady = validated || active
+
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+  const isCustomModel = !profiles.some((p) => p.id === state.model)
+  const [customInput, setCustomInput] = useState(isCustomModel ? state.model : '')
+
+  const currentProfile = profiles.find((p) => p.id === state.model)
+
+  const handlePaste = async (): Promise<void> => {
+    try {
+      const text = await Clipboard.getStringAsync()
+      if (text && text.trim()) {
+        props.onChangeApiKey(text.trim())
+      }
+    } catch {
+      // Ignore clipboard read errors
+    }
+  }
 
   return (
     <View style={styles.detailPanel}>
       <View style={styles.providerBody}>
-        <Text style={styles.fieldLabel}>{t('Model')}</Text>
-        <View style={styles.chipRow}>
-          {meta.models.map((model) => (
-            <Chip key={model} label={model} selected={model === state.model} onPress={() => props.onChangeModel(model)} />
-          ))}
+        {/* Active Model Subtitle Strip */}
+        <View style={styles.currentModelSummary}>
+          <Text style={styles.currentModelLabel}>{t('Active Model')}:</Text>
+          <Text style={styles.currentModelName}>
+            {currentProfile ? `${currentProfile.label}${currentProfile.isDefault ? ` (${t('Default')})` : ''}` : state.model}
+          </Text>
         </View>
 
+        {/* API Key Header with direct Portal Link when not yet validated/active */}
+        <View style={styles.keyHeaderRow}>
+          <Text style={styles.fieldLabel} numberOfLines={1}>
+            {t('{{provider}} API Key', { provider: meta.label })}
+          </Text>
+          {!isKeyReady && portal ? (
+            <Pressable
+              onPress={() => void Linking.openURL(portal.url)}
+              hitSlop={8}
+              style={styles.portalLinkPressable}
+            >
+              <Text style={styles.portalLinkText} numberOfLines={1}>
+                {t('Get key from {{portal}} ↗', { portal: portal.label })}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        {/* API Key Input with embedded Paste and Eye buttons */}
         <View style={styles.keyInputWrap}>
           <TextInput
             testID={`provider-key-input-${name}`}
@@ -460,62 +544,157 @@ function ProviderDetailBody(props: {
             autoCapitalize="none"
             autoCorrect={false}
           />
-          <Pressable
-            testID={`provider-show-key-${name}`}
-            accessibilityRole="button"
-            accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
-            onPress={props.onToggleShowKey}
-            style={styles.keyInputEye}
-          >
-            <Icon name={showKey ? 'EyeOff' : 'Eye'} size={19} color={colors.textSecondary} />
-          </Pressable>
+          <View style={styles.keyActionsInside}>
+            <Pressable style={styles.pasteButton} onPress={handlePaste}>
+              <Text style={styles.pasteButtonText}>{t('Paste')}</Text>
+            </Pressable>
+            <Pressable
+              testID={`provider-show-key-${name}`}
+              accessibilityRole="button"
+              accessibilityLabel={showKey ? t('Hide {{provider}} API key', { provider: meta.label }) : t('Show {{provider}} API key', { provider: meta.label })}
+              onPress={props.onToggleShowKey}
+              style={styles.keyInputEye}
+            >
+              <Icon name={showKey ? 'EyeOff' : 'Eye'} size={18} color={colors.textSecondary} />
+            </Pressable>
+          </View>
         </View>
 
-        <View style={styles.enabledRow}>
-          <Text style={styles.fieldLabel}>{t('Enabled')}</Text>
-          <Switch
-            testID={`provider-toggle-${name}`}
-            value={state.enabled && hasKey}
-            onValueChange={props.onToggleEnabled}
-            disabled={!hasKey}
-          />
-        </View>
-
+        {/* Primary Action Buttons */}
         <View style={styles.providerActionsRow}>
           <Pressable
             testID={`provider-validate-${name}`}
             style={[
-              styles.secondaryButton,
-              validated && styles.secondaryButtonValidated,
-              (validating || !hasKey) && styles.secondaryButtonDisabled,
+              styles.primaryValidateButton,
+              validated && styles.primaryButtonValidated,
+              (validating || !hasKey) && styles.primaryButtonDisabled,
             ]}
             onPress={props.onValidate}
             disabled={validating || !hasKey}
           >
             {validating ? (
-              <ActivityIndicator size="small" color={colors.primary} />
+              <ActivityIndicator size="small" color="#fff" />
             ) : validated ? (
               <View style={styles.validatedRow}>
-                <Icon name="CircleCheck" size={15} color={colors.success} />
-                <Text style={[styles.secondaryButtonLabel, { color: colors.success }]}>{t('Key validated')}</Text>
+                <Icon name="CircleCheck" size={16} color={colors.success} />
+                <Text style={styles.validatedButtonLabel}>{t('Key Validated')}</Text>
               </View>
             ) : (
-              <Text style={styles.secondaryButtonLabel}>{t('Validate key')}</Text>
+              <View style={styles.validatedRow}>
+                <Icon name="Zap" size={16} color="#fff" />
+                <Text style={styles.primaryButtonLabel}>{t('Test & Save Key')}</Text>
+              </View>
             )}
           </Pressable>
-          <Pressable style={[styles.secondaryButton, !hasKey && styles.secondaryButtonDisabled]} onPress={props.onClearKey} disabled={!hasKey}>
-            <Text style={[styles.secondaryButtonLabel, { color: colors.danger }]}>{t('Clear')}</Text>
+          <Pressable
+            style={[styles.clearButton, !hasKey && styles.clearButtonDisabled]}
+            onPress={props.onClearKey}
+            disabled={!hasKey}
+          >
+            <Text style={styles.clearButtonLabel}>{t('Clear')}</Text>
           </Pressable>
         </View>
 
-        <View style={styles.usageBox}>
-          <Text style={styles.usageLabel}>{t('Device-observed usage')}</Text>
-          <Text style={styles.usageDetail}>
-            {t('{{count}} requests', { count: usage.requests.toLocaleString() })} ·{' '}
-            {t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })}
+        {/* Advanced Model Settings Expander */}
+        <View style={styles.advancedExpanderContainer}>
+          <Pressable
+            style={styles.advancedToggleHeader}
+            onPress={() => setAdvancedOpen((prev) => !prev)}
+          >
+            <View style={styles.advancedToggleTitleRow}>
+              <Icon name="SlidersHorizontal" size={15} color={colors.textSecondary} />
+              <Text style={styles.advancedToggleTitle}>{t('Advanced Engine & Custom Models')}</Text>
+            </View>
+            <Icon name={advancedOpen ? 'ChevronUp' : 'ChevronDown'} size={16} color={colors.textSecondary} />
+          </Pressable>
+
+          {advancedOpen ? (
+            <View style={styles.advancedBody}>
+              {/* Model Profile Cards */}
+              <View style={styles.modelProfilesList}>
+                {profiles.map((profile) => {
+                  const isSelected = state.model === profile.id
+                  return (
+                    <Pressable
+                      key={profile.id}
+                      style={[styles.modelProfileCard, isSelected && styles.modelProfileCardSelected]}
+                      onPress={() => {
+                        props.onChangeModel(profile.id)
+                        setCustomInput('')
+                      }}
+                    >
+                      <View style={styles.modelProfileInfo}>
+                        <View style={styles.modelProfileTitleRow}>
+                          <Text style={[styles.modelProfileTitle, isSelected && { color: colors.primary }]}>
+                            {profile.label}
+                          </Text>
+                          {profile.speedTag ? (
+                            <View style={[styles.speedTagBadge, isSelected && styles.speedTagBadgeSelected]}>
+                              <Text style={[styles.speedTagBadgeText, isSelected && styles.speedTagBadgeTextSelected]}>
+                                {t(profile.speedTag)}
+                              </Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        {profile.description ? (
+                          <Text style={styles.modelProfileDesc}>{t(profile.description)}</Text>
+                        ) : null}
+                      </View>
+                      <View style={[styles.modelRadioDot, isSelected && styles.modelRadioDotSelected]}>
+                        {isSelected ? <View style={styles.modelRadioInner} /> : null}
+                      </View>
+                    </Pressable>
+                  )
+                })}
+              </View>
+
+              {/* Custom Model Input Override */}
+              <View style={styles.customModelContainer}>
+                <View style={styles.customModelHeaderRow}>
+                  <Text style={styles.customModelLabel}>{t('Custom Model Identifier')}</Text>
+                  {isCustomModel ? (
+                    <Text style={styles.customActiveBadge}>{t('Active')}</Text>
+                  ) : null}
+                </View>
+                <TextInput
+                  style={styles.customModelTextInput}
+                  placeholder={t('e.g. {{defaultModel}}, custom fine-tune...', { defaultModel: meta.models[0] ?? '' })}
+                  placeholderTextColor={colors.textMuted}
+                  value={customInput}
+                  onChangeText={(val) => {
+                    setCustomInput(val)
+                    if (val.trim()) {
+                      props.onChangeModel(val.trim())
+                    }
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              {/* Portal Key Management Link (when key is already validated or active) */}
+              {isKeyReady && portal ? (
+                <Pressable
+                  onPress={() => void Linking.openURL(portal.url)}
+                  style={styles.advancedPortalLinkRow}
+                >
+                  <Text style={styles.portalLinkText} numberOfLines={1}>
+                    {t('Get key from {{portal}} ↗', { portal: portal.label })}
+                  </Text>
+                  <Icon name="ExternalLink" size={14} color={colors.primary} />
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+
+        {/* Telemetry Strip */}
+        <View style={styles.telemetryStrip}>
+          <Text style={styles.telemetryText}>
+            📊 {t('{{count}} cards generated', { count: usage.requests.toLocaleString() })} ({t('{{count}} tokens', { count: usage.tokensUsed.toLocaleString() })})
           </Text>
           <Pressable onPress={() => void Linking.openURL(meta.usageUrl)}>
-            <Text style={styles.usageLink}>{t('Open {{provider}} usage ↗', { provider: meta.label })}</Text>
+            <Text style={styles.telemetryLink}>{t('Usage Console ↗')}</Text>
           </Pressable>
         </View>
       </View>
@@ -525,104 +704,337 @@ function ProviderDetailBody(props: {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.xl },
-  banner: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    backgroundColor: colors.dangerSoft,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-  },
-  bannerText: { flex: 1 },
-  bannerTitle: { fontSize: type.body, fontWeight: '700', color: colors.danger },
-  bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
-  sectionTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  sectionSubtitle: { fontSize: type.caption, color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg, lineHeight: 19 },
-  grid: { gap: spacing.md },
-  gridCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    backgroundColor: colors.surface,
-  },
-  gridCardPreviewed: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
-  },
-  gridCardIcon: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  gridCardBody: { flex: 1, gap: 3 },
-  gridCardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  gridCardLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, flexShrink: 1 },
-  gridCardModel: { fontSize: type.caption, color: colors.textSecondary },
-  gridCardStatus: { fontSize: type.caption, color: colors.textMuted },
-  gridCardStatusSuccess: { color: colors.success },
-  gridCardStatusWarning: { color: colors.warning },
-  detailPanel: {
-    borderWidth: 1,
-    borderTopWidth: 0,
-    borderColor: colors.primary,
-    borderBottomLeftRadius: radius.lg,
-    borderBottomRightRadius: radius.lg,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  activeBadge: { backgroundColor: colors.successSoft, borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  activeBadgeLabel: { fontSize: type.micro, fontWeight: '700', color: colors.success },
-  providerBody: { marginTop: spacing.md, gap: spacing.md },
-  providerActionsRow: { flexDirection: 'row', gap: spacing.sm },
-  enabledRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  keyInputWrap: { position: 'relative' },
-  keyInputWithIcon: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.md,
-    paddingLeft: spacing.md,
-    paddingRight: 44,
-    fontSize: type.caption,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  keyInputEye: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, alignItems: 'center', justifyContent: 'center' },
-  secondaryButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryButtonDisabled: { opacity: 0.45 },
-  secondaryButtonValidated: { borderColor: colors.successSoft, backgroundColor: colors.successSoft },
-  secondaryButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
-  validatedRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  usageBox: { backgroundColor: colors.surfaceMuted, borderRadius: radius.md, padding: spacing.lg, gap: 4 },
-  dangerCard: { marginTop: 0 },
-  dangerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.dangerSoft,
-    backgroundColor: colors.dangerSoft,
-  },
-  dangerButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
-  usageLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textSecondary },
-  usageDetail: { fontSize: type.caption, color: colors.textSecondary },
-  usageLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, marginTop: 2 },
-  fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.xl },
+    banner: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      backgroundColor: colors.dangerSoft,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+    },
+    bannerText: { flex: 1 },
+    bannerTitle: { fontSize: type.body, fontWeight: '700', color: colors.danger },
+    bannerMessage: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 18 },
+    sectionTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
+    sectionSubtitle: { fontSize: type.caption, color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg, lineHeight: 19 },
+    grid: { gap: spacing.md },
+    providerCardContainer: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      backgroundColor: colors.surface,
+      overflow: 'hidden',
+    },
+    providerCardContainerActive: {
+      borderColor: colors.primary,
+      borderWidth: 1.5,
+    },
+    providerCardContainerExpanded: {
+      borderColor: colors.primary,
+      borderWidth: 1.5,
+    },
+    gridCardHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      padding: spacing.lg,
+      backgroundColor: colors.surface,
+    },
+    gridCardHeaderExpanded: {
+      backgroundColor: colors.primarySoft,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    gridCardIcon: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+    gridCardBody: { flex: 1, gap: 3 },
+    gridCardLabel: { fontSize: type.body, fontWeight: '700', color: colors.text, flexShrink: 1 },
+    gridCardSubtitle: { fontSize: type.caption, color: colors.textSecondary },
+
+    gridCardRightAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    activeBadge: {
+      backgroundColor: colors.successSoft,
+      borderWidth: 1,
+      borderColor: colors.success,
+      borderRadius: radius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+    },
+    activeBadgeLabel: { fontSize: 11, fontWeight: '800', color: colors.success, letterSpacing: 0.5 },
+    activatePillButton: {
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 5,
+    },
+    activatePillButtonText: { fontSize: 12, fontWeight: '700', color: colors.text },
+
+    detailPanel: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.lg,
+    },
+    providerBody: { marginTop: spacing.md, gap: spacing.md },
+
+    /* Current Model Summary */
+    currentModelSummary: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      flexWrap: 'wrap',
+      paddingBottom: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    currentModelLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase' },
+    currentModelName: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+
+    /* Key Header & Input */
+    keyHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.xs,
+      flexWrap: 'wrap',
+    },
+    fieldLabel: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      flexShrink: 1,
+    },
+    portalLinkPressable: {
+      flexShrink: 1,
+    },
+    portalLinkText: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    keyInputWrap: {
+      position: 'relative',
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+    },
+    keyInputWithIcon: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      paddingLeft: spacing.md,
+      paddingRight: 96,
+      fontSize: type.caption,
+      color: colors.text,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    },
+    keyActionsInside: {
+      position: 'absolute',
+      right: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    pasteButton: {
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 5,
+      borderRadius: radius.sm,
+    },
+    pasteButtonText: { fontSize: type.micro, fontWeight: '700', color: colors.text },
+    keyInputEye: {
+      padding: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    /* Action Buttons */
+    providerActionsRow: { flexDirection: 'row', gap: spacing.sm },
+    primaryValidateButton: {
+      flex: 2,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      gap: spacing.xs,
+    },
+    primaryButtonValidated: {
+      backgroundColor: colors.successSoft,
+      borderWidth: 1,
+      borderColor: colors.success,
+    },
+    primaryButtonDisabled: { opacity: 0.45 },
+    primaryButtonLabel: { fontSize: type.caption, fontWeight: '800', color: colors.textOnPrimary },
+    validatedButtonLabel: { fontSize: type.caption, fontWeight: '800', color: colors.success },
+    validatedRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    clearButton: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+    },
+    clearButtonDisabled: { opacity: 0.45 },
+    clearButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+
+    /* Advanced Expander */
+    advancedExpanderContainer: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: spacing.sm,
+    },
+    advancedToggleHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.xs,
+    },
+    advancedToggleTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    advancedToggleTitle: { fontSize: type.caption, fontWeight: '700', color: colors.textSecondary },
+    advancedBody: {
+      marginTop: spacing.sm,
+      gap: spacing.sm,
+    },
+
+    /* Model Profiles List */
+    modelProfilesList: { gap: spacing.xs },
+    modelProfileCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    modelProfileCardSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primarySoft,
+    },
+    modelProfileInfo: { flex: 1, gap: 2 },
+    modelProfileTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexWrap: 'wrap' },
+    modelProfileTitle: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+    speedTagBadge: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    speedTagBadgeSelected: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    speedTagBadgeText: { fontSize: 10, fontWeight: '700', color: colors.textSecondary },
+    speedTagBadgeTextSelected: { color: colors.textOnPrimary },
+    modelProfileDesc: { fontSize: type.micro, color: colors.textMuted, lineHeight: 15 },
+    modelRadioDot: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modelRadioDotSelected: {
+      borderColor: colors.primary,
+    },
+    modelRadioInner: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+    },
+
+    /* Custom Model Box */
+    customModelContainer: {
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.xs,
+      marginTop: spacing.xs,
+    },
+    customModelHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    customModelLabel: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+    customActiveBadge: { fontSize: type.micro, fontWeight: '700', color: colors.primary, backgroundColor: colors.primarySoft, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+    customModelTextInput: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: type.caption,
+      color: colors.text,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    },
+    advancedPortalLinkRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginTop: spacing.xs,
+    },
+
+    /* Telemetry Strip */
+    telemetryStrip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.xs,
+      flexWrap: 'wrap',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    telemetryText: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600', flexShrink: 1 },
+    telemetryLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, flexShrink: 0 },
+
+    dangerCard: { marginTop: 0 },
+    dangerButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: colors.dangerSoft,
+      backgroundColor: colors.dangerSoft,
+    },
+    dangerButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+    secondaryButtonDisabled: { opacity: 0.45 },
   })

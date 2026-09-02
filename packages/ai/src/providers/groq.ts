@@ -443,6 +443,25 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
 
     if (!response.ok) {
       const body = await response.text().catch(() => '')
+      // Groq's own JSON-mode validation ("json_object" mode has no real schema enforcement, just a
+      // server-side "did the model even produce parseable JSON" check - see performChat's own doc
+      // comment on why this provider uses that mode) rejects a malformed generation with this
+      // specific 400 before any content ever comes back - functionally the same situation as "we
+      // got a response but it wasn't valid JSON," which generateValidated's own repair-retry
+      // pipeline already handles for every other cause of that (a truncated response, invalid
+      // syntax, etc.) by retrying once with a corrective instruction. Previously this threw
+      // immediately instead, so a single malformed generation was a hard failure with zero chance
+      // to self-correct - worth special-casing since the smaller/faster models Groq hosts hit this
+      // more often than the strict-json_schema providers' equivalent failure mode.
+      let errorCode: string | undefined
+      try {
+        errorCode = (JSON.parse(body) as { error?: { code?: string } })?.error?.code
+      } catch {
+        // Not JSON - fall through to the normal throw below.
+      }
+      if (errorCode === 'json_validate_failed') {
+        return { text: '', tokensUsed: 0, latencyMs: Date.now() - startedAt }
+      }
       throw new AIProviderError(
         `Groq returned ${response.status}: ${body.slice(0, 500)}`,
         this.name,

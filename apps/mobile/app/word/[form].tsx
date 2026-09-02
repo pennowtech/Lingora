@@ -87,7 +87,6 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { Icon, type IconName } from '../../components/Icon'
 import { WordChatSheet } from '../../components/WordChatSheet'
 import { WordGuideModal } from '../../components/WordGuideModal'
-import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
 import { useAIProviderRequiredAlert } from '../../lib/aiMessages'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { formatUserFriendlyProviderError } from '@lingora/ai'
@@ -273,6 +272,17 @@ export default function WordDetailScreen(): JSX.Element {
   const [expandedSynonyms, setExpandedSynonyms] = useState<Record<string, boolean>>({})
   const [loadingSynonymNuance, setLoadingSynonymNuance] = useState<Record<string, boolean>>({})
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
+  // For mutations that call an AI provider directly - runs the error through the same
+  // formatUserFriendlyProviderError autoEnrichMutation already uses, instead of showError's raw
+  // String(error) (which, for a provider-level failure like a Groq/OpenAI/etc. rejection, means the
+  // literal HTTP status + JSON error body ends up as the alert's message). Not used for non-AI
+  // mutations (delete, save, feedback, etc.) - formatUserFriendlyProviderError's heuristics are
+  // tuned specifically for provider/key/quota/network failures and would misread a genuine app
+  // error as one of those.
+  const showAIError = (title: string, error: unknown): void => {
+    const providerLabel = ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI'
+    setErrorNotice({ title, message: formatUserFriendlyProviderError(providerLabel, error, t) })
+  }
 
   const handleToggleSynonym = async (syn: Synonym, contextDescription?: string) => {
     const nextState = !expandedSynonyms[syn.id]
@@ -306,9 +316,9 @@ export default function WordDetailScreen(): JSX.Element {
 
   const autoEnrichMutation = useMutation({
     mutationFn: async () => {
-      if (!pipeline || !form) return
+      if (!pipeline || !form) return null
       log.info('word_detail.auto_enrich_started', { message: `Background AI enrichment started for ${form}` })
-      await pipeline.lookupOrGenerate(form, {
+      return pipeline.lookupOrGenerate(form, {
         cefrLevel: defaultCefr,
         deckId: DEFAULT_DECK_ID,
         language: targetLanguage,
@@ -317,8 +327,23 @@ export default function WordDetailScreen(): JSX.Element {
         forceGenerate: true,
       })
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ['word', form, nativeLanguage] })
+      // A schema-validation failure resolves this normally instead of throwing (see
+      // lookupOrGenerate's own doc comment) - nothing gets persisted, so the card is left exactly
+      // as it was before this call. Previously this branch was never checked, so the mutation
+      // logged "completed" and the screen just silently stayed on its pre-generation state with no
+      // explanation - the card looked stuck/incomplete with no indication anything had failed.
+      if (result?.kind === 'partial') {
+        log.warn('word_detail.auto_enrich_partial', {
+          message: `Background AI enrichment for ${form} returned a partial result: ${result.issues.join('; ')}`,
+        })
+        setErrorNotice({
+          title: t('AI Enrichment Incomplete'),
+          message: t("The AI's response for this word wasn't complete, so nothing was saved. Try Regenerate to try again."),
+        })
+        return
+      }
       log.info('word_detail.auto_enrich_completed', { message: `Background AI enrichment completed for ${form}` })
     },
     onError: (err) => {
@@ -402,6 +427,13 @@ export default function WordDetailScreen(): JSX.Element {
   const headlineMeaning = active?.meanings.find((m) => m.isPrimary) ?? active?.meanings[0]
   const selectedExample = active?.examples.find((ex) => ex.isSelected) ?? active?.examples[0]
   const isAiCard = !!word?.card?.source && AI_GENERATED_SOURCES.includes(word.card.source)
+  // Explain/More info/Ask AI all need *some* cluster (label/description) to give the AI provider
+  // as context - normally the word's own real meaning cluster, always present for a genuinely
+  // persisted card (every persist path creates a cluster with its meaning, atomically). Falls back
+  // to a minimal one built from whatever's available (the headline translation, or worst case just
+  // the word itself) so these three actions work on any card with AI configured instead of
+  // refusing outright - matches review/[deckId].tsx's identical effectiveClusterRef.
+  const effectiveCluster = active?.cluster ?? (word ? { label: 'general', description: headlineMeaning?.translation || word.lemma.form } : null)
 
   useEffect(() => {
     if (autoEnrich === 'true' && word && !isAiCard && !autoEnrichMutation.isPending && !autoEnrichMutation.isSuccess) {
@@ -497,7 +529,7 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => showError(t('Could not generate phrases'), error),
+    onError: (error: unknown) => showAIError(t('Could not generate phrases'), error),
   })
 
   const generateMissingWord = useMutation({
@@ -515,7 +547,7 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => showError(t('Could not generate word card'), error),
+    onError: (error: unknown) => showAIError(t('Could not generate word card'), error),
   })
 
   useEffect(() => {
@@ -719,10 +751,10 @@ export default function WordDetailScreen(): JSX.Element {
   const generateExplanation = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate an explanation.'))
-      if (!word || !active || !headlineMeaning) throw new Error(t('This word has no meaning yet.'))
+      if (!word || !headlineMeaning || !effectiveCluster) throw new Error(t('This word has no meaning yet.'))
       const result = await ai.generateMeaning(
         word.lemma.form,
-        { label: active.cluster.label, description: active.cluster.description },
+        effectiveCluster,
         { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
       )
       const generated = result.data[0]
@@ -735,7 +767,7 @@ export default function WordDetailScreen(): JSX.Element {
       )
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['word', form] }),
-    onError: (error: unknown) => showError(t('Could not generate an explanation'), error),
+    onError: (error: unknown) => showAIError(t('Could not generate an explanation'), error),
   })
 
   // "More info" sheet content — see moreInfoByCluster's doc comment. Deliberately never fired
@@ -747,13 +779,16 @@ export default function WordDetailScreen(): JSX.Element {
   const generateMoreInfo = useMutation({
     mutationFn: async () => {
       if (!ai) throw new Error(t('Add your AI provider key in Settings to generate more info.'))
-      if (!word || !active) throw new Error(t('This word has no meaning yet.'))
+      if (!word || !effectiveCluster) throw new Error(t('This word has no meaning yet.'))
       const result = await ai.explainWordDetail(
         word.lemma.form,
-        { label: active.cluster.label, description: active.cluster.description },
+        effectiveCluster,
         { cefrLevel: defaultCefr, language: word.lemma.language, nativeLanguage },
       )
-      await updateClusterMoreInfo(db, active.cluster.id, result.data)
+      // No real persisted cluster to attach this to (see effectiveCluster's fallback) - still
+      // return the generated paragraphs so the sheet shows them, just don't try to persist against
+      // an id that doesn't exist. Matches review/[deckId].tsx's identical generateMoreInfo.
+      if (active?.cluster.id) await updateClusterMoreInfo(db, active.cluster.id, result.data)
       return result.data
     },
     onSuccess: async (paragraphs) => {
@@ -805,7 +840,7 @@ export default function WordDetailScreen(): JSX.Element {
       setClusterId(null)
       await queryClient.invalidateQueries()
     },
-    onError: (error: unknown) => showError(t('Could not regenerate this card'), error),
+    onError: (error: unknown) => showAIError(t('Could not regenerate this card'), error),
   })
 
   const handleRegenerate = (): void => {
@@ -907,8 +942,7 @@ export default function WordDetailScreen(): JSX.Element {
     if (isAiCard) {
       setAiSheetOpen(true)
       if (
-        activeClusterId &&
-        !moreInfoByCluster[activeClusterId] &&
+        !(activeClusterId && moreInfoByCluster[activeClusterId]) &&
         !active?.cluster.moreInfo &&
         !generateMoreInfo.isPending &&
         ai
@@ -962,7 +996,7 @@ export default function WordDetailScreen(): JSX.Element {
       aiRequiredAlert.show(t('chat with your AI tutor'))
       return
     }
-    if (!word || !active || !word.card) return
+    if (!word || !word.card) return
     setAskAiOpen(true)
   }
 
@@ -1007,7 +1041,7 @@ export default function WordDetailScreen(): JSX.Element {
       setEditExample(generated.sentence)
       setEditTranslation(generated.translation)
     },
-    onError: (error: unknown) => showError(t('Could not generate an example'), error),
+    onError: (error: unknown) => showAIError(t('Could not generate an example'), error),
   })
 
   const handleLookup = (): void => {
@@ -1096,17 +1130,18 @@ export default function WordDetailScreen(): JSX.Element {
     .map((inf) => inf.surface)
   const grammarInfo = [lemmaMeta, ...inflectionForms].filter(Boolean).join(' · ')
 
-  // A card opened via "Generate with AI" (search.tsx) starts life with a dictionary source — the
-  // optimistic card is created before the AI call even starts, see search.tsx's generate mutation
-  // — so isAiCard alone stays false for the whole window between navigation and a successful
-  // autoEnrichMutation, including forever if that enrichment fails. That's not a dictionary card
-  // by intent, so Edit shouldn't appear on it just because enrichment hasn't landed yet — autoEnrich
-  // (set for exactly this flow, see the effect above) is the signal that distinguishes "AI content
-  // hasn't arrived yet" from "this really is a plain dictionary/word-guide card."
-  const aiIntended = isAiCard || autoEnrich === 'true'
   // Regenerate/More info/Ask AI all read or rewrite this card's AI content — disabled while some
   // other AI write for it is already in flight, so a tap can't race a background one.
   const aiEnriching = autoEnrichMutation.isPending || regenerateCard.isPending
+  // A card opened via "Generate with AI" (search.tsx) starts life with a dictionary source — the
+  // optimistic card is created before the AI call even starts, see search.tsx's generate mutation
+  // — so isAiCard alone stays false for the whole window between navigation and a successful
+  // autoEnrichMutation. Keyed off aiEnriching (a live mutation-pending flag) rather than the
+  // one-shot autoEnrich route param alone, so Edit stays hidden for the actual duration of any AI
+  // write in flight regardless of navigation history, and reliably reappears the instant
+  // autoEnrichMutation settles - success (isAiCard becomes true) or a now-surfaced failure (see
+  // autoEnrichMutation's onSuccess partial-result handling above), never silently "forever".
+  const aiIntended = isAiCard || autoEnrich === 'true' || aiEnriching
 
   return (
     <>
@@ -1128,14 +1163,6 @@ export default function WordDetailScreen(): JSX.Element {
           <View style={styles.headerText}>
             <View style={styles.wordFormRow}>
               <Text style={styles.wordForm} selectable>{nativeTerm ?? word.lemma.form}</Text>
-              <CardSourceIcon
-                source={
-                  word.card?.source && !['google', 'google_translate', 'word_guide'].includes(word.card.source)
-                    ? word.card.source
-                    : (ai?.name ? dictionaryNameToCardSource(ai.name) : word.card?.source)
-                }
-                size={18}
-              />
             </View>
             {autoEnrichMutation.isPending ? (
               <View style={styles.aiEnrichingBadge}>
@@ -1942,7 +1969,7 @@ export default function WordDetailScreen(): JSX.Element {
           guards opening it without those, so this is just keeping the type checker honest.
           initialMessage carries over a question typed into "More info"'s composer (see
           bridgeToChat) — sent automatically, on top of whatever chat history already exists. */}
-      {ai && word?.card && active ? (
+      {ai && word?.card && effectiveCluster ? (
         <WordChatSheet
           visible={askAiOpen}
           onClose={() => setAskAiOpen(false)}
@@ -1950,7 +1977,7 @@ export default function WordDetailScreen(): JSX.Element {
           ai={ai}
           cardId={word.card.id}
           word={word.lemma.form}
-          cluster={{ label: active.cluster.label, description: active.cluster.description }}
+          cluster={effectiveCluster}
           cefrLevel={defaultCefr}
           language={word.lemma.language}
           nativeLanguage={nativeLanguage}

@@ -1,6 +1,7 @@
 import {
   ALL_QUESTION_TYPES,
   DEFAULT_ENABLED_QUESTION_TYPES,
+  getDeckQuestionTypes,
   isQuestionType,
   pickEligibleTypes,
   QUESTION_TYPE_META,
@@ -19,6 +20,7 @@ import {
 export {
   ALL_QUESTION_TYPES,
   DEFAULT_ENABLED_QUESTION_TYPES,
+  getDeckQuestionTypes,
   isQuestionType,
   pickEligibleTypes,
   QUESTION_TYPE_META,

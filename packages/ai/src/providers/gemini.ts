@@ -120,7 +120,7 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
 
   constructor(config: GeminiProviderConfig) {
     this.apiKey = config.apiKey
-    this.model = config.model ?? 'gemini-2.5-flash'
+    this.model = config.model ?? 'gemini-3.5-flash-lite'
     this.baseUrl = (config.baseUrl ?? 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
     // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.

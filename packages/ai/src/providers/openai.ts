@@ -119,7 +119,7 @@ export class OpenAIProvider implements AIProvider, DictionaryProvider {
 
   constructor(config: OpenAIProviderConfig) {
     this.apiKey = config.apiKey
-    this.model = config.model ?? 'gpt-4.1-mini'
+    this.model = config.model ?? 'gpt-4o-mini'
     this.baseUrl = (config.baseUrl ?? 'https://api.openai.com/v1').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
     // Bound to globalThis: a bare `fetch` reference called later as `this.fetchFn(...)` throws

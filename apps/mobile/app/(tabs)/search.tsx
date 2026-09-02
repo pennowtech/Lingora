@@ -21,7 +21,6 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, Vi
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
-import { ReviewModeBadges } from '../../components/ReviewModesPicker'
 import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { AISetupModal } from '../../components/AISetupModal'
@@ -75,7 +74,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Card types & review modes',
     icon: 'SlidersHorizontal',
     paragraphs: [
-      'Small **icon badges** next to cards and decks show which *study formats* they support:',
+      'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:',
       '• **Vocab** (⇄): Classic word-to-translation recall.',
       '• **Reverse** (⮌): Translation-to-word recall.',
       '• **Cloze** (T): Fill-in-the-blank practice inside example sentences.',
@@ -602,8 +601,10 @@ export default function SearchScreen(): JSX.Element {
           <Text style={styles.inDeckBadgeText}>{t('Already in your library')}</Text>
         </View>
       ) : (
+        // No ReviewModeBadges here - this is a read-only translation preview, not a saved card,
+        // so there's no deck/card review-mode context to badge yet (see the identical fix on the
+        // word-guide preview's footer below).
         <View style={styles.guideFooterRow}>
-          <ReviewModeBadges size="sm" />
           <Button
             label={t('Add to deck')}
             icon="CirclePlus"
@@ -741,8 +742,9 @@ export default function SearchScreen(): JSX.Element {
                       <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
                     ) : null}
 
+                    {/* No ReviewModeBadges here either - a Word Guide entry isn't a saved card
+                        yet, so there's no deck to report review modes for. */}
                     <View style={styles.guideFooterRow}>
-                      <ReviewModeBadges size="sm" />
                       <View style={styles.guideActionsRow}>
                         <Button
                           label={t('Add to deck')}
@@ -1033,7 +1035,7 @@ const createStyles = (colors: ThemeColors) =>
     guideFooterRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       gap: spacing.sm,
       marginTop: spacing.xs,
     },

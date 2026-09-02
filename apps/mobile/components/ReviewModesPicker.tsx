@@ -5,7 +5,7 @@ import { Icon, type IconName } from './Icon'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
-import { ALL_QUESTION_TYPES, QUESTION_TYPE_META } from '../lib/reviewTypes'
+import { ALL_QUESTION_TYPES, getDeckQuestionTypes, QUESTION_TYPE_META } from '../lib/reviewTypes'
 
 const QUESTION_TYPE_ICONS: Record<QuestionType, IconName> = {
   vocab: 'ArrowLeftRight',
@@ -119,7 +119,11 @@ export function ReviewModeBadges(props: {
 }): JSX.Element | null {
   const colors = useColors()
   const styles = useThemedStyles(createBadgeStyles)
-  const modes = props.modes && props.modes.length > 0 ? props.modes : ALL_QUESTION_TYPES
+  // A deck with no override (created before per-deck review modes existed, or never explicitly
+  // set) falls back to the app-wide default (word->meaning only), NOT every format - a plain deck
+  // whose cards only ever review as word->meaning must not show reverse/cloze/true-false/
+  // multiple-choice badges as if it supported them.
+  const modes = getDeckQuestionTypes(props.modes !== undefined ? { enabledQuestionTypes: props.modes } : {})
 
   return (
     <View style={styles.badgeContainer}>

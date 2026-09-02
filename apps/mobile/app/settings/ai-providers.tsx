@@ -137,6 +137,7 @@ export default function AiProvidersScreen(): JSX.Element {
     deepseek: emptyProviderState('deepseek'),
     groq: emptyProviderState('groq'),
   })
+  const [savedModels, setSavedModels] = useState<Record<GenerationProviderName, string>>({ ...DEFAULT_MODELS })
   const [usage, setUsage] = useState<Record<GenerationProviderName, UsageSnapshot>>({
     openai: ZERO_USAGE,
     mistral: ZERO_USAGE,
@@ -152,6 +153,7 @@ export default function AiProvidersScreen(): JSX.Element {
     const load = async (): Promise<void> => {
       try {
         const validatedMap: Partial<Record<GenerationProviderName, boolean>> = {}
+        const savedModelMap: Record<GenerationProviderName, string> = { ...DEFAULT_MODELS }
         const entries = await Promise.all(
           GENERATION_PROVIDERS.map(async (name) => {
             const keys = PROVIDER_STORE_KEYS[name]
@@ -164,7 +166,16 @@ export default function AiProvidersScreen(): JSX.Element {
             ])
             const loadedKey = apiKey ?? ''
             const loadedModel = model ?? DEFAULT_MODELS[name]
-            if (loadedKey.trim() !== '' && validatedKeyRaw === `${loadedKey.trim()}:::${loadedModel}`) {
+            savedModelMap[name] = loadedModel
+            const isVal =
+              loadedKey.trim() !== '' &&
+              validatedKeyRaw != null &&
+              validatedKeyRaw !== 'invalid' &&
+              validatedKeyRaw !== '' &&
+              (validatedKeyRaw === `${loadedKey.trim()}:::${loadedModel}` ||
+                validatedKeyRaw === loadedKey.trim() ||
+                validatedKeyRaw.startsWith(`${loadedKey.trim()}:::`))
+            if (isVal) {
               validatedMap[name] = true
             }
             return [
@@ -176,6 +187,7 @@ export default function AiProvidersScreen(): JSX.Element {
         )
         const storedGeneration = await SecureStore.getItemAsync(STORE_KEYS.generationProvider)
 
+        setSavedModels(savedModelMap)
         setProviders((prev) => {
           const next = { ...prev }
           for (const [name, state] of entries) next[name] = state
@@ -221,12 +233,12 @@ export default function AiProvidersScreen(): JSX.Element {
   }
   const changeModel = (name: GenerationProviderName, value: string): void => {
     updateProvider(name, { model: value })
-    persist(PROVIDER_STORE_KEYS[name].model, value)
-    invalidateProviderKey(name)
   }
   const changeGenerationProvider = (name: GenerationProviderName): void => {
     setGenerationProviderState(name)
-    persist(STORE_KEYS.generationProvider, name)
+    void SecureStore.setItemAsync(STORE_KEYS.generationProvider, name).then(() => {
+      void reloadServices()
+    })
     log.info('settings.generation_provider_changed', {
       message: 'Active generation provider changed',
       metadata: { provider: name },
@@ -235,22 +247,36 @@ export default function AiProvidersScreen(): JSX.Element {
 
   const validate = (name: GenerationProviderName): void => {
     const { apiKey, model } = providers[name]
-    if (!apiKey.trim()) return
+    const key = apiKey.trim()
+    if (!key) return
     setValidating((prev) => ({ ...prev, [name]: true }))
-    void VALIDATORS[name](apiKey, model)
+    void VALIDATORS[name](key, model)
       .then(async (result) => {
         if (result.ok) {
-          await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${apiKey.trim()}:::${model}`)
-          changeGenerationProvider(name)
+          await Promise.all([
+            SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].key, key),
+            SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, `${key}:::${model}`),
+            SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].model, model),
+            SecureStore.setItemAsync(STORE_KEYS.generationProvider, name),
+          ])
+          setSavedModels((prev) => ({ ...prev, [name]: model }))
+          setValidated((prev) => ({ ...prev, [name]: true }))
+          setGenerationProviderState(name)
+          setNotice({
+            title: t('Connected & Active'),
+            message: result.message,
+          })
         } else {
-          await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, 'invalid')
+          if (!validated[name]) {
+            await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, 'invalid')
+            setValidated((prev) => ({ ...prev, [name]: false }))
+          }
+          setNotice({
+            title: result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
+            message: result.message,
+          })
         }
-        setValidated((prev) => ({ ...prev, [name]: result.ok }))
         await reloadServices()
-        setNotice({
-          title: result.ok ? t('Connected & Active') : result.networkUnavailable ? t('No internet connection') : t('{{provider}} validation failed', { provider: PROVIDER_META[name].label }),
-          message: result.message,
-        })
       })
       .finally(() => {
         setValidating((prev) => ({ ...prev, [name]: false }))
@@ -288,8 +314,13 @@ export default function AiProvidersScreen(): JSX.Element {
   const configuredProviders = GENERATION_PROVIDERS.filter(
     (name) => providers[name].enabled && providers[name].apiKey.trim() !== '' && validated[name],
   )
+  const providersWithKey = GENERATION_PROVIDERS.filter(
+    (name) => providers[name].enabled && providers[name].apiKey.trim() !== '',
+  )
   const activeGenerationProvider =
-    generationProvider && configuredProviders.includes(generationProvider) ? generationProvider : configuredProviders[0]
+    generationProvider && (configuredProviders.includes(generationProvider) || providersWithKey.includes(generationProvider))
+      ? generationProvider
+      : configuredProviders[0] ?? providersWithKey[0]
   const anyKeyPresent = GENERATION_PROVIDERS.some((name) => providers[name].apiKey.trim() !== '')
 
   return (
@@ -390,6 +421,7 @@ export default function AiProvidersScreen(): JSX.Element {
                     showKey={showKey[name] ?? false}
                     validating={validating[name] ?? false}
                     validated={isValidated}
+                    savedModel={savedModels[name]}
                     usage={usage[name]}
                     onToggleShowKey={() => setShowKey((prev) => ({ ...prev, [name]: !prev[name] }))}
                     onChangeApiKey={(value) => changeApiKey(name, value)}
@@ -434,7 +466,7 @@ export default function AiProvidersScreen(): JSX.Element {
         destructive={true}
         onConfirm={() => {
           setDeleteAllConfirmOpen(false)
-          void deleteAllProviderKeys()
+          deleteAllProviderKeys()
         }}
         onCancel={() => setDeleteAllConfirmOpen(false)}
       />
@@ -455,9 +487,9 @@ export default function AiProvidersScreen(): JSX.Element {
 
 /**
  * Collapsible Provider Detail Body:
- * - Active Model Summary badge
+ * - Active Model Summary badge with draft indicator
  * - Key input with direct portal link and integrated Paste button
- * - Primary [Test & Save Key] button
+ * - Primary [Test & Save Key] / [Test & Switch Model] button
  * - Collapsible "Advanced Engine & Custom Models" drawer with curated profiles & custom model input
  * - Sleek telemetry footer
  */
@@ -468,6 +500,7 @@ function ProviderDetailBody(props: {
   showKey: boolean
   validating: boolean
   validated: boolean
+  savedModel: string
   usage: UsageSnapshot
   onToggleShowKey: () => void
   onChangeApiKey: (value: string) => void
@@ -475,7 +508,7 @@ function ProviderDetailBody(props: {
   onValidate: () => void
   onClearKey: () => void
 }): JSX.Element {
-  const { name, state, active, showKey, validating, validated, usage } = props
+  const { name, state, active, showKey, validating, validated, savedModel, usage } = props
   const meta = PROVIDER_META[name]
   const portal = PROVIDER_PORTAL_URLS[name]
   const profiles = PROVIDER_MODEL_PROFILES[name] ?? []
@@ -485,11 +518,13 @@ function ProviderDetailBody(props: {
   const styles = useThemedStyles(createStyles)
   const isKeyReady = validated || active
 
+  const isModelModified = validated && state.model !== savedModel
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const isCustomModel = !profiles.some((p) => p.id === state.model)
   const [customInput, setCustomInput] = useState(isCustomModel ? state.model : '')
 
-  const currentProfile = profiles.find((p) => p.id === state.model)
+  const activeProfile = profiles.find((p) => p.id === (validated ? savedModel : state.model))
+  const selectedProfile = profiles.find((p) => p.id === state.model)
 
   const handlePaste = async (): Promise<void> => {
     try {
@@ -507,10 +542,21 @@ function ProviderDetailBody(props: {
       <View style={styles.providerBody}>
         {/* Active Model Subtitle Strip */}
         <View style={styles.currentModelSummary}>
-          <Text style={styles.currentModelLabel}>{t('Active Model')}:</Text>
+          <Text style={styles.currentModelLabel}>{validated ? t('Active Model') : t('Selected Model')}:</Text>
           <Text style={styles.currentModelName}>
-            {currentProfile ? `${currentProfile.label}${currentProfile.isDefault ? ` (${t('Default')})` : ''}` : state.model}
+            {activeProfile ? `${activeProfile.label}${activeProfile.isDefault ? ` (${t('Default')})` : ''}` : (validated ? savedModel : state.model)}
           </Text>
+          {isModelModified ? (
+            <View style={styles.unvalidatedPill}>
+              <Text style={styles.unvalidatedPillText}>
+                {t('Pending: {{model}}', { model: selectedProfile?.label ?? state.model })}
+              </Text>
+            </View>
+          ) : !validated && hasKey ? (
+            <View style={styles.unvalidatedPill}>
+              <Text style={styles.unvalidatedPillText}>{t('Needs Key Validation')}</Text>
+            </View>
+          ) : null}
         </View>
 
         {/* API Key Header with direct Portal Link when not yet validated/active */}
@@ -566,7 +612,7 @@ function ProviderDetailBody(props: {
             testID={`provider-validate-${name}`}
             style={[
               styles.primaryValidateButton,
-              validated && styles.primaryButtonValidated,
+              validated && !isModelModified && !validating && styles.primaryButtonValidated,
               (validating || !hasKey) && styles.primaryButtonDisabled,
             ]}
             onPress={props.onValidate}
@@ -574,6 +620,11 @@ function ProviderDetailBody(props: {
           >
             {validating ? (
               <ActivityIndicator size="small" color="#fff" />
+            ) : isModelModified ? (
+              <View style={styles.validatedRow}>
+                <Icon name="Zap" size={16} color="#fff" />
+                <Text style={styles.primaryButtonLabel}>{t('Test & Switch Model')}</Text>
+              </View>
             ) : validated ? (
               <View style={styles.validatedRow}>
                 <Icon name="CircleCheck" size={16} color={colors.success} />
@@ -794,6 +845,19 @@ const createStyles = (colors: ThemeColors) =>
     },
     currentModelLabel: { fontSize: type.micro, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase' },
     currentModelName: { fontSize: type.caption, fontWeight: '700', color: colors.text },
+    unvalidatedPill: {
+      backgroundColor: colors.warningSoft ?? '#FFFBEB',
+      borderWidth: 1,
+      borderColor: colors.warning ?? '#F59E0B',
+      borderRadius: radius.sm,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+    },
+    unvalidatedPillText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: colors.warning ?? '#D97706',
+    },
 
     /* Key Header & Input */
     keyHeaderRow: {

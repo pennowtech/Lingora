@@ -1,18 +1,9 @@
 import React from 'react';
 import { ArrowLeftRight, CornerUpLeft, Type, CircleCheckBig, List, type LucideIcon } from 'lucide-react';
-import { ALL_QUESTION_TYPES, DEFAULT_ENABLED_QUESTION_TYPES, QUESTION_TYPE_META, toggleQuestionType } from '@lingora/core';
+import { ALL_QUESTION_TYPES, getDeckQuestionTypes, QUESTION_TYPE_META, toggleQuestionType } from '@lingora/core';
 import type { QuestionType } from '@lingora/types';
 
-export { toggleQuestionType };
-
-/** Which review formats an existing deck was created with - the real decks.enabled_question_types
- * column (migration 0022, shared with apps/mobile). Falls back to the app-wide default for a deck
- * with no override (created before this existed, or never explicitly set). */
-export function getDeckQuestionTypes(deck: { enabledQuestionTypes?: QuestionType[] | null }): QuestionType[] {
-  return deck.enabledQuestionTypes && deck.enabledQuestionTypes.length > 0
-    ? deck.enabledQuestionTypes
-    : [...DEFAULT_ENABLED_QUESTION_TYPES];
-}
+export { getDeckQuestionTypes, toggleQuestionType };
 
 // QUESTION_TYPE_META's `icon` is a Lucide icon *name* string (shared, platform-agnostic data -
 // mobile resolves it through its own Icon.tsx registry); this is desktop's equivalent fixed

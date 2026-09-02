@@ -20,12 +20,12 @@ export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'groq', 'mist
 export type TranslationProviderName = (typeof TRANSLATION_PROVIDERS)[number]
 
 export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
-  openai: 'gpt-4.1-mini',
+  openai: 'gpt-4o-mini',
   mistral: 'mistral-small-latest',
-  gemini: 'gemini-2.5-flash',
+  gemini: 'gemini-3.5-flash-lite',
   anthropic: 'claude-haiku-4-5-20251001',
-  deepseek: 'deepseek-v4-flash',
-  groq: 'openai/gpt-oss-20b',
+  deepseek: 'deepseek-chat',
+  groq: 'llama-3.3-70b-versatile',
 }
 
 /** Key/value store keys — the only place API keys and preferences are persisted. Shared naming

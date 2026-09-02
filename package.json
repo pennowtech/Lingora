@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --build",
+    "sync-changelog": "node scripts/sync-changelog.mjs",
     "mobile:android:isolated": "pnpm --dir apps/mobile android:isolated"
   },
   "devDependencies": {

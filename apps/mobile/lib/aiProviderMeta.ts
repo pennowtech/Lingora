@@ -78,19 +78,18 @@ export const PROVIDER_PORTAL_URLS: Record<GenerationProviderName, { label: strin
 export const PROVIDER_MODEL_PROFILES: Record<GenerationProviderName, ModelInfo[]> = {
   openai: [
     { id: 'gpt-4o-mini', label: 'GPT-4o Mini', speedTag: '🌟 Recommended', description: 'Fast, accurate & cost-effective ($0.0001/card)', isDefault: true },
-    { id: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', speedTag: '⚡ Fast', description: 'Next-gen mini reasoning model' },
+    { id: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', speedTag: '⚡ Fast', description: 'Next-gen lightweight model' },
     { id: 'gpt-4o', label: 'GPT-4o (Omni)', speedTag: '🧠 Deep Quality', description: 'Highest quality reasoning & nuance' },
     { id: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', speedTag: 'Legacy', description: 'Classic lightweight model' },
   ],
   groq: [
-    { id: 'openai/gpt-oss-20b', label: 'Llama 3.3 70B', speedTag: '⚡ Fastest', description: 'Ultra-low latency (~200ms) on Groq LPUs', isDefault: true },
-    { id: 'openai/gpt-oss-120b', label: 'Llama 3.1 405B', speedTag: '🧠 Deep Nuance', description: 'Massive open weights model for complex words' },
-    { id: 'qwen/qwen3.6-27b', label: 'Qwen 2.5 72B', speedTag: '🌐 Multilingual', description: 'Strong multilingual translation & grammar' },
-    { id: 'groq/compound', label: 'Groq Compound', speedTag: 'Compound', description: 'Multi-model routing for optimal accuracy' },
+    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', speedTag: '⚡ Fastest', description: 'Ultra-low latency (~200ms) on Groq LPUs', isDefault: true },
+    { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B', speedTag: '⚡ Instant', description: 'Lightweight ultra-fast model' },
+    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B', speedTag: '🌐 Multilingual', description: 'Strong multilingual translation & grammar' },
   ],
   gemini: [
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', speedTag: '🆓 Free Tier / Fast', description: 'High speed, generous free quota limits', isDefault: true },
-    { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite', speedTag: '⚡ Ultra-Light', description: 'Fastest lightweight Gemini endpoint' },
+    { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite', speedTag: '⚡ Ultra-Light', description: 'Fastest next-gen lightweight Gemini model', isDefault: true },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', speedTag: '🆓 Free Tier / Fast', description: 'High speed, generous free quota limits' },
   ],
   anthropic: [
     { id: 'claude-haiku-4-5-20251001', label: 'Claude 3.5 Haiku', speedTag: '⚡ Fast & Smart', description: 'Rapid responses with Anthropic precision', isDefault: true },
@@ -101,8 +100,8 @@ export const PROVIDER_MODEL_PROFILES: Record<GenerationProviderName, ModelInfo[]
     { id: 'mistral-medium-latest', label: 'Mistral Medium', speedTag: '🧠 Deep Grammar', description: 'Higher capacity for advanced linguistic queries' },
   ],
   deepseek: [
-    { id: 'deepseek-v4-flash', label: 'DeepSeek V3 Flash', speedTag: '💰 Economical', description: 'Very low cost with capable language generation', isDefault: true },
-    { id: 'deepseek-v4-pro', label: 'DeepSeek R1 Reasoning', speedTag: '🧠 Deep Reasoning', description: 'Chain-of-thought analysis for complex grammar' },
+    { id: 'deepseek-chat', label: 'DeepSeek V3 (Chat)', speedTag: '🌟 Recommended', description: 'Very low cost with capable language generation', isDefault: true },
+    { id: 'deepseek-reasoner', label: 'DeepSeek R1 (Reasoner)', speedTag: '🧠 Deep Reasoning', description: 'Chain-of-thought analysis for complex grammar' },
   ],
 }
 

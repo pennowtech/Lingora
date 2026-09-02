@@ -240,7 +240,14 @@ async function readProviderConfig(
   ])
   const k = (key ?? '').trim()
   const m = model ?? defaultModel
-  const validated = k !== '' && validatedKeyRaw !== 'invalid'
+  const validated =
+    k !== '' &&
+    validatedKeyRaw != null &&
+    validatedKeyRaw !== 'invalid' &&
+    validatedKeyRaw !== '' &&
+    (validatedKeyRaw === `${k}:::${m}` ||
+      validatedKeyRaw === k ||
+      validatedKeyRaw.startsWith(`${k}:::`))
   return { key: k, enabled: enabledRaw !== 'false', model: m, validated }
 }
 
@@ -355,11 +362,14 @@ async function buildAIServices(
   const configured = GENERATION_PROVIDERS.filter(
     (name) => configs[name].key !== '' && configs[name].validated,
   )
+  const withKeys = GENERATION_PROVIDERS.filter((name) => configs[name].key !== '')
   const preferred = (GENERATION_PROVIDERS as readonly string[]).includes(storedGenerationProvider ?? '')
     ? (storedGenerationProvider as GenerationProviderName)
     : undefined
   const generationProviderName =
-    preferred && configured.includes(preferred) ? preferred : configured[0]
+    preferred && (configured.includes(preferred) || withKeys.includes(preferred))
+      ? preferred
+      : configured[0] ?? withKeys[0]
 
   // The dictionary slot: Google's free tier needs no key and is the default;
   // DeepL and any configured generation provider can also serve translation.

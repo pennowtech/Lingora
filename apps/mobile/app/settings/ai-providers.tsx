@@ -235,8 +235,12 @@ export default function AiProvidersScreen(): JSX.Element {
     updateProvider(name, { model: value })
   }
   const changeGenerationProvider = (name: GenerationProviderName): void => {
+    updateProvider(name, { enabled: true })
     setGenerationProviderState(name)
-    void SecureStore.setItemAsync(STORE_KEYS.generationProvider, name).then(() => {
+    void Promise.all([
+      SecureStore.setItemAsync(STORE_KEYS.generationProvider, name),
+      SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].enabled, 'true'),
+    ]).then(() => {
       void reloadServices()
     })
     log.info('settings.generation_provider_changed', {

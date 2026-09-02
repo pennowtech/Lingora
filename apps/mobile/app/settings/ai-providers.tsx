@@ -398,7 +398,7 @@ export default function AiProvidersScreen(): JSX.Element {
                       <View style={styles.activeBadge}>
                         <Text style={styles.activeBadgeLabel}>{t('ACTIVE')}</Text>
                       </View>
-                    ) : isValidated ? (
+                    ) : hasKey ? (
                       <Pressable
                         style={styles.activatePillButton}
                         onPress={(e) => {

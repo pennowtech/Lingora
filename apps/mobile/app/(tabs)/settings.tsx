@@ -152,8 +152,7 @@ export default function SettingsScreen(): JSX.Element {
                   SecureStore.getItemAsync(PROVIDER_STORE_KEYS[name].validatedKey),
                 ])
                 const key = (apiKey ?? '').trim()
-                const loadedModel = model ?? DEFAULT_MODELS[name]
-                return key !== '' && enabledRaw !== 'false' && validatedKeyRaw !== 'invalid'
+                return key !== '' && enabledRaw !== 'false'
               }),
             ),
             SecureStore.getItemAsync(STORE_KEYS.translationProvider),

@@ -5,6 +5,7 @@ import type {
   GeneratedPhrase,
   GeneratedSynonym,
   LanguageCode,
+  MinedPassageAnalysis,
 } from '@lingora/types'
 import { z } from 'zod'
 import { logger } from '@lingora/observability'
@@ -22,6 +23,7 @@ import {
   wordGenerationJsonTargetSchema,
   wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
+import { minedPassageSchema } from '../schemas/mining'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
 import { toOpenAIJsonSchema } from './json-schema'
@@ -309,6 +311,16 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.detectLanguage.template, { text })
     const result = await this.generateStrict(prompt, 'language_detection', detectLanguageResponseSchema)
     return { data: result.data.language, usage: result.usage }
+  }
+
+  async analyzePassage(passage: string, ctx: GenerationContext): Promise<AIResult<MinedPassageAnalysis>> {
+    const prompt = renderPrompt(PROMPTS.passageMining.template, {
+      passage,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, 'passage_mining', minedPassageSchema)
+    return { data: result.data, usage: result.usage }
   }
 
   private async generateStrict<T>(

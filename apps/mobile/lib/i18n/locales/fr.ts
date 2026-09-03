@@ -1312,4 +1312,45 @@ Home: 'Accueil',
   '{{due}} cards due today': '{{due}} cartes à revoir aujourd\'hui',
   '{{total}} total cards in {{decks}} decks': '{{total}} cartes au total dans {{decks}} paquets',
   "OpenAI's open-weight model, fast on Groq LPUs": 'Modèle open-weight d\'OpenAI, rapide sur les LPU Groq',
+  'Study & Mine': 'Étudier et extraire',
+  'Mining Studio Help': 'Aide du Mining Studio',
+  'Mining Studio & Captured Passages': 'Mining Studio et passages capturés',
+  'Clearing passages': 'Supprimer des passages',
+  'How Passage Mining works': "Comment fonctionne l'analyse de passages",
+  'Adding words to your decks': 'Ajouter des mots à vos paquets',
+  'The **Mining Studio** stores passages and sentences captured from your reading, browsing, and clipboard.':
+    'Le **Mining Studio** conserve les passages et phrases capturés pendant vos lectures, votre navigation ou depuis le presse-papiers.',
+  'Tap anywhere on a passage - or its **Study & Mine** button - to see its fluent translation, grammar breakdown, and extracted vocabulary.':
+    'Touchez n\'importe où sur un passage - ou son bouton **Étudier et extraire** - pour voir sa traduction fluide, l\'analyse grammaticale et le vocabulaire extrait.',
+  'A passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it.':
+    'Un passage avec un *fond teinté de vert* et le badge **Extrait** a déjà produit au moins une carte.',
+  'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.':
+    'Cochez la case d\'un passage pour le sélectionner, puis **Supprimer la sélection** pour ne retirer que ceux-là.',
+  '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.':
+    '**Tout supprimer**, en haut, retire tous les passages capturés d\'un coup - vos cartes déjà extraites ne sont *jamais* affectées, seules les captures le sont.',
+  '**Passage Mining** analyzes the whole passage at once: a fluent translation, a grammar breakdown, and a shortlist of key vocabulary.':
+    'L\'**analyse de passage** traite tout le texte en une fois : une traduction fluide, une analyse grammaticale et une sélection de vocabulaire clé.',
+  'Grammar explanations and word difficulty are automatically tailored to *your CEFR level* from Settings.':
+    'Les explications grammaticales et la difficulté des mots s\'adaptent automatiquement à *votre niveau CECR* défini dans les Réglages.',
+  'A **tinted green background** on the passage means at least one card has already been mined from it.':
+    "Un **fond teinté de vert** sur le passage signifie qu'au moins une carte en a déjà été extraite.",
+  'Select any key words extracted from the passage and tap **Add to Deck**.':
+    'Sélectionnez les mots clés extraits du passage et touchez **Ajouter au paquet**.',
+  'Selected words are generated as full flashcards, with the source sentence saved as your example.':
+    'Les mots sélectionnés sont générés en cartes complètes, avec la phrase source enregistrée comme exemple.',
+  'A word you already have a card for is reported as **already present**, never as failed - nothing is duplicated or overwritten.':
+    'Un mot pour lequel vous avez déjà une carte est signalé comme **déjà présent**, jamais comme échoué - rien n\'est dupliqué ni écrasé.',
+  'Re-analyzing a passage': 'Réanalyser un passage',
+  'Tap the refresh icon next to the passage to *regenerate* its translation and grammar breakdown.':
+    "Touchez l'icône d'actualisation à côté du passage pour *régénérer* sa traduction et son analyse grammaticale.",
+  'Useful if the first analysis missed something, or after you change your CEFR level in Settings.':
+    'Utile si la première analyse a manqué quelque chose, ou après avoir changé votre niveau CECR dans les Réglages.',
+  'What is Mining Studio?': "Qu'est-ce que le Mining Studio ?",
+  'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.':
+    "Capturez n'importe quel passage que vous lisez - un article, un message, un sous-titre - et une simple pression vous donne sa **traduction**, une analyse de **grammaire** à votre niveau, et des **cartes** prêtes à l'emploi pour les mots qui valent la peine d'être appris. Pas de recherche manuelle, pas de va-et-vient entre dictionnaires.",
+  'Instant Lookup and Card Generations': 'Recherche instantanée et création de cartes',
+  'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
+    "Cherchez instantanément n'importe quel mot en {{target}} ou en {{native}} - les formes fléchies et conjuguées fonctionnent aussi. Pas encore dans votre bibliothèque ? Une pression **génère une carte complète** avec les sens, des exemples et la prononciation, pour ne jamais avoir à quitter l'application pour chercher un mot.",
+  "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
+    "La **Recherche** permet de consulter n'importe quel mot sans quitter l'application : tapez-le et obtenez des résultats instantanément, et s'il est nouveau pour vous, une pression **génère une carte complète** avec les sens, des exemples et la prononciation.",
 }

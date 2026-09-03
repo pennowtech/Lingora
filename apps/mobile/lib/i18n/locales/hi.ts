@@ -1601,4 +1601,45 @@ Home: 'होम',
   '{{due}} cards due today': 'आज {{due}} कार्ड बाकी हैं',
   '{{total}} total cards in {{decks}} decks': '{{decks}} डेक में कुल {{total}} कार्ड',
   "OpenAI's open-weight model, fast on Groq LPUs": 'OpenAI का ओपन-वेट मॉडल, Groq LPUs पर बहुत तेज़',
+  'Study & Mine': 'अध्ययन और खनन',
+  'Mining Studio Help': 'माइनिंग स्टूडियो सहायता',
+  'Mining Studio & Captured Passages': 'माइनिंग स्टूडियो और कैप्चर किए गए अंश',
+  'Clearing passages': 'अंश हटाना',
+  'How Passage Mining works': 'पैसेज माइनिंग कैसे काम करता है',
+  'Adding words to your decks': 'अपने डेक में शब्द जोड़ना',
+  'The **Mining Studio** stores passages and sentences captured from your reading, browsing, and clipboard.':
+    '**माइनिंग स्टूडियो** आपके पढ़ने, ब्राउज़िंग और क्लिपबोर्ड से कैप्चर किए गए अंशों और वाक्यों को सहेजता है।',
+  'Tap anywhere on a passage - or its **Study & Mine** button - to see its fluent translation, grammar breakdown, and extracted vocabulary.':
+    'किसी भी अंश पर - या उसके **अध्ययन और खनन** बटन पर - टैप करें ताकि उसका सहज अनुवाद, व्याकरण विश्लेषण और निकाली गई शब्दावली देखी जा सके।',
+  'A passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it.':
+    '*हल्के हरे बैकग्राउंड* और **खनित** बैज वाले अंश से पहले ही कम से कम एक कार्ड बन चुका है।',
+  'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.':
+    'किसी अंश को चुनने के लिए चेकबॉक्स पर टैप करें, फिर केवल उन्हें हटाने के लिए **चयनित हटाएं** पर टैप करें।',
+  '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.':
+    'ऊपर **सभी हटाएं** एक साथ सभी कैप्चर किए गए अंशों को हटा देता है - आपके बन चुके कार्ड *कभी* प्रभावित नहीं होते, केवल कैप्चर ही हटते हैं।',
+  '**Passage Mining** analyzes the whole passage at once: a fluent translation, a grammar breakdown, and a shortlist of key vocabulary.':
+    '**पैसेज माइनिंग** पूरे अंश का एक साथ विश्लेषण करता है: एक सहज अनुवाद, व्याकरण विश्लेषण, और मुख्य शब्दावली की एक सूची।',
+  'Grammar explanations and word difficulty are automatically tailored to *your CEFR level* from Settings.':
+    'व्याकरण स्पष्टीकरण और शब्द कठिनाई सेटिंग्स में मौजूद *आपके CEFR स्तर* के अनुसार अपने आप ढल जाते हैं।',
+  'A **tinted green background** on the passage means at least one card has already been mined from it.':
+    'अंश पर **हल्का हरा बैकग्राउंड** दिखाता है कि उससे पहले ही कम से कम एक कार्ड बन चुका है।',
+  'Select any key words extracted from the passage and tap **Add to Deck**.':
+    'अंश से निकाले गए किसी भी मुख्य शब्द को चुनें और **डेक में जोड़ें** पर टैप करें।',
+  'Selected words are generated as full flashcards, with the source sentence saved as your example.':
+    'चुने गए शब्दों से पूरे फ्लैशकार्ड बनाए जाते हैं, और मूल वाक्य आपके उदाहरण के रूप में सहेजा जाता है।',
+  'A word you already have a card for is reported as **already present**, never as failed - nothing is duplicated or overwritten.':
+    'जिस शब्द के लिए आपके पास पहले से कार्ड है, उसे **पहले से मौजूद** बताया जाता है, कभी असफल नहीं - कुछ भी डुप्लिकेट या ओवरराइट नहीं होता।',
+  'Re-analyzing a passage': 'किसी अंश का पुनः विश्लेषण',
+  'Tap the refresh icon next to the passage to *regenerate* its translation and grammar breakdown.':
+    'अंश के अनुवाद और व्याकरण विश्लेषण को *फिर से बनाने* के लिए उसके बगल के रीफ्रेश आइकन पर टैप करें।',
+  'Useful if the first analysis missed something, or after you change your CEFR level in Settings.':
+    'यह तब उपयोगी है जब पहला विश्लेषण कुछ छोड़ दे, या सेटिंग्स में आपका CEFR स्तर बदलने के बाद।',
+  'What is Mining Studio?': 'माइनिंग स्टूडियो क्या है?',
+  'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.':
+    'आप जो भी अंश पढ़ें - कोई लेख, संदेश या सबटाइटल - उसे कैप्चर करें, और एक टैप में आपको उसका **अनुवाद**, आपके स्तर के अनुसार **व्याकरण** विश्लेषण, और सीखने लायक शब्दों के लिए तैयार **फ्लैशकार्ड** मिल जाते हैं। न मैन्युअल खोज, न कई शब्दकोशों में भटकना।',
+  'Instant Lookup and Card Generations': 'तुरंत खोज और कार्ड निर्माण',
+  'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
+    'कोई भी {{target}} या {{native}} शब्द तुरंत खोजें - विभक्त या क्रिया-रूप बदले शब्द भी काम करते हैं। अभी आपकी लाइब्रेरी में नहीं है? एक टैप में **पूरा फ्लैशकार्ड बन जाता है** - अर्थ, उदाहरण और उच्चारण के साथ - ताकि आपको कुछ खोजने के लिए कभी ऐप से बाहर न जाना पड़े।',
+  "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
+    '**खोजें** से आप बिना ऐप छोड़े कोई भी शब्द देख सकते हैं: टाइप करें और तुरंत परिणाम पाएं, और अगर वह शब्द आपके लिए नया है, तो एक टैप में **पूरा फ्लैशकार्ड बन जाता है** - अर्थ, उदाहरण और उच्चारण के साथ।',
 }

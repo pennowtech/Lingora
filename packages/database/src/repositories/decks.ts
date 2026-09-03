@@ -355,6 +355,22 @@ export async function addCardToDeck(
 }
 
 /**
+ * Whether a card is already a member of a deck — lets a caller distinguish "this card is already
+ * here, nothing to do" from a genuine append/failure before calling addCardToDeck (whose
+ * INSERT OR IGNORE would silently no-op either way and can't tell the two apart afterward).
+ * @param db The database adapter to use for the query.
+ * @param deckId The deck to check membership in.
+ * @param cardId The card to check.
+ */
+export async function isCardInDeck(db: DatabaseAdapter, deckId: string, cardId: string): Promise<boolean> {
+  const row = await db.querySingle<{ present: number }>(
+    `SELECT 1 AS present FROM deck_cards WHERE deck_id = ? AND card_id = ?`,
+    [deckId, cardId],
+  )
+  return row !== null
+}
+
+/**
  * Remove a card from a deck. The card itself is untouched —
  * only the membership row is deleted.
  * @param db The database adapter to use for the query.

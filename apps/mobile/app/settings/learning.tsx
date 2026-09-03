@@ -172,6 +172,8 @@ export default function LearningScreen(): JSX.Element {
   const setCefr = (level: CefrLevel): void => {
     setCefrState(level)
     persist(STORE_KEYS.defaultCefr, level)
+    if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    reloadTimer.current = setTimeout(() => void reloadServices(), 600)
   }
 
   // Same invalidation pattern as other persisted settings: an already-open review query should

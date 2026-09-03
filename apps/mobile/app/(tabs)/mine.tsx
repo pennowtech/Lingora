@@ -1,31 +1,39 @@
-import type { CaptureSource, QuestionType } from '@lingora/types'
+import type { CaptureSource } from '@lingora/types'
 import {
-  createDeck,
   createMineEntry,
+  deleteAllMineEntries,
+  deleteMineEntries,
   deleteMineEntry,
-  getPendingMineEntries,
-  updateMineEntryProcessed,
-  updateMineEntryStatus,
+  getAllMineEntries,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as Clipboard from 'expo-clipboard'
 import { router, Stack } from 'expo-router'
-import { useRef, useState, type JSX } from 'react'
+import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { DeckPickerModal } from '../../components/DeckPickerModal'
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon, type IconName } from '../../components/Icon'
-import { ProgressOverlay } from '../../components/ProgressOverlay'
-import { AlertModal, Button, Card, EmptyState, ErrorState, IconButton, Spinner } from '../../components/ui'
-import { timeAgo, VOCAB_LANGUAGE_NAMES } from '@lingora/core'
+import { InlineMarkdown } from '../../components/InlineMarkdown'
+import { AlertModal, Button, Card, ConfirmModal, ErrorState, IconButton, Spinner } from '../../components/ui'
+import { timeAgo } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
-const log = logger.child({ feature: 'mining', screen: 'MiningQueueScreen' })
+const log = logger.child({ feature: 'mining', screen: 'MiningStudioScreen' })
 
 const SOURCE_ICONS: Record<CaptureSource, IconName> = {
   netflix: 'Tv',
@@ -39,79 +47,64 @@ const SOURCE_ICONS: Record<CaptureSource, IconName> = {
   pdf: 'File',
 }
 
+const MAX_PASSAGE_LENGTH = 1000
+
 const HELP_SECTIONS: HelpSection[] = [
   {
-    id: 'what',
-    title: 'What this screen is for',
-    icon: 'Download',
-    paragraphs: [
-      'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.',
-      'Add a sentence by typing it, pasting it from your clipboard, or sharing text here from another app.',
-    ],
-  },
-  {
-    id: 'curate',
-    title: 'Choosing what to keep',
-    icon: 'SquareCheck',
-    paragraphs: [
-      'Everything in the queue is selected by default. Tap a card to include or leave it out, or use the trash icon to remove it for good.',
-      'Only bother with this if you want to be selective - otherwise everything gets turned into cards together.',
-    ],
-  },
-  {
-    id: 'generate',
-    title: 'Turning captures into cards',
+    id: 'studio-overview',
+    title: 'Mining Studio & Captured Passages',
     icon: 'Sparkles',
     paragraphs: [
-      'The button at the bottom turns your selected sentences into real vocabulary cards, one at a time.',
-      'This is the one step that actually does the work - nothing before it does anything with your captured text.',
+      'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.',
+      'The **Mining Studio** stores passages and sentences captured from your reading, browsing, and clipboard.',
+      'Tap anywhere on a passage - or its **Study & Mine** button - to see its fluent translation, grammar breakdown, and extracted vocabulary.',
+      'A passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it.',
     ],
   },
   {
-    id: 'from-outside',
-    title: 'Adding from other apps',
-    icon: 'Share2',
+    id: 'cleanup',
+    title: 'Clearing passages',
+    icon: 'Trash2',
     paragraphs: [
-      'Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you\'d share it to any other app.',
-      'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.',
+      'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.',
+      '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.',
     ],
   },
 ]
 
-/**
- * Sentence mining queue: captured text waits here BEFORE any AI call —
- * the user discards what they don't want, then generates the rest in one go.
- */
-export default function MiningQueueScreen(): JSX.Element {
-  const { db, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
+export default function MiningStudioScreen(): JSX.Element {
+  const { db } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const [selected, setSelected] = useState<string[] | null>(null)
-  const [progress, setProgress] = useState<string | null>(null)
+
   const [captureOpen, setCaptureOpen] = useState(false)
   const [captureText, setCaptureText] = useState('')
   const [captureSource, setCaptureSource] = useState<CaptureSource>('manual')
-  const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [errorNotice, setErrorNotice] = useState<{ title: string; message: string } | null>(null)
+  const [selected, setSelected] = useState<string[]>([])
+  const [confirmClearSelected, setConfirmClearSelected] = useState(false)
+  const [confirmClearAll, setConfirmClearAll] = useState(false)
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
-  const help = useHelpAccordion('what')
+  const help = useHelpAccordion('studio-overview')
 
   const queueQuery = useQuery({
     queryKey: ['mine-queue'],
-    queryFn: () => getPendingMineEntries(db),
+    queryFn: () => getAllMineEntries(db),
   })
 
   const entries = queueQuery.data ?? []
-  // Default selection = everything, until the user starts curating.
-  const selectedIds = selected ?? entries.map((e) => e.id)
 
-  const discard = useMutation({
-    mutationFn: (entryId: string) => deleteMineEntry(db, entryId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
-    onError: (error: unknown) => showError(t('Could not discard capture'), error),
-  })
+  const openCapture = (): void => {
+    setCaptureText('')
+    setCaptureSource('manual')
+    setCaptureOpen(true)
+  }
+
+  const closeCapture = (): void => {
+    setCaptureOpen(false)
+  }
 
   const capture = useMutation({
     mutationFn: (args: { text: string; source: CaptureSource }) => {
@@ -142,127 +135,66 @@ export default function MiningQueueScreen(): JSX.Element {
 
   const handlePasteFromClipboard = (): void => {
     Clipboard.getStringAsync()
-      .then((text) => {
-        if (!text.trim()) {
+      .then((pastedText) => {
+        if (!pastedText.trim()) {
           setErrorNotice({ title: t('Clipboard is empty'), message: t('Copy some text first, then paste it here.') })
           return
         }
-        setCaptureText(text.trim())
+        const truncated = pastedText.trim().slice(0, MAX_PASSAGE_LENGTH)
+        setCaptureText(truncated)
         setCaptureSource('clipboard')
       })
-      .catch((error: unknown) => {
-        log.error('mining.clipboard_read_failed', error, { message: 'Reading the clipboard failed' })
-        showError(t('Could not read clipboard'), error)
+      .catch((err) => {
+        log.warn('mining.clipboard_paste_failed', { message: `Clipboard read failed: ${String(err)}` })
       })
   }
 
-  const closeCapture = (): void => {
-    setCaptureOpen(false)
-    setCaptureText('')
-    setCaptureSource('manual')
-  }
-
-  // Unlike the AI generation calls in search.tsx/word/[form].tsx, this one really can be stopped
-  // mid-flight — it's a loop over individually-awaited items, so Cancel just stops it from
-  // starting the next one instead of only discarding a result that already arrived.
-  const generateCancelledRef = useRef(false)
-  const generate = useMutation({
-    mutationFn: async (deckId: string) => {
-      if (!pipeline) throw new Error(t('No AI provider is active. Add and enable one in Settings to generate cards.'))
-      generateCancelledRef.current = false
-      const chosen = entries.filter((e) => selectedIds.includes(e.id))
-      let failures = 0
-
-      for (const [index, entry] of chosen.entries()) {
-        if (generateCancelledRef.current) break
-        setProgress(`Generating ${index + 1} of ${chosen.length}...`)
-        try {
-          await updateMineEntryStatus(db, entry.id, 'processing')
-          const outcome = await pipeline.lookupOrGenerate(entry.rawText.trim(), {
-            cefrLevel: defaultCefr,
-            deckId,
-            nativeLanguage,
-          })
-          if (outcome.kind === 'generated') {
-            await updateMineEntryProcessed(db, entry.id, outcome.cardId)
-          } else if (outcome.kind === 'existing') {
-            await updateMineEntryStatus(db, entry.id, 'done')
-          } else {
-            await updateMineEntryStatus(db, entry.id, 'error')
-            failures += 1
-          }
-        } catch (error) {
-          await updateMineEntryStatus(db, entry.id, 'error')
-          failures += 1
-          if (chosen.length === 1) throw error
-        }
-      }
-      return { total: chosen.length, failures }
-    },
-    onSettled: async () => {
-      setProgress(null)
-      setSelected(null)
-      await queryClient.invalidateQueries()
-    },
+  const discard = useMutation({
+    mutationFn: (entryId: string) => deleteMineEntry(db, entryId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mine-queue'] }),
+    onError: (error: unknown) => showError(t('Could not discard capture'), error),
   })
 
-  const cancelGenerate = (): void => {
-    generateCancelledRef.current = true
-  }
-
-  // "Generate cards" used to add every card to one hardcoded deck with no say in the matter — the
-  // same silent-default-deck problem already fixed on Search and word/[form] earlier. Reuses the
-  // same DeckPickerModal so all three "which deck?" moments in the app look and behave alike.
-  const createDeckAndGenerate = useMutation({
-    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
-      const now = Date.now()
-      const deckId = crypto.randomUUID()
-      await createDeck(db, {
-        id: deckId,
-        name,
-        enabledQuestionTypes: questionTypes,
-        targetLanguage,
-        nativeLanguage,
-        createdAt: now,
-        updatedAt: now,
-      })
-      return deckId
+  const deleteSelected = useMutation({
+    mutationFn: (ids: string[]) => deleteMineEntries(db, ids),
+    onSuccess: async () => {
+      setSelected([])
+      await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
     },
-    onSuccess: (deckId) => {
-      setDeckPickerOpen(false)
-      generate.mutate(deckId)
-    },
-    onError: (error: unknown) => {
-      log.error('mining.create_deck_failed', error, { message: 'Creating a deck from the mining queue failed' })
-    },
+    onError: (error: unknown) => showError(t('Could not delete selected passages'), error),
   })
 
-  const toggle = (id: string): void => {
-    setSelected(
-      selectedIds.includes(id) ? selectedIds.filter((s) => s !== id) : [...selectedIds, id],
-    )
+  const clearAll = useMutation({
+    mutationFn: () => deleteAllMineEntries(db),
+    onSuccess: async () => {
+      setSelected([])
+      await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
+    },
+    onError: (error: unknown) => showError(t('Could not clear Mining Studio'), error),
+  })
+
+  const toggleSelect = (id: string): void => {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
   }
 
-  const captureFab = (
-    <View style={styles.fab}>
-      <IconButton
-        testID="mine-capture-fab"
-        icon="Plus"
-        size={28}
-        color={colors.textOnPrimary}
-        onPress={() => setCaptureOpen(true)}
-      />
-    </View>
-  )
+  const openStudioWithEntry = (entryText: string, entryId: string, mined: boolean): void => {
+    router.push({
+      pathname: '/mine/studio',
+      params: { initialText: entryText, sourceId: entryId, mined: mined ? '1' : '' },
+    })
+  }
 
-  // Help lives in the native header, next to the "Queue" title, not an in-body overlay — see the
-  // header-right pattern shared with Search, word/[form], and the Settings screens that have a
-  // help sheet.
   const helpButton = (
     <Stack.Screen
       options={{
+        title: t('Mining Studio'),
         headerRight: () => (
-          <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('what')} />
+          <IconButton
+            icon="CircleQuestionMark"
+            size={24}
+            color={colors.primary}
+            onPress={() => help.openSection('studio-overview')}
+          />
         ),
       }}
     />
@@ -272,63 +204,12 @@ export default function MiningQueueScreen(): JSX.Element {
     <HelpAccordionSheet
       visible={help.visible}
       onClose={help.close}
-      title={t('Queue help')}
+      title={t('Mining Studio Help')}
       sections={HELP_SECTIONS}
       activeSectionId={help.sectionId}
       onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
       translate={t}
     />
-  )
-
-  const progressOverlay = (
-    <ProgressOverlay visible={generate.isPending} message={progress ?? t('Generating...')} onCancel={cancelGenerate} />
-  )
-
-  const captureModal = (
-    <Modal visible={captureOpen} animationType="slide" transparent onRequestClose={closeCapture}>
-      <View style={styles.modalBackdrop}>
-        <View style={styles.modalSheet}>
-          {/* Capped + scrollable (see modalSheet's maxHeight) — the hint text plus the multiline
-              input can grow taller than the screen at large system font/display scaling; the
-              Cancel/Add row stays pinned outside the scroll. */}
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
-            <Text style={styles.modalTitle}>{t('Add a sentence')}</Text>
-            <Text style={styles.modalHint}>
-              {t('Paste or type a {{target}} sentence. It joins the queue below - nothing is sent to AI until you generate.', {
-                target: t(VOCAB_LANGUAGE_NAMES[targetLanguage] ?? 'German'),
-              })}
-            </Text>
-            <TextInput
-              testID="mine-capture-input"
-              style={styles.modalInput}
-              multiline
-              placeholder="Ich gehe heute Abend aus."
-              placeholderTextColor={colors.textMuted}
-              value={captureText}
-              onChangeText={(text) => {
-                setCaptureText(text)
-                setCaptureSource('manual')
-              }}
-            />
-            <Button
-              label={t('Paste from clipboard')}
-              variant="secondary"
-              icon="Clipboard"
-              onPress={handlePasteFromClipboard}
-              small
-            />
-          </ScrollView>
-          <View style={styles.modalActions}>
-            <Button label={t('Cancel')} variant="ghost" onPress={closeCapture} />
-            <Button
-              label={capture.isPending ? t('Adding...') : t('Add to queue')}
-              onPress={() => capture.mutate({ text: captureText.trim(), source: captureSource })}
-              disabled={captureText.trim().length === 0 || capture.isPending}
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
   )
 
   const alertModal = (
@@ -338,6 +219,93 @@ export default function MiningQueueScreen(): JSX.Element {
       message={errorNotice?.message ?? ''}
       onClose={() => setErrorNotice(null)}
     />
+  )
+
+  const atLimit = captureText.length >= MAX_PASSAGE_LENGTH
+
+  const captureFab = (
+    <TouchableOpacity
+      testID="mine-add-button"
+      style={styles.fab}
+      onPress={openCapture}
+      accessibilityRole="button"
+      accessibilityLabel={t('Add sentence or passage')}
+    >
+      <Icon name="Plus" size={24} color="#ffffff" />
+    </TouchableOpacity>
+  )
+
+  const captureModal = (
+    <Modal visible={captureOpen} transparent animationType="slide" onRequestClose={closeCapture}>
+      <KeyboardAvoidingView
+        style={styles.modalBackdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.modalSheet}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.modalScrollContent}
+          >
+            <Text style={styles.modalTitle}>{t('Add passage or sentence')}</Text>
+            <Text style={styles.modalHint}>
+              {t('Paste or type target language text to study grammar and mine vocabulary cards.')}
+            </Text>
+            <TextInput
+              testID="mine-capture-input"
+              style={[styles.modalInput, atLimit && styles.inputAtLimit]}
+              multiline
+              maxLength={MAX_PASSAGE_LENGTH}
+              placeholder={t('Paste or type a passage or sentence...')}
+              placeholderTextColor={colors.textMuted}
+              value={captureText}
+              onChangeText={(txt) => {
+                setCaptureText(txt)
+                setCaptureSource('manual')
+              }}
+            />
+            <View style={styles.modalInputToolbar}>
+              <Button
+                label={t('Paste from clipboard')}
+                variant="secondary"
+                icon="Clipboard"
+                onPress={handlePasteFromClipboard}
+                small
+              />
+              <Text style={[styles.charCounter, atLimit && styles.charCounterLimit]}>
+                {captureText.length}/{MAX_PASSAGE_LENGTH}
+              </Text>
+            </View>
+          </ScrollView>
+          <View style={styles.modalActions}>
+            <Button label={t('Cancel')} variant="ghost" onPress={closeCapture} />
+            <Button
+              label={capture.isPending ? t('Adding...') : t('Save Passage')}
+              onPress={() => capture.mutate({ text: captureText.trim(), source: captureSource })}
+              disabled={captureText.trim().length === 0 || capture.isPending}
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  )
+
+  // Only ever shown when there's genuinely nothing else on screen (the empty state) - once a
+  // passage exists, the list itself is the explanation.
+  const overviewCard = (
+    <View style={styles.overviewCard}>
+      <View style={styles.overviewIconWrap}>
+        <Icon name="Sparkles" size={24} color={colors.primary} />
+      </View>
+      <Text style={styles.overviewTitle}>{t('What is Mining Studio?')}</Text>
+      <InlineMarkdown
+        text={t(
+          'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.',
+        )}
+        style={styles.overviewBody}
+        boldStyle={styles.overviewBold}
+      />
+    </View>
   )
 
   if (queueQuery.isPending) {
@@ -351,7 +319,12 @@ export default function MiningQueueScreen(): JSX.Element {
     )
   }
 
-  if (queueQuery.isError) {
+  // React Query keeps the last successful `data` around across a failed background refetch (it
+  // doesn't clear it), so a transient refetch error here shouldn't wipe an already-visible list
+  // down to a bare error screen - that's what made mined passages seem to vanish and then
+  // "come back" on the next successful invalidate (e.g. capturing something new). Only show the
+  // full error state when there's genuinely nothing cached to fall back on.
+  if (queueQuery.isError && entries.length === 0) {
     return (
       <View style={styles.container}>
         <ErrorState message={String(queueQuery.error)} onRetry={() => void queueQuery.refetch()} />
@@ -365,108 +338,147 @@ export default function MiningQueueScreen(): JSX.Element {
   if (entries.length === 0) {
     return (
       <View style={styles.container}>
-        <EmptyState
-          icon="Download"
-          title={t('Queue is empty')}
-          message={t('Add a sentence manually, paste one from your clipboard, or capture text from the share sheet - it lands here before any AI processing.')}
-        />
-        {generate.data && generate.data.total > 0 ? (
-          <Text style={styles.resultLabel}>
-            {t('{{done}} of {{total}} generated', {
-              done: generate.data.total - generate.data.failures,
-              total: generate.data.total,
-            })}
-            {generate.data.failures > 0 ? ` · ${t('{{count}} failed', { count: generate.data.failures })}` : ''}
-            {' - '}
-            {t('see Decks.')}
-          </Text>
-        ) : null}
+        <View style={styles.emptyCentered}>{overviewCard}</View>
         {captureFab}
         {captureModal}
         {helpButton}
         {helpSheet}
-        {progressOverlay}
         {alertModal}
       </View>
     )
   }
 
+  const clearToolbar = (
+    <View style={styles.toolbar}>
+      {selected.length > 0 ? (
+        <>
+          <Text style={styles.toolbarLabel}>{t('{{count}} selected', { count: selected.length })}</Text>
+          <View style={styles.toolbarActions}>
+            <Button label={t('Cancel')} variant="ghost" small onPress={() => setSelected([])} />
+            <Button
+              label={t('Delete Selected')}
+              variant="danger"
+              small
+              icon="Trash2"
+              onPress={() => setConfirmClearSelected(true)}
+              disabled={deleteSelected.isPending}
+            />
+          </View>
+        </>
+      ) : (
+        <>
+          <Text style={styles.toolbarLabel}>
+            {t('{{count}} passages', { count: entries.length })}
+          </Text>
+          <Button
+            label={t('Clear All')}
+            variant="ghost"
+            small
+            icon="Trash2"
+            onPress={() => setConfirmClearAll(true)}
+            disabled={clearAll.isPending}
+          />
+        </>
+      )}
+    </View>
+  )
+
   return (
     <View style={styles.container}>
+      {clearToolbar}
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.intro}>
-          {t("Review your captures. Discard what you don't need, then generate cards for the rest.")}
-        </Text>
-
         {entries.map((entry) => {
-          const isSelected = selectedIds.includes(entry.id)
+          const charCount = entry.rawText.length
+          const isMined = entry.processed
+          const isSelected = selected.includes(entry.id)
           return (
-            <Card key={entry.id} style={styles.entryCard} onPress={() => toggle(entry.id)}>
+            <Card
+              key={entry.id}
+              style={[styles.entryCard, isMined && styles.entryCardMined]}
+              onPress={() => openStudioWithEntry(entry.rawText, entry.id, isMined)}
+            >
               <View style={styles.entryHeader}>
                 <View style={styles.sourceRow}>
-                  <Icon name={SOURCE_ICONS[entry.sourceType]} size={13} color={colors.textMuted} />
+                  <TouchableOpacity
+                    onPress={() => toggleSelect(entry.id)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Icon
+                      name={isSelected ? 'SquareCheck' : 'Square'}
+                      size={18}
+                      color={isSelected ? colors.primary : colors.textMuted}
+                    />
+                  </TouchableOpacity>
+                  <Icon name={SOURCE_ICONS[entry.sourceType]} size={14} color={colors.textMuted} />
                   <Text style={styles.sourceLabel}>{entry.sourceTitle ?? entry.sourceType}</Text>
                   <Text style={styles.timeLabel}>· {timeAgo(entry.capturedAt)}</Text>
                 </View>
-                <Icon
-                  name={isSelected ? 'SquareCheck' : 'Square'}
-                  size={20}
-                  color={isSelected ? colors.primary : colors.textMuted}
-                />
+                {isMined ? (
+                  <View style={styles.minedBadge}>
+                    <Icon name="SquareCheck" size={12} color={colors.primary} />
+                    <Text style={styles.minedBadgeText}>{t('Mined')}</Text>
+                  </View>
+                ) : null}
               </View>
-              <Text style={styles.entryText}>„{entry.rawText}"</Text>
-              <View style={styles.entryActions}>
-                <IconButton
-                  icon="Trash2"
-                  size={17}
-                  color={colors.danger}
-                  onPress={() => discard.mutate(entry.id)}
-                  disabled={discard.isPending}
-                />
+
+              <Text style={styles.entryText} numberOfLines={4}>
+                „{entry.rawText}"
+              </Text>
+
+              <View style={styles.entryFooter}>
+                <Text style={styles.charBadge}>
+                  {charCount} {t('chars')}
+                </Text>
+
+                <View style={styles.entryActionGroup}>
+                  <View style={styles.openHintRow}>
+                    <Text style={styles.openHint}>{t('Study & Mine')}</Text>
+                    <Icon name="ChevronRight" size={16} color={colors.primary} />
+                  </View>
+                  <IconButton
+                    icon="Trash2"
+                    size={18}
+                    color={colors.danger}
+                    onPress={() => discard.mutate(entry.id)}
+                    disabled={discard.isPending}
+                  />
+                </View>
               </View>
             </Card>
           )
         })}
-        {generate.isError ? <Text style={styles.errorLabel}>{String(generate.error)}</Text> : null}
       </ScrollView>
 
-      <View style={styles.bottomBar}>
-        {tier === 'full' ? (
-          <Button
-            label={progress ?? t('Generate {{count}} cards with AI', { count: selectedIds.length })}
-            icon="Sparkles"
-            onPress={() => setDeckPickerOpen(true)}
-            disabled={selectedIds.length === 0 || generate.isPending}
-          />
-        ) : (
-          <Button
-            label={t('No AI provider active - open Settings')}
-            icon="Key"
-            variant="secondary"
-            onPress={() => router.push('/settings')}
-          />
-        )}
-      </View>
       {captureFab}
       {captureModal}
       {helpButton}
       {helpSheet}
-      {progressOverlay}
       {alertModal}
-      <DeckPickerModal
-        db={db}
-        visible={deckPickerOpen}
-        onClose={() => setDeckPickerOpen(false)}
-        title={t('Generate {{count}} cards to...', { count: selectedIds.length })}
-        targetLanguage={targetLanguage}
-        nativeLanguage={nativeLanguage}
-        onSelectDeck={(deck) => {
-          setDeckPickerOpen(false)
-          generate.mutate(deck.id)
+
+      <ConfirmModal
+        visible={confirmClearSelected}
+        title={t('Delete {{count}} passages?', { count: selected.length })}
+        message={t('This removes the selected captured passages. Cards already mined from them are not affected.')}
+        onCancel={() => setConfirmClearSelected(false)}
+        onConfirm={() => {
+          setConfirmClearSelected(false)
+          deleteSelected.mutate(selected)
         }}
-        selecting={generate.isPending}
-        onCreateDeck={(name, questionTypes) => createDeckAndGenerate.mutate({ name, questionTypes })}
-        creating={createDeckAndGenerate.isPending}
+        confirmLabel={t('Delete')}
+        destructive
+      />
+
+      <ConfirmModal
+        visible={confirmClearAll}
+        title={t('Clear all passages?')}
+        message={t('This removes every captured passage from the Mining Studio. Cards already mined from them are not affected.')}
+        onCancel={() => setConfirmClearAll(false)}
+        onConfirm={() => {
+          setConfirmClearAll(false)
+          clearAll.mutate()
+        }}
+        confirmLabel={t('Clear All')}
+        destructive
       />
     </View>
   )
@@ -474,79 +486,219 @@ export default function MiningQueueScreen(): JSX.Element {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: 96 },
-  intro: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 19, marginBottom: spacing.lg },
-  entryCard: { marginBottom: spacing.sm },
-  entryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  sourceRow: { flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 },
-  sourceLabel: { fontSize: type.micro, fontWeight: '600', color: colors.textMuted },
-  timeLabel: { fontSize: type.micro, color: colors.textMuted },
-  entryText: { fontSize: type.body, fontWeight: '600', color: colors.text, marginTop: spacing.sm, lineHeight: 22 },
-  entryActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.sm },
-  errorLabel: { fontSize: type.caption, color: colors.danger, marginTop: spacing.md },
-  resultLabel: {
-    fontSize: type.caption,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    paddingHorizontal: spacing.xl,
-    marginTop: -spacing.xl,
-  },
-  bottomBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: spacing.lg,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    borderRadius: radius.sm,
-  },
-  fab: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: 104,
-    width: 52,
-    height: 52,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.md,
-    // At large system font/display scaling this content can grow taller than the screen — capped
-    // here and made scrollable (see the ScrollView wrapping it) instead of silently overflowing
-    // the screen edge with no way to reach the rest.
-    maxHeight: '85%',
-  },
-  modalScrollContent: { gap: spacing.md },
-  modalTitle: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
-  modalHint: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
-  modalInput: {
-    minHeight: 96,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: type.body,
-    color: colors.text,
-    textAlignVertical: 'top',
-  },
-  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.md },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scroll: {
+      padding: spacing.md,
+      paddingBottom: 110,
+      gap: spacing.sm,
+    },
+    emptyCentered: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    overviewCard: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.lg,
+      padding: spacing.xl,
+      maxWidth: 420,
+    },
+    overviewIconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    overviewTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    overviewBody: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 19,
+      textAlign: 'center',
+    },
+    overviewBold: {
+      fontWeight: '700',
+      color: colors.primaryDark,
+    },
+    entryCard: {
+      gap: spacing.xs,
+    },
+    entryCardMined: {
+      backgroundColor: colors.successSoft,
+      borderWidth: 1,
+      borderColor: colors.success,
+    },
+    entryHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    minedBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: radius.full,
+    },
+    minedBadgeText: {
+      fontSize: type.micro,
+      fontWeight: '700',
+      color: colors.success,
+    },
+    toolbar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    toolbarLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textMuted,
+    },
+    toolbarActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    sourceRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      flex: 1,
+    },
+    sourceLabel: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.textMuted,
+      textTransform: 'capitalize',
+    },
+    timeLabel: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+    },
+    entryText: {
+      fontSize: type.body,
+      color: colors.text,
+      lineHeight: 22,
+      fontWeight: '500',
+    },
+    entryFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 4,
+      paddingTop: 4,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    charBadge: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+    },
+    entryActionGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    openHintRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    openHint: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    fab: {
+      position: 'absolute',
+      right: spacing.lg,
+      bottom: 24,
+      width: 52,
+      height: 52,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 4,
+    },
+    modalBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      justifyContent: 'flex-end',
+    },
+    modalSheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.lg,
+      borderTopRightRadius: radius.lg,
+      padding: spacing.lg,
+      gap: spacing.md,
+      maxHeight: '85%',
+    },
+    modalScrollContent: {
+      gap: spacing.md,
+    },
+    modalTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    modalHint: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    modalInput: {
+      minHeight: 96,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      fontSize: type.body,
+      color: colors.text,
+      textAlignVertical: 'top',
+    },
+    inputAtLimit: {
+      borderColor: colors.warning,
+    },
+    modalInputToolbar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    charCounter: {
+      fontSize: type.caption,
+      color: colors.textMuted,
+      fontWeight: '600',
+    },
+    charCounterLimit: {
+      color: colors.warning,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: spacing.md,
+    },
   })

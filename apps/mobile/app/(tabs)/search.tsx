@@ -19,7 +19,7 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Icon } from '../../components/Icon'
-import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
+import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
@@ -55,6 +55,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Instant lookup',
     icon: 'Search',
     paragraphs: [
+      '**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it\'s new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.',
       'Type a word in **either language** you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
       'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
     ],
@@ -687,14 +688,27 @@ export default function SearchScreen(): JSX.Element {
       </View>
 
       {term === '' ? (
-        <EmptyState
-          icon="Search"
-          title={t('Instant lookup')}
-          message={t('Search in {{target}} or {{native}}.\nInflected or conjugated forms work too.', {
-            target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
-            native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
-          })}
-        />
+        // Only shown when there's genuinely nothing yet - hidden the moment a query produces
+        // results, an error, or a loading state below.
+        <View style={styles.emptyCentered}>
+          <View style={styles.overviewCard}>
+            <View style={styles.overviewIconWrap}>
+              <Icon name="Search" size={24} color={colors.primary} />
+            </View>
+            <Text style={styles.overviewTitle}>{t('Instant Lookup and Card Generations')}</Text>
+            <InlineMarkdown
+              text={t(
+                'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.',
+                {
+                  target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
+                  native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
+                },
+              )}
+              style={styles.overviewBody}
+              boldStyle={styles.overviewBold}
+            />
+          </View>
+        </View>
       ) : search.isPending ? (
         <View style={styles.centered}>
           <ActivityIndicator color={colors.primary} />
@@ -970,6 +984,44 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: 2,
     },
     input: { flex: 1, fontSize: type.body, color: colors.text, paddingVertical: spacing.md },
+    emptyCentered: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    overviewCard: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.lg,
+      padding: spacing.xl,
+      maxWidth: 420,
+    },
+    overviewIconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    overviewTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    overviewBody: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 19,
+      textAlign: 'center',
+    },
+    overviewBold: {
+      fontWeight: '700',
+      color: colors.primaryDark,
+    },
     centered: { paddingTop: spacing.xxl, alignItems: 'center' },
     list: { paddingTop: spacing.lg },
     row: {

@@ -9,7 +9,7 @@
  *   accent → primary, accentSoft → primarySoft, accentText → primaryDark, bgBase → background,
  *   bgCard → surface, bgSurface → surfaceMuted, text1/2/3 → text/textSecondary/textMuted,
  *   textOnAccent → textOnPrimary, success/warn/danger → success/warning/danger (soft variants
- *   computed below since Shelfie doesn't define them — it has no equivalent of Lemmory's
+ *   computed below since Shelfie doesn't define them — it has no equivalent of Lemony's
  *   CEFR/rating badge UI).
  */
 
@@ -55,7 +55,7 @@ function soft(hex: string): string {
 
 const lingoraLight: AppTheme = {
   key: 'lingoraLight',
-  name: 'Lemmory Light',
+  name: 'Lemony Light',
   icon: '🇩🇪',
   mode: 'light',
   colors: {
@@ -232,7 +232,7 @@ export const DEFAULT_DARK_THEME_KEY: ThemeKey = 'midnight'
 
 /**
  * Resolves the active ThemeKey based on the user's preference and device system color scheme.
- * When set to 'system', automatically maps to Midnight Indigo for dark mode and Lemmory Light for light mode.
+ * When set to 'system', automatically maps to Midnight Indigo for dark mode and Lemony Light for light mode.
  */
 export function resolveThemeKey(
   preference: ThemePreference,

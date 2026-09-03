@@ -62,8 +62,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Share & Search',
     icon: 'Share2',
     paragraphs: [
-      'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.',
-      'You can also share text from another app straight to Lemmory, the same way you\'d share a link or a photo.',
+      'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.',
+      'You can also share text from another app straight to Lemony, the same way you\'d share a link or a photo.',
       { text: 'This setting decides what happens next.', bold: true },
       'Always open Search, split between Search and the Mining queue depending on how much text it is, or ask you every time.',
     ],

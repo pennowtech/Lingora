@@ -95,7 +95,7 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'general', label: 'General & Appearance', group: 'System & Account', keywords: ['theme', 'dark', 'light', 'app language', 'locale', 'ui', 'share'], route: '/settings/general', icon: 'SlidersHorizontal' },
   { key: 'feedback', label: 'Send Feedback', group: 'System & Account', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact', 'help', 'support'], route: '/settings/feedback', icon: 'MessageSquareText' },
   { key: 'help', label: 'User Guide & Help Center', group: 'System & Account', keywords: ['help', 'guide', 'docs', 'manual', 'video', 'tutorial', 'faq', 'srs', 'mining', 'search', 'how to'], route: '/settings/help', icon: 'BookOpen' },
-  { key: 'about', label: 'About Lemmory', group: 'System & Account', keywords: ['version', 'info', 'whats new', 'changelog', 'release', 'github'], route: '/settings/about', icon: 'Info' },
+  { key: 'about', label: 'About Lemony', group: 'System & Account', keywords: ['version', 'info', 'whats new', 'changelog', 'release', 'github'], route: '/settings/about', icon: 'Info' },
 ]
 
 function routeToCategory(route: string): SettingsCategoryKey {
@@ -393,7 +393,7 @@ export default function SettingsScreen(): JSX.Element {
             <LinkRow
               testID="settings-menu-about"
               icon="Info"
-              label={t('About Lemmory')}
+              label={t('About Lemony')}
               detail={t('App version, release highlights, and open source')}
               onPress={() => router.push('/settings/about')}
               divider
@@ -408,7 +408,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <View style={styles.footer}>
             <Image source={appIcon} style={styles.footerIcon} resizeMode="contain" />
-            <Text style={styles.footerText}>{t('Lemmory')}</Text>
+            <Text style={styles.footerText}>{t('Lemony')}</Text>
           </View>
         </>
       )}

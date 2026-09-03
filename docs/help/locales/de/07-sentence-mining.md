@@ -28,7 +28,7 @@ Ein Durchgang bleibt hier, nachdem er abgebaut wurde, sodass Sie ihn jederzeit w
 Verschiedene Komponenten dieses Bildschirms sind wie folgt:
 
 - **Keine unmittelbaren KI-Kosten bei der Erfassung**: Eine Passage wird lokal als Rohtext gespeichert; AI wird erst aufgerufen, wenn Sie es in Study & Mine öffnen.
-- **Quellenabzeichen und Zeitstempel**: Bei jeder Aufnahme wird angezeigt, woher sie stammt – 📰 Artikel, 📋 Zwischenablage, ✏️ Handbuch, 📤 Freigabeblatt, ⌨️ Prozesstext (Android „Teilen an Lemmory“) sowie Erweiterung und PDF-Quellen.
+- **Quellenabzeichen und Zeitstempel**: Bei jeder Aufnahme wird angezeigt, woher sie stammt – 📰 Artikel, 📋 Zwischenablage, ✏️ Handbuch, 📤 Freigabeblatt, ⌨️ Prozesstext (Android „Teilen an Lemony“) sowie Erweiterung und PDF-Quellen.
 - **Anzahl der Zeichen**: Jede Passage zeigt ihre Länge; Die Erfassung ist auf **1000 Zeichen** begrenzt.
 - **Mined-Anzeige**: Aus einer Passage mit einem *getönten grünen Hintergrund* und einem **Mined**-Abzeichen wurde bereits mindestens eine Karte abgebaut – dieser Status wird sofort aktualisiert, sobald Sie ein Wort hinzufügen, ohne dass Sie den Bildschirm verlassen und erneut öffnen müssen.
 - **Zum Öffnen auf eine beliebige Stelle tippen**: Durch Tippen auf den Kartenkörper (nicht auf das Kontrollkästchen oder das Löschsymbol) wird **Study & Mine** für diese Passage geöffnet. Es gibt keinen separaten „Study & Mine“-Button, nach dem man suchen muss – die gesamte Karte ist der Button.
@@ -42,8 +42,8 @@ Verschiedene Komponenten dieses Bildschirms sind wie folgt:
 Tippen Sie auf die Schaltfläche ***+** und dann auf **Aus Zwischenablage einfügen** – kopierter Text (aus einem E-Book, einer Nachricht, irgendwo anders) wird eingefügt und auf 1000 Zeichen gekürzt, wenn er länger ist.
 
 #### B. Systemfreigabeblatt und Android-Prozesstext
-- **Share Sheet**: Markieren Sie Text in jeder App → **Share** → **Lemmory**.
-- **Android-Prozesstext**: Markieren Sie Text → das Dreipunktmenü des Systems → **Teilen an Lemmory**.
+- **Share Sheet**: Markieren Sie Text in jeder App → **Share** → **Lemony**.
+- **Android-Prozesstext**: Markieren Sie Text → das Dreipunktmenü des Systems → **Teilen an Lemony**.
 
 #### C. Manuelles Hinzufügen („+“)
 Tippen Sie in der Ecke auf ***, geben Sie eine Passage oder einen Satz direkt ein oder fügen Sie sie ein und **Passage speichern**. Der Komponist zeigt einen Live-Zeichenzähler gegen die 1000-Zeichen-Obergrenze.

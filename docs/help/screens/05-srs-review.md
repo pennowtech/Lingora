@@ -1,6 +1,6 @@
 # 🧠 Spaced Repetition (SRS) Review Engine
 
-The **Review Screen** is where memory consolidation happens. Lemmory uses modern cognitive science algorithms (FSRS and SM-2) to present cards just as you are about to forget them, maximizing long-term retention with minimal study time.
+The **Review Screen** is where memory consolidation happens. Lemony uses modern cognitive science algorithms (FSRS and SM-2) to present cards just as you are about to forget them, maximizing long-term retention with minimal study time.
 
 ![Standard Flip Mode, showing a word/meaning card with the Again/Hard/Good/Easy rating buttons](srs-review-word-meaning)
 

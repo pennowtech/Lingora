@@ -1,6 +1,6 @@
 # 📖 Word Detail & Card Creator
 
-The **Word Detail** screen is the core linguistic deep-dive in Lemmory. It breaks down any word into multiple semantic senses, audio pronunciations, contextual example sentences, targeted grammar exercises, AI synonym nuances, idioms, and cloze flashcards.
+The **Word Detail** screen is the core linguistic deep-dive in Lemony. It breaks down any word into multiple semantic senses, audio pronunciations, contextual example sentences, targeted grammar exercises, AI synonym nuances, idioms, and cloze flashcards.
 
 ![The Word Detail screen for "laufen", showing its semantic contexts and examples](word-detail-card-creator)
 
@@ -18,7 +18,7 @@ The **Word Detail** screen is the core linguistic deep-dive in Lemmory. It break
 
 ### 2. Semantic Contexts (Sense Switcher)
 
-Many words have multiple completely different meanings (for example, the German verb **einstellen** can mean *to hire*, *to adjust*, or *to stop*). Instead of cramming all unrelated definitions onto one confusing card, **Lemmory** automatically splits them into separate **Semantic Contexts (Senses)**.
+Many words have multiple completely different meanings (for example, the German verb **einstellen** can mean *to hire*, *to adjust*, or *to stop*). Instead of cramming all unrelated definitions onto one confusing card, **Lemony** automatically splits them into separate **Semantic Contexts (Senses)**.
 
 #### Why Sense Segmentation Matters
 - **Avoids Memory Interference**: Trying to memorize that a single word means both "to hire someone" and "to adjust a machine" on the same flashcard creates confusion and slows down recall.
@@ -43,7 +43,7 @@ Consider the German verb **"einstellen"**, which has several completely differen
 ---
 
 #### 🎯 Multi-Deck Sense Assignment (`createCardForSense`)
-- **No Overwrites**: If you add **Sense 1 (*to hire*)** to your *Business German* deck, and later add **Sense 2 (*to adjust*)** to your *Everyday German* deck, Lemmory creates two clean, independent flashcards.
+- **No Overwrites**: If you add **Sense 1 (*to hire*)** to your *Business German* deck, and later add **Sense 2 (*to adjust*)** to your *Everyday German* deck, Lemony creates two clean, independent flashcards.
 - Each deck practices the exact sense, translation, audio, and example sentence relevant to its learning goals, while both remain linked to the same underlying word lemma.
 
 ---

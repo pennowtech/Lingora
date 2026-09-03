@@ -70,7 +70,7 @@ export function formatGitHubIssue(payload: FeedbackRequestPayload): { title: str
   }
 
   lines.push(`---`)
-  lines.push(`*Submitted automatically via Lemmory App Feedback Form*`)
+  lines.push(`*Submitted automatically via Lemony App Feedback Form*`)
 
   const labels = payload.labels && payload.labels.length > 0
     ? payload.labels

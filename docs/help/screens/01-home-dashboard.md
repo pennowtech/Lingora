@@ -1,6 +1,6 @@
 # 🏠 Home & Daily Study Hub
 
-The **Home Dashboard** is the daily starting point in Lemmory. It gives you a real-time overview of your spaced repetition review load, current study streak, curated Word of the Day discovery, and instant shortcuts to dictionary lookup and sentence mining.
+The **Home Dashboard** is the daily starting point in Lemony. It gives you a real-time overview of your spaced repetition review load, current study streak, curated Word of the Day discovery, and instant shortcuts to dictionary lookup and sentence mining.
 
 ![The Home Dashboard, showing the daily load hero, quick-action tiles, and the Word of the Day card](home-daily-study-hub)
 
@@ -76,7 +76,7 @@ If you have 0 cards in your library, the dashboard automatically swaps the due-c
 ---
 
 ### 7. App Updates & In-App Help
-- **What's New Modal**: Automatically pops up once per release when a new version of Lemmory is launched, summarizing newly introduced features.
+- **What's New Modal**: Automatically pops up once per release when a new version of Lemony is launched, summarizing newly introduced features.
 - **Home Help Accordion**: Accessible via the header question mark icon, providing quick answers about daily due counts, retention stats, Word of the Day, and shortcuts.
 
 ---

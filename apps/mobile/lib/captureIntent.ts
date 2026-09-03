@@ -4,7 +4,7 @@ const STORE_KEY = 'lingora.capture_destination'
 
 /**
  * Where text captured from outside the app (Android's "Process Text" selection-toolbar entry, or
- * the standard share sheet — see `components/CaptureIntentHandler.tsx`) lands once Lemmory opens:
+ * the standard share sheet — see `components/CaptureIntentHandler.tsx`) lands once Lemony opens:
  *  - 'search': always the Search screen, prefilled — one destination, no guessing.
  *  - 'split': Process Text (usually one selected word) goes to Search; a share (usually a whole
  *    sentence/paragraph) goes to the Mine capture queue instead.

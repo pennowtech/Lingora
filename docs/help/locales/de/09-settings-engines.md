@@ -1,6 +1,6 @@
 # ⚙️ Einstellungen und Konfiguration
 
-Der Bildschirm **Einstellungen** ist Ihr Kontrollzentrum in Lemmory. Damit können Sie alles an Ihren Lernstil anpassen – von Themen und Textgrößen bis hin zu Bring-Your-Own-Key (BYOK)-KI-Engines, hochauflösenden neuronalen Stimmen, FSRS-Algorithmen für räumliche Wiederholungen, Kartenvorlagen-Design und geräteübergreifender Cloud-Synchronisierung.
+Der Bildschirm **Einstellungen** ist Ihr Kontrollzentrum in Lemony. Damit können Sie alles an Ihren Lernstil anpassen – von Themen und Textgrößen bis hin zu Bring-Your-Own-Key (BYOK)-KI-Engines, hochauflösenden neuronalen Stimmen, FSRS-Algorithmen für räumliche Wiederholungen, Kartenvorlagen-Design und geräteübergreifender Cloud-Synchronisierung.
 
 ![Der Einstellungsbildschirm, gegliedert in Lernen & Sprechen, KI & Übersetzung, Bibliothek & Inhalte und System & Konto](settings-ai-engines)
 
@@ -32,7 +32,7 @@ Konfigurieren Sie, wie Vokabeln, Phrasen und Beispielsätze in der gesamten App 
 - **Geschwindigkeits- und Tonhöhensteuerung**: Passen Sie die Geschwindigkeit der Sprachwiedergabe an (vom 0,5-fachen langsamer Aussprache für Anfänger bis zum 2,0-fachen) und optimieren Sie die Stimmhöhe.
 - **Echtzeit-Nutzungsverfolgung**: Überwachen Sie den Zeichenverbrauch und die Anzahl der Anfragen pro Anbieter mit einem einfachen Zurücksetzen.
 - **Beispiel-Audiovorschau**: Tippen Sie auf **Diesen Anbieter testen** oder **Aktive Engine testen**, um die Beispielphrase Ihrer Zielsprache anzuhören, bevor Sie Änderungen übernehmen.
-- **Automatischer Fallback auf das Gerät**: Wenn ein Cloud-Anbieter nicht erreichbar ist oder kein Guthaben mehr vorhanden ist, greift Lemmory automatisch auf die Gerätestimme zurück, sodass Ihr Karteikartenstudium nie durch Stille unterbrochen wird.
+- **Automatischer Fallback auf das Gerät**: Wenn ein Cloud-Anbieter nicht erreichbar ist oder kein Guthaben mehr vorhanden ist, greift Lemony automatisch auf die Gerätestimme zurück, sodass Ihr Karteikartenstudium nie durch Stille unterbrochen wird.
 - **Audio-Cache-Verwaltung**: Cachet generierte Aussprachen auf Ihrem Gerät, um Latenz und Bandbreitenverbrauch zu minimieren. Tippen Sie auf **Audio-Cache löschen**, um jederzeit lokalen Speicher freizugeben.
 
 ---
@@ -43,7 +43,7 @@ Definieren Sie Ihr aktives Lernpaar, den Standardschwierigkeitsgrad, die Größe
 - **Sprachpaarkonfiguration**:
   - **„Ich spreche“ (Muttersprache)**: Die Sprache, die für Definitionen, Übersetzungen, Grammatikaufschlüsselungen, Etymologienotizen und Erklärungen von KI-Tutoren verwendet wird (z. B. Englisch, Deutsch, Spanisch, Französisch, Hindi, Vietnamesisch, Japanisch).
   - **„Ich lerne“ (Zielsprache)**: Die Sprache, die Sie aktiv lernen. Alle Wörterbuchsuchen, generierten Beispielsätze, Lückentexte und Text-to-Speech-Audio verwenden automatisch diese Sprache.
-  - **Intelligente Synchronisierung der App-Sprache**: Wenn Sie Ihre Muttersprache ändern, bietet Lemmory eine One-Tap-Option, um die Sprache der gesamten App-Benutzeroberfläche entsprechend zu aktualisieren. Aber das ist nicht erforderlich. Sie können die Benutzeroberfläche Ihrer App auf eine beliebige Sprache einstellen. Sie können beispielsweise die Sprache Ihrer App auf Englisch einstellen, während Sie Erklärungen auf Hindi erhalten und Deutsch lernen.
+  - **Intelligente Synchronisierung der App-Sprache**: Wenn Sie Ihre Muttersprache ändern, bietet Lemony eine One-Tap-Option, um die Sprache der gesamten App-Benutzeroberfläche entsprechend zu aktualisieren. Aber das ist nicht erforderlich. Sie können die Benutzeroberfläche Ihrer App auf eine beliebige Sprache einstellen. Sie können beispielsweise die Sprache Ihrer App auf Englisch einstellen, während Sie Erklärungen auf Hindi erhalten und Deutsch lernen.
 - **Standard-CEFR-Kompetenzniveau**: Wählen Sie Ihren Grundschwierigkeitsgrad („A1“, „A2“, „B1“, „B2“, „C1“, „C2“):
   - **A1–A2 (Anfänger)**: KI generiert kurze, einfache Sätze mit grundlegendem Vokabular und gebräuchlichen Alltagsverben.
   - **B1–B2 (Mittelstufe)**: KI führt zusammengesetzte Sätze, Nebensätze und situative Redewendungen ein.
@@ -63,7 +63,7 @@ Definieren Sie Ihr aktives Lernpaar, den Standardschwierigkeitsgrad, die Größe
 ## 2. 🤖 KI & Übersetzung
 
 ### A. ✨ KI-Anbieter und -Modelle (Bring-Your-Own-Key)
-Verbinden Sie persönliche API-Schlüssel von führenden KI-Anbietern. Lemmory verarbeitet Generationen direkt von Ihrem Gerät zum KI-Anbieter, ohne Zwischenserver.
+Verbinden Sie persönliche API-Schlüssel von führenden KI-Anbietern. Lemony verarbeitet Generationen direkt von Ihrem Gerät zum KI-Anbieter, ohne Zwischenserver.
 
 ![Der Bildschirm KI-Anbieter mit einem validierten OpenAI-Schlüssel, aktiv neben Groq, Mistral und Gemini](ai-providers-settings)
 
@@ -106,8 +106,8 @@ Wählen Sie aus, welche Engine sofortige Übersetzungen ermöglicht, wenn Sie in
   - Importieren Sie Vokabellisten aus Excel-, Google Sheets- oder CSV-Dateien.
   - **Visual Column Mapper**: Ordnen Sie ganz einfach Ihre Tabellenspalten zu (z. B. *Spalte A $\rightarrow$ Word*, *Spalte B $\rightarrow$ Übersetzung*, *Spalte C $\rightarrow$ Beispiel*).
   - Das Vorschau-Datenraster überprüft die korrekte Ausrichtung vor dem Import.
-- **Export und Import des Lemmory-Pakets (.lem)**:
-  – Das native Backup-Format für Lemmory.
+- **Export und Import des Lemony-Pakets (.lem)**:
+  – Das native Backup-Format für Lemony.
   - Exportiert komplette Decks, benutzerdefinierte Notizen, Lückentexte und Lernverläufe mit räumlichen Wiederholungen (FSRS) für verlustfreie Sicherung und geräteübergreifende gemeinsame Nutzung.
 
 ---
@@ -117,7 +117,7 @@ Passen Sie an, wie Karteikarten während der Überprüfung aussehen und gerender
 - **Liquid Template Engine**: Karteikarten verwenden Standard-Liquid-Markup-Tags (`{{word}}`, `{{meaning}}`, `{{example}}`, `{{audio}}`, `{{synonyms}}`, `{{partOfSpeech}}`).
 - **Vorder- und Rückseite-Editor**: Passen Sie die Frage- und Antwortseiten Ihrer Karten unabhängig an.
 - **Live-Vorschaufenster**: Sehen Sie sich beim Bearbeiten des Vorlagencodes sofort ein visuelles Feedback zu Ihrem Kartenlayout an.
-- **Standardeinstellungen wiederherstellen**: Jederzeit sicheres Zurücksetzen auf die saubere Standardkartenvorlage von Lemmory.
+- **Standardeinstellungen wiederherstellen**: Jederzeit sicheres Zurücksetzen auf die saubere Standardkartenvorlage von Lemony.
 
 ---
 
@@ -157,7 +157,7 @@ Halten Sie Ihren Lernfortschritt auf Ihrem Telefon, Tablet und Desktop synchroni
 
 ---
 
-### D. ℹ️ Über Lemmory
+### D. ℹ️ Über Lemony
 - Zeigen Sie die installierte App-Version und Build-Nummer an.
 - **Was ist neu Modal**: Sehen Sie sich Versionshinweise und Änderungsprotokolle an, die neue Funktionen zusammenfassen.
 - Open-Source-Lizenzen und GitHub-Repository-Links.
@@ -169,7 +169,7 @@ Halten Sie Ihren Lernfortschritt auf Ihrem Telefon, Tablet und Desktop synchroni
 1. **Kostenloses KI-Setup (Google Gemini)**:
    - Gehen Sie zu **Einstellungen $\rightarrow$ KI-Anbieter und -Modelle**.
    - Tippen Sie auf **Schlüssel von Google Gemini erhalten ↗** $\rightarrow$ Erstellen Sie einen kostenlosen Schlüssel in Google AI Studio.
-   - Fügen Sie den Schlüssel in Lemmory ein und tippen Sie auf **Schlüssel testen und speichern** $\rightarrow$ tippen Sie auf **Aktivieren**.
+   - Fügen Sie den Schlüssel in Lemony ein und tippen Sie auf **Schlüssel testen und speichern** $\rightarrow$ tippen Sie auf **Aktivieren**.
    - Sie haben jetzt kostenlose KI-Wortaufschlüsselungen, Grammatik-Targeting und Beispielsätze!
 2. **Importieren eines Anki-Decks**:
    - Gehen Sie zu **Einstellungen $\rightarrow$ Importieren und Exportieren $\rightarrow$ Anki-Paket (.apkg)**.
@@ -185,7 +185,7 @@ Halten Sie Ihren Lernfortschritt auf Ihrem Telefon, Tablet und Desktop synchroni
 
 > [!NOTE]
 > **Werden meine API-Schlüssel an Server von Drittanbietern gesendet?**
-> Nein. Lemmory ist vollständig lokal und datenschutzorientiert. Ihre API-Schlüssel werden ausschließlich im Hardware-Schlüsselbund Ihres Telefons gespeichert und nur an den offiziellen KI-Endpunkt (z. B. „api.openai.com“ oder „generativesprache.googleapis.com“) übertragen, wenn Sie eine Wortgenerierung anfordern.
+> Nein. Lemony ist vollständig lokal und datenschutzorientiert. Ihre API-Schlüssel werden ausschließlich im Hardware-Schlüsselbund Ihres Telefons gespeichert und nur an den offiziellen KI-Endpunkt (z. B. „api.openai.com“ oder „generativesprache.googleapis.com“) übertragen, wenn Sie eine Wortgenerierung anfordern.
 
 > [!TIP]
 > **Was soll ich tun, wenn meine KI-Generationen langsam sind?**

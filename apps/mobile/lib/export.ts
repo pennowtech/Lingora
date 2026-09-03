@@ -51,7 +51,7 @@ export async function exportCsvToFile(db: DatabaseAdapter, options: ExportOption
 export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const markdown = await buildMarkdownExport(db, {
     ...(options.deckId && { deckId: options.deckId }),
-    title: options.deckName ?? 'Lemmory vocabulary',
+    title: options.deckName ?? 'Lemony vocabulary',
   })
   const itemCount = (markdown.match(/^### /gm) ?? []).length
 
@@ -74,13 +74,13 @@ export async function exportMarkdownToFile(db: DatabaseAdapter, options: ExportO
  * `openDatabaseAsync` + real-file pattern `lib/apkg.ts`'s importer uses,
  * for the same reason: a deserialized in-memory database can't back the
  * disk-spilled temp b-trees a multi-table write like this needs), then
- * zips it with an empty `media` manifest (`{}` — Lemmory doesn't export
+ * zips it with an empty `media` manifest (`{}` — Lemony doesn't export
  * audio/images) into a `.apkg` file and saves it (`expoFileStorage.saveFile`
  * — a real folder picker on Android, the share sheet elsewhere).
  */
 export async function exportApkgToFile(db: DatabaseAdapter, options: ExportOptions = {}): Promise<{ itemCount: number; outcome: SaveOutcome }> {
   const cards = await getExportableCards(db, { ...(options.deckId && { deckId: options.deckId }) })
-  const deckName = options.deckName ?? 'Lemmory vocabulary'
+  const deckName = options.deckName ?? 'Lemony vocabulary'
 
   const tempDbName = `anki-export-${Date.now()}.db`
   const tempFile = new File(Paths.cache, tempDbName)

@@ -179,6 +179,9 @@ importers:
       expo-router:
         specifier: ~57.0.18
         version: 57.0.18(891087e8aab2b3fe5629b0e4fea4f660)
+      expo-screen-orientation:
+        specifier: ^57.0.2
+        version: 57.0.2(expo@57.0.19)(react-native@0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3))
       expo-secure-store:
         specifier: ~57.0.3
         version: 57.0.3(expo@57.0.19)
@@ -3477,6 +3480,12 @@ packages:
         optional: true
       react-server-dom-webpack:
         optional: true
+
+  expo-screen-orientation@57.0.2:
+    resolution: {integrity: sha512-9wIa/dU561fidHYChkg6LIDAcYr8uMBa8fOws1Km9/slaF3N/a2kgcy0TUZWvNIe7at3r4g2kVva9vRBJBkaEQ==}
+    peerDependencies:
+      expo: '*'
+      react-native: '*'
 
   expo-secure-store@57.0.3:
     resolution: {integrity: sha512-w7XkSQeUiYXPoKXo1jSrQqql7pyCSyIzOp2k0apsZZBE+RkoLTQIMjcbqc181y6KgupfNnYxkaKe+4MEg94+SA==}
@@ -9504,6 +9513,11 @@ snapshots:
       - react-native-worklets
       - supports-color
     optional: true
+
+  expo-screen-orientation@57.0.2(expo@57.0.19)(react-native@0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3)):
+    dependencies:
+      expo: 57.0.19(@babel/core@7.29.7)(@expo/metro-runtime@57.0.15)(expo-router@57.0.18)(react-dom@19.2.3(react@19.2.3))(react-native-webview@13.16.1(react-native@0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3))(react@19.2.3))(react-native-worklets@0.10.1(@babel/core@7.29.7)(react-native@0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3))(react@19.2.3))(react-native@0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3))(react@19.2.3)(typescript@6.0.3)
+      react-native: 0.86.3(@react-native-community/cli@20.2.0(typescript@6.0.3))(@types/react@19.2.15)(react@19.2.3)
 
   expo-secure-store@57.0.3(expo@57.0.19):
     dependencies:

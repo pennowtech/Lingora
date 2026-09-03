@@ -1,5 +1,6 @@
 import { logger } from '@lingora/observability'
 import * as Notifications from 'expo-notifications'
+import i18n from './i18n'
 import type { CloudSyncSummary } from './cloudSync'
 
 const log = logger.child({ feature: 'sync', component: 'SyncNotifications' })
@@ -34,8 +35,12 @@ export async function notifySyncSucceeded(summary: CloudSyncSummary): Promise<vo
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Lemmory synced',
-        body: `${summary.pulled} pulled · ${summary.pushed} pushed · ${summary.deleted} deleted`,
+        title: i18n.t('Lemmory synced'),
+        body: i18n.t('{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted', {
+          pulled: summary.pulled,
+          pushed: summary.pushed,
+          deleted: summary.deleted,
+        }),
       },
       trigger: null,
     })
@@ -48,7 +53,7 @@ export async function notifySyncFailed(message: string): Promise<void> {
   try {
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
-      content: { title: 'Lemmory sync failed', body: message },
+      content: { title: i18n.t('Lemmory sync failed'), body: message },
       trigger: null,
     })
   } catch (error) {

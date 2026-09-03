@@ -2,32 +2,7 @@
 
 The **Decks** tab is where you track overall study progress, organize vocabulary collections, customize review modes, and manage your flashcards. In Lemmory, decks are not just static folders — they are smart study collections that define which review modes you practice, track their own retention statistics, and support hierarchical nesting, spreadsheet table views, and bulk actions.
 
----
-
-## 🚀 Screen Architecture & Key Components
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Decks                                      🔄  ❓     │  (Sync & Help in Header)
-├────────────────────────────────────────────────────────┤
-│  STUDY PROGRESS                           [ 📊 Stats ↗ ]│  (Open Analytics)
-│  42 cards due across 4 study collections today         │
-│  [████████████████████░░░░░░░░] 88% Retention          │
-├────────────────────────────────────────────────────────┤
-│  YOUR STUDY DECKS                                      │
-│                                                        │
-│  📁 German B1 Exam Prep                      84  · 12 ▾│
-│     [ ⇄ ⮌ T ☰ ]  (Review Modes)             [ ⋮ Menu ]│
-│                                                        │
-│     └─ 📁 Sub-Deck: Verb Prefixes            24  ·  4  │
-│        [ ⇄ T ]                               [ ⋮ Menu ]│
-│                                                        │
-│  📁 Daily Conversations                      45  ·  0  │
-│     [ ⇄ ⮌ ]  (All caught up)                 [ ⋮ Menu ]│
-├────────────────────────────────────────────────────────┤
-│  [ + ] (Floating Action Button)                        │
-└────────────────────────────────────────────────────────┘
-```
+![The Decks screen, showing overall Study Progress and per-deck review-mode badges](decks-study-progress)
 
 ---
 
@@ -71,22 +46,6 @@ Tapping the main **`+` FAB** at the bottom of the Decks screen opens a quick 3-o
 
 ### 5. The Deck Context Menu ("⋮" 3-Dots Menu)
 Tapping the **⋮** menu on any deck row (or long-pressing the deck) opens a comprehensive management drawer:
-
-```
-┌────────────────────────────────────────────────────────┐
-│  German B1 Exam Prep                                   │
-├──────────────────────────┬─────────────────────────────┤
-│  [ ➕ Add Card ]         │  [ 📂 Open Deck ]           │
-├──────────────────────────┼─────────────────────────────┤
-│  [ 📥 Import ]           │  [ 📤 Export ]              │
-├──────────────────────────┴─────────────────────────────┤
-│  ✏️  Rename deck                                     ➔ │
-│  📂  Move deck (Nest as sub-deck)                    ➔ │
-│  🔀  Merge into another deck                         ➔ │
-│  🔄  Reset progress (Restart FSRS intervals)         ➔ │
-│  🗑️  Delete deck                                     ➔ │
-└────────────────────────────────────────────────────────┘
-```
 
 #### What Each Action Does:
 - **➕ Add Card**: Jump directly into manual card creation for this deck.

@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --build",
     "sync-changelog": "node scripts/sync-changelog.mjs",
+    "sync-help-docs": "node scripts/sync-help-docs.mjs",
     "mobile:android:isolated": "pnpm --dir apps/mobile android:isolated"
   },
   "devDependencies": {

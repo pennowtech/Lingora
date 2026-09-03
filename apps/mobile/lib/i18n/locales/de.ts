@@ -269,6 +269,7 @@ export const de: Record<Phrase, string> = {
   Search: 'Suche',
   Decks: 'Stapel',
   Mine: 'Meins',
+  Mining: 'Mining',
   Settings: 'Einstellungen',
   Cancel: 'Abbrechen',
   Save: 'Speichern',
@@ -324,7 +325,7 @@ export const de: Record<Phrase, string> = {
   'Learn this word': 'Dieses Wort lernen',
   "Finding today's word...": 'Suche das heutige Wort...',
   '✨ Word of the Day: {{word}}': '✨ Wort des Tages: {{word}}',
-  'Nice to see you back.': 'Schön, dass du wieder da bist.',
+  'Nice to See you back': 'Schön, dass du wieder da bist.',
   '{{count}} days': '{{count}} Tage',
   "Some data on this screen couldn't load.":
     'Einige Daten auf diesem Bildschirm konnten nicht geladen werden.',
@@ -349,9 +350,6 @@ export const de: Record<Phrase, string> = {
   'Move deck': 'Deck verschieben',
   'Merge deck': 'Deck zusammenführen',
   'Merge into another deck': 'In ein anderes Deck zusammenführen',
-  'Good morning!': 'Guten Morgen!',
-  'Good afternoon!': 'Guten Tag!',
-  'Good evening!': 'Guten Abend!',
   'Add Card': 'Karte hinzufügen',
   'Open Deck': 'Deck öffnen',
   'eBook Library': 'eBook-Bibliothek',
@@ -1174,6 +1172,9 @@ export const de: Record<Phrase, string> = {
     'Synchronisiere deine Stapel, Karten und deinen Wiederholungsfortschritt mit einem Google-Konto, damit sie auf ein anderes Gerät übertragen werden. API-Schlüssel werden nie synchronisiert.',
   Synced: 'Synchronisiert',
   'Syncing...': 'Wird synchronisiert...',
+  'Lemmory synced': 'Lemmory synchronisiert',
+  'Lemmory sync failed': 'Lemmory-Synchronisierung fehlgeschlagen',
+  '{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted': '{{pulled}} abgerufen - {{pushed}} gesendet - {{deleted}} gelöscht',
   'Synonyms & phrases': 'Synonyme & Redewendungen',
   'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.':
     'Synonyme sind andere Wörter mit ähnlicher Bedeutung, nützlich, um deinen Wortschatz rund um dieses Wort zu erweitern. Du kannst eines genauso wie ein Beispiel bewerten oder melden.',
@@ -1345,10 +1346,6 @@ export const de: Record<Phrase, string> = {
   'General feedback': 'Allgemeines Feedback',
   Vietnamese: 'Vietnamesisch',
 
-  Queue: 'Warteschlange',
-  'Queue help': 'Warteschlange-Hilfe',
-  'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.':
-    'Die Warteschlange ist ein Sammelplatz für Sätze, die du später in Vokabelkarten verwandeln möchtest - hier passiert nichts von selbst.',
 
   'Generate {{count}} cards to...': '{{count}} Karten erzeugen in...',
   'Delete account & sync data?': 'Konto & Sync-Daten löschen?',
@@ -1662,4 +1659,69 @@ export const de: Record<Phrase, string> = {
     'Feedback wird als öffentliches GitHub-Issue veröffentlicht. Die von dir eingegebene E-Mail-Adresse ist dort für jeden sichtbar, der es sich ansieht - nicht nur für unser Team. Geh zurück, um sie zu entfernen, falls du sie lieber privat halten möchtest, oder sende es so ab, wenn das für dich in Ordnung ist.',
   'Go Back': 'Zurück',
   'Send Anyway': 'Trotzdem senden',
+
+  // ── Getting-started / hero card ───────────────────────────────────────
+  'Select languages': 'Sprachen auswählen',
+  'Search a Word and add to deck': 'Ein Wort suchen und zum Stapel hinzufügen',
+  'Review your Deck': 'Deinen Stapel wiederholen',
+  'Almost there! Review your deck to finish setup.': 'Fast geschafft! Wiederhole deinen Stapel, um die Einrichtung abzuschließen.',
+  'Ready for your first review': 'Bereit für deine erste Wiederholung',
+  'Great job adding words! Now start a quick review session to lock them into your long-term memory.':
+    'Gut gemacht! Starte jetzt eine kurze Wiederholungssitzung, um die Wörter im Langzeitgedächtnis zu verankern.',
+  'Explore Help & Video Guides': 'Hilfe & Video-Guides erkunden',
+
+  // ── Help hub ─────────────────────────────────────────────────────────
+  'Help & Learning Center': 'Hilfe & Lernzentrum',
+  'Search guides, SRS algorithms, features...': 'Guides, SRS-Algorithmen, Funktionen suchen...',
+  '2-Minute Quickstart Video Tour': '2-Minuten-Schnellstart-Videotour',
+  'Watch walkthrough: Instant search, sentence mining & FSRS spaced reviews.':
+    'Videodurchgang anschauen: Sofortsuche, Satz-Mining & FSRS-Wiederholungen.',
+  '🎬 2-Minute Quickstart Video Tour': '🎬 2-Minuten-Schnellstart-Videotour',
+  'Feature Guides': 'Funktionsleitfäden',
+  'Chapters': 'Kapitel',
+  'Video': 'Video',
+  'Screen guide & features': 'Bildschirmführer & Funktionen',
+  'Full directory & feature index': 'Vollständiges Verzeichnis & Funktionsindex',
+  'Help & Feature Documentation': 'Hilfe & Funktionsdokumentation',
+  'Comprehensive screen guides, video walkthroughs, and FAQ': 'Umfassende Bildschirmführer, Video-Durchgänge und FAQ',
+
+  // ── Help chapter reader ───────────────────────────────────────────────
+  'Guide': 'Guide',
+  '🎬 Video Walkthrough': '🎬 Video-Durchgang',
+  'Loading video...': 'Video wird geladen...',
+  'Video Tutorial': 'Video-Tutorial',
+
+  // ── What's New / About - v0.3.0 changelog content ─────────────────
+  'Redesigned AI Providers Screen': 'Neu gestaltete KI-Anbieter-Ansicht',
+  'Card-Based Provider List': 'Kartenbasierte Anbieterliste',
+  '**Card-Based Provider List**: Every provider (OpenAI, Groq, Mistral, Gemini, Claude, DeepSeek) now shows as its own card with clear Active/Enabled status, instead of a flat settings list.':
+    '**Kartenbasierte Anbieterliste**: Jeder Anbieter (OpenAI, Groq, Mistral, Gemini, Claude, DeepSeek) wird nun als eigene Karte mit klarem Aktiv/Aktiviert-Status angezeigt, statt als einfache Liste.',
+  '**Curated Model Profiles**: Pick from a short, labeled list of real models per provider - each tagged with a speed/quality hint (e.g. Recommended, Fastest, Deep Nuance) and a one-line description, instead of typing a raw model name.':
+    '**Kuratierte Modellprofile**: Wähle aus einer kurzen, beschrifteten Liste echter Modelle je Anbieter - jedes mit einem Geschwindigkeits-/Qualitätshinweis (z. B. Empfohlen, Am schnellsten, Tiefe Nuancen) und einer kurzen Beschreibung, statt einen rohen Modellnamen einzutippen.',
+  '**One-Tap Key Setup**: A "Get key from..." link on every card opens that provider\'s developer portal directly, plus new in-app guidance on free-tier vs pay-as-you-go options and roughly what a generated card costs.':
+    '**Schlüssel-Einrichtung mit einem Tipp**: Ein "Schlüssel holen von..."-Link auf jeder Karte öffnet direkt das Entwicklerportal des Anbieters, dazu neue In-App-Hinweise zu kostenlosen vs. Pay-as-you-go-Optionen und ungefähr, was eine generierte Karte kostet.',
+  '**Enhanced Help**: Expanded help sections explain how to get a key, and how the Active provider and automatic fallback between validated providers actually works.':
+    '**Erweiterte Hilfe**: Ausführlichere Hilfeabschnitte erklären, wie man einen Schlüssel bekommt und wie der aktive Anbieter sowie der automatische Fallback zwischen validierten Anbietern tatsächlich funktionieren.',
+  "**Note**: this redesign was built alongside v0.2.0 but missed that release's actual build cut - this is its first real release.":
+    '**Hinweis**: Dieses Redesign wurde parallel zu v0.2.0 entwickelt, verpasste aber den eigentlichen Build-Termin dieser Version - dies ist seine erste echte Veröffentlichung.',
+  'Review Mode Accuracy': 'Genauigkeit der Wiederholungsmodi',
+  'Honest Review-Mode Badges': 'Ehrliche Wiederholungsmodus-Abzeichen',
+  '**Honest Review-Mode Badges**: Decks now show only the review formats they actually support instead of always showing all five, even for older decks created before per-deck review modes existed.':
+    '**Ehrliche Wiederholungsmodus-Abzeichen**: Stapel zeigen nun nur noch die Wiederholungsformate, die sie tatsächlich unterstützen, statt immer alle fünf anzuzeigen - auch bei älteren Stapeln von vor den stapelweisen Wiederholungsmodi.',
+  '**Cleaner Search Previews**: Removed review-mode badges from read-only Search previews (Google Translate, Word Guide) where a saved card - and its review modes - doesn\'t exist yet.':
+    '**Aufgeräumtere Suchvorschauen**: Wiederholungsmodus-Abzeichen aus reinen Lesevorschauen der Suche (Google Übersetzer, Wortführer) entfernt, wo noch keine gespeicherte Karte - und damit keine Wiederholungsmodi - existiert.',
+  '**Shared Fallback Logic**: Deck review-mode defaults are now computed in one shared place across mobile and desktop, so the two can no longer drift out of sync.':
+    '**Gemeinsame Fallback-Logik**: Die Standard-Wiederholungsmodi für Stapel werden jetzt an einer gemeinsamen Stelle für Mobil und Desktop berechnet, sodass beide nicht mehr auseinanderlaufen können.',
+  'AI Card Reliability': 'Zuverlässigkeit der KI-Karten',
+  'Visible Enrichment Failures': 'Sichtbare Anreicherungsfehler',
+  '**Visible Enrichment Failures**: A "Generate with AI" attempt that fails partway now tells you it didn\'t complete, instead of silently leaving the card looking stuck with no explanation.':
+    '**Sichtbare Anreicherungsfehler**: Ein "Mit KI generieren"-Versuch, der auf halbem Weg fehlschlägt, teilt dir das nun mit, statt die Karte kommentarlos hängen zu lassen.',
+  '**Fixed Dead-End Retry Loops**: "Ask AI" and "More Info" no longer open into an unwinnable retry loop on a card with no real meaning content yet - both now explain what\'s missing and point at Regenerate, on the word page and during Review alike.':
+    '**Sackgassen-Wiederholungsschleifen behoben**: "KI fragen" und "Mehr Infos" führen bei einer Karte ohne echten Bedeutungsinhalt nicht mehr in eine aussichtslose Wiederholungsschleife - beide erklären nun, was fehlt, und verweisen auf "Neu generieren", sowohl auf der Wortseite als auch während der Wiederholung.',
+  "**Smarter Edit Visibility**: The Edit action on an AI-intended card is now tied to live generation state rather than a one-time navigation flag, so it no longer reappears unpredictably after a failed background enrichment.":
+    '**Intelligentere Bearbeiten-Sichtbarkeit**: Die Bearbeiten-Aktion einer für KI vorgesehenen Karte hängt jetzt vom laufenden Generierungsstatus ab statt von einem einmaligen Navigations-Flag, sodass sie nach einer fehlgeschlagenen Hintergrund-Anreicherung nicht mehr unvorhersehbar wieder auftaucht.',
+
+  // ── Help doc screenshots ────────────────────────────────────────────
+  'App screenshot': 'App-Screenshot',
+  'Screenshot Reference': 'Screenshot-Referenz',
 }

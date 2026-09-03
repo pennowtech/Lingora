@@ -495,6 +495,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Merge into...': 'Gộp vào...',
   Message: 'Tin nhắn',
   Mine: 'Khai thác',
+  Mining: 'Khai thác',
+  'Feature Guides': 'Hướng dẫn tính năng',
   'Mine help': 'Trợ giúp Khai thác',
   'Mine is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.':
     'Khai thác là nơi lưu tạm các câu bạn muốn biến thành thẻ từ vựng sau này - không có gì ở đây xảy ra tự động cả.',
@@ -516,7 +518,7 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Learn this word': 'Học từ này',
   "Finding today's word...": 'Đang tìm từ của hôm nay...',
   '✨ Word of the Day: {{word}}': '✨ Từ trong ngày: {{word}}',
-  'Nice to see you back.': 'Rất vui vì bạn đã quay lại.',
+  'Nice to See you back': 'Rất vui vì bạn đã quay lại.',
   'No AI provider active - open Settings':
     'Không có nhà cung cấp AI nào đang hoạt động - mở Cài đặt',
   'No AI provider is active - add and enable one in Settings to generate new words':
@@ -626,9 +628,6 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Move deck': 'Di chuyển bộ thẻ',
   'Merge deck': 'Hợp nhất bộ thẻ',
   'Merge into another deck': 'Hợp nhất vào bộ thẻ khác',
-  'Good morning!': 'Chào buổi sáng!',
-  'Good afternoon!': 'Chào buổi chiều!',
-  'Good evening!': 'Chào buổi tối!',
   'Add Card': 'Thêm thẻ',
   'Open Deck': 'Mở bộ thẻ',
   'eBook Library': 'Thư viện sách điện tử',
@@ -1037,10 +1036,6 @@ export const vi: Partial<Record<Phrase, string>> = {
   'General feedback': 'Phản hồi chung',
   Vietnamese: 'Tiếng Việt',
 
-  Queue: 'Hàng đợi',
-  'Queue help': 'Trợ giúp Hàng đợi',
-  'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.':
-    'Hàng đợi là nơi lưu tạm các câu bạn muốn biến thành thẻ từ vựng sau này - không có gì ở đây tự động xảy ra cả.',
 
   'Generate {{count}} cards to...': 'Tạo {{count}} thẻ vào...',
   'Delete account & sync data?': 'Xóa tài khoản & dữ liệu đồng bộ?',

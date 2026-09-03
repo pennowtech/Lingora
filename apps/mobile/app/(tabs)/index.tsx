@@ -110,13 +110,28 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
 ]
 
+/** Always in the learner's *target* language, not the app's own UI language (Settings → General
+ * is a separate, unrelated preference) - a small immersive touch that's deliberately not run
+ * through i18next's `t()` at all, since German should read "Guten Tag!" even when the app's own
+ * interface language is set to English, and vice versa. */
+const GREETINGS: Record<LanguageCode, { morning: string; afternoon: string; evening: string }> = {
+  de: { morning: 'Guten Morgen!', afternoon: 'Guten Tag!', evening: 'Guten Abend!' },
+  en: { morning: 'Good morning!', afternoon: 'Good afternoon!', evening: 'Good evening!' },
+  es: { morning: '¡Buenos días!', afternoon: '¡Buenas tardes!', evening: '¡Buenas noches!' },
+  fr: { morning: 'Bonjour !', afternoon: 'Bon après-midi !', evening: 'Bonsoir !' },
+  hi: { morning: 'सुप्रभात!', afternoon: 'नमस्ते!', evening: 'शुभ संध्या!' },
+  vi: { morning: 'Chào buổi sáng!', afternoon: 'Chào buổi chiều!', evening: 'Chào buổi tối!' },
+  ja: { morning: 'おはよう!', afternoon: 'こんにちは!', evening: 'こんばんは!' },
+}
+
 /** Morning/afternoon/evening greeting, computed once per render from the device clock — a static
  * "Guten Tag!" read the same at 7am and 11pm, which felt stale on a screen that's otherwise all
  * about "right now". */
-function greetingFor(hour: number, t: (key: string) => string): string {
-  if (hour < 12) return t('Good morning!')
-  if (hour < 18) return t('Good afternoon!')
-  return t('Good evening!')
+function greetingFor(hour: number, targetLanguage: LanguageCode): string {
+  const greeting = GREETINGS[targetLanguage] ?? GREETINGS.en
+  if (hour < 12) return greeting.morning
+  if (hour < 18) return greeting.afternoon
+  return greeting.evening
 }
 
 /**
@@ -188,15 +203,39 @@ export default function HomeScreen(): JSX.Element {
   const stats = statsQuery.data
   const recent = recentQuery.data ?? []
   const wordOfTheDay = wordOfTheDayQuery.data
-  // A genuinely fresh account, not just "nothing due today" - swaps the due-count hero (which
-  // would otherwise show a hero card built entirely of zeroes) for a getting-started banner.
-  const isNewUser = statsQuery.isSuccess && stats?.totalCards === 0
+  const hasSelectedLanguages = Boolean(targetLanguage && nativeLanguage)
+  const hasAddedWord = (stats?.totalCards ?? 0) > 0
+  // hasReviewed = true if the user has *ever* done a review, not just today.
+  // reviewedToday resets at midnight, but retention30d and streakDays > 0
+  // remain non-zero as long as the user has review history.
+  const hasReviewed =
+    (stats?.reviewedToday ?? 0) > 0 ||
+    (stats?.streakDays ?? 0) > 0 ||
+    (stats?.retention30d ?? 0) > 0
+
+  // The onboarding card is dismissed once words have been added AND reviewed at least once.
+  const isGettingStarted = statsQuery.isSuccess && (!hasAddedWord || !hasReviewed)
   const targetLanguageLabel = t(VOCAB_LANGUAGE_NAMES[targetLanguage] ?? 'German')
 
-  const gettingStartedSteps: { icon: IconName; label: string }[] = [
-    { icon: 'Search', label: t('Search a {{target}} word', { target: targetLanguageLabel }) },
-    { icon: 'Sparkles', label: t('Generate a card and save it to a deck') },
-    { icon: 'BookOpen', label: t('Review it to make it stick') },
+  const gettingStartedSteps = [
+    {
+      id: 'languages',
+      icon: 'Languages' as IconName,
+      label: t('Select languages'),
+      completed: hasSelectedLanguages,
+    },
+    {
+      id: 'search',
+      icon: 'Search' as IconName,
+      label: t('Search a Word and add to deck'),
+      completed: hasAddedWord,
+    },
+    {
+      id: 'review',
+      icon: 'BookOpen' as IconName,
+      label: t('Review your Deck'),
+      completed: hasReviewed,
+    },
   ]
 
   return (
@@ -206,20 +245,22 @@ export default function HomeScreen(): JSX.Element {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('due')} />
+            <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => router.push('/settings/help')} />
           ),
         }}
       />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>{greetingFor(new Date().getHours(), t)} 👋</Text>
+            <Text style={styles.greeting}>{greetingFor(new Date().getHours(), targetLanguage)} 👋</Text>
             <Text style={styles.subGreeting}>
-              {isNewUser
-                ? t('Let\'s find your first word.')
+              {isGettingStarted
+                ? hasAddedWord
+                  ? t('Almost there! Review your deck to finish setup.')
+                  : t('Let\'s find your first word.')
                 : stats && stats.dueNow === 0
                   ? t('All caught up - nothing due right now.')
-                  : t('Nice to see you back.')}
+                  : t('Nice to See you back')}
             </Text>
           </View>
           <View style={styles.streakPill}>
@@ -244,94 +285,104 @@ export default function HomeScreen(): JSX.Element {
           </View>
         ) : null}
 
-        {isNewUser ? (
-          // Getting-started banner — a brand-new account (zero cards, any language pair) has
-          // nothing to show in a due-count hero built entirely of zeroes, so this replaces it with
-          // the three-step path to a first card instead.
+        {isGettingStarted ? (
+          // Getting-started banner — stays visible with live checkmarks until the user has
+          // added cards and completed their first review session.
           <Card style={styles.startCard}>
             <View style={styles.startIconBadge}>
               <Icon name="Sparkles" size={22} color={colors.textOnPrimary} />
             </View>
-            <Text style={styles.startTitle}>{t('Add your first word')}</Text>
+            <Text style={styles.startTitle}>
+              {hasAddedWord ? t('Ready for your first review') : t('Add your first word')}
+            </Text>
             <Text style={styles.startSubtitle}>
-              {t('Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.', {
-                target: targetLanguageLabel,
-              })}
+              {hasAddedWord
+                ? t('Great job adding words! Now start a quick review session to lock them into your long-term memory.')
+                : t('Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.', {
+                    target: targetLanguageLabel,
+                  })}
             </Text>
             <View style={styles.startSteps}>
               {gettingStartedSteps.map((step, index) => (
                 <View key={step.label} style={styles.startStep}>
-                  <View style={styles.startStepNumber}>
-                    <Text style={styles.startStepNumberText}>{index + 1}</Text>
+                  <View style={[styles.startStepNumber, step.completed && styles.startStepNumberCompleted]}>
+                    {step.completed ? (
+                      <Icon name="Check" size={12} color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.startStepNumberText}>{index + 1}</Text>
+                    )}
                   </View>
-                  <Icon name={step.icon} size={16} color={colors.textOnPrimary} />
-                  <Text style={styles.startStepText}>{step.label}</Text>
+                  <Icon name={step.icon} size={16} color={step.completed ? '#C7D2FE' : colors.textOnPrimary} />
+                  <Text style={[styles.startStepText, step.completed && styles.startStepTextCompleted]}>
+                    {step.label}
+                  </Text>
                 </View>
               ))}
             </View>
-            <Button
-              label={t('Search your first word')}
-              icon="Search"
-              onPress={() => router.push('/search')}
-              style={styles.heroButton}
-            />
+            <Pressable
+              style={styles.heroHelpBtn}
+              onPress={() => router.push('/settings/help')}
+            >
+              <Icon name="BookOpen" size={17} color="#FFFFFF" />
+              <Text style={styles.heroHelpBtnText}>
+                {t('Explore Help & Video Guides')}
+              </Text>
+            </Pressable>
           </Card>
         ) : (
-          <>
-            {/* ── 1. Full-Width Daily Load Hero Card ── */}
-            <View style={styles.heroDailyLoad}>
-              <View style={styles.heroLoadTop}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={styles.loadEyebrow}>{t('Daily Load')}</Text>
-                  <Text style={styles.loadNumber}>{stats?.dueNow ?? '-'}</Text>
-                  <Text style={styles.loadSubtext}>{t('cards due across all decks')}</Text>
-                </View>
-                <Pressable
-                  style={styles.ringWidget}
-                  onPress={() => router.push('/stats')}
-                  accessibilityLabel={t('Retention rate')}
-                >
-                  <Text style={styles.ringText}>
-                    {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
-                  </Text>
-                </Pressable>
+          /* ── 1. Full-Width Daily Load Hero Card ── */
+          <View style={styles.heroDailyLoad}>
+            <View style={styles.heroLoadTop}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={styles.loadEyebrow}>{t('Daily Load')}</Text>
+                <Text style={styles.loadNumber}>{stats?.dueNow ?? '-'}</Text>
+                <Text style={styles.loadSubtext}>{t('cards due across all decks')}</Text>
               </View>
-
-              <Button
-                label={stats?.dueNow === 0 ? t('All caught up') : t('Start Review Session')}
-                icon="Play"
-                onPress={() =>
-                  router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
-                }
-                disabled={stats?.dueNow === 0}
-                style={styles.heroStartBtn}
-              />
-            </View>
-
-            {/* ── 2. Two-Button Action Row (Search & Mining Queue) ── */}
-            <View style={styles.twoButtonsRow}>
-              <Pressable style={styles.actionTileBtn} onPress={() => router.push('/search')}>
-                <View style={[styles.actionIconCircle, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
-                  <Icon name="Search" size={18} color="#3b82f6" />
-                </View>
-                <View style={styles.actionTileText}>
-                  <Text style={styles.actionTileTitle}>{t('Look up a word')}</Text>
-                  <Text style={styles.actionTileSub}>{t('Dictionary & AI')}</Text>
-                </View>
-              </Pressable>
-
-              <Pressable style={styles.actionTileBtn} onPress={() => router.push('/mine')}>
-                <View style={[styles.actionIconCircle, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
-                  <Icon name="Download" size={18} color="#a855f7" />
-                </View>
-                <View style={styles.actionTileText}>
-                  <Text style={styles.actionTileTitle}>{t('Mining queue')}</Text>
-                  <Text style={styles.actionTileSub}>{t('Sentence holding')}</Text>
-                </View>
+              <Pressable
+                style={styles.ringWidget}
+                onPress={() => router.push('/stats')}
+                accessibilityLabel={t('Retention rate')}
+              >
+                <Text style={styles.ringText}>
+                  {stats ? `${Math.round(stats.retention30d * 100)}%` : '-'}
+                </Text>
               </Pressable>
             </View>
-          </>
+
+            <Button
+              label={stats?.dueNow === 0 ? t('All caught up') : t('Start Review Session')}
+              icon="Play"
+              onPress={() =>
+                router.push({ pathname: '/review/[deckId]', params: { deckId: ALL_DECKS_ID } })
+              }
+              disabled={stats?.dueNow === 0}
+              style={styles.heroStartBtn}
+            />
+          </View>
         )}
+
+        {/* ── 2. Two-Button Action Row (Search & Mining Queue) - Always Visible ── */}
+        <View style={styles.twoButtonsRow}>
+          <Pressable style={styles.actionTileBtn} onPress={() => router.push('/search')}>
+            <View style={[styles.actionIconCircle, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+              <Icon name="Search" size={18} color="#3b82f6" />
+            </View>
+            <View style={styles.actionTileText}>
+              <Text style={styles.actionTileTitle}>{t('Look up a word')}</Text>
+              <Text style={styles.actionTileSub}>{t('Dictionary & AI')}</Text>
+            </View>
+          </Pressable>
+
+          <Pressable style={styles.actionTileBtn} onPress={() => router.push('/mine')}>
+            <View style={[styles.actionIconCircle, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+              <Icon name="Download" size={18} color="#a855f7" />
+            </View>
+            <View style={styles.actionTileText}>
+              <Text style={styles.actionTileTitle}>{t('Mining queue')}</Text>
+              <Text style={styles.actionTileSub}>{t('Sentence holding')}</Text>
+            </View>
+          </Pressable>
+        </View>
 
         {/* Word of the Day — Bento Styled Card */}
         {tier === 'full' ? (
@@ -921,6 +972,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primary,
       borderColor: colors.primary,
       borderRadius: 22,
+      marginBottom: spacing.xl,
     },
     startIconBadge: {
       width: 48,
@@ -947,9 +999,35 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
+    startStepNumberCompleted: {
+      backgroundColor: '#10B981',
+    },
     startStepNumberText: { fontSize: type.micro, fontWeight: '800', color: colors.textOnPrimary },
     startStepText: { flex: 1, fontSize: type.caption, fontWeight: '600', color: colors.textOnPrimary },
+    startStepTextCompleted: {
+      textDecorationLine: 'line-through',
+      color: '#C7D2FE',
+      opacity: 0.85,
+    },
     heroButton: { alignSelf: 'stretch', backgroundColor: '#FFFFFF22', borderWidth: 1, borderColor: '#FFFFFF55' },
+    heroHelpBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      backgroundColor: '#FFFFFF25',
+      borderWidth: 1,
+      borderColor: '#FFFFFF44',
+      paddingVertical: 12,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.md,
+      alignSelf: 'stretch',
+    },
+    heroHelpBtnText: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
 
     /* ── Word Row ── */
     wordRow: {

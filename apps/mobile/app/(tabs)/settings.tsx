@@ -94,6 +94,7 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'sync', label: 'Cloud Sync', group: 'System & Account', keywords: ['google', 'cloud', 'backup', 'account', 'sign in', 'sync'], route: '/settings/sync', icon: 'RefreshCw' },
   { key: 'general', label: 'General & Appearance', group: 'System & Account', keywords: ['theme', 'dark', 'light', 'app language', 'locale', 'ui', 'share'], route: '/settings/general', icon: 'SlidersHorizontal' },
   { key: 'feedback', label: 'Send Feedback', group: 'System & Account', keywords: ['bug', 'feature', 'report', 'issue', 'github', 'contact', 'help', 'support'], route: '/settings/feedback', icon: 'MessageSquareText' },
+  { key: 'help', label: 'User Guide & Help Center', group: 'System & Account', keywords: ['help', 'guide', 'docs', 'manual', 'video', 'tutorial', 'faq', 'srs', 'mining', 'search', 'how to'], route: '/settings/help', icon: 'BookOpen' },
   { key: 'about', label: 'About Lemmory', group: 'System & Account', keywords: ['version', 'info', 'whats new', 'changelog', 'release', 'github'], route: '/settings/about', icon: 'Info' },
 ]
 
@@ -379,6 +380,15 @@ export default function SettingsScreen(): JSX.Element {
               onPress={() => router.push('/settings/feedback')}
               divider
               tint={categoryColors.ai}
+            />
+            <LinkRow
+              testID="settings-menu-help"
+              icon="BookOpen"
+              label={t('Help & Feature Documentation')}
+              detail={t('Comprehensive screen guides, video walkthroughs, and FAQ')}
+              onPress={() => router.push('/settings/help')}
+              divider
+              tint={categoryColors.learning}
             />
             <LinkRow
               testID="settings-menu-about"

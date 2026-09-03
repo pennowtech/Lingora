@@ -2,6 +2,8 @@
 
 The **Review Screen** is where memory consolidation happens. Lemmory uses modern cognitive science algorithms (FSRS and SM-2) to present cards just as you are about to forget them, maximizing long-term retention with minimal study time.
 
+![Standard Flip Mode, showing a word/meaning card with the Again/Hard/Good/Easy rating buttons](srs-review-word-meaning)
+
 ---
 
 ## 🚀 Key Features
@@ -19,6 +21,10 @@ The **Review Screen** is where memory consolidation happens. Lemmory uses modern
 - **Cloze Fill-in-the-Blank**: Hidden words are revealed on tap or typing.
 - **Audio-First Mode**: Hear the native sentence/word pronunciation before revealing the written text.
 - **Multiple Choice Mode**: Fast recognition test with generated distractors.
+
+![Multiple Choice Mode, testing recall of "zurückkehren" against three generated distractors](srs-review-mcq)
+
+![Multiple Choice Mode on a second card, "Information", with a fresh set of distractors](srs-review-mcq-2)
 
 ### 3. Gesture Controls & Keybindings
 - **Mobile Gestures**:

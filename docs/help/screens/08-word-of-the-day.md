@@ -5,38 +5,7 @@
 
 **Word of the Day** picks one word or short phrase a day — genuinely new to you, pitched at your CEFR level — and surfaces it two ways: a card on the Home dashboard, and a local daily notification, so you see something worth learning even on a day you don't open the app.
 
----
-
-## 🚀 How It Fits Together
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Home                                                   │
-├────────────────────────────────────────────────────────┤
-│  WORD OF THE DAY                         ✨ AI Discovery│
-│  schlendern ➔                                           │
-│  To stroll or walk in a leisurely, relaxed manner.      │
-└────────────────────────────────────────────────────────┘
-                          │ tap
-                          ▼
-┌────────────────────────────────────────────────────────┐
-│  ✨ Word of the Day                                 [X] │
-│  schlendern                                        🔊   │
-│  To stroll or walk in a leisurely, relaxed manner.      │
-│  "Wir schlendern am Nachmittag durch den Park."          │
-│  "We stroll through the park in the afternoon."          │
-│  [ Explore Full Details ➔ ]                              │
-└────────────────────────────────────────────────────────┘
-
-Daily local notification (device clock, default 9:00 AM):
-┌────────────────────────────────────────────────────────┐
-│  ✨ Word of the Day: schlendern                         │
-│  To stroll or walk in a leisurely, relaxed manner.      │
-└────────────────────────────────────────────────────────┘
-                          │ tap
-                          ▼
-          opens the exact same popup shown above
-```
+![The Word of the Day popup, showing the meaning, explanation, and an in-context example sentence](word-of-the-day-popup)
 
 ---
 

@@ -146,11 +146,11 @@ describe('Feedback helpers', () => {
       message: 'Sidebar collapses incorrectly',
       targetOwner: 'custom-org',
       targetRepo: 'custom-repo',
-      app: 'desktop-lemony',
+      app: 'desktop-lemory',
     })
     expect(url).toContain('https://github.com/custom-org/custom-repo/issues/new?')
     expect(url).toContain('title=%5BBug%5D+Window+resize+glitch')
-    expect(url).toContain('labels=user-feedback%2Cfeedback%3Abug%2Cbug%2Capp%3Adesktop-lemony')
+    expect(url).toContain('labels=user-feedback%2Cfeedback%3Abug%2Cbug%2Capp%3Adesktop-lemory')
   })
 })
 

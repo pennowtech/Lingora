@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "Lemony",
+    "name": "Lemory",
     "slug": "lingora",
     "scheme": [
+      "lemory",
       "lemony",
       "lemmory",
       "lingora"

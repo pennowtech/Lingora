@@ -1,6 +1,6 @@
-# Lemony Help & Feature Documentation
+# Lemory Help & Feature Documentation
 
-Welcome to the comprehensive help and feature documentation for **Lemony** — the modern, privacy-focused, AI-accelerated language learning and spaced repetition system.
+Welcome to the comprehensive help and feature documentation for **Lemory** — the modern, privacy-focused, AI-accelerated language learning and spaced repetition system.
 
 > [!TIP]
 > 🎬 **Watch the 2-Minute Video Overview**: [Watch on YouTube](https://youtu.be/YEpT1116Xo4?si=nPZly3yb_TFsIBoh) to see the full workflow from instant search to sentence mining and FSRS spaced repetition review.
@@ -9,7 +9,7 @@ Welcome to the comprehensive help and feature documentation for **Lemony** — t
 
 ## 📚 Feature Directory & Screen Guides
 
-Below is the complete, concise list of all supported screens and features across the Lemony platform. Each section links to its dedicated, in-depth guide covering what it is, how to use it, why it works, and troubleshooting tips.
+Below is the complete, concise list of all supported screens and features across the Lemory platform. Each section links to its dedicated, in-depth guide covering what it is, how to use it, why it works, and troubleshooting tips.
 
 ---
 
@@ -113,7 +113,7 @@ Below is the complete, concise list of all supported screens and features across
   - **Fast Search Bar**: Search settings by keyword (*tts*, *gemini*, *anki*, *dark mode*) for instant navigation.
   - **Study & Speech**: High-speed on-device audio, OpenAI Audio, ElevenLabs, Deepgram (Aura-2), and Google Cloud TTS voices; language pair & CEFR level picker; FSRS vs SM-2 algorithm scheduler.
   - **AI & Translation**: Bring-Your-Own-Key management for Google Gemini (free tier), Groq, OpenAI, Mistral, Claude, and DeepSeek with curated profiles, custom model overrides, and automatic fallback pools; DeepL and Google Translate services.
-  - **Library & Content**: Anki (`.apkg`) and CSV/Spreadsheet visual import wizards, Lemony package (`.lem`) backups, Liquid card template designer, and offline dictionary packs.
+  - **Library & Content**: Anki (`.apkg`) and CSV/Spreadsheet visual import wizards, Lemory package (`.lem`) backups, Liquid card template designer, and offline dictionary packs.
   - **System & Account**: Google Cloud Sync across mobile and desktop, Dark/Light/OLED Black themes, font scaling, GitHub feedback portal, and version release notes.
 
 ---

@@ -336,20 +336,20 @@ Home: 'होम',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     'किसी ने आपके साथ साझा किया गया डेक जोड़ें - पूरी निष्ठा के साथ, दोहराव इतिहास सहित। यह इस डिवाइस पर कुछ और नहीं छूता।',
   'Choose .lem file': '.lem फ़ाइल चुनें',
-  'Restore from Lemony backup (.lem)': 'Lemony बैकअप से पुनर्इंस्टॉल करें (.lem)',
+  'Restore from Lemory backup (.lem)': 'Lemory बैकअप से पुनर्इंस्टॉल करें (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'यह पहले एक्सपोर्ट किए गए बैकअप से इस डिवाइस पर सब कुछ बदल देता है।',
   'Restoring...': 'पुनर्इंस्टॉल हो रहा है...',
   'Choose backup file': 'बैकअप फ़ाइल चुनें',
-  'Lemony backup (.lem)': 'Lemony बैकअप (.lem)',
+  'Lemory backup (.lem)': 'Lemory बैकअप (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'आपकी पूरी लाइब्रेरी - डेक, कार्ड, दोहराव इतिहास। आपका डेटा हमेशा आपका ही रहता है। API कुंजियाँ कभी शामिल नहीं होतीं।',
   'Export everything': 'सब कुछ एक्सपोर्ट करें',
   'One row per card - the same columns CSV import reads, so this file re-imports as-is.':
     'प्रति कार्ड एक पंक्ति - वही कॉलम जो CSV इम्पोर्ट पढ़ता है, इसलिए यह फ़ाइल जैसी है वैसे ही फिर से इम्पोर्ट हो जाती है।',
   'Export as CSV': 'CSV के रूप में एक्सपोर्ट करें',
-  "Study your Lemony vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
-    'Anki/AnkiDroid में अपनी Lemony वोकैब पढ़ें। कार्ड नए सिरे से शुरू होते हैं - दोहराव इतिहास आगे नहीं बढ़ता।',
+  "Study your Lemory vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
+    'Anki/AnkiDroid में अपनी Lemory वोकैब पढ़ें। कार्ड नए सिरे से शुरू होते हैं - दोहराव इतिहास आगे नहीं बढ़ता।',
   'Export as .apkg': '.apkg के रूप में एक्सपोर्ट करें',
   'A readable word - meaning - example list. Not meant to re-import.':
     'एक पठनीय शब्द - अर्थ - उदाहरण सूची। फिर से इम्पोर्ट के लिए नहीं है।',
@@ -429,8 +429,8 @@ Home: 'होम',
     'बाकी को नहीं बदला गया - आप जहाँ छोड़ा था वहीं से जारी रखने के लिए वही फ़ाइल फिर से इम्पोर्ट कर सकते हैं (पहले से इम्पोर्टित शब्द डुप्लिकेट के रूप में छोड़ दिए जाते हैं)।',
   Tags: 'टैग',
   'Import from a .lem file': '.lem फ़ाइल से इम्पोर्ट करें',
-  'Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'एक Lemony `.lem` फ़ाइल चुनें - किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक एक्सपोर्टों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, Synonym शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
+  'Choose a Lemory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'एक Lemory `.lem` फ़ाइल चुनें - किसी ने आपके साथ साझा किया गया डेक, या आपके अपने डेक एक्सपोर्टों में से एक। पूरी निष्ठा: अर्थ, उदाहरण, Synonym शब्द, क्लोज़ कार्ड, दोहराव इतिहास, और FSRS शेड्यूलिंग सब आ जाते हैं।',
   'This file has more than one deck. Which one do you want to import?':
     'इस फ़ाइल में एक से अधिक डेक हैं। आप कौन सा इम्पोर्ट करना चाहते हैं?',
   'This file has no decks to import.': 'इस फ़ाइल में इम्पोर्ट करने के लिए कोई डेक नहीं है।',
@@ -618,7 +618,7 @@ Home: 'होम',
     'वाक्य टाइप करके, क्लिपबोर्ड से पेस्ट करके, या किसी और ऐप से टेक्स्ट शेयर करके यहां जोड़ें।',
   'Add card': 'कार्ड जोड़ें',
   'Add card manually': 'कार्ड खुद जोड़ें',
-  'Add to Lemony': 'Lemony में जोड़ें',
+  'Add to Lemory': 'Lemory में जोड़ें',
   'Add to Mining queue': 'Mining क्यू में जोड़ें',
   'Add your AI provider key in Settings to ask a follow-up.':
     'फॉलो-अप सवाल पूछने के लिए Settings में अपनी AI provider key जोड़ें।',
@@ -715,8 +715,8 @@ Home: 'होम',
   Expression: 'Phrases',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> - {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     'टॉगल से जोड़ी गई फ़ील्ड कभी अपने आप <div> या <span> में रैप नहीं होतीं - {{ word }} कार्ड बॉडी के अंदर सीधे खाली टेक्स्ट की तरह रेंडर होता है। इससे जनरेट किए गए टेम्पलेट्स मिनिमल रहते हैं, लेकिन इसका मतलब है कि ".word { ... }" जैसा नियम तब तक किसी चीज़ से मैच नहीं करेगा जब तक आप खुद वह क्लास न जोड़ें।',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lemony the same way you'd share it to any other app.":
-    'कहीं और, जैसे किसी आर्टिकल या मैसेज में कोई वाक्य मिला? उसे Lemony में वैसे ही शेयर करें जैसे आप किसी और ऐप में शेयर करते हैं।',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemory the same way you'd share it to any other app.":
+    'कहीं और, जैसे किसी आर्टिकल या मैसेज में कोई वाक्य मिला? उसे Lemory में वैसे ही शेयर करें जैसे आप किसी और ऐप में शेयर करते हैं।',
   'Front and Back are raw Liquid templates - anything valid Liquid works here, not just what the Fields toggles generate.':
     'Front और Back कच्चे (raw) Liquid टेम्पलेट हैं - यहां कोई भी वैध Liquid काम करेगा, सिर्फ़ Fields टॉगल से जनरेट हुआ ही नहीं।',
   "Front and Back are separate - the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -760,10 +760,10 @@ Home: 'होम',
   'Last synced: {{when}}': 'आख़िरी सिंक: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'लिस्ट फ़ील्ड (Other meanings, Synonyms, Related phrases) को रेंडर होने के लिए पहले से ही {% for %} लूप चाहिए होता है - यह लूप स्ट्रक्चर के लिहाज़ से ज़रूरी है, स्टाइलिंग का विकल्प नहीं। हर आइटम को अलग से स्टाइल करने के लिए, आइटम को लूप के अंदर रैप करें:',
-  'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.':
-    'किसी भी ऐप में किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemony" चुनें, ताकि उसे तुरंत यहां देख सकें।',
-  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemony." It opens right here with that word ready to go.':
-    'किसी भी ऐप में - ब्राउज़र, मैसेज, कहीं भी - किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemony" चुनें। यह उस शब्द के साथ सीधे यहां खुल जाएगा।',
+  'Long-press a word in any app and pick "Search in Lemory" to look it up here right away.':
+    'किसी भी ऐप में किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemory" चुनें, ताकि उसे तुरंत यहां देख सकें।',
+  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemory." It opens right here with that word ready to go.':
+    'किसी भी ऐप में - ब्राउज़र, मैसेज, कहीं भी - किसी शब्द को लॉन्ग-प्रेस करें और "Search in Lemory" चुनें। यह उस शब्द के साथ सीधे यहां खुल जाएगा।',
   Markdown: 'Markdown',
   Message: 'मैसेज',
   'Mine help': 'Mine सहायता',
@@ -864,8 +864,8 @@ Home: 'होम',
   'Speaking speed isn\'t configurable for this provider yet.':
     'इस प्रोवाइडर के लिए बोलने की स्पीड अभी सेट नहीं की जा सकती।',
   'Speech engine': 'स्पीच इंजन',
-  "Submitting posts your message as a GitHub issue on Lemony's public repository - anyone can read it, including your contact email if you provide one.":
-    'सबमिट करने पर आपका मैसेज Lemony की पब्लिक repository पर एक GitHub issue के तौर पर पोस्ट हो जाता है - इसे कोई भी पढ़ सकता है, आपकी दी गई कॉन्टैक्ट ईमेल समेत।',
+  "Submitting posts your message as a GitHub issue on Lemory's public repository - anyone can read it, including your contact email if you provide one.":
+    'सबमिट करने पर आपका मैसेज Lemory की पब्लिक repository पर एक GitHub issue के तौर पर पोस्ट हो जाता है - इसे कोई भी पढ़ सकता है, आपकी दी गई कॉन्टैक्ट ईमेल समेत।',
   Sync: 'सिंक',
   'Sync decks, cards, and progress to a Google account':
     'डेक, कार्ड और प्रोग्रेस को Google अकाउंट में सिंक करें',
@@ -880,8 +880,8 @@ Home: 'होम',
     'अपने डेक, कार्ड और रिव्यू प्रोग्रेस को Google अकाउंट में सिंक करें ताकि वे दूसरे डिवाइस पर भी मिलें। API keys कभी सिंक नहीं होतीं।',
   Synced: 'सिंक हो गया',
   'Syncing...': 'सिंक हो रहा है...',
-  'Lemony synced': 'Lemony सिंक हो गया',
-  'Lemony sync failed': 'Lemony सिंक विफल हुआ',
+  'Lemory synced': 'Lemory सिंक हो गया',
+  'Lemory sync failed': 'Lemory सिंक विफल हुआ',
   '{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted': '{{pulled}} प्राप्त - {{pushed}} भेजे - {{deleted}} हटाए',
   'Synonyms & phrases': 'Synonym शब्द व Phrases',
   'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.':
@@ -981,10 +981,10 @@ Home: 'होम',
   'Word card': 'शब्द कार्ड',
   'You can add your cards to multiple decks even if it is added before.':
     'आप अपने कार्ड को कई डेक में जोड़ सकते हैं, भले ही वह पहले जोड़ा जा चुका हो।',
-  "You can also share text from another app straight to Lemony, the same way you'd share a link or a photo.":
-    'आप किसी और ऐप से सीधे Lemony में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप कोई लिंक या फ़ोटो शेयर करते हैं।',
-  "You can also share text to Lemony, the same way you'd share a link or a photo to any other app.":
-    'आप Lemony में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप किसी और ऐप में लिंक या फ़ोटो शेयर करते हैं।',
+  "You can also share text from another app straight to Lemory, the same way you'd share a link or a photo.":
+    'आप किसी और ऐप से सीधे Lemory में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप कोई लिंक या फ़ोटो शेयर करते हैं।',
+  "You can also share text to Lemory, the same way you'd share a link or a photo to any other app.":
+    'आप Lemory में भी टेक्स्ट शेयर कर सकते हैं, वैसे ही जैसे आप किसी और ऐप में लिंक या फ़ोटो शेयर करते हैं।',
   'ask a follow-up question': 'फॉलो-अप सवाल पूछें',
   'e.g. Er lehnt das Angebot ab.': 'जैसे: Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': 'जैसे: He refuses the offer.',
@@ -1010,8 +1010,8 @@ Home: 'होम',
   '{{count}} selected': '{{count}} चुने गए',
   '{{count}}h': '{{count}}घं',
   '{{count}}m': '{{count}}मि',
-  "{{language}} isn't ready yet - English and German are the only languages Lemony fully supports right now.":
-    '{{language}} अभी तैयार नहीं है - अभी सिर्फ़ अंग्रेज़ी और जर्मन ही ऐसी भाषाएं हैं जिन्हें Lemony पूरी तरह सपोर्ट करता है।',
+  "{{language}} isn't ready yet - English and German are the only languages Lemory fully supports right now.":
+    '{{language}} अभी तैयार नहीं है - अभी सिर्फ़ अंग्रेज़ी और जर्मन ही ऐसी भाषाएं हैं जिन्हें Lemory पूरी तरह सपोर्ट करता है।',
   '{{provider}} playback failed': '{{provider}} प्लेबैक फेल हो गया',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} पुल किए · {{pushed}} पुश किए · {{deleted}} डिलीट किए',
@@ -1023,9 +1023,12 @@ Home: 'होम',
   Hard: 'कठिन',
   Good: 'अच्छा',
   Easy: 'आसान',
-  'Lemony Light': 'लेमोरी लाइट',
+  'Lemory Light': 'लेमोरी लाइट',
   'Midnight Indigo': 'मिडनाइट इंडिगो',
   'Carbon Noir': 'कार्बन नॉयर',
+  'Forest Pine': 'फॉरेस्ट पाइन',
+  'Espresso Noir': 'एस्प्रेसो नॉयर',
+  'Deep Ocean': 'डीप ओशन',
   'Arctic Day': 'आर्कटिक डे',
   'Warm Sand': 'वॉर्म सैंड',
   Paperlight: 'पेपरलाइट',
@@ -1064,22 +1067,22 @@ Home: 'होम',
   'How sync works': 'सिंक कैसे काम करता है',
   'Deleting your account & data': 'अपना खाता और डेटा हटाना',
   'What does this actually delete?': 'इससे असल में क्या डिलीट होता है?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemony on two devices, you're not starting from zero on the second one.":
-    'Google से साइन इन करने पर यह डिवाइस आपके डेक, कार्ड और रिव्यू प्रोग्रेस की एक प्राइवेट क्लाउड कॉपी से जुड़ जाता है - तो अगर आपको नया फ़ोन मिलता है, या आप Lemony दो डिवाइस पर इस्तेमाल करते हैं, तो दूसरे डिवाइस पर आप ज़ीरो से शुरू नहीं करते।',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemory on two devices, you're not starting from zero on the second one.":
+    'Google से साइन इन करने पर यह डिवाइस आपके डेक, कार्ड और रिव्यू प्रोग्रेस की एक प्राइवेट क्लाउड कॉपी से जुड़ जाता है - तो अगर आपको नया फ़ोन मिलता है, या आप Lemory दो डिवाइस पर इस्तेमाल करते हैं, तो दूसरे डिवाइस पर आप ज़ीरो से शुरू नहीं करते।',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.':
     '"Sync now" पर कभी भी टैप करें ताकि आपके नए बदलाव ऊपर चले जाएं और दूसरे डिवाइस का डेटा नीचे आ जाए। अंदर ही अंदर यह ओवरराइट नहीं, बल्कि मर्ज करता है - अगर आपने यहां एक कार्ड जोड़ा और अपने दूसरे फ़ोन पर एक रिव्यू किया, तो दोनों बच जाते हैं।',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'आपकी AI provider API keys कभी सिंक नहीं होतीं। वे सिर्फ इसी डिवाइस के secure storage में रहती हैं, इसलिए नया डिवाइस सेट करते समय आपको उन्हें फिर से डालना होगा।',
-  'When this is on, Lemony quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
-    'यह ऑन होने पर, जब भी आप ऐप छोड़ते हैं, Lemony बैकग्राउंड में चुपचाप सिंक कर लेता है - खुद "Sync now" पर टैप करना याद रखने की ज़रूरत नहीं।',
+  'When this is on, Lemory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
+    'यह ऑन होने पर, जब भी आप ऐप छोड़ते हैं, Lemory बैकग्राउंड में चुपचाप सिंक कर लेता है - खुद "Sync now" पर टैप करना याद रखने की ज़रूरत नहीं।',
   "\"At most every\" is a cooldown, not a schedule - it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '"At most every" एक कूलडाउन है, कोई तय शेड्यूल नहीं - यह उससे ज़्यादा बार सिंक नहीं करेगा, लेकिन अगर आपने बीच में ऐप खोला ही नहीं, तो यह सिंक को ज़बरदस्ती भी नहीं करेगा।',
   "It runs over whatever connection you've got, Wi-Fi or mobile data - there's no Wi-Fi-only toggle.":
     'यह जो भी कनेक्शन उपलब्ध हो उस पर चलता है, चाहे Wi-Fi हो या मोबाइल डेटा - कोई Wi-Fi-only टॉगल नहीं है।',
   "This is the one action here you genuinely can't undo - read this before you tap it.":
     'यह यहां की एक ऐसी कार्रवाई है जिसे आप वाकई वापस नहीं कर सकते - टैप करने से पहले इसे ज़रूर पढ़ें।',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemony, and signs you out.':
-    'यह इस खाते ने क्लाउड पर जो कुछ भी कभी सिंक किया है उसे स्थायी रूप से मिटा देता है, Google खाते को Lemony से डिसकनेक्ट कर देता है, और आपको साइन आउट कर देता है।',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemory, and signs you out.':
+    'यह इस खाते ने क्लाउड पर जो कुछ भी कभी सिंक किया है उसे स्थायी रूप से मिटा देता है, Google खाते को Lemory से डिसकनेक्ट कर देता है, और आपको साइन आउट कर देता है।',
   'Your decks, cards, and progress on THIS device are completely untouched - they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'इसी डिवाइस पर आपके डेक, कार्ड और प्रोग्रेस बिल्कुल सुरक्षित रहते हैं - वे वहीं रहते हैं, पूरी तरह ऑफ़लाइन इस्तेमाल के लायक। सिर्फ़ क्लाउड कॉपी (और उससे जुड़ा लिंक) ही मिटता है।',
   'If you sign back in with the same Google account afterward, syncing starts fresh - nothing comes back automatically.':
@@ -1320,9 +1323,9 @@ Home: 'होम',
   "General & Appearance": "सामान्य उपस्थिति",
   "Theme, app language, share intent": "थीम, ऐप भाषा, साझा इरादा",
   "Report an issue, suggest features, or get help": "किसी समस्या की रिपोर्ट करें, सुविधाएँ सुझाएँ, या सहायता प्राप्त करें",
-  "About Lemony": "Lemony के बारे में",
+  "About Lemory": "Lemory के बारे में",
   "App version, release highlights, and open source": "ऐप संस्करण, रिलीज़ हाइलाइट्स और ओपन सोर्स",
-  "Lemony": "Lemony",
+  "Lemory": "Lemory",
   "About & Support": "के बारे में और समर्थन",
   "retention": "अवधारण",
   "{{count}} cards in deck": "डेक में {{count}} कार्ड",
@@ -1412,14 +1415,14 @@ Home: 'होम',
   "You can change the file name below. Where to save it comes next.": "आप नीचे फ़ाइल का नाम बदल सकते हैं. इसे कहाँ सेव करना है यह अगला आता है।",
   "Language pair: {{native}} to {{target}}. Tap to change.": "भाषा युग्म: {{native}} से {{target}}। बदलने के लिए टैप करें.",
   "Get Started": "शुरू हो जाओ",
-  "Welcome to Lemony": "Lemony में आपका स्वागत है",
+  "Welcome to Lemory": "Lemory में आपका स्वागत है",
   "CHOOSE YOUR LANGUAGE PAIR": "अपनी भाषा जोड़ी चुनें",
   "Native": "देशी",
   "I'll set this up later": "मैं इसे बाद में सेट कर दूंगा",
   "Language you're learning": "वह भाषा जो आप सीख रहे हैं",
   "Your native / UI language": "आपकी मूल/यूआई भाषा",
   "v{{version}} Update": "v{{version}} अपडेट",
-  "What's Fresh in Lemony": "Lemony में ताज़ा क्या है?",
+  "What's Fresh in Lemory": "Lemory में ताज़ा क्या है?",
   "Tap any feature below to see what changed": "क्या परिवर्तन हुआ यह देखने के लिए नीचे किसी भी सुविधा पर टैप करें",
   "Got it, Let's Explore! →": "समझ गया, आइए एक्सप्लोर करें! →",
   "No AI provider is active. Add a key for OpenAI, Mistral, Gemini, or Claude in Settings - and make sure one is turned on - to {{action}}.": "कोई भी AI प्रोवाइडर एक्टिव नहीं है. सेटिंग्स में OpenAI, Mistral, Gemini, या Claude के लिए एक key जोड़ें - और सुनिश्चित करें कि एक चालू है - {{action}} पर।",
@@ -1465,7 +1468,7 @@ Home: 'होम',
   "Tapping **\"Add to deck\"** opens the deck selector where you can pick which deck(s) will practice this card.": "**\"डेक में जोड़ें\"** टैप करने से डेक पिकर खुल जाता है जहां आप चुन सकते हैं कि कौन सा डेक इस कार्ड का प्रैक्टिस करेगा।",
   "Each deck displays its enabled **review mode icons** so you know exactly which exercises it generates.": "प्रत्येक डेक अपने सक्षम **रिव्यू मोड आइकन** को प्रदर्शित करता है ताकि आप जान सकें कि यह वास्तव में कौन से प्रैक्टिस जनरेट करता है।",
   "A green checkmark (**✓**) means the word is already saved in that deck.": "हरे चेकमार्क (**✓**) का मतलब है कि शब्द पहले से ही उस डेक में सेव गया है।",
-  "Long-press a word in any app - your browser, messages, anywhere - and pick **\"Search in Lemony.\"** It opens right here with that word ready to go.": "किसी भी ऐप में किसी शब्द को लंबे समय तक दबाएं - अपने ब्राउज़र, संदेश, कहीं भी - और चुनें **\"Lemony में खोजें।\"** यह उस शब्द के साथ यहीं खुलता है जो जाने के लिए तैयार है।",
+  "Long-press a word in any app - your browser, messages, anywhere - and pick **\"Search in Lemory.\"** It opens right here with that word ready to go.": "किसी भी ऐप में किसी शब्द को लंबे समय तक दबाएं - अपने ब्राउज़र, संदेश, कहीं भी - और चुनें **\"Lemory में खोजें।\"** यह उस शब्द के साथ यहीं खुलता है जो जाने के लिए तैयार है।",
   "Configure search integration in **Settings → Share & Search**.": "**सेटिंग्स → शेयर और सर्च** में खोज एकीकरण कॉन्फ़िगर करें।",
   "The stats row": "आँकड़े पंक्ति",
   "Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.": "इस डेक में कार्ड ही सब कुछ है; अब उनकी अगली रिव्यू के लिए तैयार कार्डों की संख्या due है, और रिटेंशन आपके कलेक्शन में हाल ही में याद किए गए कार्ड दिखाता है।",
@@ -1477,13 +1480,13 @@ Home: 'होम',
   "Optional text formatting": "ऑप्शनल पाठ स्वरूपण",
   "Use HTML tags for optional formatting: `<b>bold</b>`, `<i>italic</i>`, or `<span style=\"color:#D64545\">colored text</span>`.": "ऑप्शनल स्वरूपण के लिए HTML टैग का उपयोग करें: `<b>bold</b>`, `<i>italic</i>`, या `<span style=\"color:#D64545\">colored text</span>`।",
   "Offline-first & Privacy": "ऑफ़लाइन-प्रथम और गोपनीयता",
-  "Lemony is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.": "Lemony **ऑफ़लाइन-प्रथम** बनाया गया है। जब तक आप ऑप्शनल क्लाउड सिंक सक्षम नहीं करते, आपके सभी कार्ड, रिव्यू इतिहास और सीखने की प्रगति आपके डिवाइस पर ही रहती है।",
+  "Lemory is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.": "Lemory **ऑफ़लाइन-प्रथम** बनाया गया है। जब तक आप ऑप्शनल क्लाउड सिंक सक्षम नहीं करते, आपके सभी कार्ड, रिव्यू इतिहास और सीखने की प्रगति आपके डिवाइस पर ही रहती है।",
   "AI lookups only send the term you search for to your chosen AI provider, never your full study history.": "एआई लुकअप केवल आपके द्वारा खोजे गए शब्द को आपके चुने हुए एआई प्रोवाइडर को भेजता है, आपका पूरा स्टडी इतिहास कभी नहीं।",
   "Updates & Release Highlights": "अपडेट और रिलीज़ हाइलाइट्स",
   "We release frequent updates with new features, language support, and bug fixes.": "हम नई सुविधाओं, भाषा समर्थन और बग फिक्स के साथ लगातार अपडेट जारी करते हैं।",
   "Check the **\"What's New\"** section to review what changed in recent versions.": "हाल के संस्करणों में क्या परिवर्तन हुआ इसकी रिव्यू करने के लिए **\"नया क्या है\"** अनुभाग देखें।",
   "How your feedback is handled": "आपकी फ़ीडबैक को कैसे संभाला जाता है",
-  "Your feedback is delivered directly to the Lemony engineering team to help improve the app, resolve issues, and build requested features.": "ऐप को बेहतर बनाने, समस्याओं को हल करने और अनुरोधित सुविधाओं के निर्माण में सहायता के लिए आपकी फ़ीडबैक सीधे Lemony इंजीनियरिंग टीम को दी जाती है।",
+  "Your feedback is delivered directly to the Lemory engineering team to help improve the app, resolve issues, and build requested features.": "ऐप को बेहतर बनाने, समस्याओं को हल करने और अनुरोधित सुविधाओं के निर्माण में सहायता के लिए आपकी फ़ीडबैक सीधे Lemory इंजीनियरिंग टीम को दी जाती है।",
   "Please don't include sensitive private credentials or passwords in your message.": "कृपया अपने संदेश में संवेदनशील निजी क्रेडेंशियल या पासवर्ड शामिल न करें।",
   "Direct and secure delivery": "सीधी और सुरक्षित डिलीवरी",
   "Submissions are processed securely through the feedback service backend.": "फीडबैक सेवा बैकएंड के माध्यम से सबमिशन को सुरक्षित रूप से संसाधित किया जाता है।",

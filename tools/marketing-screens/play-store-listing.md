@@ -21,9 +21,9 @@ AI-powered vocabulary lessons & smart flashcards for German, Spanish & more
 *Max 4000 characters - but only the first ~250 characters show before the user taps "Read more," so the hook has to land immediately, not eventually. Copy everything between the lines below exactly as-is (plain text, emoji included, no markdown).*
 
 ```
-Stop memorizing lists. Start speaking naturally with Lemony.
+Stop memorizing lists. Start speaking naturally with Lemory.
 
-Lemony is the AI-native vocabulary app that turns any word from real life-whether from Netflix, YouTube, or your clipboard-into a personalized, rich language lesson instantly.
+Lemory is the AI-native vocabulary app that turns any word from real life-whether from Netflix, YouTube, or your clipboard-into a personalized, rich language lesson instantly.
 
 WHY LEMMORY IS DIFFERENT:
 
@@ -35,14 +35,14 @@ WHY LEMMORY IS DIFFERENT:
 
 📖 Real grammar, explained - Konjunktiv II, Präteritum, passive voice, indirect speech & more, in plain English, not textbook jargon
 
-📖 Practice it every way that matters - Standard flashcards, fill-in-the-blank cloze cards, and reverse mode (English -> target language). Recognizing a word and *producing* it are different skills - Lemony trains both.
+📖 Practice it every way that matters - Standard flashcards, fill-in-the-blank cloze cards, and reverse mode (English -> target language). Recognizing a word and *producing* it are different skills - Lemory trains both.
 
 💬 Confused mid-review? - Get an instant, in-context answer to your exact question
 
 📚 CONTEXT OVER TRANSLATION - Unlike traditional apps, our semantic context clustering groups meanings so you learn words in the exact context they are actually used. Example: For "ausgehen", you will see "To go out" under Social Context and "To run out" under Empty context. 
 Hence, when you click the Social tab, everything you see-the synonyms, example sentences, and translations-is strictly filtered so you only learn things related to "going out with friends".
 
-🧠 MORPHOLOGICAL AWARENESS - No duplicate flashcards. Highly inflected languages like German produce dozens of surface variations (e.g., "ging aus," "läuft," "Häuser"). Lemony's morphology engine automatically maps inflections back to their root lemma (e.g., "ausgehen," "laufen," "Haus") before creating cards
+🧠 MORPHOLOGICAL AWARENESS - No duplicate flashcards. Highly inflected languages like German produce dozens of surface variations (e.g., "ging aus," "läuft," "Häuser"). Lemory's morphology engine automatically maps inflections back to their root lemma (e.g., "ausgehen," "laufen," "Haus") before creating cards
 
 📺 Grab words straight from Netflix, YouTube, articles, or your clipboard the second you hear them. They land in a Mining Queue - turn them all into full AI cards whenever you're ready, in one batch
 
@@ -50,7 +50,7 @@ Hence, when you click the Social tab, everything you see-the synonyms, example s
 
 🔑 BRING YOUR OWN AI KEY (BYOK) OR STUDY FREE - Configure your own OpenAI key and pay only for what you use, or enjoy our keyless free offline dictionary tier. Your API keys stay secure on your device
 
-🗂️ Already using Anki? - Bring your existing Anki decks with you! Download Lemony today and start actually remembering what you learn
+🗂️ Already using Anki? - Bring your existing Anki decks with you! Download Lemory today and start actually remembering what you learn
 
 🎨 MAKE IT YOURS
 🖌️ Six gorgeous themes, from bright & clean to a deep, distraction-free dark mode
@@ -79,7 +79,7 @@ This is what a vocabulary app looks like when it's actually built to make words 
 
 Stop collecting flashcards you'll forget. Start building a vocabulary that actually stays with you.
 
-Download Lemony. Your next word is one search away.
+Download Lemory. Your next word is one search away.
 ```
 
 *(3,810 characters - 33 features across 7 categories, using nearly the full 4000-character budget while keeping every line short enough to scan.)*

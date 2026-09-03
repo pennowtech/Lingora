@@ -1,6 +1,6 @@
-# Lemony Hilfe und Funktionsdokumentation
+# Lemory Hilfe und Funktionsdokumentation
 
-Willkommen zur umfassenden Hilfe- und Funktionsdokumentation für **Lemony** – das moderne, datenschutzorientierte, KI-beschleunigte Sprachlern- und räumliche Wiederholungssystem.
+Willkommen zur umfassenden Hilfe- und Funktionsdokumentation für **Lemory** – das moderne, datenschutzorientierte, KI-beschleunigte Sprachlern- und räumliche Wiederholungssystem.
 
 > [!TIP]
 > 🎬 **Sehen Sie sich die 2-minütige Videoübersicht an**: [Auf YouTube ansehen](https://youtu.be/YEpT1116Xo4?si=nPZly3yb_TFsIBoh), um den gesamten Arbeitsablauf von der Sofortsuche über das Satz-Mining bis zur FSRS-Überprüfung von räumlichen Wiederholungen zu sehen.
@@ -9,7 +9,7 @@ Willkommen zur umfassenden Hilfe- und Funktionsdokumentation für **Lemony** –
 
 ## 📚 Funktionsverzeichnis und Bildschirmhandbücher
 
-Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstützten Bildschirme und Funktionen auf der Lemony-Plattform. Jeder Abschnitt enthält einen Link zu einem speziellen, ausführlichen Leitfaden, der erklärt, was es ist, wie man es verwendet, warum es funktioniert und Tipps zur Fehlerbehebung gibt.
+Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstützten Bildschirme und Funktionen auf der Lemory-Plattform. Jeder Abschnitt enthält einen Link zu einem speziellen, ausführlichen Leitfaden, der erklärt, was es ist, wie man es verwendet, warum es funktioniert und Tipps zur Fehlerbehebung gibt.
 
 ---
 
@@ -113,7 +113,7 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
   - **Schnellsuchleiste**: Durchsuchen Sie die Einstellungen nach Schlüsselwörtern (*tts*, *gemini*, *anki*, *dark mode*) für eine sofortige Navigation.
   - **Lernen und Sprechen**: Hochgeschwindigkeits-Audio auf dem Gerät, OpenAI-Audio, ElevenLabs-, Deepgram- (Aura-2) und Google Cloud TTS-Stimmen; Sprachpaar- und CEFR-Level-Auswahl; FSRS vs. SM-2 Algorithmus-Scheduler.
   - **KI & Übersetzung**: Bring-Your-Own-Key-Verwaltung für Google Gemini (kostenloses Kontingent), Groq, OpenAI, Mistral, Claude und DeepSeek mit kuratierten Profilen, benutzerdefinierten Modellüberschreibungen und automatischen Fallback-Pools; DeepL und Google Translate-Dienste.
-  - **Bibliothek und Inhalt**: Anki (`.apkg`) und CSV/Spreadsheet-Visualisierungsimportassistenten, Sicherungen des Lemony-Pakets (`.lem`), Liquid-Card-Vorlagen-Designer und Offline-Wörterbuchpakete.
+  - **Bibliothek und Inhalt**: Anki (`.apkg`) und CSV/Spreadsheet-Visualisierungsimportassistenten, Sicherungen des Lemory-Pakets (`.lem`), Liquid-Card-Vorlagen-Designer und Offline-Wörterbuchpakete.
   - **System & Konto**: Google Cloud-Synchronisierung auf Mobilgeräten und Desktops, Dunkel-/Hell-/OLED-Schwarz-Themen, Schriftartenskalierung, GitHub-Feedback-Portal und Versionshinweise zur Version.
 
 ---

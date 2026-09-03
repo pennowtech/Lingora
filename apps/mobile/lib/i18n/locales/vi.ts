@@ -73,7 +73,7 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Add card manually': 'Thêm thẻ thủ công',
   'Add this as another meaning on the existing card.':
     'Thêm cái này như một nghĩa khác vào thẻ đã có.',
-  'Add to Lemony': 'Thêm vào Lemony',
+  'Add to Lemory': 'Thêm vào Lemory',
   'Add to Mining queue': 'Thêm vào hàng đợi Khai thác',
   'Add to deck': 'Thêm vào bộ thẻ',
   'Add to queue': 'Thêm vào hàng đợi',
@@ -184,8 +184,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Choose .apkg file': 'Chọn tệp .apkg',
   'Choose .lem file': 'Chọn tệp .lem',
   'Choose CSV file': 'Chọn tệp CSV',
-  'Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Chọn một tệp Lemony `.lem` - bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
+  'Choose a Lemory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Chọn một tệp Lemory `.lem` - bộ thẻ ai đó chia sẻ với bạn, hoặc một bản xuất từ bộ thẻ của chính bạn. Giữ nguyên đầy đủ: nghĩa, ví dụ, từ đồng nghĩa, thẻ điền khuyết, lịch sử ôn tập và lịch trình FSRS đều được mang theo.',
   "Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.":
     'Chọn một bản xuất `.apkg`. Lịch sử ôn tập không được nhập - mọi thẻ đều bắt đầu lại từ đầu - và media (âm thanh/hình ảnh) sẽ bị loại bỏ thay vì được sao chép.',
   'Choose a voice...': 'Chọn một giọng đọc...',
@@ -368,8 +368,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Fields tab': 'Tab Trường',
   'Focus words': 'Từ trọng tâm',
   'Follow device': 'Theo máy',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lemony the same way you'd share it to any other app.":
-    'Tìm thấy một câu ở đâu đó, như trong bài báo hay tin nhắn? Hãy chia sẻ nó đến Lemony giống như cách bạn chia sẻ đến bất kỳ ứng dụng nào khác.',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemory the same way you'd share it to any other app.":
+    'Tìm thấy một câu ở đâu đó, như trong bài báo hay tin nhắn? Hãy chia sẻ nó đến Lemory giống như cách bạn chia sẻ đến bất kỳ ứng dụng nào khác.',
   'Free starter dictionary - no AI key needed': 'Từ điển khởi đầu miễn phí - không cần khóa AI',
   'Free tier, no key needed': 'Gói miễn phí, không cần khóa',
   French: 'Tiếng Pháp',
@@ -474,16 +474,16 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Layout & style': 'Bố cục & kiểu dáng',
   Learning: 'Học tập',
   'Limited mode': 'Chế độ giới hạn',
-  'Lemony backup (.lem)': 'Bản sao lưu Lemony (.lem)',
+  'Lemory backup (.lem)': 'Bản sao lưu Lemory (.lem)',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Các trường dạng danh sách (Nghĩa khác, Từ đồng nghĩa, Cụm từ liên quan) vốn đã cần một vòng lặp {% for %} để hiển thị - vòng lặp đó là yêu cầu về cấu trúc, không phải lựa chọn về kiểu dáng. Để tạo kiểu riêng cho từng mục, hãy bọc mục đó bên trong vòng lặp:',
   'Local Dictionaries': 'Từ điển ngoại tuyến',
   'Local Dictionaries installed': 'Đã cài đặt từ điển ngoại tuyến',
   'Local Dictionaries uninstalled': 'Đã gỡ cài đặt từ điển ngoại tuyến',
-  'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.':
-    'Nhấn giữ một từ trong bất kỳ ứng dụng nào và chọn "Tìm trong Lemony" để tra cứu ngay tại đây.',
-  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemony." It opens right here with that word ready to go.':
-    'Nhấn giữ một từ trong bất kỳ ứng dụng nào - trình duyệt, tin nhắn, bất cứ đâu - và chọn "Tìm trong Lemony." Nó sẽ mở ngay tại đây với từ đó đã sẵn sàng.',
+  'Long-press a word in any app and pick "Search in Lemory" to look it up here right away.':
+    'Nhấn giữ một từ trong bất kỳ ứng dụng nào và chọn "Tìm trong Lemory" để tra cứu ngay tại đây.',
+  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemory." It opens right here with that word ready to go.':
+    'Nhấn giữ một từ trong bất kỳ ứng dụng nào - trình duyệt, tin nhắn, bất cứ đâu - và chọn "Tìm trong Lemory." Nó sẽ mở ngay tại đây với từ đó đã sẵn sàng.',
   'Look up a word': 'Tra một từ',
   'Look up a word to add your first card.': 'Tra một từ để thêm thẻ đầu tiên của bạn.',
   'Make primary: {{translation}}': 'Đặt làm nghĩa chính: {{translation}}',
@@ -674,7 +674,7 @@ export const vi: Partial<Record<Phrase, string>> = {
   Restore: 'Khôi phục',
   'Restore complete': 'Đã khôi phục xong',
   'Restore failed': 'Khôi phục thất bại',
-  'Restore from Lemony backup (.lem)': 'Khôi phục từ bản sao lưu Lemony (.lem)',
+  'Restore from Lemory backup (.lem)': 'Khôi phục từ bản sao lưu Lemory (.lem)',
   'Restore from backup?': 'Khôi phục từ bản sao lưu?',
   'Restored {{count}} rows.': 'Đã khôi phục {{count}} dòng.',
   'Restoring...': 'Đang khôi phục...',
@@ -740,11 +740,11 @@ export const vi: Partial<Record<Phrase, string>> = {
   Statistics: 'Thống kê',
   Status: 'Trạng thái',
   'Stored as a': 'Được lưu dưới dạng',
-  "Study your Lemony vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
-    'Học từ vựng Lemony của bạn trong Anki/AnkiDroid. Thẻ bắt đầu lại từ đầu - lịch sử ôn tập không được mang theo.',
+  "Study your Lemory vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
+    'Học từ vựng Lemory của bạn trong Anki/AnkiDroid. Thẻ bắt đầu lại từ đầu - lịch sử ôn tập không được mang theo.',
   'Style tab': 'Tab Kiểu dáng',
-  "Submitting posts your message as a GitHub issue on Lemony's public repository - anyone can read it, including your contact email if you provide one.":
-    'Gửi đi sẽ đăng tin nhắn của bạn thành một issue trên kho lưu trữ công khai của Lemony trên GitHub - bất kỳ ai cũng có thể đọc được, kể cả email liên hệ nếu bạn cung cấp.',
+  "Submitting posts your message as a GitHub issue on Lemory's public repository - anyone can read it, including your contact email if you provide one.":
+    'Gửi đi sẽ đăng tin nhắn của bạn thành một issue trên kho lưu trữ công khai của Lemory trên GitHub - bất kỳ ai cũng có thể đọc được, kể cả email liên hệ nếu bạn cung cấp.',
   Sync: 'Đồng bộ',
   'Sync decks, cards, and progress to a Google account':
     'Đồng bộ bộ thẻ, thẻ và tiến trình lên một tài khoản Google',
@@ -919,10 +919,10 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Wrong CEFR level': 'Sai cấp độ CEFR',
   'You can add your cards to multiple decks even if it is added before.':
     'Bạn có thể thêm thẻ của mình vào nhiều bộ thẻ ngay cả khi nó đã được thêm trước đó.',
-  "You can also share text from another app straight to Lemony, the same way you'd share a link or a photo.":
-    'Bạn cũng có thể chia sẻ văn bản từ ứng dụng khác thẳng đến Lemony, giống như cách bạn chia sẻ một liên kết hoặc ảnh.',
-  "You can also share text to Lemony, the same way you'd share a link or a photo to any other app.":
-    'Bạn cũng có thể chia sẻ văn bản đến Lemony, giống như cách bạn chia sẻ một liên kết hoặc ảnh đến bất kỳ ứng dụng nào khác.',
+  "You can also share text from another app straight to Lemory, the same way you'd share a link or a photo.":
+    'Bạn cũng có thể chia sẻ văn bản từ ứng dụng khác thẳng đến Lemory, giống như cách bạn chia sẻ một liên kết hoặc ảnh.',
+  "You can also share text to Lemory, the same way you'd share a link or a photo to any other app.":
+    'Bạn cũng có thể chia sẻ văn bản đến Lemory, giống như cách bạn chia sẻ một liên kết hoặc ảnh đến bất kỳ ứng dụng nào khác.',
   'You reviewed {{count}} cards. Great work - come back when the next cards are due.':
     'Bạn đã ôn {{count}} thẻ. Làm tốt lắm - hãy quay lại khi có thẻ tiếp theo đến hạn.',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
@@ -994,8 +994,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   '{{due}} due/{{total}} cards': '{{due}} đến hạn/{{total}} thẻ',
   '{{installed}} installed · {{available}} available to install':
     'Đã cài {{installed}} · {{available}} có thể cài thêm',
-  "{{language}} isn't ready yet - English and German are the only languages Lemony fully supports right now.":
-    '{{language}} chưa sẵn sàng - tiếng Anh và tiếng Đức là hai ngôn ngữ duy nhất Lemony hỗ trợ đầy đủ hiện tại.',
+  "{{language}} isn't ready yet - English and German are the only languages Lemory fully supports right now.":
+    '{{language}} chưa sẵn sàng - tiếng Anh và tiếng Đức là hai ngôn ngữ duy nhất Lemory hỗ trợ đầy đủ hiện tại.',
   '{{notes}} notes across {{decks}} decks. Map each field below - it applies to every note, so a note type without that many fields just leaves it empty.':
     '{{notes}} ghi chú trải khắp {{decks}} bộ thẻ. Ánh xạ từng trường bên dưới - nó áp dụng cho mọi ghi chú, nên một loại ghi chú không có đủ số trường đó sẽ chỉ để trống.',
   '{{provider}} playback failed': 'Phát âm thanh {{provider}} thất bại',
@@ -1010,9 +1010,12 @@ export const vi: Partial<Record<Phrase, string>> = {
   Hard: 'Khó',
   Good: 'Tốt',
   Easy: 'Dễ',
-  'Lemony Light': 'Lemony Sáng',
+  'Lemory Light': 'Lemory Sáng',
   'Midnight Indigo': 'Chàm Nửa Đêm',
   'Carbon Noir': 'Đen Carbon',
+  'Forest Pine': 'Rừng Thông',
+  'Espresso Noir': 'Espresso Đen',
+  'Deep Ocean': 'Đại Dương Sâu',
   'Arctic Day': 'Ngày Bắc Cực',
   'Warm Sand': 'Cát Ấm',
   Paperlight: 'Trắng Giấy',
@@ -1051,22 +1054,22 @@ export const vi: Partial<Record<Phrase, string>> = {
   'How sync works': 'Đồng bộ hoạt động thế nào',
   'Deleting your account & data': 'Xóa tài khoản & dữ liệu của bạn',
   'What does this actually delete?': 'Việc này thực sự xóa những gì?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemony on two devices, you're not starting from zero on the second one.":
-    'Đăng nhập bằng Google sẽ liên kết thiết bị này với một bản sao đám mây riêng tư của bộ thẻ, thẻ và tiến độ ôn tập của bạn - nên nếu bạn đổi điện thoại mới, hoặc dùng Lemony trên hai thiết bị, bạn không phải bắt đầu lại từ đầu trên thiết bị thứ hai.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemory on two devices, you're not starting from zero on the second one.":
+    'Đăng nhập bằng Google sẽ liên kết thiết bị này với một bản sao đám mây riêng tư của bộ thẻ, thẻ và tiến độ ôn tập của bạn - nên nếu bạn đổi điện thoại mới, hoặc dùng Lemory trên hai thiết bị, bạn không phải bắt đầu lại từ đầu trên thiết bị thứ hai.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.':
     'Chạm "Đồng bộ ngay" bất cứ lúc nào để đẩy các thay đổi mới nhất lên và tải về mọi thứ từ thiết bị khác. Về bản chất, nó hợp nhất chứ không ghi đè - nếu bạn thêm một thẻ ở đây và ôn tập một thẻ khác trên điện thoại kia, cả hai đều được giữ lại.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'Khóa API của các nhà cung cấp AI không bao giờ được đồng bộ. Chúng chỉ tồn tại trong bộ nhớ an toàn của thiết bị này, nên bạn sẽ cần nhập lại chúng khi thiết lập một thiết bị mới.',
-  'When this is on, Lemony quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
-    'Khi bật tính năng này, Lemony sẽ âm thầm đồng bộ trong nền mỗi khi bạn rời khỏi ứng dụng - không cần phải nhớ tự chạm "Đồng bộ ngay".',
+  'When this is on, Lemory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
+    'Khi bật tính năng này, Lemory sẽ âm thầm đồng bộ trong nền mỗi khi bạn rời khỏi ứng dụng - không cần phải nhớ tự chạm "Đồng bộ ngay".',
   "\"At most every\" is a cooldown, not a schedule - it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '"Tối đa mỗi" là thời gian chờ tối thiểu, không phải lịch cố định - nó sẽ không đồng bộ thường xuyên hơn mức đó, nhưng cũng không ép đồng bộ nếu bạn chưa mở lại ứng dụng trong lúc đó.',
   "It runs over whatever connection you've got, Wi-Fi or mobile data - there's no Wi-Fi-only toggle.":
     'Nó chạy trên bất kỳ kết nối nào bạn có, Wi-Fi hay dữ liệu di động - không có tùy chọn chỉ dùng Wi-Fi.',
   "This is the one action here you genuinely can't undo - read this before you tap it.":
     'Đây là hành động duy nhất ở đây mà bạn thực sự không thể hoàn tác - hãy đọc kỹ trước khi chạm vào nó.',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemony, and signs you out.':
-    'Nó xóa vĩnh viễn mọi thứ tài khoản này từng đồng bộ lên đám mây, ngắt kết nối tài khoản Google khỏi Lemony, và đăng xuất bạn.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemory, and signs you out.':
+    'Nó xóa vĩnh viễn mọi thứ tài khoản này từng đồng bộ lên đám mây, ngắt kết nối tài khoản Google khỏi Lemory, và đăng xuất bạn.',
   'Your decks, cards, and progress on THIS device are completely untouched - they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Bộ thẻ, thẻ và tiến độ của bạn trên CHÍNH thiết bị này hoàn toàn không bị ảnh hưởng - chúng vẫn ở nguyên đó, dùng ngoại tuyến bình thường. Chỉ bản sao trên đám mây (và liên kết tới nó) là mất đi.',
   'If you sign back in with the same Google account afterward, syncing starts fresh - nothing comes back automatically.':

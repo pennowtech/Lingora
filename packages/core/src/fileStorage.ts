@@ -45,7 +45,7 @@ function slug(name: string): string {
     name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'lemony'
+      .replace(/^-+|-+$/g, '') || 'lemory'
   )
 }
 
@@ -61,5 +61,5 @@ function timestampForFileName(date: Date = new Date()): string {
 /** `deckname_YYYY-MM-DD_HHmm` — the default name offered in an export-name prompt, editable before
  * the export actually runs. */
 export function defaultExportFileName(deckName?: string): string {
-  return `${slug(deckName ?? 'lemony')}_${timestampForFileName()}`
+  return `${slug(deckName ?? 'lemory')}_${timestampForFileName()}`
 }

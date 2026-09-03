@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Lemony since tagged release `v0.1.0-internal.4`.
+All notable changes to Lemory since tagged release `v0.1.0-internal.4`.
 
 ## [v0.3.0] - 2026-09-03
 

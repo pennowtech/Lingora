@@ -437,10 +437,10 @@ export default function DecksScreen(): JSX.Element {
   const allDecks = allDecksQuery.data ?? []
   const pickerTargets = pickerDeck
     ? (() => {
-        const excludedIds = collectDescendantIds(allDecks, pickerDeck.id)
-        excludedIds.add(pickerDeck.id)
-        return allDecks.filter((d) => !excludedIds.has(d.id))
-      })()
+      const excludedIds = collectDescendantIds(allDecks, pickerDeck.id)
+      excludedIds.add(pickerDeck.id)
+      return allDecks.filter((d) => !excludedIds.has(d.id))
+    })()
     : []
 
   return (
@@ -483,11 +483,6 @@ export default function DecksScreen(): JSX.Element {
             <View style={styles.masteryHeroTop}>
               <View style={styles.masteryTextGroup}>
                 <Text style={styles.masteryTitle}>{t('Study Progress')}</Text>
-                <Text style={styles.masterySubtitle}>
-                  {decksQuery.data?.retentionRate !== undefined && decksQuery.data.retentionRate > 0
-                    ? t('{{rate}}% 30-day memory retention', { rate: Math.round(decksQuery.data.retentionRate) })
-                    : t('Review cards regularly to build retention')}
-                </Text>
               </View>
 
               <Pressable
@@ -672,97 +667,97 @@ export default function DecksScreen(): JSX.Element {
               font/display scaling it can grow taller than the screen. Without a scroll container
               here the overflow was simply unreachable, cut off at the screen edge. */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalSheetScrollContent}>
-          {menuDeck ? (
-            <>
-              <View style={styles.menuHeader}>
-                <Text style={styles.menuTitle}>{menuDeck.name}</Text>
-              </View>
+            {menuDeck ? (
+              <>
+                <View style={styles.menuHeader}>
+                  <Text style={styles.menuTitle}>{menuDeck.name}</Text>
+                </View>
 
-              {/* Quick Action Grid (2x2) */}
-              <View style={styles.menuActionGrid}>
-                <Pressable
-                  style={styles.gridActionTile}
-                  onPress={() => {
-                    const deckId = menuDeck.id
-                    setMenuDeck(null)
-                    router.push({ pathname: '/deck/add-card', params: { deckId } })
-                  }}
-                >
-                  <View style={styles.gridActionIcon}>
-                    <Icon name="CirclePlus" size={20} color={colors.primary} />
-                  </View>
-                  <Text style={styles.gridActionLabel}>{t('Add Card')}</Text>
-                </Pressable>
+                {/* Quick Action Grid (2x2) */}
+                <View style={styles.menuActionGrid}>
+                  <Pressable
+                    style={styles.gridActionTile}
+                    onPress={() => {
+                      const deckId = menuDeck.id
+                      setMenuDeck(null)
+                      router.push({ pathname: '/deck/add-card', params: { deckId } })
+                    }}
+                  >
+                    <View style={styles.gridActionIcon}>
+                      <Icon name="CirclePlus" size={20} color={colors.primary} />
+                    </View>
+                    <Text style={styles.gridActionLabel}>{t('Add Card')}</Text>
+                  </Pressable>
 
-                <Pressable
-                  style={styles.gridActionTile}
-                  onPress={() => {
-                    const deckId = menuDeck.id
-                    const name = menuDeck.name
-                    setMenuDeck(null)
-                    router.push({ pathname: '/deck/[id]', params: { id: deckId } })
-                  }}
-                >
-                  <View style={styles.gridActionIcon}>
-                    <Icon name="FolderOpen" size={20} color={colors.primary} />
-                  </View>
-                  <Text style={styles.gridActionLabel}>{t('Open Deck')}</Text>
-                </Pressable>
+                  <Pressable
+                    style={styles.gridActionTile}
+                    onPress={() => {
+                      const deckId = menuDeck.id
+                      const name = menuDeck.name
+                      setMenuDeck(null)
+                      router.push({ pathname: '/deck/[id]', params: { id: deckId } })
+                    }}
+                  >
+                    <View style={styles.gridActionIcon}>
+                      <Icon name="FolderOpen" size={20} color={colors.primary} />
+                    </View>
+                    <Text style={styles.gridActionLabel}>{t('Open Deck')}</Text>
+                  </Pressable>
 
-                <Pressable style={styles.gridActionTile} onPress={() => showImport(menuDeck)}>
-                  <View style={styles.gridActionIcon}>
-                    <Icon name="Download" size={20} color={colors.primary} />
-                  </View>
-                  <Text style={styles.gridActionLabel}>{t('Import')}</Text>
-                </Pressable>
+                  <Pressable style={styles.gridActionTile} onPress={() => showImport(menuDeck)}>
+                    <View style={styles.gridActionIcon}>
+                      <Icon name="Download" size={20} color={colors.primary} />
+                    </View>
+                    <Text style={styles.gridActionLabel}>{t('Import')}</Text>
+                  </Pressable>
 
-                <Pressable style={styles.gridActionTile} onPress={() => showExport(menuDeck)}>
-                  <View style={styles.gridActionIcon}>
-                    <Icon name="CloudDownload" size={20} color={colors.primary} />
-                  </View>
-                  <Text style={styles.gridActionLabel}>{t('Export')}</Text>
-                </Pressable>
-              </View>
+                  <Pressable style={styles.gridActionTile} onPress={() => showExport(menuDeck)}>
+                    <View style={styles.gridActionIcon}>
+                      <Icon name="CloudDownload" size={20} color={colors.primary} />
+                    </View>
+                    <Text style={styles.gridActionLabel}>{t('Export')}</Text>
+                  </Pressable>
+                </View>
 
-              {/* Sleek Row Menu Group */}
-              <View style={styles.menuListGroup}>
-                <Pressable
-                  style={styles.menuRowItem}
-                  onPress={() => {
-                    setRenameValue(menuDeck.name)
-                    setRenameDeckTarget(menuDeck)
-                    setMenuDeck(null)
-                  }}
-                >
-                  <Icon name="Pencil" size={18} color={colors.textSecondary} />
-                  <Text style={styles.menuRowLabel}>{t('Rename deck')}</Text>
-                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
-                </Pressable>
+                {/* Sleek Row Menu Group */}
+                <View style={styles.menuListGroup}>
+                  <Pressable
+                    style={styles.menuRowItem}
+                    onPress={() => {
+                      setRenameValue(menuDeck.name)
+                      setRenameDeckTarget(menuDeck)
+                      setMenuDeck(null)
+                    }}
+                  >
+                    <Icon name="Pencil" size={18} color={colors.textSecondary} />
+                    <Text style={styles.menuRowLabel}>{t('Rename deck')}</Text>
+                    <Icon name="ChevronRight" size={14} color={colors.textMuted} />
+                  </Pressable>
 
-                <Pressable style={styles.menuRowItem} onPress={() => showMove(menuDeck)}>
-                  <Icon name="FolderOpen" size={18} color={colors.textSecondary} />
-                  <Text style={styles.menuRowLabel}>{t('Move deck')}</Text>
-                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
-                </Pressable>
+                  <Pressable style={styles.menuRowItem} onPress={() => showMove(menuDeck)}>
+                    <Icon name="FolderOpen" size={18} color={colors.textSecondary} />
+                    <Text style={styles.menuRowLabel}>{t('Move deck')}</Text>
+                    <Icon name="ChevronRight" size={14} color={colors.textMuted} />
+                  </Pressable>
 
-                <Pressable style={styles.menuRowItem} onPress={() => showMerge(menuDeck)}>
-                  <Icon name="GitMerge" size={18} color={colors.textSecondary} />
-                  <Text style={styles.menuRowLabel}>{t('Merge into another deck')}</Text>
-                  <Icon name="ChevronRight" size={14} color={colors.textMuted} />
-                </Pressable>
+                  <Pressable style={styles.menuRowItem} onPress={() => showMerge(menuDeck)}>
+                    <Icon name="GitMerge" size={18} color={colors.textSecondary} />
+                    <Text style={styles.menuRowLabel}>{t('Merge into another deck')}</Text>
+                    <Icon name="ChevronRight" size={14} color={colors.textMuted} />
+                  </Pressable>
 
-                <Pressable style={styles.menuRowItem} onPress={() => confirmResetProgress(menuDeck)}>
-                  <Icon name="RefreshCw" size={18} color={colors.warning} />
-                  <Text style={[styles.menuRowLabel, { color: colors.warning }]}>{t('Reset progress')}</Text>
-                </Pressable>
+                  <Pressable style={styles.menuRowItem} onPress={() => confirmResetProgress(menuDeck)}>
+                    <Icon name="RefreshCw" size={18} color={colors.warning} />
+                    <Text style={[styles.menuRowLabel, { color: colors.warning }]}>{t('Reset progress')}</Text>
+                  </Pressable>
 
-                <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={() => confirmDelete(menuDeck)}>
-                  <Icon name="Trash2" size={18} color={colors.danger} />
-                  <Text style={[styles.menuRowLabel, { color: colors.danger }]}>{t('Delete deck')}</Text>
-                </Pressable>
-              </View>
-            </>
-          ) : null}
+                  <Pressable style={[styles.menuRowItem, styles.menuRowItemLast]} onPress={() => confirmDelete(menuDeck)}>
+                    <Icon name="Trash2" size={18} color={colors.danger} />
+                    <Text style={[styles.menuRowLabel, { color: colors.danger }]}>{t('Delete deck')}</Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : null}
           </ScrollView>
         </View>
       </Modal>
@@ -927,8 +922,8 @@ export default function DecksScreen(): JSX.Element {
         message={
           resetConfirmDeck
             ? t('Every card in "{{name}}" goes back to "new" - word-meaning review and cloze practice both restart from scratch. Your review history is kept. This cannot be undone.', {
-                name: resetConfirmDeck.name,
-              })
+              name: resetConfirmDeck.name,
+            })
             : ''
         }
         onCancel={() => setResetConfirmDeck(null)}
@@ -947,9 +942,9 @@ export default function DecksScreen(): JSX.Element {
         message={
           mergeConfirmTarget && pickerDeck
             ? t('This deletes "{{source}}" and moves all its cards into "{{target}}". This cannot be undone.', {
-                source: pickerDeck.name,
-                target: mergeConfirmTarget.name,
-              })
+              source: pickerDeck.name,
+              target: mergeConfirmTarget.name,
+            })
             : ''
         }
         onCancel={() => setMergeConfirmTarget(null)}

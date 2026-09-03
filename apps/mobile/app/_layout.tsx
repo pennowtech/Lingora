@@ -16,6 +16,7 @@ import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
 import { ThemeProvider, useTheme } from '../lib/ThemeContext'
+import { ToastProvider } from '../lib/ToastContext'
 
 import { isOnboardingCompleted } from '../lib/onboarding'
 import { StartupScreen } from '../components/StartupScreen'
@@ -123,7 +124,9 @@ export default function RootLayout(): JSX.Element {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemeProvider>
           <I18nextProvider i18n={i18n}>
-            <AppStack />
+            <ToastProvider>
+              <AppStack />
+            </ToastProvider>
           </I18nextProvider>
         </ThemeProvider>
       </GestureHandlerRootView>

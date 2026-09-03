@@ -84,7 +84,11 @@ function AppStack(): JSX.Element {
           {isReviewScreen || !isHomeScreen ? null : <LanguagePairBadge />}
           <Stack
             screenOptions={{
-              header: AppHeader,
+              // See (tabs)/_layout.tsx's matching comment: a custom `header` render prop can miss
+              // the theme context's first real update on some screens and keep rendering its
+              // initial (possibly stale) colors. Keying by theme.key forces just that header
+              // instance to remount on every theme change instead of relying on it to notice.
+              header: (props) => <AppHeader key={theme.key} {...props} />,
               contentStyle: { backgroundColor: colors.background },
             }}
           >

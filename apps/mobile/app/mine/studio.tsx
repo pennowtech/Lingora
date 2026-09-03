@@ -142,8 +142,12 @@ export default function MiningStudioScreen(): JSX.Element {
       setSelectedWords(cached.vocabulary.map((w) => w.form))
       return
     }
+    // No AI, no point firing the mutation just to have it throw into an "Analysis failed" error
+    // popup - the render below shows a calm, AI-only setup prompt instead (Mining has no
+    // dictionary fallback the way Search/Word of the Day do, so there's nothing else to offer).
+    if (!ai) return
     analyzeMutation.mutate(text)
-  }, [text])
+  }, [text, ai])
 
   const regenerate = (): void => {
     clearCachedAnalysis(cacheKey)
@@ -384,6 +388,27 @@ export default function MiningStudioScreen(): JSX.Element {
           </View>
           <Text style={styles.passageText}>„{text}"</Text>
         </Card>
+
+        {/* AI Required State — Mining has no dictionary fallback the way Search/Word of the Day
+            do (there's nothing offline that can translate+explain grammar+extract vocabulary for
+            a whole passage), so this is deliberately AI-only messaging, not the generic dual
+            AI-or-dictionary setup dialog those screens show. */}
+        {!ai && !analysis && (
+          <Card style={styles.errorCard}>
+            <Icon name="Sparkles" size={24} color={colors.primary} />
+            <Text style={styles.errorTitle}>{t('AI provider needed')}</Text>
+            <Text style={styles.errorMessage}>
+              {t('Mining Studio needs an AI provider to translate, explain grammar, and extract vocabulary from a passage. Add and enable one in Settings.')}
+            </Text>
+            <Button
+              label={t('Set up AI Provider')}
+              variant="secondary"
+              icon="Sparkles"
+              onPress={() => router.push('/settings/ai-providers')}
+              style={styles.retryBtn}
+            />
+          </Card>
+        )}
 
         {/* Analysis Loading State */}
         {analyzeMutation.isPending && (

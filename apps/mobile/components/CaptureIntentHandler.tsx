@@ -46,7 +46,7 @@ function openInApp(path: string, queryParams: Record<string, string>): void {
  * ServicesProvider, not at the true root next to ShareIntentProvider itself.
  */
 export function CaptureIntentHandler(): JSX.Element | null {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const queryClient = useQueryClient()
   const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext()
   const [chooser, setChooser] = useState<{ text: string; source: CaptureSource } | null>(null)
@@ -79,16 +79,17 @@ export function CaptureIntentHandler(): JSX.Element | null {
         status: 'pending',
         capturedAt: Date.now(),
         processed: false,
+        targetLanguage,
       })
-      // The bottom tab bar's Queue badge and the Queue screen itself both read this same query key
-      // (see BottomTabBar.tsx / app/(tabs)/mine.tsx) — without invalidating it, a query mounted
-      // earlier (the badge, always present) keeps serving its pre-capture snapshot for the rest of
-      // its staleTime, and the freshly-written entry doesn't show up even on a brand-new mount of
-      // the Queue screen itself, since it reads the same cached result rather than the database.
+      // The bottom tab bar's Mining badge (['mine-queue', 'pending']) and the Mining screen's own
+      // list (['mine-queue', 'all']) are separate cache entries (see BottomTabBar.tsx / app/(tabs)/
+      // mine.tsx - kept apart on purpose, sharing one key used to make already-mined passages
+      // flicker whenever the other query refetched) but both share the ['mine-queue'] prefix, so
+      // this one invalidateQueries call still refreshes both without needing two calls.
       await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
       if (isMountedRef.current) openInApp('/mine', {})
     },
-    [db, queryClient],
+    [db, queryClient, targetLanguage],
   )
 
   const handleCapture = useCallback(

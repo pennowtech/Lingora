@@ -122,6 +122,7 @@ export const TABLE_COLUMNS = {
     'captured_at',
     'processed',
     'card_id',
+    'target_language',
   ],
   evaluations: ['id', 'target_type', 'target_id', 'rating', 'reason', 'note', 'created_at'],
   card_chat_messages: ['id', 'card_id', 'role', 'content', 'created_at'],

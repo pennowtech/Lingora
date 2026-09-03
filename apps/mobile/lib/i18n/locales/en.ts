@@ -627,6 +627,11 @@ export const ENGLISH_PHRASES = [
   "Default: {{voice}}",
   "Delete All AI Providers Keys",
   "Delete all AI provider keys?",
+  "Deactivate All Providers",
+  "Pauses AI generation - your keys and validated status stay saved, so re-activating any provider is one tap.",
+  "Deactivate all AI providers?",
+  "AI generation stops until you re-activate a provider. Your keys and validated status stay saved on this device.",
+  "Deactivate",
   "Depending on a setting in Settings, under \"Share & Search,\" a shared sentence might land here right away, or you might get asked what to do with it first.",
   "Device (built-in)",
   "Display on Flashcard",
@@ -1421,6 +1426,15 @@ export const ENGLISH_PHRASES = [
   // ── Help doc screenshots ────────────────────────────────────────────
   'App screenshot',
   'Screenshot Reference',
+
+  // ── Word of the Day - dictionary fallback ───────────────────────────
+  'Dictionary',
+  'Configure AI for richer daily words →',
+
+  // ── Mining Studio - AI-only setup prompt ────────────────────────────
+  'AI provider needed',
+  'Mining Studio needs an AI provider to translate, explain grammar, and extract vocabulary from a passage. Add and enable one in Settings.',
+  'Set up AI Provider',
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

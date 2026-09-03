@@ -310,6 +310,9 @@ export interface SentenceMineEntry {
   capturedAt: number
   processed: boolean
   cardId?: string // set once processed
+  /** The language this passage was captured in - scopes the Mining Studio list to the active
+   * target language, the same way decks are scoped to a language pair (migration 0024). */
+  targetLanguage: LanguageCode
 }
 
 export interface MinedPassageWord {

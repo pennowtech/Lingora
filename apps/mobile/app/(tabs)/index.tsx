@@ -138,7 +138,7 @@ function greetingFor(hour: number, targetLanguage: LanguageCode): string {
  * Home dashboard: today's review load, streak, and recent activity.
  */
 export default function HomeScreen(): JSX.Element {
-  const { db, tier, targetLanguage, nativeLanguage, defaultCefr } = useServices()
+  const { db, targetLanguage, nativeLanguage, defaultCefr } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -178,17 +178,16 @@ export default function HomeScreen(): JSX.Element {
     queryFn: () => getRecentlyAddedWords(db, 3, targetLanguage, nativeLanguage),
   })
   // The actual daily generation/refresh happens once, app-wide, in WordOfTheDayLifecycle — this
-  // is just reading whatever it already wrote. Unavailable without an AI provider (tier !== 'full'
-  // means WordOfTheDayLifecycle never even attempts a refresh), so this doesn't run at all then —
-  // no point polling for something that will never exist.
+  // is just reading whatever it already wrote. Runs regardless of tier: WordOfTheDayLifecycle
+  // falls back to the installed local dictionary without an AI provider, so a word can exist even
+  // on the translation-only tier.
   const wordOfTheDayQuery = useQuery({
     queryKey: ['word-of-the-day', targetLanguage, nativeLanguage, defaultCefr],
     queryFn: () => getStoredWordOfTheDay(defaultCefr, targetLanguage, nativeLanguage),
-    enabled: tier === 'full',
   })
   const wordGuideQuery = useQuery({
-    queryKey: ['word-guide', wordOfTheDayQuery.data?.word],
-    queryFn: () => (wordOfTheDayQuery.data ? getWordGuide(db, wordOfTheDayQuery.data.word, 'de') : null),
+    queryKey: ['word-guide', wordOfTheDayQuery.data?.word, targetLanguage],
+    queryFn: () => (wordOfTheDayQuery.data ? getWordGuide(db, wordOfTheDayQuery.data.word, targetLanguage) : null),
     enabled: !!wordOfTheDayQuery.data?.word && wotdModalOpen,
   })
 
@@ -196,8 +195,8 @@ export default function HomeScreen(): JSX.Element {
     useCallback(() => {
       void statsQuery.refetch()
       void recentQuery.refetch()
-      if (tier === 'full') void wordOfTheDayQuery.refetch()
-    }, [tier]),
+      void wordOfTheDayQuery.refetch()
+    }, []),
   )
 
   const stats = statsQuery.data
@@ -384,44 +383,60 @@ export default function HomeScreen(): JSX.Element {
           </Pressable>
         </View>
 
-        {/* Word of the Day — Bento Styled Card */}
-        {tier === 'full' ? (
-          (!!wordOfTheDay || wordOfTheDayQuery.isPending) ? (
-            <View style={{ marginBottom: spacing.xl }}>
-              <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>{t('Word of the Day')}</Text>
+        {/* Word of the Day — Bento Styled Card. Source-agnostic: WordOfTheDayLifecycle already
+            picked AI vs the installed local dictionary vs nothing, this just renders whichever
+            came back (see wordOfTheDay.source for the badge/nudge below). */}
+        {(!!wordOfTheDay || wordOfTheDayQuery.isPending) ? (
+          <View style={{ marginBottom: spacing.xl }}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>{t('Word of the Day')}</Text>
+              {wordOfTheDay?.source === 'dictionary' ? (
+                <View style={[styles.aiLiveBadge, { backgroundColor: colors.surfaceMuted, borderColor: colors.border }]}>
+                  <Icon name="BookOpen" size={12} color={colors.textSecondary} />
+                  <Text style={[styles.aiLiveBadgeText, { color: colors.textSecondary }]}>{t('Dictionary')}</Text>
+                </View>
+              ) : (
                 <View style={styles.aiLiveBadge}>
                   <Icon name="Sparkles" size={12} color={colors.warning} />
                   <Text style={styles.aiLiveBadgeText}>{t('AI Discovery')}</Text>
                 </View>
-              </View>
-              <Card
-                disabled={!wordOfTheDay}
-                onPress={() => setWotdModalOpen(true)}
-                style={styles.wotdCard}
-              >
-                {wordOfTheDay ? (
-                  <>
-                    <View style={styles.wotdTop}>
-                      <Text style={styles.wotdWord}>{wordOfTheDay.word}</Text>
-                      <View style={styles.wotdLearnAction}>
-                        <Text style={styles.wotdLearnText}>{t('Explore')}</Text>
-                        <Icon name="ArrowRight" size={13} color={colors.warning} />
-                      </View>
-                    </View>
-                    <Text style={styles.wotdExplanation} numberOfLines={2}>
-                      {wordOfTheDay.explanation}
-                    </Text>
-                  </>
-                ) : (
-                  <View style={styles.wotdLoadingRow}>
-                    <ActivityIndicator color={colors.warning} />
-                    <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
-                  </View>
-                )}
-              </Card>
+              )}
             </View>
-          ) : null
+            <Card
+              disabled={!wordOfTheDay}
+              onPress={() => setWotdModalOpen(true)}
+              style={styles.wotdCard}
+            >
+              {wordOfTheDay ? (
+                <>
+                  <View style={styles.wotdTop}>
+                    <Text style={styles.wotdWord}>{wordOfTheDay.word}</Text>
+                    <View style={styles.wotdLearnAction}>
+                      <Text style={styles.wotdLearnText}>{t('Explore')}</Text>
+                      <Icon name="ArrowRight" size={13} color={colors.warning} />
+                    </View>
+                  </View>
+                  <Text style={styles.wotdExplanation} numberOfLines={2}>
+                    {wordOfTheDay.explanation}
+                  </Text>
+                </>
+              ) : (
+                <View style={styles.wotdLoadingRow}>
+                  <ActivityIndicator color={colors.warning} />
+                  <Text style={styles.wotdLoadingText}>{t("Finding today's word...")}</Text>
+                </View>
+              )}
+            </Card>
+            {/* Non-blocking nudge — a dictionary-sourced word already works, this just points at
+                the richer AI-curated experience (real daily discovery, an explanation and example
+                written for this exact word, never a repeat) rather than gating anything. */}
+            {wordOfTheDay?.source === 'dictionary' ? (
+              <Pressable onPress={() => setAiSetupModalOpen(true)} style={styles.wotdAiNudge}>
+                <Icon name="Sparkles" size={12} color={colors.primary} />
+                <Text style={styles.wotdAiNudgeText}>{t('Configure AI for richer daily words →')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : (
           <View style={{ marginBottom: spacing.xl }}>
             <View style={styles.sectionHeaderRow}>
@@ -518,24 +533,21 @@ export default function HomeScreen(): JSX.Element {
                 />
               </View>
 
-              {/* Contextual Example & Translation (Always guaranteed) */}
-              <View style={styles.wotdSheetExampleBox}>
-                <Text style={styles.wotdSheetSectionTitle}>{t('Example in Context')}</Text>
-                <Text style={styles.wotdSheetExDe}>
-                  „{wordOfTheDay.exampleSentence ??
-                    wordGuideQuery.data?.examples?.[0]?.sentence ??
-                    (wordOfTheDay.word.toLowerCase() === 'schlendern'
-                      ? 'Wir schlendern am Nachmittag entspannt durch die Altstadt.'
-                      : `Wir nutzen das Wort ${wordOfTheDay.word} im Alltag.`)}"
-                </Text>
-                <Text style={styles.wotdSheetExEn}>
-                  "{wordOfTheDay.exampleTranslation ??
-                    wordGuideQuery.data?.examples?.[0]?.translation ??
-                    (wordOfTheDay.word.toLowerCase() === 'schlendern'
-                      ? 'We stroll relaxed through the old town in the afternoon.'
-                      : 'Example showing the word in context.')}"
-                </Text>
-              </View>
+              {/* Contextual Example & Translation — hidden entirely rather than padded out with a
+                  made-up sentence when neither the stored word nor a dictionary lookup has one. */}
+              {(() => {
+                const exampleSentence = wordOfTheDay.exampleSentence ?? wordGuideQuery.data?.examples?.[0]?.sentence
+                const exampleTranslation =
+                  wordOfTheDay.exampleTranslation ?? wordGuideQuery.data?.examples?.[0]?.translation
+                if (!exampleSentence) return null
+                return (
+                  <View style={styles.wotdSheetExampleBox}>
+                    <Text style={styles.wotdSheetSectionTitle}>{t('Example in Context')}</Text>
+                    <Text style={styles.wotdSheetExDe}>„{exampleSentence}"</Text>
+                    {exampleTranslation ? <Text style={styles.wotdSheetExEn}>"{exampleTranslation}"</Text> : null}
+                  </View>
+                )
+              })()}
 
               {/* Actions Dock */}
               <View style={styles.wotdSheetActions}>
@@ -770,6 +782,18 @@ const createStyles = (colors: ThemeColors) =>
       overflow: 'hidden',
     },
     wotdCardPressed: { opacity: 0.85 },
+    wotdAiNudge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingTop: spacing.xs,
+      paddingHorizontal: 2,
+    },
+    wotdAiNudgeText: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.primary,
+    },
     wotdTop: {
       flexDirection: 'row',
       alignItems: 'center',

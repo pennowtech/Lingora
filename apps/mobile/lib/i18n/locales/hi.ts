@@ -672,6 +672,13 @@ Home: 'होम',
   'Default: {{voice}}': 'डिफ़ॉल्ट: {{voice}}',
   'Delete All AI Providers Keys': 'सभी AI Provider Keys डिलीट करें',
   'Delete all AI provider keys?': 'सभी AI provider keys डिलीट करें?',
+  'Deactivate All Providers': 'सभी प्रोवाइडर निष्क्रिय करें',
+  'Pauses AI generation - your keys and validated status stay saved, so re-activating any provider is one tap.':
+    'AI जनरेशन रुक जाता है - आपकी keys और validated स्टेटस सेव रहते हैं, इसलिए किसी भी प्रोवाइडर को दोबारा एक्टिवेट करना बस एक टैप है।',
+  'Deactivate all AI providers?': 'सभी AI प्रोवाइडर निष्क्रिय करें?',
+  'AI generation stops until you re-activate a provider. Your keys and validated status stay saved on this device.':
+    'जब तक आप किसी प्रोवाइडर को दोबारा एक्टिवेट नहीं करते, AI जनरेशन रुका रहेगा। आपकी keys और validated स्टेटस इस डिवाइस पर सेव रहते हैं।',
+  Deactivate: 'निष्क्रिय करें',
   'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.':
     'Settings में "Share & Search" के तहत की गई सेटिंग के हिसाब से, शेयर किया गया वाक्य सीधे यहां आ सकता है, या पहले आपसे पूछा जा सकता है कि उसका क्या करना है।',
   'Device (built-in)': 'डिवाइस (बिल्ट-इन)',
@@ -1711,4 +1718,14 @@ Home: 'होम',
   // ── Help doc screenshots ────────────────────────────────────────────
   'App screenshot': 'ऐप स्क्रीनशॉट',
   'Screenshot Reference': 'स्क्रीनशॉट संदर्भ',
+
+  // ── Word of the Day - dictionary fallback ───────────────────────────
+  Dictionary: 'डिक्शनरी',
+  'Configure AI for richer daily words →': 'बेहतर दैनिक शब्दों के लिए AI सेट करें →',
+
+  // ── Mining Studio - AI-only setup prompt ────────────────────────────
+  'AI provider needed': 'AI प्रोवाइडर चाहिए',
+  'Mining Studio needs an AI provider to translate, explain grammar, and extract vocabulary from a passage. Add and enable one in Settings.':
+    'किसी पैसेज का अनुवाद करने, व्याकरण समझाने और शब्दावली निकालने के लिए Mining Studio को एक AI प्रोवाइडर चाहिए। Settings में एक जोड़ें और उसे सक्रिय करें।',
+  'Set up AI Provider': 'AI प्रोवाइडर सेट करें',
 }

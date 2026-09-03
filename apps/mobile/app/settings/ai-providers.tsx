@@ -128,6 +128,7 @@ export default function AiProvidersScreen(): JSX.Element {
   const [validated, setValidated] = useState<Partial<Record<GenerationProviderName, boolean>>>({})
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
+  const [deactivateAllConfirmOpen, setDeactivateAllConfirmOpen] = useState(false)
 
   const [providers, setProviders] = useState<Record<GenerationProviderName, ProviderFormState>>({
     openai: emptyProviderState('openai'),
@@ -315,6 +316,18 @@ export default function AiProvidersScreen(): JSX.Element {
     })
   }
 
+  const deactivateAllProviders = (): void => {
+    for (const name of GENERATION_PROVIDERS) {
+      updateProvider(name, { enabled: false })
+      void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].enabled, 'false')
+    }
+    void reloadServices()
+    log.info('settings.all_providers_deactivated', {
+      message: 'User deactivated every AI provider without touching saved keys',
+      metadata: { itemCount: GENERATION_PROVIDERS.length },
+    })
+  }
+
   const configuredProviders = GENERATION_PROVIDERS.filter(
     (name) => providers[name].enabled && providers[name].apiKey.trim() !== '' && validated[name],
   )
@@ -445,6 +458,21 @@ export default function AiProvidersScreen(): JSX.Element {
 
       <Card style={styles.dangerCard}>
         <Pressable
+          testID="deactivate-all-providers"
+          style={[styles.neutralButton, providersWithKey.length === 0 && styles.secondaryButtonDisabled]}
+          onPress={() => setDeactivateAllConfirmOpen(true)}
+          disabled={providersWithKey.length === 0}
+        >
+          <Icon name="PowerOff" size={16} color={colors.primary} />
+          <Text style={styles.neutralButtonLabel}>{t('Deactivate All Providers')}</Text>
+        </Pressable>
+        <Text style={styles.dangerCardHint}>
+          {t('Pauses AI generation - your keys and validated status stay saved, so re-activating any provider is one tap.')}
+        </Text>
+      </Card>
+
+      <Card style={styles.dangerCard}>
+        <Pressable
           testID="delete-all-provider-keys"
           style={[styles.dangerButton, !anyKeyPresent && styles.secondaryButtonDisabled]}
           onPress={() => setDeleteAllConfirmOpen(true)}
@@ -476,6 +504,21 @@ export default function AiProvidersScreen(): JSX.Element {
           deleteAllProviderKeys()
         }}
         onCancel={() => setDeleteAllConfirmOpen(false)}
+      />
+
+      {/* Deactivate All Confirm Modal */}
+      <ConfirmModal
+        visible={deactivateAllConfirmOpen}
+        title={t('Deactivate all AI providers?')}
+        message={t('AI generation stops until you re-activate a provider. Your keys and validated status stay saved on this device.')}
+        confirmLabel={t('Deactivate')}
+        cancelLabel={t('Cancel')}
+        destructive={false}
+        onConfirm={() => {
+          setDeactivateAllConfirmOpen(false)
+          deactivateAllProviders()
+        }}
+        onCancel={() => setDeactivateAllConfirmOpen(false)}
       />
 
       {/* Help sheet */}
@@ -1096,6 +1139,24 @@ const createStyles = (colors: ThemeColors) =>
     telemetryLink: { fontSize: type.micro, fontWeight: '700', color: colors.primary, flexShrink: 0 },
 
     dangerCard: { marginTop: 0 },
+    dangerCardHint: {
+      fontSize: type.micro,
+      color: colors.textMuted,
+      marginTop: spacing.sm,
+      textAlign: 'center',
+    },
+    neutralButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: colors.primarySoft,
+      backgroundColor: colors.primarySoft,
+    },
+    neutralButtonLabel: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
     dangerButton: {
       flexDirection: 'row',
       alignItems: 'center',

@@ -938,6 +938,13 @@ export const de: Record<Phrase, string> = {
   'Default: {{voice}}': 'Standard: {{voice}}',
   'Delete All AI Providers Keys': 'Alle KI-Anbieter-Schlüssel löschen',
   'Delete all AI provider keys?': 'Alle KI-Anbieter-Schlüssel löschen?',
+  'Deactivate All Providers': 'Alle Anbieter deaktivieren',
+  'Pauses AI generation - your keys and validated status stay saved, so re-activating any provider is one tap.':
+    'Pausiert die KI-Generierung - deine Schlüssel und der Validierungsstatus bleiben gespeichert, sodass du jeden Anbieter mit einem Tipp wieder aktivieren kannst.',
+  'Deactivate all AI providers?': 'Alle KI-Anbieter deaktivieren?',
+  'AI generation stops until you re-activate a provider. Your keys and validated status stay saved on this device.':
+    'Die KI-Generierung stoppt, bis du einen Anbieter wieder aktivierst. Deine Schlüssel und der Validierungsstatus bleiben auf diesem Gerät gespeichert.',
+  Deactivate: 'Deaktivieren',
   'Depending on a setting in Settings, under "Share & Search," a shared sentence might land here right away, or you might get asked what to do with it first.':
     'Je nach Einstellung unter „Teilen & Suche" in den Einstellungen landet ein geteilter Satz entweder sofort hier, oder du wirst zuerst gefragt, was damit geschehen soll.',
   Details: 'Details',
@@ -1724,4 +1731,14 @@ export const de: Record<Phrase, string> = {
   // ── Help doc screenshots ────────────────────────────────────────────
   'App screenshot': 'App-Screenshot',
   'Screenshot Reference': 'Screenshot-Referenz',
+
+  // ── Word of the Day - dictionary fallback ───────────────────────────
+  Dictionary: 'Wörterbuch',
+  'Configure AI for richer daily words →': 'KI einrichten für bessere tägliche Wörter →',
+
+  // ── Mining Studio - AI-only setup prompt ────────────────────────────
+  'AI provider needed': 'KI-Anbieter erforderlich',
+  'Mining Studio needs an AI provider to translate, explain grammar, and extract vocabulary from a passage. Add and enable one in Settings.':
+    'Mining Studio benötigt einen KI-Anbieter, um einen Textabschnitt zu übersetzen, die Grammatik zu erklären und Vokabeln zu extrahieren. Füge in den Einstellungen einen hinzu und aktiviere ihn.',
+  'Set up AI Provider': 'KI-Anbieter einrichten',
 }

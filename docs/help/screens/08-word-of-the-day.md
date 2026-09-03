@@ -1,7 +1,7 @@
 # ✨ Word of the Day
 
-> [!IMPORTANT]
-> **This feature requires an AI provider.** Word of the Day only runs when at least one AI provider key is configured and validated in **Settings → AI Providers** (`tier === 'full'`). On the free/offline tier (dictionary lookups only, no AI key), the Home screen shows an **Offline Mode** card instead, and no daily notification is ever scheduled — there is nothing to opt out of, it simply never starts.
+> [!TIP]
+> **Works with or without an AI provider.** With one configured and validated in **Settings → AI Providers**, the AI picks and explains a genuinely new word each day. Without one, the same daily word still appears as long as a local dictionary pack is installed (**Settings → Local Dictionaries**) — only when neither is set up does the Home screen fall back to an **Offline Mode** card with no word and no daily notification.
 
 **Word of the Day** picks one word or short phrase a day — genuinely new to you, pitched at your CEFR level — and surfaces it two ways: a card on the Home dashboard, and a local daily notification, so you see something worth learning even on a day you don't open the app.
 
@@ -13,10 +13,12 @@
 
 ### 1. Picking the word
 
-- **CEFR-tailored**: the AI is asked for a word appropriate to your current default level (Settings → Learning), so a Word of the Day at A2 looks nothing like one at C1.
-- **Never a word you already have**: every lemma already in your library, plus a rolling 60-word history of previously-shown Words of the Day, is sent to the AI as an explicit exclude list — the prompt is told never to pick one of them or an obvious variant.
-- **Verified, not just asked nicely**: the app checks the returned word against that same exclude list itself. If the AI ignores the instruction and repeats something anyway, it's retried automatically (up to 3 attempts, with the rejected word added to the exclude list each time) before falling back to accepting the last result.
-- Comes with a short (≤30-word) explanation in your native language, plus one example sentence with its translation.
+- **AI first, local dictionary second**: with an AI provider active, the AI picks and writes today's word from scratch. Without one, a random not-yet-seen word is instead picked from whatever's installed under **Settings → Local Dictionaries**, using that pack's own translation, explanation, and example — no AI call involved at all.
+- **CEFR-tailored** (AI only): the AI is asked for a word appropriate to your current default level (Settings → Learning), so a Word of the Day at A2 looks nothing like one at C1. Installed dictionary packs aren't leveled, so a dictionary-sourced word doesn't carry a CEFR badge.
+- **Never a word you already have**: every lemma already in your library, plus a rolling 60-word history of previously-shown Words of the Day, is excluded — sent to the AI as an explicit exclude list, or filtered out of the dictionary pick directly. Same exclude list either way, so a word already shown once isn't repeated regardless of which source supplies the next one.
+- **Verified, not just asked nicely** (AI only): the app checks the returned word against that same exclude list itself. If the AI ignores the instruction and repeats something anyway, it's retried automatically (up to 3 attempts, with the rejected word added to the exclude list each time) before falling back to accepting the last result.
+- An AI-sourced word comes with a short (≤30-word) explanation in your native language, plus one example sentence with its translation. A dictionary-sourced word shows that pack's own translation/explanation, and an example sentence only if the installed entry has one — the popup simply omits the example section rather than inventing one.
+- If neither source has anything left to offer for today (no AI, and every installed dictionary word has already been shown), the previous day's word stays on screen rather than the card going blank.
 
 ### 2. When it refreshes
 
@@ -33,8 +35,9 @@
 
 ### 4. The Home card & popup
 
-- **With AI configured**: a compact card with the word, a one-line teaser, and an "AI Discovery" badge. Tapping it opens the popup — headword with audio pronunciation, the full explanation, an example sentence with its translation, and **Explore Full Details** to open the real Word Detail screen and add it to a deck.
-- **Without AI configured**: an "Offline Mode" card instead. Tapping it opens the AI setup flow (add a key, e.g. Gemini's free tier, or install offline dictionaries) rather than any word content, since there's nothing to show yet.
+- **AI-sourced word**: a compact card with the word, a one-line teaser, and an "AI Discovery" badge. Tapping it opens the popup — headword with audio pronunciation, the full explanation, an example sentence with its translation (if there is one), and **Explore Full Details** to open the real Word Detail screen and add it to a deck.
+- **Dictionary-sourced word** (no AI configured, a local pack installed): the same card and popup, just with a "Dictionary" badge instead, and a small **Configure AI for richer daily words →** link under the card — a nudge, not a block, since a real word is already showing. Tapping the link opens the same AI-or-dictionary setup dialog described below.
+- **Neither available**: an "Offline Mode" card instead, with no word shown. Tapping it opens the setup dialog (add an AI key, e.g. Gemini's free tier, or install a local dictionary pack) rather than any word content, since there's nothing to show yet.
 
 ### 5. Storage & privacy
 
@@ -54,7 +57,11 @@
 
 > [!NOTE]
 > **Why does my Word of the Day card say "Offline Mode"?**
-> No AI provider is configured yet. Add a key in **Settings → AI Providers** (Google Gemini has a free tier) — the card switches over automatically once one is validated.
+> Neither an AI provider nor an installed local dictionary pack is available yet. Add a key in **Settings → AI Providers** (Google Gemini has a free tier), or install a pack under **Settings → Local Dictionaries** — either one is enough for a real word to appear.
+
+> [!NOTE]
+> **My Word of the Day shows a "Dictionary" badge instead of "AI Discovery" — is something wrong?**
+> No — that's expected without an AI provider configured. The word is coming from an installed local dictionary pack instead of the AI, so it has no CEFR level and may not have an example sentence. Configure an AI provider for a fully AI-curated word every day, or ignore the nudge and keep using the dictionary source.
 
 > [!TIP]
 > **I saw the same word for several days in a row even though the notification kept firing — is that a bug?**

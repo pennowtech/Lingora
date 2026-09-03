@@ -1179,6 +1179,16 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.lg,
       maxWidth: '100%',
+      // A soft translucent outline plus a real offset+blur glow beneath it - same treatment as
+      // Home's hero "Start review" button (see app/(tabs)/index.tsx's heroButton), so the toast
+      // reads as the same "raised, lit" family instead of a flat pill.
+      borderWidth: 1,
+      borderColor: '#FFFFFF55',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 6,
     },
     toastText: { color: colors.textOnPrimary, fontSize: type.caption, fontWeight: '600', flexShrink: 1 },
   })

@@ -78,7 +78,6 @@ import {
   SectionHeader,
   SpeakerButton,
   Spinner,
-  Toast,
 } from '../../components/ui'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { ClozeEditorSheet, type ClozeEditorResult } from '../../components/ClozeEditorSheet'
@@ -95,6 +94,7 @@ import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../..
 import { speak } from '../../lib/speech'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useToast } from '../../lib/ToastContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const REPORT_REASONS: Array<{ value: EvaluationReportReason; label: string }> = [
@@ -263,6 +263,7 @@ export default function WordDetailScreen(): JSX.Element {
   }>()
   const { db, ai, pipeline, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
+  const { showToast } = useToast()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
@@ -371,11 +372,17 @@ export default function WordDetailScreen(): JSX.Element {
   }
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [deckPickerForExample, setDeckPickerForExample] = useState<Example | null>(null)
+  // The picker's own `visible` prop is `deckPickerOpen || deckPickerForExample !== null` (either
+  // entry point can open it) - closing it always means resetting BOTH, not just whichever one the
+  // caller happens to know about. Clearing only deckPickerOpen (as addToDeck/createDeckAndAdd's
+  // onSuccess used to) left the picker stuck open forever after a successful add whenever it had
+  // been opened from an example's own "Add to deck" (deckPickerForExample), since that state never
+  // got reset - the card was added and the toast showed, but the modal never actually disappeared.
+  const closeDeckPicker = (): void => {
+    setDeckPickerOpen(false)
+    setDeckPickerForExample(null)
+  }
   const [evalMenuExampleId, setEvalMenuExampleId] = useState<string | null>(null)
-  // "Added to My Vocabulary" / "Cloze added" — a brief confirmation for actions that otherwise
-  // leave no visible trace (adding an already-open word's card to another deck, or a cloze,
-  // doesn't navigate anywhere or change what's on screen). See components/ui.tsx#Toast.
-  const [toast, setToast] = useState<string | null>(null)
   const [reportTarget, setReportTarget] = useState<{ targetType: EvaluationTarget; targetId: string } | null>(null)
   const [reportReason, setReportReason] = useState<EvaluationReportReason | null>(null)
   const [reportNote, setReportNote] = useState('')
@@ -662,9 +669,9 @@ export default function WordDetailScreen(): JSX.Element {
     // A Cloze-enabled deck routes through DeckPickerModal's desktop-parity blank editor first;
     // its result is persisted in the same add operation instead of requiring a separate action.
     onSuccess: async ({ deckName }) => {
-      setDeckPickerOpen(false)
+      closeDeckPicker()
       await invalidateAfterDeckChange()
-      setToast(t('Added to {{deck}}', { deck: deckName }))
+      showToast(t('Added to {{deck}}', { deck: deckName }))
     },
   })
 
@@ -696,9 +703,9 @@ export default function WordDetailScreen(): JSX.Element {
       return { cardId, deckName: name }
     },
     onSuccess: async ({ deckName }) => {
-      setDeckPickerOpen(false)
+      closeDeckPicker()
       await invalidateAfterDeckChange()
-      setToast(t('Added to {{deck}}', { deck: deckName }))
+      showToast(t('Added to {{deck}}', { deck: deckName }))
     },
     onError: (error: unknown) => showError(t('Could not create deck'), error),
   })
@@ -722,7 +729,7 @@ export default function WordDetailScreen(): JSX.Element {
       // yet — the picker opening right below is what actually answers that) or more than one
       // (no single right answer to name).
       const existingDecks = existingDecksQuery.data ?? []
-      setToast(existingDecks.length === 1 ? t('Cloze added to {{deck}}', { deck: existingDecks[0]!.name }) : t('Cloze added'))
+      showToast(existingDecks.length === 1 ? t('Cloze added to {{deck}}', { deck: existingDecks[0]!.name }) : t('Cloze added'))
       // Cloze practice (standalone or as one of Mixed practice's rotating formats) only ever pulls
       // from cards that are actually in a deck — the same rule every other format already follows.
       // A card can reach this button before ever being added to one (cloze is available from the
@@ -1775,10 +1782,7 @@ export default function WordDetailScreen(): JSX.Element {
       <DeckPickerModal
         db={db}
         visible={deckPickerOpen || deckPickerForExample !== null}
-        onClose={() => {
-          setDeckPickerOpen(false)
-          setDeckPickerForExample(null)
-        }}
+        onClose={closeDeckPicker}
         title={t('Add "{{form}}" to...', { form: word.lemma.form })}
         targetLanguage={targetLanguage}
         nativeLanguage={nativeLanguage}
@@ -2020,8 +2024,6 @@ export default function WordDetailScreen(): JSX.Element {
         message={errorNotice?.message ?? ''}
         onClose={() => setErrorNotice(null)}
       />
-
-      <Toast message={toast} onHide={() => setToast(null)} />
     </>
   )
 }

@@ -12,6 +12,7 @@ import { hasTemplateField } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useToast } from '../../lib/ToastContext'
 import type { ThemeColors } from '../../lib/themes'
 
 type CardKind = 'word' | 'cloze'
@@ -40,6 +41,7 @@ export default function AddCardScreen(): JSX.Element {
   const { deckId } = useLocalSearchParams<{ deckId: string }>()
   const { db, ai, tier, defaultCefr, nativeLanguage, targetLanguage } = useServices()
   const { t } = useTranslation()
+  const { showToast } = useToast()
   const queryClient = useQueryClient()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -133,9 +135,14 @@ export default function AddCardScreen(): JSX.Element {
         cefrLevel: defaultCefr,
       })
     },
-    onSuccess: async ({ lemma }) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries()
-      router.replace({ pathname: '/word/[form]', params: { form: lemma.form } })
+      if (router.canGoBack()) {
+        router.back()
+      } else {
+        router.replace('/(tabs)/decks')
+      }
+      showToast(t('Added to deck'))
     },
     onError: (error: unknown) => showError(t('Could not add card'), error),
   })

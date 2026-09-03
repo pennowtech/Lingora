@@ -819,6 +819,10 @@ export default function SearchScreen(): JSX.Element {
                       horizontal
                       showsHorizontalScrollIndicator={false}
                       contentContainerStyle={styles.reverseMatchesRow}
+                      // This ScrollView is nested inside the results FlatList's (vertical)
+                      // ListHeaderComponent — without this, Android's gesture handling gives the
+                      // outer FlatList every touch here and the horizontal drag never registers.
+                      nestedScrollEnabled
                     >
                       {reverseMatches.data!.map((match) => (
                         <Pressable

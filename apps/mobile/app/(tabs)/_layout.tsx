@@ -17,6 +17,11 @@ export default function TabsLayout(): JSX.Element {
     <Stack
       screenOptions={{
         header: AppHeader,
+        // The bottom bar navigates between these 5 screens like tabs (see the doc comment above),
+        // so they should crossfade instantly like tabs do — not slide like a stack push, which
+        // reads as a jarring jump when tapping between Home/Search/Decks/Mine/Settings.
+        animation: 'fade',
+        animationDuration: 150,
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />

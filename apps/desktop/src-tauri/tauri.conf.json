@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Lemory",
+  "productName": "Lemony",
   "version": "0.1.0",
   "identifier": "tech.pennow.lingora.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Lemory — AI-Native Language Learning",
+        "title": "Lemony — AI-Native Language Learning",
         "width": 1280,
         "height": 840,
         "resizable": true,

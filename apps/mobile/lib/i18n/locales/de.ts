@@ -2,7 +2,7 @@ import type { Phrase } from './en'
 
 export const de: Record<Phrase, string> = {
 'Search a {{target}} word': 'Ein {{target}}es Wort suchen',
-  'Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.': 'Schlage ein beliebiges {{target}}es Wort nach, und Lemory erstellt daraus eine Karteikarte mit Bedeutungen, Beispielen und Aussprache.',
+  'Look up any {{target}} word and Lingora turns it into a flashcard with meanings, examples, and pronunciation.': 'Schlage ein beliebiges {{target}}es Wort nach, und Lemony erstellt daraus eine Karteikarte mit Bedeutungen, Beispielen und Aussprache.',
   'Paste or type a {{target}} sentence. It joins the queue below - nothing is sent to AI until you generate.': 'Füge einen {{target}}en Satz ein oder tippe ihn. Er landet unten in der Warteschlange – an die KI wird erst etwas gesendet, wenn du die Generierung startest.',
   'Learn {{target}} the way it actually works - in context, at your level, with real examples.': 'Lerne {{target}} so, wie es wirklich verwendet wird – im Kontext, auf deinem Niveau und mit echten Beispielen.',
   'YOUR CURRENT {{target}} LEVEL': 'DEIN AKTUELLES {{target}}-NIVEAU',
@@ -52,7 +52,7 @@ export const de: Record<Phrase, string> = {
   'AI Providers & Models': 'KI-Anbieter & Modelle',
   'Translation Services': 'Übersetzungsdienste',
   'Library & Content': 'Bibliothek & Inhalte',
-  'Anki (.apkg), CSV spreadsheet, Lingora backup': 'Anki (.apkg), CSV-Tabelle, Lemory-Sicherung',
+  'Anki (.apkg), CSV spreadsheet, Lingora backup': 'Anki (.apkg), CSV-Tabelle, Lemony-Sicherung',
   'Flashcard layouts, fields & styling': 'Karteikartenlayouts, Felder & Gestaltung',
   'Starter packs & offline dictionaries': 'Starterpakete & Offline-Wörterbücher',
   'System & Account': 'System & Konto',
@@ -61,9 +61,9 @@ export const de: Record<Phrase, string> = {
   'General & Appearance': 'Allgemein & Darstellung',
   'Theme, app language, share intent': 'Design, App-Sprache, Teilen-Funktion',
   'Report an issue, suggest features, or get help': 'Problem melden, Funktionen vorschlagen oder Hilfe erhalten',
-  'About Lemory': 'Über Lemory',
+  'About Lemony': 'Über Lemony',
   'App version, release highlights, and open source': 'App-Version, Neuerungen und Open Source',
-  Lemory: 'Lemory',
+  Lemony: 'Lemony',
   'About & Support': 'Info & Support',
   retention: 'Behaltensquote',
   '{{count}} cards in deck': '{{count}} Karten im Stapel',
@@ -153,14 +153,14 @@ export const de: Record<Phrase, string> = {
   'You can change the file name below. Where to save it comes next.': 'Du kannst den Dateinamen unten ändern. Anschließend wählst du den Speicherort.',
   'Language pair: {{native}} to {{target}}. Tap to change.': 'Sprachpaar: {{native}} nach {{target}}. Zum Ändern tippen.',
   'Get Started': 'Loslegen',
-  'Welcome to Lemory': 'Willkommen bei Lemory',
+  'Welcome to Lemony': 'Willkommen bei Lemony',
   'CHOOSE YOUR LANGUAGE PAIR': 'WÄHLE DEIN SPRACHPAAR',
   Native: 'Muttersprache',
   "I'll set this up later": 'Ich richte das später ein',
   "Language you're learning": 'Sprache, die du lernst',
   'Your native / UI language': 'Deine Mutter- / Oberflächensprache',
   'v{{version}} Update': 'Update auf Version {{version}}',
-  "What's Fresh in Lemory": 'Neu in Lemory',
+  "What's Fresh in Lemony": 'Neu in Lemony',
   'Tap any feature below to see what changed': 'Tippe unten auf eine Funktion, um die Änderungen zu sehen',
   "Got it, Let's Explore! →": 'Verstanden, los geht’s! →',
   'No AI provider is active. Add a key for OpenAI, Mistral, Gemini, or Claude in Settings - and make sure one is turned on - to {{action}}.': 'Kein KI-Anbieter ist aktiv. Füge in den Einstellungen einen Schlüssel für OpenAI, Mistral, Gemini oder Claude hinzu und aktiviere einen Anbieter, um {{action}}.',
@@ -206,7 +206,7 @@ export const de: Record<Phrase, string> = {
   'Tapping **"Add to deck"** opens the deck selector where you can pick which deck(s) will practice this card.': 'Mit **„Zu Stapel hinzufügen“** öffnest du die Stapelauswahl und bestimmst, in welchen Stapeln diese Karte geübt wird.',
   'Each deck displays its enabled **review mode icons** so you know exactly which exercises it generates.': 'Jeder Stapel zeigt die Symbole seiner aktivierten **Wiederholungsmodi**, damit du genau weißt, welche Übungen erzeugt werden.',
   'A green checkmark (**✓**) means the word is already saved in that deck.': 'Ein grünes Häkchen (**✓**) bedeutet, dass das Wort bereits in diesem Stapel gespeichert ist.',
-  'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemory."** It opens right here with that word ready to go.': 'Halte ein Wort in einer beliebigen App gedrückt – im Browser, in Nachrichten oder anderswo – und wähle **„In Lemory suchen“**. Das Wort wird hier direkt zur Suche geöffnet.',
+  'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemony."** It opens right here with that word ready to go.': 'Halte ein Wort in einer beliebigen App gedrückt – im Browser, in Nachrichten oder anderswo – und wähle **„In Lemony suchen“**. Das Wort wird hier direkt zur Suche geöffnet.',
   'Configure search integration in **Settings → Share & Search**.': 'Richte die Suchintegration unter **Einstellungen → Teilen & Suchen** ein.',
   'The stats row': 'Die Statistikzeile',
   'Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.': '„Karten“ umfasst alles in diesem Stapel. „Jetzt fällig“ zeigt die Karten, deren nächste Wiederholung ansteht, und „Behaltensquote“ deine jüngste Erinnerungsleistung in der gesamten Sammlung.',
@@ -218,13 +218,13 @@ export const de: Record<Phrase, string> = {
   'Optional text formatting': 'Optionale Textformatierung',
   'Use HTML tags for optional formatting: `<b>bold</b>`, `<i>italic</i>`, or `<span style="color:#D64545">colored text</span>`.': 'Nutze optional HTML-Tags zur Formatierung: `<b>fett</b>`, `<i>kursiv</i>` oder `<span style="color:#D64545">farbiger Text</span>`.',
   'Offline-first & Privacy': 'Offline-First & Datenschutz',
-  'Lemory is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.': 'Lemory ist **Offline-First** aufgebaut. Alle Karten, Wiederholungsverläufe und Lernfortschritte bleiben ausschließlich auf deinem Gerät, sofern du nicht die optionale Cloud-Synchronisierung aktivierst.',
+  'Lemony is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.': 'Lemony ist **Offline-First** aufgebaut. Alle Karten, Wiederholungsverläufe und Lernfortschritte bleiben ausschließlich auf deinem Gerät, sofern du nicht die optionale Cloud-Synchronisierung aktivierst.',
   'AI lookups only send the term you search for to your chosen AI provider, never your full study history.': 'Bei KI-Suchen wird nur der gesuchte Begriff an den gewählten KI-Anbieter gesendet, niemals dein vollständiger Lernverlauf.',
   'Updates & Release Highlights': 'Updates & Versionshighlights',
   'We release frequent updates with new features, language support, and bug fixes.': 'Wir veröffentlichen regelmäßig Updates mit neuen Funktionen, weiteren Sprachen und Fehlerbehebungen.',
   'Check the **"What\'s New"** section to review what changed in recent versions.': 'Im Abschnitt **„Neuigkeiten“** findest du die Änderungen der letzten Versionen.',
   'How your feedback is handled': 'So wird dein Feedback verarbeitet',
-  'Your feedback is delivered directly to the Lemory engineering team to help improve the app, resolve issues, and build requested features.': 'Dein Feedback wird direkt an das Lemory-Entwicklungsteam übermittelt, damit wir die App verbessern, Probleme lösen und gewünschte Funktionen entwickeln können.',
+  'Your feedback is delivered directly to the Lemony engineering team to help improve the app, resolve issues, and build requested features.': 'Dein Feedback wird direkt an das Lemony-Entwicklungsteam übermittelt, damit wir die App verbessern, Probleme lösen und gewünschte Funktionen entwickeln können.',
   'Please don\'t include sensitive private credentials or passwords in your message.': 'Bitte gib in deiner Nachricht keine vertraulichen Zugangsdaten oder Passwörter an.',
   'Direct and secure delivery': 'Direkte und sichere Übermittlung',
   'Submissions are processed securely through the feedback service backend.': 'Einsendungen werden sicher über den Feedback-Dienst verarbeitet.',
@@ -606,20 +606,20 @@ export const de: Record<Phrase, string> = {
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     'Füge einen Stapel hinzu, den dir jemand geteilt hat - vollständig, inklusive Wiederholungsverlauf. Berührt nichts anderes auf diesem Gerät.',
   'Choose .lem file': '.lem-Datei auswählen',
-  'Restore from Lemory backup (.lem)': 'Aus Lemory-Sicherung wiederherstellen (.lem)',
+  'Restore from Lemony backup (.lem)': 'Aus Lemony-Sicherung wiederherstellen (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'Ersetzt alles auf diesem Gerät durch eine zuvor exportierte Sicherung.',
   'Restoring...': 'Wird wiederhergestellt...',
   'Choose backup file': 'Sicherungsdatei auswählen',
-  'Lemory backup (.lem)': 'Lemory-Sicherung (.lem)',
+  'Lemony backup (.lem)': 'Lemony-Sicherung (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'Deine gesamte Bibliothek - Stapel, Karten, Wiederholungsverlauf. Deine Daten gehören immer dir. API-Schlüssel sind nie enthalten.',
   'Export everything': 'Alles exportieren',
   'One row per card - the same columns CSV import reads, so this file re-imports as-is.':
     'Eine Zeile pro Karte - dieselben Spalten, die der CSV-Import liest, sodass diese Datei unverändert wieder importiert werden kann.',
   'Export as CSV': 'Als CSV exportieren',
-  "Study your Lemory vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
-    'Lerne deine Lemory-Vokabeln in Anki/AnkiDroid. Karten starten neu - der Wiederholungsverlauf wird nicht übernommen.',
+  "Study your Lemony vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
+    'Lerne deine Lemony-Vokabeln in Anki/AnkiDroid. Karten starten neu - der Wiederholungsverlauf wird nicht übernommen.',
   'Export as .apkg': 'Als .apkg exportieren',
   'A readable word - meaning - example list. Not meant to re-import.':
     'Eine lesbare Wort-Bedeutung-Beispiel-Liste. Nicht zum erneuten Import gedacht.',
@@ -698,8 +698,8 @@ export const de: Record<Phrase, string> = {
   'The rest were left untouched - you can import the same file again to pick up where you left off (already-imported words are skipped as duplicates).':
     'Der Rest wurde nicht verändert - du kannst dieselbe Datei erneut importieren, um dort weiterzumachen (bereits importierte Wörter werden als Duplikate übersprungen).',
   'Import from a .lem file': 'Aus einer .lem-Datei importieren',
-  'Choose a Lemory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    'Wähle eine Lemory-`.lem`-Datei - einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
+  'Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    'Wähle eine Lemony-`.lem`-Datei - einen von jemandem geteilten Stapel oder einen deiner eigenen Stapel-Exporte. Vollständig: Bedeutungen, Beispiele, Synonyme, Lückentext-Karten, Wiederholungsverlauf und FSRS-Planung werden alle übernommen.',
   'This file has more than one deck. Which one do you want to import?':
     'Diese Datei enthält mehr als einen Stapel. Welchen möchtest du importieren?',
   'This file has no decks to import.': 'Diese Datei enthält keine importierbaren Stapel.',
@@ -883,7 +883,7 @@ export const de: Record<Phrase, string> = {
     'Füge einen Satz hinzu, indem du ihn eingibst, aus der Zwischenablage einfügst oder Text aus einer anderen App hierher teilst.',
   'Add card': 'Karte hinzufügen',
   'Add card manually': 'Karte manuell hinzufügen',
-  'Add to Lemory': 'Zu Lemory hinzufügen',
+  'Add to Lemony': 'Zu Lemony hinzufügen',
   'Add to Mining queue': 'Zur Sammel-Warteschlange hinzufügen',
   'Add your AI provider key in Settings to ask a follow-up.':
     'Füge deinen KI-Anbieter-Schlüssel in den Einstellungen hinzu, um eine Anschlussfrage zu stellen.',
@@ -983,8 +983,8 @@ export const de: Record<Phrase, string> = {
   Expression: 'Ausdruck',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> - {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     'Über die Schalter hinzugefügte Felder werden nie automatisch in ein <div> oder <span> eingepackt - {{ word }} wird als reiner Text direkt im Kartenkörper gerendert. Das hält generierte Vorlagen minimal, bedeutet aber, dass eine Regel wie ".word { ... }" nichts trifft, solange du diese Klasse nicht selbst hinzufügst.',
-  "Found a sentence somewhere else, like an article or a message? Share it to Lemory the same way you'd share it to any other app.":
-    'Einen Satz woanders gefunden, etwa in einem Artikel oder einer Nachricht? Teile ihn mit Lemory genauso, wie du ihn mit jeder anderen App teilen würdest.',
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemony the same way you'd share it to any other app.":
+    'Einen Satz woanders gefunden, etwa in einem Artikel oder einer Nachricht? Teile ihn mit Lemony genauso, wie du ihn mit jeder anderen App teilen würdest.',
   'Front and Back are raw Liquid templates - anything valid Liquid works here, not just what the Fields toggles generate.':
     'Vorder- und Rückseite sind rohe Liquid-Vorlagen - alles gültige Liquid funktioniert hier, nicht nur das, was die Felder-Schalter erzeugen.',
   "Front and Back are separate - the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -1030,10 +1030,10 @@ export const de: Record<Phrase, string> = {
   'Last synced: {{when}}': 'Zuletzt synchronisiert: {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     'Listenfelder (Weitere Bedeutungen, Synonyme, Verwandte Redewendungen) benötigen bereits eine {% for %}-Schleife, um überhaupt gerendert zu werden - diese Schleife ist strukturell erforderlich, keine Stilentscheidung. Um jedes Element einzeln zu gestalten, packe das Element innerhalb der Schleife ein:',
-  'Long-press a word in any app and pick "Search in Lemory" to look it up here right away.':
-    'Halte ein Wort in einer beliebigen App gedrückt und wähle „In Lemory suchen", um es sofort hier nachzuschlagen.',
-  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemory." It opens right here with that word ready to go.':
-    'Halte ein Wort in einer beliebigen App gedrückt - deinem Browser, Nachrichten, überall - und wähle „In Lemory suchen." Es öffnet sich direkt hier mit diesem Wort startklar.',
+  'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.':
+    'Halte ein Wort in einer beliebigen App gedrückt und wähle „In Lemony suchen", um es sofort hier nachzuschlagen.',
+  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemony." It opens right here with that word ready to go.':
+    'Halte ein Wort in einer beliebigen App gedrückt - deinem Browser, Nachrichten, überall - und wähle „In Lemony suchen." Es öffnet sich direkt hier mit diesem Wort startklar.',
   Markdown: 'Markdown',
   Message: 'Nachricht',
   'Mine help': 'Hilfe zu Meins',
@@ -1166,8 +1166,8 @@ export const de: Record<Phrase, string> = {
     'Die Sprechgeschwindigkeit ist für diesen Anbieter noch nicht einstellbar.',
   'Speech engine': 'Sprach-Engine',
   Status: 'Status',
-  "Submitting posts your message as a GitHub issue on Lemory's public repository - anyone can read it, including your contact email if you provide one.":
-    'Beim Absenden wird deine Nachricht als GitHub-Issue im öffentlichen Repository von Lemory veröffentlicht - jeder kann es lesen, einschließlich deiner Kontakt-E-Mail, falls du eine angibst.',
+  "Submitting posts your message as a GitHub issue on Lemony's public repository - anyone can read it, including your contact email if you provide one.":
+    'Beim Absenden wird deine Nachricht als GitHub-Issue im öffentlichen Repository von Lemony veröffentlicht - jeder kann es lesen, einschließlich deiner Kontakt-E-Mail, falls du eine angibst.',
   Sync: 'Synchronisierung',
   'Sync decks, cards, and progress to a Google account':
     'Stapel, Karten und Fortschritt mit einem Google-Konto synchronisieren',
@@ -1182,8 +1182,8 @@ export const de: Record<Phrase, string> = {
     'Synchronisiere deine Stapel, Karten und deinen Wiederholungsfortschritt mit einem Google-Konto, damit sie auf ein anderes Gerät übertragen werden. API-Schlüssel werden nie synchronisiert.',
   Synced: 'Synchronisiert',
   'Syncing...': 'Wird synchronisiert...',
-  'Lemory synced': 'Lemory synchronisiert',
-  'Lemory sync failed': 'Lemory-Synchronisierung fehlgeschlagen',
+  'Lemony synced': 'Lemony synchronisiert',
+  'Lemony sync failed': 'Lemony-Synchronisierung fehlgeschlagen',
   '{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted': '{{pulled}} abgerufen - {{pushed}} gesendet - {{deleted}} gelöscht',
   'Synonyms & phrases': 'Synonyme & Redewendungen',
   'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.':
@@ -1287,10 +1287,10 @@ export const de: Record<Phrase, string> = {
   'Word card': 'Wortkarte',
   'You can add your cards to multiple decks even if it is added before.':
     'Du kannst deine Karten zu mehreren Stapeln hinzufügen, auch wenn sie bereits zuvor hinzugefügt wurden.',
-  "You can also share text from another app straight to Lemory, the same way you'd share a link or a photo.":
-    'Du kannst auch Text direkt aus einer anderen App mit Lemory teilen, genauso wie du einen Link oder ein Foto teilen würdest.',
-  "You can also share text to Lemory, the same way you'd share a link or a photo to any other app.":
-    'Du kannst auch Text mit Lemory teilen, genauso wie du einen Link oder ein Foto mit jeder anderen App teilen würdest.',
+  "You can also share text from another app straight to Lemony, the same way you'd share a link or a photo.":
+    'Du kannst auch Text direkt aus einer anderen App mit Lemony teilen, genauso wie du einen Link oder ein Foto teilen würdest.',
+  "You can also share text to Lemony, the same way you'd share a link or a photo to any other app.":
+    'Du kannst auch Text mit Lemony teilen, genauso wie du einen Link oder ein Foto mit jeder anderen App teilen würdest.',
   'ask a follow-up question': 'eine Anschlussfrage stellen',
   'e.g. Er lehnt das Angebot ab.': 'z. B. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': 'z. B. He refuses the offer.',
@@ -1316,8 +1316,8 @@ export const de: Record<Phrase, string> = {
   '{{count}} selected': '{{count}} ausgewählt',
   '{{count}}h': '{{count}}h',
   '{{count}}m': '{{count}}m',
-  "{{language}} isn't ready yet - English and German are the only languages Lemory fully supports right now.":
-    '{{language}} ist noch nicht bereit - Englisch und Deutsch sind derzeit die einzigen Sprachen, die Lemory vollständig unterstützt.',
+  "{{language}} isn't ready yet - English and German are the only languages Lemony fully supports right now.":
+    '{{language}} ist noch nicht bereit - Englisch und Deutsch sind derzeit die einzigen Sprachen, die Lemony vollständig unterstützt.',
   '{{provider}} playback failed': '{{provider}}-Wiedergabe fehlgeschlagen',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} abgerufen · {{pushed}} gesendet · {{deleted}} gelöscht',
@@ -1329,7 +1329,7 @@ export const de: Record<Phrase, string> = {
   Hard: 'Schwer',
   Good: 'Gut',
   Easy: 'Leicht',
-  'Lemory Light': 'Lemory Hell',
+  'Lemony Light': 'Lemony Hell',
   'Midnight Indigo': 'Mitternachtsindigo',
   'Carbon Noir': 'Kohleschwarz',
   'Forest Pine': 'Waldkiefer',
@@ -1374,22 +1374,22 @@ export const de: Record<Phrase, string> = {
   'How sync works': 'Wie die Synchronisierung funktioniert',
   'Deleting your account & data': 'Konto & Daten löschen',
   'What does this actually delete?': 'Was wird dabei genau gelöscht?',
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemory on two devices, you're not starting from zero on the second one.":
-    'Wenn du dich mit Google anmeldest, wird dieses Gerät mit einer privaten Cloud-Kopie deiner Decks, Karten und deines Lernfortschritts verknüpft - bekommst du also ein neues Handy oder nutzt Lemory auf zwei Geräten, fängst du auf dem zweiten nicht bei null an.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemony on two devices, you're not starting from zero on the second one.":
+    'Wenn du dich mit Google anmeldest, wird dieses Gerät mit einer privaten Cloud-Kopie deiner Decks, Karten und deines Lernfortschritts verknüpft - bekommst du also ein neues Handy oder nutzt Lemony auf zwei Geräten, fängst du auf dem zweiten nicht bei null an.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.':
     'Tippe jederzeit auf „Jetzt synchronisieren", um deine neuesten Änderungen hochzuladen und alles von einem anderen Gerät herunterzuladen. Im Hintergrund wird zusammengeführt statt überschrieben - hast du hier eine Karte hinzugefügt und auf deinem anderen Handy eine wiederholt, bleibt beides erhalten.',
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     'Deine KI-Anbieter-API-Schlüssel werden nie synchronisiert. Sie liegen nur im sicheren Speicher dieses Geräts - richtest du ein neues Gerät ein, musst du sie dort erneut eingeben.',
-  'When this is on, Lemory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
-    'Ist das aktiviert, synchronisiert Lemory still im Hintergrund, sobald du die App verlässt - du musst nicht mehr selbst an „Jetzt synchronisieren" denken.',
+  'When this is on, Lemony quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
+    'Ist das aktiviert, synchronisiert Lemony still im Hintergrund, sobald du die App verlässt - du musst nicht mehr selbst an „Jetzt synchronisieren" denken.',
   "\"At most every\" is a cooldown, not a schedule - it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     '„Höchstens alle" ist eine Abklingzeit, kein fester Zeitplan - häufiger als angegeben wird nicht synchronisiert, aber es wird auch nicht erzwungen, wenn du die App zwischendurch gar nicht geöffnet hast.',
   "It runs over whatever connection you've got, Wi-Fi or mobile data - there's no Wi-Fi-only toggle.":
     'Es läuft über jede verfügbare Verbindung, WLAN oder mobile Daten - einen Nur-WLAN-Schalter gibt es nicht.',
   "This is the one action here you genuinely can't undo - read this before you tap it.":
     'Das ist die einzige Aktion hier, die du wirklich nicht rückgängig machen kannst - lies dir das durch, bevor du tippst.',
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemory, and signs you out.':
-    'Es löscht dauerhaft alles, was dieses Konto je in die Cloud synchronisiert hat, trennt das Google-Konto von Lemory und meldet dich ab.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemony, and signs you out.':
+    'Es löscht dauerhaft alles, was dieses Konto je in die Cloud synchronisiert hat, trennt das Google-Konto von Lemony und meldet dich ab.',
   'Your decks, cards, and progress on THIS device are completely untouched - they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Deine Decks, Karten und dein Fortschritt auf DIESEM Gerät bleiben komplett unangetastet - sie bleiben genau da, vollständig offline nutzbar. Nur die Cloud-Kopie (und die Verknüpfung dazu) verschwindet.',
   'If you sign back in with the same Google account afterward, syncing starts fresh - nothing comes back automatically.':

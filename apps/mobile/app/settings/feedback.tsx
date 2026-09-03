@@ -53,7 +53,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'How your feedback is handled',
     icon: 'Globe',
     paragraphs: [
-      'Your feedback is delivered directly to the Lemory engineering team to help improve the app, resolve issues, and build requested features.',
+      'Your feedback is delivered directly to the Lemony engineering team to help improve the app, resolve issues, and build requested features.',
       'Please don\'t include sensitive private credentials or passwords in your message.',
     ],
   },
@@ -134,7 +134,7 @@ export default function FeedbackScreen(): JSX.Element {
       category,
       title: title.trim(),
       message: message.trim(),
-      app: Platform.OS === 'ios' ? 'ios-lemory' : 'android-lemory',
+      app: Platform.OS === 'ios' ? 'ios-lemony' : 'android-lemony',
       contactEmail: contactEmail.trim() || undefined,
       diagnostics: includeDiagnostics
         ? {

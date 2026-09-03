@@ -35,7 +35,7 @@ export async function notifySyncSucceeded(summary: CloudSyncSummary): Promise<vo
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: i18n.t('Lemory synced'),
+        title: i18n.t('Lemony synced'),
         body: i18n.t('{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted', {
           pulled: summary.pulled,
           pushed: summary.pushed,
@@ -53,7 +53,7 @@ export async function notifySyncFailed(message: string): Promise<void> {
   try {
     if (!(await ensurePermission())) return
     await Notifications.scheduleNotificationAsync({
-      content: { title: i18n.t('Lemory sync failed'), body: message },
+      content: { title: i18n.t('Lemony sync failed'), body: message },
       trigger: null,
     })
   } catch (error) {

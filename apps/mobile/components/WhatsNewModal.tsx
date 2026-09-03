@@ -82,7 +82,7 @@ export function WhatsNewModal({
               <View style={styles.versionBadge}>
                 <Text style={styles.versionText}>✨ {t('v{{version}} Update', { version: appVersion })}</Text>
               </View>
-              <Text style={styles.title}>{t("What's Fresh in Lemory")}</Text>
+              <Text style={styles.title}>{t("What's Fresh in Lemony")}</Text>
               <Text style={styles.subtitle}>{t('Tap any feature below to see what changed')}</Text>
             </View>
             <IconButton

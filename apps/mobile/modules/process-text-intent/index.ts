@@ -14,8 +14,8 @@ const nativeModule: ProcessTextIntentNativeModule | null =
   Platform.OS === 'android' ? requireNativeModule<ProcessTextIntentNativeModule>('ProcessTextIntent') : null
 
 /**
- * Android's "Process Text" intent — the entry Lemory adds to the system text-selection toolbar
- * (long-press a word in any app -> a "Search in Lemory" option appears next to Copy/Web search).
+ * Android's "Process Text" intent — the entry Lemony adds to the system text-selection toolbar
+ * (long-press a word in any app -> a "Search in Lemony" option appears next to Copy/Web search).
  * iOS has no equivalent OS hook, so this module (and its config plugin) is Android-only; every
  * export here is a safe no-op on iOS instead of throwing.
  *

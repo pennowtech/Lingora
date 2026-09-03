@@ -97,7 +97,7 @@ const visibleStringAttributes = new Set([
 ])
 const intentionalRawUi = new Set([
   'app/(tabs)/mine.tsx::Ich gehe heute Abend aus.', // Language-learning example content.
-  'app/settings/about.tsx::Lemory', // Product name.
+  'app/settings/about.tsx::Lemony', // Product name.
   'app/settings/templates.tsx:::root', // CSS tokens shown by the template editor.
   'app/settings/templates.tsx::{--accent:...}',
   'app/settings/templates.tsx::var(--accent)',

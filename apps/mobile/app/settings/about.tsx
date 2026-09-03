@@ -19,7 +19,7 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Offline-first & Privacy',
     icon: 'ShieldCheck',
     paragraphs: [
-      'Lemory is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.',
+      'Lemony is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.',
       'AI lookups only send the term you search for to your chosen AI provider, never your full study history.',
     ],
   },
@@ -58,7 +58,7 @@ export default function AboutScreen(): JSX.Element {
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Stack.Screen
         options={{
-          title: t('About Lemory'),
+          title: t('About Lemony'),
           headerRight: () => (
             <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('privacy')} color={colors.primary} size={22} />
           ),
@@ -70,7 +70,7 @@ export default function AboutScreen(): JSX.Element {
         <View style={styles.iconWrap}>
           <Image source={appIcon} style={styles.icon} resizeMode="contain" />
         </View>
-        <Text style={styles.appName}>Lemory</Text>
+        <Text style={styles.appName}>Lemony</Text>
         <View style={styles.versionBadgeContainer}>
           <Text style={styles.versionBadgeText}>{buildLabel}</Text>
         </View>

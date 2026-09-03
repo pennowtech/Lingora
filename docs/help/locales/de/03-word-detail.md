@@ -1,6 +1,6 @@
 # 📖 Wortdetails und Kartenersteller
 
-Der Bildschirm **Wortdetails** ist der zentrale sprachliche Tiefgang in Lemory. Es zerlegt jedes Wort in mehrere semantische Bedeutungen, Audioaussprachen, kontextbezogene Beispielsätze, gezielte Grammatikübungen, KI-Synonymnuancen, Redewendungen und Lückentext-Lernkarten.
+Der Bildschirm **Wortdetails** ist der zentrale sprachliche Tiefgang in Lemony. Es zerlegt jedes Wort in mehrere semantische Bedeutungen, Audioaussprachen, kontextbezogene Beispielsätze, gezielte Grammatikübungen, KI-Synonymnuancen, Redewendungen und Lückentext-Lernkarten.
 
 ![Der Wortdetails-Bildschirm für "laufen" mit seinen semantischen Kontexten und Beispielen](word-detail-card-creator)
 
@@ -18,7 +18,7 @@ Der Bildschirm **Wortdetails** ist der zentrale sprachliche Tiefgang in Lemory. 
 
 ### 2. Semantische Kontexte (Sense Switcher)
 
-Viele Wörter haben mehrere völlig unterschiedliche Bedeutungen (zum Beispiel kann das deutsche Verb **einstellen** *einstellen*, *anpassen* oder *anhalten* bedeuten). Anstatt alle nicht zusammenhängenden Definitionen auf eine verwirrende Karte zu packen, teilt **Lemory** sie automatisch in separate **Semantische Kontexte (Sinne)** auf.
+Viele Wörter haben mehrere völlig unterschiedliche Bedeutungen (zum Beispiel kann das deutsche Verb **einstellen** *einstellen*, *anpassen* oder *anhalten* bedeuten). Anstatt alle nicht zusammenhängenden Definitionen auf eine verwirrende Karte zu packen, teilt **Lemony** sie automatisch in separate **Semantische Kontexte (Sinne)** auf.
 
 #### Warum Sinnessegmentierung wichtig ist
 - **Vermeidet Gedächtnisstörungen**: Der Versuch, sich einzuprägen, dass ein einzelnes Wort auf derselben Karteikarte sowohl „jemanden einstellen“ als auch „eine Maschine einstellen“ bedeutet, führt zu Verwirrung und verlangsamt die Erinnerung.
@@ -43,7 +43,7 @@ Betrachten Sie das deutsche Verb „einstellen“**, das mehrere völlig untersc
 ---
 
 #### 🎯 Multi-Deck-Sense-Zuweisung („createCardForSense“)
-- **Keine Überschreibungen**: Wenn Sie **Sinn 1 (*zum Anheuern*)** zu Ihrem *Geschäftsdeutsch*-Deck hinzufügen und später **Sinn 2 (*zur Anpassung*)** zu Ihrem *Alltagsdeutsch*-Deck hinzufügen, erstellt Lemory zwei saubere, unabhängige Karteikarten.
+- **Keine Überschreibungen**: Wenn Sie **Sinn 1 (*zum Anheuern*)** zu Ihrem *Geschäftsdeutsch*-Deck hinzufügen und später **Sinn 2 (*zur Anpassung*)** zu Ihrem *Alltagsdeutsch*-Deck hinzufügen, erstellt Lemony zwei saubere, unabhängige Karteikarten.
 - Jedes Deck übt den genauen Sinn, die Übersetzung, das Audio und den Beispielsatz, die für seine Lernziele relevant sind, während beide mit demselben zugrunde liegenden Wortlemma verknüpft bleiben.
 
 ---

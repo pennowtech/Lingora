@@ -1,6 +1,6 @@
 # 🗂️ Lernfortschritt und Decks
 
-Auf der Registerkarte **Decks** können Sie den gesamten Lernfortschritt verfolgen, Vokabelsammlungen organisieren, Wiederholungsmodi anpassen und Ihre Lernkarten verwalten. In Lemory sind Decks nicht nur statische Ordner – sie sind intelligente Studiensammlungen, die definieren, welche Überprüfungsmodi Sie anwenden, ihre eigenen Aufbewahrungsstatistiken verfolgen und hierarchische Verschachtelung, Tabellenansichten in Tabellenkalkulationen und Massenaktionen unterstützen.
+Auf der Registerkarte **Decks** können Sie den gesamten Lernfortschritt verfolgen, Vokabelsammlungen organisieren, Wiederholungsmodi anpassen und Ihre Lernkarten verwalten. In Lemony sind Decks nicht nur statische Ordner – sie sind intelligente Studiensammlungen, die definieren, welche Überprüfungsmodi Sie anwenden, ihre eigenen Aufbewahrungsstatistiken verfolgen und hierarchische Verschachtelung, Tabellenansichten in Tabellenkalkulationen und Massenaktionen unterstützen.
 
 ![Der Decks-Bildschirm mit dem gesamten Lernfortschritt und den Wiederholungsmodus-Abzeichen pro Deck](decks-study-progress)
 
@@ -40,7 +40,7 @@ Beim Erstellen oder Bearbeiten eines Decks wählen Sie aus, welche **Studienform
 Durch Tippen auf das Hauptmenü **`+` FAB** am unteren Rand des Decks-Bildschirms wird ein Schnellmenü mit drei Optionen geöffnet:
 1. **➕ Deck hinzufügen**: Öffnet das Dialogfeld *Neues Lerndeck erstellen*, um einen Namen und Überprüfungsmodi festzulegen.
 2. **📝 Karte hinzufügen**: Öffnet eine Deckauswahl und führt Sie direkt zum manuellen Kartenersteller.
-3. **📥 Datei importieren**: Wählen Sie ein Deck und importieren Sie Karten aus den Dateien **Anki (.apkg)**, **CSV/Spreadsheets** oder **Lemory (.lem)**.
+3. **📥 Datei importieren**: Wählen Sie ein Deck und importieren Sie Karten aus den Dateien **Anki (.apkg)**, **CSV/Spreadsheets** oder **Lemony (.lem)**.
 
 ---
 
@@ -120,4 +120,4 @@ Ermöglicht das Erstellen benutzerdefinierter Karteikarten von Grund auf, ohne d
 
 > [!NOTE]
 > **Kann ich ein Deck zum Lernen in Anki auf dem Desktop exportieren?**
-> Ja! Tippen Sie auf **⋮** $\rightarrow$ **Exportieren** $\rightarrow$ und wählen Sie **Anki (.apkg)**. Lemory generiert eine Standard-Anki-Deckdatei, die Sie in Anki auf einem PC oder Mac öffnen können.
+> Ja! Tippen Sie auf **⋮** $\rightarrow$ **Exportieren** $\rightarrow$ und wählen Sie **Anki (.apkg)**. Lemony generiert eine Standard-Anki-Deckdatei, die Sie in Anki auf einem PC oder Mac öffnen können.

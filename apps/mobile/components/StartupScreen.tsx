@@ -269,7 +269,7 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
             </View>
 
           {/* Title & Subtitle */}
-          <Text style={styles.title}>{t('Welcome to Lemory')}</Text>
+          <Text style={styles.title}>{t('Welcome to Lemony')}</Text>
           <Text style={styles.subtitle}>
             {t('Learn {{target}} the way it actually works - in context, at your level, with real examples.', {
               target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German'),

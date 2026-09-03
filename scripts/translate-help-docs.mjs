@@ -34,7 +34,7 @@ const LANGUAGES = [
 // ─── Technical terms that must NOT be translated ─────────────────────────────
 const PROTECTED = [
   'FSRS', 'SM-2', 'SM2', 'CEFR', 'API', 'FTS5', 'SQLite', 'TTS', 'BYOK',
-  'WOTD', 'Lemory', 'Anki', 'DeepL', 'OpenAI', 'Gemini', 'Groq',
+  'WOTD', 'Lemony', 'Anki', 'DeepL', 'OpenAI', 'Gemini', 'Groq',
   'Mistral', 'ElevenLabs', 'Deepgram', 'Aura-2', 'Ollama', 'DeepSeek',
   'Claude', 'Google Cloud', 'GitHub',
   // file extensions / formats

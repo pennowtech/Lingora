@@ -48,9 +48,9 @@ async function applyBackupSettings(settings: BackupSettings): Promise<void> {
  * own cards via `createDeckBackup`, export-only (a deck `.lem` has no
  * matching restore path, see `createDeckBackup`'s doc comment) — and saves
  * it (`saveExportFile` — a real folder picker on Android, the share sheet
- * elsewhere). `.lem` — the Lemory backup format's own extension. The
+ * elsewhere). `.lem` — the Lemony backup format's own extension. The
  * content is still plain JSON (`BackupPayload`, unchanged) — this is a
- * naming/branding decision (a backup is "a Lemory file", not "a JSON
+ * naming/branding decision (a backup is "a Lemony file", not "a JSON
  * file" to the user), not a new serialization. `.lem` has no registered
  * system MIME type, so the share sheet and file picker below use
  * `application/octet-stream` rather than `application/json`.
@@ -77,7 +77,7 @@ export async function exportBackupToFile(
     fileName: `${options.fileName ?? defaultExportFileName(options.deckName)}.lem`,
     mimeType: 'application/octet-stream',
     content: { kind: 'utf8', text: json },
-    dialogTitle: 'Save Lemory backup',
+    dialogTitle: 'Save Lemony backup',
   })
   log.info('export.backup_shared', {
     message: `Backup file ${outcome === 'device' ? 'saved to device' : 'shared'}`,

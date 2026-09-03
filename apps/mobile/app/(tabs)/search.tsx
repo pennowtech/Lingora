@@ -29,6 +29,7 @@ import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
+import { getDictionariesForLanguagePair } from '../../lib/wordGuides'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai'
 import { AI_GENERATED_SOURCES } from '@lingora/core'
@@ -208,6 +209,16 @@ export default function SearchScreen(): JSX.Element {
     return (search.data ?? []).some((r) => r.lemma.form.toLowerCase() === target)
   }
 
+  // The installed dictionary covering the learner's current pair, in either direction (see
+  // getDictionariesForLanguagePair's own doc comment) — e.g. the bundled German dictionary
+  // (language: 'de', nativeLanguage: 'en') covers both an EN->DE pair and a DE->EN one. Its own
+  // `language` (always the headword language, e.g. 'de') is what every word_guides row is
+  // actually scoped by, which is *not* the same thing as `targetLanguage` — that flips to 'en'
+  // for a DE->EN pair even though the installed dictionary's rows are still all `language: 'de'`.
+  // Every word_guides query below must key off this, not targetLanguage directly, or flipping
+  // the pair silently breaks lookup in both directions (no rows exist with `language: 'en'`).
+  const wordGuideDictionary = getDictionariesForLanguagePair(nativeLanguage, targetLanguage)[0]
+
   // A free, offline lookup against the installed word-guides dictionary (see
   // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — shown as a
   // read-only preview by default, with an explicit "Add to deck" action
@@ -215,21 +226,22 @@ export default function SearchScreen(): JSX.Element {
   // card. Independent of `pipeline`/`tier`/an internet connection, unlike
   // quickTranslate/generate below.
   const wordGuide = useQuery({
-    queryKey: ['word-guide-preview', term, targetLanguage],
-    queryFn: () => getWordGuide(db, term, targetLanguage),
-    enabled: term !== '' && !hasExactSearchMatch(term),
+    queryKey: ['word-guide-preview', term, wordGuideDictionary?.language],
+    queryFn: () => getWordGuide(db, term, wordGuideDictionary!.language),
+    enabled: term !== '' && !hasExactSearchMatch(term) && wordGuideDictionary !== undefined,
   })
 
-  // The reverse direction of the lookup above: the typed word didn't match a target-language
-  // headword exactly, but it might be the *native*-language word instead (e.g. typing "cannon"
-  // while learning German) — search the same installed dictionary's translation glosses/intros
-  // for it. Just as free and offline as `wordGuide`, so it's always attempted once the forward
-  // lookup comes back empty, not gated behind a language-detection network call. Only rendered
-  // when `wordGuide.data` is actually empty (not merely still loading) — see the render below.
+  // The reverse direction of the lookup above: the typed word didn't match the dictionary's
+  // headword language exactly, but it might be in the dictionary's other (gloss) language
+  // instead (e.g. typing "cannon" when the installed dictionary explains German headwords in
+  // English) — search the same installed dictionary's translation glosses/intros for it. Just as
+  // free and offline as `wordGuide`, so it's always attempted once the forward lookup comes back
+  // empty, not gated behind a language-detection network call. Only rendered when `wordGuide.data`
+  // is actually empty (not merely still loading) — see the render below.
   const reverseMatches = useQuery({
-    queryKey: ['word-guide-reverse', term, targetLanguage],
-    queryFn: () => searchWordGuidesByTranslation(db, term, targetLanguage),
-    enabled: term !== '' && !hasExactSearchMatch(term),
+    queryKey: ['word-guide-reverse', term, wordGuideDictionary?.language],
+    queryFn: () => searchWordGuidesByTranslation(db, term, wordGuideDictionary!.language),
+    enabled: term !== '' && !hasExactSearchMatch(term) && wordGuideDictionary !== undefined,
   })
 
   // Resets the reverse-search selection whenever the search term changes, so a stale pick from a
@@ -275,7 +287,15 @@ export default function SearchScreen(): JSX.Element {
   const addFromGuide = useMutation({
     mutationFn: async ({ deckId, cloze }: { deckId: string; cloze?: ClozeEditorResult }) => {
       if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
-      const result = await persistWordGuideAsCard(db, activeGuideEntry, deckId, nativeLanguage)
+      // The entry's translation/intro text is written in the dictionary's own nativeLanguage
+      // (e.g. always English today), not necessarily the app's current native-language setting —
+      // for a DE->EN pair those differ (app native is 'de', but this gloss text is English).
+      const result = await persistWordGuideAsCard(
+        db,
+        activeGuideEntry,
+        deckId,
+        wordGuideDictionary?.nativeLanguage ?? nativeLanguage,
+      )
       if (cloze) {
         await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
       }
@@ -383,7 +403,12 @@ export default function SearchScreen(): JSX.Element {
       })
       if (deckPickerFor === 'guide') {
         if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
-        const result = await persistWordGuideAsCard(db, activeGuideEntry, id, nativeLanguage)
+        const result = await persistWordGuideAsCard(
+          db,
+          activeGuideEntry,
+          id,
+          wordGuideDictionary?.nativeLanguage ?? nativeLanguage,
+        )
         if (cloze) {
           await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
         }

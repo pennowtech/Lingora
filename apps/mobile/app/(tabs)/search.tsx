@@ -2,16 +2,14 @@ import {
   createDeck,
   findLemmaBySurfaceForm,
   getCardByLemmaAndNativeLanguage,
-  getWordGuide,
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
-  searchWordGuidesByTranslation,
   setCloze,
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
-import type { LanguageCode, QuestionType, WordGuideEntry } from '@lingora/types'
+import type { LanguageCode, QuestionType } from '@lingora/types'
 
 const log = logger.child({ feature: 'search', component: 'search-screen' })
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -29,7 +27,7 @@ import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
-import { getDictionariesForLanguagePair } from '../../lib/wordGuides'
+import { useWordGuideLookup } from '../../lib/useWordGuideLookup'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai'
 import { AI_GENERATED_SOURCES } from '@lingora/core'
@@ -172,10 +170,6 @@ export default function SearchScreen(): JSX.Element {
   // Which "Add to deck" button opened the picker — decides which persist call the picker's
   // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
   const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
-  // Which reverse-search candidate (see reverseMatches below) the user tapped into — null means
-  // "use wordGuide.data itself", so the modal/add-to-deck flow below can stay generic over both
-  // an exact forward hit and a chosen reverse-search result without duplicating that flow.
-  const [selectedReverseMatch, setSelectedReverseMatch] = useState<WordGuideEntry | null>(null)
   const help = useHelpAccordion('lookup')
   const term = useDebounced(query.trim(), 250)
   const [explainTerm, flushExplainTerm] = useSlowDebounced(query.trim(), 2500)
@@ -209,57 +203,23 @@ export default function SearchScreen(): JSX.Element {
     return (search.data ?? []).some((r) => r.lemma.form.toLowerCase() === target)
   }
 
-  // The installed dictionary covering the learner's current pair, in either direction (see
-  // getDictionariesForLanguagePair's own doc comment) — e.g. the bundled German dictionary
-  // (language: 'de', nativeLanguage: 'en') covers both an EN->DE pair and a DE->EN one. Its own
-  // `language` (always the headword language, e.g. 'de') is what every word_guides row is
-  // actually scoped by, which is *not* the same thing as `targetLanguage` — that flips to 'en'
-  // for a DE->EN pair even though the installed dictionary's rows are still all `language: 'de'`.
-  // Every word_guides query below must key off this, not targetLanguage directly, or flipping
-  // the pair silently breaks lookup in both directions (no rows exist with `language: 'en'`).
-  const wordGuideDictionary = getDictionariesForLanguagePair(nativeLanguage, targetLanguage)[0]
-
   // A free, offline lookup against the installed word-guides dictionary (see
-  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — shown as a
-  // read-only preview by default, with an explicit "Add to deck" action
-  // (addFromGuide below) for the user to opt into turning it into a real
-  // card. Independent of `pipeline`/`tier`/an internet connection, unlike
-  // quickTranslate/generate below.
-  const wordGuide = useQuery({
-    queryKey: ['word-guide-preview', term, wordGuideDictionary?.language],
-    queryFn: () => getWordGuide(db, term, wordGuideDictionary!.language),
-    enabled: term !== '' && !hasExactSearchMatch(term) && wordGuideDictionary !== undefined,
-  })
-
-  // The reverse direction of the lookup above: the typed word didn't match the dictionary's
-  // headword language exactly, but it might be in the dictionary's other (gloss) language
-  // instead (e.g. typing "cannon" when the installed dictionary explains German headwords in
-  // English) — search the same installed dictionary's translation glosses/intros for it. Just as
-  // free and offline as `wordGuide`, so it's always attempted once the forward lookup comes back
-  // empty, not gated behind a language-detection network call. Only rendered when `wordGuide.data`
-  // is actually empty (not merely still loading) — see the render below.
-  const reverseMatches = useQuery({
-    queryKey: ['word-guide-reverse', term, wordGuideDictionary?.language],
-    queryFn: () => searchWordGuidesByTranslation(db, term, wordGuideDictionary!.language),
-    enabled: term !== '' && !hasExactSearchMatch(term) && wordGuideDictionary !== undefined,
-  })
-
-  // Resets the reverse-search selection whenever the search term changes, so a stale pick from a
-  // previous word can't linger into the next lookup's "Add to deck"/modal flow.
-  useEffect(() => {
-    setSelectedReverseMatch(null)
-  }, [term])
-
-  // What the guide detail modal and its "Add to deck" flow actually act on: either the exact
-  // forward match, or whichever reverse-search candidate the user tapped into.
-  const activeGuideEntry = selectedReverseMatch ?? wordGuide.data ?? null
+  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — tries the typed word as an
+  // exact headword first, then (only once that comes back empty) as a translation/intro match
+  // instead, so it works whichever side of the language pair was actually typed. Shown as a
+  // read-only preview by default, with an explicit "Add to deck" action (addFromGuide below) for
+  // the user to opt into turning it into a real card. Independent of `pipeline`/`tier`/an
+  // internet connection, unlike quickTranslate/generate below. See useWordGuideLookup's own doc
+  // comment for why both queries key off the dictionary's own language, not targetLanguage.
+  const wordGuideLookup = useWordGuideLookup(db, term, nativeLanguage, targetLanguage, !hasExactSearchMatch(term))
+  const activeGuideEntry = wordGuideLookup.active?.entry ?? null
 
   useFocusEffect(
     useCallback(() => {
       void search.refetch()
-      void wordGuide.refetch()
-      void reverseMatches.refetch()
-    }, [search, wordGuide, reverseMatches]),
+      void wordGuideLookup.forward.refetch()
+      void wordGuideLookup.reverse.refetch()
+    }, [search, wordGuideLookup.forward, wordGuideLookup.reverse]),
   )
 
   // A short (~50-word) AI gist of a not-yet-generated word, shown by default in place of the bare
@@ -280,7 +240,7 @@ export default function SearchScreen(): JSX.Element {
       !hasExactSearchMatch(explainTerm) &&
       tier === 'full' &&
       !!ai &&
-      !wordGuide.data,
+      !wordGuideLookup.forward.data,
     staleTime: 24 * 60 * 60 * 1000,
   })
 
@@ -294,7 +254,7 @@ export default function SearchScreen(): JSX.Element {
         db,
         activeGuideEntry,
         deckId,
-        wordGuideDictionary?.nativeLanguage ?? nativeLanguage,
+        wordGuideLookup.dictionary?.nativeLanguage ?? nativeLanguage,
       )
       if (cloze) {
         await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
@@ -304,7 +264,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
-      setSelectedReverseMatch(null)
+      wordGuideLookup.selectReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -407,7 +367,7 @@ export default function SearchScreen(): JSX.Element {
           db,
           activeGuideEntry,
           id,
-          wordGuideDictionary?.nativeLanguage ?? nativeLanguage,
+          wordGuideLookup.dictionary?.nativeLanguage ?? nativeLanguage,
         )
         if (cloze) {
           await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
@@ -424,7 +384,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
-      setSelectedReverseMatch(null)
+      wordGuideLookup.selectReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -787,28 +747,28 @@ export default function SearchScreen(): JSX.Element {
           ListHeaderComponent={
             !hasExactSearchMatch(term) ? (
               <View style={styles.newWordCards}>
-                {wordGuide.data ? (
+                {wordGuideLookup.forward.data ? (
                   <Card style={styles.guideCard}>
                     <View style={styles.guideHeaderRow}>
                       <View style={styles.guideTitleGroup}>
-                        <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
-                        {wordGuide.data.partOfSpeech ? (
+                        <Text style={styles.guideHeadword}>{wordGuideLookup.forward.data.headword}</Text>
+                        {wordGuideLookup.forward.data.partOfSpeech ? (
                           <Text style={styles.guidePosText}>
-                            {wordGuide.data.partOfSpeech}
-                            {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
+                            {wordGuideLookup.forward.data.partOfSpeech}
+                            {wordGuideLookup.forward.data.gender ? ` · ${wordGuideLookup.forward.data.gender}` : ''}
                           </Text>
                         ) : null}
                       </View>
                       <View style={styles.guideActionIcons}>
-                        <SpeakerButton text={wordGuide.data.headword} language={wordGuide.data.language} size={18} />
+                        <SpeakerButton text={wordGuideLookup.forward.data.headword} language={wordGuideLookup.forward.data.language} size={18} />
                         <CardSourceIcon source="word_guide" size={16} />
                       </View>
                     </View>
 
-                    <Text style={styles.guideTranslationText}>{wordGuide.data.translation}</Text>
+                    <Text style={styles.guideTranslationText}>{wordGuideLookup.forward.data.translation}</Text>
 
-                    {wordGuide.data.intro ? (
-                      <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
+                    {wordGuideLookup.forward.data.intro ? (
+                      <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuideLookup.forward.data.intro}</Text>
                     ) : null}
 
                     {/* No ReviewModeBadges here either - a Word Guide entry isn't a saved card
@@ -832,7 +792,7 @@ export default function SearchScreen(): JSX.Element {
                       </View>
                     </View>
                   </Card>
-                ) : !wordGuide.isPending && (reverseMatches.data?.length ?? 0) > 0 ? (
+                ) : !wordGuideLookup.forward.isPending && (wordGuideLookup.reverse.data?.length ?? 0) > 0 ? (
                   // No exact target-language headword, but the query matched one or more installed
                   // entries by their native-language gloss/description — e.g. typing "cannon" while
                   // learning German surfaces "Kanone". Shown as a compact row of candidates rather
@@ -849,13 +809,13 @@ export default function SearchScreen(): JSX.Element {
                       // outer FlatList every touch here and the horizontal drag never registers.
                       nestedScrollEnabled
                     >
-                      {reverseMatches.data!.map((match) => (
+                      {wordGuideLookup.reverse.data!.map((match) => (
                         <Pressable
                           key={match.entry.headword}
                           style={styles.reverseMatchChip}
                           accessibilityRole="button"
                           onPress={() => {
-                            setSelectedReverseMatch(match.entry)
+                            wordGuideLookup.selectReverseMatch(match.entry)
                             setGuideModalOpen(true)
                           }}
                         >
@@ -876,9 +836,10 @@ export default function SearchScreen(): JSX.Element {
                 <WordGuideModal
                   visible={guideModalOpen}
                   guide={activeGuideEntry}
+                  direction={wordGuideLookup.active?.direction ?? 'forward'}
                   onClose={() => {
                     setGuideModalOpen(false)
-                    setSelectedReverseMatch(null)
+                    wordGuideLookup.selectReverseMatch(null)
                   }}
                   footer={
                     <Button label={t('Add to deck')} icon="CirclePlus" onPress={() => setDeckPickerFor('guide')} />

@@ -2,40 +2,7 @@
 
 The **Search & Dictionary** screen is Lemmory's lookup engine. It allows you to search words in either your target or native language, providing instant offline FTS5 database matches, bilingual dictionary translations, Word Guide previews, and one-tap AI flashcard generation.
 
----
-
-## 🚀 Screen Architecture & Key Components
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Search                                             ❓ │  (Header with Help)
-├────────────────────────────────────────────────────────┤
-│  [ 🔍 Type a German or English word...            ✖ ] │  (Debounced FTS5)
-├────────────────────────────────────────────────────────┤
-│  NEW WORD PREVIEWS (If word not in library yet)        │
-│                                                        │
-│  📖 WORD GUIDE PREVIEW                                 │
-│  schlendern  ·  Verb                           🔊 📖  │
-│  to stroll, to saunter                                 │
-│  [ + Add to deck ]   [ 📖 More info ]                  │
-│                                                        │
-│  🌐 TRANSLATION PREVIEW (Google Translate / DeepL)     │
-│  schlendern  DE > EN                           🔊 🌐  │
-│  to stroll, saunter, amble                             │
-│  [ + Add to deck ]                                     │
-│                                                        │
-│  ✨ AI INSIGHTS & GENERATION (When AI configured)      │
-│  schlendern                               AI Insights  │
-│  Describes a relaxed, aimless walk. Often used in...   │
-│  [ Explore Full AI Flashcard ➔ ]                       │
-├────────────────────────────────────────────────────────┤
-│  MATCHING RESULTS IN YOUR LIBRARY                      │
-│  • schlendern — to stroll              🌐 ✓ [ Details ]│
-│  • Schlenderer — stroller              📖   [ Details ]│
-├────────────────────────────────────────────────────────┤
-│  💬 Can't find a word or need help? Send feedback      │
-└────────────────────────────────────────────────────────┘
-```
+![Searching "laufen", showing the dictionary translation card and the AI Insights preview](search-dictionary)
 
 ---
 

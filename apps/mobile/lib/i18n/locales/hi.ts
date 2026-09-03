@@ -5,6 +5,7 @@ Home: 'होम',
   Search: 'खोजें',
   Decks: 'डेक',
   Mine: 'मेरा',
+  Mining: 'माइनिंग',
   Settings: 'सेटिंग्स',
   Cancel: 'रद्द करें',
   Save: 'सेव करें',
@@ -66,7 +67,7 @@ Home: 'होम',
   'Learn this word': 'यह शब्द सीखें',
   "Finding today's word...": 'आज का शब्द खोजा जा रहा है...',
   '✨ Word of the Day: {{word}}': '✨ आज का शब्द: {{word}}',
-  'Nice to see you back.': 'आपको वापस देखकर अच्छा लगा।',
+  'Nice to See you back': 'आपको वापस देखकर अच्छा लगा।',
   '{{count}} days': '{{count}} दिन',
   "Some data on this screen couldn't load.": 'इस स्क्रीन का कुछ डेटा लोड नहीं हो सका।',
   'cards due for review': 'दोहराने के लिए कार्ड बाकी',
@@ -90,9 +91,6 @@ Home: 'होम',
   'Move deck': 'डेक स्थानांतरित करें',
   'Merge deck': 'डेक विलय करें',
   'Merge into another deck': 'दूसरे डेक में विलय करें',
-  'Good morning!': 'शुभ प्रभात!',
-  'Good afternoon!': 'नमस्कार!',
-  'Good evening!': 'शुभ संध्या!',
   'Add Card': 'कार्ड जोड़ें',
   'Open Deck': 'डेक खोलें',
   'eBook Library': 'ई-पुस्तक लाइब्रेरी',
@@ -872,6 +870,9 @@ Home: 'होम',
     'अपने डेक, कार्ड और रिव्यू प्रोग्रेस को Google अकाउंट में सिंक करें ताकि वे दूसरे डिवाइस पर भी मिलें। API keys कभी सिंक नहीं होतीं।',
   Synced: 'सिंक हो गया',
   'Syncing...': 'सिंक हो रहा है...',
+  'Lemmory synced': 'Lemmory सिंक हो गया',
+  'Lemmory sync failed': 'Lemmory सिंक विफल हुआ',
+  '{{pulled}} pulled - {{pushed}} pushed - {{deleted}} deleted': '{{pulled}} प्राप्त - {{pushed}} भेजे - {{deleted}} हटाए',
   'Synonyms & phrases': 'Synonym शब्द व Phrases',
   'Synonyms are other words with a similar meaning, useful for expanding your vocabulary around this word. You can rate or flag one the same way as an example.':
     'Synonym शब्द वे शब्द हैं जिनका अर्थ मिलता-जुलता है, जो इस शब्द के आसपास आपकी वोकैबुलरी बढ़ाने में मददगार हैं। आप इन्हें भी किसी उदाहरण की तरह रेट या फ़्लैग कर सकते हैं।',
@@ -1038,10 +1039,6 @@ Home: 'होम',
   'General feedback': 'सामान्य फ़ीडबैक',
   Vietnamese: 'वियतनामी',
 
-  Queue: 'कतार',
-  'Queue help': 'कतार सहायता',
-  'Queue is a holding area for sentences you want to turn into vocabulary cards later - nothing here happens automatically.':
-    'कतार उन वाक्यों को रखने की जगह है जिन्हें आप बाद में वोकैब कार्ड में बदलना चाहते हैं - यहाँ अपने आप कुछ नहीं होता।',
 
   'Generate {{count}} cards to...': '{{count}} कार्ड यहाँ बनाएं...',
   'Delete account & sync data?': 'खाता और सिंक डेटा हटाएं?',
@@ -1649,4 +1646,69 @@ Home: 'होम',
     'फीडबैक एक सार्वजनिक GitHub इश्यू के रूप में पोस्ट होता है। आपने जो ईमेल पता दर्ज किया है वह वहां किसी को भी दिखेगा - सिर्फ हमारी टीम को नहीं। अगर आप इसे निजी रखना चाहते हैं तो वापस जाकर हटा दें, या अगर ठीक है तो इसे ऐसे ही भेज दें।',
   'Go Back': 'वापस जाएं',
   'Send Anyway': 'फिर भी भेजें',
+
+  // ── Getting-started / hero card ───────────────────────────────────────
+  'Select languages': 'भाषाएं चुनें',
+  'Search a Word and add to deck': 'एक शब्द खोजें और डेक में जोड़ें',
+  'Review your Deck': 'अपना डेक दोहराएं',
+  'Almost there! Review your deck to finish setup.': 'लगभग हो गया! सेटअप पूरा करने के लिए अपना डेक दोहराएं।',
+  'Ready for your first review': 'पहली समीक्षा के लिए तैयार',
+  'Great job adding words! Now start a quick review session to lock them into your long-term memory.':
+    'बढ़िया! अब एक छोटा सत्र शुरू करें ताकि ये शब्द दीर्घकालिक स्मृति में बन जाएं।',
+  'Explore Help & Video Guides': 'सहायता और वीडियो गाइड देखें',
+
+  // ── Help hub ─────────────────────────────────────────────────────────
+  'Help & Learning Center': 'सहायता और सीखने का केंद्र',
+  'Search guides, SRS algorithms, features...': 'गाइड, SRS एल्गोरिदम, सुविधाएं खोजें...',
+  '2-Minute Quickstart Video Tour': '2 मिनट का त्वरित शुरुआत वीडियो',
+  'Watch walkthrough: Instant search, sentence mining & FSRS spaced reviews.':
+    'वीडियो देखें: तत्काल खोज, वाक्य माइनिंग और FSRS दोहराव।',
+  '🎬 2-Minute Quickstart Video Tour': '🎬 2 मिनट का त्वरित शुरुआत वीडियो',
+  'Feature Guides': 'फ़ीचर गाइड',
+  'Chapters': 'अध्याय',
+  'Video': 'वीडियो',
+  'Screen guide & features': 'स्क्रीन गाइड और सुविधाएं',
+  'Full directory & feature index': 'पूरी निर्देशिका और सुविधा सूची',
+  'Help & Feature Documentation': 'सहायता और सुविधा दस्तावेज़ीकरण',
+  'Comprehensive screen guides, video walkthroughs, and FAQ': 'विस्तृत स्क्रीन गाइड, वीडियो वॉकथ्रू और सामान्य प्रश्न',
+
+  // ── Help chapter reader ───────────────────────────────────────────────
+  'Guide': 'गाइड',
+  '🎬 Video Walkthrough': '🎬 वीडियो वॉकथ्रू',
+  'Loading video...': 'वीडियो लोड हो रहा है...',
+  'Video Tutorial': 'वीडियो ट्यूटोरियल',
+
+  // ── What's New / About - v0.3.0 changelog content ─────────────────
+  'Redesigned AI Providers Screen': 'नया AI प्रोवाइडर स्क्रीन डिज़ाइन',
+  'Card-Based Provider List': 'कार्ड-आधारित प्रोवाइडर सूची',
+  '**Card-Based Provider List**: Every provider (OpenAI, Groq, Mistral, Gemini, Claude, DeepSeek) now shows as its own card with clear Active/Enabled status, instead of a flat settings list.':
+    '**कार्ड-आधारित प्रोवाइडर सूची**: हर प्रोवाइडर (OpenAI, Groq, Mistral, Gemini, Claude, DeepSeek) अब अपने खुद के कार्ड के रूप में दिखता है, जिसमें Active/Enabled स्टेटस साफ़ दिखता है, न कि एक सामान्य सूची में।',
+  '**Curated Model Profiles**: Pick from a short, labeled list of real models per provider - each tagged with a speed/quality hint (e.g. Recommended, Fastest, Deep Nuance) and a one-line description, instead of typing a raw model name.':
+    '**चुनिंदा मॉडल प्रोफाइल**: हर प्रोवाइडर के लिए असली मॉडलों की एक छोटी, लेबल की गई सूची में से चुनें - हर एक पर स्पीड/क्वालिटी संकेत (जैसे Recommended, Fastest, Deep Nuance) और एक-पंक्ति विवरण है, न कि खुद मॉडल का नाम टाइप करना।',
+  '**One-Tap Key Setup**: A "Get key from..." link on every card opens that provider\'s developer portal directly, plus new in-app guidance on free-tier vs pay-as-you-go options and roughly what a generated card costs.':
+    '**एक-टैप की सेटअप**: हर कार्ड पर "Get key from..." लिंक सीधे उस प्रोवाइडर के डेवलपर पोर्टल को खोलता है, साथ ही free-tier बनाम pay-as-you-go विकल्पों और एक जनरेट किए गए कार्ड की अनुमानित लागत पर नई इन-ऐप जानकारी भी है।',
+  '**Enhanced Help**: Expanded help sections explain how to get a key, and how the Active provider and automatic fallback between validated providers actually works.':
+    '**बेहतर सहायता**: विस्तृत सहायता अनुभाग बताते हैं कि key कैसे प्राप्त करें, और Active प्रोवाइडर व validated प्रोवाइडरों के बीच automatic fallback असल में कैसे काम करता है।',
+  "**Note**: this redesign was built alongside v0.2.0 but missed that release's actual build cut - this is its first real release.":
+    '**नोट**: यह नया डिज़ाइन v0.2.0 के साथ ही बनाया गया था लेकिन उस रिलीज़ के असली बिल्ड में शामिल नहीं हो सका - यह इसकी पहली असली रिलीज़ है।',
+  'Review Mode Accuracy': 'रिव्यू मोड की सटीकता',
+  'Honest Review-Mode Badges': 'सही रिव्यू-मोड बैज',
+  '**Honest Review-Mode Badges**: Decks now show only the review formats they actually support instead of always showing all five, even for older decks created before per-deck review modes existed.':
+    '**सही रिव्यू-मोड बैज**: डेक अब केवल वही रिव्यू फॉर्मेट दिखाते हैं जिन्हें वे असल में सपोर्ट करते हैं, न कि हमेशा सभी पाँच - पुराने डेक के लिए भी जो प्रति-डेक रिव्यू मोड आने से पहले बनाए गए थे।',
+  '**Cleaner Search Previews**: Removed review-mode badges from read-only Search previews (Google Translate, Word Guide) where a saved card - and its review modes - doesn\'t exist yet.':
+    '**साफ़ सर्च प्रीव्यू**: रीड-ओनली सर्च प्रीव्यू (Google Translate, Word Guide) से रिव्यू-मोड बैज हटाए गए, जहाँ अभी तक कोई सेव किया गया कार्ड - और उसके रिव्यू मोड - मौजूद ही नहीं हैं।',
+  '**Shared Fallback Logic**: Deck review-mode defaults are now computed in one shared place across mobile and desktop, so the two can no longer drift out of sync.':
+    '**साझा फ़ॉलबैक लॉजिक**: डेक के डिफ़ॉल्ट रिव्यू मोड अब मोबाइल और डेस्कटॉप दोनों के लिए एक ही साझा जगह से तय होते हैं, ताकि दोनों में अंतर न आए।',
+  'AI Card Reliability': 'AI कार्ड की विश्वसनीयता',
+  'Visible Enrichment Failures': 'दिखने वाली एनरिचमेंट विफलताएँ',
+  '**Visible Enrichment Failures**: A "Generate with AI" attempt that fails partway now tells you it didn\'t complete, instead of silently leaving the card looking stuck with no explanation.':
+    '**दिखने वाली एनरिचमेंट विफलताएँ**: अगर "Generate with AI" बीच में विफल हो जाए तो अब यह आपको बताता है कि यह पूरा नहीं हुआ, न कि कार्ड को बिना किसी स्पष्टीकरण के अटका हुआ छोड़ देना।',
+  '**Fixed Dead-End Retry Loops**: "Ask AI" and "More Info" no longer open into an unwinnable retry loop on a card with no real meaning content yet - both now explain what\'s missing and point at Regenerate, on the word page and during Review alike.':
+    '**डेड-एंड रीट्राई लूप ठीक किया गया**: बिना असली अर्थ वाले कार्ड पर अब "Ask AI" और "More Info" किसी बेकार रीट्राई लूप में नहीं ले जाते - दोनों अब बताते हैं कि क्या कमी है और Regenerate की ओर इशारा करते हैं, वर्ड पेज और रिव्यू दोनों में।',
+  "**Smarter Edit Visibility**: The Edit action on an AI-intended card is now tied to live generation state rather than a one-time navigation flag, so it no longer reappears unpredictably after a failed background enrichment.":
+    '**स्मार्ट एडिट विज़िबिलिटी**: AI-आधारित कार्ड पर Edit एक्शन अब लाइव जनरेशन स्टेटस से जुड़ा है, न कि किसी एक बार के नेविगेशन फ़्लैग से, ताकि विफल बैकग्राउंड एनरिचमेंट के बाद यह अनप्रेडिक्टेबल तरीके से दोबारा न दिखे।',
+
+  // ── Help doc screenshots ────────────────────────────────────────────
+  'App screenshot': 'ऐप स्क्रीनशॉट',
+  'Screenshot Reference': 'स्क्रीनशॉट संदर्भ',
 }

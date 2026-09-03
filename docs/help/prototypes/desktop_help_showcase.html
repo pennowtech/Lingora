@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lemmory Help Center — Desktop Prototype Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: rgba(18, 24, 40, 0.85);
+      --bg-card-hover: rgba(28, 37, 60, 0.95);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; }
+    .brand-badge { background: var(--accent-gradient); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .nav-tabs-wrapper { display: flex; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--radius-full); padding: 4px; gap: 4px; }
+    .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 18px; border-radius: var(--radius-full); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4); }
+    .controls-bar { padding: 16px 28px; background: rgba(15, 23, 42, 0.5); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .concept-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .concept-pill { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); color: var(--text-muted); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .concept-pill.active { background: rgba(99, 102, 241, 0.2); border-color: var(--accent); color: #fff; }
+    main { flex: 1; display: flex; justify-content: center; padding: 32px 20px; }
+    .simulator-container { width: 100%; max-width: 1100px; }
+    .device-frame { background: #090d16; border: 2px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); overflow: hidden; padding: 20px; min-height: 700px; }
+    .lang-chip { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 6px 12px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: #818cf8; }
+    .search-input-box { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; display: flex; gap: 12px; margin: 20px 0; }
+    .search-input-box input { background: transparent; border: none; outline: none; color: #fff; font-size: 0.95rem; width: 100%; }
+    .video-hero-card { background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; cursor: pointer; }
+    .video-preview-thumbnail { width: 100%; height: 180px; background: #020617 url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop') center/cover; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 14px; }
+    .play-badge { width: 54px; height: 54px; border-radius: var(--radius-full); background: rgba(99, 102, 241, 0.9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; }
+    .duration-tag { position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.75); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .feature-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: transform 0.2s; }
+    .feature-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
+    .card-meta { font-size: 0.75rem; color: #818cf8; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="brand-badge">📖</div><span>Lemmory Help Center (Desktop)</span></div>
+  </header>
+  <div class="controls-bar">
+    <div class="concept-pills">
+      <div class="concept-pill active">1. Knowledge Base & Video Hub</div>
+    </div>
+  </div>
+  <main>
+    <div class="simulator-container">
+      <div class="device-frame">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="lang-chip">🇬🇧 EN ➔ 🇩🇪 DE</div>
+          <h3 style="font-size: 1.1rem; font-weight: 700;">Knowledge & Video Center</h3>
+        </div>
+        <div class="search-input-box"><span>🔍</span><input type="text" placeholder="Search guides, video tutorials, SRS terms..." /></div>
+        <div class="video-hero-card" onclick="alert('Playing 3:45 Video Masterclass!')">
+          <div class="video-preview-thumbnail"><div class="play-badge">▶</div><div class="duration-tag">3:45 HD</div></div>
+          <h4>🎬 Masterclass: From Zero to SRS Daily Reviews</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Search, sentence mining, and spaced repetition curves.</p>
+        </div>
+        <h4 style="font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;">Browse Feature Guides</h4>
+        <div class="cards-grid">
+          <div class="feature-card" onclick="alert('Opening Home Hub Guide')"><div class="card-icon">🏠</div><div class="card-title">01. Home & Daily Hub</div><div class="card-desc">Streaks, time-aware greetings, 30-day retention ring, review launcher.</div><div class="card-meta">9 Articles • 1 Video</div></div>
+          <div class="feature-card" onclick="alert('Opening Search Guide')"><div class="card-icon">🔍</div><div class="card-title">02. Instant Search</div><div class="card-desc">FTS5 SQLite index, translation previews, AI gloss generation.</div><div class="card-meta">6 Articles • 2 Videos</div></div>
+          <div class="feature-card" onclick="alert('Opening Word Detail Guide')"><div class="card-icon">📖</div><div class="card-title">03. Word Detail & Creator</div><div class="card-desc">Multi-senses, grammar rules, audio pronunciation, AI chat.</div><div class="card-meta">12 Articles • 1 Video</div></div>
+          <div class="feature-card" onclick="alert('Opening SRS Guide')"><div class="card-icon">🧠</div><div class="card-title">04. SRS Algorithm (FSRS)</div><div class="card-desc">Retrievability curves, rating buttons, interval optimization.</div><div class="card-meta">5 Articles • 1 Video</div></div>
+          <div class="feature-card" onclick="alert('Opening Mining Guide')"><div class="card-icon">⛏️</div><div class="card-title">05. Sentence Mining Queue</div><div class="card-desc">Capture text from browsers and external apps via Process Text.</div><div class="card-meta">7 Articles • 1 Video</div></div>
+          <div class="feature-card" onclick="alert('Opening Settings Guide')"><div class="card-icon">⚙️</div><div class="card-title">06. AI Engines & Privacy</div><div class="card-desc">Configure OpenAI, Claude, or run offline local Ollama models.</div><div class="card-meta">4 Articles • 1 Video</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

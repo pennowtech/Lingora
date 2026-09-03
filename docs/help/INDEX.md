@@ -2,6 +2,9 @@
 
 Welcome to the comprehensive help and feature documentation for **Lemmory** — the modern, privacy-focused, AI-accelerated language learning and spaced repetition system.
 
+> [!TIP]
+> 🎬 **Watch the 2-Minute Video Overview**: [Watch on YouTube](https://youtu.be/YEpT1116Xo4?si=nPZly3yb_TFsIBoh) to see the full workflow from instant search to sentence mining and FSRS spaced repetition review.
+
 ---
 
 ## 📚 Feature Directory & Screen Guides
@@ -12,7 +15,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 1. 🏠 Home & Daily Study Hub
 *Main entry point for daily learning sessions, streaks, and quick lookups.*
-- **[Home Dashboard Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/01-home-dashboard.md)**
+- **[Home Dashboard Guide](01-home-dashboard.md)**
   - **Floating Language Pair Badge**: Visual native-to-target indicator (e.g. 🇬🇧 EN ➔ 🇩🇪 DE) with one-tap navigation to language settings.
   - **Time-Aware Greeting & Streak**: Dynamic clock greetings, contextual subtitles, and consecutive-day streak tracking.
   - **Daily Load Hero**: Real-time due card counter, 30-day retention ring, and single-tap review session launcher (with 3-step getting started banner for new users).
@@ -24,7 +27,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 2. 🔍 Instant Search & Multi-Engine Dictionary
 *Instant bilingual dictionary powered by indexed offline data, translation engines, and live AI enrichment.*
-- **[Search & Dictionary Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/02-search-dictionary.md)**
+- **[Search & Dictionary Guide](02-search-dictionary.md)**
   - **Bilingual Debounced Search**: Fast FTS5 local database lookup supporting target and native language input, stem resolution, and inflected forms.
   - **Word Guide Previews**: Free offline linguistic glosses with grammatical gender, part of speech, audio pronunciation, and detailed grammar tables.
   - **Quick Translation Previews**: Dual-direction Google Translate / DeepL translations with alternative synonyms and audio playback.
@@ -36,7 +39,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 3. 📖 Word Detail & Card Creator
 *Deep linguistic breakdown, semantic sense switching, contextual examples, grammar targeting, and AI tutoring.*
-- **[Word Detail & Creation Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/03-word-detail.md)**
+- **[Word Detail & Creation Guide](03-word-detail.md)**
   - **Linguistic Header & Grammar Info**: Headword, audio pronunciation (🔊), and collapsible grammar metadata (part of speech, gender, inflections/conjugations).
   - **Semantic Contexts / Senses**: Horizontal segmented switcher for multiple word senses with independent CEFR badges, meanings, examples, and synonyms.
   - **Card Action Bar**: Tools to view detailed etymology/usage (*More info*), chat with a dedicated AI tutor (*Ask AI*), regenerate cards (*Regenerate*), edit definitions, delete, or search the web.
@@ -49,7 +52,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 4. 🗂️ Study Progress and Decks
 *Hierarchical sub-decks, custom review modes, deck management menus, table data grid, and card creator.*
-- **[Study Progress and Decks Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/04-decks-management.md)**
+- **[Study Progress and Decks Guide](04-decks-management.md)**
   - **Study Progress & Hierarchy**: Visual retention progress, quick access to Statistics (📊 Stats ↗), due counts, and nested sub-deck trees.
   - **Per-Deck Review Modes**: Configure which exercises each deck tests (Vocab ⇄, Reverse ⮌, Cloze T, Multiple Choice ☰, True/False ✓).
   - **Quick Action Drawer ("⋮" Menu)**: One-tap access to Add Card, Open Deck, Import (Anki/CSV/.lem), Export, Rename, Move (nesting), Merge, Reset Progress, and Delete.
@@ -61,7 +64,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 5. 🧠 Spaced Repetition (SRS) Review Engine
 *Scientifically optimized memory retention powered by FSRS and SM-2 algorithms.*
-- **[Spaced Repetition Review Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/05-srs-review.md)**
+- **[Spaced Repetition Review Guide](05-srs-review.md)**
   - **FSRS & SM-2 Scheduling**: Modern Free Spaced Repetition Scheduler (FSRS) with adjustable target retention (80%–95%).
   - **Multi-Modal Review Styles**:
     - Standard Flip Mode (Question $\rightarrow$ Reveal $\rightarrow$ Rate: Again / Hard / Good / Easy)
@@ -76,7 +79,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ### 6. 📊 Learning Statistics & Analytics
 *Memory retention analytics, FSRS review forecasts, activity heatmaps, and difficult word drills.*
-- **[Learning Statistics Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/06-learning-statistics.md)**
+- **[Learning Statistics Guide](06-learning-statistics.md)**
   - **Memory & Retention Analytics**: 30-day recall rate, consecutive study streak, total saved cards, and weekly new card volume.
   - **Study Activity Heatmap**: 5-week visual calendar grid tracking daily review consistency.
   - **7-Day Review Forecast**: Interactive FSRS workload bar chart projecting upcoming daily review volumes.
@@ -84,9 +87,29 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
-### 7. ⚙️ Settings & Advanced Engines
+### 7. ⛏️ Mining Studio & Passage Analysis
+*Capture whole passages from reading and media, and mine each one individually for translation, grammar, and vocabulary.*
+- **[Mining Studio Guide](07-sentence-mining.md)**
+  - **Passage Library**: Captured passages (up to 1000 characters) persist as a library, not a disposable queue — a "Mined" badge shows which ones already produced cards.
+  - **Flexible Capture Methods**: Manual typing, one-tap clipboard paste, and system share sheet / Android Process Text integration.
+  - **Study & Mine Analysis**: One tap per passage produces a fluent translation, a CEFR-calibrated grammar breakdown, and extracted key vocabulary.
+  - **Accurate Deck Additions**: Adding words reports exactly what was added, already present, or failed — never a silent duplicate or overwrite.
+
+---
+
+### 8. ✨ Word of the Day
+*A daily AI-curated word, tailored to your level, delivered on the Home screen and as a local notification.*
+- **[Word of the Day Guide](08-word-of-the-day.md)**
+  - **Requires an AI provider**: inert on the free/offline tier — the Home card shows "Offline Mode" instead until a key is configured.
+  - **CEFR-tailored & never repeated**: excludes your existing library plus a rolling history, verified after generation rather than trusted on the prompt alone.
+  - **Refreshes on every foreground**: not just once per app session, so the word and its notification stay in sync with the calendar day.
+  - **Daily local notification**: configurable time in Settings → Learning, opens the same summary popup as the Home card.
+
+---
+
+### 9. ⚙️ Settings & AI Engines
 *Full customization of themes, BYOK AI engines, voice synthesizers, FSRS algorithms, and data import/export.*
-- **[Settings & Configuration Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/07-settings-engines.md)**
+- **[Settings & Configuration Guide](09-settings-engines.md)**
   - **Fast Search Bar**: Search settings by keyword (*tts*, *gemini*, *anki*, *dark mode*) for instant navigation.
   - **Study & Speech**: High-speed on-device audio, OpenAI Audio, ElevenLabs, Deepgram (Aura-2), and Google Cloud TTS voices; language pair & CEFR level picker; FSRS vs SM-2 algorithm scheduler.
   - **AI & Translation**: Bring-Your-Own-Key management for Google Gemini (free tier), Groq, OpenAI, Mistral, Claude, and DeepSeek with curated profiles, custom model overrides, and automatic fallback pools; DeepL and Google Translate services.
@@ -95,36 +118,16 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
-### 8. ⛏️ Mining Studio & Passage Analysis
-*Capture whole passages from reading and media, and mine each one individually for translation, grammar, and vocabulary.*
-- **[Mining Studio Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)**
-  - **Passage Library**: Captured passages (up to 1000 characters) persist as a library, not a disposable queue — a "Mined" badge shows which ones already produced cards.
-  - **Flexible Capture Methods**: Manual typing, one-tap clipboard paste, and system share sheet / Android Process Text integration.
-  - **Study & Mine Analysis**: One tap per passage produces a fluent translation, a CEFR-calibrated grammar breakdown, and extracted key vocabulary.
-  - **Accurate Deck Additions**: Adding words reports exactly what was added, already present, or failed — never a silent duplicate or overwrite.
-
----
-
-### 9. ✨ Word of the Day
-*A daily AI-curated word, tailored to your level, delivered on the Home screen and as a local notification.*
-- **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)**
-  - **Requires an AI provider**: inert on the free/offline tier — the Home card shows "Offline Mode" instead until a key is configured.
-  - **CEFR-tailored & never repeated**: excludes your existing library plus a rolling history, verified after generation rather than trusted on the prompt alone.
-  - **Refreshes on every foreground**: not just once per app session, so the word and its notification stay in sync with the calendar day.
-  - **Daily local notification**: configurable time in Settings → Learning, opens the same summary popup as the Home card.
-
----
-
 ## 🗺️ Screen & Feature Directory
 
 | Screen / Feature | Description |
 | :--- | :--- |
-| **[Home Dashboard](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/01-home-dashboard.md)** | Daily study hub, streaks, retention ring, Word of the Day, quick search & mining queue |
-| **[Search & Dictionary](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/02-search-dictionary.md)** | Instant bilingual search, offline Word Guide, Google/DeepL translations, and AI card previews |
-| **[Word Detail & Card Creator](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/03-word-detail.md)** | Polysemous sense switching, AI tutor chat, grammar targeting, and cloze generation |
-| **[Study Progress and Decks](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/04-decks-management.md)** | Sub-deck hierarchies, review modes, study card previews, spreadsheet table view, and manual card builder |
-| **[Spaced Repetition Review](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/05-srs-review.md)** | Active study sessions, FSRS cognitive scheduling, multi-format review exercises, and keyboard/touch shortcuts |
-| **[Learning Statistics](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/06-learning-statistics.md)** | 30-day retention rate, 5-week study heatmap, 7-day FSRS forecast, and difficult word drills |
-| **[Settings & Configuration](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/07-settings-engines.md)** | Bring-Your-Own-Key AI engines, neural TTS voices, FSRS parameters, cloud sync, and card templates |
-| **[Mining Studio](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)** | Passage capture library, per-passage translation/grammar/vocabulary analysis, and accurate deck additions |
-| **[Word of the Day](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)** | AI-curated daily word (requires an AI provider), CEFR-tailored, never repeated, with a daily notification |
+| **[Home Dashboard](01-home-dashboard.md)** | Daily study hub, streaks, retention ring, Word of the Day, quick search & mining queue |
+| **[Search & Dictionary](02-search-dictionary.md)** | Instant bilingual search, offline Word Guide, Google/DeepL translations, and AI card previews |
+| **[Word Detail & Card Creator](03-word-detail.md)** | Polysemous sense switching, AI tutor chat, grammar targeting, and cloze generation |
+| **[Study Progress and Decks](04-decks-management.md)** | Sub-deck hierarchies, review modes, study card previews, spreadsheet table view, and manual card builder |
+| **[Spaced Repetition Review](05-srs-review.md)** | Active study sessions, FSRS cognitive scheduling, multi-format review exercises, and keyboard/touch shortcuts |
+| **[Learning Statistics](06-learning-statistics.md)** | 30-day retention rate, 5-week study heatmap, 7-day FSRS forecast, and difficult word drills |
+| **[Mining Studio](07-sentence-mining.md)** | Passage capture library, per-passage translation/grammar/vocabulary analysis, and accurate deck additions |
+| **[Word of the Day](08-word-of-the-day.md)** | AI-curated daily word (requires an AI provider), CEFR-tailored, never repeated, with a daily notification |
+| **[Settings & Configuration](09-settings-engines.md)** | Bring-Your-Own-Key AI engines, neural TTS voices, FSRS parameters, cloud sync, and card templates |

@@ -2,34 +2,7 @@
 
 The **Home Dashboard** is the daily starting point in Lemmory. It gives you a real-time overview of your spaced repetition review load, current study streak, curated Word of the Day discovery, and instant shortcuts to dictionary lookup and sentence mining.
 
----
-
-## 🚀 Screen Architecture & Key Components
-
-```
-┌────────────────────────────────────────────────────────┐
-│  [🇬🇧 EN ➔ 🇩🇪 DE]  (Floating Language Pair Pill)        │
-│                                                        │
-│  Good morning! 👋                     🔥 12 days       │
-│  Nice to see you back.                                 │
-├────────────────────────────────────────────────────────┤
-│  DAILY LOAD HERO                                       │
-│  42 cards due across all decks           ( 94% )       │
-│  [ ▶ Start Review Session ]            Retention       │
-├────────────────────────────────────────────────────────┤
-│  ACTION TILES                                          │
-│  [ 🔍 Look up a word ]     [ 📥 Mining queue ]         │
-│    Dictionary & AI           Sentence holding          │
-├────────────────────────────────────────────────────────┤
-│  WORD OF THE DAY                         ✨ AI Discovery│
-│  schlendern ➔                                          │
-│  To stroll or walk in a leisurely, relaxed manner.     │
-├────────────────────────────────────────────────────────┤
-│  RECENTLY SEARCHED                           See all ➔ │
-│  • schlendern  — to stroll               [Cloze] [B1]  │
-│  • Gemütlichkeit — coziness                      [B2]  │
-└────────────────────────────────────────────────────────┘
-```
+![The Home Dashboard, showing the daily load hero, quick-action tiles, and the Word of the Day card](home-daily-study-hub)
 
 ---
 
@@ -61,10 +34,10 @@ The **Home Dashboard** is the daily starting point in Lemmory. It gives you a re
 
 #### B. Brand-New User State: Getting Started Banner
 If you have 0 cards in your library, the dashboard automatically swaps the due-count card for a 3-step onboarding guide:
-1. **Search a word**: Look up words in your target language.
-2. **Generate a card**: Turn definitions and examples into flashcards.
-3. **Review**: Study using spaced repetition.
-- **Primary CTA**: **Search your first word** (opens `/search`).
+1. **Select languages**: Choose your native and target learning language pair.
+2. **Search a Word and add to deck**: Look up words in your target language and generate enriched flashcards.
+3. **Review your Deck**: Study using the scientifically optimized FSRS spaced repetition engine.
+- **Primary Actions**: **Search your first word** (opens `/search`) and **Explore Help & Video Guides** (opens `/settings/help`).
 
 ---
 
@@ -77,7 +50,7 @@ If you have 0 cards in your library, the dashboard automatically swaps the due-c
 ### 5. Word of the Day (WOTD)
 
 > [!NOTE]
-> Full details — how the word is picked and never repeated, when it refreshes, and how the daily notification works — live in the dedicated **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)**. This section covers only the Home-screen card itself.
+> Full details — how the word is picked and never repeated, when it refreshes, and how the daily notification works — live in the dedicated **[Word of the Day Guide](08-word-of-the-day.md)**. This section covers only the Home-screen card itself.
 
 #### When an AI Provider is Configured (`tier === 'full'`):
 - **Bento Card**: Displays the word, a 2-line explanation, and the ✨ `AI Discovery` badge.
@@ -127,7 +100,7 @@ If you have 0 cards in your library, the dashboard automatically swaps the due-c
 
 > [!NOTE]
 > **Why does the Word of the Day say "Offline Mode"?**
-> Word of the Day requires an AI provider — it's inert without one. Add an API key (such as Google Gemini's free tier or OpenAI) in **Settings $\rightarrow$ AI Providers** and the card switches over automatically. See the **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)** for how the word itself is chosen and refreshed.
+> Word of the Day requires an AI provider — it's inert without one. Add an API key (such as Google Gemini's free tier or OpenAI) in **Settings $\rightarrow$ AI Providers** and the card switches over automatically. See the **[Word of the Day Guide](08-word-of-the-day.md)** for how the word itself is chosen and refreshed.
 
 > [!TIP]
 > **How is the retention rate calculated?**

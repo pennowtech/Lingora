@@ -2,36 +2,7 @@
 
 The **Settings** screen is your control center in Lemmory. It allows you to tailor everything to your learning style — from themes and text sizing to Bring-Your-Own-Key (BYOK) AI engines, high-fidelity neural voices, FSRS spaced repetition algorithms, card template styling, and cross-device cloud sync.
 
----
-
-## 🚀 Screen Architecture & Key Sections
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Settings                                              │
-├────────────────────────────────────────────────────────┤
-│  🔍 Search settings... (e.g. "tts", "gemini", "dark")  │
-├────────────────────────────────────────────────────────┤
-│  STUDY & SPEECH                                        │
-│  🔊 Audio & Pronunciation            (ElevenLabs · 1.0x)│
-│  🎓 Language & Level                 (German · B1 · FSRS)│
-├────────────────────────────────────────────────────────┤
-│  AI & TRANSLATION                                      │
-│  ✨ AI Providers & Models            (Gemini 2.0 Flash) │
-│  🌐 Translation Services             (Google Translate) │
-├────────────────────────────────────────────────────────┤
-│  LIBRARY & CONTENT                                     │
-│  📦 Import & Export                  (Anki, CSV, .lem)  │
-│  🎨 Card Templates                   (Default Liquid)   │
-│  📚 Local Dictionaries               (3 Offline Packs)  │
-├────────────────────────────────────────────────────────┤
-│  SYSTEM & ACCOUNT                                      │
-│  🔄 Cloud Sync                       (Google Drive Sync)│
-│  🎛️ General & Appearance             (Dark OLED · Auto) │
-│  💬 Send Feedback                    (GitHub Issues)    │
-│  ℹ️ About Lemmory                    (v1.2.0 · What's New)
-└────────────────────────────────────────────────────────┘
-```
+![The Settings screen, grouped into Study & Speech, AI & Translation, Library & Content, and System & Account](settings-ai-engines)
 
 ---
 
@@ -94,29 +65,9 @@ Define your active learning pair, default difficulty level, review session sizes
 ### A. ✨ AI Providers & Models (Bring-Your-Own-Key)
 Connect personal API keys from leading AI providers. Lemmory processes generations directly from your device to the AI provider with zero middleman servers.
 
-> **Privacy Notice**: Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans (especially on free tiers and select paid accounts). Have questions? You can reach out directly via the in-app feedback form (**Settings > About & Support > Send Feedback**).
+![The AI Providers screen, showing a validated OpenAI key active alongside Groq, Mistral, and Gemini](ai-providers-settings)
 
-```
-┌────────────────────────────────────────────────────────┐
-│  Active Generation Provider                            │
-│  Pick your active AI engine to generate word           │
-│  definitions, and for smart card creation...           │
-│  [ Contact us → ]                                      │
-├────────────────────────────────────────────────────────┤
-│  Google Gemini                          [ Active ✓ ]   │
-│  Gemini 3.5 Flash Lite · Ultra-Light (Default)         │
-│  [ Validated Key: ••••••••••••abcd ]                   │
-│  [ Profile: Gemini 3.5 Flash Lite ▾ ]                  │
-├────────────────────────────────────────────────────────┤
-│  OpenAI                                                │
-│  GPT-4o Mini · Balanced Generation                     │
-│  [ Get key from OpenAI ↗ ]                             │
-├────────────────────────────────────────────────────────┤
-│  Groq                                                  │
-│  Llama 3.3 70B · Ultra-Fast LPUs                       │
-│  [ Get key from Groq ↗ ]                               │
-└────────────────────────────────────────────────────────┘
-```
+> **Privacy Notice**: Pick your active AI engine to generate word definitions, and for smart card creation. Be aware that third-party AI services might train on prompts under certain plans (especially on free tiers and select paid accounts). Have questions? You can reach out directly via the in-app feedback form (**Settings > About & Support > Send Feedback**).
 
 - **Supported AI Providers**:
   - **Google Gemini**: Generous free-tier limits via Google AI Studio (`gemini-3.5-flash-lite`, `gemini-2.5-flash`).
@@ -146,19 +97,6 @@ Choose which engine powers instant translations when looking up new words in Sea
 
 ### A. 📦 Import & Export
 Seamlessly transfer your vocabulary decks between apps, spreadsheets, and devices.
-
-```
-┌────────────────────────────────────────────────────────┐
-│  IMPORT                                                │
-│  📥 Anki Package (.apkg)          ➔                    │
-│  📥 Spreadsheet (CSV / TSV)       ➔                    │
-│  📥 Lemmory Package (.lem)        ➔                    │
-├────────────────────────────────────────────────────────┤
-│  EXPORT                                                │
-│  📤 Export All Decks as .lem      ➔                    │
-│  📤 Export Complete Collection    ➔                    │
-└────────────────────────────────────────────────────────┘
-```
 
 - **Anki (.apkg) Import Wizard**:
   - Imports Anki decks with full preservation of front/back text, media, custom tags, and deck structure.
@@ -214,6 +152,8 @@ Keep your study progress synchronized across your phone, tablet, and desktop:
 ### C. 💬 Send Feedback & Diagnostics
 - **Submit Feedback & Bug Reports**: Submit feature requests or report bugs directly to the open-source GitHub repository.
 - **Diagnostic Log Bundling**: Automatically packages anonymized error logs and device specifications to help troubleshoot issues quickly.
+
+![The Send Feedback form, with the Help & Support category and optional diagnostics toggle](send-feedback)
 
 ---
 

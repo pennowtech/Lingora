@@ -2,54 +2,13 @@
 
 **Mining Studio** is where real text you've read — an article, a message, a subtitle — turns into study material. Capture a passage, then one tap gets you its **translation**, its **grammar** explained at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.
 
+![The Mining Studio passage library, showing a captured passage and one already-mined passage](mining-studio-passage-library)
+
 ---
 
 ## 🚀 Screen Architecture & Key Components
 
 The feature is two screens: the **Mining Studio** list (captured passages) and **Study & Mine** (one passage's analysis).
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Mining Studio                                      ❓ │  (Header & Help)
-├────────────────────────────────────────────────────────┤
-│  3 passages                                  Clear All │  (Toolbar)
-├────────────────────────────────────────────────────────┤
-│  ◻ 📰 Article · 2 hours ago              [ ✓ Mined ]   │  (green tint)
-│  "Wir schlendern am Nachmittag durch den Park..."       │
-│  187 chars                    Study & Mine ›      [🗑] │
-│                                                          │
-│  ◻ 📋 Clipboard · 5 hours ago                           │
-│  "Das Unternehmen möchte neue Mitarbeiter..."           │
-│  240 chars                    Study & Mine ›      [🗑] │
-├────────────────────────────────────────────────────────┤
-│                                                    [ + ]│  (Capture FAB)
-└────────────────────────────────────────────────────────┘
-```
-
-```
-┌────────────────────────────────────────────────────────┐
-│  Study & Mine                                       ❓ │
-├────────────────────────────────────────────────────────┤
-│  📖 Passage        [ ✓ Mined ]        [B1]   🔊    🔄  │  (CEFR · speak · regenerate)
-│  "Wir schlendern am Nachmittag durch den Park..."       │
-├────────────────────────────────────────────────────────┤
-│  🌐 Fluent Translation                                  │
-│  We stroll through the park in the afternoon...         │
-├────────────────────────────────────────────────────────┤
-│  📖 Grammar Breakdown                          [B1]     │
-│  • Separable verb "durch...gehen" — splits in clauses   │
-│    durch + [verb] ... + gehen                           │
-├────────────────────────────────────────────────────────┤
-│  ✨ Key Vocabulary (4)                     Select All   │
-│  ☑ schlendern   verb                                    │
-│      to stroll                                          │
-│      "Wir schlendern am Nachmittag..."                  │
-│  ☑ der Nachmittag   noun                                │
-│      the afternoon                                      │
-├────────────────────────────────────────────────────────┤
-│  [ ✨ Add 4 Words to Deck ]                              │
-└────────────────────────────────────────────────────────┘
-```
 
 ---
 
@@ -106,6 +65,10 @@ Opening a passage calls the AI once to produce three things together:
 1. **Fluent Translation** — a natural translation of the whole passage into your native language.
 2. **Grammar Breakdown** — 2–4 explanations calibrated to *your CEFR level* (from Settings): word order and cases at A1–A2, subordinate clauses and passive voice at B1–B2, nominal style and fixed collocations at C1–C2. Each point can include a short rule/pattern chip alongside the explanation.
 3. **Key Vocabulary** — a shortlist of words worth learning from the passage, each with its part of speech, contextual meaning, and the exact sentence it appeared in.
+
+![Study & Mine, showing the captured passage and its fluent translation](mining-studio-study-and-mine-1)
+
+![Study & Mine, showing the grammar breakdown and the extracted key vocabulary](mining-studio-study-and-mine-2)
 
 The CEFR badge next to the passage (and next to the grammar section) uses the same green → amber → purple level ramp as the rest of the app — it's not a fixed color.
 

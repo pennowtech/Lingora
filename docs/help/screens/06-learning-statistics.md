@@ -2,38 +2,7 @@
 
 The **Learning Statistics** screen provides comprehensive, real-time insights into your memory retention, study habits, cognitive workload forecasts, and vocabulary growth.
 
----
-
-## 🚀 Screen Architecture & Key Components
-
-```
-┌────────────────────────────────────────────────────────┐
-│  ← Learning Statistics                                 │
-├────────────────────────────────────────────────────────┤
-│  CORE METRICS                                          │
-│  ┌──────────────────────────┬────────────────────────┐ │
-│  │  88% Retention Rate      │  🔥 12-Day Streak      │ │
-│  ├──────────────────────────┼────────────────────────┤ │
-│  │  240 Total Cards         │  📈 +18 New This Week  │ │
-│  └──────────────────────────┴────────────────────────┘ │
-├────────────────────────────────────────────────────────┤
-│  REVIEW ACTIVITY                                       │
-│  5-Week Study Consistency Heatmap (Calendar Grid)      │
-│  [░][░][▒][▓][█] Mon Tue Wed Thu Fri Sat Sun           │
-├────────────────────────────────────────────────────────┤
-│  7-DAY REVIEW FORECAST                                 │
-│  Projected Daily Review Load (FSRS Scheduler)          │
-│  Mon (14)  Tue (22)  Wed (8)  Thu (19)  Fri (5)...     │
-├────────────────────────────────────────────────────────┤
-│  VOCABULARY GROWTH                                     │
-│  Weekly Acquisition Trajectory (Past 7 Weeks)          │
-├────────────────────────────────────────────────────────┤
-│  DIFFICULT WORDS (Top 10)                              │
-│  • schlendern (3 lapses)                  [ Practice ➔]│
-│  • einstellen (2 lapses)                  [ Practice ➔]│
-│  • anpassen   (2 lapses)                  [ Practice ➔]│
-└────────────────────────────────────────────────────────┘
-```
+![The Statistics screen, showing retention rate, the review-activity heatmap, and the 7-day forecast](learning-statistics)
 
 ---
 

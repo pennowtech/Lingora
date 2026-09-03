@@ -2,55 +2,7 @@
 
 The **Word Detail** screen is the core linguistic deep-dive in Lemmory. It breaks down any word into multiple semantic senses, audio pronunciations, contextual example sentences, targeted grammar exercises, AI synonym nuances, idioms, and cloze flashcards.
 
----
-
-## 🚀 Screen Architecture & Key Components
-
-```
-┌────────────────────────────────────────────────────────┐
-│  ←                                                  ❓ │  (Header with Help)
-│                                                        │
-│  schlendern                                       ✨ 🔊│  (Headword + Source + TTS)
-│  ▼ Grammar info  (Verb · intransitive · regelm.)       │  (Collapsible forms toggle)
-├────────────────────────────────────────────────────────┤
-│  SEMANTIC CONTEXTS (Senses)              2 contexts    │
-│  [ To stroll / amble (B1) ]  [ Aimless wandering (B2) ]│  (Segmented Switcher)
-├────────────────────────────────────────────────────────┤
-│  MEANING & EXPLANATION                                 │
-│  to stroll, to saunter, to amble                       │
-│  Describes walking slowly and casually without a set   │
-│  destination. Common in literary and daily contexts.   │
-├────────────────────────────────────────────────────────┤
-│  CARD ACTION BAR                                       │
-│  [ ℹ️ More info ] [ 💬 Ask AI ] [ ✨ Regenerate ]       │
-│  [ ✏️ Edit ]      [ 🗑️ Delete ] [ 🌐 Search Web ]       │
-├────────────────────────────────────────────────────────┤
-│  EXAMPLES                          [ Filter: Daily ▾ ] │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │ Wir schlendern am Nachmittag durch den Park.     │  │
-│  │ We stroll through the park in the afternoon.     │  │
-│  │ ⭐ Shown on flashcard             🔊  [ + ]  [⋯] │  │
-│  └──────────────────────────────────────────────────┘  │
-│  [ ✨ Generate more examples ]                         │
-│  [ ⚙️ Advanced grammar options (Präsens, Nebensätze) ] │
-├────────────────────────────────────────────────────────┤
-│  SYNONYMS                                              │
-│  • spazieren  [ ✨ AI Nuance ]        [ ↗ Open Card ] │
-│    ↳ Used for structured walks (spazieren gehen).     │
-│  • bummeln    [ ✨ AI Nuance ]        [ ↗ Open Card ] │
-├────────────────────────────────────────────────────────┤
-│  PHRASES & COLLOCATIONS                                │
-│  • durch die Stadt schlendern                     [B1] │
-│    to wander through the city                          │
-│  [ ✨ Load more with AI ]                              │
-├────────────────────────────────────────────────────────┤
-│  CLOZE CARDS                                           │
-│  Wir [...] am Nachmittag durch den Park.               │
-│  [ schlendern ]                                        │
-├────────────────────────────────────────────────────────┤
-│  [ + Add to deck ]                    (Sticky Bottom)  │
-└────────────────────────────────────────────────────────┘
-```
+![The Word Detail screen for "laufen", showing its semantic contexts and examples](word-detail-card-creator)
 
 ---
 
@@ -67,14 +19,6 @@ The **Word Detail** screen is the core linguistic deep-dive in Lemmory. It break
 ### 2. Semantic Contexts (Sense Switcher)
 
 Many words have multiple completely different meanings (for example, the German verb **einstellen** can mean *to hire*, *to adjust*, or *to stop*). Instead of cramming all unrelated definitions onto one confusing card, **Lemmory** automatically splits them into separate **Semantic Contexts (Senses)**.
-
-```
-SEMANTIC CONTEXTS (2 contexts available)
-┌──────────────────────────────┬──────────────────────────────┐
-│  [ To hire / employ  (B1) ]  │  [ To adjust / tune  (A2) ]  │
-└──────────────────────────────┴──────────────────────────────┘
-  (Active Sense: Tap to switch)
-```
 
 #### Why Sense Segmentation Matters
 - **Avoids Memory Interference**: Trying to memorize that a single word means both "to hire someone" and "to adjust a machine" on the same flashcard creates confusion and slows down recall.

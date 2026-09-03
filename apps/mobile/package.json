@@ -7,9 +7,9 @@
     "start": "expo start",
     "android": "node ./scripts/run-android.js",
     "android:isolated": "expo start --android --port 8090",
-    "build:android:development": "npx eas-cli@latest build --platform android --profile development",
-    "build:android:preview": "npx eas-cli@latest build --platform android --profile preview",
-    "build:android:production": "npx eas-cli@latest build --platform android --profile production --non-interactive",
+    "build:android:development": "node ./scripts/build-gate.mjs && npx eas-cli@latest build --platform android --profile development",
+    "build:android:preview": "node ./scripts/build-gate.mjs && npx eas-cli@latest build --platform android --profile preview",
+    "build:android:production": "node ./scripts/build-gate.mjs && npx eas-cli@latest build --platform android --profile production --non-interactive",
     "ios": "expo run:ios",
     "i18n:check": "node ./scripts/check-i18n.mjs",
     "typecheck": "tsc --noEmit"

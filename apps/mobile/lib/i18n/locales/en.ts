@@ -1095,7 +1095,7 @@ export const ENGLISH_PHRASES = [
   "We could not send your feedback at this time. Please check your connection and try again.",
   "Something went wrong while sending your feedback. Please check your connection and try again.",
   "We'd love to hear from you",
-  "Send ideas, report bugs, or ask for help. Every message goes directly to our team.",
+  'Send ideas, report bugs, or ask for help.',
   "Feedback category",
   "Summary",
   "Short title (e.g. \"Audio crashes on slow network\")",
@@ -1366,6 +1366,11 @@ export const ENGLISH_PHRASES = [
   'Instant Lookup and Card Generations',
   'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.",
+  'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.',
+  'Your email will be public',
+  "Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you'd rather keep it private, or send it as-is if that's fine.",
+  'Go Back',
+  'Send Anyway',
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

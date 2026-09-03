@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon } from '../../components/Icon'
-import { AlertModal, Button, Card, IconButton } from '../../components/ui'
+import { AlertModal, Button, Card, ConfirmModal, IconButton } from '../../components/ui'
 import { submitFeedback, type FeedbackPayload } from '../../lib/feedbackService'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
@@ -102,6 +102,7 @@ export default function FeedbackScreen(): JSX.Element {
   const [contactEmail, setContactEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
+  const [emailWarningOpen, setEmailWarningOpen] = useState(false)
 
   const appVersion = Constants.expoConfig?.version ?? '0.1.0'
   const buildNumber =
@@ -114,8 +115,19 @@ export default function FeedbackScreen(): JSX.Element {
   const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android'
   const canSubmit = title.trim() !== '' && message.trim() !== '' && !submitting
 
-  const handleSubmit = async (): Promise<void> => {
+  // Feedback is posted as a public GitHub issue - an email typed here would be visible to anyone,
+  // not just our team - so submitting with one filled in is gated on an explicit acknowledgement
+  // rather than sent straight through.
+  const handleSubmit = (): void => {
     if (!canSubmit) return
+    if (contactEmail.trim() !== '') {
+      setEmailWarningOpen(true)
+      return
+    }
+    void doSubmit()
+  }
+
+  const doSubmit = async (): Promise<void> => {
     setSubmitting(true)
 
     const payload: FeedbackPayload = {
@@ -184,7 +196,7 @@ export default function FeedbackScreen(): JSX.Element {
         </View>
         <Text style={styles.headerTitle}>{t('We\'d love to hear from you')}</Text>
         <Text style={styles.headerSubtitle}>
-          {t('Send ideas, report bugs, or ask for help. Every message goes directly to our team.')}
+          {t('Send ideas, report bugs, or ask for help.')}
         </Text>
       </Card>
 
@@ -302,6 +314,14 @@ export default function FeedbackScreen(): JSX.Element {
         autoCapitalize="none"
         autoCorrect={false}
       />
+      {contactEmail.trim() !== '' ? (
+        <View style={styles.emailWarningRow}>
+          <Icon name="CircleAlert" size={14} color={colors.warning} />
+          <Text style={styles.emailWarningText}>
+            {t('Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.')}
+          </Text>
+        </View>
+      ) : null}
 
       <Card style={styles.diagnosticsCard}>
         <View style={styles.diagnosticsRow}>
@@ -338,6 +358,21 @@ export default function FeedbackScreen(): JSX.Element {
         title={notice?.title ?? ''}
         message={notice?.message ?? ''}
         onClose={() => setNotice(null)}
+      />
+
+      <ConfirmModal
+        visible={emailWarningOpen}
+        title={t('Your email will be public')}
+        message={t(
+          'Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you\'d rather keep it private, or send it as-is if that\'s fine.',
+        )}
+        cancelLabel={t('Go Back')}
+        confirmLabel={t('Send Anyway')}
+        onCancel={() => setEmailWarningOpen(false)}
+        onConfirm={() => {
+          setEmailWarningOpen(false)
+          void doSubmit()
+        }}
       />
 
       <HelpAccordionSheet
@@ -479,6 +514,18 @@ const createStyles = (colors: ThemeColors) =>
     },
     textarea: {
       minHeight: 120,
+    },
+    emailWarningRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.xs,
+      marginTop: -spacing.xs,
+    },
+    emailWarningText: {
+      flex: 1,
+      fontSize: type.micro,
+      color: colors.warning,
+      lineHeight: 16,
     },
     diagnosticsCard: {
       backgroundColor: colors.surface,

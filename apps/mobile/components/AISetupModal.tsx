@@ -93,7 +93,7 @@ export function AISetupModal({
             <Pressable
               onPress={() => {
                 onClose()
-                router.push({ pathname: '/settings/about', params: { category: 'support' } })
+                router.push({ pathname: '/settings/feedback', params: { category: 'support' } })
               }}
               style={styles.helpBtn}
             >

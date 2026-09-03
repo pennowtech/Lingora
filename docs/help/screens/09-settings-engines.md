@@ -1,6 +1,6 @@
 # ⚙️ Settings & Configuration
 
-The **Settings** screen is your control center in Lemmory. It allows you to tailor everything to your learning style — from themes and text sizing to Bring-Your-Own-Key (BYOK) AI engines, high-fidelity neural voices, FSRS spaced repetition algorithms, card template styling, and cross-device cloud sync.
+The **Settings** screen is your control center in Lemony. It allows you to tailor everything to your learning style — from themes and text sizing to Bring-Your-Own-Key (BYOK) AI engines, high-fidelity neural voices, FSRS spaced repetition algorithms, card template styling, and cross-device cloud sync.
 
 ![The Settings screen, grouped into Study & Speech, AI & Translation, Library & Content, and System & Account](settings-ai-engines)
 
@@ -32,7 +32,7 @@ Configure how vocabulary words, phrases, and example sentences are spoken aloud 
 - **Speed & Pitch Controls**: Adjust speech playback rate (from 0.5x slow beginner pronunciation up to 2.0x) and fine-tune voice pitch.
 - **Real-Time Usage Tracking**: Monitor character consumption and request counts per provider, with a single-tap reset.
 - **Sample Audio Preview**: Tap **Test this provider** or **Test active engine** to hear your target language sample phrase before applying changes.
-- **Automatic Fallback to Device**: If a cloud provider is unreachable or runs out of credits, Lemmory automatically falls back to the device voice so your flashcard study is never interrupted by silence.
+- **Automatic Fallback to Device**: If a cloud provider is unreachable or runs out of credits, Lemony automatically falls back to the device voice so your flashcard study is never interrupted by silence.
 - **Audio Cache Management**: Caches generated pronunciations on your device to minimize latency and bandwidth consumption. Tap **Clear Audio Cache** to free up local storage anytime.
 
 ---
@@ -43,7 +43,7 @@ Define your active learning pair, default difficulty level, review session sizes
 - **Language Pair Configuration**:
   - **"I speak" (Native Language)**: The language used for definitions, translations, grammar breakdowns, etymology notes, and AI tutor explanations (e.g. English, German, Spanish, French, Hindi, Vietnamese, Japanese).
   - **"I'm learning" (Target Language)**: The language you are actively studying. All dictionary lookups, generated example sentences, cloze blanks, and text-to-speech audio automatically use this language.
-  - **Smart App Language Sync**: When you change your native language, Lemmory offers a one-tap option to update the entire app's interface language to match. But that's not required. You can set your app interface to any language. For example, you can have your app language set to English while having explanations in Hindi and learning German.
+  - **Smart App Language Sync**: When you change your native language, Lemony offers a one-tap option to update the entire app's interface language to match. But that's not required. You can set your app interface to any language. For example, you can have your app language set to English while having explanations in Hindi and learning German.
 - **Default CEFR Proficiency Level**: Choose your baseline difficulty (`A1`, `A2`, `B1`, `B2`, `C1`, `C2`):
   - **A1–A2 (Beginner)**: AI generates short, simple sentences with foundational vocabulary and common daily verbs.
   - **B1–B2 (Intermediate)**: AI introduces compound sentences, subordinate clauses, and situational idioms.
@@ -63,7 +63,7 @@ Define your active learning pair, default difficulty level, review session sizes
 ## 2. 🤖 AI & Translation
 
 ### A. ✨ AI Providers & Models (Bring-Your-Own-Key)
-Connect personal API keys from leading AI providers. Lemmory processes generations directly from your device to the AI provider with zero middleman servers.
+Connect personal API keys from leading AI providers. Lemony processes generations directly from your device to the AI provider with zero middleman servers.
 
 ![The AI Providers screen, showing a validated OpenAI key active alongside Groq, Mistral, and Gemini](ai-providers-settings)
 
@@ -106,8 +106,8 @@ Seamlessly transfer your vocabulary decks between apps, spreadsheets, and device
   - Import vocabulary lists from Excel, Google Sheets, or CSV files.
   - **Visual Column Mapper**: Easily map your spreadsheet columns (e.g. *Column A $\rightarrow$ Word*, *Column B $\rightarrow$ Translation*, *Column C $\rightarrow$ Example*).
   - Preview data grid verifies correct alignment before import.
-- **Lemmory Package (.lem) Export & Import**:
-  - The native backup format for Lemmory.
+- **Lemony Package (.lem) Export & Import**:
+  - The native backup format for Lemony.
   - Exports complete decks, custom notes, cloze blanks, and spaced repetition (FSRS) learning histories for lossless backup and cross-device sharing.
 
 ---
@@ -117,7 +117,7 @@ Customize how flashcards look and render during review:
 - **Liquid Template Engine**: Flashcards use standard Liquid markup tags (`{{word}}`, `{{meaning}}`, `{{example}}`, `{{audio}}`, `{{synonyms}}`, `{{partOfSpeech}}`).
 - **Front & Back Editor**: Independently customize the question and answer sides of your cards.
 - **Live Preview Window**: See immediate visual feedback of your card layout as you edit template code.
-- **Restore Defaults**: Safely reset to Lemmory's clean default card template anytime.
+- **Restore Defaults**: Safely reset to Lemony's clean default card template anytime.
 
 ---
 
@@ -157,7 +157,7 @@ Keep your study progress synchronized across your phone, tablet, and desktop:
 
 ---
 
-### D. ℹ️ About Lemmory
+### D. ℹ️ About Lemony
 - View the installed app version and build number.
 - **What's New Modal**: View release notes and changelogs summarizing new features.
 - Open-source licenses and GitHub repository links.
@@ -169,7 +169,7 @@ Keep your study progress synchronized across your phone, tablet, and desktop:
 1. **Free AI Setup (Google Gemini)**:
    - Go to **Settings $\rightarrow$ AI Providers & Models**.
    - Tap **Get key from Google Gemini ↗** $\rightarrow$ create a free key in Google AI Studio.
-   - Paste the key in Lemmory and tap **Test & Save Key** $\rightarrow$ tap **Activate**.
+   - Paste the key in Lemony and tap **Test & Save Key** $\rightarrow$ tap **Activate**.
    - You now have free AI word breakdowns, grammar targeting, and example sentences!
 2. **Importing an Anki Deck**:
    - Go to **Settings $\rightarrow$ Import & Export $\rightarrow$ Anki Package (.apkg)**.
@@ -185,7 +185,7 @@ Keep your study progress synchronized across your phone, tablet, and desktop:
 
 > [!NOTE]
 > **Are my API keys sent to any third-party servers?**
-> No. Lemmory is fully local and privacy-first. Your API keys are stored strictly inside your phone's hardware keychain and are transmitted only to the official AI endpoint (e.g. `api.openai.com` or `generativelanguage.googleapis.com`) when you request a word generation.
+> No. Lemony is fully local and privacy-first. Your API keys are stored strictly inside your phone's hardware keychain and are transmitted only to the official AI endpoint (e.g. `api.openai.com` or `generativelanguage.googleapis.com`) when you request a word generation.
 
 > [!TIP]
 > **What should I do if my AI generations are slow?**

@@ -1,7 +1,7 @@
 import type { CefrLevel, ReviewRating } from '@lingora/types'
 
 /**
- * Lemmory design tokens.
+ * Lemony design tokens.
  *
  * Single source of truth for colors, spacing, radii, and type sizes.
  * Every screen and component imports from here — no inline hex values

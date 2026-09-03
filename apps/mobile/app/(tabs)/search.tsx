@@ -99,8 +99,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Search from anywhere',
     icon: 'Share2',
     paragraphs: [
-      'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemmory."** It opens right here with that word ready to go.',
-      'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
+      'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemony."** It opens right here with that word ready to go.',
+      'You can also share text to Lemony, the same way you\'d share a link or a photo to any other app.',
       'Configure search integration in **Settings → Share & Search**.',
     ],
   },

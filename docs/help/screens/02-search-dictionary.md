@@ -1,6 +1,6 @@
 # 🔍 Instant Search & Multi-Engine Dictionary
 
-The **Search & Dictionary** screen is Lemmory's lookup engine. It allows you to search words in either your target or native language, providing instant offline FTS5 database matches, bilingual dictionary translations, Word Guide previews, and one-tap AI flashcard generation.
+The **Search & Dictionary** screen is Lemony's lookup engine. It allows you to search words in either your target or native language, providing instant offline FTS5 database matches, bilingual dictionary translations, Word Guide previews, and one-tap AI flashcard generation.
 
 ![Searching "laufen", showing the dictionary translation card and the AI Insights preview](search-dictionary)
 
@@ -17,7 +17,7 @@ The **Search & Dictionary** screen is Lemmory's lookup engine. It allows you to 
 ---
 
 ### 2. Multi-Tiered New Word Discovery Pipeline
-When you search for a word that does not yet have an exact match in your library, Lemmory automatically populates up to three interactive discovery cards above the search results:
+When you search for a word that does not yet have an exact match in your library, Lemony automatically populates up to three interactive discovery cards above the search results:
 
 #### A. 📖 Word Guide Preview (Offline Dictionary)
 - **Source**: Free, offline installed linguistic dictionary database.
@@ -64,8 +64,8 @@ When you search for a word that does not yet have an exact match in your library
 ---
 
 ### 5. Search from Anywhere (System Share & Process Text)
-- **Android Process Text**: Highlight any word in a web browser, ebook, or messaging app, tap the three dots $\rightarrow$ **"Search in Lemmory"** to jump directly into Search with that word preloaded.
-- **System Share Sheet**: Share text or phrases from external apps straight to Lemmory.
+- **Android Process Text**: Highlight any word in a web browser, ebook, or messaging app, tap the three dots $\rightarrow$ **"Search in Lemony"** to jump directly into Search with that word preloaded.
+- **System Share Sheet**: Share text or phrases from external apps straight to Lemony.
 
 ---
 

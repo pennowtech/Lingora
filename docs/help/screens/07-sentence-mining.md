@@ -28,7 +28,7 @@ A passage stays here after it's been mined, so you can always revisit it. But yo
 Various components of this screen are as follows:
 
 - **No immediate AI cost on capture**: a passage is stored locally as raw text; AI is only called once you open it in Study & Mine.
-- **Source badges & timestamps**: every capture shows where it came from — 📰 Article, 📋 Clipboard, ✏️ Manual, 📤 Share Sheet, ⌨️ Process Text (Android "Share to Lemmory"), plus extension and PDF sources.
+- **Source badges & timestamps**: every capture shows where it came from — 📰 Article, 📋 Clipboard, ✏️ Manual, 📤 Share Sheet, ⌨️ Process Text (Android "Share to Lemony"), plus extension and PDF sources.
 - **Character count**: each passage shows its length; capture is capped at **1000 characters**.
 - **Mined indicator**: a passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it — that state updates immediately once you add a word, without needing to leave and reopen the screen.
 - **Tap anywhere to open**: tapping the card body (not its checkbox or delete icon) opens **Study & Mine** for that passage. There's no separate "Study & Mine" button to hunt for — the whole card is the button.
@@ -42,8 +42,8 @@ Various components of this screen are as follows:
 Tap the **+** button, then **Paste from clipboard** — copied text (from an eBook, a message, anywhere) is pulled in and truncated to 1000 characters if longer.
 
 #### B. System Share Sheet & Android Process Text
-- **Share Sheet**: highlight text in any app → **Share** → **Lemmory**.
-- **Android Process Text**: highlight text → the system's three-dot menu → **Share to Lemmory**.
+- **Share Sheet**: highlight text in any app → **Share** → **Lemony**.
+- **Android Process Text**: highlight text → the system's three-dot menu → **Share to Lemony**.
 
 #### C. Manual Add (`+`)
 Tap **+** in the corner, type or paste a passage or sentence directly, and **Save Passage**. The composer shows a live character counter against the 1000-character cap.

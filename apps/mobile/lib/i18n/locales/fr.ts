@@ -337,20 +337,20 @@ Home: 'Accueil',
   "Add a deck someone shared with you - full fidelity, including review history. Doesn't touch anything else on this device.":
     "Ajoutez un paquet que quelqu'un a partagé avec vous - fidélité totale, y compris l'historique de révision. Ne touche à rien d'autre sur cet appareil.",
   'Choose .lem file': 'Choisir un fichier .lem',
-  'Restore from Lemmory backup (.lem)': 'Restaurer depuis une sauvegarde Lemmory (.lem)',
+  'Restore from Lemony backup (.lem)': 'Restaurer depuis une sauvegarde Lemony (.lem)',
   'Replaces everything on this device with a previously exported backup.':
     'Remplace tout sur cet appareil par une sauvegarde exportée précédemment.',
   'Restoring...': 'Restauration...',
   'Choose backup file': 'Choisir un fichier de sauvegarde',
-  'Lemmory backup (.lem)': 'Sauvegarde Lemmory (.lem)',
+  'Lemony backup (.lem)': 'Sauvegarde Lemony (.lem)',
   'Your full library - decks, cards, review history. Your data is always yours. API keys are never included.':
     'Toute votre bibliothèque - paquets, cartes, historique de révision. Vos données vous appartiennent toujours. Les clés API ne sont jamais incluses.',
   'Export everything': 'Tout exporter',
   'One row per card - the same columns CSV import reads, so this file re-imports as-is.':
     "Une ligne par carte - les mêmes colonnes que celles lues par l'import CSV, donc ce fichier se réimporte tel quel.",
   'Export as CSV': 'Exporter en CSV',
-  "Study your Lemmory vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
-    "Étudiez votre vocabulaire Lemmory dans Anki/AnkiDroid. Les cartes repartent à zéro - l'historique de révision n'est pas transféré.",
+  "Study your Lemony vocabulary in Anki/AnkiDroid. Cards start fresh - review history isn't carried over.":
+    "Étudiez votre vocabulaire Lemony dans Anki/AnkiDroid. Les cartes repartent à zéro - l'historique de révision n'est pas transféré.",
   'Export as .apkg': 'Exporter en .apkg',
   'A readable word - meaning - example list. Not meant to re-import.':
     'Une liste lisible mot - sens - exemple. Pas destinée à être réimportée.',
@@ -431,8 +431,8 @@ Home: 'Accueil',
     'Le reste a été laissé intact - vous pouvez réimporter le même fichier pour reprendre où vous en étiez (les mots déjà importés sont ignorés comme doublons).',
   Tags: 'Étiquettes',
   'Import from a .lem file': 'Importer depuis un fichier .lem',
-  'Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
-    "Choisissez un fichier Lemmory `.lem` - un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
+  'Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.':
+    "Choisissez un fichier Lemony `.lem` - un paquet que quelqu'un a partagé avec vous, ou l'un de vos propres exports de paquet. Fidélité totale : sens, exemples, synonymes, cartes lacunaires, historique de révision et planification FSRS sont tous transférés.",
   'This file has more than one deck. Which one do you want to import?':
     'Ce fichier contient plusieurs paquets. Lequel voulez-vous importer ?',
   'This file has no decks to import.': 'Ce fichier ne contient aucun paquet à importer.',
@@ -616,7 +616,7 @@ Home: 'Accueil',
     'Ajoute une phrase en la tapant, en la collant depuis ton presse-papiers, ou en partageant du texte ici depuis une autre app.',
   'Add card': 'Ajouter la carte',
   'Add card manually': 'Ajouter une carte manuellement',
-  'Add to Lemmory': 'Ajouter à Lemmory',
+  'Add to Lemony': 'Ajouter à Lemony',
   'Add to Mining queue': 'Ajouter à la file de collecte',
   'Add your AI provider key in Settings to ask a follow-up.':
     "Ajoute ta clé de fournisseur d'IA dans les Réglages pour poser une question complémentaire.",
@@ -706,8 +706,8 @@ Home: 'Accueil',
   Expression: 'Expression',
   'Fields added via the toggles are never auto-wrapped in a <div> or <span> - {{ word }} renders as bare text directly inside the card body. That keeps generated templates minimal, but it means a rule like ".word { ... }" has nothing to match unless you add that class yourself.':
     "Les champs ajoutés via les interrupteurs ne sont jamais automatiquement enveloppés dans un <div> ou un <span> - {{ word }} s'affiche comme du texte brut directement dans le corps de la carte. Cela garde les modèles générés minimalistes, mais une règle comme « .word { ... } » n'a rien à cibler tant que tu n'ajoutes pas cette classe toi-même.",
-  "Found a sentence somewhere else, like an article or a message? Share it to Lemmory the same way you'd share it to any other app.":
-    "Tu as trouvé une phrase ailleurs, comme dans un article ou un message ? Partage-la vers Lemmory comme tu le ferais vers n'importe quelle autre app.",
+  "Found a sentence somewhere else, like an article or a message? Share it to Lemony the same way you'd share it to any other app.":
+    "Tu as trouvé une phrase ailleurs, comme dans un article ou un message ? Partage-la vers Lemony comme tu le ferais vers n'importe quelle autre app.",
   'Front and Back are raw Liquid templates - anything valid Liquid works here, not just what the Fields toggles generate.':
     'Recto et Verso sont des modèles Liquid bruts - tout code Liquid valide fonctionne ici, pas seulement ce que génèrent les interrupteurs de champs.',
   "Front and Back are separate - the chip above the card switches which side is rendered, so you always know exactly which side you're looking at.":
@@ -752,10 +752,10 @@ Home: 'Accueil',
   'Last synced: {{when}}': 'Dernière synchronisation : {{when}}',
   'List fields (Other meanings, Synonyms, Related phrases) already need a {% for %} loop to render at all - that loop is structurally required, not a styling choice. To style each item individually, wrap the item inside the loop:':
     "Les champs de liste (Autres sens, Synonymes, Expressions liées) ont déjà besoin d'une boucle {% for %} pour s'afficher - cette boucle est structurellement obligatoire, pas un choix de style. Pour styliser chaque élément individuellement, enveloppe l'élément à l'intérieur de la boucle :",
-  'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.':
-    "Fais un appui long sur un mot dans n'importe quelle app et choisis « Rechercher dans Lemmory » pour le chercher ici directement.",
-  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemmory." It opens right here with that word ready to go.':
-    "Fais un appui long sur un mot dans n'importe quelle app - ton navigateur, tes messages, n'importe où - et choisis « Rechercher dans Lemmory ». Ça s'ouvre directement ici avec ce mot prêt à l'emploi.",
+  'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.':
+    "Fais un appui long sur un mot dans n'importe quelle app et choisis « Rechercher dans Lemony » pour le chercher ici directement.",
+  'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemony." It opens right here with that word ready to go.':
+    "Fais un appui long sur un mot dans n'importe quelle app - ton navigateur, tes messages, n'importe où - et choisis « Rechercher dans Lemony ». Ça s'ouvre directement ici avec ce mot prêt à l'emploi.",
   Markdown: 'Markdown',
   Message: 'Message',
   'Mine help': 'Aide de la collecte',
@@ -858,8 +858,8 @@ Home: 'Accueil',
   'Speaking speed isn\'t configurable for this provider yet.':
     "La vitesse de la voix n'est pas encore configurable pour ce fournisseur.",
   'Speech engine': 'Moteur vocal',
-  "Submitting posts your message as a GitHub issue on Lemmory's public repository - anyone can read it, including your contact email if you provide one.":
-    "Envoyer publie ton message comme issue GitHub sur le dépôt public de Lemmory - n'importe qui peut le lire, y compris ton e-mail de contact si tu en fournis un.",
+  "Submitting posts your message as a GitHub issue on Lemony's public repository - anyone can read it, including your contact email if you provide one.":
+    "Envoyer publie ton message comme issue GitHub sur le dépôt public de Lemony - n'importe qui peut le lire, y compris ton e-mail de contact si tu en fournis un.",
   Sync: 'Synchronisation',
   'Sync decks, cards, and progress to a Google account':
     'Synchroniser les paquets, cartes et progression avec un compte Google',
@@ -973,10 +973,10 @@ Home: 'Accueil',
   'Word card': 'Carte de mot',
   'You can add your cards to multiple decks even if it is added before.':
     'Tu peux ajouter tes cartes à plusieurs paquets même si elles y ont déjà été ajoutées.',
-  "You can also share text from another app straight to Lemmory, the same way you'd share a link or a photo.":
-    'Tu peux aussi partager du texte depuis une autre app directement vers Lemmory, comme tu partagerais un lien ou une photo.',
-  "You can also share text to Lemmory, the same way you'd share a link or a photo to any other app.":
-    "Tu peux aussi partager du texte vers Lemmory, comme tu partagerais un lien ou une photo vers n'importe quelle autre app.",
+  "You can also share text from another app straight to Lemony, the same way you'd share a link or a photo.":
+    'Tu peux aussi partager du texte depuis une autre app directement vers Lemony, comme tu partagerais un lien ou une photo.',
+  "You can also share text to Lemony, the same way you'd share a link or a photo to any other app.":
+    "Tu peux aussi partager du texte vers Lemony, comme tu partagerais un lien ou une photo vers n'importe quelle autre app.",
   'ask a follow-up question': 'poser une question complémentaire',
   'e.g. Er lehnt das Angebot ab.': 'ex. Er lehnt das Angebot ab.',
   'e.g. He refuses the offer.': "ex. Il refuse l'offre.",
@@ -1002,8 +1002,8 @@ Home: 'Accueil',
   '{{count}} selected': '{{count}} sélectionné(s)',
   '{{count}}h': '{{count}} h',
   '{{count}}m': '{{count}} min',
-  "{{language}} isn't ready yet - English and German are the only languages Lemmory fully supports right now.":
-    "{{language}} n'est pas encore prêt - l'anglais et l'allemand sont les seules langues entièrement prises en charge par Lemmory pour l'instant.",
+  "{{language}} isn't ready yet - English and German are the only languages Lemony fully supports right now.":
+    "{{language}} n'est pas encore prêt - l'anglais et l'allemand sont les seules langues entièrement prises en charge par Lemony pour l'instant.",
   '{{provider}} playback failed': 'Échec de la lecture {{provider}}',
   '{{pulled}} pulled · {{pushed}} pushed · {{deleted}} deleted':
     '{{pulled}} récupérées · {{pushed}} envoyées · {{deleted}} supprimées',
@@ -1015,7 +1015,7 @@ Home: 'Accueil',
   Hard: 'Difficile',
   Good: 'Bien',
   Easy: 'Facile',
-  'Lemmory Light': 'Lemmory Clair',
+  'Lemony Light': 'Lemony Clair',
   'Midnight Indigo': 'Indigo Minuit',
   'Carbon Noir': 'Carbone Noir',
   'Arctic Day': 'Jour Arctique',
@@ -1057,22 +1057,22 @@ Home: 'Accueil',
   'How sync works': 'Comment fonctionne la synchronisation',
   'Deleting your account & data': 'Supprimer ton compte et tes données',
   'What does this actually delete?': "Qu'est-ce que ça supprime exactement ?",
-  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemmory on two devices, you're not starting from zero on the second one.":
-    'Se connecter avec Google relie cet appareil à une copie cloud privée de tes decks, cartes et progression - donc si tu changes de téléphone, ou utilises Lemmory sur deux appareils, tu ne repars pas de zéro sur le second.',
+  "Signing in with Google links this device to a private cloud copy of your decks, cards, and review progress - so if you get a new phone, or use Lemony on two devices, you're not starting from zero on the second one.":
+    'Se connecter avec Google relie cet appareil à une copie cloud privée de tes decks, cartes et progression - donc si tu changes de téléphone, ou utilises Lemony sur deux appareils, tu ne repars pas de zéro sur le second.',
   'Tap "Sync now" any time to push your latest changes up and pull down anything from another device. Under the hood it merges rather than overwrites - if you added a card here and reviewed one on your other phone, both survive.':
     "Touche « Synchroniser maintenant » à tout moment pour envoyer tes derniers changements et récupérer ceux d'un autre appareil. En coulisses, ça fusionne plutôt que d'écraser - si tu as ajouté une carte ici et révisé sur ton autre téléphone, les deux sont conservés.",
   "Your AI provider API keys are never synced. They live only in this device's secure storage, so you'll need to re-enter them if you set up a new device.":
     "Tes clés API des fournisseurs d'IA ne sont jamais synchronisées. Elles restent uniquement dans le stockage sécurisé de cet appareil - tu devras les ressaisir sur un nouvel appareil.",
-  'When this is on, Lemmory quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
-    "Une fois activé, Lemmory se synchronise discrètement en arrière-plan dès que tu quittes l'app - plus besoin de penser à toucher « Synchroniser maintenant » toi-même.",
+  'When this is on, Lemony quietly syncs in the background whenever you leave the app - no need to remember to tap "Sync now" yourself.':
+    "Une fois activé, Lemony se synchronise discrètement en arrière-plan dès que tu quittes l'app - plus besoin de penser à toucher « Synchroniser maintenant » toi-même.",
   "\"At most every\" is a cooldown, not a schedule - it won't sync more often than that, but it also won't force a sync if you haven't opened the app in the meantime.":
     "« Au plus toutes les » est un délai minimum, pas un horaire fixe - ça ne synchronise pas plus souvent que ça, mais ça ne force pas non plus une synchronisation si tu n'as pas rouvert l'app entre-temps.",
   "It runs over whatever connection you've got, Wi-Fi or mobile data - there's no Wi-Fi-only toggle.":
     "Ça fonctionne avec n'importe quelle connexion disponible, Wi-Fi ou données mobiles - il n'y a pas d'option Wi-Fi uniquement.",
   "This is the one action here you genuinely can't undo - read this before you tap it.":
     "C'est la seule action ici que tu ne peux vraiment pas annuler - lis ceci avant de la toucher.",
-  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemmory, and signs you out.':
-    'Ça efface définitivement tout ce que ce compte a jamais synchronisé dans le cloud, déconnecte le compte Google de Lemmory, et te déconnecte.',
+  'It permanently erases everything this account ever synced to the cloud, disconnects the Google account from Lemony, and signs you out.':
+    'Ça efface définitivement tout ce que ce compte a jamais synchronisé dans le cloud, déconnecte le compte Google de Lemony, et te déconnecte.',
   'Your decks, cards, and progress on THIS device are completely untouched - they stay right where they are, fully usable offline. Only the cloud copy (and the link to it) is gone.':
     'Tes decks, cartes et progression sur CET appareil restent totalement intacts - ils restent exactement là où ils sont, utilisables hors ligne. Seule la copie cloud (et le lien vers elle) disparaît.',
   'If you sign back in with the same Google account afterward, syncing starts fresh - nothing comes back automatically.':

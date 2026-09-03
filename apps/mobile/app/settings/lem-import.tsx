@@ -442,7 +442,7 @@ export default function LemImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <Text style={styles.title}>{t('Import from a .lem file')}</Text>
           <Text style={styles.body}>
-            {t('Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
+            {t('Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
           <Button label={t('Choose .lem file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}

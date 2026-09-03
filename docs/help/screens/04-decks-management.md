@@ -1,6 +1,6 @@
 # 🗂️ Study Progress and Decks
 
-The **Decks** tab is where you track overall study progress, organize vocabulary collections, customize review modes, and manage your flashcards. In Lemmory, decks are not just static folders — they are smart study collections that define which review modes you practice, track their own retention statistics, and support hierarchical nesting, spreadsheet table views, and bulk actions.
+The **Decks** tab is where you track overall study progress, organize vocabulary collections, customize review modes, and manage your flashcards. In Lemony, decks are not just static folders — they are smart study collections that define which review modes you practice, track their own retention statistics, and support hierarchical nesting, spreadsheet table views, and bulk actions.
 
 ![The Decks screen, showing overall Study Progress and per-deck review-mode badges](decks-study-progress)
 
@@ -40,7 +40,7 @@ When creating or editing a deck, you choose which **study formats** that deck us
 Tapping the main **`+` FAB** at the bottom of the Decks screen opens a quick 3-option menu:
 1. **➕ Add deck**: Opens the *Create New Study Deck* dialog to set a name and review modes.
 2. **📝 Add card**: Opens a deck selector and takes you straight to the manual card creator.
-3. **📥 Import file**: Choose a deck and import cards from **Anki (.apkg)**, **CSV/Spreadsheets**, or **Lemmory (.lem)** files.
+3. **📥 Import file**: Choose a deck and import cards from **Anki (.apkg)**, **CSV/Spreadsheets**, or **Lemony (.lem)** files.
 
 ---
 
@@ -120,4 +120,4 @@ Allows creating custom flashcards from scratch without searching the dictionary:
 
 > [!NOTE]
 > **Can I export a deck to study in Anki on desktop?**
-> Yes! Tap **⋮** $\rightarrow$ **Export** $\rightarrow$ choose **Anki (.apkg)**. Lemmory will generate a standard Anki deck file you can open in Anki on PC or Mac.
+> Yes! Tap **⋮** $\rightarrow$ **Export** $\rightarrow$ choose **Anki (.apkg)**. Lemony will generate a standard Anki deck file you can open in Anki on PC or Mac.

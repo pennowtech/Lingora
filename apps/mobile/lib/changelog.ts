@@ -31,24 +31,58 @@ export interface ParsedRelease {
  */
 export const RAW_CHANGELOG_MD = `# Changelog
 
-## [v0.3.0] - 2026-09-02
+## [v0.3.0] - 2026-09-03
+
+### ⛏️ Mining Studio Rework
+- **Passage-Based Capture**: Captures whole passages (up to 1000 characters) instead of single sentences for batch generation.
+- **Study & Mine Analysis**: One tap analyzes a passage into translation, CEFR-tailored grammar, and extracted vocabulary.
+- **Whole-Card Tap & Bulk Cleanup**: Tap any passage to open it; select and clear multiple captures at once.
+
+### 📚 Help Hub
+- **New Help Hub**: Searchable in-app documentation with a chapter directory and a 2-minute video tour.
+- **Fixed Disappearing Video Controls**: Fullscreen minimize/close buttons now reliably reappear on tap, not stuck invisible.
+- **Fixed Wrong Video Playing**: Each chapter's video link now plays its own video, not always the same one.
+
+### 🔔 Word of the Day Fixes
+- **Daily Refresh That Actually Refreshes**: Regenerates on every app foreground, not just once per cold start.
+- **Verified, Not Just Requested**: Retries automatically if the AI repeats a word already shown before.
+- **Notification Opens the Right Popup**: Tapping the daily notification now opens the same summary card as Home.
+
+### 💬 Feedback & Support
+- **Public Email Warning**: Warns before submitting if your email will be visible in a public GitHub issue.
+- **Fixed "Ask in Support" Link**: Was silently landing on the About page instead of the feedback form.
 
 ### 🤖 Redesigned AI Providers Screen
-- **Card-Based Provider List**: Every provider (OpenAI, Groq, Mistral, Gemini, Claude, DeepSeek) now shows as its own card with clear Active/Enabled status, instead of a flat settings list.
-- **Curated Model Profiles**: Pick from a short, labeled list of real models per provider - each tagged with a speed/quality hint (e.g. Recommended, Fastest, Deep Nuance) and a one-line description, instead of typing a raw model name.
-- **One-Tap Key Setup**: A "Get key from..." link on every card opens that provider's developer portal directly, plus new in-app guidance on free-tier vs pay-as-you-go options and roughly what a generated card costs.
-- **Enhanced Help**: Expanded help sections explain how to get a key, and how the Active provider and automatic fallback between validated providers actually works.
-- **Note**: this redesign was built alongside v0.2.0 but missed that release's actual build cut - this is its first real release.
+- **Card-Based Provider List**: Every provider now shows as its own card with clear Active/Enabled status.
+- **Curated Model Profiles**: Pick from a curated model list per provider, each tagged with a speed/quality hint.
+- **One-Tap Key Setup**: A "Get key" link opens each provider's developer portal directly, with cost guidance.
+- **Enhanced Help**: Expanded help sections explain getting a key, and how Active/fallback provider selection works.
+- **Reliable Activation**: Activating a provider now consistently enables it and simplifies how key presence is checked.
 
 ### 🎯 Review Mode Accuracy
-- **Honest Review-Mode Badges**: Decks now show only the review formats they actually support instead of always showing all five, even for older decks created before per-deck review modes existed.
-- **Cleaner Search Previews**: Removed review-mode badges from read-only Search previews (Google Translate, Word Guide) where a saved card - and its review modes - doesn't exist yet.
-- **Shared Fallback Logic**: Deck review-mode defaults are now computed in one shared place across mobile and desktop, so the two can no longer drift out of sync.
+- **Honest Review-Mode Badges**: Decks now show only the review formats they actually support, not always all five.
+- **Cleaner Search Previews**: Removed review-mode badges from read-only Search previews where no saved card exists yet.
+- **Shared Fallback Logic**: Deck review-mode defaults now come from one shared place across mobile and desktop.
 
 ### 🛠 AI Card Reliability
-- **Visible Enrichment Failures**: A "Generate with AI" attempt that fails partway now tells you it didn't complete, instead of silently leaving the card looking stuck with no explanation.
-- **Fixed Dead-End Retry Loops**: "Ask AI" and "More Info" no longer open into an unwinnable retry loop on a card with no real meaning content yet - both now explain what's missing and point at Regenerate, on the word page and during Review alike.
-- **Smarter Edit Visibility**: The Edit action on an AI-intended card is now tied to live generation state rather than a one-time navigation flag, so it no longer reappears unpredictably after a failed background enrichment.
+- **Visible Enrichment Failures**: A failed "Generate with AI" attempt now tells you it didn't complete.
+- **Fixed Dead-End Retry Loops**: "Ask AI" and "More Info" no longer trap you in an unwinnable retry loop.
+- **Smarter Edit Visibility**: Edit visibility is now tied to live generation state, not a one-time flag.
+
+### 🧹 Review & Settings Cleanup
+- **Decluttered Review Header**: Removed the estimated time-remaining pill and redundant review-mode badges from the review screen.
+- **Removed Duplicate Audio Settings**: Deleted a duplicate "Audio Settings" entry that already existed elsewhere in Settings.
+- **Card-Add Flows That Actually Close**: Adding a card now closes and shows a toast instead of stalling open.
+
+### 🎴 Decks Screen Polish
+- **Study-Progress Hero Link**: Decks hero now shows 30-day retention and links directly to Stats.
+- **New Groq Model**: Added GPT-OSS 20B as a new curated option in the Groq model list.
+
+### 🛠 Stability & Tooling
+- **Fixed Cold-Boot Crash**: Installed a missing dependency that crashed every app launch on Expo SDK 57.
+- **Expo SDK Alignment**: Synced all Expo package versions and dependencies to their SDK-57-matched releases.
+- **Development Client Build Profile**: Added a dedicated EAS build profile for the Expo development client.
+- **EAS Build Changelog Gate**: New confirmation prompt before every build, verifying changelog and version were updated.
 `
 
 function resolveIconAndColors(title: string): {

@@ -13,9 +13,9 @@ export type FeedbackCategory = 'support' | 'bug' | 'feature' | 'general'
 
 /**
  * Known client application identifiers.
- * You can pass one of these or any custom string (e.g. 'desktop-lemmory', 'android-lemmory', 'ios-lemmory').
+ * You can pass one of these or any custom string (e.g. 'desktop-lemony', 'android-lemony', 'ios-lemony').
  */
-export type ClientAppTarget = 'desktop-lemmory' | 'android-lemmory' | 'ios-lemmory' | 'web-lemmory' | (string & {})
+export type ClientAppTarget = 'desktop-lemony' | 'android-lemony' | 'ios-lemony' | 'web-lemony' | (string & {})
 
 /**
  * Diagnostic metadata attached to a feedback submission.
@@ -40,7 +40,7 @@ export interface FeedbackDiagnostics {
  *   category: 'bug',
  *   title: 'Audio playback fails on macOS',
  *   message: 'When tapping the speaker icon, no sound is heard.',
- *   app: 'desktop-lemmory',
+ *   app: 'desktop-lemony',
  *   targetOwner: 'pennowtech',
  *   targetRepo: 'Lingora',
  *   contactEmail: 'user@example.com',
@@ -76,7 +76,7 @@ export interface FeedbackPayload {
   targetRepo?: string | undefined
 
   /**
-   * The specific client application submitting the feedback (e.g. 'desktop-lemmory', 'android-lemmory', 'ios-lemmory').
+   * The specific client application submitting the feedback (e.g. 'desktop-lemony', 'android-lemony', 'ios-lemony').
    * When provided, it attaches an `app:<name>` label to the GitHub issue and appears in diagnostics.
    * Defaults to undefined (no app label attached).
    */
@@ -174,7 +174,7 @@ export function formatIssueBody(payload: FeedbackPayload): string {
 
   // Footer Disclaimer
   lines.push(`---`)
-  lines.push(`*Submitted automatically via Lemmory App Feedback Form*`)
+  lines.push(`*Submitted automatically via Lemony App Feedback Form*`)
 
   return lines.join('\n')
 }

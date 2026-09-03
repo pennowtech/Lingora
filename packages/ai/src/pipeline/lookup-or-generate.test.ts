@@ -80,6 +80,27 @@ describe('lookupOrGenerate', () => {
     expect(ai.packageCalls).toBe(1)
   })
 
+  it('reconciles a not-yet-seen inflection the AI still normalizes to an existing lemma, instead of throwing', async () => {
+    const ai = mockProvider([complete(), complete()])
+    const pipeline = await createAIPipeline({ db, ai })
+
+    await pipeline.lookupOrGenerate('ausgehen', { cefrLevel: 'B1', deckId: DECK_ID })
+
+    // "ausgehend" was never recorded as an inflection of "ausgehen" (validPayload's own list is
+    // ['geht aus', 'ging aus', 'ausgegangen']), so the pre-generation morphology check misses it
+    // and the provider actually gets called - but the mocked reply still normalizes back to the
+    // same lemma already persisted above. Without reconciling against that, persistWordGeneration's
+    // "lemma already exists" guard would throw here instead of resolving to 'existing'.
+    const outcome = await pipeline.lookupOrGenerate('ausgehend', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+    })
+
+    expect(ai.packageCalls).toBe(2)
+    expect(outcome.kind).toBe('existing')
+    if (outcome.kind === 'existing') expect(outcome.lemma.form).toBe('ausgehen')
+  })
+
   it('regenerates under a different native language instead of returning the stale existing card', async () => {
     const ai = mockProvider([complete(), complete()])
     const pipeline = await createAIPipeline({ db, ai })

@@ -54,8 +54,10 @@ import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -1827,8 +1829,9 @@ export default function WordDetailScreen(): JSX.Element {
 
       {/* ── Edit this card — the CardActionBar's pencil icon ── */}
       <Modal visible={editOpen} animationType="slide" transparent onRequestClose={() => setEditOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setEditOpen(false)} />
-        <View style={styles.modalSheet}>
+        <KeyboardAvoidingView style={styles.keyboardAvoidingFill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setEditOpen(false)} />
+          <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t('Edit this card')}</Text>
           {/* Capped + scrollable (see modalSheet's maxHeight) — three multiline fields can grow
@@ -1890,7 +1893,8 @@ export default function WordDetailScreen(): JSX.Element {
               disabled={saveEdit.isPending}
             />
           </View>
-        </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ── Report modal ── */}
@@ -1900,8 +1904,9 @@ export default function WordDetailScreen(): JSX.Element {
         transparent
         onRequestClose={() => setReportTarget(null)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setReportTarget(null)} />
-        <View style={styles.modalSheet}>
+        <KeyboardAvoidingView style={styles.keyboardAvoidingFill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setReportTarget(null)} />
+          <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
           <Text style={styles.modalTitle}>{t("What's wrong with this?")}</Text>
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalScrollContent}>
@@ -1937,7 +1942,8 @@ export default function WordDetailScreen(): JSX.Element {
               }
             />
           </View>
-        </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <WordGuideModal
@@ -2572,6 +2578,7 @@ const createStyles = (colors: ThemeColors) =>
     bottomBarButtonFull: {
       width: '100%',
     },
+    keyboardAvoidingFill: { flex: 1 },
     modalBackdrop: { flex: 1, backgroundColor: '#00000066' },
     modalSheet: {
       backgroundColor: colors.surface,

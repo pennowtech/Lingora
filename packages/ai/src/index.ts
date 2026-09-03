@@ -50,6 +50,12 @@ export {
   wordGenerationSchemaForLanguage,
   type PartialWordGeneration,
 } from './schemas/generation'
+export {
+  minedGrammarPointSchema,
+  minedPassageSchema,
+  minedPassageWordSchema,
+  type MinedPassageSchemaType,
+} from './schemas/mining'
 
 // Prompt registry (templates are versioned application logic)
 export { LANGUAGE_NAMES, PROMPTS, renderPrompt, type PromptName, type PromptTemplate } from './prompts/templates'

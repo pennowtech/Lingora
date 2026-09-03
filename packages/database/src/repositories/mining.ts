@@ -22,6 +22,17 @@ function toEntry(row: MineRow): SentenceMineEntry {
 }
 
 /**
+ * Get all captured passages, newest first — the mining studio passage list.
+ */
+export async function getAllMineEntries(db: DatabaseAdapter): Promise<SentenceMineEntry[]> {
+  const rows = await db.query<MineRow>(
+    `SELECT ${MINE_COLUMNS} FROM sentence_mining_queue
+     ORDER BY captured_at DESC`,
+  )
+  return rows.map(toEntry)
+}
+
+/**
  * Get the unprocessed queue, oldest capture first — the mining review screen.
  */
 export async function getPendingMineEntries(db: DatabaseAdapter): Promise<SentenceMineEntry[]> {
@@ -89,4 +100,23 @@ export async function updateMineEntryProcessed(
  */
 export async function deleteMineEntry(db: DatabaseAdapter, entryId: string): Promise<void> {
   await db.execute(`DELETE FROM sentence_mining_queue WHERE id = ?`, [entryId])
+}
+
+/**
+ * Discard a batch of captures at once - the Mining Studio's "clear selected" action.
+ */
+export async function deleteMineEntries(db: DatabaseAdapter, entryIds: string[]): Promise<void> {
+  if (entryIds.length === 0) return
+  await db.transaction(async (tx) => {
+    for (const id of entryIds) {
+      await tx.execute(`DELETE FROM sentence_mining_queue WHERE id = ?`, [id])
+    }
+  })
+}
+
+/**
+ * Discard every captured passage - the Mining Studio's "clear all" action.
+ */
+export async function deleteAllMineEntries(db: DatabaseAdapter): Promise<void> {
+  await db.execute(`DELETE FROM sentence_mining_queue`)
 }

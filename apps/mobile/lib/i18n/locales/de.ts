@@ -1614,4 +1614,45 @@ export const de: Record<Phrase, string> = {
   '{{due}} cards due today': '{{due}} Karten heute fällig',
   '{{total}} total cards in {{decks}} decks': '{{total}} Karten insgesamt in {{decks}} Decks',
   "OpenAI's open-weight model, fast on Groq LPUs": 'Offenes Modell von OpenAI, schnell auf Groq LPUs',
+  'Study & Mine': 'Lernen & Erschließen',
+  'Mining Studio Help': 'Mining Studio – Hilfe',
+  'Mining Studio & Captured Passages': 'Mining Studio & erfasste Textabschnitte',
+  'Clearing passages': 'Textabschnitte löschen',
+  'How Passage Mining works': 'So funktioniert die Textauswertung',
+  'Adding words to your decks': 'Wörter zu deinen Stapeln hinzufügen',
+  'The **Mining Studio** stores passages and sentences captured from your reading, browsing, and clipboard.':
+    'Im **Mining Studio** werden Textabschnitte und Sätze gesammelt, die du beim Lesen, Surfen oder über die Zwischenablage erfasst hast.',
+  'Tap anywhere on a passage - or its **Study & Mine** button - to see its fluent translation, grammar breakdown, and extracted vocabulary.':
+    'Tippe auf einen Textabschnitt - oder auf seinen **Lernen & Erschließen**-Button -, um die flüssige Übersetzung, die Grammatikerklärung und die extrahierten Vokabeln zu sehen.',
+  'A passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it.':
+    'Ein Textabschnitt mit *grün eingefärbtem Hintergrund* und dem Abzeichen **Ausgewertet** hat bereits mindestens eine Karteikarte geliefert.',
+  'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.':
+    'Tippe auf das Kästchen bei einem Textabschnitt, um ihn auszuwählen, und dann auf **Auswahl löschen**, um nur diese zu entfernen.',
+  '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.':
+    '**Alle löschen** oben entfernt alle erfassten Textabschnitte auf einmal - deine bereits erstellten Karteikarten sind davon *niemals* betroffen, nur die Erfassungen selbst.',
+  '**Passage Mining** analyzes the whole passage at once: a fluent translation, a grammar breakdown, and a shortlist of key vocabulary.':
+    'Die **Textauswertung** analysiert den ganzen Abschnitt auf einmal: eine flüssige Übersetzung, eine Grammatikerklärung und eine Auswahl an Schlüsselvokabeln.',
+  'Grammar explanations and word difficulty are automatically tailored to *your CEFR level* from Settings.':
+    'Grammatikerklärungen und der Schwierigkeitsgrad der Wörter richten sich automatisch nach *deinem GER-Niveau* aus den Einstellungen.',
+  'A **tinted green background** on the passage means at least one card has already been mined from it.':
+    'Ein **grün eingefärbter Hintergrund** beim Textabschnitt bedeutet, dass daraus bereits mindestens eine Karteikarte erstellt wurde.',
+  'Select any key words extracted from the passage and tap **Add to Deck**.':
+    'Wähle beliebige Schlüsselwörter aus dem Textabschnitt aus und tippe auf **Zum Stapel hinzufügen**.',
+  'Selected words are generated as full flashcards, with the source sentence saved as your example.':
+    'Ausgewählte Wörter werden als vollständige Karteikarten erstellt, wobei der Ursprungssatz als dein Beispiel gespeichert wird.',
+  'A word you already have a card for is reported as **already present**, never as failed - nothing is duplicated or overwritten.':
+    'Ein Wort, für das du bereits eine Karte hast, wird als **bereits vorhanden** gemeldet, nie als fehlgeschlagen - nichts wird doppelt angelegt oder überschrieben.',
+  'Re-analyzing a passage': 'Einen Textabschnitt erneut auswerten',
+  'Tap the refresh icon next to the passage to *regenerate* its translation and grammar breakdown.':
+    'Tippe auf das Aktualisieren-Symbol neben dem Textabschnitt, um seine Übersetzung und Grammatikerklärung *neu zu erstellen*.',
+  'Useful if the first analysis missed something, or after you change your CEFR level in Settings.':
+    'Nützlich, wenn bei der ersten Auswertung etwas gefehlt hat oder nachdem du dein GER-Niveau in den Einstellungen geändert hast.',
+  'What is Mining Studio?': 'Was ist das Mining Studio?',
+  'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.':
+    'Erfasse einen beliebigen Textabschnitt, den du liest - einen Artikel, eine Nachricht, einen Untertitel - und ein Antippen liefert dir eine **Übersetzung**, eine **Grammatik**-Erklärung auf deinem Niveau und fertige **Karteikarten** für die Wörter, die sich zu lernen lohnen. Kein manuelles Nachschlagen, kein Wörterbuch-Hopping.',
+  'Instant Lookup and Card Generations': 'Sofortnachschlagen & Kartenerstellung',
+  'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
+    'Schlage jedes {{target}}e oder {{native}}e Wort sofort nach - auch flektierte oder konjugierte Formen funktionieren. Noch nicht in deiner Bibliothek? Ein Antippen **erstellt eine vollständige Karteikarte** mit Bedeutungen, Beispielen und Aussprache, sodass du die App nie verlassen musst, um etwas nachzuschlagen.',
+  "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
+    '**Suche** ist der Weg, um jedes Wort nachzuschlagen, ohne die App zu verlassen: tippe es ein und erhalte sofort Ergebnisse - ist es neu für dich, **erstellt ein Antippen eine vollständige Karteikarte** mit Bedeutungen, Beispielen und Aussprache.',
 }

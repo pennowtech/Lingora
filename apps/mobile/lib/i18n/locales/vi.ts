@@ -1306,4 +1306,45 @@ export const vi: Partial<Record<Phrase, string>> = {
   '{{due}} cards due today': '{{due}} thẻ cần ôn hôm nay',
   '{{total}} total cards in {{decks}} decks': 'Tổng cộng {{total}} thẻ trong {{decks}} bộ thẻ',
   "OpenAI's open-weight model, fast on Groq LPUs": 'Mô hình trọng số mở của OpenAI, cực nhanh trên LPU Groq',
+  'Study & Mine': 'Học & Khai thác',
+  'Mining Studio Help': 'Trợ giúp Mining Studio',
+  'Mining Studio & Captured Passages': 'Mining Studio & Đoạn văn đã lưu',
+  'Clearing passages': 'Xóa đoạn văn',
+  'How Passage Mining works': 'Cách hoạt động của khai thác đoạn văn',
+  'Adding words to your decks': 'Thêm từ vào bộ thẻ của bạn',
+  'The **Mining Studio** stores passages and sentences captured from your reading, browsing, and clipboard.':
+    '**Mining Studio** lưu trữ các đoạn văn và câu bạn thu thập được khi đọc, duyệt web hoặc từ khay nhớ tạm.',
+  'Tap anywhere on a passage - or its **Study & Mine** button - to see its fluent translation, grammar breakdown, and extracted vocabulary.':
+    'Chạm vào bất kỳ đâu trên đoạn văn - hoặc nút **Học & Khai thác** của nó - để xem bản dịch trôi chảy, phân tích ngữ pháp và từ vựng được trích xuất.',
+  'A passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it.':
+    'Đoạn văn có *nền màu xanh lá* và huy hiệu **Đã khai thác** đã tạo ra ít nhất một thẻ từ nó.',
+  'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.':
+    'Chạm vào ô chọn của đoạn văn để chọn nó, sau đó chạm **Xóa mục đã chọn** để chỉ xóa những đoạn đó.',
+  '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.':
+    '**Xóa tất cả** ở trên cùng xóa toàn bộ đoạn văn đã lưu cùng lúc - các thẻ đã khai thác của bạn *không bao giờ* bị ảnh hưởng, chỉ các đoạn văn đã lưu bị xóa.',
+  '**Passage Mining** analyzes the whole passage at once: a fluent translation, a grammar breakdown, and a shortlist of key vocabulary.':
+    '**Khai thác đoạn văn** phân tích toàn bộ đoạn văn cùng lúc: một bản dịch trôi chảy, phân tích ngữ pháp và danh sách từ vựng quan trọng.',
+  'Grammar explanations and word difficulty are automatically tailored to *your CEFR level* from Settings.':
+    'Giải thích ngữ pháp và độ khó của từ tự động điều chỉnh theo *trình độ CEFR của bạn* trong Cài đặt.',
+  'A **tinted green background** on the passage means at least one card has already been mined from it.':
+    '**Nền màu xanh lá** trên đoạn văn nghĩa là đã có ít nhất một thẻ được tạo từ đoạn văn đó.',
+  'Select any key words extracted from the passage and tap **Add to Deck**.':
+    'Chọn các từ khóa được trích xuất từ đoạn văn và chạm **Thêm vào bộ thẻ**.',
+  'Selected words are generated as full flashcards, with the source sentence saved as your example.':
+    'Các từ đã chọn được tạo thành thẻ ghi nhớ đầy đủ, với câu gốc được lưu làm ví dụ của bạn.',
+  'A word you already have a card for is reported as **already present**, never as failed - nothing is duplicated or overwritten.':
+    'Từ mà bạn đã có thẻ sẽ được báo là **đã có sẵn**, không bao giờ là thất bại - không có gì bị trùng lặp hay ghi đè.',
+  'Re-analyzing a passage': 'Phân tích lại đoạn văn',
+  'Tap the refresh icon next to the passage to *regenerate* its translation and grammar breakdown.':
+    'Chạm vào biểu tượng làm mới bên cạnh đoạn văn để *tạo lại* bản dịch và phân tích ngữ pháp của nó.',
+  'Useful if the first analysis missed something, or after you change your CEFR level in Settings.':
+    'Hữu ích nếu lần phân tích đầu tiên bỏ sót điều gì đó, hoặc sau khi bạn thay đổi trình độ CEFR trong Cài đặt.',
+  'What is Mining Studio?': 'Mining Studio là gì?',
+  'Capture any passage you read - an article, a message, a subtitle - and one tap turns it into a **translation**, a **grammar** breakdown at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.':
+    'Thu thập bất kỳ đoạn văn nào bạn đọc - một bài báo, một tin nhắn, một phụ đề - và chỉ một chạm sẽ cho bạn **bản dịch**, phân tích **ngữ pháp** theo trình độ của bạn, và **thẻ ghi nhớ** sẵn sàng cho những từ đáng học. Không cần tra cứu thủ công, không cần lục tìm từ điển.',
+  'Instant Lookup and Card Generations': 'Tra cứu tức thì và tạo thẻ',
+  'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
+    'Tra cứu ngay lập tức bất kỳ từ {{target}} hoặc {{native}} nào - các dạng biến cách và chia động từ cũng hoạt động. Chưa có trong thư viện của bạn? Chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm, để bạn không bao giờ phải rời khỏi ứng dụng để tra một từ.',
+  "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
+    'Tìm kiếm là cách bạn tra từ mà không cần rời khỏi ứng dụng: gõ từ và nhận kết quả ngay lập tức, nếu từ đó còn mới với bạn, chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm.',
 }

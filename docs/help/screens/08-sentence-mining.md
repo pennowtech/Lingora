@@ -1,103 +1,167 @@
-# ⛏️ Sentence Mining & Capture Queue
+# ⛏️ Mining Studio & Passage Mining
 
-**Sentence mining** is the practice of capturing natural, real-world sentences from books, articles, videos, and conversations in your target language, and turning them into rich flashcards.
-
-The **Mining Queue** in Lemmory acts as a smart staging holding area where captured text is curated and reviewed before any AI generation or card creation takes place.
+**Mining Studio** is where real text you've read — an article, a message, a subtitle — turns into study material. Capture a passage, then one tap gets you its **translation**, its **grammar** explained at your level, and ready-made **flashcards** for the words worth learning. No manual lookup, no dictionary-hopping.
 
 ---
 
 ## 🚀 Screen Architecture & Key Components
 
+The feature is two screens: the **Mining Studio** list (captured passages) and **Study & Mine** (one passage's analysis).
+
 ```
 ┌────────────────────────────────────────────────────────┐
-│  Mining Queue                                     [ + ]│  (Header & Add Button)
+│  Mining Studio                                      ❓ │  (Header & Help)
 ├────────────────────────────────────────────────────────┤
-│  HOLDING AREA                               3 Captures │
-│                                                        │
-│  ☑️ "Wir schlendern am Nachmittag durch den Park."     │
-│     📰 Article · 2 hours ago                    [ 🗑️ ] │
-│                                                        │
-│  ☑️ "Das Unternehmen möchte neue Mitarbeiter..."      │
-│     📋 Clipboard · 5 hours ago                  [ 🗑️ ] │
-│                                                        │
-│  ◻️ "Wegen des Sturms musste die Bahn..."              │
-│     ✏️ Manual · Yesterday                       [ 🗑️ ] │
+│  3 passages                                  Clear All │  (Toolbar)
 ├────────────────────────────────────────────────────────┤
-│  [ ✨ Generate Cards from Selected (2) ] (Sticky Bottom)
+│  ◻ 📰 Article · 2 hours ago              [ ✓ Mined ]   │  (green tint)
+│  "Wir schlendern am Nachmittag durch den Park..."       │
+│  187 chars                    Study & Mine ›      [🗑] │
+│                                                          │
+│  ◻ 📋 Clipboard · 5 hours ago                           │
+│  "Das Unternehmen möchte neue Mitarbeiter..."           │
+│  240 chars                    Study & Mine ›      [🗑] │
+├────────────────────────────────────────────────────────┤
+│                                                    [ + ]│  (Capture FAB)
+└────────────────────────────────────────────────────────┘
+```
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Study & Mine                                       ❓ │
+├────────────────────────────────────────────────────────┤
+│  📖 Passage        [ ✓ Mined ]        [B1]   🔊    🔄  │  (CEFR · speak · regenerate)
+│  "Wir schlendern am Nachmittag durch den Park..."       │
+├────────────────────────────────────────────────────────┤
+│  🌐 Fluent Translation                                  │
+│  We stroll through the park in the afternoon...         │
+├────────────────────────────────────────────────────────┤
+│  📖 Grammar Breakdown                          [B1]     │
+│  • Separable verb "durch...gehen" — splits in clauses   │
+│    durch + [verb] ... + gehen                           │
+├────────────────────────────────────────────────────────┤
+│  ✨ Key Vocabulary (4)                     Select All   │
+│  ☑ schlendern   verb                                    │
+│      to stroll                                          │
+│      "Wir schlendern am Nachmittag..."                  │
+│  ☑ der Nachmittag   noun                                │
+│      the afternoon                                      │
+├────────────────────────────────────────────────────────┤
+│  [ ✨ Add 4 Words to Deck ]                              │
 └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📍 How to Open the Mining Queue
+## 📍 How to Open Mining Studio
 
-You can open the Mining Queue in two ways:
-1. **From the Home Dashboard**: Tap the **Mining queue** action tile right below the daily load banner.
+1. **From the Home Dashboard**: Tap the **Mining queue** action tile below the daily load banner (still its label on Home, even though the screen itself is now "Mining Studio").
 2. **From the Bottom Tab Bar**: Tap the **Mine** tab.
 
 ---
 
 ## 🔍 Detailed Component Breakdown
 
-### 1. The Staging Holding Area
-- **No Immediate AI Costs**: Sentences captured into the queue are stored locally on your device as raw text. AI is only called when you explicitly choose to generate cards.
-- **Source Badges & Timestamps**: Every captured sentence clearly displays where it came from:
-  - 📰 **Article** (Web reader or news)
-  - 🎥 **Video** (YouTube / Netflix)
-  - 📋 **Clipboard** (Copied text)
-  - ✏️ **Manual** (Hand-typed)
-  - 📤 **Share Sheet** (Shared from external apps)
-- **Selection Checkboxes**: All items are selected by default. Tap any row to check or uncheck it for batch processing.
-- **Delete Button (🗑️)**: Remove unwanted sentences with a single tap.
+### 1. Mining Studio — the passage library
+
+A passage stays here after it's been mined, so you can always revisit it. But you can always clear them by pressing **Clear All** in the top right corner.
+
+Various components of this screen are as follows:
+
+- **No immediate AI cost on capture**: a passage is stored locally as raw text; AI is only called once you open it in Study & Mine.
+- **Source badges & timestamps**: every capture shows where it came from — 📰 Article, 📋 Clipboard, ✏️ Manual, 📤 Share Sheet, ⌨️ Process Text (Android "Share to Lemmory"), plus extension and PDF sources.
+- **Character count**: each passage shows its length; capture is capped at **1000 characters**.
+- **Mined indicator**: a passage with a *tinted green background* and a **Mined** badge already had at least one card mined from it — that state updates immediately once you add a word, without needing to leave and reopen the screen.
+- **Tap anywhere to open**: tapping the card body (not its checkbox or delete icon) opens **Study & Mine** for that passage. There's no separate "Study & Mine" button to hunt for — the whole card is the button.
+- **Overview card**: when the library is empty, a centered "What is Mining Studio?" card explains the feature — it disappears the moment you have a captured passage.
 
 ---
 
-### 2. 📥 Three Ways to Capture Sentences
+### 2. 📥 Capturing a passage
 
 #### A. One-Tap Clipboard Paste
-- If you copy any foreign sentence on your phone (e.g. from an eBook or messaging app), opening the Mining Queue automatically detects the clipboard text and lets you add it with a single tap.
+Tap the **+** button, then **Paste from clipboard** — copied text (from an eBook, a message, anywhere) is pulled in and truncated to 1000 characters if longer.
 
 #### B. System Share Sheet & Android Process Text
-- **Share Sheet**: In any browser or app, highlight a sentence $\rightarrow$ tap **Share** $\rightarrow$ select **Lemmory**. The sentence is placed directly into your Mining Queue in the background.
-- **Android Process Text**: Highlight text $\rightarrow$ tap the system three dots $\rightarrow$ tap **"Share to Lemmory"**.
+- **Share Sheet**: highlight text in any app → **Share** → **Lemmory**.
+- **Android Process Text**: highlight text → the system's three-dot menu → **Share to Lemmory**.
 
-#### C. Manual Add Button (`+`)
-- Tap the **+** button in the header to type or paste a custom sentence manually.
+#### C. Manual Add (`+`)
+Tap **+** in the corner, type or paste a passage or sentence directly, and **Save Passage**. The composer shows a live character counter against the 1000-character cap.
 
 ---
 
-### 3. ✨ Batch AI Card Generation
+### 3. 🧹 Clearing passages
 
-When you are ready to turn your collected sentences into study cards:
+- **Select and delete**: tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.
+- **Clear All**: removes every captured passage at once.
+- **Cards are never touched**: deleting a passage only removes the capture record. Any cards you already mined from it stay exactly where they are, in your decks.
 
-1. Tap **Generate cards** at the bottom of the screen.
-2. A **Deck Picker** appears — select the destination study deck where these cards should be saved.
-3. Lemmory's automated AI pipeline processes your selected captures:
-   - **Lemma Extraction**: Identifies the primary vocabulary word and its part of speech.
-   - **Translations & Explanations**: Generates accurate translations and concise usage notes in your native language.
-   - **Interactive Cloze Creation**: Automatically creates fill-in-the-blank blanks (`[...]`) centered around the captured sentence.
-4. The newly created cards appear directly in your study deck, ready for daily review!
+---
+
+### 4. ✨ Study & Mine — analyzing one passage
+
+Opening a passage calls the AI once to produce three things together:
+
+1. **Fluent Translation** — a natural translation of the whole passage into your native language.
+2. **Grammar Breakdown** — 2–4 explanations calibrated to *your CEFR level* (from Settings): word order and cases at A1–A2, subordinate clauses and passive voice at B1–B2, nominal style and fixed collocations at C1–C2. Each point can include a short rule/pattern chip alongside the explanation.
+3. **Key Vocabulary** — a shortlist of words worth learning from the passage, each with its part of speech, contextual meaning, and the exact sentence it appeared in.
+
+The CEFR badge next to the passage (and next to the grammar section) uses the same green → amber → purple level ramp as the rest of the app — it's not a fixed color.
+
+**Caching**: once analyzed, a passage's translation/grammar/vocabulary is kept in memory for the rest of the app session, so reopening it doesn't re-bill the AI provider. That cache is cleared the next time the app is fully closed and relaunched (not just backgrounded) — a deliberate choice so a long-running session stays fast, but a fresh app start doesn't hold stale analyses forever. Tap the **refresh icon** next to the passage at any time to force a fresh analysis — useful if the first pass missed something, or after you change your CEFR level.
+
+---
+
+### 5. Adding words to your decks
+
+Select any of the extracted vocabulary words (all are selected by default; **Select All / Deselect All** toggles the whole list) and tap **Add N Words to Deck**. This opens the same `DeckPickerModal` used throughout the app (pick an existing deck or create a new one with its own review modes).
+
+While the words are being added, a progress overlay shows ("Adding N words to your deck..."); the deck picker itself closes immediately so the overlay isn't hidden behind it.
+
+Every outcome is one of three, and the closing toast names exactly which words landed where:
+
+- **Added** — a brand-new flashcard was generated, with the passage's own sentence saved as the example.
+- **Already in deck** — you already had a card for that word *and* it was already in this deck; nothing changes. This is reported as "already present," never as a failure.
+- **Failed** — a genuine error (e.g. a network issue) prevented that one word from being processed.
+
+Adding is always additive: a word that already exists elsewhere gets appended to the new deck (never duplicated, never overwritten), and a word already sitting in the target deck is simply left alone. Even an inflected form the app hasn't seen before (a past participle, a rare conjugation) that the AI resolves back to a word you already have is recognized as "already present" rather than misreported as a failure.
+
+---
+
+### 6. Help Accordions
+
+Tapping the **❓** icon in either screen's header opens that screen's own help sheet (both are titled "Mining Studio Help," but their content is specific to the screen you opened them from):
+
+- **On the Mining Studio list**: what the studio is for, how the Mined badge/highlight works, and how to clear passages.
+- **On Study & Mine**: how passage analysis works, how adding words to decks reports its results, and how re-analyzing a passage works.
 
 ---
 
 ## 💡 Common Workflows
 
-1. **Daily Reading Sentence Mining**:
-   - While reading news or books online in your target language, copy interesting or unfamiliar sentences.
-   - Paste or share them into Lemmory's Mining Queue throughout the day.
-   - At the end of the day, open the Mining Queue, review your captures, and tap **Generate cards** to convert your entire day's reading into fresh flashcards at once.
-2. **Selective Batching**:
-   - If you captured 10 sentences but only want to study 3 today, uncheck the other 7.
-   - Tap **Generate cards** — only the 3 checked sentences will be turned into cards, while the remaining 7 stay safely in the queue for another day.
+1. **Reading-session mining**:
+   - While reading an article or book in your target language, copy a paragraph you found interesting or difficult.
+   - Paste it into Mining Studio via the **+** button.
+   - Open it in **Study & Mine**, read the translation and grammar notes, then add the vocabulary worth keeping to a deck.
+2. **Revisiting a passage for more words**:
+   - Open a passage that already shows the **Mined** badge — its translation and grammar are still there (from cache, or regenerated instantly if the session was restarted).
+   - Select any words you skipped the first time and add them; already-mined words are reported as "already present," so there's no risk of duplicating anything.
+3. **Cleaning up the library**:
+   - Select a batch of passages you've fully mined and no longer need to revisit, and **Delete Selected** — the cards they produced stay in your decks untouched.
 
 ---
 
 ## ❓ Frequently Asked Questions
 
 > [!TIP]
-> **Can I edit a sentence before generating a card?**
-> Yes! You can discard any sentence you don't like, or edit the generated flashcard directly in your deck after creation.
+> **Does deleting a passage delete the flashcards I made from it?**
+> No. Deleting only removes the captured passage text from Mining Studio. Cards already added to a deck are completely independent and stay put.
 
 > [!NOTE]
-> **Do captured sentences expire?**
-> No. Sentences stay in your local Mining Queue indefinitely until you generate them into cards or delete them.
+> **Why didn't my second analysis of the same passage cost another AI call?**
+> Mining Studio caches a passage's analysis for the rest of the current app session. Reopening it reads from that cache instead of calling the AI again — force a fresh one anytime with the refresh icon next to the passage.
+
+> [!NOTE]
+> **A word I added shows as "already present" instead of being added — is that a bug?**
+> No. It means you already have a flashcard for that word in the selected deck, so nothing needed to change. It's reported separately from a genuine failure so you always know exactly what happened to each word.

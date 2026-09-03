@@ -2,6 +2,7 @@ import type { Card, CefrLevel, GenerationUsage, LanguageCode, Lemma, PromptVersi
 import {
   findLemmaBySurfaceForm,
   getCardByLemmaAndNativeLanguage,
+  getLemmaByForm,
   persistWordGeneration,
   regenerateWordPackage,
   type DatabaseAdapter,
@@ -18,6 +19,15 @@ import type { AIProvider, DictionaryProvider } from '../providers/types'
  * (lemma, nativeLanguage) pair in place (via regenerateWordPackage) instead of creating a second,
  * parallel card the way persistWordGeneration always would — see cardToUpgrade's doc comment in
  * lookupOrGenerate below for why that matters.
+ *
+ * The morphology check the caller ran (findLemmaBySurfaceForm) only matches a surface form
+ * already recorded as an inflection of a lemma — a not-yet-seen inflection of a known word (e.g.
+ * looking up "zurückgekehrt" when only "zurückkehren" and other forms were stored) misses it
+ * entirely, even though the AI itself, generating in isolation, still correctly normalizes its
+ * own output back to the existing lemma's canonical form. Left unhandled, persistWordGeneration's
+ * own "lemma already exists" guard would throw on that collision — reconcile against the payload's
+ * own canonical form here, right before deciding how to persist, so that throw never fires for a
+ * word that was already fully mined under a different inflection.
  */
 async function persistOrUpgrade(
   db: DatabaseAdapter,
@@ -29,24 +39,53 @@ async function persistOrUpgrade(
   reuseLemmaId: string | undefined,
   cardToUpgrade: Card | undefined,
   existingLemma: Lemma | null,
-): Promise<{ lemma: Lemma; cardId: string; generationMetadataId: string }> {
-  if (cardToUpgrade && existingLemma) {
+): Promise<
+  | { kind: 'existing'; lemma: Lemma }
+  | { kind: 'generated'; lemma: Lemma; cardId: string; generationMetadataId: string }
+> {
+  let effectiveReuseLemmaId = reuseLemmaId
+  let effectiveCardToUpgrade = cardToUpgrade
+  let effectiveExistingLemma = existingLemma
+
+  if (!existingLemma) {
+    const canonicalLemma = await getLemmaByForm(db, payload.lemma.form, payload.lemma.language)
+    if (canonicalLemma) {
+      effectiveExistingLemma = canonicalLemma
+      effectiveReuseLemmaId = canonicalLemma.id
+      const matchingCard = await getCardByLemmaAndNativeLanguage(db, canonicalLemma.id, nativeLanguage)
+      const isFullAiCard = !!matchingCard?.source && AI_GENERATED_SOURCES.includes(matchingCard.source)
+      if (matchingCard && isFullAiCard) {
+        return { kind: 'existing', lemma: canonicalLemma }
+      }
+      if (matchingCard && !isFullAiCard) {
+        effectiveCardToUpgrade = matchingCard
+      }
+    }
+  }
+
+  if (effectiveCardToUpgrade && effectiveExistingLemma) {
     const { cardId, generationMetadataId } = await regenerateWordPackage(
       db,
-      existingLemma.id,
-      cardToUpgrade.id,
+      effectiveExistingLemma.id,
+      effectiveCardToUpgrade.id,
       payload,
       usage,
     )
     // regenerateWordPackage may have corrected the lemma's form casing (e.g. a dictionary card's
     // lowercase "vorteil" → the AI's grammatically correct "Vorteil") — reflect that here rather
     // than returning the stale, pre-upgrade form from existingLemma.
-    return { lemma: { ...existingLemma, form: payload.lemma.form }, cardId, generationMetadataId }
+    return {
+      kind: 'generated',
+      lemma: { ...effectiveExistingLemma, form: payload.lemma.form },
+      cardId,
+      generationMetadataId,
+    }
   }
-  return persistWordGeneration(db, payload, usage, deckId, nativeLanguage, {
+  const persisted = await persistWordGeneration(db, payload, usage, deckId, nativeLanguage, {
     addToDeck,
-    ...(reuseLemmaId && { existingLemmaId: reuseLemmaId }),
+    ...(effectiveReuseLemmaId && { existingLemmaId: effectiveReuseLemmaId }),
   })
+  return { kind: 'generated', ...persisted }
 }
 
 const log = logger.child({ feature: 'ai', component: 'lookup-or-generate' })
@@ -182,13 +221,22 @@ export async function lookupOrGenerate(
       existingLemma,
     )
     const dbPersistDurationMs = Date.now() - tPersist
+    if (persisted.kind === 'existing') {
+      log.info('ai.lookup_resolved_existing', {
+        message: 'Cached word package reconciled to an already-fully-generated lemma — nothing persisted',
+        result: 'success',
+        durationMs: Date.now() - startedAt,
+        metadata: { ...meta, cacheHit: true, morphologyDurationMs, cacheCheckDurationMs, dbPersistDurationMs },
+      })
+      return { kind: 'existing', lemma: persisted.lemma }
+    }
     log.info('ai.generation_completed', {
       message: 'Word package served from cache and persisted',
       result: 'success',
       durationMs: Date.now() - startedAt,
       metadata: { ...meta, cacheHit: true, morphologyDurationMs, cacheCheckDurationMs, dbPersistDurationMs },
     })
-    return { kind: 'generated', ...persisted, fromCache: true }
+    return { kind: 'generated', lemma: persisted.lemma, cardId: persisted.cardId, generationMetadataId: persisted.generationMetadataId, fromCache: true }
   }
 
   // 3. Optional dictionary hint, translated into the learner's own language (not hardcoded
@@ -264,6 +312,24 @@ export async function lookupOrGenerate(
   const dbPersistDurationMs = Date.now() - tPersist
 
   const totalDurationMs = Date.now() - startedAt
+  if (persisted.kind === 'existing') {
+    log.info('ai.lookup_resolved_existing', {
+      message: 'Generated word package reconciled to an already-fully-generated lemma — nothing persisted',
+      result: 'success',
+      durationMs: totalDurationMs,
+      metadata: {
+        ...meta,
+        cacheHit: false,
+        morphologyDurationMs,
+        cacheCheckDurationMs,
+        dictHintDurationMs,
+        llmDurationMs,
+        dbPersistDurationMs,
+        tokenCountBucket: bucketTokenCount(result.usage.tokensUsed),
+      },
+    })
+    return { kind: 'existing', lemma: persisted.lemma }
+  }
   log.info('ai.generation_completed', {
     message: `Word package generated in ${totalDurationMs}ms (Dict: ${dictHintDurationMs}ms, LLM: ${llmDurationMs}ms, DB: ${dbPersistDurationMs}ms)`,
     result: 'success',
@@ -279,5 +345,5 @@ export async function lookupOrGenerate(
       tokenCountBucket: bucketTokenCount(result.usage.tokensUsed),
     },
   })
-  return { kind: 'generated', ...persisted, fromCache: false }
+  return { kind: 'generated', lemma: persisted.lemma, cardId: persisted.cardId, generationMetadataId: persisted.generationMetadataId, fromCache: false }
 }

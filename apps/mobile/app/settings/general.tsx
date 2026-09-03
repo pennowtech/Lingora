@@ -1,6 +1,6 @@
 import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
-import { router, Stack } from 'expo-router'
+import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -168,7 +168,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
           ]}
         />
       </Card>
-
 
       <Card>
         <Text style={styles.fieldLabel}>{t('App Language')}</Text>

@@ -387,7 +387,6 @@ Home: 'Accueil',
     "Tout est facultatif. Laissez Mot/Sens non mappés pour les notes de type lacunaire - ils sont déduits du balisage lacunaire de l'exemple et de sa traduction.",
   None: 'Aucun',
   'Import into deck': 'Importer dans le paquet',
-  '+ New deck': '+ Nouveau paquet',
   'If the word already exists': 'Si le mot existe déjà',
   'Applies to every duplicate row you leave checked in the next step.':
     "S'applique à chaque ligne en double laissée cochée à l'étape suivante.",
@@ -1312,4 +1311,5 @@ Home: 'Accueil',
   'View study statistics': 'Voir les statistiques d\'apprentissage',
   '{{due}} cards due today': '{{due}} cartes à revoir aujourd\'hui',
   '{{total}} total cards in {{decks}} decks': '{{total}} cartes au total dans {{decks}} paquets',
+  "OpenAI's open-weight model, fast on Groq LPUs": 'Modèle open-weight d\'OpenAI, rapide sur les LPU Groq',
 }

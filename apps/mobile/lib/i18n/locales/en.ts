@@ -1340,6 +1340,7 @@ export const ENGLISH_PHRASES = [
   'View study statistics',
   '{{due}} cards due today',
   '{{total}} total cards in {{decks}} decks',
+  "OpenAI's open-weight model, fast on Groq LPUs",
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

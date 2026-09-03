@@ -83,7 +83,8 @@ export const PROVIDER_MODEL_PROFILES: Record<GenerationProviderName, ModelInfo[]
     { id: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', speedTag: 'Legacy', description: 'Classic lightweight model' },
   ],
   groq: [
-    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', speedTag: '⚡ Fastest', description: 'Ultra-low latency (~200ms) on Groq LPUs', isDefault: true },
+    { id: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B', speedTag: '🌟 Recommended', description: 'OpenAI\'s open-weight model, fast on Groq LPUs', isDefault: true },
+    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', speedTag: '⚡ Fastest', description: 'Ultra-low latency (~200ms) on Groq LPUs' },
     { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B', speedTag: '⚡ Instant', description: 'Lightweight ultra-fast model' },
     { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B', speedTag: '🌐 Multilingual', description: 'Strong multilingual translation & grammar' },
   ],

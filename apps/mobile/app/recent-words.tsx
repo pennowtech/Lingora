@@ -17,14 +17,18 @@ import type { ThemeColors } from '../lib/themes'
  * row shape. Read-only browsing, newest first; tapping a row opens the word like Home's does.
  */
 export default function RecentWordsScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
 
+  // Scoped to the active language pair, same as Home's own 3-item version of this list
+  // (index.tsx) — previously omitted here, so switching pairs in Settings left every word ever
+  // added, from every past pair (including ones mined under a language pair since changed),
+  // visible on this "See all" screen.
   const recentQuery = useQuery({
-    queryKey: ['recent-words', 'all'],
-    queryFn: () => getRecentlyAddedWords(db, 200),
+    queryKey: ['recent-words', targetLanguage, nativeLanguage],
+    queryFn: () => getRecentlyAddedWords(db, 200, targetLanguage, nativeLanguage),
   })
 
   return (

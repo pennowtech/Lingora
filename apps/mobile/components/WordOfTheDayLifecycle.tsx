@@ -14,8 +14,10 @@ const log = logger.child({ feature: 'vocabulary', component: 'WordOfTheDayLifecy
  * Mounted once at the app root (app/_layout.tsx), alongside the other headless lifecycle
  * components — regenerates today's Word of the Day (and its notification) whenever the app opens
  * with a stale one, and navigates to the word when the notification itself is tapped. Renders
- * nothing. Entirely inert without an AI provider configured (tier !== 'full') — see
- * refreshWordOfTheDayIfNeeded's own gating, mirrored here so this doesn't even attempt the check.
+ * nothing. Works without an AI provider configured (tier !== 'full') too — see
+ * refreshWordOfTheDayIfNeeded's own source-priority doc comment for the AI -> local-dictionary
+ * fallback; this component itself is unconditional and just relays whichever source produced a
+ * word (or nothing, if neither did).
  */
 export function WordOfTheDayLifecycle(): JSX.Element | null {
   const { ai, db, tier, targetLanguage, nativeLanguage, defaultCefr } = useServices()
@@ -32,8 +34,10 @@ export function WordOfTheDayLifecycle(): JSX.Element | null {
   const runRefresh = (): Promise<void> => {
     if (refreshInFlightRef.current) return refreshInFlightRef.current
     const p = paramsRef.current
-    if (p.tier !== 'full' || !p.ai) return Promise.resolve()
 
+    // ai is already null whenever tier !== 'full' (see services.tsx) - refreshWordOfTheDayIfNeeded
+    // falls back to the installed local dictionary in that case, so this always attempts a
+    // refresh rather than bailing out for anything less than a full AI tier.
     const refresh = refreshWordOfTheDayIfNeeded({
       ai: p.ai,
       db: p.db,

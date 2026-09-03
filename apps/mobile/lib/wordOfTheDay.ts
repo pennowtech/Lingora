@@ -1,6 +1,6 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import type { AIProvider } from '@lingora/ai'
-import { getAllLemmaFormsForLanguage, type DatabaseAdapter } from '@lingora/database'
+import { getAllLemmaFormsForLanguage, getRandomWordGuide, type DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import * as Notifications from 'expo-notifications'
@@ -69,6 +69,10 @@ export interface WordOfTheDay {
   cefrLevel: CefrLevel
   /** Local YYYY-MM-DD the word was generated for — see todayDateKey. */
   dateKey: string
+  /** Where this word came from - lets the Home screen badge/nudge tell an AI-curated pick apart
+   * from an offline dictionary one (see refreshWordOfTheDayIfNeeded's priority order:
+   * AI -> installed dictionary -> TODO(phase6/7?) cards/search-history, not built yet). */
+  source: 'ai' | 'dictionary'
 }
 
 interface StoredWordOfTheDay extends WordOfTheDay {
@@ -231,9 +235,20 @@ async function requestUniqueWord(
  * Generates and persists a fresh Word of the Day if the stored one is missing, from a previous
  * calendar day, or was generated for a CEFR level/language pair the learner has since changed in
  * Settings — a level change mid-day immediately generates a new word at their new level.
+ *
+ * Source priority (final intended order - only the first two are built so far): the learner's own
+ * difficult/due card -> AI (when `ai` is provided, i.e. tier === 'full') -> an installed local
+ * dictionary pack (works fully offline, no provider needed at all) -> a word from the learner's
+ * other cards -> recent search history -> whatever was already stored, if nothing has anything
+ * left to offer today. TODO(phase?): wire in the difficult-card and cards/search-history tiers -
+ * not built yet, currently just AI -> dictionary. Every tier shares the same excludeList (known
+ * lemmas + the 60-word rolling history below), so a word is never repeated regardless of which
+ * tier eventually supplies it, and the whole chain is already scoped to the caller's
+ * targetLanguage/nativeLanguage pair - switching the pair in Settings picks a fresh word for the
+ * new pair, never reuses the old pair's stored one (see the dateKey/language/cefrLevel match above).
  */
 export async function refreshWordOfTheDayIfNeeded(params: {
-  ai: AIProvider
+  ai: AIProvider | null
   db: DatabaseAdapter
   targetLanguage: LanguageCode
   nativeLanguage: LanguageCode
@@ -253,42 +268,77 @@ export async function refreshWordOfTheDayIfNeeded(params: {
     return existing
   }
 
+  const [knownWords, historyWords] = await Promise.all([
+    getAllLemmaFormsForLanguage(db, targetLanguage),
+    readHistory(),
+  ])
+  const excludeList = Array.from(new Set([...knownWords, ...historyWords]))
+
+  if (ai) {
+    try {
+      const result = await requestUniqueWord(ai, { cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
+      const notificationId = await scheduleNotification(
+        result.data.word,
+        result.data.explanation,
+        existing?.notificationId,
+        t,
+      )
+      const fresh: StoredWordOfTheDay = {
+        word: result.data.word,
+        explanation: result.data.explanation,
+        ...(result.data.exampleSentence && { exampleSentence: result.data.exampleSentence }),
+        ...(result.data.exampleTranslation && { exampleTranslation: result.data.exampleTranslation }),
+        language: targetLanguage,
+        nativeLanguage,
+        cefrLevel,
+        dateKey: today,
+        source: 'ai',
+        ...(notificationId && { notificationId }),
+      }
+      await Promise.all([
+        writeStored(fresh),
+        appendToHistory(result.data.word),
+      ])
+      log.info('vocabulary.word_of_the_day_refreshed', {
+        message: 'Word of the Day generated',
+        metadata: { tokenCountBucket: result.usage.tokensUsed > 500 ? '500+' : '<500' },
+      })
+      return fresh
+    } catch (error) {
+      log.error('vocabulary.word_of_the_day_refresh_failed', error, {
+        message: 'Could not generate a fresh Word of the Day',
+      })
+      return existing
+    }
+  }
+
   try {
-    const [knownWords, historyWords] = await Promise.all([
-      getAllLemmaFormsForLanguage(db, targetLanguage),
-      readHistory(),
-    ])
-    const excludeList = Array.from(new Set([...knownWords, ...historyWords]))
-    const result = await requestUniqueWord(ai, { cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
-    const notificationId = await scheduleNotification(
-      result.data.word,
-      result.data.explanation,
-      existing?.notificationId,
-      t,
-    )
+    const entry = await getRandomWordGuide(db, targetLanguage, excludeList)
+    if (!entry) return existing
+    const firstExample = entry.examples[0]
+    const notificationId = await scheduleNotification(entry.headword, entry.intro, existing?.notificationId, t)
     const fresh: StoredWordOfTheDay = {
-      word: result.data.word,
-      explanation: result.data.explanation,
-      ...(result.data.exampleSentence && { exampleSentence: result.data.exampleSentence }),
-      ...(result.data.exampleTranslation && { exampleTranslation: result.data.exampleTranslation }),
+      word: entry.headword,
+      explanation: entry.intro,
+      ...(firstExample && { exampleSentence: firstExample.sentence, exampleTranslation: firstExample.translation }),
       language: targetLanguage,
       nativeLanguage,
       cefrLevel,
       dateKey: today,
+      source: 'dictionary',
       ...(notificationId && { notificationId }),
     }
     await Promise.all([
       writeStored(fresh),
-      appendToHistory(result.data.word),
+      appendToHistory(entry.headword),
     ])
     log.info('vocabulary.word_of_the_day_refreshed', {
-      message: 'Word of the Day generated',
-      metadata: { tokenCountBucket: result.usage.tokensUsed > 500 ? '500+' : '<500' },
+      message: 'Word of the Day picked from the installed local dictionary (no AI provider active)',
     })
     return fresh
   } catch (error) {
     log.error('vocabulary.word_of_the_day_refresh_failed', error, {
-      message: 'Could not generate a fresh Word of the Day',
+      message: 'Could not pick a Word of the Day from the installed dictionary',
     })
     return existing
   }

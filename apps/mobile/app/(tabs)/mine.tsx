@@ -67,13 +67,13 @@ const HELP_SECTIONS: HelpSection[] = [
     icon: 'Trash2',
     paragraphs: [
       'Tap the checkbox on any passage to select it, then **Delete Selected** to remove just those.',
-      '**Clear All** at the top removes every captured passage at once - your mined cards are *never* affected, only the captures themselves.',
+      "**Clear All** at the top removes every captured passage for this language pair at once - your mined cards are *never* affected, only the captures themselves.",
     ],
   },
 ]
 
 export default function MiningStudioScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -89,9 +89,13 @@ export default function MiningStudioScreen(): JSX.Element {
   const showError = (title: string, error: unknown): void => setErrorNotice({ title, message: String(error) })
   const help = useHelpAccordion('studio-overview')
 
+  // 'all' suffix keeps this cache entry distinct from BottomTabBar's own ['mine-queue', 'pending']
+  // badge-count query - see that file's comment for why sharing the bare key caused already-mined
+  // passages to flicker out of this list. Every existing invalidateQueries({ queryKey:
+  // ['mine-queue'] }) call (here and in CaptureIntentHandler.tsx) still prefix-matches this key.
   const queueQuery = useQuery({
-    queryKey: ['mine-queue'],
-    queryFn: () => getAllMineEntries(db),
+    queryKey: ['mine-queue', 'all', targetLanguage],
+    queryFn: () => getAllMineEntries(db, targetLanguage),
   })
 
   const entries = queueQuery.data ?? []
@@ -119,6 +123,7 @@ export default function MiningStudioScreen(): JSX.Element {
         status: 'pending',
         capturedAt: Date.now(),
         processed: false,
+        targetLanguage,
       })
     },
     onSuccess: async () => {
@@ -165,7 +170,7 @@ export default function MiningStudioScreen(): JSX.Element {
   })
 
   const clearAll = useMutation({
-    mutationFn: () => deleteAllMineEntries(db),
+    mutationFn: () => deleteAllMineEntries(db, targetLanguage),
     onSuccess: async () => {
       setSelected([])
       await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
@@ -321,9 +326,10 @@ export default function MiningStudioScreen(): JSX.Element {
 
   // React Query keeps the last successful `data` around across a failed background refetch (it
   // doesn't clear it), so a transient refetch error here shouldn't wipe an already-visible list
-  // down to a bare error screen - that's what made mined passages seem to vanish and then
-  // "come back" on the next successful invalidate (e.g. capturing something new). Only show the
-  // full error state when there's genuinely nothing cached to fall back on.
+  // down to a bare error screen. Only show the full error state when there's genuinely nothing
+  // cached to fall back on. (Mined passages flickering out and back was a separate bug - this
+  // query used to share its cache key with BottomTabBar's differently-filtered badge query; see
+  // the queryKey comment above.)
   if (queueQuery.isError && entries.length === 0) {
     return (
       <View style={styles.container}>
@@ -471,7 +477,7 @@ export default function MiningStudioScreen(): JSX.Element {
       <ConfirmModal
         visible={confirmClearAll}
         title={t('Clear all passages?')}
-        message={t('This removes every captured passage from the Mining Studio. Cards already mined from them are not affected.')}
+        message={t("This removes every captured passage shown here (this language pair only). Cards already mined from them aren't affected.")}
         onCancel={() => setConfirmClearAll(false)}
         onConfirm={() => {
           setConfirmClearAll(false)

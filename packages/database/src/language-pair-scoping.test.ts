@@ -4,6 +4,7 @@ import { migrate } from './migrations'
 import { getCardsDueForReview, getDueCardsCount, getRecentlyAddedWords, getTotalCardCount } from './repositories/cards'
 import { createDeck, getAllDecks, getDeckCounts } from './repositories/decks'
 import { searchLemmasWithPreview } from './repositories/lemmas'
+import { createMineEntry, deleteAllMineEntries, getAllMineEntries, getPendingMineEntries } from './repositories/mining'
 import { loadReviewQueue } from './repositories/reviewQueue'
 import { getRetentionRate, getTodayReviewCount, recordReview } from './repositories/reviews'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
@@ -177,5 +178,38 @@ describe('Language-Pair Scoping', () => {
     // Spanish / other language stats should be 0
     expect(await getTodayReviewCount(db, 'es', 'en')).toBe(0)
     expect(await getRetentionRate(db, 30, 'es', 'en')).toBe(0)
+  })
+
+  it('strictly isolates Mining Studio passages by targetLanguage - the reported "old-pair passages leak into a new pair" bug', async () => {
+    const now = Date.now()
+    await createMineEntry(db, {
+      id: 'mine-de',
+      rawText: 'Das Haus ist groß.',
+      sourceType: 'manual',
+      status: 'pending',
+      capturedAt: now,
+      processed: false,
+      targetLanguage: 'de',
+    })
+    await createMineEntry(db, {
+      id: 'mine-fr',
+      rawText: 'La maison est grande.',
+      sourceType: 'manual',
+      status: 'pending',
+      capturedAt: now + 1,
+      processed: false,
+      targetLanguage: 'fr',
+    })
+
+    // A German passage never shows up once the pair switches to French, and vice versa.
+    expect((await getAllMineEntries(db, 'de')).map((e) => e.id)).toEqual(['mine-de'])
+    expect((await getAllMineEntries(db, 'fr')).map((e) => e.id)).toEqual(['mine-fr'])
+    expect((await getPendingMineEntries(db, 'de')).map((e) => e.id)).toEqual(['mine-de'])
+    expect((await getPendingMineEntries(db, 'fr')).map((e) => e.id)).toEqual(['mine-fr'])
+
+    // "Clear All" while viewing one pair only clears that pair's passages.
+    await deleteAllMineEntries(db, 'de')
+    expect((await getAllMineEntries(db, 'de')).map((e) => e.id)).toEqual([])
+    expect((await getAllMineEntries(db, 'fr')).map((e) => e.id)).toEqual(['mine-fr'])
   })
 })

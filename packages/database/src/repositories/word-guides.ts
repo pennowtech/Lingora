@@ -75,6 +75,36 @@ export async function getWordGuide(
 }
 
 /**
+ * Picks one random installed entry for Word of the Day's dictionary fallback (see
+ * apps/mobile/lib/wordOfTheDay.ts) - used when no AI provider is active, so the daily word still
+ * comes from something already on-device rather than blocking entirely. `excludeHeadwords` is the
+ * same known-lemmas + recent-history exclusion list the AI path already builds, so a word already
+ * in the learner's deck or shown recently isn't picked again. Returns null if no installed entry
+ * is left to offer (nothing installed for this language, or every entry is excluded).
+ */
+export async function getRandomWordGuide(
+  db: DatabaseAdapter,
+  language: LanguageCode,
+  excludeHeadwords: readonly string[],
+): Promise<WordGuideEntry | null> {
+  if (excludeHeadwords.length === 0) {
+    const row = await db.querySingle<WordGuideRow>(
+      `SELECT ${WORD_GUIDE_COLUMNS} FROM word_guides WHERE language = ? ORDER BY RANDOM() LIMIT 1`,
+      [language],
+    )
+    return row ? toEntry(row) : null
+  }
+  const placeholders = excludeHeadwords.map(() => '?').join(', ')
+  const row = await db.querySingle<WordGuideRow>(
+    `SELECT ${WORD_GUIDE_COLUMNS} FROM word_guides
+     WHERE language = ? AND headword COLLATE NOCASE NOT IN (${placeholders})
+     ORDER BY RANDOM() LIMIT 1`,
+    [language, ...excludeHeadwords],
+  )
+  return row ? toEntry(row) : null
+}
+
+/**
  * Bulk-installs one chunk's worth of entries, transactionally — either the
  * whole chunk lands or none of it does. `INSERT OR REPLACE` so re-installing
  * an already-installed chunk (e.g. after a content update) overwrites

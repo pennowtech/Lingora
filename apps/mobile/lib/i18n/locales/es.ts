@@ -1351,4 +1351,11 @@ Home: 'Inicio',
     'Busca cualquier palabra en {{target}} o {{native}} al instante - las formas flexionadas y conjugadas también funcionan. ¿Aún no está en tu biblioteca? Un toque **genera una tarjeta completa** con significados, ejemplos y pronunciación, para que nunca tengas que salir de la app para buscar algo.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     '**Buscar** es la forma de consultar cualquier palabra sin salir de la app: escríbela y obtén resultados al instante, y si es nueva para ti, un toque **genera una tarjeta completa** con significados, ejemplos y pronunciación.',
+  'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
+    'Los comentarios se publican como un issue público de GitHub - este correo será visible para cualquiera que lo vea.',
+  'Your email will be public': 'Tu correo será público',
+  "Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you'd rather keep it private, or send it as-is if that's fine.":
+    'Los comentarios se publican como un issue público de GitHub. La dirección de correo que introdujiste será visible allí para cualquiera que lo vea, no solo para nuestro equipo. Vuelve atrás para eliminarla si prefieres mantenerla privada, o envíala tal cual si te parece bien.',
+  'Go Back': 'Volver',
+  'Send Anyway': 'Enviar de todos modos',
 }

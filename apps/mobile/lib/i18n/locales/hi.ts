@@ -1348,7 +1348,7 @@ Home: 'होम',
   "We could not send your feedback at this time. Please check your connection and try again.": "हम इस समय आपकी फ़ीडबैक नहीं भेज सके. अपने कनेक्शन की जांच करें और फिर कोशिश करें।",
   "Something went wrong while sending your feedback. Please check your connection and try again.": "आपकी फ़ीडबैक भेजते समय कुछ गलत हो गया. अपने कनेक्शन की जांच करें और फिर कोशिश करें।",
   "We'd love to hear from you": "हमें आपसे सुनकर अत्यंत खुशी होगी",
-  "Send ideas, report bugs, or ask for help. Every message goes directly to our team.": "विचार भेजें, बग की रिपोर्ट करें, या सहायता मांगें। हर संदेश सीधे हमारी टीम को जाता है।",
+  'Send ideas, report bugs, or ask for help.': 'विचार भेजें, बग की रिपोर्ट करें, या सहायता मांगें।',
   "Feedback category": "फ़ीडबैक कैटेगरी",
   "Summary": "सारांश",
   "Short title (e.g. \"Audio crashes on slow network\")": "संक्षिप्त शीर्षक (जैसे \"धीमे नेटवर्क पर ऑडियो क्रैश\")",
@@ -1642,4 +1642,11 @@ Home: 'होम',
     'कोई भी {{target}} या {{native}} शब्द तुरंत खोजें - विभक्त या क्रिया-रूप बदले शब्द भी काम करते हैं। अभी आपकी लाइब्रेरी में नहीं है? एक टैप में **पूरा फ्लैशकार्ड बन जाता है** - अर्थ, उदाहरण और उच्चारण के साथ - ताकि आपको कुछ खोजने के लिए कभी ऐप से बाहर न जाना पड़े।',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     '**खोजें** से आप बिना ऐप छोड़े कोई भी शब्द देख सकते हैं: टाइप करें और तुरंत परिणाम पाएं, और अगर वह शब्द आपके लिए नया है, तो एक टैप में **पूरा फ्लैशकार्ड बन जाता है** - अर्थ, उदाहरण और उच्चारण के साथ।',
+  'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
+    'फीडबैक एक सार्वजनिक GitHub इश्यू के रूप में पोस्ट होता है - यह ईमेल उसे देखने वाले किसी भी व्यक्ति को दिखेगा।',
+  'Your email will be public': 'आपका ईमेल सार्वजनिक हो जाएगा',
+  "Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you'd rather keep it private, or send it as-is if that's fine.":
+    'फीडबैक एक सार्वजनिक GitHub इश्यू के रूप में पोस्ट होता है। आपने जो ईमेल पता दर्ज किया है वह वहां किसी को भी दिखेगा - सिर्फ हमारी टीम को नहीं। अगर आप इसे निजी रखना चाहते हैं तो वापस जाकर हटा दें, या अगर ठीक है तो इसे ऐसे ही भेज दें।',
+  'Go Back': 'वापस जाएं',
+  'Send Anyway': 'फिर भी भेजें',
 }

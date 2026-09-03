@@ -1347,4 +1347,11 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Tra cứu ngay lập tức bất kỳ từ {{target}} hoặc {{native}} nào - các dạng biến cách và chia động từ cũng hoạt động. Chưa có trong thư viện của bạn? Chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm, để bạn không bao giờ phải rời khỏi ứng dụng để tra một từ.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     'Tìm kiếm là cách bạn tra từ mà không cần rời khỏi ứng dụng: gõ từ và nhận kết quả ngay lập tức, nếu từ đó còn mới với bạn, chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm.',
+  'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
+    'Phản hồi được đăng dưới dạng issue công khai trên GitHub - email này sẽ hiển thị với bất kỳ ai xem nó.',
+  'Your email will be public': 'Email của bạn sẽ công khai',
+  "Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you'd rather keep it private, or send it as-is if that's fine.":
+    'Phản hồi được đăng dưới dạng issue công khai trên GitHub. Địa chỉ email bạn nhập sẽ hiển thị ở đó với bất kỳ ai xem - không chỉ đội ngũ của chúng tôi. Quay lại để xóa nếu bạn muốn giữ riêng tư, hoặc gửi như hiện tại nếu bạn thấy ổn.',
+  'Go Back': 'Quay lại',
+  'Send Anyway': 'Vẫn gửi',
 }

@@ -96,7 +96,7 @@ export const de: Record<Phrase, string> = {
   'We could not send your feedback at this time. Please check your connection and try again.': 'Dein Feedback konnte momentan nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.',
   'Something went wrong while sending your feedback. Please check your connection and try again.': 'Beim Senden deines Feedbacks ist etwas schiefgelaufen. Prüfe deine Verbindung und versuche es erneut.',
   "We'd love to hear from you": 'Wir freuen uns auf deine Nachricht',
-  'Send ideas, report bugs, or ask for help. Every message goes directly to our team.': 'Sende Ideen, melde Fehler oder bitte um Hilfe. Jede Nachricht geht direkt an unser Team.',
+  'Send ideas, report bugs, or ask for help.': 'Sende Ideen, melde Fehler oder bitte um Hilfe.',
   'Feedback category': 'Feedback-Kategorie',
   Summary: 'Zusammenfassung',
   'Short title (e.g. "Audio crashes on slow network")': 'Kurzer Titel (z. B. „Audio stürzt bei langsamer Verbindung ab“)',
@@ -1655,4 +1655,11 @@ export const de: Record<Phrase, string> = {
     'Schlage jedes {{target}}e oder {{native}}e Wort sofort nach - auch flektierte oder konjugierte Formen funktionieren. Noch nicht in deiner Bibliothek? Ein Antippen **erstellt eine vollständige Karteikarte** mit Bedeutungen, Beispielen und Aussprache, sodass du die App nie verlassen musst, um etwas nachzuschlagen.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     '**Suche** ist der Weg, um jedes Wort nachzuschlagen, ohne die App zu verlassen: tippe es ein und erhalte sofort Ergebnisse - ist es neu für dich, **erstellt ein Antippen eine vollständige Karteikarte** mit Bedeutungen, Beispielen und Aussprache.',
+  'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
+    'Dein Feedback wird als öffentliches GitHub-Issue veröffentlicht - diese E-Mail-Adresse ist dann für jeden sichtbar, der es sich ansieht.',
+  'Your email will be public': 'Deine E-Mail-Adresse wird öffentlich sichtbar',
+  "Feedback is posted as a public GitHub issue. The email address you entered will be visible there to anyone who views it - not just our team. Go back to remove it if you'd rather keep it private, or send it as-is if that's fine.":
+    'Feedback wird als öffentliches GitHub-Issue veröffentlicht. Die von dir eingegebene E-Mail-Adresse ist dort für jeden sichtbar, der es sich ansieht - nicht nur für unser Team. Geh zurück, um sie zu entfernen, falls du sie lieber privat halten möchtest, oder sende es so ab, wenn das für dich in Ordnung ist.',
+  'Go Back': 'Zurück',
+  'Send Anyway': 'Trotzdem senden',
 }

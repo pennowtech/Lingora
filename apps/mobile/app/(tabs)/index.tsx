@@ -306,12 +306,17 @@ export default function HomeScreen(): JSX.Element {
                 <View key={step.label} style={styles.startStep}>
                   <View style={[styles.startStepNumber, step.completed && styles.startStepNumberCompleted]}>
                     {step.completed ? (
-                      <Icon name="Check" size={12} color="#FFFFFF" />
+                      <Icon name="Check" size={12} color={colors.textOnPrimary} />
                     ) : (
                       <Text style={styles.startStepNumberText}>{index + 1}</Text>
                     )}
                   </View>
-                  <Icon name={step.icon} size={16} color={step.completed ? '#C7D2FE' : colors.textOnPrimary} />
+                  <Icon
+                    name={step.icon}
+                    size={16}
+                    color={colors.textOnPrimary}
+                    style={step.completed ? { opacity: 0.6 } : undefined}
+                  />
                   <Text style={[styles.startStepText, step.completed && styles.startStepTextCompleted]}>
                     {step.label}
                   </Text>
@@ -322,7 +327,7 @@ export default function HomeScreen(): JSX.Element {
               style={styles.heroHelpBtn}
               onPress={() => router.push('/settings/help')}
             >
-              <Icon name="BookOpen" size={17} color="#FFFFFF" />
+              <Icon name="BookOpen" size={17} color={colors.textOnPrimary} />
               <Text style={styles.heroHelpBtnText}>
                 {t('Explore Help & Video Guides')}
               </Text>
@@ -1002,14 +1007,15 @@ const createStyles = (colors: ThemeColors) =>
       width: 48,
       height: 48,
       borderRadius: radius.full,
-      backgroundColor: '#FFFFFF22',
+      backgroundColor: colors.textOnPrimary + '20',
       alignItems: 'center',
       justifyContent: 'center',
     },
     startTitle: { fontSize: type.heading, fontWeight: '800', color: colors.textOnPrimary, textAlign: 'center' },
     startSubtitle: {
       fontSize: type.body,
-      color: '#CFCBEF',
+      color: colors.textOnPrimary,
+      opacity: 0.85,
       textAlign: 'center',
       lineHeight: 20,
     },
@@ -1019,29 +1025,29 @@ const createStyles = (colors: ThemeColors) =>
       width: 22,
       height: 22,
       borderRadius: radius.full,
-      backgroundColor: '#FFFFFF22',
+      backgroundColor: colors.textOnPrimary + '25',
       alignItems: 'center',
       justifyContent: 'center',
     },
     startStepNumberCompleted: {
-      backgroundColor: '#10B981',
+      backgroundColor: colors.textOnPrimary + '35',
     },
     startStepNumberText: { fontSize: type.micro, fontWeight: '800', color: colors.textOnPrimary },
     startStepText: { flex: 1, fontSize: type.caption, fontWeight: '600', color: colors.textOnPrimary },
     startStepTextCompleted: {
       textDecorationLine: 'line-through',
-      color: '#C7D2FE',
-      opacity: 0.85,
+      color: colors.textOnPrimary,
+      opacity: 0.6,
     },
-    heroButton: { alignSelf: 'stretch', backgroundColor: '#FFFFFF22', borderWidth: 1, borderColor: '#FFFFFF55' },
+    heroButton: { alignSelf: 'stretch', backgroundColor: colors.textOnPrimary + '20', borderWidth: 1, borderColor: colors.textOnPrimary + '40' },
     heroHelpBtn: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: spacing.sm,
-      backgroundColor: '#FFFFFF25',
+      backgroundColor: colors.textOnPrimary + '1A',
       borderWidth: 1,
-      borderColor: '#FFFFFF44',
+      borderColor: colors.textOnPrimary + '35',
       paddingVertical: 12,
       paddingHorizontal: spacing.lg,
       borderRadius: radius.md,
@@ -1050,7 +1056,7 @@ const createStyles = (colors: ThemeColors) =>
     heroHelpBtnText: {
       fontSize: type.body,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: colors.textOnPrimary,
     },
 
     /* ── Word Row ── */

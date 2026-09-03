@@ -401,7 +401,7 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Generation came back incomplete - nothing was changed. Try again.':
     'Kết quả tạo nội dung bị thiếu - không có gì được thay đổi. Hãy thử lại.',
   German: 'Tiếng Đức',
-  '{{language}}-English Dictionary': 'Từ điển {{language}}-Anh',
+  '{{language}}-{{nativeLanguage}} Dictionary': 'Từ điển {{language}}-{{nativeLanguage}}',
   'Give the deck a name.': 'Đặt tên cho bộ thẻ.',
   'Go to platform.openai.com > Settings > Projects > select the project this key belongs to > Models > enable gpt-4o-mini-tts for that project.':
     'Vào platform.openai.com > Settings > Projects > chọn dự án mà khóa này thuộc về > Models > bật gpt-4o-mini-tts cho dự án đó.',

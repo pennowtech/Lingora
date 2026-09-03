@@ -1,0 +1,4014 @@
+{
+  "chunkIndex": 6,
+  "language": "hi",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.8-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-09-03",
+  "note": "Intermediate format — not yet a .lin file. Content authored directly adhering strictly to Lingora schema. Contains 100 high-frequency Hindi headwords (ranks 501 to 600). Each entry has 4 examples: two plain (indicative), one conditional/subjunctive (संभाव्य/संकेतवाचक), one passive voice (कर्मवाच्य). All nouns are annotated with their grammatical gender (masculine/feminine). Total entries this chunk: 100.",
+  "entries": [
+    {
+      "headword": "चम्मच",
+      "partOfSpeech": "noun",
+      "translation": "spoon / tablespoon / sycophant (figurative slang: चमचा)",
+      "intro": "An implement consisting of a small shallow bowl on a handle, used for eating or stirring; or metaphorically a sycophant (चमचा).",
+      "usage": "Masculine noun. Direct plural: चम्मच, oblique: चम्मचों. Diminutive/slang: चमचा (often derogatory for flatterer).",
+      "synonyms": [
+        {
+          "word": "चमचा",
+          "gloss": "large spoon / flatterer"
+        },
+        {
+          "word": "करछी",
+          "gloss": "ladle"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बच्चे ने मेज पर रखी कटोरी से चम्मच से स्वादिष्ट खीर खाई।",
+          "translation": "The child ate delicious rice pudding with a spoon from the bowl kept on the table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चाय में चीनी मिलाने के लिए उसने चांदी का छोटा चम्मच इस्तेमाल किया।",
+          "translation": "He used a small silver spoon to mix sugar into the tea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सूप के साथ सही चम्मच दिया जाता, तो मेहमानों को सुविधा होती।",
+          "translation": "If proper spoons were provided with the soup, guests would have convenience.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दवा पिलाने के लिए एक साफ चम्मच का उपयोग किया जाना चाहिए।",
+          "translation": "A clean spoon should be used for administering medicine.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कांटा",
+      "partOfSpeech": "noun",
+      "translation": "fork (tableware) / thorn (botany) / fishbone / needle / weighing scale",
+      "intro": "A pronged utensil used for eating (कांटा-छुरी); a thorn on a plant; a fishbone; or a weighing scale (वजन का कांटा).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: कांटे, oblique: कांटों. Idiom: 'कांटों भरा रास्ता' (path strewn with thorns).",
+      "synonyms": [
+        {
+          "word": "शूल",
+          "gloss": "spike / thorn (formal)"
+        },
+        {
+          "word": "तुला",
+          "gloss": "balance / scale"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गुलाब तोड़ते समय माली की उंगली में एक नुकीला कांटा चुभ गया।",
+          "translation": "While plucking roses, a sharp thorn pricked the gardener's finger.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रेस्तरां में नूडल्स खाने के लिए ग्राहक ने कांटे और चम्मच की मांग की।",
+          "translation": "The customer requested a fork and spoon to eat noodles in the restaurant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम बगीचे में नंगे पैर न घूमते, तो पैर में कांटा न चुभता।",
+          "translation": "If you had not roamed barefoot in the garden, a thorn would not prick your foot.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अनाज की भारी बोरियों को धर्मकांटे पर तौलने के लिए रखा जाता है।",
+          "translation": "Heavy sacks of grain are placed on weighbridges for weighing.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कटोरी",
+      "partOfSpeech": "noun",
+      "translation": "small bowl / cup / receptacle",
+      "intro": "A small round dish or bowl, typically metal or ceramic, used for serving dal, curry, or sweets in an Indian meal.",
+      "usage": "Feminine marked noun (-ई). Plural direct: कटोरियां, oblique: कटोरियों. Masculine augmentative: कटोरा (large bowl).",
+      "synonyms": [
+        {
+          "word": "प्याली",
+          "gloss": "small cup / saucer"
+        },
+        {
+          "word": "कटोरा",
+          "gloss": "large bowl"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "माताजी ने पीतल की कटोरी में गर्म दाल परोसकर थाली में रखी।",
+          "translation": "Mother served hot dal in a brass bowl and placed it on the plate.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भोजन के बाद प्रत्येक अतिथि को छोटी कटोरी में मीठा हलवा दिया गया।",
+          "translation": "After the meal, sweet halwa was given to each guest in a small bowl.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कटोरी में थोड़ा और तेल होता, तो दीया पूरी रात जलता।",
+          "translation": "If there were a little more oil in the bowl, the lamp would burn all night.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "त्योहारों पर कांच की सुंदर कटोरियों को अलमारी से निकाला जाता है।",
+          "translation": "Beautiful glass bowls are taken out of the cupboard during festivals.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "थाली",
+      "partOfSpeech": "noun",
+      "translation": "plate / platter / thali (traditional Indian meal platter)",
+      "intro": "A large metal, ceramic, or wooden platter used for dining or ceremonial offerings; also refers to a complete multi-course Indian meal.",
+      "usage": "Feminine marked noun (-ई). Plural direct: थालियां, oblique: थालियों. Masculine augmentative: थाल (large ritual tray).",
+      "synonyms": [
+        {
+          "word": "रकाब",
+          "gloss": "platter / plate (Persian loan)"
+        },
+        {
+          "word": "थाल",
+          "gloss": "large platter"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रेस्तरां में परोसी गई राजस्थानी थाली में दाल, बाटी, चूरमा और कई सब्जियां थीं।",
+          "translation": "In the Rajasthani thali served at the restaurant, there were dal, baati, churma, and various vegetables.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बहन ने पूजा की सजाई हुई थाली में कुमकुम, चावल और आरती का दीया रखा।",
+          "translation": "The sister placed vermilion, rice, and a lamp of worship on the decorated ritual plate.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि थाली में भोजन बचा न छोड़ा जाए, तो अन्न की बर्बादी रुक सकती है।",
+          "translation": "If food were not left unconsumed on the plate, wastage of grain could be stopped.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दावत के बाद स्टील की सभी थालियों को गर्म पानी से साफ किया जाता है।",
+          "translation": "All steel plates are cleaned with hot water after the banquet.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "गिलास",
+      "partOfSpeech": "noun",
+      "translation": "glass / tumbler / drinking cup",
+      "intro": "A drinking vessel made of glass or metal without a handle; tumbler. English loanword ('glass').",
+      "usage": "Masculine noun. Direct plural: गिलास, oblique: गिलासों. Collocations: 'पानी का गिलास' (glass of water).",
+      "synonyms": [
+        {
+          "word": "पात्र",
+          "gloss": "vessel (formal)"
+        },
+        {
+          "word": "प्याला",
+          "gloss": "cup"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "धूप से घर लौटे मेहमान को सबसे पहले एक गिलास ठंडा पानी दिया गया।",
+          "translation": "The guest who returned home from the sun was first given a glass of cold water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मेज से टकराने के कारण कांच का नाजुक गिलास फर्श पर गिरकर टूट गया।",
+          "translation": "Colliding with the table, the delicate glass tumbler fell on the floor and shattered.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम रोज रात को एक गिलास गर्म दूध पियो, तो नींद अच्छी आएगी।",
+          "translation": "If you drank a glass of warm milk every night, sleep would come well.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कैंटीन में पीने के पानी के लिए स्टील के साफ गिलास रखे जाते हैं।",
+          "translation": "Clean steel tumblers are kept in the canteen for drinking water.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "पतीला",
+      "partOfSpeech": "noun",
+      "translation": "pot / cooking pan / cauldron / vessel with rim",
+      "intro": "A deep round metal cooking pot with a wide rim, used widely in South Asian kitchens for boiling milk, rice, or stews.",
+      "usage": "Masculine marked noun (-आ). Plural direct: पतीले, oblique: पतीलों. Feminine diminutive: पतीली (smaller cooking pot).",
+      "synonyms": [
+        {
+          "word": "हांडी",
+          "gloss": "clay or metal pot"
+        },
+        {
+          "word": "बर्तन",
+          "gloss": "vessel / utensil (#343)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हलवाई ने बड़े पतीले में दूध उबालकर रबड़ी और मिठाइयां तैयार कीं।",
+          "translation": "The sweetmaker boiled milk in a large pot and prepared rabri and sweets.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रसोई में पतीले का ढक्कन हटाते ही मसालों की मनमोहक खुशबू फैल गई।",
+          "translation": "As soon as the pot's lid was lifted in the kitchen, an alluring aroma of spices spread.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दाल को ढककर भारी पतीले में पकाया जाए, तो वह बहुत जल्दी गल जाती है।",
+          "translation": "If lentils were cooked covered in a heavy pot, they would soften very quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शादियों में सौ लोगों का खाना पकाने के लिए विशाल पतीले चढ़ाए जाते हैं।",
+          "translation": "Vast cauldrons are placed on fire to cook food for a hundred people at weddings.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "चूल्हा",
+      "partOfSpeech": "noun",
+      "translation": "stove / hearth / cooktop / fireplace",
+      "intro": "A traditional earthen hearth, clay oven, or modern gas cooktop on which food is cooked. Sanskrit origin (चुल्ली).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: चूल्हे, oblique: चूल्हों. Idiom: 'चूल्हा-चौका' (kitchen chores), 'चूल्हा ठंडा होना' (starvation / no cooking).",
+      "synonyms": [
+        {
+          "word": "अंगीठी",
+          "gloss": "brazier / stove"
+        },
+        {
+          "word": "भट्टी",
+          "gloss": "furnace / kiln"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गांव की महिलाएं सुबह जल्दी उठकर मिट्टी के चूल्हे पर उपले और लकड़ियां जलाती हैं।",
+          "translation": "Village women wake up early in the morning and burn cow-dung cakes and firewood on the clay stove.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आधुनिक घरों में सुरक्षित खाना पकाने के लिए स्वचालित गैस चूल्हे का प्रयोग होता है।",
+          "translation": "In modern houses, automated gas stoves are used for safe cooking.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चूल्हे से निकलने वाला धुआं बाहर न निकले, तो आंखों में जलन होने लगती है।",
+          "translation": "If smoke emerging from the stove did not escape outside, eyes would begin to burn.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दीपावली की रात लक्ष्मी पूजा से पहले पारंपरिक चूल्हे को मिट्टी से लीपा जाता है।",
+          "translation": "Before Lakshmi Puja on Diwali night, the traditional stove is plastered with clay.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "आटा",
+      "partOfSpeech": "noun",
+      "translation": "flour / whole-wheat flour / dough (figurative)",
+      "intro": "Milled wheat or grain flour; the staple ingredient for making rotis, parathas, and breads in India.",
+      "usage": "Masculine noun. Uncountable generally; oblique: आटे. Idiom: 'आटे-दाल का भाव मालूम होना' (learn the harsh realities of life), 'आटे में नमक' (insignificant proportion).",
+      "synonyms": [
+        {
+          "word": "मैदा",
+          "gloss": "refined white flour"
+        },
+        {
+          "word": "चूर्ण",
+          "gloss": "powder"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रोटी बनाने से पहले मां ने ताजे पिसे हुए गेहूं के आटे में थोड़ा पानी डालकर गूंथा।",
+          "translation": "Before making rotis, mother kneaded fresh ground wheat flour adding a little water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "राशन की दुकान पर गरीब परिवारों को रियायती दर पर आटा और चावल दिया जाता है।",
+          "translation": "Flour and rice are provided at subsidized rates to poor families at ration shops.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आटा बहुत ढीला गूंथा जाता, तो रोटियां गोल और पतली न बन पातीं।",
+          "translation": "If the dough were kneaded too loose, rotis could not be made round and thin.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चक्की में गेहूं के दानों को बारीक पीसकर ताजा आटा तैयार किया जाता है।",
+          "translation": "Fresh flour is prepared by grinding wheat grains finely in the flour mill.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "तेल",
+      "partOfSpeech": "noun",
+      "translation": "oil (cooking oil, petroleum, hair oil)",
+      "intro": "A viscous liquid derived from petroleum or plants (सरसों का तेल, तिल का तेल), used for cooking, fuel, lubrication, or hair care.",
+      "usage": "Masculine noun. Uncountable. Oblique: तेल. Idiom: 'तेल निकालना' (to extract oil / exhaust someone utterly), 'तिल में तेल' (substance in matter).",
+      "synonyms": [
+        {
+          "word": "तैल",
+          "gloss": "oil (Sanskritized)"
+        },
+        {
+          "word": "रोगन",
+          "gloss": "varnish / oil"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उत्तर भारत में सब्जियां और पूरियां पकाने के लिए सरसों के तेल का भरपूर उपयोग होता है।",
+          "translation": "Mustard oil is extensively used in North India for cooking vegetables and puris.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दादी जी ने सिरदर्द से राहत पाने के लिए बालों में ठंडे आंवले का तेल लगाया।",
+          "translation": "Grandmother applied cool amla hair oil to her hair to obtain relief from headache.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इंजन में पर्याप्त तेल न डाला जाए, तो कलपुर्जे घिसकर खराब हो जाएंगे।",
+          "translation": "If sufficient oil were not poured into the engine, parts would wear out and get damaged.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सरसों और मूंगफली के बीजों को कोल्हू में दबाकर शुद्ध तेल निकाला जाता है।",
+          "translation": "Pure oil is extracted by pressing mustard and peanut seeds in an oil press.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "घी",
+      "partOfSpeech": "noun",
+      "translation": "ghee / clarified butter",
+      "intro": "Clarified butter traditional to Indian cuisine, revered for cooking, Ayurvedic medicine, and religious offerings (हवन).",
+      "usage": "Masculine noun. Uncountable. Oblique: घी. Idiom: 'घी के दीये जलाना' (rejoice exceedingly / celebrate victory), 'आग में घी डालना' (add fuel to the fire).",
+      "synonyms": [
+        {
+          "word": "घृत",
+          "gloss": "ghee / clarified butter (formal Sanskrit)"
+        },
+        {
+          "word": "मक्खन",
+          "gloss": "butter"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पूजा के दौरान पंडित जी ने मंत्रोच्चार के साथ पवित्र अग्नि में शुद्ध गाय का घी डाला।",
+          "translation": "During worship the priest poured pure cow ghee into the sacred fire with chanting of mantras.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गर्म रोटियों पर देसी घी लगाकर खाने से भोजन का स्वाद और पौष्टिकता दोगुनी हो जाती है।",
+          "translation": "Eating warm rotis with country ghee applied doubles the taste and nutrition of the meal.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चुनाव में उनकी पार्टी की जीत होती, तो पूरे मोहल्ले में घी के दीये जलाए जाते।",
+          "translation": "If their party had won in the election, ghee lamps would be lit throughout the neighborhood.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ताजा मक्खन को धीमी आंच पर पिघलाकर सुगंधित देसी घी बनाया जाता है।",
+          "translation": "Aromatic desi ghee is made by melting fresh butter over low heat.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मसाला",
+      "partOfSpeech": "noun",
+      "translation": "spice / seasoning / condiment / mortar (construction) / sensational news (slang)",
+      "intro": "An aromatic or pungent vegetable substance used to flavor food (गरम मसाला); mortar in masonry; or sensationalism in journalism.",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: मसाले, oblique: मसालों. Collocations: 'गरम मसाला' (garam masala), 'मसालेदार' (spicy).",
+      "synonyms": [
+        {
+          "word": "संभार",
+          "gloss": "spice mixture (rare)"
+        },
+        {
+          "word": "मरीच",
+          "gloss": "black pepper / spice"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय व्यंजनों की विशिष्ट सुगंध और तीखा स्वाद ताजे पिसे मसालों पर निर्भर करता है।",
+          "translation": "The distinct aroma and pungent flavor of Indian cuisine depends on freshly ground spices.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मकान बनाते समय राजमिस्त्री ने सीमेंट और रेत को मिलाकर मजबूत मसाला तैयार किया।",
+          "translation": "While building the house, the mason mixed cement and sand to prepare strong mortar.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि करी में गरम मसाला समय पर डाला जाता, तो उसकी महक बहुत लाजवाब होती।",
+          "translation": "If garam masala were added to the curry on time, its fragrance would be marvelous.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्राचीन काल में केरल के बंदरगाहों से विदेशी व्यापारियों द्वारा मसाले खरीदे जाते थे।",
+          "translation": "In ancient times spices were bought from Kerala ports by foreign merchants.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हल्दी",
+      "partOfSpeech": "noun",
+      "translation": "turmeric (golden spice / auspicious ceremonial paste)",
+      "intro": "A bright yellow aromatic powder obtained from the rhizome of a plant of the ginger family; used in cooking and pre-wedding ritual (हल्दी की रस्म).",
+      "usage": "Feminine noun. Uncountable. Oblique: हल्दी. Ceremonial: 'हल्दी की रस्म' (turmeric pre-wedding ceremony). Medical: antiseptic properties.",
+      "synonyms": [
+        {
+          "word": "हरिद्रा",
+          "gloss": "turmeric (Sanskritized)"
+        },
+        {
+          "word": "पीतिका",
+          "gloss": "yellow dye / turmeric"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चोट लगने पर दादी जी हमेशा बच्चे को गर्म दूध में एक चम्मच हल्दी मिलाकर पिलाती हैं।",
+          "translation": "Upon getting hurt, grandmother always has the child drink a spoonful of turmeric mixed in warm milk.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शादी से एक दिन पहले दूल्हा और दुल्हन के चेहरे और हाथों पर मंगलकारी हल्दी लगाई गई।",
+          "translation": "A day before marriage, auspicious turmeric was applied to the bride and groom's face and hands.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दाल में थोड़ी सी हल्दी डाली जाए, तो उसका पीला रंग और स्वाद निखर जाता है।",
+          "translation": "If a pinch of turmeric were added to lentils, their yellow color and flavor would shine.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "घाव भरने और संक्रमण रोकने के लिए सदियों से हल्दी का लेप लगाया जाता रहा है।",
+          "translation": "Turmeric paste has been applied for centuries to heal wounds and prevent infection.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "मिर्च",
+      "partOfSpeech": "noun",
+      "translation": "chili / pepper / pungency / jealousy (figurative: मिर्च लगना)",
+      "intro": "The pungent pod of a plant, green or red (हरी मिर्च, लाल मिर्च); or figuratively irritation/jealousy ('उसे मिर्ची लग गई').",
+      "usage": "Feminine noun. Singular: मिर्च, plural direct: मिर्चें, oblique: मिर्चों. Idiom: 'मिर्च-मसाला लगाना' (exaggerate a story).",
+      "synonyms": [
+        {
+          "word": "मरीचिका",
+          "gloss": "chili / pepper"
+        },
+        {
+          "word": "तीखापन",
+          "gloss": "pungency / hotness"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "समोसे के साथ परोसी गई पुदीने की चटनी में हरी मिर्च का तीखापन बहुत तेज था।",
+          "translation": "The pungency of green chili in the mint chutney served with samosas was very strong.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सब्जी विक्रेता ने टोकरी में ताजी हरी मिर्चें और शिमला मिर्च सजाकर रखी थीं।",
+          "translation": "The vegetable vendor had displayed fresh green chilies and bell peppers in the basket.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि भोजन में लाल मिर्च कम डाली जाती, तो बच्चे भी इसे खुशी से खा सकते थे।",
+          "translation": "If less red chili were added to the food, children too could eat it happily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "धूप में सुखाकर लाल मिर्च को चक्की में बारीक पीसा जाता है।",
+          "translation": "Red chilies are dried in the sun and ground finely in the mill.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "धनिया",
+      "partOfSpeech": "noun",
+      "translation": "coriander / cilantro (seeds or fresh green herb)",
+      "intro": "An aromatic annual herb whose leaves (हरा धनिया) and dried seeds (धनिया पाउडर) are widely used in culinary seasoning.",
+      "usage": "Masculine noun. Uncountable. Oblique: धनिए. Collocations: 'हरा धनिया' (fresh cilantro), 'धनिया की चटनी' (coriander chutney).",
+      "synonyms": [
+        {
+          "word": "कुस्तुम्बुरु",
+          "gloss": "coriander (classical)"
+        },
+        {
+          "word": "कोथमीर",
+          "gloss": "cilantro (regional)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दाल पक जाने के बाद मां ने ऊपर से बारीक कटा हुआ ताजा हरा धनिया छिड़का।",
+          "translation": "After the dal was cooked, mother sprinkled finely chopped fresh green coriander on top.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समोसे के मसाले में साबुत भुना हुआ धनिया मिलाने से एक खास स्वाद आता है।",
+          "translation": "Mixing whole roasted coriander into samosa filling yields a special flavor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रायते में हरा धनिया और पुदीना मिलाया जाए, तो वह गर्मियों में ताजगी देता है।",
+          "translation": "If fresh cilantro and mint were mixed into raita, it would provide freshness in summer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मसाला पाउडर बनाने के लिए सूखे धनिए के बीजों को तवे पर हल्का भूना जाता है।",
+          "translation": "Dry coriander seeds are lightly roasted on a griddle to make spice powder.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "जीरा",
+      "partOfSpeech": "noun",
+      "translation": "cumin / cumin seeds",
+      "intro": "The small dried fruit of an umbelliferous plant, widely used as a whole or ground culinary spice (जीरा-तड़का, जीरा राइस).",
+      "usage": "Masculine marked noun ending in -आ. Oblique: जीरे. Collocation: 'जीरे का तड़का' (tempering with cumin seeds), 'जीरा राइस'.",
+      "synonyms": [
+        {
+          "word": "जीरक",
+          "gloss": "cumin (Sanskritized)"
+        },
+        {
+          "word": "अजाजी",
+          "gloss": "cumin seed"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गर्म घी में जीरा और हींग डालते ही रसोई में शानदार तड़के की महक फैल गई।",
+          "translation": "As soon as cumin and asafoetida were put into hot ghee, a wonderful tempering aroma filled the kitchen.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पेट की पाचन क्रिया दुरुस्त रखने के लिए भुना हुआ जीरा छाछ में मिलाकर पिया जाता है।",
+          "translation": "Roasted cumin mixed in buttermilk is drunk to keep stomach digestion sound.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पुलाव में साबुत जीरा और तेजपत्ता डाला जाए, तो चावल बहुत सुगंधित बनते हैं।",
+          "translation": "If whole cumin and bay leaves were added to pilaf, the rice would turn out very aromatic.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दही बड़े के ऊपर छिड़कने के लिए जीरे को तवे पर भूनकर दरदरा पीसा जाता है।",
+          "translation": "Cumin is roasted on a griddle and coarsely ground for sprinkling over dahi vada.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अदरक",
+      "partOfSpeech": "noun",
+      "translation": "ginger / fresh ginger rhizome",
+      "intro": "The pungent, aromatic rhizome of a tropical plant, used in cooking, herbal tea (अदरक वाली चाय), and traditional cough remedies.",
+      "usage": "Masculine noun. Direct plural: अदरक, oblique: अदरक. Dried form: सोंठ (f, dry ginger). Sanskrit origin: आर्दक.",
+      "synonyms": [
+        {
+          "word": "आर्द्रक",
+          "gloss": "fresh ginger (formal Sanskrit)"
+        },
+        {
+          "word": "सोंठ",
+          "gloss": "dry ginger (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों की ठंडी सुबह में तुलसी और कूटे हुए अदरक वाली गर्म चाय अमृत जैसी लगती है।",
+          "translation": "On cold winter mornings, hot tea made with basil and crushed ginger feels like nectar.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गले की खराश और खांसी दूर करने के लिए शहद के साथ अदरक का रस फायदेमंद होता है।",
+          "translation": "Ginger juice with honey is beneficial for clearing throat irritation and cough.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सब्जी की ग्रेवी में बारीक पिसा हुआ अदरक डाला जाता, तो स्वाद लाजवाब होता।",
+          "translation": "If finely ground ginger were added to vegetable gravy, the taste would be exquisite.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अचार और चाय का स्वाद बढ़ाने के लिए ताजे अदरक को छीलकर काटा जाता है।",
+          "translation": "Fresh ginger is peeled and sliced to enhance the taste of pickle and tea.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "लहसुन",
+      "partOfSpeech": "noun",
+      "translation": "garlic / garlic cloves",
+      "intro": "A strong-smelling pungent bulb of the lily family, widely used in cooking and herbal remedies for reducing blood pressure.",
+      "usage": "Masculine noun. Direct plural: लहसुन, oblique: लहसुन. Sanskrit origin: लशुन.",
+      "synonyms": [
+        {
+          "word": "लशुन",
+          "gloss": "garlic (Sanskritized)"
+        },
+        {
+          "word": "थूम",
+          "gloss": "garlic (dialectal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दाल में तड़का लगाने के लिए रसोइये ने लहसुन की तीन कलियों को बारीक काटा।",
+          "translation": "To temper the lentils, the cook finely chopped three cloves of garlic.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "लहसुन का नियमित सेवन दिल की सेहत और रक्तचाप को नियंत्रित रखने में सहायक है।",
+          "translation": "Regular consumption of garlic is helpful in maintaining heart health and regulating blood pressure.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चटनी में थोड़ा सा भुना हुआ लहसुन मिलाया जाए, तो उसका स्वाद बेहद चटपटा हो जाएगा।",
+          "translation": "If a little roasted garlic were mixed into the chutney, its taste would be exceedingly tangy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सूप में सुगंध लाने के लिए मक्खन में लहसुन को हल्का सा तला जाता है।",
+          "translation": "Garlic is lightly sautéed in butter to bring aroma to the soup.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "प्याज",
+      "partOfSpeech": "noun",
+      "translation": "onion / onion bulb",
+      "intro": "A swollen edible bulb with a pungent taste and smell, composed of several concentric layers; staple culinary base across India. Persian loanword (piyāz).",
+      "usage": "Masculine noun. Direct plural: प्याज, oblique: प्याजों. Collocations: 'कटा हुआ प्याज' (chopped onion).",
+      "synonyms": [
+        {
+          "word": "पलांडु",
+          "gloss": "onion (formal Sanskrit)"
+        },
+        {
+          "word": "कांदा",
+          "gloss": "onion (Marathi/regional)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "छिलका उतारकर कच्चा प्याज काटते समय आंखों से पानी बहने लगता है।",
+          "translation": "While peeling and chopping raw onion, tears begin to flow from the eyes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गर्मियों में लू से बचने के लिए लोग भोजन के साथ कच्चा प्याज खाना पसंद करते हैं।",
+          "translation": "To avoid heatstroke in summer, people like to eat raw onion with their meal.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कड़ाही में प्याज को सुनहरा भूरा होने तक भूना जाए, तो करी का रंग गहरा बनता है।",
+          "translation": "If onions were browned to golden color in the pan, the curry color would become deep.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाजार में बढ़ते दामों को नियंत्रित करने के लिए सरकारी गोदामों से प्याज बेचा जाता है।",
+          "translation": "Onions are sold from government warehouses to control rising market prices.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "आलू",
+      "partOfSpeech": "noun",
+      "translation": "potato / spud",
+      "intro": "A starchy plant tuber that is one of the most important food crops worldwide; the ubiquitous base vegetable in Indian cuisine (आलू-गोभी, दम आलू).",
+      "usage": "Masculine noun ending in -ऊ. Direct plural: आलू, oblique: आलुओं. Sanskrit origin: आलुक.",
+      "synonyms": [
+        {
+          "word": "आलुक",
+          "gloss": "tuber / potato (Sanskritized)"
+        },
+        {
+          "word": "बटाटा",
+          "gloss": "potato (Portuguese loan/regional)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय घरों में सुबह के नाश्ते में उबले आलू के पराठे बहुत चाव से खाए जाते हैं।",
+          "translation": "Parathas of boiled potatoes are eaten with great relish for breakfast in Indian homes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सब्जी मंडी में आलू और प्याज की बोरियां सबसे अधिक मात्रा में बिकती हैं।",
+          "translation": "Sacks of potatoes and onions sell in the greatest quantities in the vegetable market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आलू को उबालकर मैश किया जाए, तो उससे स्वादिष्ट टिक्की और समोसा बनाया जा सकता है।",
+          "translation": "If potatoes were boiled and mashed, delicious cutlets and samosas could be made from them.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "फसल कटाई के बाद आलुओं को खराब होने से बचाने के लिए शीतगृह में रखा जाता है।",
+          "translation": "Potatoes are stored in cold storage after harvesting to prevent them from spoiling.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "दाल",
+      "partOfSpeech": "noun",
+      "translation": "lentil / pulses / split peas / lentil soup",
+      "intro": "Split pulses, lentils, or peas; or the spiced soup cooked from them, a foundational staple of Indian daily nourishment.",
+      "usage": "Feminine noun. Singular: दाल, plural direct: दालें, oblique: दालों. Idiom: 'दाल में काला होना' (something fishy), 'दाल न गलना' (one's tricks fail).",
+      "synonyms": [
+        {
+          "word": "सूप",
+          "gloss": "broth / soup"
+        },
+        {
+          "word": "दलहन",
+          "gloss": "pulses"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अरहर की पीली दाल में देसी घी और जीरे का तड़का लगाने से वह बहुत स्वादिष्ट बनती है।",
+          "translation": "Tempering yellow pigeon-pea dal with desi ghee and cumin makes it very delicious.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शाकाहारी भोजन में प्रोटीन की दैनिक आवश्यकता पूरी करने के लिए दाल सबसे मुख्य स्रोत है।",
+          "translation": "Lentils are the main source in vegetarian food for meeting daily protein needs.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दाल को पकाने से पहले आधे घंटे पानी में भिगोया जाए, तो वह जल्दी पकती है।",
+          "translation": "If lentils were soaked in water for half an hour before cooking, they would cook quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "स्वास्थ्य सुधार के लिए बीमार व्यक्ति को मूंग की हल्की दाल पिलाई जाती है।",
+          "translation": "Light mung dal soup is given to a sick person to drink for health improvement.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बिजली",
+      "partOfSpeech": "noun",
+      "translation": "electricity / power / lightning / thunderbolt",
+      "intro": "Electric power supplied to homes; or the natural flash of atmospheric electricity during thunderstorms (आसमानी बिजली). Sanskrit origin (विद्युत्).",
+      "usage": "Feminine noun. Singular: बिजली, plural: बिजलियां (lightning flashes). Collocations: 'बिजली का बिल' (electric bill), 'बिजली चमकना' (lightning flashes).",
+      "synonyms": [
+        {
+          "word": "विद्युत",
+          "gloss": "electricity / power (formal)"
+        },
+        {
+          "word": "तड़ित",
+          "gloss": "lightning bolt (poetic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तूफानी रात में घने काले बादलों के बीच चमकीली बिजली कौंध उठी।",
+          "translation": "On the stormy night bright lightning flashed among dense dark clouds.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गांवों में सिंचाई और उद्योगों के संचालन के लिए चौबीसों घंटे बिजली की आपूर्ति जरूरी है।",
+          "translation": "Twenty-four-hour power supply is essential for irrigation and running industries in villages.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि शहर में बिजली गुल न होती, तो कारखानों का उत्पादन कार्य न रुकता।",
+          "translation": "If power had not failed in the city, manufacturing work in factories would not stop.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कोयला, पानी और सौर ऊर्जा की सहायता से विशाल संयंत्रों में बिजली बनाई जाती है।",
+          "translation": "Electricity is generated in large plants with the help of coal, water, and solar energy.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "तूफान",
+      "partOfSpeech": "noun",
+      "translation": "storm / tempest / cyclone / hurricane / commotion",
+      "intro": "A violent disturbance of the atmosphere with strong winds and usually rain or snow; tempest; or figuratively emotional upheaval. Arabic origin (tūfān).",
+      "usage": "Masculine noun. Direct plural: तूफान, oblique: तूफानों. Idiom: 'तूफान खड़ा करना' (create a ruckus / raise a tempest).",
+      "synonyms": [
+        {
+          "word": "आंधी",
+          "gloss": "dust storm / gale"
+        },
+        {
+          "word": "झंझावात",
+          "gloss": "tempest / hurricane (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "समुद्री तट पर आए भीषण तूफान ने सैकड़ों कच्चे मकानों और पेड़ों को उखाड़ फेंका।",
+          "translation": "The fierce storm that struck the seashore uprooted hundreds of thatched houses and trees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मछुआरों को चेतावनी दी गई कि वे आगामी तूफान के शांत होने तक समुद्र में न जाएं।",
+          "translation": "Fishermen were cautioned not to venture into the sea until the upcoming storm subsided.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि जहाज का कप्तान तूफान में धैर्य न रखता, तो जहाज भंवर में डूब जाता।",
+          "translation": "If the ship captain had not kept composure in the storm, the vessel would sink in the whirlpool.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तूफान से प्रभावित तटीय इलाकों में राहत सामग्री वायुसेना द्वारा गिराई जाती है।",
+          "translation": "Relief material is airdropped by the air force in coastal areas affected by storms.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "ज्वालामुखी",
+      "partOfSpeech": "noun",
+      "translation": "volcano / crater erupting fire (etymological: flame-faced)",
+      "intro": "A mountain or hill having a crater through which lava, rock fragments, and vapor are erupted from earth's crust. Sanskrit compound (ज्वाला + मुखी).",
+      "usage": "Masculine noun. Direct plural: ज्वालामुखी, oblique: ज्वालामुखियों. Collocations: 'सक्रिय ज्वालामुखी' (active volcano).",
+      "synonyms": [
+        {
+          "word": "अग्निपर्वत",
+          "gloss": "fire-mountain / volcano"
+        },
+        {
+          "word": "लावा पर्वत",
+          "gloss": "lava mountain"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अंडमान के बैरन द्वीप पर स्थित ज्वालामुखी हाल ही में दोबारा सक्रिय हो उठा।",
+          "translation": "The volcano situated on Barren Island of the Andamans recently became active again.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "ज्वालामुखी से निकले खौलते हुए गर्म लावे ने आसपास की पूरी घाटी को भस्म कर दिया।",
+          "translation": "The scalding hot lava erupted from the volcano incinerated the entire surrounding valley.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि ज्वालामुखी के विस्फोट की पूर्व चेतावनी मिल जाए, तो हजारों लोगों को बचाया जा सकता है।",
+          "translation": "If advance warning of a volcanic eruption were received, thousands of lives could be saved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ज्वालामुखी के आसपास की राख से ढकी उपजाऊ मिट्टी पर नई वनस्पति उगती है।",
+          "translation": "New vegetation grows on fertile soil covered with ash around volcanoes.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "बाढ़",
+      "partOfSpeech": "noun",
+      "translation": "flood / inundation / deluge / overflowing surge",
+      "intro": "An overflowing of a large amount of water beyond its normal confines, especially over what is normally dry land; deluge.",
+      "usage": "Feminine noun. Singular: बाढ़, plural direct: बाढ़ें, oblique: बाढ़ों. Collocation: 'बाढ़ आना' (flood strikes), 'बाढ़ राहत' (flood relief).",
+      "synonyms": [
+        {
+          "word": "जलप्लावन",
+          "gloss": "inundation / deluge (formal)"
+        },
+        {
+          "word": "सैलाब",
+          "gloss": "torrent / deluge (Arabic/Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लगातार मूसलाधार बारिश के कारण नदी का जलस्तर बढ़ गया और गांव में भीषण बाढ़ आ गई।",
+          "translation": "Due to continuous torrential rain the river water level rose and a severe flood hit the village.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बाढ़ के पानी में घिरे सैकड़ों परिवारों को नावों की मदद से सुरक्षित शिविरों में पहुंचाया गया।",
+          "translation": "Hundreds of families marooned in flood waters were conveyed to safe camps with help of boats.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नदी पर मजबूत तटबंध बना होता, तो रिहायशी इलाकों में बाढ़ का पानी न घुसता।",
+          "translation": "If sturdy embankments were built on the river, flood water would not enter residential areas.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मानसून के दौरान बाढ़ की विभीषिका से निपटने के लिए आपदा प्रबंधन दल तैनात किए जाते हैं।",
+          "translation": "Disaster management teams are deployed during monsoon to tackle the devastation of floods.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "ओस",
+      "partOfSpeech": "noun",
+      "translation": "dew / dew drops / morning moisture",
+      "intro": "Tiny drops of water that form on cool surfaces at night when atmospheric vapor condenses. Sanskrit origin (अवश्याय).",
+      "usage": "Feminine noun. Uncountable. Oblique: ओस. Collocation: 'ओस की बूंदें' (dew drops). Idiom: 'ओस चाटने से प्यास नहीं बुझती' (petty means cannot solve big needs).",
+      "synonyms": [
+        {
+          "word": "शबनम",
+          "gloss": "dew (Persian loan)"
+        },
+        {
+          "word": "हिमबिंदु",
+          "gloss": "dew point / frost drop"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों की सुबह में हरी घास पर ओस की चमकीली बूंदें मोतियों की तरह झलक रही थीं।",
+          "translation": "On winter mornings bright drops of dew on green grass were glistening like pearls.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सूर्य की पहली किरणें निकलते ही पत्तियों पर जमी ओस धीरे-धीरे भाप बनकर उड़ गई।",
+          "translation": "As soon as the first rays of the sun emerged, dew deposited on leaves evaporated away.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रात भर ठंडी ओस न गिरती, तो बगीचे के फूल सुबह इतने तरोताजा न दिखते।",
+          "translation": "If cool dew had not fallen throughout the night, garden flowers wouldn't look so fresh in the morning.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मौसम विज्ञान में वायुमंडल की आर्द्रता नापने के लिए ओस बिंदु का अध्ययन किया जाता है।",
+          "translation": "Dew point is studied in meteorology to measure atmospheric humidity.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "कोहरा",
+      "partOfSpeech": "noun",
+      "translation": "fog / mist / haze / smog",
+      "intro": "A thick cloud of tiny water droplets suspended in the atmosphere at or near the earth's surface that obscures or restricts visibility; fog.",
+      "usage": "Masculine marked noun (-आ). Oblique: कोहरे. Collocation: 'घना कोहरा' (dense fog), 'कोहरा छाना' (fog descends).",
+      "synonyms": [
+        {
+          "word": "धुंध",
+          "gloss": "mist / haze / smog"
+        },
+        {
+          "word": "कुहासा",
+          "gloss": "dense fog"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों में घने कोहरे के कारण दृश्यता शून्य हो गई और सभी उड़ानें देर से चलीं।",
+          "translation": "In winter due to dense fog visibility became zero and all flights operated late.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पहाड़ों की घुमावदार सड़कों पर सुबह के समय सफेद कोहरा चादर की तरह फैला हुआ था।",
+          "translation": "White fog was spread like a sheet in the morning over winding mountain roads.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इतना घना कोहरा न होता, तो राजमार्ग पर वाहनों की यह भीषण टक्कर न होती।",
+          "translation": "If there were not such thick fog, this horrific pile-up of vehicles on the highway would not occur.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कोहरे के दौरान सड़क सुरक्षा के लिए गाड़ियों में पीली फॉग लाइटें जलाई जाती हैं।",
+          "translation": "Yellow fog lights are switched on in vehicles during fog for road safety.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "बर्फ",
+      "partOfSpeech": "noun",
+      "translation": "snow (प्राकृतिक बर्फ) / ice (जमा हुआ पानी)",
+      "intro": "Water frozen into a solid state (ice); or atmospheric water vapor frozen into crystals and falling in light white flakes (snow). Persian loanword (barf).",
+      "usage": "Feminine noun. Singular: बर्फ, plural: बर्फें (rare). Collocations: 'बर्फ गिरना' (to snow), 'बर्फबारी' (snowfall).",
+      "synonyms": [
+        {
+          "word": "हिम",
+          "gloss": "snow / ice (Sanskritized)"
+        },
+        {
+          "word": "तुषार",
+          "gloss": "frost / snow"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दिसंबर के महीने में शिमला और मनाली के पहाड़ों पर भारी बर्फबारी शुरू हो जाती है।",
+          "translation": "In the month of December heavy snowfall begins on the mountains of Shimla and Manali.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गर्मी से राहत पाने के लिए उसने फलों के ताजे रस में बर्फ के दो टुकड़े डाले।",
+          "translation": "To get relief from heat, he added two ice cubes to the fresh fruit juice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पहाड़ों पर अधिक बर्फ पिघलती, तो गर्मियों में नदियों में पानी का स्तर बढ़ जाता।",
+          "translation": "If more snow melted on the mountains, water level in rivers would rise in summer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सर्दियों में बर्फ से ढकी सड़कों को साफ करने के लिए बुलडोजर तैनात किए जाते हैं।",
+          "translation": "Bulldozers are deployed in winter to clear snow-covered roads.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "छांव",
+      "partOfSpeech": "noun",
+      "translation": "shade / shadow / shelter / refuge (छत्रछाया)",
+      "intro": "Comparative darkness and coolness caused by shelter from direct sunlight and heat; protection. Sanskrit origin (छाया).",
+      "usage": "Feminine noun. Singular: छांव, plural direct: छांवें, oblique: छांवों. Direct synonym: छाया.",
+      "synonyms": [
+        {
+          "word": "छाया",
+          "gloss": "shade / shadow / reflection"
+        },
+        {
+          "word": "साया",
+          "gloss": "shade / shadow (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "थका हुआ राहगीर दोपहर की तेज धूप से बचकर पुराने बरगद की ठंडी छांव में बैठ गया।",
+          "translation": "Escaping the bright noon sun, the weary traveler sat down in the cool shade of the old banyan tree.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माता-पिता की छत्रछाया में बच्चे हर प्रकार के संकट से पूरी तरह सुरक्षित महसूस करते हैं।",
+          "translation": "Under the sheltering shade of parents, children feel completely secure from all troubles.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सड़क किनारे घने पेड़ लगे होते, तो पैदल चलने वालों को सुखद छांव मिलती।",
+          "translation": "If dense trees were planted roadside, pedestrians would receive pleasant shade.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "धूप से पौधों को बचाने के लिए नर्सरी में हरे कपड़े की कृत्रिम छांव की जाती है।",
+          "translation": "Artificial shade of green netting is provided in nurseries to protect saplings from sun.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "लहर",
+      "partOfSpeech": "noun",
+      "translation": "wave (sea, light, sound, heat) / ripple / wave of emotion / whim (लहर आना)",
+      "intro": "An undulating swell on the surface of water; an electromagnetic or sound wave; or a sudden surging emotion / trend (फैशन की लहर, मोदी लहर).",
+      "usage": "Feminine noun. Singular: लहर, plural direct: लहरें, oblique: लहरों. Collocations: 'शीतलहर' (cold wave), 'लू की लहर' (heat wave).",
+      "synonyms": [
+        {
+          "word": "तरंग",
+          "gloss": "wave / ripple (formal Sanskrit)"
+        },
+        {
+          "word": "हिलोरे",
+          "gloss": "surging waves"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "समुद्र के किनारे खड़े होकर बच्चे ऊंची-ऊंची उठती पानी की लहरों को निहार रहे थे।",
+          "translation": "Standing on the seashore, children were gazing at the high-rising waves of water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "देश की क्रिकेट टीम की ऐतिहासिक जीत के बाद पूरे राष्ट्र में खुशी की लहर दौड़ गई।",
+          "translation": "After the historic victory of the national cricket team, a wave of joy surged across the country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समुद्र में ऊंची तूफानी लहरें न उठतीं, तो नाविक अपनी नाव को किनारे ले आते।",
+          "translation": "If high stormy waves had not arisen in the sea, boatmen would bring their boats to shore.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "रेडियो और मोबाइल संचार के लिए विद्युत चुंबकीय तरंगों और लहरों का उपयोग किया जाता है।",
+          "translation": "Electromagnetic ripples and waves are used for radio and mobile telecommunications.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "किनारा",
+      "partOfSpeech": "noun",
+      "translation": "bank (river) / shore (sea) / edge / border / brim / avoidance (किनारा करना)",
+      "intro": "The area where land meets water (नदी का किनारा, समुद्र तट); edge/brim of an object; or distancing oneself ('किनारा कर लेना'). Persian origin (kinārah).",
+      "usage": "Masculine marked noun (-आ). Plural direct: किनारे, oblique: किनारो. Idiom: 'किनारा करना' (steer clear / dissociate).",
+      "synonyms": [
+        {
+          "word": "तट",
+          "gloss": "shore / bank (formal)"
+        },
+        {
+          "word": "तीर",
+          "gloss": "bank / shore / arrow"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शाम के वक्त गंगा नदी के किनारे बैठकर आरती देखना मन को असीम शांति प्रदान करता है।",
+          "translation": "Sitting by the bank of river Ganga at evening and watching the aarti provides boundless peace to the mind.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "तूफान शांत होने के बाद मछुआरों की नावें सुरक्षित समुद्र के किनारे लौट आईं।",
+          "translation": "After the storm subsided, fishermen's boats returned safely to the seashore.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम नदी के किनारे सावधानी से चलते, तो गीली फिसलन पर तुम्हारा पैर न फिसलता।",
+          "translation": "If you walked carefully along the river bank, your foot would not slip on the wet moss.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ के पानी से कटाव रोकने के लिए नदी के किनारों को पत्थरों से पक्का किया जाता है।",
+          "translation": "River banks are reinforced with stones to prevent erosion by flood waters.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "टापू",
+      "partOfSpeech": "noun",
+      "translation": "island / isle / atoll",
+      "intro": "A piece of land surrounded by water on all sides, smaller than a continent; island. Sanskrit origin (द्वीप / अंतरीप).",
+      "usage": "Masculine noun ending in -ऊ. Direct plural: टापू, oblique: टापुओं. Direct synonym: द्वीप.",
+      "synonyms": [
+        {
+          "word": "द्वीप",
+          "gloss": "island (formal Sanskritized)"
+        },
+        {
+          "word": "जजीरा",
+          "gloss": "island (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अंडमान और निकोबार द्वीप समूह में सैकड़ों छोटे-बड़े प्राकृतिक टापू स्थित हैं।",
+          "translation": "Hundreds of small and large natural islands are situated in the Andaman and Nicobar archipelago.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समुद्री लुटेरों ने अपना खजाना गहरे महासागर के एक निर्जन और अज्ञात टापू पर छिपाया था।",
+          "translation": "Pirates had hidden their treasure on an uninhabited and unknown island in the deep ocean.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उस सुदूर टापू पर हवाई पट्टी बन जाए, तो वहां पर्यटकों का आना-जाना बहुत आसान हो जाए।",
+          "translation": "If an airstrip were built on that remote island, tourist visits there would become very easy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पर्यावरण और समुद्री जीवों की सुरक्षा के लिए कई टापुओं को संरक्षित घोषित किया गया है।",
+          "translation": "Many islands have been declared protected for the conservation of environment and marine life.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "गुफा",
+      "partOfSpeech": "noun",
+      "translation": "cave / cavern / grotto / den (शेर की गुफा)",
+      "intro": "A natural underground space large enough for a human or animal to enter; cavern, grotto, or lion's den. Sanskrit borrowing (गुहा).",
+      "usage": "Feminine noun. Singular: गुफा, plural direct: गुफाएं, oblique: गुफाओं. Direct synonym: गुहा, कंदरा.",
+      "synonyms": [
+        {
+          "word": "कंदरा",
+          "gloss": "cavern / cave (formal)"
+        },
+        {
+          "word": "गुहा",
+          "gloss": "cave / cavity (archaic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अजंता और एलोरा की प्राचीन गुफाओं में बने भित्तिचित्र भारतीय कला की अमूल्य धरोहर हैं।",
+          "translation": "The murals painted in the ancient caves of Ajanta and Ellora are invaluable treasures of Indian art.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शिकार की तलाश में भटकने के बाद शेर आराम करने के लिए अपनी पथरीली गुफा में लौट आया।",
+          "translation": "After wandering in search of prey, the lion returned to its rocky cave to rest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पुरातत्वविद् इस अंधेरी गुफा के भीतर खुदाई करते, तो प्राचीन सभ्यता के अवशेष मिलते।",
+          "translation": "If archaeologists excavated inside this dark cave, relics of an ancient civilization would be found.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्राचीन काल में तपस्वी साधुओं द्वारा ध्यान लगाने के लिए शांत गुफाओं को चुना जाता था।",
+          "translation": "In ancient times serene caves were chosen by ascetic sages for meditating.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "झाड़ी",
+      "partOfSpeech": "noun",
+      "translation": "bush / shrub / thicket / undergrowth",
+      "intro": "A woody plant that is smaller than a tree and has several main stems arising at or near the ground; shrub, thicket, or undergrowth.",
+      "usage": "Feminine marked noun (-ई). Plural direct: झाड़ियां, oblique: झाड़ियों. Masculine augmentative: झाड़ (bush / broom / chandelier).",
+      "synonyms": [
+        {
+          "word": "गुल्म",
+          "gloss": "shrub / bush (formal Sanskrit)"
+        },
+        {
+          "word": "कुंज",
+          "gloss": "bower / thicket"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शिकारी से अपनी जान बचाने के लिए छोटा खरगोश दौड़कर घनी कांटेदार झाड़ी में छिप गया।",
+          "translation": "To save its life from the predator, the little rabbit ran and hid in the dense thorny bush.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जंगल के किनारे जंगली बेरों और गुलाब की कांटेदार झाड़ियां चारों ओर फैली हुई थीं।",
+          "translation": "Thorny bushes of wild berries and roses were spread all around at the forest edge.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि बगीचे की अनचाही झाड़ियों की नियमित छंटाई की जाती, तो लॉन बहुत साफ दिखता।",
+          "translation": "If unwanted bushes in the garden were trimmed regularly, the lawn would look very neat.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "रास्ते को साफ और सुरक्षित बनाने के लिए सड़क किनारे उगी झाड़ियों को काटा जाता है।",
+          "translation": "Bushes grown along roadsides are cleared to make the path clean and safe.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बीज",
+      "partOfSpeech": "noun",
+      "translation": "seed / grain / germ / origin / nucleus (figurative: समस्या का बीज)",
+      "intro": "The unit of reproduction of a flowering plant; grain; or metaphorically the root cause / origin of something ('झगड़े का बीज'). Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: बीज, oblique: बीजों. Collocation: 'बीज बोना' (to sow seeds), 'बीजारोपण' (inauguration/sowing).",
+      "synonyms": [
+        {
+          "word": "दाने",
+          "gloss": "grains / seeds"
+        },
+        {
+          "word": "मूल",
+          "gloss": "root / source"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "किसान ने मानसून की पहली बारिश होते ही अपने उपजाऊ खेत में गेहूं के बीज बोए।",
+          "translation": "The farmer sowed wheat seeds in his fertile field as soon as the first monsoon rains arrived.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "एक छोटे से नन्हे बीज के भीतर ही एक विशाल बरगद का पेड़ बनने की क्षमता छिपी होती है।",
+          "translation": "Inside a tiny little seed lies hidden the potential to become a giant banyan tree.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम खेत में उन्नत किस्म के प्रमाणित बीज डालते, तो फसल की पैदावार कहीं अधिक होती।",
+          "translation": "If you planted certified seeds of improved variety in the field, crop yield would be much higher.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अच्छी गुणवत्ता वाले बीजों को कीटनाशक रसायनों से उपचारित करके बोया जाता है।",
+          "translation": "High-quality seeds are treated with pesticide chemicals before being sown.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "जड़",
+      "partOfSpeech": "noun",
+      "translation": "root (botany, mathematics, etymology) / inanimate matter / dullard (insult)",
+      "intro": "The part of a plant that attaches it to the ground and conveys water/nourishment; root cause; root in math (वर्गमूल); or inanimate / fool ('जड़-चेतन').",
+      "usage": "Feminine noun (when meaning root). Singular: जड़, plural direct: जड़ें, oblique: जड़ों. Idioms: 'जड़ से उखाड़ना' (eradicate completely), 'जड़ पकड़ना' (take root).",
+      "synonyms": [
+        {
+          "word": "मूल",
+          "gloss": "root / source (Sanskrit)"
+        },
+        {
+          "word": "बुनियाद",
+          "gloss": "foundation / base"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बरगद के विशाल पेड़ की मजबूत जड़ें जमीन के बहुत गहरे भीतर तक फैली हुई थीं।",
+          "translation": "The sturdy roots of the giant banyan tree were spread deep into the ground.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अशिक्षा और बेरोजगारी ही समाज में बढ़ रहे अपराधों की सबसे मुख्य जड़ मानी जाती हैं।",
+          "translation": "Illiteracy and unemployment are considered the primary root cause of rising crimes in society.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज से भ्रष्टाचार की जड़ को न काटा जाए, तो देश कभी तेजी से विकास नहीं कर सकता।",
+          "translation": "If the root of corruption is not excised from society, the nation can never develop rapidly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पेड़ को नया जीवन देने के लिए उसकी सूखी जड़ों में पर्याप्त पानी और खाद दी जाती है।",
+          "translation": "Adequate water and manure are supplied to its dry roots to impart new life to the tree.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "तना",
+      "partOfSpeech": "noun",
+      "translation": "trunk (tree) / stem / stalk",
+      "intro": "The main woody stem of a tree as distinct from branches and roots; stalk of a plant. Sanskrit origin (तनु).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: तने, oblique: तनों. Distinct from past participle of तनना (तनी रस्सी).",
+      "synonyms": [
+        {
+          "word": "धड़",
+          "gloss": "trunk / torso"
+        },
+        {
+          "word": "डंठल",
+          "gloss": "stalk / stem"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शताब्दी पुराने पीपल के पेड़ का विशाल तना इतना चौड़ा था कि चार लोग उसे घेर नहीं सकते थे।",
+          "translation": "The massive trunk of the century-old sacred fig tree was so wide that four people could not encircle it.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पेड़ के तने पर खुरदरी छाल मौसम की मार और कीड़ों से आंतरिक लकड़ी की रक्षा करती है।",
+          "translation": "Rough bark on the tree trunk protects the inner wood from weather damage and insects.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पेड़ का तना दीमक से खोखला न हुआ होता, तो वह आंधी में कभी न गिरता।",
+          "translation": "If the tree trunk had not been hollowed out by termites, it would never fall in the gale.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इमारती लकड़ी प्राप्त करने के लिए विशाल पेड़ों के तनों को चीरा जाता है।",
+          "translation": "Trunks of giant trees are sawn to obtain timber for construction.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "शाखा",
+      "partOfSpeech": "noun",
+      "translation": "branch / bough (tree) / branch office / division / affiliate",
+      "intro": "A part of a tree growing out from the trunk; or a lateral division / branch office of a bank or institution (बैंक शाखा). Sanskrit origin.",
+      "usage": "Feminine noun. Singular: शाखा, plural direct: शाखाएं, oblique: शाखाओं. Common synonym: डाली, डाल.",
+      "synonyms": [
+        {
+          "word": "डाल",
+          "gloss": "branch (tree)"
+        },
+        {
+          "word": "टहनी",
+          "gloss": "twig / branchlet"
+        },
+        {
+          "word": "कार्यालय",
+          "gloss": "office"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पेड़ की हरी-भरी शाखाओं पर बैठकर मीठी बोली बोलने वाली कोयल कूक रही थी।",
+          "translation": "Sitting on the lush green branches of the tree, the sweet-voiced cuckoo was calling.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भारतीय स्टेट बैंक ने ग्राहकों की सुविधा के लिए इस कस्बे में अपनी नई शाखा खोली है।",
+          "translation": "State Bank of India has opened its new branch in this town for the convenience of customers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आम के पेड़ की सूखी शाखाएं काट दी जाएं, तो नई कोपलें जल्दी फूटेंगी।",
+          "translation": "If dry branches of the mango tree were pruned, new shoots would sprout quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पक्षी अपने घोंसले बनाने के लिए पेड़ों की सुरक्षित शाखाओं को चुनते हैं।",
+          "translation": "Safe branches of trees are chosen by birds to build their nests.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "कीचड़",
+      "partOfSpeech": "noun",
+      "translation": "mud / mire / muck / slander (figurative: कीचड़ उछालना)",
+      "intro": "Soft, sticky matter resulting from mixing of earth and water; mire; or defamation/slander ('कीचड़ उछालना').",
+      "usage": "Masculine noun. Uncountable. Oblique: कीचड़. Idiom: 'कीचड़ में कमल खिलना' (a lotus blooms in mud / brilliance emerging from squalor), 'कीचड़ उछालना' (sling mud / defame).",
+      "synonyms": [
+        {
+          "word": "पंक",
+          "gloss": "mud / mire (formal Sanskrit)"
+        },
+        {
+          "word": "गारा",
+          "gloss": "mud mortar"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बारिश के बाद कच्ची सड़क पर इतना कीचड़ जमा हो गया कि गाड़ियां फंसने लगीं।",
+          "translation": "After the rain so much mud accumulated on the unpaved road that vehicles began getting stuck.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "राजनीतिक बहस के दौरान एक दूसरे पर कीचड़ उछालने के बजाय विकास पर चर्चा होनी चाहिए।",
+          "translation": "Instead of slinging mud at each other during political debates, development should be discussed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम ध्यान से देखकर चलते, तो तुम्हारे नए चमड़े के जूते कीचड़ में न सनते।",
+          "translation": "If you had walked looking carefully, your new leather shoes would not be smeared in mud.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सफाई अभियान के तहत सड़क की नालियों से सारा बदबूदार कीचड़ निकाला जाता है।",
+          "translation": "All foul-smelling mud is cleared from street drains under the sanitation campaign.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "झरना",
+      "partOfSpeech": "noun",
+      "translation": "waterfall / cascade / spring / fountain",
+      "intro": "A cascade of water falling from a height, formed when a river or stream flows over a precipice; natural spring. Verb counterpart: झरना (to trickle/fall).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: झरने, oblique: झरनों. Direct synonym: प्रपात.",
+      "synonyms": [
+        {
+          "word": "जलप्रपात",
+          "gloss": "waterfall (formal Sanskrit)"
+        },
+        {
+          "word": "चश्मा",
+          "gloss": "spring / fountain (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पहाड़ की ऊंची चट्टान से गिरता हुआ दूधिया सफेद झरना पर्यटकों का मन मोह लेता है।",
+          "translation": "The milky white waterfall cascading from the mountain's high cliff enchants tourists.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जंगल की गहराई में कलकल बहते प्राकृतिक झरने का मीठा पानी पीने योग्य होता है।",
+          "translation": "The sweet water of the natural spring babbling in the depths of the forest is potable.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह सुंदर झरना मुख्य सड़क के पास होता, तो यहां पर्यटकों की भारी भीड़ उमड़ती।",
+          "translation": "If this beautiful cascade were near the main road, a huge crowd of tourists would flock here.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पहाड़ी झरनों के तीव्र बहाव से बिजली पैदा करने के लिए छोटे टरबाइन लगाए जाते हैं।",
+          "translation": "Small turbines are installed to generate power from the rapid current of mountain springs.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मैदान",
+      "partOfSpeech": "noun",
+      "translation": "field / plain / open ground / battleground (युद्ध का मैदान) / arena",
+      "intro": "A piece of open, flat land; sports field (खेल का मैदान); or battleground (मैदान-ए-जंग). Persian origin (maidān).",
+      "usage": "Masculine noun. Direct plural: मैदान, oblique: मैदानों. Idiom: 'मैदान मारना' (win the field / emerge victorious), 'मैदान छोड़ना' (retreat).",
+      "synonyms": [
+        {
+          "word": "प्रांगण",
+          "gloss": "courtyard / grounds"
+        },
+        {
+          "word": "क्रीड़ास्थल",
+          "gloss": "sports ground"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "स्कूल की छुट्टी होते ही सभी बच्चे फुटबॉल खेलने के लिए खुले मैदान में दौड़ पड़े।",
+          "translation": "As soon as school let out, all children ran to the open field to play football.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भारतीय सैनिकों ने वीरता का परिचय देते हुए कारगिल के युद्ध के मैदान में विजय पाई।",
+          "translation": "Demonstrating valor, Indian soldiers achieved victory on the battlefield of Kargil.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारी टीम ने अंतिम ओवरों में अनुशासन रखा होता, तो वह आसानी से मैदान मार लेती।",
+          "translation": "If our team had maintained discipline in the final overs, it would easily win the match (the field).",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शहर में सार्वजनिक रैलियों और त्योहारों के आयोजन के लिए बड़े मैदान तैयार किए जाते हैं।",
+          "translation": "Large open grounds are prepared for holding public rallies and festivals in the city.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "गाय",
+      "partOfSpeech": "noun",
+      "translation": "cow / gentle person (figurative: गाय जैसा सीधा)",
+      "intro": "A fully grown female animal of a domesticated bovine, revered in Indian culture (गौमाता); or figuratively an innocent, gentle person.",
+      "usage": "Feminine noun. Singular: गाय, plural direct: गायें, oblique: गायों. Sanskrit origin: गो.",
+      "synonyms": [
+        {
+          "word": "गौ",
+          "gloss": "cow (formal Sanskrit)"
+        },
+        {
+          "word": "धेनु",
+          "gloss": "milch cow (poetic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय संस्कृति में गाय को अत्यंत पवित्र और पूजनीय माता का दर्जा दिया गया है।",
+          "translation": "In Indian culture the cow is accorded the status of an extremely sacred and venerable mother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "किसान हर सुबह और शाम को अपनी देसी गाय का पौष्टिक दूध दुहता है।",
+          "translation": "The farmer milks nutritious milk from his desi cow every morning and evening.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गाय को हरा चारा और स्वच्छ पानी दिया जाए, तो वह अधिक दूध देती है।",
+          "translation": "If a cow were fed green fodder and clean water, it would yield more milk.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गोशालाओं में लावारिस और वृद्ध गायों की सेवा और देखभाल पूरी श्रद्धा से की जाती है।",
+          "translation": "Service and care of abandoned and elderly cows is conducted with devotion in cowsheds.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बैल",
+      "partOfSpeech": "noun",
+      "translation": "ox / bullock / steer / hardworking person (figurative: कोल्हू का बैल)",
+      "intro": "A castrated bull used as a draft animal in plowing fields and pulling carts (बैलगाड़ी); or a relentless toiler ('कोल्हू का बैल').",
+      "usage": "Masculine noun. Direct plural: बैल, oblique: बैलों. Female counterpart: गाय (#541). Idiom: 'कोल्हू का बैल' (plodding workhorse), 'आ बैल मुझे मार' (invite trouble).",
+      "synonyms": [
+        {
+          "word": "वृषभ",
+          "gloss": "bull / Taurus (formal)"
+        },
+        {
+          "word": "सांड",
+          "gloss": "uncastrated bull"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "किसान अपने दोनों बैलों की जोड़ी को हल में जोतकर सुबह-सुबह खेत जोतने निकल पड़ा।",
+          "translation": "Yoking his pair of oxen to the plow, the farmer set out early morning to plow the field.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दफ्तर में दिन-रात लगातार काम करने के कारण वह खुद को कोल्हू का बैल समझने लगा है।",
+          "translation": "Due to working day and night continuously in the office, he has begun to consider himself a workhorse.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि किसान के पास बैलों की मजबूत जोड़ी न होती, तो वह अपनी पथरीली जमीन न जोत पाता।",
+          "translation": "If the farmer had no sturdy pair of oxen, he would not be able to plow his stony land.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पारंपरिक खेती में अनाज की थ्रेशिंग और माल ढुलाई के लिए बैलों का उपयोग किया जाता है।",
+          "translation": "Oxen are utilized in traditional farming for threshing grain and transporting goods.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "भैंस",
+      "partOfSpeech": "noun",
+      "translation": "water buffalo (female) / sluggish person (figurative)",
+      "intro": "A domesticated water buffalo, renowned for producing thick rich high-fat milk in rural South Asia. Male: भैंसा.",
+      "usage": "Feminine noun. Singular: भैंस, plural direct: भैंसें, oblique: भैंसों. Idiom: 'गई भैंस पानी में' (all efforts gone down the drain), 'भैंस के आगे बीन बजाना' (cast pearls before swine).",
+      "synonyms": [
+        {
+          "word": "महिषी",
+          "gloss": "water buffalo (formal Sanskrit)"
+        },
+        {
+          "word": "भैंसा",
+          "gloss": "male buffalo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गांव के तालाब में दोपहर की तेज गर्मी से राहत पाने के लिए कई काली भैंसें तैर रही थीं।",
+          "translation": "In the village pond several black buffaloes were swimming to get relief from the fierce noon heat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हलवाई खोया और पनीर बनाने के लिए हमेशा भैंस के गाढ़े दूध को प्राथमिकता देता है।",
+          "translation": "The sweetmaker always prefers thick buffalo milk for preparing mawa and paneer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मूर्ख व्यक्ति को समझदारी की बात समझाओ, तो यह भैंस के आगे बीन बजाने जैसा होगा।",
+          "translation": "If you explain words of wisdom to a fool, it would be like playing flute before a buffalo.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "डेयरी फार्म में भैंसों को संतुलित पौष्टिक चारा और स्वच्छ पानी खिलाया जाता है।",
+          "translation": "Balanced nutritious fodder and clean water are fed to buffaloes on dairy farms.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बकरी",
+      "partOfSpeech": "noun",
+      "translation": "goat (she-goat) / scapegoat (figurative: बकरे की बलि)",
+      "intro": "A hardy domesticated ruminant mammal with backward curving horns; prized for easily digestible milk and meat. Male: बकरा.",
+      "usage": "Feminine marked noun (-ई). Plural direct: बकरियां, oblique: बकरियों. Male counterpart: बकरा. Idiom: 'बकरे की मां कब तक खैर मनाएगी' (the inevitable cannot be avoided forever).",
+      "synonyms": [
+        {
+          "word": "अजा",
+          "gloss": "she-goat (Sanskritized)"
+        },
+        {
+          "word": "छेरी",
+          "gloss": "goat (dialectal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गरीब किसान परिवार के पोषण के लिए दो दुधारू बकरियां पालकर उनका दूध बेचता है।",
+          "translation": "The poor farmer rears two milch goats and sells their milk to nourish his family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "छोटे मेमने अपनी मां बकरी के पीछे-पीछे हरी पत्तियों की तलाश में पहाड़ी ढलान पर दौड़े।",
+          "translation": "Little kids ran after their mother goat on the mountain slope in search of green leaves.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि डेंगू के मरीज को बकरी का ताजा दूध पिलाया जाए, तो प्लेटलेट्स तेजी से बढ़ते हैं।",
+          "translation": "If fresh goat milk were administered to a dengue patient, platelets would increase rapidly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शुष्क और पहाड़ी इलाकों में पशुपालकों द्वारा बड़ी संख्या में बकरियां पाली जाती हैं।",
+          "translation": "Goats are reared in large numbers by pastoralists in arid and hilly regions.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "भेड़",
+      "partOfSpeech": "noun",
+      "translation": "sheep / ewe / follower blindly (figurative: भेड़चाल)",
+      "intro": "A domesticated ruminant mammal with a thick woolly coat, kept in flocks for its wool and meat. Male: मेंढा.",
+      "usage": "Feminine noun. Singular: भेड़, plural direct: भेड़ें, oblique: भेड़ों. Idiom: 'भेड़चाल' (herd mentality / blind conformity).",
+      "synonyms": [
+        {
+          "word": "मेष",
+          "gloss": "ram / Aries (formal)"
+        },
+        {
+          "word": "अवि",
+          "gloss": "sheep (classical)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गड़रिया अपनी सैकड़ों भेड़ों के झुंड को हरी चरागाह में चराने के लिए पहाड़ी पर ले गया।",
+          "translation": "The shepherd took his flock of hundreds of sheep up the mountain to graze in green pastures.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बिना सोचे-समझे दूसरों की नकल करना समाज में भेड़चाल का सबसे बड़ा उदाहरण है।",
+          "translation": "Blindly imitating others without thinking is the biggest example of herd mentality in society.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कश्मीरी भेड़ों की ऊन अच्छी गुणवत्ता की होती, तो पश्मीना शॉल बहुत मुलायम बनते।",
+          "translation": "If Kashmiri sheep wool were of fine quality, pashmina shawls would turn out very soft.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गर्मियों के आगमन पर भेड़ों के शरीर से ऊन उतारने के लिए उनकी कतरनी की जाती है।",
+          "translation": "Shearing is done to remove wool from sheep's bodies upon the arrival of summer.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "घोड़ा",
+      "partOfSpeech": "noun",
+      "translation": "horse / steed / stallion / trigger of a gun (बंदूक का घोड़ा)",
+      "intro": "A solid-hoofed plant-eating domesticated mammal (Equus caballus); steed; or the hammer/trigger of a gun ('घोड़ा दबाना').",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: घोड़े, oblique: घोड़ों. Feminine: घोड़ी. Idiom: 'घोड़े बेचकर सोना' (sleep like a log / in carefree slumber).",
+      "synonyms": [
+        {
+          "word": "अश्व",
+          "gloss": "horse / steed (formal Sanskrit)"
+        },
+        {
+          "word": "तुरंग",
+          "gloss": "steed / courser (poetic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "महाराणा प्रताप का स्वामीभक्त घोड़ा चेतक युद्ध के मैदान में बिजली की रफ्तार से दौड़ता था।",
+          "translation": "Maharana Pratap's faithful horse Chetak ran at the speed of lightning on the battlefield.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "परीक्षा समाप्त होते ही सभी छात्र चिंतामुक्त होकर घोड़े बेचकर गहरी नींद सोए।",
+          "translation": "As soon as exams concluded, all students slept deeply and carefreely like logs.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सवार लगाम को कसकर न थामता, तो बिदका हुआ घोड़ा उसे जमीन पर पटक देता।",
+          "translation": "If the rider had not held the reins tightly, the startled horse would fling him to the ground.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शादी की बारात में दूल्हे को बैठाने के लिए सजी हुई सफेद घोड़ी लाई जाती है।",
+          "translation": "A decorated white mare is brought to seat the groom in wedding processions.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "ऊंट",
+      "partOfSpeech": "noun",
+      "translation": "camel / ship of the desert (रेगिस्तान का जहाज)",
+      "intro": "A large long-necked mammal with humps on its back, adapted to desert life; ship of the desert (रेगिस्तान का जहाज). Sanskrit origin: उष्ट्र.",
+      "usage": "Masculine noun. Direct plural: ऊंट, oblique: ऊंटों. Feminine: ऊंटनी. Idioms: 'ऊंट के मुंह में जीरा' (a drop in the ocean), 'ऊंट किस करवट बैठता है' (which way the wind blows).",
+      "synonyms": [
+        {
+          "word": "उष्ट्र",
+          "gloss": "camel (formal Sanskrit)"
+        },
+        {
+          "word": "सांडनी",
+          "gloss": "fast camel (regional)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "राजस्थान के विशाल थार मरुस्थल में ऊंट को रेगिस्तान का सच्चा जहाज कहा जाता है।",
+          "translation": "In the vast Thar desert of Rajasthan, the camel is called the true ship of the desert.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इतने बड़े भारी भोज में केवल एक मिठाई का पैकेट बांटना तो ऊंट के मुंह में जीरे के समान है।",
+          "translation": "Distributing only one sweet packet in such a huge feast is akin to a drop in the ocean.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि ऊंट अपने कूबड़ में वसा संचित न रखता, तो वह मरुस्थल में हफ्तों बिना पानी के जीवित न रहता।",
+          "translation": "If a camel did not store fat in its hump, it would not survive for weeks in the desert without water.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पुष्कर के वार्षिक पशु मेले में हजारों ऊंटों को रंग-बिरंगे आभूषणों से सजाया जाता है।",
+          "translation": "Thousands of camels are decorated with colorful ornaments at the annual Pushkar livestock fair.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हाथी",
+      "partOfSpeech": "noun",
+      "translation": "elephant / tusker / white elephant (figurative: सफेद हाथी = expensive liability)",
+      "intro": "The largest existing land mammal, having a trunk, tusks, and large ear flaps; revered as representative of Lord Ganesha (गज). Sanskrit origin: हस्ती.",
+      "usage": "Masculine marked noun ending in -ई (behaves like marked masculine). Plural direct: हाथी, oblique: हाथियों. Feminine: हथिनी.",
+      "synonyms": [
+        {
+          "word": "गज",
+          "gloss": "elephant (formal Sanskrit)"
+        },
+        {
+          "word": "मातंग",
+          "gloss": "elephant / tusker"
+        },
+        {
+          "word": "हस्ती",
+          "gloss": "elephant"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "केरल के घने वर्षावनों में जंगली हाथियों का बड़ा झुंड जलस्रोत की ओर शांति से बढ़ रहा था।",
+          "translation": "A large herd of wild elephants was advancing peacefully towards the water source in Kerala's rainforests.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मंदिर के वार्षिक उत्सव में सजाया गया विशाल हाथी सोने के हौदे के साथ जुलूस की शोभा बढ़ाता है।",
+          "translation": "In the temple's annual festival, the decorated giant elephant graces the procession with a golden howdah.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि यह घाटे वाला पुराना कारखाना न बिकता, तो यह कंपनी के लिए सफेद हाथी साबित होता।",
+          "translation": "If this loss-making old factory were not sold, it would prove to be a white elephant for the company.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वन्यजीव संरक्षण कानूनों के तहत हाथियों के दांतों के अवैध व्यापार पर कड़ा प्रतिबंध लगाया गया है।",
+          "translation": "A strict ban has been imposed on illegal trade of elephant ivory under wildlife conservation laws.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "बंदर",
+      "partOfSpeech": "noun",
+      "translation": "monkey / ape / mischievous prankster (figurative)",
+      "intro": "A small to medium-sized primate that typically has a long tail; or an agile, mischievous person / child. Sanskrit origin: वानर.",
+      "usage": "Masculine noun. Direct plural: बंदर, oblique: बंदरों. Feminine: बंदरिया. Idioms: 'बंदर क्या जाने अदरक का स्वाद' (a blind man cannot judge colors), 'बंदर घुड़की' (empty threat).",
+      "synonyms": [
+        {
+          "word": "वानर",
+          "gloss": "monkey / ape (formal Sanskrit)"
+        },
+        {
+          "word": "कपि",
+          "gloss": "monkey / primate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मंदिर परिसर के पेड़ों पर उछलकूद करते हुए नटखट बंदर भक्तों से फल और चने छीन लेते हैं।",
+          "translation": "Leaping on trees in the temple complex, naughty monkeys snatch fruits and grams from devotees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शास्त्रों और महाकाव्यों में भगवान राम की सेना में वानरों और बंदरों का प्रमुख स्थान है।",
+          "translation": "In scriptures and epics, apes and monkeys occupy a prominent place in Lord Rama's army.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पर्यटक बंदरों को परेशान न करते, तो वे उन पर आक्रामक होकर गुर्राते नहीं।",
+          "translation": "If tourists did not tease the monkeys, they would not growl aggressively at them.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "छतों पर नुकसान रोकने के लिए वन विभाग द्वारा बंदरों को पिंजरे में पकड़कर जंगल छोड़ा जाता है।",
+          "translation": "To prevent damage on terraces, monkeys are trapped in cages by the forest department and released into jungles.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हिरण",
+      "partOfSpeech": "noun",
+      "translation": "deer / stag / antelope / gazelle",
+      "intro": "A hoofed grazing or browsing animal, typically with antlers in the male; symbol of agility and beauty (मृग). Sanskrit origin: हरिण.",
+      "usage": "Masculine noun. Direct plural: हिरण, oblique: हिरणों. Feminine: हिरणी. Idiom: 'मृगतृष्णा' (mirage / illusion).",
+      "synonyms": [
+        {
+          "word": "मृग",
+          "gloss": "deer (formal Sanskrit)"
+        },
+        {
+          "word": "सारंग",
+          "gloss": "spotted deer / gazelle"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "जंगल के खुले मैदान में चित्तीदार हिरणों का झुंड हरी घास चरते हुए चौकन्ना खड़ा था।",
+          "translation": "A herd of spotted deer was standing alert grazing green grass in the open glade of the jungle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शिकारी चीते की आहट पाते ही तेज तर्रार हिरण लंबी छलांगें लगाकर जंगल में ओझल हो गया।",
+          "translation": "Sensing the approaching hunting cheetah, the swift deer vanished into the forest taking long leaps.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि शिकारी हिरणों का अवैध शिकार बंद न करते, तो यह दुर्लभ प्रजाति हमेशा के लिए लुप्त हो जाती।",
+          "translation": "If poachers did not cease illegal hunting of deer, this rare species would vanish forever.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "राष्ट्रीय उद्यानों में काले हिरणों की सुरक्षा के लिए विशेष निगरानी चौकियां बनाई जाती हैं।",
+          "translation": "Special surveillance posts are built in national parks for the protection of blackbucks.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "भालू",
+      "partOfSpeech": "noun",
+      "translation": "bear / sloth bear / Himalayan brown bear",
+      "intro": "A large, heavy mammal that walks on the soles of its feet, having thick fur and a very short tail; sloth bear (रीछ). Sanskrit origin: भल्लूक.",
+      "usage": "Masculine noun ending in -ऊ. Direct plural: भालू, oblique: भालुओं. Direct synonym: रीछ.",
+      "synonyms": [
+        {
+          "word": "रीछ",
+          "gloss": "sloth bear"
+        },
+        {
+          "word": "भल्लूक",
+          "gloss": "bear (Sanskritized)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हिमालय के घने जंगलों में भूरा भालू मीठे शहद और जंगली जामुनों की तलाश में घूमता है।",
+          "translation": "In the dense forests of the Himalayas, the brown bear roams in search of sweet honey and wild blackberries.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सर्दियों का मौसम शुरू होने से पहले भालू गुफाओं में जाकर महीनों लंबी शीतनिद्रा में सो जाते हैं।",
+          "translation": "Before winter season sets in, bears retreat into caves and sleep in months-long hibernation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि जंगल में भालू सामने आ जाए, तो शांत खड़े रहने से वह बिना नुकसान पहुंचाए निकल सकता है।",
+          "translation": "If a bear came face-to-face in the jungle, standing calm might allow it to pass without harming.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़क पर तमाशा दिखाने वाले मदारी के पास से भालू को वन विभाग द्वारा मुक्त कराया गया।",
+          "translation": "The bear was liberated by the forest department from the street entertainer performing shows.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "बाघ",
+      "partOfSpeech": "noun",
+      "translation": "tiger / Bengal tiger (भारत का राष्ट्रीय पशु)",
+      "intro": "A very large solitary cat with a yellow-brown coat striped with black, native to the forests of Asia; the national animal of India. Sanskrit origin: व्याघ्र.",
+      "usage": "Masculine noun. Direct plural: बाघ, oblique: बाघों. Feminine: बाघिन. Distinction: शेर (lion/tiger), चीता (cheetah/leopard), बाघ (specifically tiger).",
+      "synonyms": [
+        {
+          "word": "व्याघ्र",
+          "gloss": "tiger (formal Sanskrit)"
+        },
+        {
+          "word": "शेर",
+          "gloss": "tiger / lion (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रॉयल बंगाल टाइगर यानी बाघ भारत का राष्ट्रीय पशु और जंगल का सबसे शक्तिशाली शिकारी है।",
+          "translation": "The Royal Bengal Tiger is India's national animal and the most powerful predator of the jungle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जिम कॉर्बेट नेशनल पार्क में जीप सफारी के दौरान पर्यटकों ने पानी पीते हुए बाघ को देखा।",
+          "translation": "During a jeep safari in Jim Corbett National Park, tourists saw a tiger drinking water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि 'प्रोजेक्ट टाइगर' अभियान न चलाया जाता, तो देश में बाघों की संख्या विलुप्त होने की कगार पर पहुंच जाती।",
+          "translation": "If the 'Project Tiger' initiative had not been run, the population of tigers in the country would reach the verge of extinction.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाघों की वास्तविक संख्या का सटीक आकलन करने के लिए स्वचालित कैमरा ट्रैप लगाए जाते हैं।",
+          "translation": "Automated camera traps are installed to assess the exact census of tigers accurately.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "चिड़िया",
+      "partOfSpeech": "noun",
+      "translation": "bird / sparrow (गौरैया) / little avian creature",
+      "intro": "A bird, especially a small songbird or house sparrow (गौरैया). Sanskrit origin: चटक.",
+      "usage": "Feminine marked noun (-या). Plural direct: चिड़ियां, oblique: चिड़ियों. Collocations: 'चिड़ियाघर' (zoo), 'चिड़िया चहकना' (birds chirping).",
+      "synonyms": [
+        {
+          "word": "पक्षी",
+          "gloss": "bird / avian creature (#131)"
+        },
+        {
+          "word": "पंछी",
+          "gloss": "bird (poetic)"
+        },
+        {
+          "word": "खग",
+          "gloss": "bird (classical)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सुबह सवेरे खिड़की के पास चहचहाती हुई नन्हीं चिड़िया की आवाज से पूरा घर गूंज उठा।",
+          "translation": "Early in the morning the whole house echoed with the chirping sound of the tiny bird near the window.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अब पछताए होत क्या जब चिड़िया चुग गई खेत, यानी अवसर बीत जाने पर विलाप व्यर्थ है।",
+          "translation": "What is the use of regretting when birds have pecked the field, meaning sorrow is futile once opportunity passes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आंगन में मिट्टी के बर्तन में पानी और दाना रखा जाए, तो रोज कई चिड़ियां दाना चुगने आएंगी।",
+          "translation": "If water and grain were kept in an earthen vessel in the courtyard, many birds would visit daily to peck grain.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शाम ढलते ही अपने अंडों और बच्चों की सुरक्षा के लिए चिड़ियों द्वारा घोंसले में शरण ली जाती है।",
+          "translation": "Shelter is taken in the nest by birds at dusk for the safety of their eggs and chicks.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "कौवा",
+      "partOfSpeech": "noun",
+      "translation": "crow / raven / cunning bird",
+      "intro": "A large perching bird with mostly glossy black plumage, a heavy bill, and a harsh, loud call (कांव-कांव); symbol of shrewdness or omen in folklore. Sanskrit origin: काक.",
+      "usage": "Masculine marked noun (-आ). Plural direct: कौवे, oblique: कौवों. Sound: कांव-कांव करना. Belief: a crow calling announces guests.",
+      "synonyms": [
+        {
+          "word": "काग",
+          "gloss": "crow (poetic)"
+        },
+        {
+          "word": "काक",
+          "gloss": "crow (formal Sanskrit)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "घर की मुंडेर पर बैठकर कांव-कांव करते हुए काले कौवे को देखकर नानी ने कहा कि आज कोई मेहमान आएगा।",
+          "translation": "Seeing the black crow cawing on the house parapet, grandmother said that some guest would arrive today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पंचतंत्र की प्रसिद्ध कहानी में चतुर कौवे ने घड़े में कंकड़ डालकर पानी ऊपर उठाया और अपनी प्यास बुझाई।",
+          "translation": "In the famous Panchatantra tale, the clever crow dropped pebbles into the pitcher, raised the water, and slaked its thirst.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि छत पर बिखरी रोटियों के टुकड़े कौवे देख लेते, तो वे तुरंत झपट पड़ते।",
+          "translation": "If crows spotted the pieces of bread scattered on the roof, they would pounce immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "श्राद्ध पक्ष के दौरान पूर्वजों की तृप्ति के लिए कौवों को भोजन की ग्रास दी जाती है।",
+          "translation": "Morsels of food are offered to crows for the appeasement of ancestors during the Shraddha fortnight.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कबूतर",
+      "partOfSpeech": "noun",
+      "translation": "pigeon / dove / messenger bird (ऐतिहासिक संदेशवाहक)",
+      "intro": "A stout seed-eating or fruit-eating bird with a small head and cooing voice; historically used as a homing messenger. Persian loanword (kabūtar).",
+      "usage": "Masculine noun. Direct plural: कबूतर, oblique: कबूतरों. Feminine: कबूतरी. Historical: डाक कबूतर (carrier pigeon).",
+      "synonyms": [
+        {
+          "word": "कपोत",
+          "gloss": "pigeon / dove (formal Sanskrit)"
+        },
+        {
+          "word": "पारेवा",
+          "gloss": "pigeon (dialectal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ऐतिहासिक काल में राजा-महाराजा दूर-दराज के गुप्त संदेश भेजने के लिए प्रशिक्षित कबूतरों का उपयोग करते थे।",
+          "translation": "In historic times kings and monarchs used trained pigeons to send remote confidential messages.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुरानी हवेली के छज्जों और मेहराबों पर कबूतरों का बड़ा झुंड गुटरगूं की आवाजें निकाल रहा था।",
+          "translation": "A large flock of pigeons was making cooing sounds on the eaves and arches of the old mansion.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि शहर के चौराहों पर दाना न डाला जाए, तो कबूतर वहां इतनी बड़ी संख्या में एकत्रित न हों।",
+          "translation": "If grain were not scattered at city intersections, pigeons would not congregate there in such vast numbers.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शांति और सद्भाव के प्रतीक के रूप में राष्ट्रीय समारोहों में सफेद कबूतरों को खुले आसमान में उड़ाया जाता है।",
+          "translation": "White pigeons/doves are released into the open sky at national ceremonies as a symbol of peace and harmony.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "तोता",
+      "partOfSpeech": "noun",
+      "translation": "parrot / parakeet / rote learner (figurative: तोतारटंत)",
+      "intro": "A mainly tropical bird with bright plumage and a hooked bill; renowned for mimicking human speech (तोतारटंत). Persian loanword (tūtī).",
+      "usage": "Masculine marked noun (-आ). Plural direct: तोते, oblique: तोतों. Feminine: मैना (common companion bird). Idiom: 'तोते उड़ जाना' (be stunned/panicked).",
+      "synonyms": [
+        {
+          "word": "शुक",
+          "gloss": "parrot (formal Sanskrit)"
+        },
+        {
+          "word": "सुग्गा",
+          "gloss": "parrot (poetic/Bhojpuri)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पिंजरे में बैठा हुआ हरा तोता लाल मिर्च बड़े चाव से खाता है और 'राम-राम' बोलता है।",
+          "translation": "The green parrot sitting in the cage eats red chili with great relish and chants 'Ram-Ram'.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अचानक भारी घाटा होते ही व्यापारी के चेहरे के तोते उड़ गए और वह सन्न रह गया।",
+          "translation": "Upon suffering a sudden huge loss, the trader's face was completely stunned (his parrots flew away) and he froze.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि विद्यार्थी पाठ को बिना समझे तोते की तरह रटता, तो परीक्षा में नए प्रश्नों का उत्तर न दे पाता।",
+          "translation": "If the student rote-learned like a parrot without understanding, he couldn't answer new questions in the exam.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अमरूद के मीठे फलों को बाग में लगे पेड़ों से तोतों द्वारा कुतरा जाता है।",
+          "translation": "Sweet guava fruits are gnawed by parrots from the trees standing in the orchard.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हंस",
+      "partOfSpeech": "noun",
+      "translation": "swan / goose / enlightened soul (परमहंस) / discernment (नीर-क्षीर विवेक)",
+      "intro": "A large waterbird with a long flexible neck and pure white plumage; mythological symbol of purity and discernment separating milk from water (नीर-क्षीर विवेक). Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: हंस, oblique: हंसों. Spiritual title: परमहंस. Idiom: 'हंसों की सभा में बगुला' (a hypocrite among the wise).",
+      "synonyms": [
+        {
+          "word": "मराल",
+          "gloss": "swan (poetic)"
+        },
+        {
+          "word": "राजहंस",
+          "gloss": "royal swan / flamingo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मानसरोवर झील के स्वच्छ और निर्मल जल में तैरते हुए सफेद हंसों की शोभा देखते ही बनती है।",
+          "translation": "The beauty of white swans swimming in the clear and pure water of Lake Manasarovar is mesmerizing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पौराणिक मान्यताओं के अनुसार हंस दूध और पानी के मिश्रण में से दूध को अलग कर पानी छोड़ देता है।",
+          "translation": "According to mythological beliefs, the swan separates milk from a mixture of milk and water, leaving the water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मानसरोवर में प्रदूषण फैल जाता, तो प्रवासी हंस वहां शीतकालीन प्रवास के लिए कभी न आते।",
+          "translation": "If pollution spread in Manasarovar, migratory swans would never visit there for winter migration.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विद्या और ज्ञान की देवी मां सरस्वती के पावन वाहन के रूप में श्वेत हंस को पूजा जाता है।",
+          "translation": "The white swan is revered as the sacred vehicle of Goddess Saraswati, the deity of wisdom and learning.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मछली",
+      "partOfSpeech": "noun",
+      "translation": "fish / Pisces (मीन राशि) / restless creature (figurative: मछली की तरह तड़पना)",
+      "intro": "A limbless cold-blooded vertebrate animal with gills and fins living wholly in water. Sanskrit origin: मत्स्य.",
+      "usage": "Feminine marked noun (-ई). Plural direct: मछलियां, oblique: मछलियों. Idiom: 'जल बिन मछली' (like a fish out of water / agonizing helplessness).",
+      "synonyms": [
+        {
+          "word": "मत्स्य",
+          "gloss": "fish (formal Sanskrit)"
+        },
+        {
+          "word": "मीन",
+          "gloss": "fish / Pisces"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मछली जल की रानी है, जीवन उसका पानी है — यह कविता हर भारतीय बच्चा बचपन में गाता है।",
+          "translation": "'The fish is the queen of water, life for her is water' — every Indian child sings this poem in childhood.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नदी के किनारे बैठे मछुआरे ने कांटे में चारा लगाकर कई चमकीली मछलियां पकड़ीं।",
+          "translation": "The fisherman sitting on the river bank caught several glittering fish by baiting the hook.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मछली को पानी से बाहर निकाल दिया जाए, तो वह तड़प-तड़पकर प्राण त्याग देती है।",
+          "translation": "If a fish were taken out of water, it would gasp and expire agonizingly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तटीय राज्यों में भोजन और आजीविका के लिए समुद्र से रोजाना टनों मछलियां पकड़ी जाती हैं।",
+          "translation": "Tons of fish are caught daily from the sea for food and livelihood in coastal states.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "मक्खी",
+      "partOfSpeech": "noun",
+      "translation": "housefly / fly / idler (figurative: मक्खी मारना) / miser (मक्खीचूस)",
+      "intro": "A two-winged insect of the order Diptera, especially the common housefly; or figuratively idling ('मक्खियां मारना' = sit idle) or extreme stinginess ('मक्खीचूस').",
+      "usage": "Feminine marked noun (-ई). Plural direct: मक्खियां, oblique: मक्खियों. Sanskrit origin: मक्षिका. Idioms: 'मक्खियां मारना' (twiddle thumbs / sit idle), 'मक्खीचूस' (miser).",
+      "synonyms": [
+        {
+          "word": "मक्षिका",
+          "gloss": "fly (formal Sanskrit)"
+        },
+        {
+          "word": "पतंगा",
+          "gloss": "moth / insect"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दुकान में कोई ग्राहक न आने के कारण खाली बैठा दुकानदार दिन भर मक्खियां मारता रहा।",
+          "translation": "Due to no customer arriving at the shop, the idle shopkeeper kept swatting flies (sitting idle) all day long.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मिठाई की खुली थालियों पर भिनभिनाने वाली मक्खियां हैजा और टायफाइड जैसी बीमारियां फैलाती हैं।",
+          "translation": "Flies buzzing over open platters of sweets spread diseases like cholera and typhoid.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि भोजन को जालीदार ढक्कन से ढककर रखा जाए, तो उस पर मक्खियां नहीं बैठेंगी।",
+          "translation": "If food were kept covered with a netted lid, flies would not sit on it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सफाई बनाए रखने के लिए रसोई और बाजारों में मक्खियों को भगाने हेतु कीटनाशक छिड़के जाते हैं।",
+          "translation": "Insecticides are sprayed in kitchens and markets to repel flies and maintain hygiene.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "मछर",
+      "partOfSpeech": "noun",
+      "translation": "mosquito / gnat / annoying pest",
+      "intro": "A slender long-legged fly with aquatic larvae, the bite of whose females transmits diseases like malaria and dengue. Sanskrit origin: मशक.",
+      "usage": "Masculine noun. Direct plural: मच्छर, oblique: मच्छरों. Collocations: 'मच्छरदानी' (mosquito net), 'मच्छर का काटना' (mosquito bite).",
+      "synonyms": [
+        {
+          "word": "मशक",
+          "gloss": "mosquito (formal Sanskrit)"
+        },
+        {
+          "word": "कीट",
+          "gloss": "insect / pest"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बरसात के दिनों में रुके हुए गंदे पानी में डेंगू और मलेरिया फैलाने वाले मच्छरों का प्रकोप बढ़ जाता है।",
+          "translation": "In rainy days the outbreak of mosquitoes spreading dengue and malaria surges in stagnant foul water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रात को सोते समय मच्छरों के काटने से बचने के लिए बिस्तर पर मच्छरदानी लगाना सुरक्षित उपाय है।",
+          "translation": "Putting a mosquito net on the bed while sleeping at night is a safe measure to avoid mosquito bites.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नगर निगम समय-समय पर कीटनाशक दवा का धुआं छोड़ता, तो मोहल्ले में इतने मच्छर न पनपते।",
+          "translation": "If the municipality released insecticide smoke periodically, so many mosquitoes wouldn't breed in the neighborhood.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मच्छरों के प्रजनन को रोकने के लिए छतों पर रखे पुराने टायरों और कूलर का पानी सुखाया जाता है।",
+          "translation": "Water in old tires and coolers kept on terraces is dried up to prevent the breeding of mosquitoes.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "झांकना",
+      "partOfSpeech": "verb",
+      "translation": "to peek / peep / peer / glance stealthily",
+      "intro": "To look quickly or furtively through an opening or from a concealed place; to peer into something. Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' in perfective aspect (वह झांका, वह झांकी). Idiom: 'अपने गिरेबान में झांकना' (introspect before judging others).",
+      "synonyms": [
+        {
+          "word": "ताकना",
+          "gloss": "to stare / gaze"
+        },
+        {
+          "word": "निहारना",
+          "gloss": "to look at / gaze"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शरारती बच्चे ने खिड़की के परदे को थोड़ा सा हटाकर बाहर सड़क पर झांका।",
+          "translation": "The mischievous child moved the window curtain slightly and peeked out onto the road.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दूसरों की गलतियों पर उंगली उठाने से पहले इंसान को अपने खुद के भीतर झांकना चाहिए।",
+          "translation": "Before pointing fingers at others' mistakes, a person should look inside oneself.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम चाबी के छेद से अंदर न झांकते, तो तुम्हें वह रहस्यमयी बात पता न चलती।",
+          "translation": "If you had not peeked inside through the keyhole, you wouldn't know that mysterious matter.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुरक्षा कारणों से बंद कमरों में केवल छोटे रोशनदान के जरिए ही झांका जाता है।",
+          "translation": "Closed rooms are peered into only through small skylights for security reasons.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चीखना",
+      "partOfSpeech": "verb",
+      "translation": "to scream / shriek / yell / cry out in terror or pain",
+      "intro": "To utter a loud, sharp, piercing cry, usually expressing extreme fear, pain, anger, or excitement. Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses (वह चीखा, वह चीखी). Collocation: 'चीखना-चिल्लाना' (screaming and shouting).",
+      "synonyms": [
+        {
+          "word": "चिल्लाना",
+          "gloss": "to shout / yell (#309)"
+        },
+        {
+          "word": "दहाड़ना",
+          "gloss": "to roar / bellow"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अचानक कमरे में बड़े चूहे को देखकर छोटी बच्ची डर के मारे जोर-जोर से चीखने लगी।",
+          "translation": "Suddenly seeing a large mouse in the room, the little girl began screaming loudly out of fear.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सड़क दुर्घटना में घायल यात्री मदद के लिए दर्द से चीख रहा था।",
+          "translation": "The passenger injured in the road accident was crying out in pain for help.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह खतरे के समय जोर से न चीखती, तो आसपास के लोग उसकी मदद के लिए न दौड़ते।",
+          "translation": "If she had not shrieked loudly at the time of danger, nearby people would not rush to her aid.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सभ्य समाज में किसी भी वाद-विवाद के दौरान बेवजह चीखा-चिल्लाया नहीं जाना चाहिए।",
+          "translation": "Screaming and shouting without cause should not be done during any debate in civilized society.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तैरना",
+      "partOfSpeech": "verb",
+      "translation": "to swim / float (on water: पानी पर तैरना) / sail across",
+      "intro": "To propel oneself through water by movement of the limbs; or to float on the surface of a liquid. Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' in perfective aspect (वह तैरा, वह तैरी). Noun: तैराकी (swimming, f).",
+      "synonyms": [
+        {
+          "word": "उतराना",
+          "gloss": "to float / stay afloat"
+        },
+        {
+          "word": "जलक्रीड़ा करना",
+          "gloss": "to play in water"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गांव के साहसी बच्चे हर दोपहर गहरी नदी में छलांग लगाकर घंटों तैरते हैं।",
+          "translation": "Brave children of the village leap into the deep river every afternoon and swim for hours.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हल्की सूखी लकड़ी और प्लास्टिक की गेंद पानी की सतह पर आसानी से तैरती है।",
+          "translation": "Light dry wood and plastic balls float easily on the surface of water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें तैरना आता, तो तुम डूबते हुए साथी को बचाने के लिए तुरंत पानी में कूद पड़ते।",
+          "translation": "If you knew how to swim, you would plunge into the water immediately to rescue your drowning companion.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ओलंपिक खेलों में तैराकी की कई शैलियों में विश्व रिकॉर्ड बनाए जाते हैं।",
+          "translation": "World records are created in multiple styles of swimming in Olympic games.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कांपना",
+      "partOfSpeech": "verb",
+      "translation": "to shiver / tremble / quiver / shake with cold, fear, or rage",
+      "intro": "To shake involuntarily, typically as a result of cold, fear, anger, or excitement; to vibrate. Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses (वह कांप उठा, वह कांपी). Collocations: 'थर-थर कांपना' (shiver uncontrollably), 'कांप उठना' (shudder).",
+      "synonyms": [
+        {
+          "word": "थरथराना",
+          "gloss": "to tremble / quiver"
+        },
+        {
+          "word": "हिलना",
+          "gloss": "to shake / move"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों की रात में बिना गर्म कपड़ों के बाहर खड़ा भिखारी ठंड के मारे थर-थर कांप रहा था।",
+          "translation": "Standing outside in the winter night without warm clothes, the beggar was shivering intensely from cold.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सामने पिस्तौल ताने डाकू को देखकर बैंक का खजांची भय से कांपने लगा।",
+          "translation": "Seeing the bandit aiming a pistol in front, the bank cashier began trembling with terror.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसने गर्म स्वेटर और शॉल ओढ़ी होती, तो वह बर्फीली हवा में ऐसे न कांपता।",
+          "translation": "If he had worn a warm sweater and shawl, he wouldn't shiver like this in the icy wind.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तेज भूकंप के शक्तिशाली झटकों से ऊंची इमारतों को हिलते और कांपते देखा गया।",
+          "translation": "Tall buildings were seen shaking and quivering from the powerful tremors of the earthquake.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "झुकना",
+      "partOfSpeech": "verb",
+      "translation": "to bend / bow / stoop / yield / submit (सिर झुकाना)",
+      "intro": "To incline the body forward and downward; to bow in respect or reverence; or to submit to pressure. Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' (वह झुका, वह झुकी). Causative: झुकाना (transitive, to bow/bend). Collocation: 'सिर झुकाना' (bow head).",
+      "synonyms": [
+        {
+          "word": "नमन करना",
+          "gloss": "to bow / salute"
+        },
+        {
+          "word": "दबना",
+          "gloss": "to yield / submit"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "फलदार वृक्ष जब फलों से लद जाते हैं, तो उनकी डालियां नम्रता से नीचे झुक जाती हैं।",
+          "translation": "When fruitful trees are laden with fruit, their boughs bow downward in humility.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच्चा देशभक्त कभी किसी विदेशी आक्रमणकारी या अत्याचारी के आगे नहीं झुकता।",
+          "translation": "A true patriot never bows before any foreign invader or tyrant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम थोड़ा झुककर कमरे में प्रवेश करते, तो तुम्हारा सिर चौखट से न टकराता।",
+          "translation": "If you had entered the room bending slightly, your head would not bump against the doorframe.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मंदिर के पवित्र गर्भगृह में प्रवेश करते समय सभी श्रद्धालुओं द्वारा सिर झुकाया जाता है।",
+          "translation": "Heads are bowed by all devotees while entering the sacred sanctum of the temple.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "संभालना",
+      "partOfSpeech": "verb",
+      "translation": "to handle / manage / take care of / support / steady / preserve",
+      "intro": "To keep in a steady position; manage an enterprise; look after someone; or regain composure ('खुद को संभालना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने संभाला). Idioms: 'खुद को संभालना' (compose oneself), 'जिम्मेदारी संभालना' (shoulder responsibility).",
+      "synonyms": [
+        {
+          "word": "देखभाल करना",
+          "gloss": "to take care of"
+        },
+        {
+          "word": "प्रबंधित करना",
+          "gloss": "to manage / govern"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पिता के आकस्मिक निधन के बाद बड़े बेटे ने पूरे परिवार और कारोबार को कुशलता से संभाला।",
+          "translation": "After the sudden demise of his father, the eldest son managed the entire family and business efficiently.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सीढ़ियों से फिसलते समय उसने दीवार की रेलिंग पकड़कर खुद को गिरने से संभाल लिया।",
+          "translation": "While slipping on the stairs, he steadied himself from falling by grasping the wall railing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम समय रहते अपनी फिजूलखर्ची को संभाल लेते, तो आज कर्जदार न होते।",
+          "translation": "If you had controlled your extravagance in time, you would not be in debt today.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "संकट की इस गंभीर घड़ी में देश की अर्थव्यवस्था को योग्य अर्थशास्त्रियों द्वारा संभाला गया।",
+          "translation": "The nation's economy was steered by competent economists in this grave hour of crisis.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गिनना",
+      "partOfSpeech": "verb",
+      "translation": "to count / enumerate / tally / calculate / reckon",
+      "intro": "To determine the total number of a collection of items; enumerate; or reckon as significant. Sanskrit origin: गणन.",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने गिना). Collocation: 'उंगलियों पर गिनना' (count on fingers / very few).",
+      "synonyms": [
+        {
+          "word": "गणना करना",
+          "gloss": "to calculate / tally (formal)"
+        },
+        {
+          "word": "आंकना",
+          "gloss": "to evaluate / reckon"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बैंक के खजांची ने नोट गिनने की मशीन से लाखों रुपये के बंडल फटाफट गिने।",
+          "translation": "The bank cashier counted bundles of millions of rupees swiftly with the note-counting machine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अध्यापक ने कक्षा के सभी उपस्थित छात्रों को रोल नंबर के अनुसार एक-एक करके गिना।",
+          "translation": "The teacher counted all present students of the class one by one according to roll numbers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सामान लेते समय अपने पैसे ध्यान से गिनते, तो दुकानदार तुम्हें कम छुट्टा न देता।",
+          "translation": "If you had counted your money carefully while taking goods, the shopkeeper wouldn't give you short change.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चुनाव के समापन के बाद मतदान केंद्रों की सभी मतपेटियों को सुरक्षाबलों की निगरानी में गिना जाता है।",
+          "translation": "All ballot boxes from polling stations are counted under the vigilance of security forces after the conclusion of voting.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मांगना",
+      "partOfSpeech": "verb",
+      "translation": "to ask for / demand / beg / solicit / request",
+      "intro": "To ask for something that one wants or needs (मदद मांगना, माफी मांगना); to seek or solicit. Sanskrit origin: मार्गण.",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने मांगा). Collocations: 'माफी मांगना' (beg pardon/apologize), 'मदद मांगना' (request help).",
+      "synonyms": [
+        {
+          "word": "याचना करना",
+          "gloss": "to beg / entreat (formal)"
+        },
+        {
+          "word": "निवेदन करना",
+          "gloss": "to request / solicit"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गलती का अहसास होते ही उसने तुरंत हाथ जोड़कर अपने मित्र से क्षमा मांगी।",
+          "translation": "As soon as he realized his mistake, he immediately apologized to his friend with folded hands.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भिखारी ने मंदिर के द्वार पर खड़े होकर श्रद्धालुओं से रोटी और सिक्के मांगे।",
+          "translation": "The beggar stood at the temple gate and asked for bread and coins from devotees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम विनम्रता से मदद मांगते, तो कोई भी पड़ोसी तुम्हारी सहायता करने से मना न करता।",
+          "translation": "If you had asked for help politely, no neighbor would refuse to assist you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कर्मचारियों द्वारा अपनी सेवाओं के बदले उचित वेतन और पेंशन की मांग की जाती है।",
+          "translation": "Fair wages and pensions are demanded by employees in exchange for their services.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लड़ना",
+      "partOfSpeech": "verb",
+      "translation": "to fight / quarrel / dispute / battle / contest (election: चुनाव लड़ना)",
+      "intro": "To take part in a violent struggle involving the exchange of physical blows or weapons; to quarrel; or to contest an election ('चुनाव लड़ना').",
+      "usage": "Both transitive and intransitive. Does NOT take 'ने' in past tenses (वह लड़ा, वह लड़ी; सैनिक लड़े). Collocation: 'चुनाव लड़ना' (contest election).",
+      "synonyms": [
+        {
+          "word": "युद्ध करना",
+          "gloss": "to wage war"
+        },
+        {
+          "word": "झगड़ना",
+          "gloss": "to quarrel / dispute"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बहादुर सैनिक सीमा की रक्षा के लिए दुश्मनों से अंतिम सांस तक वीरता से लड़े।",
+          "translation": "Brave soldiers fought valiantly against enemies to the last breath for defending the border.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उस ईमानदार वकील ने गरीबों और मजलूमों को न्याय दिलाने के लिए अदालत में कानूनी लड़ाई लड़ी।",
+          "translation": "That honest lawyer fought a legal battle in court to bring justice to the poor and oppressed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दोनों भाई जमीन के छोटे से टुकड़े के लिए आपस में न लड़ते, तो परिवार बिखरने से बच जाता।",
+          "translation": "If both brothers had not quarreled over a small plot of land, the family would be saved from breaking apart.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "देश में लोकतंत्र की मजबूती के लिए हर पांच साल बाद निष्पक्ष चुनाव लड़े जाते हैं।",
+          "translation": "Fair elections are contested every five years for strengthening democracy in the country.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जीतना",
+      "partOfSpeech": "verb",
+      "translation": "to win / conquer / triumph / capture (heart: दिल जीतना)",
+      "intro": "To be successful or victorious in a contest or conflict; to conquer; or metaphorically to win someone's heart ('दिल जीतना'). Antonym: हारना (#571).",
+      "usage": "Both transitive (takes 'ने') and intransitive. In perfective aspect: 'उसने मैच जीता' (he won the match) / 'वह जीत गया'.",
+      "synonyms": [
+        {
+          "word": "विजयी होना",
+          "gloss": "to be victorious"
+        },
+        {
+          "word": "फतह करना",
+          "gloss": "to conquer / win (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय क्रिकेट टीम ने फाइनल मुकाबले में शानदार खेल दिखाकर विश्व कप जीता।",
+          "translation": "The Indian cricket team won the World Cup by displaying splendid play in the final match.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अपने मधुर और विनम्र व्यवहार से उस डॉक्टर ने अस्पताल के सभी मरीजों का दिल जीत लिया।",
+          "translation": "With his sweet and humble demeanor, that doctor won the hearts of all patients in the hospital.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि धावक ने अंतिम मोड़ पर अपनी पूरी ताकत झोंक दी होती, तो वह स्वर्ण पदक जीत लेता।",
+          "translation": "If the runner had exerted his entire strength at the final turn, he would have won the gold medal.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कठोर अनुशासन और निरंतर अभ्यास के बल पर ही कठिन प्रतियोगिताएं जीती जाती हैं।",
+          "translation": "Tough competitions are won only on the strength of strict discipline and continuous practice.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हारना",
+      "partOfSpeech": "verb",
+      "translation": "to lose / be defeated / suffer defeat / become exhausted",
+      "intro": "To fail to win in a game, contest, lawsuit, or battle; to suffer defeat; or to lose hope ('हिम्मत हारना'). Antonym: जीतना (#570).",
+      "usage": "Both transitive and intransitive. Idioms: 'हिम्मत हारना' (lose heart), 'बाजी हारना' (lose the game). Takes 'ने' when transitive with an explicit object.",
+      "synonyms": [
+        {
+          "word": "पराजित होना",
+          "gloss": "to be defeated (formal)"
+        },
+        {
+          "word": "मात खाना",
+          "gloss": "to suffer checkmate / defeat"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "खिलाड़ियों की लापरवाही और खराब फील्डिंग के कारण टीम आसानी से जीता हुआ मैच हार गई।",
+          "translation": "Due to players' complacency and poor fielding, the team lost an easily winnable match.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कठिन से कठिन चुनौतियों के सामने भी कभी अपनी हिम्मत और हौसला नहीं हारना चाहिए।",
+          "translation": "Even in the face of the toughest challenges, one must never lose heart and courage.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सेनापति ने सही रणनीति बनाई होती, तो सेना युद्ध में कभी न हारती।",
+          "translation": "If the general had formulated the right strategy, the army would never lose in the battle.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गलत फैसलों के कारण जुए में अपनी पैतृक संपत्ति को जुआरियों द्वारा हार दिया जाता है।",
+          "translation": "Ancestral property is lost in gambling by gamblers due to wrong decisions.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सहना",
+      "partOfSpeech": "verb",
+      "translation": "to endure / bear / tolerate / undergo / suffer",
+      "intro": "To undergo or suffer without giving in; to bear pain or hardship patiently; to tolerate. Sanskrit origin: सहन.",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने सहा). Collocations: 'दुख सहना' (bear sorrow), 'कष्ट सहना' (endure hardship).",
+      "synonyms": [
+        {
+          "word": "बर्दाश्त करना",
+          "gloss": "to tolerate / endure (Persian loan)"
+        },
+        {
+          "word": "झेलना",
+          "gloss": "to suffer / undergo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मां ने अपने बच्चों के सुखी भविष्य के लिए जीवन भर अनेक कष्ट और अभाव चुपचाप सहे।",
+          "translation": "Mother endured many hardships and deprivations silently all her life for the happy future of her children.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अपमान और अन्याय को चुपचाप सहना भी एक प्रकार से अत्याचार को बढ़ावा देना है।",
+          "translation": "Enduring insult and injustice silently is also in a way encouraging oppression.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मरीज असहनीय दर्द को थोड़ा और सह लेता, तो घाव की पट्टी आसानी से हो जाती।",
+          "translation": "If the patient endured the unbearable pain a little longer, the wound dressing would be completed easily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सच्चे वीरों द्वारा देश की संप्रभुता की रक्षा के लिए हर प्रकार की पीड़ा सही जाती है।",
+          "translation": "Every kind of agony is endured by true warriors to protect the nation's sovereignty.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चुभना",
+      "partOfSpeech": "verb",
+      "translation": "to prick / pierce / sting / hurt feelings (figurative: बात चुभना)",
+      "intro": "To make a small hole in something with a sharp point (कांटा चुभना); or figuratively to hurt or offend someone deeply ('उसकी कड़वी बात दिल में चुभ गई').",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses (कांटा चुभा, बात चुभी). Conveys feeling pricked/hurt.",
+      "synonyms": [
+        {
+          "word": "गड़ना",
+          "gloss": "to pierce / penetrate"
+        },
+        {
+          "word": "खटकना",
+          "gloss": "to rankle / grate on"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बगीचे में नंगे पैर चलते समय अचानक बच्चे के तलवे में कांच का नुकीला टुकड़ा चुभ गया।",
+          "translation": "While walking barefoot in the garden, a sharp shard of glass suddenly pricked the child's sole.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मित्र द्वारा सबके सामने कही गई वह कड़वी और व्यंग्यपूर्ण बात मेरे दिल में तीर की तरह चुभ गई।",
+          "translation": "That bitter and sarcastic remark made by the friend in front of everyone pierced my heart like an arrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दर्जी सुई को सावधानी से पकड़ता, तो उसकी अंगुली में सुई न चुभती।",
+          "translation": "If the tailor had held the needle carefully, the needle would not prick his finger.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आंखों में धूल और तिनके चुभ जाने पर उन्हें साफ पानी से धीरे-धीरे धोया जाता है।",
+          "translation": "When dust and specks prick the eyes, they are gently rinsed with clean water.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चमकना",
+      "partOfSpeech": "verb",
+      "translation": "to shine / glitter / sparkle / flash (lightning) / prosper (figurative: किस्मत चमकना)",
+      "intro": "To give out or reflect light; sparkle or glitter; flash; or figuratively to prosper ('किस्मत चमकना' = fortunes shine). Intransitive.",
+      "usage": "Intransitive verb. Does not take 'ने' in past tenses (तारा चमका, किस्मत चमकी). Causative: चमकाना (to polish/brighten).",
+      "synonyms": [
+        {
+          "word": "दमकना",
+          "gloss": "to glow / glitter"
+        },
+        {
+          "word": "जगमगाना",
+          "gloss": "to sparkle / shimmer"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रात के शांत अंधेरे में आसमान का ध्रुव तारा हीरों की तरह सबसे तेज चमकता है।",
+          "translation": "In the quiet darkness of the night, the North Star of the sky shines brightest like diamonds.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सिविल सेवा परीक्षा में शीर्ष स्थान पाते ही उस मेहनती युवक की किस्मत चमक उठी।",
+          "translation": "Upon bagging top rank in the civil services examination, that hardworking youth's fortune shone brightly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चांदी के बर्तनों को सही से पॉलिश किया जाता, तो वे त्योहार पर दर्पण जैसे चमकते।",
+          "translation": "If silver utensils were properly polished, they would shine like mirrors on the festival.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सोने के आभूषणों को उनकी पुरानी चमक वापस लाने के लिए सुनार द्वारा चमकाया जाता है।",
+          "translation": "Gold ornaments are polished by the goldsmith to bring back their old shine.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "उबालना",
+      "partOfSpeech": "verb",
+      "translation": "to boil / seethe / heat to boiling point (water/milk/vegetables)",
+      "intro": "To cook food or heat liquid in water at boiling temperature. Transitive causative of उबलना (to boil / be boiled).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने उबाला). Idiom: 'खून उबालना' (make blood boil).",
+      "synonyms": [
+        {
+          "word": "खौलाना",
+          "gloss": "to boil / scald"
+        },
+        {
+          "word": "पकाना",
+          "gloss": "to cook (#413)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "संक्रमण से बचने के लिए डॉक्टर ने मरीज को हमेशा पानी को उबालकर पीने की सलाह दी।",
+          "translation": "To avoid infection, the doctor advised the patient to always boil water before drinking.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नाश्ता तैयार करने के लिए रसोइये ने पतीले में गर्म पानी में चार अंडे उबाले।",
+          "translation": "To prepare breakfast, the cook boiled four eggs in hot water in the pot.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम दूध को धीमी आंच पर ठीक से उबालते, तो वह फटकर खराब न होता।",
+          "translation": "If you had boiled the milk properly on low flame, it would not curdle and spoil.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सब्जी बनाने से पहले आलू और चने को कुकर में सीटी लगाकर उबाला जाता है।",
+          "translation": "Potatoes and chickpeas are boiled in the pressure cooker before cooking the curry.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "घोलना",
+      "partOfSpeech": "verb",
+      "translation": "to dissolve / stir in / mix into liquid / dilute (poison/sweetness metaphorically)",
+      "intro": "To cause a solute to pass into solution; to mix a substance with liquid; or metaphorically ('कानों में रस घोलना' = speak sweetly, 'जहर घोलना' = spread malice).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने घोला). Causative: घुलवाना. Idiom: 'जहर घोलना' (poison minds / create hatred).",
+      "synonyms": [
+        {
+          "word": "मिलाना",
+          "gloss": "to mix / blend"
+        },
+        {
+          "word": "मिश्रित करना",
+          "gloss": "to dissolve / mix"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गर्मी से राहत पाने के लिए उसने ठंडे पानी के गिलास में नींबू का रस और चीनी घोली।",
+          "translation": "To get relief from heat, he dissolved lemon juice and sugar in a glass of cold water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "लता जी के सुरीले गायन ने सभागार में उपस्थित सभी श्रोताओं के कानों में रस घोल दिया।",
+          "translation": "Lata-ji's melodious singing dissolved nectar in the ears of all listeners present in the auditorium.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम दवा को गुनगुने पानी में अच्छी तरह घोल लेते, तो वह गले में न अटकती।",
+          "translation": "If you dissolved the medicine thoroughly in lukewarm water, it would not get stuck in the throat.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दीवारों की पुताई के लिए चूने और रंगों को बड़े ड्रम में पानी के साथ घोला जाता है।",
+          "translation": "Lime and pigments are dissolved with water in large drums for whitewashing walls.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पीसना",
+      "partOfSpeech": "verb",
+      "translation": "to grind / mill / pulverize / crush / oppress (figurative: गरीबों को पीसना)",
+      "intro": "To reduce to small particles or powder by crushing; to mill grain; or figuratively to oppress or exploit ('गरीबों को पीसना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने पीसा). Idiom: 'गेहूं के साथ घुन भी पिसता है' (innocent suffer along with the guilty).",
+      "synonyms": [
+        {
+          "word": "चूर्ण करना",
+          "gloss": "to pulverize / grind"
+        },
+        {
+          "word": "दबाना",
+          "gloss": "to crush / oppress"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "माताजी ने सिलबट्टे पर ताजे खड़े मसालों और धनिए को बहुत बारीक पीसा।",
+          "translation": "Mother ground fresh whole spices and coriander very finely on the grinding stone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गांव की आधुनिक आटा चक्की में गेहूं के सूखे दानों को पीसकर शुद्ध आटा बनाया जाता है।",
+          "translation": "Dry wheat grains are ground in the village's modern flour mill to make pure flour.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम काली मिर्च को ताजा पीसकर सूप में डालते, तो उसका स्वाद और महक बहुत बेहतर होती।",
+          "translation": "If you ground black pepper fresh and added it to soup, its taste and aroma would be much better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चटनी तैयार करने के लिए भुनी हुई मूंगफली और हरी मिर्च को मिक्सी में पीसा जाता है।",
+          "translation": "Roasted peanuts and green chilies are ground in the blender to prepare chutney.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "छानना",
+      "partOfSpeech": "verb",
+      "translation": "to strain / filter / sift (flour) / scour thoroughly (figurative: खाक छानना)",
+      "intro": "To pass through a sieve or filter to remove impurities or separate solids from liquids; or figuratively to search exhaustively ('खाक छानना').",
+      "usage": "Transitive verb. Takes 'ने' in past tenses (उसने छाना). Idiom: 'खाक छानना' (wander in futile search / sift dust).",
+      "synonyms": [
+        {
+          "word": "नितारना",
+          "gloss": "to decant / filter"
+        },
+        {
+          "word": "चालना",
+          "gloss": "to sift (flour)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चाय पकने के बाद गृहिणी ने छन्नी से गर्म चाय को प्यालों में छाना।",
+          "translation": "After the tea was brewed, the homemaker strained the hot tea into cups with a strainer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुलिस ने फरार डकैत को पकड़ने के लिए आसपास के घने जंगलों का कोना-कोना छान मारा।",
+          "translation": "The police scoured every nook and cranny of the surrounding dense forests to catch the absconding dacoit.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आटा गूंथने से पहले उसे छलनी से छान लिया जाता, तो रोटियां बहुत चिकनी बनतीं।",
+          "translation": "If flour were sifted through a sieve before kneading, the rotis would turn out very smooth.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पीने के पानी को जीवाणुमुक्त बनाने के लिए आधुनिक फिल्टरों द्वारा छाना जाता है।",
+          "translation": "Drinking water is filtered by modern purifiers to make it germ-free.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "लपेटना",
+      "partOfSpeech": "verb",
+      "translation": "to wrap / wind / roll up / bandage / implicate (figurative: लपेटे में लेना)",
+      "intro": "To enclose in folded material; to wind yarn or rope; to bandage a wound; or figuratively to implicate in trouble ('लपेटे में आना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने लपेटा). Idiom: 'लपेटे में आना' (get entangled / caught in the crossfire).",
+      "synonyms": [
+        {
+          "word": "बांधना",
+          "gloss": "to tie / wrap"
+        },
+        {
+          "word": "ढकना",
+          "gloss": "to cover / wrap"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "डॉक्टर ने मरीज के घायल हाथ पर मरहम लगाकर साफ सफेद पट्टी से लपेटा।",
+          "translation": "The doctor applied ointment to the patient's injured hand and wrapped it with a clean white bandage.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दुकानदार ने उपहार को रंग-बिरंगे चमकीले कागज में खूबसूरती से लपेटकर फीता बांधा।",
+          "translation": "The shopkeeper wrapped the gift beautifully in colorful glossy paper and tied a ribbon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सर्दियों में गले में गर्म मफलर लपेट लेते, तो तुम्हें ठंड और खांसी न होती।",
+          "translation": "If you had wrapped a warm muffler around your neck in winter, you would not catch cold and cough.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "रोटियों को गर्म और ताजा रखने के लिए उन्हें एल्युमिनियम फॉयल में लपेटा जाता है।",
+          "translation": "Rotis are wrapped in aluminum foil to keep them warm and fresh.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "धकेलना",
+      "partOfSpeech": "verb",
+      "translation": "to push / shove / thrust / propel / plunge (into trouble: मुसीबत में धकेलना)",
+      "intro": "To exert force on someone or something in order to move them away from oneself; to shove; or figuratively to plunge into peril ('मुसीबत में धकेलना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect (उसने धकेला). Antonym: खींचना (#407).",
+      "synonyms": [
+        {
+          "word": "खिसकाना",
+          "gloss": "to shift / push"
+        },
+        {
+          "word": "दबाव डालना",
+          "gloss": "to thrust / exert force"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भीड़भाड़ वाले प्लेटफॉर्म पर पीछे से किसी ने उसे आगे की ओर जोर से धकेल दिया।",
+          "translation": "On the crowded platform someone from behind shoved him hard forward.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कार खराब होने पर यात्रियों ने मिलकर उसे धक्का देकर सड़क के किनारे धकेला।",
+          "translation": "When the car broke down, passengers pushed together and shoved it to the roadside.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कोई कपटी व्यक्ति तुम्हें गलत रास्ते पर धकेले, तो तुम्हें तुरंत सावधान हो जाना चाहिए।",
+          "translation": "If an untrustworthy person pushed you onto the wrong path, you should become cautious immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सामान से लदी भारी ट्रॉलियों को मजदूरों द्वारा खींचने के बजाय आगे धकेला जाता है।",
+          "translation": "Heavy trolleys laden with goods are pushed forward by laborers rather than pulled.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सहानुभूति",
+      "partOfSpeech": "noun",
+      "translation": "sympathy / empathy / compassion / fellow-feeling",
+      "intro": "Feelings of pity and sorrow for someone else's misfortune; empathy. Sanskrit compound (सह + अनुभूति = feeling together).",
+      "usage": "Feminine noun. Uncountable generally; oblique: सहानुभूतियों. Collocations: 'सहानुभूति प्रकट करना' (express sympathy).",
+      "synonyms": [
+        {
+          "word": "हमदर्दी",
+          "gloss": "sympathy / fellow-feeling (Persian loan)"
+        },
+        {
+          "word": "संवेदना",
+          "gloss": "condolence / empathy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "विपत्ति के समय पड़ोसियों ने शोक संतप्त परिवार के प्रति गहरी सहानुभूति प्रकट की।",
+          "translation": "In times of adversity neighbors expressed deep sympathy towards the bereaved family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गरीबों और असहायों के प्रति मन में सच्ची सहानुभूति और करुणा का भाव होना चाहिए।",
+          "translation": "One should have feelings of genuine sympathy and compassion in one's heart for the poor and helpless.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज में पीड़ितों के प्रति सहानुभूति होती, तो वे खुद को इतना असहाय महसूस न करते।",
+          "translation": "If there were sympathy for victims in society, they would not feel so helpless.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आपदा पीड़ितों के साथ पूरे राष्ट्र द्वारा गहरी एकजुटता और सहानुभूति जताई जाती है।",
+          "translation": "Deep solidarity and sympathy are expressed by the entire nation with disaster victims.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "घमंड",
+      "partOfSpeech": "noun",
+      "translation": "arrogance / pride / conceit / haughtiness / vanity",
+      "intro": "An exaggerated sense of one's own importance or abilities; hubris. Sanskrit origin (गर्व / घूर्ण).",
+      "usage": "Masculine noun. Direct plural: घमंड, oblique: घमंडों. Idiom: 'घमंड चूर-चूर होना' (one's pride is shattered).",
+      "synonyms": [
+        {
+          "word": "अहंकार",
+          "gloss": "ego / arrogance (formal Sanskrit)"
+        },
+        {
+          "word": "गर्व",
+          "gloss": "pride"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अपनी अपार धन-दौलत और शक्ति के घमंड में उसने गरीब पड़ोसियों का अपमान कर दिया।",
+          "translation": "In the arrogance of his immense wealth and power, he insulted his poor neighbors.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इतिहास गवाह है कि रावण का अहंकार और घमंड भी अंततः धूल में मिल गया।",
+          "translation": "History bears witness that even Ravana's ego and pride ultimately crumbled into dust.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें अपनी थोड़ी सी सफलता पर इतना घमंड न होता, तो तुम्हारे पुराने दोस्त तुम्हारा साथ न छोड़ते।",
+          "translation": "If you were not so arrogant over your modest success, your old friends would not abandon you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विद्वानों द्वारा हमेशा अहंकार और घमंड को त्यागने की सीख दी जाती है।",
+          "translation": "The lesson to renounce ego and arrogance is always imparted by learned scholars.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "लज्जा",
+      "partOfSpeech": "noun",
+      "translation": "shame / modesty / shyness / embarrassment / bashfulness",
+      "intro": "A feeling of humiliation or distress caused by consciousness of wrong, improper behavior, or modesty; shyness. Sanskrit origin.",
+      "usage": "Feminine noun. Uncountable. Direct synonym: शर्म. Collocations: 'लज्जा का अनुभव करना' (feel shame), 'लज्जाहीन' (shameless).",
+      "synonyms": [
+        {
+          "word": "शर्म",
+          "gloss": "shame / shyness (Persian loan)"
+        },
+        {
+          "word": "हया",
+          "gloss": "modesty (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अपनी अनुचित गलती पकड़े जाने पर छात्र का चेहरा लज्जा और संकोच से लाल हो गया।",
+          "translation": "Upon having his improper mistake caught, the student's face turned red with shame and embarrassment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भारतीय संस्कृति में शालीनता और लज्जा को स्त्री का स्वाभाविक आभूषण माना गया है।",
+          "translation": "In Indian culture decency and modesty are considered a woman's natural ornament.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि अपराधी के मन में थोड़ी सी भी लज्जा शेष होती, तो वह सार्वजनिक रूप से माफी मांग लेता।",
+          "translation": "If even a trace of shame remained in the criminal's heart, he would apologize publicly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "भरी सभा में अपमानजनक व्यवहार के कारण किसी को लज्जा में नहीं डाला जाना चाहिए।",
+          "translation": "Nobody should be put to shame due to insulting conduct in a crowded assembly.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "ईर्ष्या",
+      "partOfSpeech": "noun",
+      "translation": "jealousy / envy / malice / grudge",
+      "intro": "A feeling of discontented or resentful longing aroused by someone else's possessions, qualities, or luck. Sanskrit origin. Direct synonym: जलन.",
+      "usage": "Feminine noun. Uncountable. Collocation: 'ईर्ष्या करना' (to envy / feel jealous), 'ईर्ष्या की आग' (fire of jealousy).",
+      "synonyms": [
+        {
+          "word": "जलन",
+          "gloss": "jealousy / envy"
+        },
+        {
+          "word": "द्वेष",
+          "gloss": "malice / enmity (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सहकर्मी की पदोन्नति देखकर कई साथियों के मन में ईर्ष्या और जलन की भावना पैदा हो गई।",
+          "translation": "Seeing the colleague's promotion, feelings of jealousy and envy arose in the minds of several peers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "ईर्ष्या इंसान के भीतर की सकारात्मक ऊर्जा और मन की शांति को पूरी तरह जला देती है।",
+          "translation": "Jealousy completely burns away the positive energy and peace of mind within a person.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम दूसरों की तरक्की से ईर्ष्या न करते, तो तुम अपने लक्ष्य पर बेहतर ध्यान केंद्रित कर पाते।",
+          "translation": "If you did not envy others' progress, you would concentrate better on your own goals.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मनोवैज्ञानिकों द्वारा मन से द्वेष और ईर्ष्या को दूर करने के लिए आत्म-संतोष की सलाह दी जाती है।",
+          "translation": "Contentment is advised by psychologists to dispel malice and jealousy from the mind.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "उत्सुकता",
+      "partOfSpeech": "noun",
+      "translation": "curiosity / eagerness / keenness / anxiety",
+      "intro": "A strong desire to know or learn something; eagerness. Suffix -ता added to उत्सुक (eager/curious). Sanskrit origin.",
+      "usage": "Feminine noun. Uncountable. Collocation: 'उत्सुकता होना' (to feel curious), 'उत्सुकता से प्रतीक्षा करना' (await eagerly).",
+      "synonyms": [
+        {
+          "word": "जिज्ञासा",
+          "gloss": "curiosity / inquisitiveness (formal)"
+        },
+        {
+          "word": "बेचैनी",
+          "gloss": "restlessness / keenness"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "परीक्षा परिणाम घोषित होने से पहले सभी छात्र बड़ी उत्सुकता से वेबसाइट पर नजरें गड़ाए बैठे थे।",
+          "translation": "Before examination results were declared, all students sat fixing their gaze on the website with great eagerness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उपहार का डिब्बा खोलते समय बच्चे के चेहरे पर छलकती उत्सुकता देखने लायक थी।",
+          "translation": "While opening the gift box, the curiosity brimming on the child's face was worth seeing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वैज्ञानिकों में ब्रह्मांड के रहस्यों को जानने की उत्सुकता न होती, तो अंतरिक्ष अनुसंधान न बढ़ता।",
+          "translation": "If scientists lacked eagerness to know the universe's secrets, space research would not advance.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नई फिल्म के ट्रेलर को देखने के बाद दर्शकों के बीच भारी उत्सुकता पैदा की जाती है।",
+          "translation": "Great eagerness is generated among audiences after viewing the trailer of a new movie.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "धैर्य",
+      "partOfSpeech": "noun",
+      "translation": "patience / endurance / fortitude / forbearance",
+      "intro": "The capacity to accept or tolerate delay, trouble, or suffering without getting angry or upset; fortitude. Sanskrit origin. Direct synonym: धीरज.",
+      "usage": "Masculine noun. Uncountable. Idiom: 'धैर्य खोना' (lose patience), 'धैर्य रखना' (have patience).",
+      "synonyms": [
+        {
+          "word": "धीरज",
+          "gloss": "patience (colloquial)"
+        },
+        {
+          "word": "सब्र",
+          "gloss": "patience / forbearance (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "संकट और विपत्ति के समय समझदार व्यक्ति कभी अपना धैर्य और संतुलन नहीं खोता।",
+          "translation": "In times of crisis and adversity, a sensible person never loses his patience and balance.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कठिन से कठिन साधना और महान लक्ष्य की प्राप्ति के लिए असीम धैर्य की आवश्यकता होती है।",
+          "translation": "Boundless patience is required for the attainment of the highest goal and difficult endeavors.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम थोड़ा सा धैर्य रखते, तो इस उलझे हुए मामले का शांतिपूर्ण समाधान निकल आता।",
+          "translation": "If you had exercised a little patience, a peaceful solution to this tangled case would have emerged.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विपत्ति के समय शांत रहकर धैर्य की परीक्षा दी जाती है।",
+          "translation": "The test of patience is taken by remaining calm in times of adversity.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अपराध",
+      "partOfSpeech": "noun",
+      "translation": "crime / offense / wrongdoing / guilt / sin",
+      "intro": "An action or omission that constitutes an offense that may be prosecuted by the state and is punishable by law; guilt. Sanskrit origin. Opposite: निरपराध.",
+      "usage": "Masculine noun. Direct plural: अपराध, oblique: अपराधों. Collocations: 'अपराध करना' (commit a crime), 'अपराधी' (criminal).",
+      "synonyms": [
+        {
+          "word": "जुर्म",
+          "gloss": "crime / offense (Arabic loan)"
+        },
+        {
+          "word": "गुनाह",
+          "gloss": "sin / offense (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पुलिस ने रात में बैंक लूटने वाले गिरोह को रंगे हाथों जघन्य अपराध करते हुए गिरफ्तार किया।",
+          "translation": "The police arrested the gang that burgled the bank at night red-handed committing the heinous crime.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कानून की नजर में किसी निर्दोष को झूठे मुकदमे में फंसाना भी एक गंभीर अपराध है।",
+          "translation": "In the eyes of the law, framing an innocent person in a false lawsuit is also a serious crime.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज में न्याय व्यवस्था निष्पक्ष और सुदृढ़ हो, तो अपराधों में भारी कमी आ सकती है।",
+          "translation": "If the justice system in society were impartial and robust, a huge decline in crimes could occur.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अदालत में पर्याप्त साक्ष्यों और गवाहों के आधार पर ही किसी अपराध की पुष्टि की जाती है।",
+          "translation": "Confirmation of a crime is established in court only on the basis of sufficient evidence and witnesses.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "सजा",
+      "partOfSpeech": "noun",
+      "translation": "punishment / sentence / penalty / penalty (कानूनी सजा)",
+      "intro": "The infliction or imposition of a penalty as retribution for an offense; sentence awarded by a court. Persian loanword (sazā). Distinct from सजाना (to decorate).",
+      "usage": "Feminine noun. Singular: सजा, plural direct: सजाएं, oblique: सजाओं. Collocations: 'सजा सुनाना' (pronounce sentence), 'सजा काटना' (serve sentence).",
+      "synonyms": [
+        {
+          "word": "दंड",
+          "gloss": "punishment / penalty (formal Sanskrit)"
+        },
+        {
+          "word": "जुर्माना",
+          "gloss": "fine / penalty"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अदालत ने हत्या के दोषी पाए गए खतरनाक अपराधी को आजीवन कारावास की सजा सुनाई।",
+          "translation": "The court sentenced the dangerous criminal found guilty of murder to life imprisonment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कक्षा में अनुशासनहीनता करने वाले शरारती छात्रों को प्रधानाचार्य ने कड़ी सजा दी।",
+          "translation": "The principal gave strict punishment to mischievous students engaging in indiscipline in class.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि न्यायाधीश निष्पक्ष निर्णय न लेते, तो किसी निर्दोष को अकारण कठोर सजा भुगतनी पड़ती।",
+          "translation": "If the judge had not delivered an impartial verdict, an innocent person would suffer harsh punishment unjustly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "यातायात नियमों का उल्लंघन करने पर वाहन चालकों को आर्थिक सजा और जुर्माना दिया जाता है।",
+          "translation": "Monetary penalty and fines are levied on vehicle drivers upon violating traffic rules.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "इनाम",
+      "partOfSpeech": "noun",
+      "translation": "reward / prize / award / bounty",
+      "intro": "A thing given in recognition of one's service, effort, or achievement; bounty or prize. Arabic origin (in'ām). Direct synonym: पुरस्कार.",
+      "usage": "Masculine noun. Direct plural: इनाम, oblique: इनामों. Collocations: 'इनाम पाना' (receive reward), 'इनाम घोषित करना' (announce bounty).",
+      "synonyms": [
+        {
+          "word": "पुरस्कार",
+          "gloss": "prize / award (formal Sanskritized)"
+        },
+        {
+          "word": "पारितोषिक",
+          "gloss": "reward / trophy"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दौड़ प्रतियोगिता में प्रथम स्थान हासिल करने वाले एथलीट को स्वर्ण पदक और नकद इनाम मिला।",
+          "translation": "The athlete securing first place in the running race received a gold medal and cash prize.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुलिस मुख्यालय ने फरार खूंखार अपराधी की सूचना देने वाले के लिए एक लाख का इनाम घोषित किया।",
+          "translation": "Police headquarters announced a bounty of one hundred thousand for anyone giving information on the absconding dreaded criminal.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम वार्षिक परीक्षा में विद्यालय में प्रथम आते, तो तुम्हें सरकार की ओर से बड़ा इनाम मिलता।",
+          "translation": "If you topped the school in the annual exam, you would receive a grand reward from the government.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "उत्कृष्ट सामाजिक सेवाओं के लिए प्रतिभाशाली नागरिकों को राष्ट्रपति द्वारा राष्ट्रीय इनाम दिए जाते हैं।",
+          "translation": "National awards are conferred by the President upon talented citizens for outstanding social services.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अधिकार",
+      "partOfSpeech": "noun",
+      "translation": "right / authority / power / jurisdiction / entitlement / prerogative",
+      "intro": "A moral or legal entitlement to have or do something; authority or jurisdiction. Sanskrit origin. Collocations: 'मौलिक अधिकार' (fundamental rights).",
+      "usage": "Masculine noun. Direct plural: अधिकार, oblique: अधिकारों. Collocations: 'मानवाधिकार' (human rights), 'अधिकारी' (officer).",
+      "synonyms": [
+        {
+          "word": "हक",
+          "gloss": "right / entitlement (Arabic loan)"
+        },
+        {
+          "word": "सत्ता",
+          "gloss": "authority / power"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय संविधान देश के प्रत्येक नागरिक को समानता और स्वतंत्रता का मौलिक अधिकार प्रदान करता है।",
+          "translation": "The Constitution of India guarantees the fundamental right of equality and freedom to every citizen of the country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "प्रबंधक को कंपनी के नियमों का उल्लंघन करने वाले कर्मचारी को बर्खास्त करने का पूरा अधिकार है।",
+          "translation": "The manager has the full authority to dismiss an employee violating company rules.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि जनता अपने लोकतांत्रिक अधिकारों के प्रति जागरूक होती, तो कोई नेता उनका शोषण न कर पाता।",
+          "translation": "If citizens were conscious of their democratic rights, no leader could exploit them.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाल श्रम को रोकने और बच्चों के अधिकारों की रक्षा के लिए कड़े कानून लागू किए जाते हैं।",
+          "translation": "Strict laws are implemented to prevent child labor and protect children's rights.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कर्तव्य",
+      "partOfSpeech": "noun",
+      "translation": "duty / obligation / responsibility / moral obligation",
+      "intro": "A moral or legal obligation; a task or action that someone is required to perform (कर्तव्य पालन). Sanskrit origin. Counterpart to अधिकार (#590).",
+      "usage": "Masculine noun. Direct plural: कर्तव्य, oblique: कर्तव्यों. Collocations: 'मौलिक कर्तव्य' (fundamental duties), 'कर्तव्यनिष्ठ' (dutiful).",
+      "synonyms": [
+        {
+          "word": "फर्ज",
+          "gloss": "duty / moral obligation (Arabic loan)"
+        },
+        {
+          "word": "दायित्व",
+          "gloss": "responsibility"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अधिकारों की मांग करने के साथ-साथ हर देशभक्त नागरिक को अपने कर्तव्यों का भी पालन करना चाहिए।",
+          "translation": "Along with demanding rights, every patriotic citizen should also fulfill one's duties.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सीमा पर तैनात सैनिकों ने अपने कर्तव्य का निर्वहन करते हुए मातृभूमि के लिए प्राणों की आहुति दी।",
+          "translation": "Soldiers deployed on the border sacrificed their lives for the motherland fulfilling their duty.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समाज का हर व्यक्ति अपने नैतिक कर्तव्य को ईमानदारी से निभाए, तो भ्रष्टाचार खत्म हो जाए।",
+          "translation": "If every person in society performed one's moral duty honestly, corruption would end.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "नागरिकों को राष्ट्रगान और राष्ट्रीय ध्वज के सम्मान का कर्तव्य संविधान द्वारा याद दिलाया जाता है।",
+          "translation": "The duty of respecting the national anthem and national flag is reminded to citizens by the constitution.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "न्याय",
+      "partOfSpeech": "noun",
+      "translation": "justice / equity / fairness / judgement / logic",
+      "intro": "Just behavior or treatment; fairness; administration of law in equity (न्यायालय). Sanskrit origin. Antonym: अन्याय (injustice).",
+      "usage": "Masculine noun. Direct plural: न्याय, oblique: न्यायों (rare). Collocations: 'न्याय मांगना' (demand justice), 'न्यायाधीश' (judge).",
+      "synonyms": [
+        {
+          "word": "इंसाफ",
+          "gloss": "justice / fairness (Arabic loan)"
+        },
+        {
+          "word": "फैसला",
+          "gloss": "verdict / judgement"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अदालत ने सभी गवाहों और सबूतों का निष्पक्ष विश्लेषण करके पीड़ित परिवार को उचित न्याय दिया।",
+          "translation": "The court delivered proper justice to the victim's family by analyzing all witnesses and evidence impartially.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "किसी भी लोकतांत्रिक देश की असली पहचान यह है कि वहां अमीर और गरीब दोनों के लिए एक समान न्याय हो।",
+          "translation": "The true identity of any democratic nation is that there is equal justice for both the rich and the poor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पीड़ितों को समय पर न्याय न मिले, तो कहावत के अनुसार देर से मिला न्याय अन्याय के समान होता है।",
+          "translation": "If victims were not given justice on time, as per the adage justice delayed would be akin to justice denied.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "समाज के कमजोर वर्गों को मुफ्त कानूनी सहायता देकर न्याय सुलभ कराया जाता है।",
+          "translation": "Justice is made accessible to vulnerable sections of society by providing free legal aid.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "रिश्ता",
+      "partOfSpeech": "noun",
+      "translation": "relationship / relation / kinship / alliance / matrimonial match",
+      "intro": "The way in which two or more people or things are connected; kinship; or matrimonial alliance (शादी का रिश्ता). Persian origin (rishtah).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: रिश्ते, oblique: रिश्तों. Collocations: 'रिश्तेदार' (relative), 'रिश्ता तय होना' (alliance fixed).",
+      "synonyms": [
+        {
+          "word": "संबंध",
+          "gloss": "relationship / connection (#594)"
+        },
+        {
+          "word": "नाता",
+          "gloss": "kinship / bond"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सच्चा रिश्ता खून के संबंधों से नहीं बल्कि आपसी विश्वास, सम्मान और प्यार से मजबूत बनता है।",
+          "translation": "A true relationship is strengthened not by blood ties but by mutual trust, respect, and love.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बेटी के विवाह के लिए माता-पिता ने एक संभ्रांत और सुशिक्षित परिवार से शादी का रिश्ता पक्का किया।",
+          "translation": "Parents finalized a matrimonial alliance from a cultured and educated family for their daughter's wedding.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गलतफहमियों को समय रहते बातचीत से दूर न किया जाए, तो सबसे पुराना रिश्ता भी टूट सकता है।",
+          "translation": "If misunderstandings were not cleared through dialogue in time, even the oldest relationship could break.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कठिन परिस्थितियों और संकट के समय ही सच्चे रिश्तों की वास्तविक परख की जाती है।",
+          "translation": "The real test of genuine relationships is conducted only in difficult circumstances and times of adversity.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "संबंध",
+      "partOfSpeech": "noun",
+      "translation": "connection / association / relation / affiliation / link",
+      "intro": "A relationship, connection, or association between individuals, groups, or countries (द्विपक्षीय संबंध). Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: संबंध, oblique: संबंधों. Postpositional phrase: 'के संबंध में' (in relation to / regarding).",
+      "synonyms": [
+        {
+          "word": "रिश्ता",
+          "gloss": "relationship (#593)"
+        },
+        {
+          "word": "संपर्क",
+          "gloss": "contact / connection"
+        },
+        {
+          "word": "मेल-जोल",
+          "gloss": "social intercourse"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दोनों पड़ोसी देशों ने व्यापार, संस्कृति और सुरक्षा को बढ़ावा देने के लिए द्विपक्षीय संबंधों को सुधारा।",
+          "translation": "Both neighboring countries improved bilateral relations to promote trade, culture, and security.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस नए कानूनी मामले का हमारे पुराने मुकदमे से दूर-दूर तक कोई सीधा संबंध नहीं है।",
+          "translation": "This new legal case has no direct connection whatsoever to our old lawsuit.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दोनों साझेदारों के बीच मधुर संबंध बने रहते, तो यह सफल कंपनी कभी बंद न होती।",
+          "translation": "If cordial relations had remained between both partners, this successful company would never shut down.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अंतरराष्ट्रीय व्यापार मंचों पर सभी मित्र राष्ट्रों के साथ मजबूत व्यापारिक संबंध स्थापित किए जाते हैं।",
+          "translation": "Robust commercial relations are established with all friendly nations on international trade forums.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अतिथि",
+      "partOfSpeech": "noun",
+      "translation": "guest / visitor (etymological: one whose arrival has no fixed date/tithi)",
+      "intro": "A person who is invited to visit the home of or take part in an activity organized by another; guest. Sanskrit origin (अ + तिथि = without fixed date). Cultural adage: 'अतिथि देवो भव'.",
+      "usage": "Masculine noun (can refer to male or female guests). Direct plural: अतिथि, oblique: अतिथियों. Collocation: 'अतिथि सत्कार' (hospitality).",
+      "synonyms": [
+        {
+          "word": "मेहमान",
+          "gloss": "guest (Persian loan)"
+        },
+        {
+          "word": "आगंतुक",
+          "gloss": "visitor / newcomer"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "भारतीय परंपरा में 'अतिथि देवो भव' के पावन सिद्धांत के अनुसार मेहमानों का आदर किया जाता है।",
+          "translation": "In Indian tradition guests are honored according to the sacred principle of 'The guest is God'.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वार्षिक विद्यालय समारोह में मुख्य अतिथि के रूप में एक प्रख्यात वैज्ञानिक को आमंत्रित किया गया।",
+          "translation": "An eminent scientist was invited as the chief guest at the annual school ceremony.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि दूर से आए अतिथियों का उचित सत्कार किया जाए, तो उन्हें घर जैसा सुखद अनुभव मिलता है।",
+          "translation": "If proper hospitality were accorded to guests arriving from afar, they would receive a homely pleasant experience.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "समारोह में पधारे सभी विशिष्ट अतिथियों का पुष्पगुच्छ देकर गर्मजोशी से स्वागत किया जाता है।",
+          "translation": "All distinguished guests arriving at the function are warmly welcomed by presenting bouquets.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मेजबान",
+      "partOfSpeech": "noun",
+      "translation": "host (of a party, event, country) / entertainer",
+      "intro": "A person who receives or entertains other people as guests; host country in international sports. Persian loanword (mīzbān). Opposite: मेहमान / अतिथि.",
+      "usage": "Masculine noun. Direct plural: मेजबान, oblique: मेजबानों. Abstract noun: मेजबानी (hospitality / hosting).",
+      "synonyms": [
+        {
+          "word": "आयोजक",
+          "gloss": "organizer / host"
+        },
+        {
+          "word": "गृहस्वामी",
+          "gloss": "householder / host"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मेजबान परिवार ने अपनी गर्मजोशी और स्वादिष्ट भोजन से सभी आमंत्रित मेहमानों का दिल जीत लिया।",
+          "translation": "The host family won the hearts of all invited guests with its warmth and delicious food.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भारत ने इस वर्ष जी-20 शिखर सम्मेलन के सफल और भव्य मेजबान की भूमिका निभाई।",
+          "translation": "India played the role of a successful and grand host of the G20 Summit this year.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मेजबान टीम घरेलू मैदान पर अनुशासित खेल दिखाती, तो वह विश्व कप फाइनल न हारती।",
+          "translation": "If the host team had exhibited disciplined play on the home ground, it would not lose the World Cup final.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ओलंपिक खेलों के आयोजन के लिए कई वर्ष पूर्व अंतरराष्ट्रीय ओलंपिक समिति द्वारा मेजबान शहर चुना जाता है।",
+          "translation": "A host city is selected several years in advance by the International Olympic Committee for staging the Olympic Games.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कठोर",
+      "partOfSpeech": "adjective",
+      "translation": "hard / stiff / rigid / stern / severe / harsh (punishment: कठोर सजा)",
+      "intro": "Solid, firm, and resistant to pressure; not easily broken or bent; or figuratively stern, strict, or harsh (कठोर दिल, कठोर नियम). Sanskrit origin. Antonym: कोमल (#456).",
+      "usage": "Uninflected adjective (कठोर नियम, कठोर सजा, कठोर दिल). Synonyms: सख्त, कड़ा.",
+      "synonyms": [
+        {
+          "word": "सख्त",
+          "gloss": "strict / hard (Persian loan)"
+        },
+        {
+          "word": "कड़ा",
+          "gloss": "rigid / harsh"
+        },
+        {
+          "word": "दृढ़",
+          "gloss": "firm / resolute"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सेना में नए भर्ती हुए जवानों को बेहद कठोर और चुनौतीपूर्ण शारीरिक प्रशिक्षण से गुजरना पड़ता है।",
+          "translation": "Newly recruited soldiers in the army have to undergo exceedingly hard and challenging physical training.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "न्यायाधीश ने समाज में शांति व्यवस्था बनाए रखने के लिए अपराधियों के खिलाफ कठोर कदम उठाए।",
+          "translation": "The judge took stern steps against criminals to maintain peace and order in society.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसका हृदय इतना कठोर न होता, तो वह गरीब अनाथ की आंसुओं भरी पुकार सुनकर पिघल जाता।",
+          "translation": "If his heart were not so hard, it would melt upon hearing the tearful plea of the poor orphan.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कारखाने में सुरक्षा उल्लंघन के मामलों में प्रबंधन द्वारा कठोर दंडात्मक नियम लागू किए जाते हैं।",
+          "translation": "Strict punitive rules are enforced by management in cases of safety violations in the factory.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "शीतल",
+      "partOfSpeech": "adjective",
+      "translation": "cool / refreshing / soothing / frigid / calm",
+      "intro": "Pleasantly cool or refreshing; soothing (शीतल पवन, शीतल जल). Sanskrit borrowing. Direct antonym of उष्ण (hot) or गर्म.",
+      "usage": "Uninflected adjective (शीतल छाया, शीतल जल, शीतल बयार). Synonyms: ठंडा, सुहावना.",
+      "synonyms": [
+        {
+          "word": "ठंडा",
+          "gloss": "cold / cool (#100)"
+        },
+        {
+          "word": "शांत",
+          "gloss": "peaceful / calm"
+        },
+        {
+          "word": "सुखद",
+          "gloss": "pleasant"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गर्मी की तपती दोपहर के बाद शाम को पहाड़ों से बहने वाली शीतल पवन ने सबको ताजगी दी।",
+          "translation": "After the scorching noon of summer, the cool breeze blowing from the mountains in the evening refreshed everyone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "थके हुए प्यासे यात्री ने कुएं से निकाले गए मीठे और शीतल जल से अपनी प्यास बुझाई।",
+          "translation": "The weary thirsty traveler slaked his thirst with the sweet and cool water drawn from the well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि घने वृक्षों की शीतल छाया न होती, तो चिलचिलाती धूप में पैदल चलना असंभव हो जाता।",
+          "translation": "If there were no cool shade of dense trees, walking on foot in the scorching sun would become impossible.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "गर्मी से पीड़ित मरीजों को राहत पहुंचाने के लिए शीतल लेप और औषधियां दी जाती हैं।",
+          "translation": "Cooling pastes and medicines are administered to provide relief to patients suffering from heatstroke.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "स्वादिष्ट",
+      "partOfSpeech": "adjective",
+      "translation": "delicious / tasty / savory / palatable / luscious",
+      "intro": "Having a pleasant taste or smell; savory; palatable. Suffix -इष्ठ superlative from स्वाद (taste). Sanskrit origin.",
+      "usage": "Uninflected adjective (स्वादिष्ट भोजन, स्वादिष्ट मिठाइयां). Antonym: बेस्वाद (tasteless).",
+      "synonyms": [
+        {
+          "word": "जायकेदार",
+          "gloss": "flavorful / tasty (Persian loan)"
+        },
+        {
+          "word": "लजीज",
+          "gloss": "delicious / dainty (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दादी जी ने अपने हाथों से त्योहार पर सभी बच्चों के लिए बहुत ही स्वादिष्ट खीर और हलवा बनाया।",
+          "translation": "Grandmother made very delicious rice pudding and halwa with her own hands for all children on the festival.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस छोटे से ढाबे पर मिलने वाली दाल मखनी और तंदूरी रोटी पूरे शहर में सबसे स्वादिष्ट मानी जाती है।",
+          "translation": "The dal makhani and tandoori roti available at this small roadside eatery are considered the most delicious in the whole city.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि भोजन इतना स्वादिष्ट और सुगंधित न होता, तो मेहमान इतनी तृप्ति से न खाते।",
+          "translation": "If the food were not so delicious and aromatic, guests would not eat with such relish.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शादी की दावत में विभिन्न प्रांतों के पारंपरिक स्वादिष्ट व्यंजन रसोइयों द्वारा परोसे जाते हैं।",
+          "translation": "Traditional delicious dishes of various provinces are served by caterers at wedding feasts.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अनोखा",
+      "partOfSpeech": "adjective",
+      "translation": "unique / novel / extraordinary / curious / singular / bizarre",
+      "intro": "Unlike anything else; uniquely special, remarkable, novel, or curious. Sanskrit origin: अ-न-अपेक्षित / अनवद्य.",
+      "usage": "Inflected adjective: अनोखा (m.sg), अनोखे (m.pl/obl), अनोखी (f). Antonym: साधारण / आम. Collocation: 'अनोखी मिसाल' (unique precedent).",
+      "synonyms": [
+        {
+          "word": "अद्वितीय",
+          "gloss": "incomparable / unique (formal Sanskrit)"
+        },
+        {
+          "word": "अद्भुत",
+          "gloss": "wonderful / marvelous"
+        },
+        {
+          "word": "विचित्र",
+          "gloss": "peculiar / unique"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कलाकार ने अपनी कूची से कैनवास पर रंगों का एक अत्यंत सुंदर और अनोखा संगम प्रस्तुत किया।",
+          "translation": "The artist presented an extremely beautiful and unique confluence of colors on the canvas with his brush.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दूरदराज के द्वीपों में पाए जाने वाले इन दुर्लभ समुद्री पक्षियों का जीवन चक्र बड़ा अनोखा है।",
+          "translation": "The life cycle of these rare sea birds found on remote islands is quite unique.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इस ऐतिहासिक इमारत की वास्तुकला इतनी अनोखी न होती, तो दुनिया भर से पर्यटक इसे देखने न आते।",
+          "translation": "If the architecture of this historical monument were not so unique, tourists from across the world would not come to see it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विज्ञान मेले में विद्यार्थियों द्वारा बनाए गए नए और अनोखे आविष्कारों की खूब सराहना की जाती है।",
+          "translation": "Novel and unique inventions created by students are widely praised at science fairs.",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

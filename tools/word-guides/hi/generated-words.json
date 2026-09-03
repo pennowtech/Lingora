@@ -1,17 +1,92 @@
 {
-  "generatedAt": "2026-08-05",
-  "totalWords": 402,
-  "chunksCovered": 4,
+  "generatedAt": "2026-09-03",
+  "totalWords": 2002,
+  "chunksCovered": 20,
   "duplicateCount": 0,
   "words": [
+    {
+      "word": " उपाय",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": " चारागाह",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "अंकेक्षण",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "अंगड़ाई",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "अंगरखा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
     {
       "word": "अंततः",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "अंतरराष्ट्रीय न्यायालय",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "अंतरात्मा",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "अंतरिक्ष",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अंतरिक्षयान",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "अंत्येष्टि",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "अंदर",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अंधेरा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "अकड़ना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अकुलाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "अकेला",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "अक्षर",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -25,6 +100,21 @@
       "kind": "primary"
     },
     {
+      "word": "अगाध",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "अग्रिम जमानत",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "अचकन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "अचानक",
       "chunkIndex": 3,
       "kind": "primary"
@@ -35,8 +125,53 @@
       "kind": "primary"
     },
     {
+      "word": "अटारी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "अणु",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "अतार्किक",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "अतिथि",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "अथवा",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "अदरक",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "अदालत",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "अदालत की अवमानना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "अदालती समन",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "अद्वैत",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -45,8 +180,138 @@
       "kind": "primary"
     },
     {
+      "word": "अधिकार",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिकारी",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिग्रहण",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिपत्र",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिभार",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिवक्ता",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "अधिसूचना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अधीरता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "अध्यादेश",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अध्याय",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अनंत",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अनाज",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "अनिवार्य",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुकंपा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुदान",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुप्रास",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुभव",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुभाव",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुभूति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "अनुमान",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "अनोखा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "अन्नदाता",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "अन्वेषण",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "अपना",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "अपराध",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "अपारदर्शी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "अप्रत्याशित",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -55,13 +320,73 @@
       "kind": "primary"
     },
     {
+      "word": "अभयारण्य",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "अभिधा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "अभिनय",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "अभिभावक",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "अभियोग",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "अभिशाप",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "अमावस्या",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "अमीर",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "अमीरी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "अलंकार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "अलग",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "अवधारणा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "अवधि",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "अविस्मरणीय",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -75,13 +400,48 @@
       "kind": "primary"
     },
     {
+      "word": "असमंजस",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "असहिष्णुता",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "अस्पताल",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "अहंकार",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "आंकड़ा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "आँख",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आंगन",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "आंदोलन",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "आंसू",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -95,8 +455,88 @@
       "kind": "primary"
     },
     {
+      "word": "आकाश",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "आकाशगंगा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "आक्रोश",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "आगंतुक",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "आगमन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "आचार-संहिता",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "आज",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "आजमाना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "आजीवन कारावास",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "आटा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मग्लानि",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मचिंतन",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मज्ञान",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मबोध",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्ममुग्धता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मविश्वास",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "आत्मसंयम",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -105,8 +545,23 @@
       "kind": "primary"
     },
     {
+      "word": "आदत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "आदमी",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "आदेश",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "आध्यात्मिक",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -120,8 +575,63 @@
       "kind": "primary"
     },
     {
+      "word": "आपेक्षिकता",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "आप्रवासन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "आमतौर पर",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "आयताकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "आयुक्त",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "आरी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "आर्द्रभूमि",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "आलसी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "आलाप",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "आलू",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "आलोचना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "आवाज",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -130,8 +640,48 @@
       "kind": "primary"
     },
     {
+      "word": "आविष्कार",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "आवृत्ति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "आशा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "आश्वस्त",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "आसान",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "इंटरनेट",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "इकट्ठा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "इकरारनामा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "इतराना",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -140,8 +690,43 @@
       "kind": "primary"
     },
     {
+      "word": "इनाम",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "इलायची",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "इलेक्ट्रॉन",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
       "word": "इसलिए",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ईंट",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ईमानदारी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "ईर्ष्या",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "ईर्ष्यालु",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -150,8 +735,53 @@
       "kind": "primary"
     },
     {
+      "word": "उकसाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "उखाड़ना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "उछलना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "उछालना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "उठाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "उड़ना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "उतरना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "उतारना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्कीर्णन",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्खनन",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -160,8 +790,53 @@
       "kind": "primary"
     },
     {
+      "word": "उत्तेजना",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्पादन",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्प्रेक्षा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्सव",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उत्सुकता",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "उदार",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "उदारता",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "उदास",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "उदासीनता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "उद्योग",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -170,8 +845,18 @@
       "kind": "primary"
     },
     {
+      "word": "उधेड़ना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "उनका",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "उन्माद",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -180,8 +865,133 @@
       "kind": "primary"
     },
     {
+      "word": "उपकरण",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उपग्रह",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "उपनयन",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "उपन्यास",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "उपन्यासकार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "उपमान",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "उपला",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "उपशम",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "उफनना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उबड़-खाबड़",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उबाल",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उबालना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "उबासी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "उभयचर",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "उमंग",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उमस",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "उम्र",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "उम्रकैद",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "उर्वरक",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "उलझना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "उलटना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "उल्कापिंड",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "उल्लास",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "उल्लू",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "उसे",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "उहापोह",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -190,8 +1000,43 @@
       "kind": "primary"
     },
     {
+      "word": "ऊंट",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "ऊन",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "ऊपर",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ऊर्जा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "ऋण",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ऋणदाता",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "ऋणमुक्ति",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "ऋणी",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -200,8 +1045,38 @@
       "kind": "primary"
     },
     {
+      "word": "ऋतुराज",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "एक",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "ऐंठन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "ओखली",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "ओलावृष्टि",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "ओस",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "ओसाना",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -210,8 +1085,73 @@
       "kind": "primary"
     },
     {
+      "word": "औषधालय",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "कंगन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "कंघी",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कंजूस",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कंजूसी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कंदरा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "कंधा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कंबल",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कक्षा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "कच्चा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कछुआ",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "कटाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कटोरी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "कठफोड़वा",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -220,13 +1160,58 @@
       "kind": "primary"
     },
     {
+      "word": "कठोर",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "कड़वा",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "कड़ाही",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "कताई",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "कथकली",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "कद",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कन्यादान",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कपकपी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "कपट",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "कपड़ा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "कबूतर",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -255,8 +1240,18 @@
       "kind": "primary"
     },
     {
+      "word": "कमर",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "कमरा",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "कमीज",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -265,8 +1260,58 @@
       "kind": "primary"
     },
     {
+      "word": "कर अपवंचन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "करधनी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "करना",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कराहना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "करुणा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्कश",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्ज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्तव्य",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्तव्यनिष्ठ",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्मचारी",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "कर्मफल",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -277,6 +1322,51 @@
     {
       "word": "कलम",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कली",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "कलौंजी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "कवच",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "कविता",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "कसमसाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "कसीदा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "कसीदाकारी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "कसैला",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कस्बा",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -295,6 +1385,11 @@
       "kind": "primary"
     },
     {
+      "word": "कहानी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "कहीं और",
       "chunkIndex": 4,
       "kind": "primary"
@@ -305,8 +1400,33 @@
       "kind": "primary"
     },
     {
+      "word": "कांटा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "कांपना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "कांसा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "कागज़",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "काटना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कातना",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -315,8 +1435,93 @@
       "kind": "primary"
     },
     {
+      "word": "कानून",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "कानूनगो",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "काबिज",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "काम",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कायर",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कार",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कारखाना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कारण",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कारागार",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "कारीगर",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कारोबार",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कारोबारी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कार्यकाल",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "कार्यपालिका",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "कार्यालयीन",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "काव्य",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "काश्तकार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "काष्ठ",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -330,8 +1535,118 @@
       "kind": "primary"
     },
     {
+      "word": "किनारा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "किराया",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "किलकारी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "किला",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "किवाड़",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "किशोर",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "किशोरावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "किसान",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "किस्त",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "किस्तवार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "किस्मत",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "की",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कीचड़",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "कीट-पतंग",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "कीटभक्षी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "कीमत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कील",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कुंजी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कुंडलिया",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "कुंभकार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "कुंवारा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "कुआं",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कुचलना",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -340,13 +1655,103 @@
       "kind": "primary"
     },
     {
+      "word": "कुटुंब",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कुतरना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "कुदाल",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कुम्हलाना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "कुम्हार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "कुरेदना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "कुर्की",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "कुर्ता",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "कुर्सी",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "कुलदीपक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "कुलबुलाना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "कुल्हड़",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "कुल्हाड़ी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कुहकना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "कूटनीति",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "कूटनीतिक वार्ता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "कूदना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "कृतज्ञता",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "कृत्रिम उपग्रह",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "कृषि",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -385,6 +1790,16 @@
       "kind": "primary"
     },
     {
+      "word": "कैंची",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "कैदी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "कैसे",
       "chunkIndex": 1,
       "kind": "primary"
@@ -400,8 +1815,33 @@
       "kind": "primary"
     },
     {
+      "word": "कोमल",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "कोयल",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "कोयला",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "कोहरा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "कौन",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "कौवा",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -420,8 +1860,83 @@
       "kind": "primary"
     },
     {
+      "word": "क्रूरता",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "क्रोध",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "क्षणिक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "क्षमा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "क्षितिज",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "क्षुद्रग्रह",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "खंगालना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खंजर",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खंजरी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "खंडन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "खंभ",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "खंभा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "खगोलशास्त्र",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "खगोलीय पिंड",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "खच्चर",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खजाना",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -435,13 +1950,98 @@
       "kind": "primary"
     },
     {
+      "word": "खतरा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "खतौनी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "खनिज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "खपत",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "खरगोश",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खराश",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "खरीद",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "खरीदना",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "खरीफ",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "खरोंच",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "खरोंचना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "खर्राटा",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खलिहान",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "खसरा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "खाई",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "खाड़ी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "खाद",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "खाना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खारा पानी",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -460,8 +2060,33 @@
       "kind": "primary"
     },
     {
+      "word": "खिन्नता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "खींचना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "खुद",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "खुरचना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "खुरदरा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "खुरपी",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -475,8 +2100,43 @@
       "kind": "primary"
     },
     {
+      "word": "खून",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "खेत-खलिहान",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "खेतीबाड़ी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "खेलना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "खोखला",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "खोज",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "खोजना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "खोपड़ी",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -485,8 +2145,43 @@
       "kind": "primary"
     },
     {
+      "word": "खौलना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "गंदा",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "गठबंधन",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "गड़गड़ाना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "गढ़",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गदगद",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "गद्य",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "गधा",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -500,6 +2195,21 @@
       "kind": "primary"
     },
     {
+      "word": "गरीबी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "गर्दन",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "गर्भगृह",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "गर्म",
       "chunkIndex": 2,
       "kind": "primary"
@@ -507,6 +2217,26 @@
     {
       "word": "गर्मी",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "गला",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "गलियारा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "गवाह",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "गवाही",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -530,8 +2260,228 @@
       "kind": "primary"
     },
     {
+      "word": "गाय",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "गायक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "गारा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "गाल",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "गिड़गिड़ाना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गिद्ध",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गिनना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "गिरगिट",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गिरदावरी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "गिरना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "गिरवी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "गिलहरी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गिलास",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "गीत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "गीला",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "गुंबद",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "गुच्छ",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "गुटनिरपेक्ष",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "गुटनिरपेक्षता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "गुदगुदी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "गुनगुनाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "गुप्तचर",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "गुफा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "गुरुत्वाकर्षण",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "गुर्दा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "गुर्राना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "गुस्सा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "गूंधना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "गोटा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "गोताखोर",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "गोदी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "गोपुरम",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "गोबर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "गोल",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "गोला-बारूद",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "गोलाकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "गोली",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "गौरेया",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्रंथ",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्रह",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्रहण",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्राहक",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्रीष्म",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्लानि",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "ग्लेशियर",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -540,8 +2490,103 @@
       "kind": "primary"
     },
     {
+      "word": "घटम",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "घड़ा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "घनत्व",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "घबराना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "घमंड",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "घर",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "घराना",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "घर्षण",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "घसीटना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "घाघरा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "घाट",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "घाटा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "घाटी",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "घाव",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "घास",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "घिसना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "घी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "घुंघरू",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "घुड़सवार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "घुरघुराना",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -550,8 +2595,138 @@
       "kind": "primary"
     },
     {
+      "word": "घूरना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "घेराबंदी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "घोंसला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "घोड़ा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "घोलना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "घोषणा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "चंद्रयान",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "चकत्ता",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "चकबंदी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "चकला",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "चक्रवात",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "चक्रवृद्धि ब्याज",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "चक्रव्यूह",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "चट्टान",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "चढ़ना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "चतुर",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "चप्पू",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "चबाना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "चबूतरा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "चमकना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "चमकीला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "चमगादड़",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "चम्मच",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "चर्मकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "चलना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "चश्मदीद",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "चहकना",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -565,6 +2740,11 @@
       "kind": "primary"
     },
     {
+      "word": "चाक",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "चाचा",
       "chunkIndex": 4,
       "kind": "primary"
@@ -572,6 +2752,11 @@
     {
       "word": "चाची",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चाटना",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -590,8 +2775,18 @@
       "kind": "primary"
     },
     {
+      "word": "चारा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "चारों ओर",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चालकता",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -610,8 +2805,88 @@
       "kind": "primary"
     },
     {
+      "word": "चिंगारी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "चिंघाड़ना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "चिंतनशील",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "चिकना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "चिकित्सालय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "चिट्ठी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "चिड़चिड़ापन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "चिड़िया",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "चित्त",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "चित्रकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "चित्रकारी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "चिपचिपा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "चिमटा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "चिल्लाना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चीखना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "चीता",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "चीत्कार",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -620,8 +2895,68 @@
       "kind": "primary"
     },
     {
+      "word": "चील",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "चुंगी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "चुंबक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "चुंबकत्व",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "चुनना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "चुभन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "चुभना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "चुराना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "चूना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "चूल्हा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "चूहा",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "चेतना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "चेहरा",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -630,13 +2965,153 @@
       "kind": "primary"
     },
     {
+      "word": "चोली",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "चौंकना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "चौकोर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "चौखट",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "चौड़ा",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "चौपाई",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "चौराहा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "छंद",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "छज्जा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "छटपटाना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "छटपटाहट",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "छत",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "छतरी",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "छत्ता",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "छल-कपट",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "छलकना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "छलांग लगाना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "छांव",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "छाती",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "छानना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "छाया",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "छाला",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "छावनी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "छिटकना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "छिड़कना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "छिपकली",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "छिपाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "छिलना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "छीलना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "छेनी",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -650,8 +3125,48 @@
       "kind": "primary"
     },
     {
+      "word": "छौंक",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "छौंकना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "जंगल",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "जज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "जटिल",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "जड़",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "जड़ाऊ",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "जनसंख्या",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "जनहित याचिका",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -660,8 +3175,73 @@
       "kind": "primary"
     },
     {
+      "word": "जमानत",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "जमानतदार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "जमाबंदी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "जमींदार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "जरी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "जरूर",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "जलचर",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "जलडमरूमध्य",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "जलतरंग",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "जलपोत",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "जलप्रपात",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "जलमग्न",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "जलमार्ग",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "जलसंभर",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -670,8 +3250,43 @@
       "kind": "primary"
     },
     {
+      "word": "जवानी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "जवाबदेही",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "जहाज",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "जहाजरानी",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "जागना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "जाना",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "जायद",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "जायफल",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -680,8 +3295,78 @@
       "kind": "primary"
     },
     {
+      "word": "जावित्री",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "ज़िंदगी",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "जिज्ञासा",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "जिद्दी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "जिरह",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "जिरहबाजी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "जीजा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "जीतना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "जीभ",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "जीरा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "जीर्णोद्धार",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "जुगलबंदी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "जुताई",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "जुर्म",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "जुर्माना",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -690,13 +3375,153 @@
       "kind": "primary"
     },
     {
+      "word": "जेठ",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "जेब",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "जेल",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "जैव विविधता",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "जैव-दीप्ति",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "जैवविविधता",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "जैसे",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "जोड़ना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "ज्ञान",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "ज्ञानमीमांसा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "ज्वार-भाटा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "ज्वालामुखी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "ज्वालामुखी विस्फोट",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "झकझोरना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "झटकना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "झपटना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "झमाझम",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "झरना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "झरोखा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "झांकना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "झाड़ना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "झाड़ी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "झाड़ू",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "झिंझोड़ना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "झिझकना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "झील",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "झुंझलाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "झुकना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "झुनझुनी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "झुलसना",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -710,8 +3535,73 @@
       "kind": "primary"
     },
     {
+      "word": "झूलना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "झेंपना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "टकराना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "टटोलना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "टपकना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "टहकना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "टांकना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "टापू",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "टिकट",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "टीकाकरण",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "टीला",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "टेढ़ा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "टैक्स",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "टोकरी",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -720,8 +3610,18 @@
       "kind": "primary"
     },
     {
+      "word": "ट्यूबवेल",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "ठंडा",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "ठप्पा",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -730,8 +3630,63 @@
       "kind": "primary"
     },
     {
+      "word": "ठुमरी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ठेकेदार",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ठोकर लगना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "ठोस",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "डकराना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "डकारना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "डकैती",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "डगमगाना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "डर",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "डाकघर",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "डूबना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "डूबा हुआ जहाज",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -740,8 +3695,63 @@
       "kind": "primary"
     },
     {
+      "word": "ढाल",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "तकिया",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तटबंध",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "तटरेखा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तटवर्ती",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तटस्थ",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तटस्थता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तड़का",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "तड़पना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तड़ित",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "तत्वज्ञान",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तत्वमीमांसा",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -750,8 +3760,113 @@
       "kind": "primary"
     },
     {
+      "word": "तथ्य",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "तना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "तपस्या",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तपस्वी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तफ्तीश",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "तब",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तबला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तबादला",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "तरंगदैर्घ्य",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तराना",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तराशना",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "तर्क-वितर्क",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "तर्कसंगत",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तलना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "तलब",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "तलवार",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तवा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "तहखाना",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "तहसीलदार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "तांबा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ताकतवर",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "ताकना",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -765,8 +3880,48 @@
       "kind": "primary"
     },
     {
+      "word": "तान",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तानपुरा",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "तापमान",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ताम्रपत्र",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तारा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "तारामंडल",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "तारीख",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तार्किक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ताल",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -775,8 +3930,58 @@
       "kind": "primary"
     },
     {
+      "word": "तिजोरी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "तितली",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तितिक्षा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "तिलमिलाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "तिल्ली",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "तीक्ष्ण",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
       "word": "तीखा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "तीतर",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तीर",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तीर-कमान",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "तुतलाना",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -800,6 +4005,21 @@
       "kind": "primary"
     },
     {
+      "word": "तुषार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "तूफान",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "तेंदुआ",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "तेज़",
       "chunkIndex": 2,
       "kind": "primary"
@@ -807,6 +4027,11 @@
     {
       "word": "तेजी से",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "तेल",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -820,8 +4045,43 @@
       "kind": "primary"
     },
     {
+      "word": "तैरना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "तो",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "तोड़ना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "तोता",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "तोप",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "तोपखाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "तोरण",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "तोलना",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -830,8 +4090,48 @@
       "kind": "primary"
     },
     {
+      "word": "त्योहार",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "त्रिकोण",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "थकना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "थपकना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "थपथपाना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "थरथराना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "था",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "थाली",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "थूकना",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -840,8 +4140,43 @@
       "kind": "primary"
     },
     {
+      "word": "दंडात्मक",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "दंडाधिकारी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "दंपति",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "दक्षिण",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "दफ़्तर",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दबाव",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "दबोचना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दया",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -850,8 +4185,103 @@
       "kind": "primary"
     },
     {
+      "word": "दरबार",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "दरवाजा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दर्जी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "दर्द",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दर्पण",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दर्रा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "दर्शक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "दलदल",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "दलाली",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "दलील",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "दवा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दस्ताना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दस्तावेजी सबूत",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "दहकना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "दहलीज",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दहाड़ना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "दांत",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दांपत्य",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "दाखिल-खारिज",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "दादरा",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -862,6 +4292,41 @@
     {
       "word": "दादी",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "दामाद",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "दामिनी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "दाल",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "दालचीनी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "दालान",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "दिक्कत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "दिखाना",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -880,6 +4345,31 @@
       "kind": "primary"
     },
     {
+      "word": "दिवालिया",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "दिशा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "दीक्षा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "दीवान-ए-आम",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "दीवान-ए-खास",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "दीवार",
       "chunkIndex": 4,
       "kind": "primary"
@@ -887,6 +4377,11 @@
     {
       "word": "दुकान",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दुकानदार",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -900,8 +4395,63 @@
       "kind": "primary"
     },
     {
+      "word": "दुत्कारना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "दुनिया",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "दुपट्टा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "दुपट्टे की किनारी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्ग",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्गंधयुक्त",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्गम",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्गुण",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्भाग्य",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्लभ",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "दुर्व्यवहार",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "दुलारना",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -910,8 +4460,33 @@
       "kind": "primary"
     },
     {
+      "word": "दुविधा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "दुश्मन",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "दूत",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "दूतवास",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "दूतावास",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "दूतावास कर्मी",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -920,13 +4495,48 @@
       "kind": "primary"
     },
     {
+      "word": "दूधिया",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "दूर",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "दूरबीन",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "दूरभाष",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "दूल्हा",
       "chunkIndex": 4,
       "kind": "primary"
     },
     {
+      "word": "दृढ़निश्चयी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "दृष्टिकोण",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "देखना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "देनदार",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -940,6 +4550,11 @@
       "kind": "primary"
     },
     {
+      "word": "देवर",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "देश",
       "chunkIndex": 1,
       "kind": "primary"
@@ -950,8 +4565,23 @@
       "kind": "primary"
     },
     {
+      "word": "दोषमुक्ति",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "दोषी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "दोस्त",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "दोहा",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -960,13 +4590,63 @@
       "kind": "primary"
     },
     {
+      "word": "द्वार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "द्वारा",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "द्विपक्षीय",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "द्वेष",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "धकेलना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "धनिया",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "धनुष",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "धमकाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "धरोहर",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "धर्म",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "धागा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "धातु",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -990,8 +4670,88 @@
       "kind": "primary"
     },
     {
+      "word": "धुंधला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "धुआं",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "धुन",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "धूप",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "धूमकेतु",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "धूमकेतु की पूंछ",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "धूर्त",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "धैर्य",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "धैर्यवान",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "धोखाधड़ी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "धोती",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "धोना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "धौंकनी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "ध्यान",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "ध्रुवतारा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "ध्रुवीय ज्योति",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "नक्काशीदार",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1000,8 +4760,43 @@
       "kind": "primary"
     },
     {
+      "word": "नगरपालिका",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "नजर",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "नटराज",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "नतीजा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "नदी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "ननद",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "नफ़रत",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "नभचर",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -1010,8 +4805,43 @@
       "kind": "primary"
     },
     {
+      "word": "नमकीन",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "नम्रता",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "नया",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "नर्क",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "नर्तक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "नवजात",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "नस",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "नहर",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -1020,13 +4850,168 @@
       "kind": "primary"
     },
     {
+      "word": "नाक",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "नागरिक",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "नाचना",
       "chunkIndex": 3,
       "kind": "primary"
     },
     {
+      "word": "नाटक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "नाटककार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "नाट्यशाला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "नाट्यशास्त्र",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "नाड़ी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "नातगोत",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "नातेदार",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "नापना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "नाम",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "नाव",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "नाव की पतवार",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "नाव खेना",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "नाविक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "नाविक दल",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "निःस्वार्थ",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "निखारना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "निगमन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "निगलना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "निचोड़ना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "निथारना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "नियति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "नियम",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "निरस्त्रीकरण",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "निराई",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "निराधार",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "निराशा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "निरीक्षक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "निर्दोष",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "निर्दोषी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "निर्वासन",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -1040,8 +5025,53 @@
       "kind": "primary"
     },
     {
+      "word": "निष्ठावान",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "निहाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "निहारना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "निहारिका",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "नीचे",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "नीलकंठ",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "नीलम",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "नीलामी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "नुकसान",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "नुकीला",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -1050,8 +5080,133 @@
       "kind": "primary"
     },
     {
+      "word": "नेटवर्क",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "नेपथ्य",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "नेवला",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "नौकर",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "नौटंकी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "न्याय",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "न्यायपालिका",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "न्यायशास्त्र",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "न्यायाधीश",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "न्यायिक समीक्षा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पंख",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पंखुड़ी",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "पकड़ना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पकवान",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "पकाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पक्का",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पखावज",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पगडंडी",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पगड़ी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पछताना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पछुआ",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "पछोरना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "पटकना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पटवारी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "पटसन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "पठार",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1075,8 +5230,38 @@
       "kind": "primary"
     },
     {
+      "word": "पतला",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पतवार",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पता",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "पति",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पतीला",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "पत्ता",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पत्थर",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -1090,8 +5275,83 @@
       "kind": "primary"
     },
     {
+      "word": "पत्रकार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पदाधिकारी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पद्य",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पनडुब्बी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "पन्ना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "पर",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "परंपरा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "परकोटा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "परखना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "परमाणु",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "पराग",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "परागकण",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पराजित",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "परिकल्पना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "परिचित",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "परिपत्र",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -1100,13 +5360,63 @@
       "kind": "primary"
     },
     {
+      "word": "परिश्रमी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "परोपकारी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "परोसना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "पर्याप्त",
       "chunkIndex": 4,
       "kind": "primary"
     },
     {
+      "word": "पर्यावरण असंतुलन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पलटना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "पश्चात्ताप",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "पश्चिम",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "पसंद करना",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "पसली",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पसारना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "पसीना",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -1120,13 +5430,103 @@
       "kind": "primary"
     },
     {
+      "word": "पहाड़",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पहुंचाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "पांडुलिपि",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "पाँव",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "पाखंड",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पात्र",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पात्र-परिचय",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "पानी",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "पाप",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पायजामा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पायजेब",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "पारगम्य",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "पारदर्शिता",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "पारदर्शी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "पारा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "पारिभाषिक",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "पारिस्थितिक तंत्र",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पारिस्थितिकी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "पाल",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पाला",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1140,13 +5540,63 @@
       "kind": "primary"
     },
     {
+      "word": "पिरोना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "पीछे",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "पीठ",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पीढ़ी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "पीतल",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "पीना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पीसना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "पुचकारना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पुण्य",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पुनर्जन्म",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "पुरवैया",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "पुरातत्व",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -1160,8 +5610,33 @@
       "kind": "primary"
     },
     {
+      "word": "पुल",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "पुलिस",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "पुस्तकालय",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पूंजी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "पूंजी निवेश",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "पूंजीपति",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1175,8 +5650,53 @@
       "kind": "primary"
     },
     {
+      "word": "पूर्णिमा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पूर्व",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पूर्वज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "पूर्वाग्रह",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "पेंच",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पेंशन",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "पेट",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
       "word": "पेड़",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "पैंट",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पैदल सेना",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -1185,8 +5705,93 @@
       "kind": "primary"
     },
     {
+      "word": "पोंछना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पोछा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "पोत",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "पोषक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "प्याज",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "प्यार",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रकाश",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रकाश-वर्ष",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रकाश-संश्लेषण",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रक्रिया",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रजाति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रणाली",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रतिध्वनि",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रतिपादन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रतिबंध",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रतिवादी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रत्यक्ष",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रत्यार्पण",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -1195,8 +5800,118 @@
       "kind": "primary"
     },
     {
+      "word": "प्रफुल्लित",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रबुद्ध",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रभात",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रमाण",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रयास",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रयोगशाला",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रवाल भित्ति",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रवासी पक्षी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रशांत महासागर",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रशासन",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रसन्नता",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रस्तर-शिल्प",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रस्ताव",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "प्राचीर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रायद्वीप",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "प्रेम",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रोटॉन",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रौढ़",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रौढ़ावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "प्रौद्योगिकी",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "प्लवक",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "फटकना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "फरमान",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1210,6 +5925,31 @@
       "kind": "primary"
     },
     {
+      "word": "फसल",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "फांदना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "फांसी की सजा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "फायदा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "फावड़ा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "फिर",
       "chunkIndex": 2,
       "kind": "primary"
@@ -1220,8 +5960,68 @@
       "kind": "primary"
     },
     {
+      "word": "फिसलना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "फुंकारना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "फुंसी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "फुदकना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "फुफकार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "फुसफुसाना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "फुसलाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "फूल",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "फेंकना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "फेंटना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "फेफड़ा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "फैलाना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "फैसला",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -1230,8 +6030,68 @@
       "kind": "primary"
     },
     {
+      "word": "बंदर",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बंदरगाह",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "बंदिश",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "बंदीगृह",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "बंदूक",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बंधक",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "बकरी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बगला",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बघारना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "बचत",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "बचाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "बच्चा",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बजट",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -1240,8 +6100,38 @@
       "kind": "primary"
     },
     {
+      "word": "बटन",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "बटाईदार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "बटेर",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बटोरना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "बड़बड़ाना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "बड़ा",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बढ़ई",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -1255,6 +6145,16 @@
       "kind": "primary"
     },
     {
+      "word": "बत्तख",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बदलना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "बदसूरत",
       "chunkIndex": 4,
       "kind": "primary"
@@ -1265,8 +6165,33 @@
       "kind": "primary"
     },
     {
+      "word": "बयान",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "बरी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "बर्तन",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "बर्फ",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बवंडर",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "बस",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -1275,8 +6200,33 @@
       "kind": "primary"
     },
     {
+      "word": "बहलाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "बही-खाता",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "बहीखाता",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "बहुत",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बहुपक्षीय",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "बहू",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1285,8 +6235,48 @@
       "kind": "primary"
     },
     {
+      "word": "बांधना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "बांसुरी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "बाघ",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बाघिन",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "बाज",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "बाज़ार",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बाजूबंद",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "बाड़ा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "बाढ़",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -1295,8 +6285,53 @@
       "kind": "primary"
     },
     {
+      "word": "बादल",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "बादल फटना",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "बारहदरी",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "बारिश",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "बारूद",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "बारे में",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बालपन",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "बाल्टी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "बाल्यावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "बावड़ी",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -1310,13 +6345,63 @@
       "kind": "primary"
     },
     {
+      "word": "बिक्री",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "बिखेरना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "बिगाड़ना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "बिच्छू",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बिछिया",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "बिजली",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "बिना",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "बिरादरी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "बिलकुल",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बिलख-बिलख कर",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "बिलखना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बिलोना",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1330,8 +6415,28 @@
       "kind": "primary"
     },
     {
+      "word": "बीज",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बीनना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "बीमारी",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "बुझाना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "बुढ़ापा",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -1340,8 +6445,48 @@
       "kind": "primary"
     },
     {
+      "word": "बुनकर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "बुनना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "बुनाई",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "बुरा",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "बुर्ज",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "बुलबुल",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "बुवाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "बुहारना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "बूंदाबांदी",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1350,8 +6495,43 @@
       "kind": "primary"
     },
     {
+      "word": "बेदखली",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "बेलना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "बेलबूटे",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "बेल्ट",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "बेस्वाद",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "बैठना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "बैल",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "बोरवेल",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -1360,8 +6540,78 @@
       "kind": "primary"
     },
     {
+      "word": "बोली",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "बौखलाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "ब्याज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ब्रह्म",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ब्रह्मांड",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "ब्लैक होल",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "भंवर",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "भक्ति",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "भटकना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "भड़काना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "भत्ता",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "भभकना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "भरा",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "भवसागर",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "भांड",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1370,8 +6620,28 @@
       "kind": "primary"
     },
     {
+      "word": "भाग्य",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "भारी",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भाला",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "भालू",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "भावविभोर",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -1380,8 +6650,33 @@
       "kind": "primary"
     },
     {
+      "word": "भीनी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "भू-राजनीति",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "भूकंपीय",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "भूनना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "भूलना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भूसा",
+      "chunkIndex": 13,
       "kind": "primary"
     },
     {
@@ -1390,8 +6685,118 @@
       "kind": "primary"
     },
     {
+      "word": "भेड़",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "भेड़िया",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "भैंस",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "भोजन",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "भौं-भौं",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "भ्रांति",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "मंगलयान",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "मंगलसूत्र",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मंच",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मंजिल",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मंजीरा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मंडन",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "मंडप",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "मंत्रालय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "मंत्री",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मकड़ी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मक्खी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मगरमच्छ",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मचलना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "मछर",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मछली",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मछुआरा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "मजदूर",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -1400,8 +6805,53 @@
       "kind": "primary"
     },
     {
+      "word": "मटका",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मटमैला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मड़ाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मतदाता",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मतभेद",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "मथना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "मथानी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "मदद",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "मदद करना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "मधुमक्खी",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -1410,8 +6860,108 @@
       "kind": "primary"
     },
     {
+      "word": "मनभावन",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मनमोहक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मनहूस",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ममता",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "मरुद्यान",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मरुस्थल",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "मरोड़",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मरोड़ना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "मल्लाह",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "मवाद",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मसकना",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मसाला",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मसूड़ा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "मस्तूल",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "महंगा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "महकना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "महाद्वीपीय शेल्फ",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "महावाणिज्य दूतावास",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "महाविद्यालय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "महासमर",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "महासागर",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -1425,6 +6975,81 @@
       "kind": "primary"
     },
     {
+      "word": "मांगना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मांद",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "माणिक",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मानहानि",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मायका",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "माया",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मार्ग",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मालगुजारी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मालगोदाम",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मालिक",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "मिट्टी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "मिट्टी के बर्तन",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मितव्ययी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मिमियाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "मिर्च",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "मिलना",
       "chunkIndex": 2,
       "kind": "primary"
@@ -1435,8 +7060,63 @@
       "kind": "primary"
     },
     {
+      "word": "मीनाकारी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मीनार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मीमांसा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "मुंडन",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मुंडेर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "मुँह",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मुआवजा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "मुकदमा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मुकदमेबाजी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "मुकुट",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मुक्ति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मुचलका",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1445,8 +7125,48 @@
       "kind": "primary"
     },
     {
+      "word": "मुद्रण",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "मुद्रा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मुद्रास्फीति",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "मुनाफा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मुनीम",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "मुफ्त",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "मुर्गा",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मुर्गी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मुसाफिर",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1455,13 +7175,98 @@
       "kind": "primary"
     },
     {
+      "word": "मुहाना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मुहावरा",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "मुहासिब",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मूर्ख",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "मूर्तिकला",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मूर्तिकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मूसल",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "मूसलाधार",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मृण्मूर्ति",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "मृदंग",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मृदा अपरदन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "में",
       "chunkIndex": 1,
       "kind": "primary"
     },
     {
+      "word": "मेंढक",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मेघगर्जन",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "मेज",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मेजबान",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मेड़",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "मेड़बंदी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "मेथी",
+      "chunkIndex": 16,
       "kind": "primary"
     },
     {
@@ -1475,13 +7280,98 @@
       "kind": "primary"
     },
     {
+      "word": "मेहराब",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "मैं",
       "chunkIndex": 1,
       "kind": "primary"
     },
     {
+      "word": "मैदान",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "मैना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मोक्ष",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मोच",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "मोटा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "मोड़",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "मोती",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "मोर्चा",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "मोहभंग",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "मौका",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "मौत",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "मौसम",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "यंत्र",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "यकृत",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "यक्षगान",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "यज्ञोपवीत",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "यमक",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1500,6 +7390,21 @@
       "kind": "primary"
     },
     {
+      "word": "याचिका",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "याचिकाकर्ता",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "यात्रा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "याद करना",
       "chunkIndex": 3,
       "kind": "primary"
@@ -1510,8 +7415,103 @@
       "kind": "primary"
     },
     {
+      "word": "युद्ध बंदी",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "युद्धपोत",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "युद्धविराम",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "युवा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "युवावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "योजना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "रंगमंच",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "रंगमंचीय",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "रंगशाला",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "रंगसाजी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "रंदा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "रंभाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "रकबा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "रगड़ना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "रणभूमि",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "रणभेरी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "रपट पड़ना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "रबी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "रस",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "रसराज",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1520,8 +7520,83 @@
       "kind": "primary"
     },
     {
+      "word": "रस्सी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "रहट",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
       "word": "रहना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "राई",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "राख",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "राग",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "रागिनी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "राजकोष",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "राजदूत",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "राजधानी",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "राजनय",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "राजनयिक",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "राजनयिक छूट",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "राजनयिक मिशन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "राजनयिक शिष्टाचार",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "राजस्व",
+      "chunkIndex": 14,
       "kind": "primary"
     },
     {
@@ -1535,6 +7610,96 @@
       "kind": "primary"
     },
     {
+      "word": "रियाज",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "रिवाज",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "रिश्ता",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "रिसना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "रीढ़",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "रीति",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "रुद्रवीणा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "रूमाल",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "रेंगना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "रेगिस्तान",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "रेत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "रेती",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "रेलगाड़ी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "रेशम",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "रॉकेट",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "रोकड़",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "रोकना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "रोग प्रतिरोधक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "रोटी",
       "chunkIndex": 3,
       "kind": "primary"
@@ -1545,8 +7710,38 @@
       "kind": "primary"
     },
     {
+      "word": "रोपना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "रोमांचक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "रोला",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "रोशनी",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "लंगर",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "लंबा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "लक्षणा",
+      "chunkIndex": 20,
       "kind": "primary"
     },
     {
@@ -1560,6 +7755,21 @@
       "kind": "primary"
     },
     {
+      "word": "लगान",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "लचकना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "लज्जा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "लड़का",
       "chunkIndex": 1,
       "kind": "primary"
@@ -1570,6 +7780,71 @@
       "kind": "primary"
     },
     {
+      "word": "लड़खड़ाना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "लड़ना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "लता",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "लपेटना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "लय",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "ललकारना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "ललचाना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "लवणता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "लहर",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "लहरदार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "लहसुन",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "लाइटहाउस",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "लागत",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "लाना",
       "chunkIndex": 2,
       "kind": "primary"
@@ -1577,6 +7852,16 @@
     {
       "word": "लापरवाह",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "लाभदायक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "लाभांश",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1595,8 +7880,43 @@
       "kind": "primary"
     },
     {
+      "word": "लुढ़कना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "लू",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "लेकिन",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लेखपाल",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "लेखा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "लेखा-जोखा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "लेखापरीक्षक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "लेन-देन",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -1605,8 +7925,23 @@
       "kind": "primary"
     },
     {
+      "word": "लोकोक्ति",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "लोग",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "लोभ",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "लोमड़ी",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -1615,13 +7950,78 @@
       "kind": "primary"
     },
     {
+      "word": "लोहार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "लौंग",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "लौटना",
       "chunkIndex": 4,
       "kind": "primary"
     },
     {
+      "word": "वंशज",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "वकालत",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "वकील",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "वजन",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "वनस्पति",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "वनों की कटाई",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "वन्यजीव संरक्षण",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "वर-वधू",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "वरदान",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "वर्षा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "वसंत",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "वसीयत",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1635,8 +8035,183 @@
       "kind": "primary"
     },
     {
+      "word": "वात्सल्य",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "वाद",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "वाद-विवाद",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "वादक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "वादी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "वाद्ययंत्र",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "वानप्रस्थ",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "वायुमंडल",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "वारंट",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "वारिस",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "वास्तुकला",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "विकलता",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "विकिरण",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
       "word": "विचार",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "विजयी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "वित्तीय घाटा",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "विदाई",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "विदुर",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "विद्युत धारा",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "विद्रोह",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "विधवा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "विधानसभा",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "विधायिका",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "विधेयक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "विनम्र",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "विनम्रता",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "विप्रलंभ",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "विफलता",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "विभाव",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "विभ्रम",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "विमर्श",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "विरोधाभास",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "विलुप्त",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "विवेचना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "विशाल",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "विशालकाय",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1650,8 +8225,118 @@
       "kind": "primary"
     },
     {
+      "word": "विशेषाधिकार",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "विश्वविद्यालय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "विश्वास",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "विश्वासघात",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "विषाद",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "विषादग्रस्त",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "वीजा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "वीटो",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "वीभत्स",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "वीरगति",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "वृक्षारोपण",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "वृद्ध",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "वृद्धावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "वृष्टि",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "वे",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "वेतन",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "वेतनमान",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "वेदना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "वेदिका",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "वेबसाइट",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "वैकल्पिक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "वैज्ञानिक",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "वैराग्य",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -1665,8 +8350,83 @@
       "kind": "primary"
     },
     {
+      "word": "व्यंग्यकार",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "व्यंजन",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "व्यंजना",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "व्यग्रता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "व्याख्या",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "व्यापारी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "व्यूह",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शक्ति संतुलन",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शजरा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "शत्रु",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "शपथ-पत्र",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "शपथपत्र",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "शब्दावली",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शरणार्थी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "शरद",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "शरमाना",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1675,8 +8435,23 @@
       "kind": "primary"
     },
     {
+      "word": "शस्त्रागार",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शहनाई",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
       "word": "शहर",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "शहादत",
+      "chunkIndex": 17,
       "kind": "primary"
     },
     {
@@ -1687,6 +8462,21 @@
     {
       "word": "शांति",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "शांति समझौता",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शांतिदूत",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "शाखा",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -1705,8 +8495,68 @@
       "kind": "primary"
     },
     {
+      "word": "शाल",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शावक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "शाश्वत",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "शासनादेश",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "शिकार",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "शिकारी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
       "word": "शिक्षक",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "शिखर सम्मेलन",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "शिलालेख",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शिल्पकला",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शिल्पकार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "शिल्पी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "शिशिर",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1715,8 +8565,238 @@
       "kind": "primary"
     },
     {
+      "word": "शीत युद्ध",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "शीतल",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "शीतलहर",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "शीर्षक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "शीशा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "शुभचिंतक",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "शेयर बाजार",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "शेरवानी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शैशवावस्था",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "शोकसभा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "शोधपत्र",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शोधार्थी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "शौक",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "श्रोता",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "श्लेष",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "श्लोक",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "संकोच",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "संक्रमण",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "संग",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "संगठन",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "संगणक",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "संगमरमर",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "संगीत",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "संचारी भाव",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "संज्ञान",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "संतूर",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "संदूक",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "संदेश",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "संदेह",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "संधि",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "संन्यास",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "संपादक",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "संपादकीय",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "संप्रभुता",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "संबंध",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
       "word": "संभव",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "संभालना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "संयम",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "संयोग",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "संवाददाता",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "संवारना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "संविधान",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "संवेदनशीलता",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "संसद",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "संस्कार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "संस्कृति",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "संस्था",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1730,8 +8810,33 @@
       "kind": "companion"
     },
     {
+      "word": "सकुचाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
       "word": "सक्रिय",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सखा",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "सगा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सगाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सघन",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1740,8 +8845,23 @@
       "kind": "primary"
     },
     {
+      "word": "सचिवालय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "सच्चा",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सजा",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "सजा-ए-मौत",
+      "chunkIndex": 18,
       "kind": "primary"
     },
     {
@@ -1750,8 +8870,18 @@
       "kind": "primary"
     },
     {
+      "word": "सट्टेबाजी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "सड़क",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सड़ा",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1760,13 +8890,73 @@
       "kind": "primary"
     },
     {
+      "word": "सत्याग्रह",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सदाचारी",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सदाबहार",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "सदी",
       "chunkIndex": 4,
       "kind": "primary"
     },
     {
+      "word": "सद्गुण",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सद्गुरु",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सद्भाव",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सद्भावना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सद्व्यवहार",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सनसनी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "सपना",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सपाट",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सप्तर्षि",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सफर",
+      "chunkIndex": 5,
       "kind": "primary"
     },
     {
@@ -1780,8 +8970,18 @@
       "kind": "primary"
     },
     {
+      "word": "सबूत",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "सब्ज़ी",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सभ्यता",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1795,8 +8995,98 @@
       "kind": "primary"
     },
     {
+      "word": "समझौता",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "समधी",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "समन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
       "word": "समय",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "समस्या",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "समाचार",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "समाधि",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "समारोह",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "समीक्षा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "समीप",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "समुदाय",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "समुद्र",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "समुद्रतट",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "समुद्री खाई",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "समुद्री धारा",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "समुद्री शैवाल",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "समेटना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सम्मेलन",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सरगम",
+      "chunkIndex": 15,
       "kind": "primary"
     },
     {
@@ -1805,8 +9095,38 @@
       "kind": "primary"
     },
     {
+      "word": "सराबोर",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "सराहना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "सरीसृप",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सरोवर",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "सर्दी",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सलाह",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "सलाहकार",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1815,8 +9135,88 @@
       "kind": "primary"
     },
     {
+      "word": "सवैया",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "ससुराल",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
       "word": "सस्ता",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सहना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "सहमति-पत्र",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "सहमना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सहलाना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "सहानुभूति",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "सहिष्णुता",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सहेजना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "सहेली",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "सांचा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सांत्वना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सांस",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "साक्ष्य",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "साख-पत्र",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "साड़ी",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -1827,6 +9227,11 @@
     {
       "word": "साथी",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "साधना",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -1855,8 +9260,33 @@
       "kind": "primary"
     },
     {
+      "word": "सामरिक साझेदारी",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "साम्राज्य",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सारंगी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सारस",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "साल",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "साली",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1865,8 +9295,58 @@
       "kind": "primary"
     },
     {
+      "word": "साहसी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "साहित्य",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "साहूकार",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "सिंचाई",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सिंदूर",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सिंहासन",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सिक्का",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "सिखाना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सिटपिटाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "सितार",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सिद्धांतकार",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -1875,8 +9355,43 @@
       "kind": "primary"
     },
     {
+      "word": "सिमटना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सियार",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "सिर",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सिलना",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "सिलबट्टा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सिसकना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "सिहरन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "सींचना",
+      "chunkIndex": 8,
       "kind": "primary"
     },
     {
@@ -1885,8 +9400,48 @@
       "kind": "primary"
     },
     {
+      "word": "सीढ़ी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "सीधा",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "सीना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "सीमा",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सीमेंट",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सीसा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
       "word": "सुंदर",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सुई",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "सुखाना",
+      "chunkIndex": 12,
       "kind": "primary"
     },
     {
@@ -1895,8 +9450,38 @@
       "kind": "primary"
     },
     {
+      "word": "सुगंधित",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सुधारना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सुनामी",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "सुनार",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सुपरनोवा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
       "word": "सुबह",
       "chunkIndex": 2,
+      "kind": "primary"
+    },
+    {
+      "word": "सुरंग",
+      "chunkIndex": 10,
       "kind": "primary"
     },
     {
@@ -1905,8 +9490,73 @@
       "kind": "primary"
     },
     {
+      "word": "सुराही",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "सुरीला",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "सुलगना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "सुलगाना",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सुलझना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "सुलभ",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "सुस्ताना",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "सुहाग",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "सूंघना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "सूखा",
       "chunkIndex": 4,
+      "kind": "primary"
+    },
+    {
+      "word": "सूचना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
+      "word": "सूजन",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "सूत",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "सूती",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {
@@ -1920,8 +9570,38 @@
       "kind": "primary"
     },
     {
+      "word": "सेंकना",
+      "chunkIndex": 11,
+      "kind": "primary"
+    },
+    {
       "word": "सेना",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "सेनानायक",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "सेनापति",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "सैनिक",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "सैनिक टुकड़ी",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "सॉफ्टवेयर",
+      "chunkIndex": 11,
       "kind": "primary"
     },
     {
@@ -1935,6 +9615,31 @@
       "kind": "primary"
     },
     {
+      "word": "सोरठा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "सौतेला",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सौदा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "सौर ऊर्जा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "सौरमंडल",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
       "word": "स्कूल",
       "chunkIndex": 2,
       "kind": "primary"
@@ -1945,8 +9650,58 @@
       "kind": "primary"
     },
     {
+      "word": "स्तंभ",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "स्तनपायी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "स्तब्ध",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "स्तूप",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
       "word": "स्त्री",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "स्थायी भाव",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "स्वर्ग",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "स्वांग",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "स्वादिष्ट",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "स्वाभिमानी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "हंस",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -1955,8 +9710,88 @@
       "kind": "primary"
     },
     {
+      "word": "हंसिनी",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "हंसिया",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "हकलाना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
+      "word": "हक्का-बक्का",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "हटाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "हठी",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
+      "word": "हड़बड़ाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "हड्डी",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "हताशा",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "हत्या",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "हथकड़ी",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "हथकरघा",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "हथियारबंद",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "हथौड़ा",
+      "chunkIndex": 7,
+      "kind": "primary"
+    },
+    {
+      "word": "हदबंदी",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
       "word": "हम",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "हमाम",
+      "chunkIndex": 19,
       "kind": "primary"
     },
     {
@@ -1975,8 +9810,38 @@
       "kind": "primary"
     },
     {
+      "word": "हरितगृह प्रभाव",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "हर्जाना",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "हर्षोल्लास",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "हलफनामा",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "हलवाहा",
+      "chunkIndex": 13,
+      "kind": "primary"
+    },
+    {
       "word": "हल्का",
       "chunkIndex": 3,
+      "kind": "primary"
+    },
+    {
+      "word": "हल्दी",
+      "chunkIndex": 6,
       "kind": "primary"
     },
     {
@@ -1990,13 +9855,143 @@
       "kind": "primary"
     },
     {
+      "word": "हवाला",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "हवेली",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "हस्ताक्षर",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "हांफना",
+      "chunkIndex": 9,
+      "kind": "primary"
+    },
+    {
       "word": "हाथ",
       "chunkIndex": 2,
       "kind": "primary"
     },
     {
+      "word": "हाथी",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "हानिकारक",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "हारना",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "हिचकिचाना",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "हिचकिचाहट",
+      "chunkIndex": 19,
+      "kind": "primary"
+    },
+    {
+      "word": "हिनहिनाना",
+      "chunkIndex": 17,
+      "kind": "primary"
+    },
+    {
+      "word": "हिमखंड",
+      "chunkIndex": 14,
+      "kind": "primary"
+    },
+    {
+      "word": "हिमपात",
+      "chunkIndex": 20,
+      "kind": "primary"
+    },
+    {
+      "word": "हिमशैल",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "हिमस्खलन",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "हिम्मत",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "हिरण",
+      "chunkIndex": 6,
+      "kind": "primary"
+    },
+    {
+      "word": "हिरासत",
+      "chunkIndex": 12,
+      "kind": "primary"
+    },
+    {
+      "word": "हिलाना",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
       "word": "ही",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "हींग",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "हीनभावना",
+      "chunkIndex": 16,
+      "kind": "primary"
+    },
+    {
+      "word": "हीरा",
+      "chunkIndex": 8,
+      "kind": "primary"
+    },
+    {
+      "word": "हुंडी",
+      "chunkIndex": 18,
+      "kind": "primary"
+    },
+    {
+      "word": "हुनर",
+      "chunkIndex": 5,
+      "kind": "primary"
+    },
+    {
+      "word": "हृदयस्पर्शी",
+      "chunkIndex": 15,
+      "kind": "primary"
+    },
+    {
+      "word": "हेमंत",
+      "chunkIndex": 10,
+      "kind": "primary"
+    },
+    {
+      "word": "हेलमेट",
+      "chunkIndex": 9,
       "kind": "primary"
     },
     {
@@ -2007,6 +10002,11 @@
     {
       "word": "हैं",
       "chunkIndex": 1,
+      "kind": "primary"
+    },
+    {
+      "word": "होठ",
+      "chunkIndex": 7,
       "kind": "primary"
     },
     {

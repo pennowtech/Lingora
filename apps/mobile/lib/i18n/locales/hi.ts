@@ -498,9 +498,12 @@ Home: 'होम',
   'Local Dictionaries installed': 'लोकल डिक्शनरी इंस्टॉल हो गए',
   'Installed {{count}} new chunks.': '{{count}} नए हिस्से इंस्टॉल किए गए।',
   'Could not install local dictionaries': 'लोकल डिक्शनरी इंस्टॉल नहीं हो सके',
-  '{{language}}-English Dictionary': '{{language}}-अंग्रेज़ी डिक्शनरी',
+  '{{language}}-{{nativeLanguage}} Dictionary': '{{language}}-{{nativeLanguage}} डिक्शनरी',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} इंस्टॉल किए गए · {{available}} इंस्टॉल के लिए उपलब्ध',
+  'Coming soon for this language pair': 'इस भाषा जोड़ी के लिए जल्द आ रहा है',
+  "We don't have an offline dictionary for {{native}} → {{target}} yet. We're actively adding new language pairs — check back soon.":
+    'अभी हमारे पास {{native}} → {{target}} के लिए कोई ऑफ़लाइन डिक्शनरी नहीं है। हम लगातार नई भाषा जोड़ियाँ जोड़ रहे हैं - जल्द ही दोबारा देखें।',
   'Install all available': 'सभी उपलब्ध इंस्टॉल करें',
   Chunks: 'हिस्से',
   'Words {{start}}-{{end}}': 'शब्द {{start}}-{{end}}',

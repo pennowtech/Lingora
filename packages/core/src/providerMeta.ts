@@ -47,7 +47,7 @@ export const PROVIDER_META_DATA: Record<GenerationProviderName, ProviderMetaData
   },
   groq: {
     label: 'Groq',
-    models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
+    models: ['openai/gpt-oss-20b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
     usageUrl: 'https://console.groq.com/home',
     description: 'Fast inference BYOK for card generation and translation.',
   },

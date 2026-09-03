@@ -385,7 +385,6 @@ Home: 'Inicio',
     'Todo es opcional. Deja Palabra/Significado sin asignar para notas tipo hueco - se derivan del marcado de huecos del ejemplo y su traducción.',
   None: 'Ninguna',
   'Import into deck': 'Importar al mazo',
-  '+ New deck': '+ Nuevo mazo',
   'If the word already exists': 'Si la palabra ya existe',
   'Applies to every duplicate row you leave checked in the next step.':
     'Se aplica a cada fila duplicada que dejes marcada en el siguiente paso.',
@@ -1310,4 +1309,5 @@ Home: 'Inicio',
   'View study statistics': 'Ver estadísticas de estudio',
   '{{due}} cards due today': '{{due}} tarjetas pendientes hoy',
   '{{total}} total cards in {{decks}} decks': '{{total}} tarjetas en total en {{decks}} mazos',
+  "OpenAI's open-weight model, fast on Groq LPUs": 'Modelo de pesos abiertos de OpenAI, rápido en LPUs de Groq',
 }

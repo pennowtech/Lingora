@@ -499,7 +499,7 @@ export default function DecksScreen(): JSX.Element {
                 accessibilityRole="button"
                 accessibilityLabel={t('Learning Statistics')}
               >
-                <Icon name="BarChart2" size={13} color={colors.primary} />
+                <Icon name="ChartColumn" size={13} color={colors.primary} />
                 <Text style={styles.statsLinkButtonText}>{t('Stats ↗')}</Text>
               </Pressable>
             </View>

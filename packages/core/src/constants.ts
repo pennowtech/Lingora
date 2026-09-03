@@ -25,7 +25,7 @@ export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
   gemini: 'gemini-3.5-flash-lite',
   anthropic: 'claude-haiku-4-5-20251001',
   deepseek: 'deepseek-chat',
-  groq: 'llama-3.3-70b-versatile',
+  groq: 'openai/gpt-oss-20b',
 }
 
 /** Key/value store keys — the only place API keys and preferences are persisted. Shared naming

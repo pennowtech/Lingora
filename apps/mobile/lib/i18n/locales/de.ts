@@ -657,7 +657,6 @@ export const de: Record<Phrase, string> = {
     'Alles ist optional. Lasse Wort/Bedeutung bei Lückentext-Notizen unzugeordnet - sie werden aus der Lückentext-Markierung des Beispiels und dessen Übersetzung abgeleitet.',
   None: 'Keine',
   'Import into deck': 'In Stapel importieren',
-  '+ New deck': '+ Neuer Stapel',
   'If the word already exists': 'Falls das Wort bereits existiert',
   'Applies to every duplicate row you leave checked in the next step.':
     'Gilt für jede markierte Duplikat-Zeile im nächsten Schritt.',
@@ -1614,4 +1613,5 @@ export const de: Record<Phrase, string> = {
   'View study statistics': 'Lernstatistiken anzeigen',
   '{{due}} cards due today': '{{due}} Karten heute fällig',
   '{{total}} total cards in {{decks}} decks': '{{total}} Karten insgesamt in {{decks}} Decks',
+  "OpenAI's open-weight model, fast on Groq LPUs": 'Offenes Modell von OpenAI, schnell auf Groq LPUs',
 }

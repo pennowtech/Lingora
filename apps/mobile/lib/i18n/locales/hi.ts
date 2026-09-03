@@ -1600,4 +1600,5 @@ Home: 'होम',
   'View study statistics': 'अध्ययन आँकड़े देखें',
   '{{due}} cards due today': 'आज {{due}} कार्ड बाकी हैं',
   '{{total}} total cards in {{decks}} decks': '{{decks}} डेक में कुल {{total}} कार्ड',
+  "OpenAI's open-weight model, fast on Groq LPUs": 'OpenAI का ओपन-वेट मॉडल, Groq LPUs पर बहुत तेज़',
 }

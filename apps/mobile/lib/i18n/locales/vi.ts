@@ -1305,4 +1305,5 @@ export const vi: Partial<Record<Phrase, string>> = {
   'View study statistics': 'Xem thống kê học tập',
   '{{due}} cards due today': '{{due}} thẻ cần ôn hôm nay',
   '{{total}} total cards in {{decks}} decks': 'Tổng cộng {{total}} thẻ trong {{decks}} bộ thẻ',
+  "OpenAI's open-weight model, fast on Groq LPUs": 'Mô hình trọng số mở của OpenAI, cực nhanh trên LPU Groq',
 }

@@ -3,7 +3,7 @@
 Welcome to the comprehensive help and feature documentation for **Lemory** — the modern, privacy-focused, AI-accelerated language learning and spaced repetition system.
 
 > [!TIP]
-> 🎬 **Watch the 2-Minute Video Overview**: [Watch on YouTube](https://youtu.be/YEpT1116Xo4?si=nPZly3yb_TFsIBoh) to see the full workflow from instant search to sentence mining and FSRS spaced repetition review.
+> 🎬 **Watch the 2-Minute Video Overview**: [Watch on YouTube](https://youtu.be/ZmxOaj0c7Zc) to see the full workflow from instant search to sentence mining and FSRS spaced repetition review.
 
 ---
 

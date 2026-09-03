@@ -386,7 +386,7 @@ export function getHelpDoc(chapterId: string, preferredLanguage?: string): Parse
  * as a single constant rather than hardcoded separately in the Help Hub hero card, the per-chapter
  * video modal, and the player's own default, so there's exactly one place to update if it ever
  * changes. */
-export const DEFAULT_HELP_VIDEO_ID = 'YEpT1116Xo4'
+export const DEFAULT_HELP_VIDEO_ID = 'ZmxOaj0c7Zc'
 
 /** Whether a string looks like a YouTube link - shared by the markdown link handler (deciding
  * whether to open the in-app player vs. a normal external link) and anywhere else that needs the

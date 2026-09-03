@@ -3,7 +3,7 @@
 Willkommen zur umfassenden Hilfe- und Funktionsdokumentation für **Lemory** – das moderne, datenschutzorientierte, KI-beschleunigte Sprachlern- und räumliche Wiederholungssystem.
 
 > [!TIP]
-> 🎬 **Sehen Sie sich die 2-minütige Videoübersicht an**: [Auf YouTube ansehen](https://youtu.be/YEpT1116Xo4?si=nPZly3yb_TFsIBoh), um den gesamten Arbeitsablauf von der Sofortsuche über das Satz-Mining bis zur FSRS-Überprüfung von räumlichen Wiederholungen zu sehen.
+> 🎬 **Sehen Sie sich die 2-minütige Videoübersicht an**: [Auf YouTube ansehen](https://youtu.be/ZmxOaj0c7Zc), um den gesamten Arbeitsablauf von der Sofortsuche über das Satz-Mining bis zur FSRS-Überprüfung von räumlichen Wiederholungen zu sehen.
 
 ---
 

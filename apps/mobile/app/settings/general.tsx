@@ -6,7 +6,7 @@ import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Card, Chip, ConfirmModal, Dropdown, IconButton, LinkRow } from '../../components/ui'
+import { Card, Chip, ConfirmModal, Dropdown, IconButton } from '../../components/ui'
 import { getCaptureDestination, setCaptureDestination, type CaptureDestination } from '../../lib/captureIntent'
 import {
   APP_LANGUAGES,
@@ -49,12 +49,6 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
   {
-    id: 'audio',
-    title: 'Audio Settings',
-    icon: 'Volume2',
-    paragraphs: ['This opens a separate screen for the voice that reads words out loud, and how fast it speaks.'],
-  },
-  {
     id: 'language',
     title: 'App Language',
     icon: 'Languages',
@@ -77,9 +71,7 @@ const HELP_SECTIONS: HelpSection[] = [
 ]
 
 /** The "General Settings" sub-screen: app-wide interface preferences that aren't specific to
- * learning or AI — Audio Settings (formerly "Pronunciation", listed under Data) and App Language
- * (formerly its own card on the Learning screen; it's an interface preference, not a learning
- * one — a Hindi-UI user can still be learning German). */
+ * learning or AI — Theme, App Language, and Share & Search. */
 export default function GeneralSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
@@ -177,14 +169,6 @@ export default function GeneralSettingsScreen(): JSX.Element {
         />
       </Card>
 
-      <Card>
-        <LinkRow
-          icon="Volume2"
-          label={t('Audio Settings')}
-          detail={t('Voice, rate, pitch')}
-          onPress={() => router.push('/settings/tts')}
-        />
-      </Card>
 
       <Card>
         <Text style={styles.fieldLabel}>{t('App Language')}</Text>

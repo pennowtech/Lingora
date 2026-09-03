@@ -272,13 +272,6 @@ function formatInterval(fromMs: number, toMs: number): string {
   return `${Math.round(days / 30)} mo`
 }
 
-/** "~2 min left" for the remaining cards, from the session's own pace so far. */
-function formatTimeRemaining(remainingCards: number, avgMsPerCard: number): string | null {
-  if (remainingCards <= 0) return null
-  const totalMinutes = Math.round((remainingCards * avgMsPerCard) / 60_000)
-  if (totalMinutes <= 0) return '<1 min left'
-  return `~${totalMinutes} min left`
-}
 
 /**
  * Review session: front → tap to flip → rate (Again/Hard/Good/Easy).
@@ -947,9 +940,6 @@ export default function ReviewSessionScreen(): JSX.Element {
     setAskAiOpen(true)
   }
 
-  const avgMsPerCard = durationsMs.length > 0 ? durationsMs.reduce((a, b) => a + b, 0) / durationsMs.length : 8000
-  const remainingAfterCurrent = Math.max(0, queue.length - index - 1)
-  const timeRemaining = formatTimeRemaining(remainingAfterCurrent, avgMsPerCard)
 
   if (queueQuery.isPending) {
     return (
@@ -1026,31 +1016,7 @@ export default function ReviewSessionScreen(): JSX.Element {
         <View style={styles.progressWrap}>
           <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
         </View>
-        {mixedOnly && !done && view ? (
-          <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>{t('mixed')}</Text>
-          </View>
-        ) : null}
-        {isCloze ? (
-          <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>{t('cloze')}</Text>
-          </View>
-        ) : null}
-        {isReverse ? (
-          <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>{t('reverse')}</Text>
-          </View>
-        ) : null}
-        {isTrueFalse ? (
-          <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>{t('true/false')}</Text>
-          </View>
-        ) : null}
-        {isMcq ? (
-          <View style={styles.modePill}>
-            <Text style={styles.modePillLabel}>{t('multiple choice')}</Text>
-          </View>
-        ) : null}
+
         {/* Previewing one specific word from the deck's card list, not a practice session — a
             tappable pill (not just a mode indicator like isCloze/isReverse above) offering to
             flip to the other view when this word actually has one, instead of leaving cloze
@@ -1069,7 +1035,6 @@ export default function ReviewSessionScreen(): JSX.Element {
           {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
         </Text>
       </View>
-      {timeRemaining && !done ? <Text style={styles.timeRemaining}>{timeRemaining}</Text> : null}
 
       {awaitingFreshQueue ? (
         <View style={styles.doneWrap}>
@@ -1498,12 +1463,6 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.full,
     },
     modePillLabel: { fontSize: type.micro, fontWeight: '700', color: colors.warning },
-    timeRemaining: {
-      fontSize: type.micro,
-      color: colors.textMuted,
-      textAlign: 'center',
-      marginTop: -spacing.xs,
-    },
     card: {
       flex: 1,
       margin: spacing.lg,

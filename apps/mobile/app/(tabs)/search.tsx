@@ -6,18 +6,19 @@ import {
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
+  searchWordGuidesByTranslation,
   setCloze,
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
-import type { LanguageCode, QuestionType } from '@lingora/types'
+import type { LanguageCode, QuestionType, WordGuideEntry } from '@lingora/types'
 
 const log = logger.child({ feature: 'search', component: 'search-screen' })
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
@@ -170,6 +171,10 @@ export default function SearchScreen(): JSX.Element {
   // Which "Add to deck" button opened the picker — decides which persist call the picker's
   // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
   const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
+  // Which reverse-search candidate (see reverseMatches below) the user tapped into — null means
+  // "use wordGuide.data itself", so the modal/add-to-deck flow below can stay generic over both
+  // an exact forward hit and a chosen reverse-search result without duplicating that flow.
+  const [selectedReverseMatch, setSelectedReverseMatch] = useState<WordGuideEntry | null>(null)
   const help = useHelpAccordion('lookup')
   const term = useDebounced(query.trim(), 250)
   const [explainTerm, flushExplainTerm] = useSlowDebounced(query.trim(), 2500)
@@ -215,11 +220,34 @@ export default function SearchScreen(): JSX.Element {
     enabled: term !== '' && !hasExactSearchMatch(term),
   })
 
+  // The reverse direction of the lookup above: the typed word didn't match a target-language
+  // headword exactly, but it might be the *native*-language word instead (e.g. typing "cannon"
+  // while learning German) — search the same installed dictionary's translation glosses/intros
+  // for it. Just as free and offline as `wordGuide`, so it's always attempted once the forward
+  // lookup comes back empty, not gated behind a language-detection network call. Only rendered
+  // when `wordGuide.data` is actually empty (not merely still loading) — see the render below.
+  const reverseMatches = useQuery({
+    queryKey: ['word-guide-reverse', term, targetLanguage],
+    queryFn: () => searchWordGuidesByTranslation(db, term, targetLanguage),
+    enabled: term !== '' && !hasExactSearchMatch(term),
+  })
+
+  // Resets the reverse-search selection whenever the search term changes, so a stale pick from a
+  // previous word can't linger into the next lookup's "Add to deck"/modal flow.
+  useEffect(() => {
+    setSelectedReverseMatch(null)
+  }, [term])
+
+  // What the guide detail modal and its "Add to deck" flow actually act on: either the exact
+  // forward match, or whichever reverse-search candidate the user tapped into.
+  const activeGuideEntry = selectedReverseMatch ?? wordGuide.data ?? null
+
   useFocusEffect(
     useCallback(() => {
       void search.refetch()
       void wordGuide.refetch()
-    }, [search, wordGuide]),
+      void reverseMatches.refetch()
+    }, [search, wordGuide, reverseMatches]),
   )
 
   // A short (~50-word) AI gist of a not-yet-generated word, shown by default in place of the bare
@@ -246,8 +274,8 @@ export default function SearchScreen(): JSX.Element {
 
   const addFromGuide = useMutation({
     mutationFn: async ({ deckId, cloze }: { deckId: string; cloze?: ClozeEditorResult }) => {
-      if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      const result = await persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
+      const result = await persistWordGuideAsCard(db, activeGuideEntry, deckId, nativeLanguage)
       if (cloze) {
         await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
       }
@@ -256,6 +284,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
+      setSelectedReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -353,8 +382,8 @@ export default function SearchScreen(): JSX.Element {
         updatedAt: now,
       })
       if (deckPickerFor === 'guide') {
-        if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-        const result = await persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
+        const result = await persistWordGuideAsCard(db, activeGuideEntry, id, nativeLanguage)
         if (cloze) {
           await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
         }
@@ -370,6 +399,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
+      setSelectedReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -777,13 +807,50 @@ export default function SearchScreen(): JSX.Element {
                       </View>
                     </View>
                   </Card>
+                ) : !wordGuide.isPending && (reverseMatches.data?.length ?? 0) > 0 ? (
+                  // No exact target-language headword, but the query matched one or more installed
+                  // entries by their native-language gloss/description — e.g. typing "cannon" while
+                  // learning German surfaces "Kanone". Shown as a compact row of candidates rather
+                  // than a single card since more than one headword can share a gloss; tapping one
+                  // opens the same detail modal + "Add to deck" flow the exact-match card uses.
+                  <View style={styles.reverseMatchesSection}>
+                    <Text style={styles.reverseMatchesLabel}>{t('Found in your installed dictionary:')}</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.reverseMatchesRow}
+                    >
+                      {reverseMatches.data!.map((match) => (
+                        <Pressable
+                          key={match.entry.headword}
+                          style={styles.reverseMatchChip}
+                          accessibilityRole="button"
+                          onPress={() => {
+                            setSelectedReverseMatch(match.entry)
+                            setGuideModalOpen(true)
+                          }}
+                        >
+                          <Text style={styles.reverseMatchHeadword}>{match.entry.headword}</Text>
+                          <Text style={styles.reverseMatchTranslation} numberOfLines={1}>
+                            {match.entry.translation}
+                          </Text>
+                          {!match.matchedTranslation ? (
+                            <Text style={styles.reverseMatchWeakBadge}>{t('related')}</Text>
+                          ) : null}
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
                 ) : null}
 
                 {/* ── Word guide detail modal ── */}
                 <WordGuideModal
                   visible={guideModalOpen}
-                  guide={wordGuide.data ?? null}
-                  onClose={() => setGuideModalOpen(false)}
+                  guide={activeGuideEntry}
+                  onClose={() => {
+                    setGuideModalOpen(false)
+                    setSelectedReverseMatch(null)
+                  }}
                   footer={
                     <Button label={t('Add to deck')} icon="CirclePlus" onPress={() => setDeckPickerFor('guide')} />
                   }
@@ -928,10 +995,10 @@ export default function SearchScreen(): JSX.Element {
         title={t('Add "{{term}}" to...', { term })}
         targetLanguage={targetLanguage}
         nativeLanguage={nativeLanguage}
-        {...(deckPickerFor === 'guide' && wordGuide.data ? {
-          word: wordGuide.data.headword,
-          ...(wordGuide.data.examples[0]?.sentence && { exampleSentence: wordGuide.data.examples[0].sentence }),
-          ...(wordGuide.data.examples[0]?.translation && { exampleTranslation: wordGuide.data.examples[0].translation }),
+        {...(deckPickerFor === 'guide' && activeGuideEntry ? {
+          word: activeGuideEntry.headword,
+          ...(activeGuideEntry.examples[0]?.sentence && { exampleSentence: activeGuideEntry.examples[0].sentence }),
+          ...(activeGuideEntry.examples[0]?.translation && { exampleTranslation: activeGuideEntry.examples[0].translation }),
         } : {})}
         onSelectDeck={(deck, cloze) => {
           if (deckPickerFor === 'guide') addFromGuide.mutate({ deckId: deck.id, ...(cloze && { cloze }) })
@@ -1095,6 +1162,47 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
+    },
+    reverseMatchesSection: {
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+    },
+    reverseMatchesLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    reverseMatchesRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    reverseMatchChip: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      minWidth: 120,
+      maxWidth: 180,
+      gap: 2,
+    },
+    reverseMatchHeadword: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    reverseMatchTranslation: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+    },
+    reverseMatchWeakBadge: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      marginTop: 2,
     },
     translateCard: {
       marginTop: spacing.md,

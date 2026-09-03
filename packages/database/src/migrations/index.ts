@@ -22,6 +22,7 @@ import { reviewEventQuestionType } from './0021_review_event_question_type'
 import { deckQuestionTypes } from './0022_deck_question_types'
 import { deckLanguagePair } from './0023_deck_language_pair'
 import { mineQueueLanguage } from './0024_mine_queue_language'
+import { wordGuidesFts } from './0025_word_guides_fts'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -54,6 +55,7 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   deckQuestionTypes,
   deckLanguagePair,
   mineQueueLanguage,
+  wordGuidesFts,
 ]
 
 /**

@@ -12,6 +12,7 @@ import {
   installWordGuideChunk,
   persistTranslationAsCard,
   persistWordGuideAsCard,
+  searchWordGuidesByTranslation,
   uninstallWordGuideChunk,
 } from './repositories/word-guides'
 import { NodeSqliteAdapter } from './testing/node-sqlite-adapter'
@@ -36,6 +37,26 @@ const HAUS: Omit<WordGuideEntry, 'language' | 'chunkId'> = {
   intro: 'A building where people live.',
   synonyms: [],
   examples: [{ sentence: 'Das Haus ist groß.', translation: 'The house is big.', type: 'indicative' }],
+}
+
+const KANONE: Omit<WordGuideEntry, 'language' | 'chunkId'> = {
+  headword: 'Kanone',
+  partOfSpeech: 'noun',
+  gender: 'die',
+  translation: 'cannon / gun',
+  intro: "A heavy caliber barrel weapon (cannon). Related to 'Gewehr'.",
+  synonyms: [],
+  examples: [],
+}
+
+const GEWEHR: Omit<WordGuideEntry, 'language' | 'chunkId'> = {
+  headword: 'Gewehr',
+  partOfSpeech: 'noun',
+  gender: 'das',
+  translation: 'rifle / gun',
+  intro: 'A firearm with a long barrel.',
+  synonyms: [],
+  examples: [],
 }
 
 describe('word_guides repository', () => {
@@ -136,6 +157,54 @@ describe('word_guides repository', () => {
     expect(kommen).toMatchObject({ headword: 'kommen', partOfSpeech: 'verb' })
     expect(kommen?.examples).toHaveLength(4)
     expect(kommen?.examples.map((e) => e.type).sort()).toEqual(['indicative', 'indicative', 'konjunktivII', 'passive'])
+  })
+
+  describe('searchWordGuidesByTranslation', () => {
+    beforeEach(async () => {
+      await installWordGuideChunk(db, 1, 'de', [ERFAHREN, HAUS, KANONE, GEWEHR])
+    })
+
+    it('finds every entry whose translation gloss matches the query, flagged as a translation match', async () => {
+      const results = await searchWordGuidesByTranslation(db, 'gun', 'de')
+
+      const headwords = results.map((r) => r.entry.headword).sort()
+      expect(headwords).toEqual(['Gewehr', 'Kanone'])
+      expect(results.every((r) => r.matchedTranslation)).toBe(true)
+    })
+
+    it('ranks a translation match above an intro-only match', async () => {
+      // "cannon" is Kanone's translation gloss, and also appears (parenthetically) in its own
+      // intro — Kanone should rank first either way, with matchedTranslation true.
+      const results = await searchWordGuidesByTranslation(db, 'cannon', 'de')
+      expect(results[0]?.entry.headword).toBe('Kanone')
+      expect(results[0]?.matchedTranslation).toBe(true)
+    })
+
+    it('finds an entry via its intro text alone, flagged as not a translation match', async () => {
+      // "building" only appears in Haus's intro ("A building where people live."), not its
+      // translation gloss ("house") — a real match, but a weaker one.
+      const results = await searchWordGuidesByTranslation(db, 'building', 'de')
+      expect(results).toHaveLength(1)
+      expect(results[0]?.entry.headword).toBe('Haus')
+      expect(results[0]?.matchedTranslation).toBe(false)
+    })
+
+    it('scopes results by language', async () => {
+      expect(await searchWordGuidesByTranslation(db, 'gun', 'en')).toEqual([])
+    })
+
+    it('returns an empty array for an empty query', async () => {
+      expect(await searchWordGuidesByTranslation(db, '   ', 'de')).toEqual([])
+    })
+
+    it('returns an empty array when nothing matches', async () => {
+      expect(await searchWordGuidesByTranslation(db, 'xyzzy', 'de')).toEqual([])
+    })
+
+    it('respects the limit parameter', async () => {
+      const results = await searchWordGuidesByTranslation(db, 'gun', 'de', 1)
+      expect(results).toHaveLength(1)
+    })
   })
 
   describe('persistWordGuideAsCard', () => {

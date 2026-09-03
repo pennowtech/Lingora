@@ -11,6 +11,7 @@ import type {
 } from '@lingora/types'
 import { guessPartOfSpeechFromCasing } from '@lingora/core'
 import type { DatabaseAdapter } from '../adapter'
+import { buildFTSExactQuery } from '../fts'
 import { createCluster, createMeaning } from './clusters'
 import { createExample } from './examples'
 import { createInflections, createLemma, getLemmaByForm } from './lemmas'
@@ -102,6 +103,56 @@ export async function getRandomWordGuide(
     [language, ...excludeHeadwords],
   )
   return row ? toEntry(row) : null
+}
+
+/** One reverse-search result — an installed entry whose `translation`/`intro` matched a
+ * native-language query, plus whether the match came from the curated gloss (high confidence)
+ * or only the free-text description (lower confidence — see `searchWordGuidesByTranslation`). */
+export interface WordGuideTranslationMatch {
+  entry: WordGuideEntry
+  matchedTranslation: boolean
+}
+
+/**
+ * Reverse lookup: a native-language word or phrase (e.g. "cannon") -> installed
+ * target-language entries whose `translation` or `intro` mention it (e.g. "Kanone"). The
+ * counterpart to `getWordGuide`'s forward exact-headword lookup — this one is fuzzy and can
+ * return several candidates, since more than one headword can share a gloss (multiple German
+ * words can all gloss to "big"), and a plain substring of the query isn't a guarantee of being
+ * the *actual* meaning (see `WORD_GUIDES_FTS_TABLE`'s doc comment in fts.ts on `intro` being a
+ * weaker signal than `translation`). Ranked via `bm25()` with `translation` weighted far above
+ * `intro`, so exact-gloss matches always sort first; `matchedTranslation` on each result lets
+ * the UI visually distinguish "this word means X" from "X is merely mentioned in this entry's
+ * description" instead of presenting both with equal confidence.
+ */
+export async function searchWordGuidesByTranslation(
+  db: DatabaseAdapter,
+  query: string,
+  language: LanguageCode,
+  limit = 8,
+): Promise<WordGuideTranslationMatch[]> {
+  const ftsQuery = buildFTSExactQuery(query)
+  if (!ftsQuery) return []
+
+  const rows = await db.query<WordGuideRow>(
+    `SELECT wg.headword, wg.language, wg.chunk_id AS chunkId, wg.part_of_speech AS partOfSpeech,
+            wg.gender, wg.translation, wg.usage_note AS usage, wg.intro, wg.synonyms, wg.examples
+     FROM fts_word_guides
+     JOIN word_guides wg ON wg.rowid = fts_word_guides.rowid
+     WHERE fts_word_guides MATCH ? AND wg.language = ?
+     ORDER BY bm25(fts_word_guides, 10.0, 1.0)
+     LIMIT ?`,
+    [ftsQuery, language, limit],
+  )
+
+  const normalizedQuery = query.trim().toLowerCase()
+  return rows.map((row) => ({
+    entry: toEntry(row),
+    matchedTranslation: row.translation
+      .toLowerCase()
+      .split(/[/,]/)
+      .some((gloss) => gloss.trim() === normalizedQuery),
+  }))
 }
 
 /**

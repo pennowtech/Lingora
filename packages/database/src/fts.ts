@@ -15,8 +15,10 @@
  * words (lemmas), meanings, examples, phrases, synonyms.
  */
 
-/** One FTS index + its three sync triggers. */
-function ftsTableWithTriggers(options: {
+/** One FTS index + its three sync triggers. Exported so later, standalone migrations (that must
+ * not touch the already-shipped `FTS_TABLES` set below) can reuse the same idiom — see
+ * `WORD_GUIDES_FTS_SETUP_SQL`. */
+export function ftsTableWithTriggers(options: {
   ftsTable: string
   contentTable: string
   columns: string[]
@@ -76,6 +78,39 @@ DROP TRIGGER IF EXISTS ${t.contentTable}_fts_update;
 DROP TABLE IF EXISTS ${t.ftsTable};
 `,
 ).join('\n')
+
+/**
+ * `word_guides` FTS index — added later (migration 0025), so it stays out of `FTS_TABLES`/
+ * `FTS5_SETUP_SQL` above: those are baked into migration 0002, which already shipped, and
+ * rolling that migration back must not try to drop a table 0002 never created.
+ *
+ * Indexes `translation` (a short, curated gloss — e.g. "cannon / gun") and `intro` (a longer
+ * free-text description that also mentions the headword itself and cross-references other
+ * headwords — e.g. "A heavy caliber barrel weapon (cannon). Related to 'Gewehr' ..."). Both
+ * are needed for reverse (native-language -> headword) search to feel complete, but they are
+ * not equally reliable signals: a `translation` hit means "this word IS the meaning", an
+ * `intro` hit only means "this word appears in the description" — see
+ * `searchWordGuidesByTranslation`'s `bm25()` column weighting, which ranks a `translation`
+ * match far above an `intro`-only match rather than treating them as equivalent.
+ */
+export const WORD_GUIDES_FTS_TABLE = {
+  ftsTable: 'fts_word_guides',
+  contentTable: 'word_guides',
+  columns: ['translation', 'intro'],
+} as const
+
+export const WORD_GUIDES_FTS_SETUP_SQL: string = ftsTableWithTriggers({
+  ftsTable: WORD_GUIDES_FTS_TABLE.ftsTable,
+  contentTable: WORD_GUIDES_FTS_TABLE.contentTable,
+  columns: [...WORD_GUIDES_FTS_TABLE.columns],
+})
+
+export const WORD_GUIDES_FTS_TEARDOWN_SQL = `
+DROP TRIGGER IF EXISTS ${WORD_GUIDES_FTS_TABLE.contentTable}_fts_insert;
+DROP TRIGGER IF EXISTS ${WORD_GUIDES_FTS_TABLE.contentTable}_fts_delete;
+DROP TRIGGER IF EXISTS ${WORD_GUIDES_FTS_TABLE.contentTable}_fts_update;
+DROP TABLE IF EXISTS ${WORD_GUIDES_FTS_TABLE.ftsTable};
+`
 
 /**
  * Build a safe FTS5 query string from user input. This function escapes special characters and handles multi-word queries.

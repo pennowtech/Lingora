@@ -501,7 +501,7 @@ Home: 'Accueil',
   'Local Dictionaries installed': 'Dictionnaires locaux installés',
   'Installed {{count}} new chunks.': '{{count}} nouveaux segments installés.',
   'Could not install local dictionaries': "Impossible d'installer les dictionnaires locaux",
-  '{{language}}-English Dictionary': 'Dictionnaire {{language}}-anglais',
+  '{{language}}-{{nativeLanguage}} Dictionary': 'Dictionnaire {{language}}-{{nativeLanguage}}',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} installés · {{available}} disponibles à installer',
   'Install all available': 'Installer tout ce qui est disponible',

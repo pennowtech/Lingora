@@ -499,7 +499,7 @@ Home: 'Inicio',
   'Local Dictionaries installed': 'Diccionarios locales instalados',
   'Installed {{count}} new chunks.': '{{count}} fragmentos nuevos instalados.',
   'Could not install local dictionaries': 'No se pudieron instalar los diccionarios locales',
-  '{{language}}-English Dictionary': 'Diccionario {{language}}-inglés',
+  '{{language}}-{{nativeLanguage}} Dictionary': 'Diccionario {{language}}-{{nativeLanguage}}',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} instalados · {{available}} disponibles para instalar',
   'Install all available': 'Instalar todo lo disponible',

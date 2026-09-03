@@ -766,9 +766,12 @@ export const de: Record<Phrase, string> = {
   'Local Dictionaries installed': 'Lokale Wörterbücher installiert',
   'Installed {{count}} new chunks.': '{{count}} neue Abschnitte installiert.',
   'Could not install local dictionaries': 'Lokale Wörterbücher konnten nicht installiert werden',
-  '{{language}}-English Dictionary': '{{language}}-Englisch-Wörterbuch',
+  '{{language}}-{{nativeLanguage}} Dictionary': '{{language}}-{{nativeLanguage}}-Wörterbuch',
   '{{installed}} installed · {{available}} available to install':
     '{{installed}} installiert · {{available}} verfügbar zum Installieren',
+  'Coming soon for this language pair': 'Bald verfügbar für dieses Sprachpaar',
+  "We don't have an offline dictionary for {{native}} → {{target}} yet. We're actively adding new language pairs — check back soon.":
+    'Für {{native}} → {{target}} haben wir noch kein Offline-Wörterbuch. Wir fügen laufend neue Sprachpaare hinzu — schau bald wieder vorbei.',
   'Install all available': 'Alle verfügbaren installieren',
   Chunks: 'Abschnitte',
   'Words {{start}}-{{end}}': 'Wörter {{start}}-{{end}}',

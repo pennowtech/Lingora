@@ -55,6 +55,7 @@ function loadEnv(envPath) {
 
 // Try loading env files
 loadEnv(path.join(__dirname, '..', '..', '.env'))
+loadEnv(path.join(__dirname, '..', '..', 'packages', 'ai', '.env'))
 loadEnv(path.join(__dirname, '..', '..', 'packages', 'ai', '.env.local'))
 
 // Parse Command Line Arguments
@@ -409,6 +410,9 @@ async function run() {
     chunkEntry.wordCount = primaryWords.length
 
     // Append primary words to manifest doneWords
+    if (!Array.isArray(manifest.doneWords)) {
+      manifest.doneWords = []
+    }
     for (const pw of primaryWords) {
       if (!manifest.doneWords.includes(pw.word)) {
         manifest.doneWords.push(pw.word)

@@ -1,0 +1,4231 @@
+{
+  "chunkIndex": 17,
+  "language": "de",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.5-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-08-14",
+  "note": "Intermediate format — not yet a .lin file. WP3 converts this into a BackupPayload for import via importLinDeck. Content is AI-generated and has not been reviewed by a fluent German speaker yet — treat as a first draft. Each entry has 4 examples: two plain (indicative), one Konjunktiv II, one passive voice. All nouns are annotated with their grammatical gender (masculine/feminine/neuter). Common counterparts, opposites, and gender pairs in this same chunk (sterbend, hundert/Hunderter, deren/wessen/Differenz/Unterschied, Ebene/Hobel, dauert/enthält, singend/singen, essend, Nord/Norden/nördlich, Baum/Gabe, Lastauto/Laster/Lastkraftwagen, Baissier/Bär/Börsenspekulant, Baugruppe/Brett/Gremium, aufbereiten/Bier/festgeklebt/festkleben, Magie/magisch/Zauber, Rückendeckung/Stütze, beherrscht/beherrschen/gesetze/herrscht/herrschen, grunzt, Gesellschafter/Partner/Teilhaber, erreichen/Reichweite, Wind, Oberst, sofort/sogleich/unmittelbar, Sekundanten/tausend/erteilt, Erfahrung/Erlebnis/Routine, Hochrufe/Jubel/prost, Opfer/Schlachtopfer/darauf, Computer/Rechner/Planet, verheißene/versprach/versprochen, Autobus/Bus/Sammelleitung, dreckig/Nachforschung/Suche, bleibend/weilend/weilen, phantasiert/phantasieren/träumt, Festnahme/Haft, haltend/plötzlich/plötzliche/unversehens, gewöhnlich/gewöhnliche/üblicherweise, Mengen/Schuhe/Absprung/Sprung/loswerden, Klopfen, schlechteste/schlimmste, Fluss/Tante, lächelnd, geduldig, Patient, witzelnd) were cross-referenced in their intros. Total entries this chunk: 106 (100 primary + 6 companions). Note: none skipped.",
+  "entries": [
+    {
+      "headword": "sterbend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "dying / fading / moribund",
+      "intro": "Present participle of the verb 'sterben' (to die) used as adjective meaning dying, fading, or moribund. Related to 'hundert' (#1611) and 'Hunderter' (#1612).",
+      "usage": "Regular adjective (der sterbende Schwan - the dying swan) or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "moribund",
+          "gloss": "moribund"
+        },
+        {
+          "word": "schwindend",
+          "gloss": "fading"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er sah den sterbenden Mann im Bett.",
+          "translation": "He saw the dying man in bed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die sterbende Glut des Feuers spendete kaum noch Wärme.",
+          "translation": "The dying embers of the fire hardly gave any warmth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das sterbende Animal weniger litte, wäre er beruhigt.",
+          "translation": "If the dying animal suffered less, he would be relieved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das sterbende Licht wird von der Kamera aufgenommen.",
+          "translation": "The dying light is captured by the camera.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "hundert",
+      "partOfSpeech": "numeral / noun / adjective",
+      "gender": "neuter",
+      "translation": "hundred / one hundred",
+      "intro": "The cardinal number hundred, or used as neuter noun meaning a hundred. Related to 'sterbend' (#1610) and 'Hunderter' (#1612).",
+      "usage": "Invariable cardinal number, or as noun: das Hundert.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Das Buch hat genau hundert Seiten.",
+          "translation": "The book has exactly one hundred pages.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Hundert Menschen protestierten auf der Straße.",
+          "translation": "One hundred people protested on the street.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich hundert Jahre alt wäre, feierte ich ein großes Fest.",
+          "translation": "If I were one hundred years old, I would celebrate a big party.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Zahl wird mit hundert multipliziert.",
+          "translation": "The number is multiplied by one hundred.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Hunderter",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "hundred-euro note / hundred-dollar bill / the number hundred / the digit in the hundreds place",
+      "intro": "A banknote with the value of one hundred (euro/dollar), the digit in the hundreds place, or the group of numbers in the hundreds. Related to 'sterbend' (#1610) and 'hundert' (#1611).",
+      "usage": "der Hunderter, des Hunderters, die Hunderter.",
+      "synonyms": [
+        {
+          "word": "Hundertzettels",
+          "gloss": "hundred bill (colloquial)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er wechselt den Hunderter an der Kasse.",
+          "translation": "He changes the hundred-euro note at the register.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Zahl hat eine Fünf an der Stelle der Hunderter. (Hundreds place digit)",
+          "translation": "The number has a five in the hundreds place.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich einen Hunderter hätte, kaufte ich das Kleid.",
+          "translation": "If I had a hundred-euro note, I would buy the dress.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Hunderter wird vom Bankautomaten ausgegeben.",
+          "translation": "The hundred-euro note is dispensed by the ATM.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "deren",
+      "partOfSpeech": "pronoun / determiner",
+      "translation": "whose / of which / their / her",
+      "intro": "Genitive form of the relative/demonstrative pronoun referring to feminine singular or plural nouns. Related to 'wessen' (#1614).",
+      "usage": "Invariable genitive relative pronoun (die Frau, deren Auto... - the woman whose car...) or demonstrative.",
+      "synonyms": [
+        {
+          "word": "ihre",
+          "gloss": "her / their (as determiner)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das ist die Frau, deren Hund im Park läuft.",
+          "translation": "That is the woman whose dog runs in the park.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir besuchten die Häuser, deren Dächer rot sind.",
+          "translation": "We visited the houses whose roofs are red.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir das Land fänden, deren Gesetze milder wären, zögen wir dorthin.",
+          "translation": "If we found the country whose laws were milder, we would move there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Gebäude, deren Türen verschlossen sind, werden vom Wachmann kontrolliert.",
+          "translation": "The buildings whose doors are locked are checked by the guard.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "wessen",
+      "partOfSpeech": "pronoun",
+      "translation": "whose",
+      "intro": "Interrogative pronoun in the genitive case used to ask about ownership or association. Related to 'deren' (#1613) and 'Differenz' (#1615).",
+      "usage": "Invariable interrogative pronoun. Governs genitive.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Wessen Buch liegt auf dem Tisch?",
+          "translation": "Whose book is lying on the table?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wessen Idee war das eigentlich?",
+          "translation": "Whose idea was that actually?",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wessen Schuld es auch wäre, wir müssten bezahlen.",
+          "translation": "Whose fault soever it were, we would have to pay.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Wessen Auto wird dort abgeschleppt?",
+          "translation": "Whose car is being towed there?",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Differenz",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "difference / discrepancy / mathematical difference",
+      "intro": "A discrepancy, disagreement, or mathematical difference between numbers. Related to 'Unterschied' (#1616), 'deren' (#1613), and 'wessen' (#1614).",
+      "usage": "die Differenz, die Differenzen. 'Kursdifferenz' (exchange rate difference). 'Differenzen haben' (to have differences/disagreements).",
+      "synonyms": [
+        {
+          "word": "Unterschied",
+          "gloss": "difference"
+        },
+        {
+          "word": "Diskrepanz",
+          "gloss": "discrepancy"
+        },
+        {
+          "word": "Abweichung",
+          "gloss": "deviation / difference"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Differenz zwischen den Beträgen ist gering.",
+          "translation": "The difference between the amounts is small.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie haben ihre persönlichen Differenzen beigelegt.",
+          "translation": "They settled their personal differences.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Differenz größer wäre, reklamierte ich.",
+          "translation": "If the discrepancy were larger, I would complain.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Differenz wird vom Buchhalter berechnet.",
+          "translation": "The difference is calculated by the accountant.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Unterschied",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "difference / distinction / contrast / variety",
+      "intro": "A general difference, distinction, or contrast. Related to verb 'unterscheiden'. Related to 'Differenz' (#1615) and 'Ebene' (#1617).",
+      "usage": "der Unterschied, des Unterschieds, die Unterschiede. 'Im Unterschied zu' (in contrast to). 'Einen Unterschied machen' (to make a difference).",
+      "synonyms": [
+        {
+          "word": "Differenz",
+          "gloss": "difference"
+        },
+        {
+          "word": "Kontrast",
+          "gloss": "contrast"
+        },
+        {
+          "word": "Abweichung",
+          "gloss": "deviation"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Es gibt einen großen Unterschied zwischen Tag und Nacht.",
+          "translation": "There is a big difference between day and night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das macht für mich keinen Unterschied.",
+          "translation": "That makes no difference to me.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Unterschied deutlicher wäre, sähe ich ihn sofort.",
+          "translation": "If the difference were clearer, I would see it immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der feine Unterschied wird vom Experten erklärt.",
+          "translation": "The fine distinction is explained by the expert.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Ebene",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "plain / level / plane (geometry) / layer / flatland",
+      "intro": "A flat plain, abstract level/plane, organizational layer, or geometrical plane. Related to adjective 'eben'. Related to 'Hobel' (#1618) and 'Unterschied' (#1616).",
+      "usage": "die Ebene, die Ebenen. 'Führungsebene' (management level). 'Bildebene' (image plane).",
+      "synonyms": [
+        {
+          "word": "Flachland",
+          "gloss": "flatland"
+        },
+        {
+          "word": "Niveau",
+          "gloss": "level (neuter)"
+        },
+        {
+          "word": "Stufe",
+          "gloss": "step / level"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die weite Ebene erstreckt sich bis zum Horizont.",
+          "translation": "The wide plain stretches to the horizon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir müssen das Problem auf höherer Ebene besprechen.",
+          "translation": "We must discuss the problem at a higher level.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Ebene flacher wäre, bauten wir dort ein Haus.",
+          "translation": "If the plain were flatter, we would build a house there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die geomtrische Ebene wird im Koordinatensystem dargestellt.",
+          "translation": "The geometric plane is represented in the coordinate system.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Hobel",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "plane (carpentry tool) / slicer / scraper",
+      "intro": "A carpentry tool used to smooth wood, or a kitchen slicer/scraper. Related to verb 'hobeln'. Related to 'Ebene' (#1617) and 'dauert' (#1619).",
+      "usage": "der Hobel, des Hobels, die Hobel (plural identical). 'Käsehobel' (cheese slicer). 'Fensterhobel' (window plane).",
+      "synonyms": [
+        {
+          "word": "Holzhobel",
+          "gloss": "wood plane"
+        },
+        {
+          "word": "Reibe",
+          "gloss": "grater / slicer (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Tischler glättet das Holz mit einem Hobel.",
+          "translation": "The carpenter smoothes the wood with a plane.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er reinigt den Hobel nach der Arbeit.",
+          "translation": "He cleans the plane after work.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Hobel schärfer wäre, ginge die Arbeit schneller.",
+          "translation": "If the plane were sharper, the work would go faster.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Hobel wird in der Werkzeugkiste aufbewahrt.",
+          "translation": "The plane is kept in the toolbox.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dauert",
+      "partOfSpeech": "verb",
+      "translation": "lasts / takes (time) / endures",
+      "intro": "Present 3rd person singular of the verb 'dauern' (to last / take time). Related to 'enthält' (#1620) and 'Hobel' (#1618).",
+      "usage": "Weak regular verb: dauern, dauerte, hat gedauert. Transitive or intransitive. E.g. 'Es dauert lang' (it takes long).",
+      "synonyms": [
+        {
+          "word": "währt",
+          "gloss": "lasts / endures"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Film dauert zwei Stunden.",
+          "translation": "The movie lasts two hours.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Es dauert eine Weile, bis das Essen fertig ist.",
+          "translation": "It takes a while until the food is ready.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Meeting länger dauerte, verpasste ich den Zug.",
+          "translation": "If the meeting took longer, I would miss the train.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Arbeitszeit wird genau gemessen, während das Projekt dauert.",
+          "translation": "The working time is measured exactly while the project lasts.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "enthält",
+      "partOfSpeech": "verb",
+      "translation": "contains / includes / holds",
+      "intro": "Present 3rd person singular of the strong verb 'enthalten' (to contain / include, or reflexively abstain 'sich enthalten'). Related to 'singend' (#1621), 'essend' (#1622), and 'dauert' (#1619).",
+      "usage": "Strong verb: enthalten, enthielt, hat enthalten. present: er enthält. Transitive or reflexive.",
+      "synonyms": [
+        {
+          "word": "beinhaltet",
+          "gloss": "includes / contains"
+        },
+        {
+          "word": "umfasst",
+          "gloss": "encompasses"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Dieses Buch enthält viele nützliche Tipps.",
+          "translation": "This book contains many useful tips.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er enthält sich der Stimme bei der Wahl. (Reflexive: abstains)",
+          "translation": "He abstains from voting in the election.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Paket Geschenke enthielte, freute ich mich.",
+          "translation": "If the package contained presents, I would be pleased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Milch wird von der Flasche enthalten. (Uncommon passive - usually 'befindet sich in')",
+          "translation": "The milk is contained by the bottle.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "singend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "singing",
+      "intro": "Present participle of the verb 'singen' (to sing - Chunk 17 companion) used as adjective meaning singing. Related to 'essend' (#1622).",
+      "usage": "Regular adjective (die singende Klasse) or participle adverbial.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Wir sahen die singenden Kinder im Chor.",
+          "translation": "We saw the singing children in the choir.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er ging singend durch die Straßen.",
+          "translation": "He walked singing through the streets.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Vogel singender klänge, freute ich mich.",
+          "translation": "If the bird sounded more singing-like (melodious), I would be pleased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das singende Paar wird auf der Bühne beleuchtet.",
+          "translation": "The singing couple is illuminated on the stage.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "essend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "eating",
+      "intro": "Present participle of the strong verb 'essen' (to eat) used as adjective meaning eating. Related to 'singend' (#1621), 'Nord' (#1623), and 'Norden' (#1624).",
+      "usage": "Regular adjective or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "speisend",
+          "gloss": "dining / eating (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ich sah die Suppe essenden Gäste im Restaurant.",
+          "translation": "I saw the guests eating soup in the restaurant.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er verbrachte den Nachmittag, Äpfel essend.",
+          "translation": "He spent the afternoon eating apples.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn er essender spräche, verstünde man ihn schlechter.",
+          "translation": "If he spoke while eating, one would understand him worse.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das essende Kind wird von der Mutter beobachtet.",
+          "translation": "The eating child is watched by the mother.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Nord",
+      "partOfSpeech": "noun / adjective",
+      "gender": "masculine",
+      "translation": "north / northern (adjective)",
+      "intro": "The cardinal direction north, or used as prefix/invariable adjective. Related to 'Norden' (#1624) and 'nördlich' (#1625).",
+      "usage": "der Nord (usually as prefix 'Nordwind' - north wind, or 'Nordpol' - South Pole).",
+      "synonyms": [
+        {
+          "word": "Norden",
+          "gloss": "north"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Wind weht aus Nord.",
+          "translation": "The wind blows from the south.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Expedition reist nach Nord.",
+          "translation": "The expedition travels north.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Reise nach Nord verliefe, frörer wir.",
+          "translation": "If the journey went north, we would freeze.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Nordpol wird auf dem Globus markiert.",
+          "translation": "The North Pole is marked on the globe.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Norden",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "north / northern region",
+      "intro": "The geographic north direction or northern region. Related to 'Nord' (#1623) and 'nördlich' (#1625).",
+      "usage": "der Norden, des Nordens. Plural is not used. 'Im Norden' (in the north).",
+      "synonyms": [
+        {
+          "word": "Nord",
+          "gloss": "north"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Hamburg liegt im Norden Deutschlands.",
+          "translation": "Hamburg is located in the north of Germany.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir fahren im Urlaub in den Norden.",
+          "translation": "We are traveling north for our vacation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Norden wärmer wäre, zöge ich dorthin.",
+          "translation": "If the north were warmer, I would move there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Norden wird von Bergen geprägt.",
+          "translation": "The north is shaped by mountains.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "nördlich",
+      "partOfSpeech": "adjective / adverb / preposition",
+      "translation": "northern / northerly / north of (preposition)",
+      "intro": "Describes locations in the north, northerly directions, or as preposition meaning 'north of' (governs genitive). Related to 'Nord' (#1623) and 'Norden' (#1624).",
+      "usage": "Regular adjective (die nördliche Hemisphäre). Preposition: nördlich der Elbe (north of the Elbe).",
+      "synonyms": [
+        {
+          "word": "nordwärts",
+          "gloss": "northward"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das ist die nördlichste Stadt des Landes.",
+          "translation": "That is the northernmost city of the country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir wohnen nördlich von Berlin. (Adverbial prepositional)",
+          "translation": "We live north of Berlin.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn the Standort nördlicher läge, gäbe es mehr Schnee.",
+          "translation": "If the location lay further north, there would be more snow.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Grenze wird nördlich des Flusses gezogen. (Genitive preposition)",
+          "translation": "The border is drawn north of the river.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Baum",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "tree / boom (sailing) / bar (wood)",
+      "intro": "A botanical tree, sailing boom, or wooden bar/beam. Related to 'Gabe' (#1627).",
+      "usage": "der Baum, des Baum(e)s, die Bäume (plural with Umlaut). 'Nadelbaum' (conifer).",
+      "synonyms": [
+        {
+          "word": "Gehölz",
+          "gloss": "copse / wood (neuter)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der hohe Baum steht mitten im Garten.",
+          "translation": "The tall tree stands in the middle of the garden.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Äpfel hängen am Baum.",
+          "translation": "The apples hang on the tree.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Baum älter wäre, trüge er mehr Früchte.",
+          "translation": "If the tree were older, it would bear more fruit.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Baum wird vom Holzfäller gefällt.",
+          "translation": "The tree is felled by the lumberjack.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Gabe",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "gift / present / talent / donation / dose (medicine)",
+      "intro": "A physical gift/donation, spiritual talent/gift, or medical dose. Related to verb 'geben'. Related to 'Baum' (#1626) and 'Lastauto' (#1628).",
+      "usage": "die Gabe, die Gaben. 'Begabung' (talent).",
+      "synonyms": [
+        {
+          "word": "Geschenk",
+          "gloss": "present / gift (neuter)"
+        },
+        {
+          "word": "Talent",
+          "gloss": "talent (neuter)"
+        },
+        {
+          "word": "Spende",
+          "gloss": "donation"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie besitzt eine musikalische Gabe.",
+          "translation": "She possesses a musical gift (talent).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir dankten ihm für seine großzügige Gabe.",
+          "translation": "We thanked him for his generous donation (gift).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das eine göttliche Gabe wäre, nützte er sie besser.",
+          "translation": "If that were a divine gift, he would use it better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Medizin wird in einer täglichen Gabe verabreicht. (Dose)",
+          "translation": "The medicine is administered in a daily dose.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Lastauto",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "lorry / truck / transport vehicle",
+      "intro": "A transport truck or lorry. Compound of 'Last' (load/burden) and 'Auto' (car - Chunk 1). Related to 'Laster' (#1629) and 'Lastkraftwagen' (#1630).",
+      "usage": "das Lastauto, des Lastautos, die Lastautos.",
+      "synonyms": [
+        {
+          "word": "Lkw",
+          "gloss": "truck (Lkw is masculine)"
+        },
+        {
+          "word": "Lastkraftwagen",
+          "gloss": "truck"
+        },
+        {
+          "word": "Laster",
+          "gloss": "truck (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Lastauto transportiert Kisten.",
+          "translation": "The truck (Lastauto) transports crates.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Fahrer parkt das Lastauto auf dem Hof.",
+          "translation": "The driver parks the truck in the yard.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Lastauto größer wäre, passte der Schrank hinein.",
+          "translation": "If the truck were larger, the wardrobe would fit in.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Lastauto wird mit Steinen beladen.",
+          "translation": "The truck is loaded with stones.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Laster",
+      "partOfSpeech": "noun",
+      "gender": "masculine / neuter",
+      "translation": "truck (masculine) / vice / bad habit (neuter)",
+      "intro": "A colloquial term for a truck (masculine 'der Laster'), or a vice/bad habit (neuter 'das Laster'). Related to 'Lastauto' (#1628) and 'Lastkraftwagen' (#1630).",
+      "usage": "der Laster (truck), des Lasters, die Laster. das Laster (vice), des Lasters, die Laster. 'Rauchen ist ein teures Laster' (smoking is an expensive vice).",
+      "synonyms": [
+        {
+          "word": "Lkw",
+          "gloss": "truck"
+        },
+        {
+          "word": "Untugend",
+          "gloss": "vice / bad habit (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ein roter Laster versperrt die Straße. (Truck)",
+          "translation": "A red truck is blocking the street.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Spielen ist sein großes Laster. (Vice)",
+          "translation": "Gambling is his big vice.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Laster schneller führe, holten wir ihn ein. (Truck m)",
+          "translation": "If the truck drove faster, we would catch up with it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Laster wird von den Moralisten verurteilt. (Vice n)",
+          "translation": "The vice is condemned by the moralists.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Lastkraftwagen",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "truck / lorry / heavy goods vehicle",
+      "intro": "The official German term for a truck (abbreviated as Lkw). Compound of 'Last' (load), 'Kraft' (power/force - Chunk 6), and 'Wagen' (car/wagon - Chunk 4). Related to 'Lastauto' (#1628) and 'Laster' (#1629).",
+      "usage": "der Lastkraftwagen, des Lastkraftwagens, die Lastkraftwagen (plural identical).",
+      "synonyms": [
+        {
+          "word": "Lkw",
+          "gloss": "truck"
+        },
+        {
+          "word": "Lastauto",
+          "gloss": "truck"
+        },
+        {
+          "word": "Laster",
+          "gloss": "truck"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Lastkraftwagen liefert die Möbel.",
+          "translation": "The truck delivers the furniture.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ein schwerer Lastkraftwagen braucht viel Diesel.",
+          "translation": "A heavy truck needs a lot of diesel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Lastkraftwagen leerer wäre, verbrauchte er weniger Kraftstoff.",
+          "translation": "If the truck were emptier, it would consume less fuel.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Lastkraftwagen wird an der Grenze kontrolliert.",
+          "translation": "The truck is checked at the border.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Baissier",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bear / short seller / speculator on falling prices",
+      "intro": "A financial speculator on falling stock market prices (a bear or short seller). Loanword from French. Related to 'Bär' (#1635) and 'Börsenspekulant' (#1636).",
+      "usage": "der Baissier, des Baissiers, die Baissiers.",
+      "synonyms": [
+        {
+          "word": "Bär",
+          "gloss": "bear (finance)"
+        },
+        {
+          "word": "Leerverkäufer",
+          "gloss": "short seller"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Baissier setzt auf fallende Aktienkurse.",
+          "translation": "The bear (Baissier) bets on falling stock prices.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Viele Baissiers verloren Geld während des Booms.",
+          "translation": "Many short sellers lost money during the boom.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Baissier recht behielte, fiele der Markt morgen.",
+          "translation": "If the short seller were right, the market would fall tomorrow.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Short-Position wird vom Baissier eröffnet.",
+          "translation": "The short position is opened by the bear speculator.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Bär",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bear (animal / stock market)",
+      "intro": "A large mammal (bear), or a stock market bear (speculator on falling prices). Related to 'Baissier' (#1634) and 'Börsenspekulant' (#1636).",
+      "usage": "der Bär, des Bären, die Bären. Weak masculine noun. Feminine: Bärin. 'Eisbär' (polar bear).",
+      "synonyms": [
+        {
+          "word": "Baissier",
+          "gloss": "bear (finance)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der braune Bär fängt Lachse im Fluss.",
+          "translation": "The brown bear catches salmon in the river.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Bären halten im Winter einen Winterschlaf.",
+          "translation": "Bears hibernate in the winter.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Bär hungriger wäre, griffe er den Elch an. (Elk m)",
+          "translation": "If the bear were hungrier, it would attack the elk.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Bär wird im Nationalpark geschützt.",
+          "translation": "The bear is protected in the national park.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Börsenspekulant",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "stock market speculator / trader",
+      "intro": "A person who speculates on stock market prices. Compound of 'Börse' (stock exchange) and 'Spekulant' (speculator). Related to 'Baissier' (#1634) and 'Bär' (#1635).",
+      "usage": "der Börsenspekulant, des Börsenspekulanten, die Börsenspekulanten. Weak masculine noun. Feminine: Börsenspekulantin.",
+      "synonyms": [
+        {
+          "word": "Trader",
+          "gloss": "trader"
+        },
+        {
+          "word": "Aktienhändler",
+          "gloss": "stock trader"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Börsenspekulant kauft risikoreiche Aktien.",
+          "translation": "The stock speculator buys high-risk shares.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ein erfolgreicher Börsenspekulant analysiert die Märkte.",
+          "translation": "A successful stock speculator analyzes the markets.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Börsenspekulant vorsichtiger wäre, verlöre er weniger Geld.",
+          "translation": "If the stock speculator were more cautious, he would lose less money.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Kapital wird vom Börsenspekulanten investiert.",
+          "translation": "The capital is invested by the stock speculator.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Baugruppe",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "subassembly / module / building group (cooperative)",
+      "intro": "A technical subassembly/module, or a group of private builders (cooperative 'Baugemeinschaft'). Compound of verb 'bauen' (to build) and 'Gruppe' (group - Chunk 2). Related to 'Brett' (#1638) and 'Gremium' (#1639).",
+      "usage": "die Baugruppe, die Baugruppen. 'Elektronische Baugruppe' (electronic module).",
+      "synonyms": [
+        {
+          "word": "Modul",
+          "gloss": "module (neuter)"
+        },
+        {
+          "word": "Komponente",
+          "gloss": "component"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Baugruppe wird in die Maschine eingebaut.",
+          "translation": "The subassembly is installed in the machine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Unsere Baugruppe plant ein Mehrfamilienhaus. (Cooperative)",
+          "translation": "Our building group is planning an apartment building.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Baugruppe fehlerhaft wäre, funktionierte das Gerät nicht.",
+          "translation": "If the module were faulty, the device wouldn't work.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Baugruppe wird vom Ingenieur getestet.",
+          "translation": "The subassembly is tested by the engineer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Brett",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "board / plank / shelf / chessboard",
+      "intro": "A wooden board or plank, shelf, board-game board, or skis. Related to 'Baugruppe' (#1637) and 'Gremium' (#1639).",
+      "usage": "das Brett, des Brett(e)s, die Bretter. 'Schachbrett' (chessboard). 'Bügelbrett' (ironing board).",
+      "synonyms": [
+        {
+          "word": "Planke",
+          "gloss": "plank (feminine)"
+        },
+        {
+          "word": "Regalbrett",
+          "gloss": "shelf board"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er sägt ein langes Brett durch.",
+          "translation": "He saws a long board in half.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Spielfiguren stehen auf dem Brett.",
+          "translation": "The game pieces stand on the board.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Brett dicker wäre, böge es sich nicht.",
+          "translation": "If the board were thicker, it wouldn't bend.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Brett wird mit Schrauben befestigt.",
+          "translation": "The board is secured with screws.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Gremium",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "committee / panel / board / body",
+      "intro": "An official committee, panel of experts, or governing board. Loanword from Latin. Related to 'Baugruppe' (#1637) and 'Brett' (#1638).",
+      "usage": "das Gremium, des Gremiums, die Gremien (plural with Latin ending).",
+      "synonyms": [
+        {
+          "word": "Ausschuss",
+          "gloss": "committee (masculine)"
+        },
+        {
+          "word": "Komitee",
+          "gloss": "committee"
+        },
+        {
+          "word": "Vorstand",
+          "gloss": "board / directorate (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Gremium berät über den Haushaltsplan.",
+          "translation": "The committee is discussing the budget plan.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er wurde in ein wichtiges Gremium berufen.",
+          "translation": "He was appointed to an important committee.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Gremium schneller entschiede, sparten wir Zeit.",
+          "translation": "If the panel decided faster, we would save time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Bericht wird vom Gremium verabschiedet.",
+          "translation": "The report is approved by the committee.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "aufbereiten",
+      "partOfSpeech": "verb",
+      "translation": "to process / prepare / recycle / treat (water)",
+      "intro": "To chemically/mechanically process raw materials, treat water, recycle waste, or prepare data/information. Compound of prefix 'auf' and verb 'bereiten'. Related to 'Bier' (#1641) and 'festgeklebt' (#1642).",
+      "usage": "Weak regular separable verb: aufbereiten, bereitete auf, hat aufbereitet. Transitive.",
+      "synonyms": [
+        {
+          "word": "verarbeiten",
+          "gloss": "to process"
+        },
+        {
+          "word": "recyceln",
+          "gloss": "to recycle"
+        },
+        {
+          "word": "präparieren",
+          "gloss": "to prepare / treat"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Klärwerk muss das Abwasser aufbereiten.",
+          "translation": "The sewage plant must treat the wastewater.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie bereitet die Daten für die Präsentation auf.",
+          "translation": "She prepares the data for the presentation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir das Plastik aufbereiteten, schonten wir die Umwelt.",
+          "translation": "If we recycled the plastic, we would protect the environment.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Altöl wird in der Fabrik aufbereitet.",
+          "translation": "The waste oil is processed in the factory.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Bier",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "beer / brew",
+      "intro": "An alcoholic beverage made from hops, barley, and water. Related to 'aufbereiten' (#1640) and 'festgeklebt' (#1642).",
+      "usage": "das Bier, des Bier(e)s, die Biere. 'Fassbier' (draft beer). 'Freibier' (free beer).",
+      "synonyms": [
+        {
+          "word": "Gerstensaft",
+          "gloss": "barley juice (humorous)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er bestellt ein kaltes Bier im Biergarten.",
+          "translation": "He orders a cold beer in the beer garden.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das deutsche Bier wird nach dem Reinheitsgebot gebraut.",
+          "translation": "German beer is brewed according to the purity law.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Bier billiger wäre, tränke ich noch eins.",
+          "translation": "If the beer were cheaper, I would drink another one.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Bier wird vom Kellner serviert.",
+          "translation": "The beer is served by the waiter.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "festgeklebt",
+      "partOfSpeech": "adjective / verb",
+      "translation": "stuck / glued down / stuck in place / festkleben",
+      "intro": "Past participle of the separable verb 'festkleben' (to glue down/stick - Chunk 17 companion) used as adjective meaning glued down, stuck, or firmly attached. Related to 'Magie' (#1643).",
+      "usage": "Participle/adjective (ein festgeklebtes Etikett).",
+      "synonyms": [
+        {
+          "word": "verklebt",
+          "gloss": "stuck together"
+        },
+        {
+          "word": "haftend",
+          "gloss": "adhering"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Poster ist an der Wand festgeklebt.",
+          "translation": "The poster is glued to the wall.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Aktivisten haben sich auf der Straße festgeklebt.",
+          "translation": "The activists glued themselves to the street.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Etikett fester festgeklebt wäre, löste es sich nicht.",
+          "translation": "If the label were stuck firmer, it wouldn't peel off.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Plakate werden vom Arbeiter festgeklebt.",
+          "translation": "The posters are glued down by the worker.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Magie",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "magic / sorcery / witchcraft",
+      "intro": "The practice of magic, sorcery, or mysterious allure. Loanword. Related to 'magisch' (#1644) and 'Zauber' (#1645).",
+      "usage": "die Magie. Plural is not used in standard contexts.",
+      "synonyms": [
+        {
+          "word": "Zauberei",
+          "gloss": "magic / sorcery"
+        },
+        {
+          "word": "Hexerei",
+          "gloss": "witchcraft"
+        },
+        {
+          "word": "Zauberkraft",
+          "gloss": "magic power"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er glaubt an die Macht der Magie.",
+          "translation": "He believes in the power of magic.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Magie der Musik verzauberte alle.",
+          "translation": "The magic of the music enchanted everyone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn es echte Magie gäbe, flöge ich zum Mond.",
+          "translation": "If there were real magic, I would fly to the moon.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Vorstellung wird mit viel Magie inszeniert.",
+          "translation": "The performance is staged with a lot of magic.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "magisch",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "magical / mysterious / magically",
+      "intro": "Describes magical attributes, mysterious forces, or enchanting qualities. Related to 'Magie' (#1643) and 'Zauber' (#1645).",
+      "usage": "Regular adjective (ein magischer Moment). Adverbial: magically.",
+      "synonyms": [
+        {
+          "word": "zauberhaft",
+          "gloss": "enchanting / magical"
+        },
+        {
+          "word": "geheimnisvoll",
+          "gloss": "mysterious"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das war ein magischer Moment für uns.",
+          "translation": "That was a magical moment for us.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Wald wirkte magisch im Mondlicht.",
+          "translation": "The forest looked magical in the moonlight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Ring magische Kräfte hätte, besäße ich Macht.",
+          "translation": "If the ring had magical powers, I would possess power.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Ort wird als magisch schön beschrieben.",
+          "translation": "The place is described as magically beautiful.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Zauber",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "magic spell / charm / magic / nonsense (colloquial)",
+      "intro": "A magic spell, enchanting charm, or colloquially nonsense ('Hör auf mit dem Zauber' - stop that nonsense). Related to verb 'zaubern'. Related to 'Magie' (#1643) and 'magisch' (#1644).",
+      "usage": "der Zauber, des Zaubers. Plural is rare (die Zauber). 'Zauberlehrling' (sorcerer's apprentice).",
+      "synonyms": [
+        {
+          "word": "Zauberspruch",
+          "gloss": "spell"
+        },
+        {
+          "word": "Reiz",
+          "gloss": "charm / appeal"
+        },
+        {
+          "word": "Unsinn",
+          "gloss": "nonsense (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie entkam dem Zauber der Nacht nicht.",
+          "translation": "She didn't escape the magic of the night.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er flüstert einen alten Zauber.",
+          "translation": "He whispers an old magic spell.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Zauber bräche, erwachte die Prinzessin.",
+          "translation": "If the spell broke, the princess would wake up.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Publikum wird durch den Zauber fasziniert.",
+          "translation": "The audience is fascinated by the charm (magic).",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Rückendeckung",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "support / backing / cover / backup",
+      "intro": "Abstract backing, support, or cover (originally military cover for the back). Suffix -ung is feminine. Compound of 'Rücken' (back - Chunk 6) and 'Deckung' (cover). Related to 'Stütze' (#1647) and 'beherrscht' (#1648).",
+      "usage": "die Rückendeckung. Plural is not used. 'Jemandem Rückendeckung geben' (to give someone backing).",
+      "synonyms": [
+        {
+          "word": "Unterstützung",
+          "gloss": "support"
+        },
+        {
+          "word": "Schutz",
+          "gloss": "protection / cover (masculine)"
+        },
+        {
+          "word": "Beistand",
+          "gloss": "assistance / backup (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Chef gibt ihm volle Rückendeckung.",
+          "translation": "The boss gives him full backing (support).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er braucht die Rückendeckung der Fraktion.",
+          "translation": "He needs the backing of the parliamentary group.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir keine Rückendeckung hätten, gäben wir auf.",
+          "translation": "If we had no support (backing), we would give up.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Entscheidung wird durch die Rückendeckung des Vorstands abgesichert.",
+          "translation": "The decision is secured by the backing of the board.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Stütze",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "prop / pillar / support / staff / welfare (colloquial)",
+      "intro": "A physical prop/pillar, abstract support/mainstay, or colloquially welfare money ('auf Stütze sein'). Related to verb 'stützen'. Related to 'Rückendeckung' (#1646).",
+      "usage": "die Stütze, die Stützen. 'Stützpfeiler' (supporting pillar).",
+      "synonyms": [
+        {
+          "word": "Pfeiler",
+          "gloss": "pillar / column (masculine)"
+        },
+        {
+          "word": "Halt",
+          "gloss": "hold / support (masculine)"
+        },
+        {
+          "word": "Sozialhilfe",
+          "gloss": "welfare"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er ist die wichtigste Stütze der Familie.",
+          "translation": "He is the main support (pillar) of the family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir brauchten eine Stütze für die Decke. (Physical ceiling prop)",
+          "translation": "We needed a support (prop) for the ceiling.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Stütze bräche, stürzte das Dach ein.",
+          "translation": "If the prop broke, the roof would collapse.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Projekt wird durch finanzielle Stützen getragen.",
+          "translation": "The project is supported by financial props.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "beherrscht",
+      "partOfSpeech": "adjective / verb",
+      "translation": "controlled / self-controlled / dominated / ruled / beherrschen",
+      "intro": "Past participle of the verb 'beherrschen' (to dominate/control - Chunk 17 companion) used as adjective meaning self-controlled, calm, or dominated. Related to 'gesetze' (#1649) and 'herrscht' (#1650).",
+      "usage": "Regular adjective (ein beherrschter Mensch - a self-controlled person) or past participle.",
+      "synonyms": [
+        {
+          "word": "kontrolliert",
+          "gloss": "controlled"
+        },
+        {
+          "word": "gelassen",
+          "gloss": "calm / composed"
+        },
+        {
+          "word": "dominiert",
+          "gloss": "dominated"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Trotz des Ärgers blieb er völlig beherrscht.",
+          "translation": "Despite the anger, he remained completely self-controlled.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Land wird von einer Militärdiktatur beherrscht.",
+          "translation": "The country is dominated (ruled) by a military dictatorship.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Lage beherrschter wäre, gäbe es keine Panik.",
+          "translation": "If the situation were more controlled, there would be no panic.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Szene wird von einem einzigen Schauspieler beherrscht.",
+          "translation": "The scene is dominated by a single actor.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Gesetze",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "laws / statutes / regulations",
+      "intro": "Plural form of the neuter noun 'Gesetz' (law - Chunk 7). Related to 'beherrscht' (#1648) and 'herrscht' (#1650).",
+      "usage": "die Gesetze, der Gesetze (genitive). Capitalized in German.",
+      "synonyms": [
+        {
+          "word": "Regeln",
+          "gloss": "rules"
+        },
+        {
+          "word": "Vorschriften",
+          "gloss": "regulations"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Bürger müssen die Gesetze achten.",
+          "translation": "Citizens must respect the laws.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Neue Gesetze treten nächsten Monat in Kraft.",
+          "translation": "New laws come into force next month.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Gesetze strenger wären, gäbe es weniger Kriminalität.",
+          "translation": "If the laws were stricter, there would be less crime.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Gesetze werden vom Parlament beschlossen.",
+          "translation": "The laws are passed by parliament.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "herrscht",
+      "partOfSpeech": "verb",
+      "translation": "rules / reigns / prevails / exists",
+      "intro": "Present 3rd person singular of the verb 'herrschen' (to rule / reign / prevail - Chunk 17 companion). Related to 'beherrscht' (#1648) and 'grunzt' (#1651).",
+      "usage": "Weak regular verb: herrschen, herrschte, hat geherrscht. Intransitive. E.g. 'Hier herrscht Ruhe' (silence prevails here).",
+      "synonyms": [
+        {
+          "word": "regiert",
+          "gloss": "rules / reigns"
+        },
+        {
+          "word": "dominiert",
+          "gloss": "dominates"
+        },
+        {
+          "word": "vorherrscht",
+          "gloss": "prevails"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der König herrscht über sein Reich.",
+          "translation": "The king rules over his empire.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Im Saal herrscht lautes Gelächter.",
+          "translation": "Loud laughter prevails in the hall.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn dort Chaos herrschte, griffe die Polizei ein.",
+          "translation": "If chaos prevailed there, the police would step in.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Land wird gerettet, während der Frieden herrscht.",
+          "translation": "The country is saved while peace prevails.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "grunzt",
+      "partOfSpeech": "verb",
+      "translation": "grunts / snorts",
+      "intro": "Present 3rd person singular of the verb 'grunzen' (to grunt - like a pig, or grumble). Related to 'herrscht' (#1650), 'Gesellschafter' (#1652), and 'Partner' (#1653).",
+      "usage": "Weak regular verb: grunzen, grunzte, hat gegrunzt. Intransitive.",
+      "synonyms": [
+        {
+          "word": "quiekt",
+          "gloss": "squeals"
+        },
+        {
+          "word": "brummt",
+          "gloss": "grumbles / growls"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Schwein grunzt im Stall.",
+          "translation": "Das pig grunts in the barn.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er grunzt nur eine kurze Antwort.",
+          "translation": "He only grunts a short answer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn er freundlicher spräche statt zu grunzen, wäre es netter.",
+          "translation": "If he spoke friendlier instead of grunting, it would be nicer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Laut wird vom Schwein gegrunzt.",
+          "translation": "The sound is grunted by the pig.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Gesellschafter",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "shareholder / partner / companion / associate",
+      "intro": "A corporate shareholder/partner, or personal companion/associate. Related to noun 'Gesellschaft' (society/company). Related to 'Partner' (#1653) and 'Teilhaber' (#1654).",
+      "usage": "der Gesellschafter, des Gesellschafters, die Gesellschafter. Feminine: Gesellschafterin.",
+      "synonyms": [
+        {
+          "word": "Partner",
+          "gloss": "partner"
+        },
+        {
+          "word": "Teilhaber",
+          "gloss": "partner / shareholder"
+        },
+        {
+          "word": "Aktionär",
+          "gloss": "stockholder"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er ist Gesellschafter einer Rechtsanwaltskanzlei.",
+          "translation": "He is a partner in a law firm.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Gesellschafter treffen sich zur Jahresversammlung.",
+          "translation": "The shareholders meet for the annual meeting.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Gesellschafter zustimmte, verkauften wir die Firma.",
+          "translation": "If the partner agreed, we would sell the company.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Vertrag wird vom Gesellschafter unterzeichnet.",
+          "translation": "The contract is signed by the partner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Partner",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "partner / companion / associate",
+      "intro": "A romantic partner, business associate, or team companion. Loanword. Related to 'Gesellschafter' (#1652) and 'Teilhaber' (#1654).",
+      "usage": "der Partner, des Partners, die Partner. Feminine: Partnerin.",
+      "synonyms": [
+        {
+          "word": "Gefährte",
+          "gloss": "companion"
+        },
+        {
+          "word": "Lebenspartner",
+          "gloss": "life partner"
+        },
+        {
+          "word": "Gesellschafter",
+          "gloss": "partner (business)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie ist meine Partnerin im Tennis.",
+          "translation": "She is my partner in tennis.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir suchen einen neuen Geschäftspartner.",
+          "translation": "We are looking for a new business partner.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich einen treueren Partner hätte, wäre ich glücklicher.",
+          "translation": "If I had a more loyal partner, I would be happier.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Vorschlag wird vom Partner abgelehnt.",
+          "translation": "The proposal is rejected by the partner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Teilhaber",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "shareholder / co-owner / partner",
+      "intro": "A business co-owner, partner, or shareholder. Compound of 'Teil' (part - Chunk 2) and 'Haber' (holder/owner). Related to 'Gesellschafter' (#1652) and 'Partner' (#1653).",
+      "usage": "der Teilhaber, des Teilhabers, die Teilhaber. Feminine: Teilhaberin.",
+      "synonyms": [
+        {
+          "word": "Gesellschafter",
+          "gloss": "partner / shareholder"
+        },
+        {
+          "word": "Mitbesitzer",
+          "gloss": "co-owner"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er wurde als Teilhaber in der Firma aufgenommen.",
+          "translation": "He was accepted as a partner in the company.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Teilhaber teilen den Gewinn untereinander auf.",
+          "translation": "The partners split the profit among themselves.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Teilhaberin protestierte, stoppten wir das Projekt.",
+          "translation": "If the female partner protested, we would stop the project.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Anteile werden vom Teilhaber gehalten.",
+          "translation": "The shares are held by the partner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "erreichen",
+      "partOfSpeech": "verb",
+      "translation": "to reach / achieve / attain / contact (by phone)",
+      "intro": "To physically reach a place, achieve a goal, attain a standard, or get in touch with someone. Suffix er- + reichen. Related to 'Reichweite' (#1656) and 'Wind' (#1657).",
+      "usage": "Weak regular verb: erreichen, erreichte, hat erreicht. Transitive. Governs accusative.",
+      "synonyms": [
+        {
+          "word": "erzielen",
+          "gloss": "to achieve / score"
+        },
+        {
+          "word": "erlangen",
+          "gloss": "to attain"
+        },
+        {
+          "word": "kontaktieren",
+          "gloss": "to contact"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir haben das Ziel endlich erreicht.",
+          "translation": "We have finally reached the goal.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ich konnte ihn telefonisch nicht erreichen.",
+          "translation": "I couldn't reach him by phone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir den Gipfel erreichten, machten wir ein Foto. (Summit m)",
+          "translation": "If we reached the summit, we would take a photo.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Rekord wird vom Sportler erreicht.",
+          "translation": "The record is achieved by the athlete.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Reichweite",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "reach / range / coverage (media/WiFi) / radius",
+      "intro": "A physical reach of an arm/vehicle, range of a signal/missile, or media coverage. Compound of verb 'reichen' (to reach) and 'Weite' (distance/width - Chunk 13). Related to 'erreichen' (#1655) and 'Wind' (#1657).",
+      "usage": "die Reichweite, die Reichweiten. 'In Reichweite' (within reach). 'Außer Reichweite' (out of reach).",
+      "synonyms": [
+        {
+          "word": "Aktionsradius",
+          "gloss": "radius of action"
+        },
+        {
+          "word": "Radius",
+          "gloss": "radius"
+        },
+        {
+          "word": "Empfang",
+          "gloss": "reception / signal"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Ziel ist in Reichweite.",
+          "translation": "The goal is within reach.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Sender hat eine enorme Reichweite.",
+          "translation": "The station has an enormous coverage (range).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Reichweite des WLANs größer wäre, surfte ich im Garten.",
+          "translation": "If the WiFi range were larger, I would surf in the garden.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die maximale Reichweite wird vom Hersteller angegeben. (Manufacturer m)",
+          "translation": "The maximum range is specified by the manufacturer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Wind",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "wind / breeze / flatulence (medical)",
+      "intro": "A meteorological wind or breeze, or medical flatulence ('Winde'). Related to verb 'winden'. Related to 'erreichen' (#1655), 'Reichweite' (#1656), and 'Oberst' (#1658).",
+      "usage": "der Wind, des Wind(e)s, die Winde. 'Gegenwind' (headwind). 'Rückenwind' (tailwind).",
+      "synonyms": [
+        {
+          "word": "Brise",
+          "gloss": "breeze (feminine)"
+        },
+        {
+          "word": "Sturm",
+          "gloss": "storm (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ein kalter Wind weht durch die Bäume.",
+          "translation": "A cold wind blows through the trees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir segeln mit dem Wind.",
+          "translation": "We sail with the wind.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Wind stärker wäre, flöge der Drachen höher.",
+          "translation": "If the wind were stronger, the kite would fly higher.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Segelschiff wird vom Wind vorwärts getrieben.",
+          "translation": "The sailing ship is driven forward by the wind.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Oberst",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "colonel (military rank)",
+      "intro": "A high-ranking military colonel. Declines like a weak noun or adjective in older forms, but usually standard masculine now. Related to 'sofort' (#1659).",
+      "usage": "der Oberst, des Obersten, die Obersten.",
+      "synonyms": [
+        {
+          "word": "Regimentskommandeur",
+          "gloss": "regimental commander"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Oberst gibt den Soldaten einen Befehl. (Soldaten pl)",
+          "translation": "The colonel gives the soldiers an order.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er wurde zum Oberst befördert.",
+          "translation": "He was promoted to colonel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Oberst milder entschiede, strafte er den Gefreiten nicht. (Private m)",
+          "translation": "If the colonel decided more mildly, he wouldn't punish the private.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Truppen werden vom Oberst angeführt.",
+          "translation": "The troops are led by the colonel.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sofort",
+      "partOfSpeech": "adverb",
+      "translation": "immediately / at once / instantly",
+      "intro": "Adverb meaning immediately, at once, or instantly. Related to 'sogleich' (#1660) and 'unmittelbar' (#1661).",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "sogleich",
+          "gloss": "at once"
+        },
+        {
+          "word": "unverzüglich",
+          "gloss": "without delay"
+        },
+        {
+          "word": "umgehend",
+          "gloss": "promptly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Bitte komm sofort nach Hause.",
+          "translation": "Please come home immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Arzt hat sofort geholfen.",
+          "translation": "The doctor helped immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir sofort aufbrächen, erwischten wir den Bus.",
+          "translation": "If we left immediately, we would catch the bus.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die E-Mail wird sofort vom System beantwortet.",
+          "translation": "The email is answered immediately by the system.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "sogleich",
+      "partOfSpeech": "adverb",
+      "translation": "at once / immediately / right away (formal)",
+      "intro": "A slightly formal adverb meaning at once or immediately. Related to 'sofort' (#1659) and 'unmittelbar' (#1661).",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "sofort",
+          "gloss": "immediately"
+        },
+        {
+          "word": "unmittelbar",
+          "gloss": "directly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er legte den Hörer auf und ging sogleich.",
+          "translation": "He hung up the receiver and went at once.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Nachricht wurde sogleich verbreitet.",
+          "translation": "The news was spread at once.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Gast sogleich bezahlte, gäben wir ihm Rabatt.",
+          "translation": "If the guest paid at once, we would give him a discount.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Fehler wird sogleich behoben.",
+          "translation": "The error is corrected at once.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "unmittelbar",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "direct / immediate / close (proximity) / directly / immediately",
+      "intro": "Describes direct contact, immediate consequences, close proximity, or happening directly. Opposite of 'mittelbar'. Related to 'sofort' (#1659) and 'sogleich' (#1660).",
+      "usage": "Regular adjective (eine unmittelbare Gefahr). Adverbial: directly / immediately.",
+      "synonyms": [
+        {
+          "word": "direkt",
+          "gloss": "direct"
+        },
+        {
+          "word": "sofortig",
+          "gloss": "immediate"
+        },
+        {
+          "word": "nah",
+          "gloss": "close"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er wohnt in unmittelbarer Nähe des Bahnhofs.",
+          "translation": "He lives in the immediate vicinity of the station.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das hatte eine unmittelbare Auswirkung.",
+          "translation": "That had an immediate impact (effect).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Gefahr unmittelbarer wäre, flohen wir.",
+          "translation": "If the danger were more immediate, we would flee.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Täter wird unmittelbar nach der Tat festgenommen.",
+          "translation": "The perpetrator is arrested immediately after the deed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Sekundanten",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "seconds (dueling/chess) / assistants / backers",
+      "intro": "Plural form of the weak masculine noun 'Sekundant' (a second in a duel or chess match, or general assistant/backer). Related to 'tausend' (#1663).",
+      "usage": "die Sekundanten, der Sekundanten (genitive/dative). Weak noun inflections apply.",
+      "synonyms": [
+        {
+          "word": "Assistenten",
+          "gloss": "assistants"
+        },
+        {
+          "word": "Helfer",
+          "gloss": "helpers"
+        },
+        {
+          "word": "Unterstützer",
+          "gloss": "supporters"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Sekundanten besprachen die Regeln des Duells.",
+          "translation": "The seconds discussed the rules of the duel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er brachte zwei Sekundanten zur Verhandlung mit.",
+          "translation": "He brought two backers (seconds) to the negotiation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Sekundanten protestierten, bräche das Duell ab. (Subjunctive, duel n)",
+          "translation": "If the seconds protested, the duel would break off.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Bedingungen werden von den Sekundanten ausgehandelt.",
+          "translation": "The terms are negotiated by the seconds.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "tausend",
+      "partOfSpeech": "numeral / noun / adjective",
+      "gender": "neuter",
+      "translation": "thousand / one thousand",
+      "intro": "The cardinal number thousand, or used as neuter noun meaning a thousand. Related to 'Sekundanten' (#1662) and 'erteilt' (#1664).",
+      "usage": "Invariable cardinal number, or as noun: das Tausend.",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Ein Kilometer hat tausend Meter.",
+          "translation": "One kilometer has one thousand meters.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Tausend Dank für deine Hilfe!",
+          "translation": "A thousand thanks for your help!",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich tausend Euro gewönne, kaufte ich ein Fahrrad.",
+          "translation": "If I won a thousand euros, I would buy a bicycle.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Summe wird durch tausend geteilt.",
+          "translation": "The sum is divided by one thousand.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "erteilt",
+      "partOfSpeech": "verb",
+      "translation": "gives / grants / issues / imparts",
+      "intro": "Present 3rd person singular of the verb 'erteilen' (to give/grant permission, issue orders, or impart lessons). Related to 'gibt' (#1665) and 'tausend' (#1663).",
+      "usage": "Weak regular verb: erteilen, erteilte, hat erteilt. Transitive. Governs accusative and dative (dative recipient).",
+      "synonyms": [
+        {
+          "word": "gibt",
+          "gloss": "gives"
+        },
+        {
+          "word": "gewährt",
+          "gloss": "grants"
+        },
+        {
+          "word": "erteilt",
+          "gloss": "issues"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Lehrer erteilt den Schülern Unterricht.",
+          "translation": "The teacher imparts lessons (teaches) to the students.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Amt erteilt die Genehmigung.",
+          "translation": "The office grants the permit (permission).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Gericht die Erlaubnis erteilte, reisten wir ab.",
+          "translation": "If the court granted permission, we would depart.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Befehl wird vom General erteilt.",
+          "translation": "The order is issued by the general.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Erfahrung",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "experience / knowledge / skill",
+      "intro": "Accumulated life/work experience, knowledge, or expertise. Suffix -ung is feminine. Related to verb 'erfahren'. Related to 'Erlebnis' (#1667) and 'Routine' (#1668).",
+      "usage": "die Erfahrung, die Erfahrungen. 'Aus Erfahrung' (from experience).",
+      "synonyms": [
+        {
+          "word": "Expertise",
+          "gloss": "expertise"
+        },
+        {
+          "word": "Routine",
+          "gloss": "routine"
+        },
+        {
+          "word": "Praxis",
+          "gloss": "practice (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er hat viel Erfahrung im Marketing.",
+          "translation": "He has a lot of experience in marketing.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Aus Erfahrung weiß ich, dass das schwer ist.",
+          "translation": "From experience, I know that that is difficult.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich mehr Erfahrung besäße, bewürbe ich mich um den Job.",
+          "translation": "If I possessed more experience, I would apply for the job.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Erfahrung wird im Laufe der Jahre gesammelt.",
+          "translation": "Experience is gathered over the course of the years.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Erlebnis",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "experience (lived event) / adventure / event",
+      "intro": "A memorable lived event, personal experience, or adventure. Suffix -nis makes it neuter. Related to verb 'erleben'. Related to 'Erfahrung' (#1666) and 'Routine' (#1668).",
+      "usage": "das Erlebnis, des Erlebnisses, die Erlebnisse. 'Schlüsselerlebnis' (key experience).",
+      "synonyms": [
+        {
+          "word": "Abenteuer",
+          "gloss": "adventure (neuter)"
+        },
+        {
+          "word": "Ereignis",
+          "gloss": "event (neuter)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Reise war ein unvergessliches Erlebnis.",
+          "translation": "The trip was an unforgettable experience.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Konzert wurde zu einem tollen Erlebnis.",
+          "translation": "The concert became a great experience.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Konzert ein besseres Erlebnis wäre, bliebe ich länger.",
+          "translation": "If the concert were a better experience, I would stay longer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Erlebnis wird im Tagebuch beschrieben.",
+          "translation": "The experience is described in the diary.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Routine",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "routine / daily grind / habit / skill (from repetition)",
+      "intro": "A daily routine, habit, or skill acquired through repetition. Loanword from French. Related to 'Erfahrung' (#1666) and 'Erlebnis' (#1667).",
+      "usage": "die Routine. Plural is rare.",
+      "synonyms": [
+        {
+          "word": "Gewohnheit",
+          "gloss": "habit"
+        },
+        {
+          "word": "Trott",
+          "gloss": "daily grind / rut (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er erledigt die Arbeit mit großer Routine.",
+          "translation": "He does the work with great routine (skill).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Morgens brauche ich meine feste Routine.",
+          "translation": "In the morning, I need my fixed routine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Arbeit weniger Routine wäre, gäbe es mehr Spaß.",
+          "translation": "If the work were less routine, there would be more fun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die tägliche Routine wird durch den Urlaub unterbrochen.",
+          "translation": "The daily routine is interrupted by the vacation.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Hochrufe",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "cheers / acclamations / shouts of 'long live'",
+      "intro": "Plural form of the masculine noun 'Hochruf' (cheer or shout of acclamation). Compound of 'hoch' (high) and 'Ruf' (call - Chunk 5). Related to 'Jubel' (#1670) and 'prost' (#1671).",
+      "usage": "die Hochrufe, der Hochrufe (genitive/dative).",
+      "synonyms": [
+        {
+          "word": "Jubelrufe",
+          "gloss": "shouts of joy"
+        },
+        {
+          "word": "Akklamationen",
+          "gloss": "acclamations"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Hochrufe der Menge hallten durch die Straße.",
+          "translation": "The cheers of the crowd echoed through the street.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie brachten Hochrufe auf den König aus.",
+          "translation": "They cheered (shouted long live) for the king.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Hochrufe lauter wären, freute sich das Paar.",
+          "translation": "If the cheers were louder, the couple would be pleased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Hochrufe werden vom Tonband abgespielt.",
+          "translation": "The cheers are played back from the tape.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Jubel",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "jubilation / cheers / joy / rejoicing",
+      "intro": "Rejoicing, jubilation, or loud cheers of joy. Related to verb 'jubeln'. Related to 'Hochrufe' (#1669) and 'prost' (#1671).",
+      "usage": "der Jubel, des Jubels. Plural is not used.",
+      "synonyms": [
+        {
+          "word": "Freude",
+          "gloss": "joy"
+        },
+        {
+          "word": "Jauchzen",
+          "gloss": "exultation (neuter)"
+        },
+        {
+          "word": "Heiterkeit",
+          "gloss": "hilarity / cheerfulness"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ein großer Jubel brach im Stadion aus.",
+          "translation": "A great jubilation broke out in the stadium.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Jubel der Gewinner war riesig.",
+          "translation": "The cheers of the winners were huge.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Jubel leiser wäre, verstünden wir den Sprecher.",
+          "translation": "If the cheers were quieter, we would understand the speaker.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Jubel wird von den Kameras festgehalten.",
+          "translation": "The jubilation is captured by the cameras.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "prost",
+      "partOfSpeech": "interjection / noun",
+      "gender": "neuter",
+      "translation": "cheers! / toast / salud!",
+      "intro": "An interjection used as a toast when drinking (cheers!), or noun 'das Prost'. From Latin 'prosit'. Related to 'Hochrufe' (#1669) and 'Jubel' (#1670).",
+      "usage": "Interjection (Prost! - Cheers!). Noun: das Prost, des Prosts.",
+      "synonyms": [
+        {
+          "word": "prosit",
+          "gloss": "cheers!"
+        },
+        {
+          "word": "zum Wohl",
+          "gloss": "to your health"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie stießen an und riefen: Prost!",
+          "translation": "They clinked glasses and shouted: Cheers!",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Ein fröhliches Prost hallte durch die Runde.",
+          "translation": "A cheerful toast echoed through the circle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Prost ehrlicher gemeint wäre, tränke ich mit.",
+          "translation": "If the toast were meant more honestly, I would drink along.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Prost wird auf die Gesundheit des Gastgebers ausgebracht.",
+          "translation": "The toast is made to the health of the host.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Opfer",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "victim / sacrifice / casualty / offering",
+      "intro": "A victim of a crime/accident, a religious sacrifice/offering, or casualty. Related to verb 'opfern'. Related to 'Schlachtopfer' (#1673) and 'darauf' (#1674).",
+      "usage": "das Opfer, des Opfers, die Opfer (plural identical).",
+      "synonyms": [
+        {
+          "word": "Geschädigter",
+          "gloss": "damaged person / victim (masculine)"
+        },
+        {
+          "word": "Schlachtopfer",
+          "gloss": "sacrifice"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Opfer des Unfalls wird im Krankenhaus behandelt.",
+          "translation": "The victim of the accident is treated in the hospital.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er brachte viele Opfer für seine Karriere.",
+          "translation": "He made many sacrifices for his career.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Opfer aussagte, stünde der Täter vor Gericht. (Victim n)",
+          "translation": "If the victim testified, the perpetrator would stand trial.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Opfer wird vom Detektiv befragt.",
+          "translation": "The victim is questioned by the detective.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Schlachtopfer",
+      "partOfSpeech": "noun",
+      "gender": "neuter",
+      "translation": "sacrifice (slaughtered offering) / victim / casualty",
+      "intro": "A slaughtered religious offering, or figuratively a victim/casualty. Compound of 'schachten' (to slaughter) and 'Opfer' (victim/sacrifice - #1672). Related to 'darauf' (#1674) and 'Computer' (#1675).",
+      "usage": "das Schlachtopfer, des Schlachtopfers, die Schlachtopfer (plural identical).",
+      "synonyms": [
+        {
+          "word": "Opfer",
+          "gloss": "sacrifice / victim"
+        },
+        {
+          "word": "Opfertier",
+          "gloss": "sacrificial animal"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das antike Volk brachte den Göttern ein Schlachtopfer.",
+          "translation": "The ancient people brought a sacrifice to the gods.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er sieht sich als das Schlachtopfer der Umstände.",
+          "translation": "He sees himself as the victim of circumstances.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Schlachtopfer nicht getötet würde, gäbe es Proteste.",
+          "translation": "If the sacrificial victim were not killed, there would be protests.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Schlachtopfer wird auf dem Altar dargebracht.",
+          "translation": "The sacrifice is offered on the altar.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "darauf",
+      "partOfSpeech": "adverb / prepositional adverb",
+      "translation": "on it / upon it / after that / then / on top of that",
+      "intro": "Prepositional adverb meaning on it / upon it (referring to neuter/masculine nouns), or adverb meaning after that/then. Related to 'Computer' (#1675) and 'Rechner' (#1676).",
+      "usage": "Invariable adverb. E.g. 'Das Buch liegt darauf' (the book lies on it). 'Kurz darauf' (shortly after that).",
+      "synonyms": [
+        {
+          "word": "danach",
+          "gloss": "after that"
+        },
+        {
+          "word": "darüber",
+          "gloss": "above it / about it"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er stellte das Glas auf den Tisch und legte ein Buch darauf.",
+          "translation": "He placed the glass on the table and laid a book on it.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Kurz darauf fing es an zu regnen. (Shortly after that)",
+          "translation": "Shortly after that it started to rain.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn du darauf beharrtest, gäbe ich nach. (Insist on it)",
+          "translation": "If you insisted on it, I would yield.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Etikett wird darauf geklebt.",
+          "translation": "The label is glued on it.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Computer",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "computer / PC",
+      "intro": "A computer or PC. Loanword from English. Related to 'Rechner' (#1676) and 'Planet' (#1677).",
+      "usage": "der Computer, des Computers, die Computer (plural identical).",
+      "synonyms": [
+        {
+          "word": "Rechner",
+          "gloss": "computer / calculator"
+        },
+        {
+          "word": "PC",
+          "gloss": "PC (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er kauft einen neuen Computer zum Spielen.",
+          "translation": "He buys a new computer for gaming.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Computer stürzt ständig ab.",
+          "translation": "The computer crashes constantly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Computer schneller wäre, sparte ich Zeit.",
+          "translation": "If the computer were faster, I would save time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Programm wird auf dem Computer installiert.",
+          "translation": "The program is installed on the computer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Rechner",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "computer / calculator / estimator",
+      "intro": "A computer (synonym for PC), pocket calculator, or estimator software. Related to verb 'rechnen'. Related to 'Computer' (#1675) and 'Planet' (#1677).",
+      "usage": "der Rechner, des Rechners, die Rechner (plural identical). 'Taschenrechner' (pocket calculator).",
+      "synonyms": [
+        {
+          "word": "Computer",
+          "gloss": "computer"
+        },
+        {
+          "word": "Taschenrechner",
+          "gloss": "calculator"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er arbeitet am Rechner im Büro.",
+          "translation": "He works at the computer in the office.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir nutzen einen Online-Rechner für die Steuer.",
+          "translation": "We use an online calculator for taxes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Rechner abstürzte, verlöre ich meine Daten.",
+          "translation": "If the computer crashed, I would lose my data.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die CPU wird im Rechner gekühlt.",
+          "translation": "The CPU is cooled inside the computer.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Planet",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "planet",
+      "intro": "A celestial body (planet). Loanword from Greek. Related to 'verheißene' (#1678).",
+      "usage": "der Planet, des Planeten, die Planeten. Weak masculine noun (requires -en in inflected forms).",
+      "synonyms": [
+        {
+          "word": "Himmelskörper",
+          "gloss": "celestial body"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Mars ist the vierte Planet unseres Sonnensystems.",
+          "translation": "Mars is the fourth planet of our solar system.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Astronomen suchen nach einem neuen Planeten.",
+          "translation": "Astronomers are looking for a new planet.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Planet bewohnbar wäre, reisten wir dorthin.",
+          "translation": "If the planet were habitable, we would travel there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Planet wird durch Teleskope beobachtet.",
+          "translation": "The planet is observed through telescopes.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "verheißene",
+      "partOfSpeech": "adjective",
+      "translation": "promised (biblical/formal)",
+      "intro": "Inflected feminine/plural/weak form of the formal adjective 'verheißen' (promised - e.g. Promised Land). Related to verb 'verheißen'. Related to 'versprach' (#1679) and 'versprochen' (#1680).",
+      "usage": "Inflected adjective (das verheißene Land - the promised land).",
+      "synonyms": [
+        {
+          "word": "versprochene",
+          "gloss": "promised"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie suchten das verheißene Land.",
+          "translation": "They searched for the promised land.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das war die verheißene Belohnung.",
+          "translation": "That was the promised reward.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das die verheißene Zukunft wäre, wäre ich enttäuscht.",
+          "translation": "If that were the promised future, I would be disappointed.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die verheißene Zukunft wird im Buch beschrieben.",
+          "translation": "The promised future is described in the book.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "versprach",
+      "partOfSpeech": "verb",
+      "translation": "promised / misspoke (reflexive)",
+      "intro": "Simple past tense (Präteritum) first/third person singular of the strong verb 'versprechen' (to promise, or reflexively misspeak 'sich versprechen'). Related to 'verheißene' (#1678) and 'versprochen' (#1680).",
+      "usage": "Strong verb Präteritum: ich versprach, er/sie/es versprach. Transitive or reflexive.",
+      "synonyms": [
+        {
+          "word": "gelobte",
+          "gloss": "vowed / promised"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er versprach mir, morgen zu kommen.",
+          "translation": "He promised me to come tomorrow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie versprach sich während der Rede. (Misspoke)",
+          "translation": "She misspoke during the speech.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich dir das Geld verspräche, hielte ich mein Wort.",
+          "translation": "If I promised you the money, I would keep my word.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Hilfe wurde versprochen, als die Krise versprach, schlimmer zu werden.",
+          "translation": "The help was promised when the crisis promised to get worse.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "versprochen",
+      "partOfSpeech": "adjective / verb / exclamation",
+      "translation": "promised / misspoke / I promise! (exclamation)",
+      "intro": "Past participle of the strong verb 'versprechen' (to promise) used as adjective meaning promised, or exclamation meaning 'I promise!'. Related to 'verheißene' (#1678) and 'versprach' (#1679).",
+      "usage": "Regular adjective (das versprochene Geschenk) or past participle. Exclamation: Versprochen! (I promise!).",
+      "synonyms": [
+        {
+          "word": "zugesagt",
+          "gloss": "promised / agreed"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er hat mir seine Hilfe versprochen.",
+          "translation": "He promised me his help.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Morgen bringe ich das Buch mit, versprochen!",
+          "translation": "I'll bring the book tomorrow, promise!",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das versprochene Geld da wäre, kaufte ich das Auto.",
+          "translation": "If the promised money were here, I would buy the car.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Geschenk wird dem Gewinner versprochen.",
+          "translation": "The gift is promised to the winner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Autobus",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bus / motorbus / coach",
+      "intro": "A slightly formal or regional synonym for a bus/coach. Compound of 'Auto' (car) and 'Bus' (#1682). Related to 'Bus' (#1682) and 'Sammelleitung' (#1683).",
+      "usage": "der Autobus, des Autobusses, die Autobusse (plural with double 's').",
+      "synonyms": [
+        {
+          "word": "Bus",
+          "gloss": "bus"
+        },
+        {
+          "word": "Omnibus",
+          "gloss": "bus"
+        },
+        {
+          "word": "Reisebus",
+          "gloss": "coach"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir fahren mit dem Autobus in die Stadt.",
+          "translation": "We are traveling by bus to the city.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Autobus hält an der Ecke.",
+          "translation": "The bus stops at the corner.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Autobus pünktlicher wäre, warteten wir nicht.",
+          "translation": "If the bus were more punctual, we wouldn't wait.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Autobus wird vom Fahrer gewaschen.",
+          "translation": "The bus is washed by the driver.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Bus",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "bus / coach / bus network (computer)",
+      "intro": "A standard passenger bus, or computer data bus. Related to 'Autobus' (#1681) and 'Sammelleitung' (#1683).",
+      "usage": "der Bus, des Busses, die Busse. 'Linienbus' (public bus).",
+      "synonyms": [
+        {
+          "word": "Autobus",
+          "gloss": "bus"
+        },
+        {
+          "word": "Omnibus",
+          "gloss": "bus"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Bus kommt alle zehn Minuten.",
+          "translation": "The bus comes every ten minutes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er fährt mit dem Bus zur Schule.",
+          "translation": "He goes to school by bus.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich den Bus verpasste, käme ich zu spät.",
+          "translation": "If I missed the bus, I would be late.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Bus wird an der Haltestelle von Fahrgästen betreten.",
+          "translation": "The bus is boarded by passengers at the stop.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Sammelleitung",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "manifold / header / collector pipe / bus line (electronics)",
+      "intro": "A technical manifold, collector pipe, drainage header, or electronic bus line. Suffix -ung is feminine. Compound of verb 'sammeln' (to collect) and 'Leitung' (pipe/line - Chunk 11). Related to 'dreckig' (#1684) and 'Nachforschung' (#1685).",
+      "usage": "die Sammelleitung, die Sammelleitungen.",
+      "synonyms": [
+        {
+          "word": "Sammelrohr",
+          "gloss": "collector pipe"
+        },
+        {
+          "word": "Verteiler",
+          "gloss": "manifold (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Abwasser fließt in die Sammelleitung.",
+          "translation": "The wastewater flows into the collector pipe.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Signale werden über eine Sammelleitung übertragen. (Electronics)",
+          "translation": "The signals are transmitted via a bus line (manifold).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Sammelleitung verstopft wäre, gäbe es eine Überschwemmung.",
+          "translation": "If the collector pipe were clogged, there would be a flood.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Sammelleitung wird einmal im Jahr gereinigt.",
+          "translation": "The collector pipe is cleaned once a year.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "dreckig",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "dirty / filthy / mean / poorly (health/feeling)",
+      "intro": "Describes physical dirtiness, mean behavior, or feeling very poorly/ill ('mir geht es dreckig'). Related to noun 'Dreck' (dirt). Related to 'Nachforschung' (#1685) and 'Suche' (#1686).",
+      "usage": "Regular adjective (dreckige Hände). Adverbial: dirtily / poorly.",
+      "synonyms": [
+        {
+          "word": "schmutzig",
+          "gloss": "dirty"
+        },
+        {
+          "word": "gemein",
+          "gloss": "mean / nasty"
+        },
+        {
+          "word": "elend",
+          "gloss": "miserable"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Deine Schuhe sind ganz dreckig.",
+          "translation": "Your shoes are completely dirty.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Mir ging es gestern richtig dreckig.",
+          "translation": "I felt really poorly yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Geschirr dreckiger wäre, spülte ich es ab.",
+          "translation": "If the dishes were dirtier, I would wash them.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Wäsche wird gewaschen, weil sie dreckig ist.",
+          "translation": "The laundry is washed because it is dirty.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Nachforschung",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "investigation / search / inquiry / research",
+      "intro": "An investigation, inquiry, or search for facts. Suffix -ung is feminine. Compound of prefix 'nach' and verb 'forschen' (to research). Related to 'Suche' (#1686) and 'bleibend' (#1687).",
+      "usage": "die Nachforschung, die Nachforschungen. Often used in plural.",
+      "synonyms": [
+        {
+          "word": "Ermittlung",
+          "gloss": "investigation"
+        },
+        {
+          "word": "Untersuchung",
+          "gloss": "investigation"
+        },
+        {
+          "word": "Suche",
+          "gloss": "search"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Polizei hat Nachforschungen angestellt.",
+          "translation": "The police conducted investigations.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Seine Nachforschung ergab neue Details.",
+          "translation": "His investigation revealed new details.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn meine Nachforschung erfolgreich wäre, fände ich den Schatz.",
+          "translation": "If my inquiry (search) were successful, I would find the treasure.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Nachforschung wird vom Detektiv eingeleitet.",
+          "translation": "The investigation is initiated by the detective.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Suche",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "search / quest / lookup (computer)",
+      "intro": "A general search, quest, or computer lookup. Related to verb 'suchen'. Related to 'Nachforschung' (#1685) and 'bleibend' (#1687).",
+      "usage": "die Suche, die Suchen. 'Auf der Suche nach' (on the search for).",
+      "synonyms": [
+        {
+          "word": "Fahndung",
+          "gloss": "search / manhunt"
+        },
+        {
+          "word": "Recherche",
+          "gloss": "research / search"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Suche nach dem Schlüssel dauerte lang.",
+          "translation": "The search for the key took long.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er ist auf der Suche nach einem Job.",
+          "translation": "He is in search of a job.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Suche einfacher wäre, wartete ich nicht.",
+          "translation": "If the search were easier, I wouldn't wait.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die vermisste Person wird von der Rettungshundestaffel gesucht.",
+          "translation": "The missing person is sought by the rescue dog squad.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "bleibend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "lasting / permanent / enduring / staying",
+      "intro": "Present participle of the strong verb 'bleiben' (to stay/remain) used as adjective meaning lasting, permanent, or enduring. Related to 'weilend' (#1688) and 'phantasiert' (#1689).",
+      "usage": "Regular adjective (ein bleibender Eindruck) or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "dauerhaft",
+          "gloss": "permanent / lasting"
+        },
+        {
+          "word": "permanent",
+          "gloss": "permanent"
+        },
+        {
+          "word": "beständig",
+          "gloss": "enduring"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das Erlebnis hinterließ einen bleibenden Eindruck.",
+          "translation": "The experience left a lasting impression.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie wünscht sich einen bleibenden Wohnsitz.",
+          "translation": "She wishes for a permanent residence.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Schaden bleibender wäre, klagte er.",
+          "translation": "If the damage were more permanent, he would sue.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Wert wird als bleibend angesehen.",
+          "translation": "The value is regarded as permanent (lasting).",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "weilend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "staying / lingering (formal/poetic)",
+      "intro": "Present participle of the formal verb 'weilen' (to stay/linger - Chunk 17 companion) used as adjective meaning staying or lingering. Related to 'bleibend' (#1687) and 'phantasiert' (#1689).",
+      "usage": "Regular adjective or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "verweilend",
+          "gloss": "lingering / staying"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die im Ausland weilenden Gäste schrieben Briefe.",
+          "translation": "The guests staying abroad wrote letters.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir sahen das im Schatten weilende Reh.",
+          "translation": "We saw the deer lingering in the shadow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn er länger hier weilender redete, verpasste er den Zug.",
+          "translation": "If he talked while lingering here longer, he would miss the train.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das im Hotel weilende Personal wird geschult.",
+          "translation": "The staff staying at the hotel is trained.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "phantasiert",
+      "partOfSpeech": "verb / adjective",
+      "translation": "fantasized / dreamed up / raved (medical) / phantasieren",
+      "intro": "Past participle or present 3rd singular of the verb 'phantasieren' (to fantasize/dream up, or rave/be delirious - Chunk 17 companion), or adjective meaning fantasized. Spelling variant: 'fantasiert'. Related to 'träumt' (#1690) and 'Festnahme' (#1691).",
+      "usage": "Weak regular verb Partizip II (hat phantasiert) or present singular. Adjective: phantasiert.",
+      "synonyms": [
+        {
+          "word": "geträumt",
+          "gloss": "dreamed"
+        },
+        {
+          "word": "ausgedacht",
+          "gloss": "dreamed up"
+        },
+        {
+          "word": "deliriert",
+          "gloss": "delirious"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er hat sich eine eigene Welt phantasiert.",
+          "translation": "He fantasized (dreamed up) a world of his own.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der kranke Patient phantasiert im Fieber.",
+          "translation": "The sick patient is raving in a fever.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich mir Reichtum phantasierte, wäre ich glücklich.",
+          "translation": "If I fantasized about wealth, I would be happy.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Geschichte wird als komplett phantasiert beschrieben.",
+          "translation": "The story is described as completely fantasized.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "träumt",
+      "partOfSpeech": "verb",
+      "translation": "dreams / daydreams",
+      "intro": "Present 3rd person singular of the verb 'träumen' (to dream / daydream). Related to 'phantasiert' (#1689) and 'Festnahme' (#1691).",
+      "usage": "Weak regular verb: träumen, träumte, hat geträumt. Intransitive or transitive. Governs 'von' + dative.",
+      "synonyms": [
+        {
+          "word": "phantasiert",
+          "gloss": "fantasizes"
+        },
+        {
+          "word": "sinniert",
+          "gloss": "muses / daydreams"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er träumt von einem eigenen Haus.",
+          "translation": "He dreams of a house of his own.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Kind träumt friedlich im Bett.",
+          "translation": "The child dreams peacefully in bed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn sie von mir träumte, wäre ich froh.",
+          "translation": "If she dreamed of me, I would be glad.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Zukunft wird im Schlaf geträumt.",
+          "translation": "The future is dreamed of in sleep.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Festnahme",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "arrest / detention / apprehension",
+      "intro": "An official arrest or detention of a suspect by police. Suffix -nahme (from nehmen). Compound of adjective 'fest' (firm - Chunk 5) and 'Nahme' (taking). Related to 'Haft' (#1692) and 'haltend' (#1693).",
+      "usage": "die Festnahme, die Festnahmen. 'Vorläufige Festnahme' (provisional arrest).",
+      "synonyms": [
+        {
+          "word": "Verhaftung",
+          "gloss": "arrest / detention"
+        },
+        {
+          "word": "Arretierung",
+          "gloss": "arrest"
+        },
+        {
+          "word": "Ergreifung",
+          "gloss": "apprehension"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die Festnahme des Diebes erfolgte gestern.",
+          "translation": "The arrest of the thief took place yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er leistete Widerstand bei der Festnahme.",
+          "translation": "He resisted arrest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Festnahme früher geschähe, entkäme der Täter nicht.",
+          "translation": "If the arrest happened earlier, the perpetrator wouldn't escape.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Festnahme wird von zwei Beamten durchgeführt.",
+          "translation": "The arrest is carried out by two officers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Haft",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "imprisonment / custody / arrest",
+      "intro": "Imprisonment, custody, or arrest. Related to 'Festnahme' (#1691) and 'haltend' (#1693).",
+      "usage": "die Haft (imprisonment). 'Untersuchungshaft' (remand custody).",
+      "synonyms": [
+        {
+          "word": "Gefängnis",
+          "gloss": "prison"
+        },
+        {
+          "word": "Gewahrsam",
+          "gloss": "custody"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Richter verurteilte ihn zu drei Jahren Haft.",
+          "translation": "The judge sentenced him to three years of imprisonment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er befindet sich in Untersuchungshaft.",
+          "translation": "He is in remand custody.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Haft kürzer wäre, freute er sich.",
+          "translation": "If the imprisonment were shorter, he would be pleased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Gefangene wird in Haft gehalten.",
+          "translation": "The prisoner is kept in custody.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "haltend",
+      "partOfSpeech": "adjective / verb",
+      "translation": "holding / keeping / stopping",
+      "intro": "Present participle of the strong verb 'halten' (to hold/keep/stop) used as adjective meaning holding, keeping, or stopping. Related to 'plötzlich' (#1694) and 'plötzliche' (#1695).",
+      "usage": "Regular adjective (der haltende Bus) or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "greifend",
+          "gloss": "holding"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ich sah die Hände haltende Paare.",
+          "translation": "I saw couples holding hands.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der an der Ampel haltende Wagen blockiert den Weg. (Car m)",
+          "translation": "The car stopping at the traffic light blocks the path.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Fahrer haltender telefonierte, gäbe es keinen Unfall.",
+          "translation": "If the driver called while stopping (stationary), there would be no accident.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das haltende Flugzeug wird vom Tower kontrolliert.",
+          "translation": "The stopping (stationary) plane is controlled by the tower.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "plötzlich",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "sudden / abrupt / suddenly / abruptly",
+      "intro": "Describes sudden events, abrupt changes, or happening suddenly. Related to 'plötzliche' (#1695) and 'unversehens' (#1696).",
+      "usage": "Regular adjective (ein plötzlicher Tod). Adverbial: suddenly.",
+      "synonyms": [
+        {
+          "word": "abrupt",
+          "gloss": "abrupt"
+        },
+        {
+          "word": "unvorhergesehen",
+          "gloss": "unforeseen"
+        },
+        {
+          "word": "unversehens",
+          "gloss": "unexpectedly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Himmel wurde plötzlich dunkel.",
+          "translation": "The sky suddenly became dark.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sein plötzlicher Entschluss überraschte alle.",
+          "translation": "His sudden decision surprised everyone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Lärm plötzlicher einsetzte, erschräken wir.",
+          "translation": "If the noise started more suddenly, we would be startled.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Treffen wird wegen eines plötzlichen Falls abgesagt.",
+          "translation": "The meeting is canceled due to a sudden case.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "plötzliche",
+      "partOfSpeech": "adjective",
+      "translation": "sudden / abrupt",
+      "intro": "Inflected feminine/plural/weak form of the adjective 'plötzlich' (#1694). Related to 'unversehens' (#1696) and 'gewöhnlich' (#1697).",
+      "usage": "Inflected adjective (eine plötzliche Wendung - a sudden turn).",
+      "synonyms": [
+        {
+          "word": "abrupte",
+          "gloss": "abrupt"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die plötzliche Kälte überraschte uns.",
+          "translation": "The sudden cold surprised us.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er musste wegen einer plötzlichen Erkrankung absagen.",
+          "translation": "He had to cancel due to a sudden illness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das eine plötzliche Änderung wäre, regierte ich panisch.",
+          "translation": "If that were a sudden change, I would react in panic.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die plötzliche Wendung wird im Artikel analysiert.",
+          "translation": "The sudden turn is analyzed in the article.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "unversehens",
+      "partOfSpeech": "adverb",
+      "translation": "unexpectedly / suddenly / unawares (formal)",
+      "intro": "A slightly formal adverb meaning unexpectedly, suddenly, or unawares. Related to prefix 'un-' and verb 'sehen'. Related to 'plötzlich' (#1694) and 'plötzliche' (#1695).",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "plötzlich",
+          "gloss": "suddenly"
+        },
+        {
+          "word": "unerwartet",
+          "gloss": "unexpectedly"
+        },
+        {
+          "word": "überraschend",
+          "gloss": "surprisingly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er stand unversehens vor meiner Tür.",
+          "translation": "He stood unexpectedly (suddenly) in front of my door.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Gewitter überraschte uns unversehens.",
+          "translation": "The thunderstorm caught us unawares.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Unglück unversehens einträfe, stünden wir ohne Geld da. (Misfortune n)",
+          "translation": "If the misfortune happened unexpectedly, we would stand there without money.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Angriff wird unversehens gestartet.",
+          "translation": "The attack is launched unexpectedly.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "gewöhnlich",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "ordinary / common / usual / vulgar / usually / commonly",
+      "intro": "Describes ordinary things, common habits, vulgar behavior, or acts as adverb meaning usually/commonly. Related to verb 'gewöhnen'. Related to 'gewöhnliche' (#1698) and 'üblicherweise' (#1699).",
+      "usage": "Regular adjective (ein gewöhnlicher Tag). Adverbial: usually.",
+      "synonyms": [
+        {
+          "word": "normal",
+          "gloss": "normal"
+        },
+        {
+          "word": "alltäglich",
+          "gloss": "daily / common"
+        },
+        {
+          "word": "ordinär",
+          "gloss": "vulgar"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das ist ein ganz gewöhnliches Fahrrad.",
+          "translation": "That is a completely ordinary bicycle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Gewöhnlich trinke ich morgens Tee. (Usually)",
+          "translation": "Usually, I drink tea in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Treffen gewöhnlicher verlaufe, langweilte ich mich. (Subjunctive present variant)",
+          "translation": "If the meeting proceeded more ordinarily, I would be bored.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Ablauf wird als gewöhnlich bezeichnet.",
+          "translation": "The procedure is described as ordinary.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "gewöhnliche",
+      "partOfSpeech": "adjective",
+      "translation": "ordinary / common / usual / vulgar",
+      "intro": "Inflected feminine/plural/weak form of the adjective 'gewöhnlich' (#1697). Related to 'üblicherweise' (#1699) and 'Mengen' (#1700).",
+      "usage": "Inflected adjective (die gewöhnliche Prozedur - the usual procedure).",
+      "synonyms": [
+        {
+          "word": "normale",
+          "gloss": "normal"
+        },
+        {
+          "word": "übliche",
+          "gloss": "usual"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er wählte den gewöhnlichen Weg durch den Wald.",
+          "translation": "He chose the usual path through the forest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das sind gewöhnliche Probleme des Alltags.",
+          "translation": "Those are ordinary problems of daily life.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das die gewöhnliche Methode wäre, gäbe es keine Kritik.",
+          "translation": "If that were the usual method, there would be no criticism.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die gewöhnliche Arbeit wird von Angestellten erledigt.",
+          "translation": "The ordinary work is done by employees.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "üblicherweise",
+      "partOfSpeech": "adverb",
+      "translation": "usually / typically / commonly",
+      "intro": "Adverb meaning usually, typically, or commonly. Compound of adjective 'üblich' (usual - Chunk 10) and suffix '-weise'. Related to 'gewöhnlich' (#1697) and 'gewöhnliche' (#1698).",
+      "usage": "Invariable adverb.",
+      "synonyms": [
+        {
+          "word": "gewöhnlich",
+          "gloss": "usually"
+        },
+        {
+          "word": "normalerweise",
+          "gloss": "normally"
+        },
+        {
+          "word": "meistens",
+          "gloss": "mostly"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir treffen uns üblicherweise am Montag.",
+          "translation": "We usually meet on Monday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Laden schließt üblicherweise um 18 Uhr.",
+          "translation": "The shop typically closes at 6 PM.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Tickets üblicherweise teurer wären, kauften wir sie jetzt.",
+          "translation": "If the tickets were typically more expensive, we would buy them now.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Verfahren wird üblicherweise vom Chef genehmigt.",
+          "translation": "The procedure is typically approved by the boss.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Mengen",
+      "partOfSpeech": "noun / verb",
+      "gender": "feminine",
+      "translation": "quantities / amounts / crowds / to mix / blend (verb)",
+      "intro": "Plural form of the feminine noun 'Menge' (quantity/amount/crowd - Chunk 6), or weak verb meaning to mix/blend ('mengen'). Related to 'Schuhe' (#1701) and 'Absprung' (#1702).",
+      "usage": "die Mengen, der Mengen. Verb: mengen, mengte, hat gemengt.",
+      "synonyms": [
+        {
+          "word": "Quantitäten",
+          "gloss": "quantities"
+        },
+        {
+          "word": "Massen",
+          "gloss": "masses / crowds"
+        },
+        {
+          "word": "mischen",
+          "gloss": "to mix"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir haben große Mengen an Mehl gekauft.",
+          "translation": "We bought large quantities of flour.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er mengt die Zutaten in der Schüssel zusammen. (Verb)",
+          "translation": "He mixes the ingredients together in the bowl.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir größere Mengen bestellten, bekämen wir Rabatt. (Noun pl)",
+          "translation": "If we ordered larger quantities, we would get a discount.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Gewürze werden unter den Teig gemengt.",
+          "translation": "The spices are mixed into the dough.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Schuhe",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "shoes",
+      "intro": "Plural form of the masculine noun 'Schuh' (shoe - Chunk 6). Related to 'Mengen' (#1700), 'Absprung' (#1702), and 'Sprung' (#1703).",
+      "usage": "die Schuhe, der Schuhe. Capitalized in German.",
+      "synonyms": [
+        {
+          "word": "Schuhwerk",
+          "gloss": "footwear"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Die neuen Schuhe passen mir sehr gut.",
+          "translation": "The new shoes fit me very well.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er zieht seine Schuhe aus.",
+          "translation": "He takes his shoes off.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn die Schuhe bequemer wären, wanderte ich weiter.",
+          "translation": "If the shoes were more comfortable, I would hike further.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Schuhe werden im Regal aufbewahrt.",
+          "translation": "The shoes are kept on the shelf.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Absprung",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "jump / takeoff / jump-off / bounce / defection",
+      "intro": "A physical jump, takeoff in sports, jump-off point, or political defection. Compound of prefix 'ab-' and 'Sprung' (jump - #1703). Related to 'Sprung' (#1703) and 'loswerden' (#1704).",
+      "usage": "der Absprung, des Absprung(e)s, die Absprünge (plural with Umlaut). 'Den Absprung schaffen' (idiom: to manage to escape).",
+      "synonyms": [
+        {
+          "word": "Sprung",
+          "gloss": "jump"
+        },
+        {
+          "word": "Abflug",
+          "gloss": "takeoff (masculine)"
+        },
+        {
+          "word": "Flucht",
+          "gloss": "flight / escape (feminine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Skispringer bereitet sich auf den Absprung vor. (Skier m)",
+          "translation": "The ski jumper prepares for takeoff (jump).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er verpasste den richtigen Zeitpunkt für den Absprung.",
+          "translation": "He missed the right moment to get out.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Absprung gefährlicher wäre, spränge ich nicht.",
+          "translation": "If the jump were more dangerous, I wouldn't jump.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Absprung wird von der Jury bewertet.",
+          "translation": "The takeoff is evaluated by the jury.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Sprung",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "jump / leap / crack (in glass/china) / sudden rise",
+      "intro": "A physical jump/leap, a crack in glass/ceramics, or a sudden rise in price/value. Related to verb 'springen'. Related to 'Absprung' (#1702) and 'loswerden' (#1704).",
+      "usage": "der Sprung, des Sprung(e)s, die Sprünge (plural with Umlaut). 'Auf dem Sprung sein' (idiom: to be about to leave).",
+      "synonyms": [
+        {
+          "word": "Satz",
+          "gloss": "leap / jump"
+        },
+        {
+          "word": "Riss",
+          "gloss": "crack / tear (masculine)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Sprung über den Bach war weit. (Bach m)",
+          "translation": "The jump over the creek was wide.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Tasse hat einen kleinen Sprung. (Crack)",
+          "translation": "The cup has a small crack.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Sprung höher wäre, gewönne er Gold.",
+          "translation": "If the jump were higher, he would win gold.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der weite Sprung wird mit Applaus belohnt.",
+          "translation": "The long jump is rewarded with applause.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "loswerden",
+      "partOfSpeech": "verb",
+      "translation": "to get rid of / shake off / sell / get off one's chest",
+      "intro": "To get rid of a cold/junk, shake off a pursuer, sell goods, or get a secret off one's chest. Compound of adjective 'los' (rid/loose) and 'werden' (to become - Chunk 1). Related to 'Klopfen' (#1705).",
+      "usage": "Strong irregular separable verb: loswerden, wurde los, ist losgeworden. present: er wird los. Transitive. Governs accusative.",
+      "synonyms": [
+        {
+          "word": "beseitigen",
+          "gloss": "to eliminate / remove"
+        },
+        {
+          "word": "loskriegen",
+          "gloss": "to get rid of / sell"
+        },
+        {
+          "word": "abschütteln",
+          "gloss": "to shake off"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Ich will diesen alten Schrank endlich loswerden. (Wardrobe m)",
+          "translation": "I want to get rid of this old wardrobe finally.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er wollte das Geheimnis loswerden. (Get off chest)",
+          "translation": "He wanted to get the secret off his chest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich den Schnupfen loswürde, feierte ich. (Subjunctive II verb 'werden', cold/sniffles m)",
+          "translation": "If I got rid of the cold, I would celebrate.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das alte Auto wird vom Besitzer losgeworden.",
+          "translation": "The old car is got rid of by the owner.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Klopfen",
+      "partOfSpeech": "noun / verb",
+      "gender": "neuter",
+      "translation": "knocking / tapping / thumping (heart) / to knock / tap (verb)",
+      "intro": "The act of knocking on a door, physical tapping, heart thumping (noun), or weak verb 'klopfen' (to knock/tap). Related to 'schlechteste' (#1706) and 'schlimmste' (#1707).",
+      "usage": "das Klopfen, des Klopfens. Verb: klopfen, klopfte, hat geklopft. 'Herzklopfen' (heart thumping).",
+      "synonyms": [
+        {
+          "word": "Pochen",
+          "gloss": "thumping / knocking"
+        },
+        {
+          "word": "Klopfsignal",
+          "gloss": "knocking signal"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir hörten ein lautes Klopfen an der Tür.",
+          "translation": "We heard a loud knocking at the door.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sein Herz klopft sehr schnell. (Verb)",
+          "translation": "His heart beats (knocks) very fast.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das Klopfen lauter wäre, öffnete ich die Tür.",
+          "translation": "If the knocking were louder, I would open the door.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Es wird dreimal an das Fenster geklopft.",
+          "translation": "There is knocking on the window three times.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "schlechteste",
+      "partOfSpeech": "adjective",
+      "translation": "worst / poorest",
+      "intro": "Superlative form of the adjective 'schlecht' (bad). Related to 'schlimmste' (#1707) and 'Fluss' (#1708).",
+      "usage": "Inflected superlative adjective (das schlechteste Ergebnis - the worst result).",
+      "synonyms": [
+        {
+          "word": "schlimmste",
+          "gloss": "worst / gravest"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das war das schlechteste Hotel der Reise.",
+          "translation": "That was the worst hotel of the trip.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie wählte die schlechteste Option.",
+          "translation": "She chose the worst option.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das die schlechteste Leistung wäre, bestünde er die Prüfung nicht.",
+          "translation": "If that were the worst performance, he wouldn't pass the exam.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die schlechteste Note wird vom Lehrer korrigiert. (Grade f)",
+          "translation": "The worst grade is corrected by the teacher.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "schlimmste",
+      "partOfSpeech": "adjective / noun",
+      "gender": "neuter",
+      "translation": "worst / gravest / the worst thing (noun: 'Schlimmste')",
+      "intro": "Superlative form of the adjective 'schlimm' (bad/grave). Declines as noun meaning the worst thing ('das Schlimmste'). Related to 'schlechteste' (#1706) and 'Fluss' (#1708).",
+      "usage": "Inflected superlative adjective. Noun: das Schlimmste, des Schlimmsten. 'Das Schlimmste verhindern' (to prevent the worst).",
+      "synonyms": [
+        {
+          "word": "schlechteste",
+          "gloss": "worst"
+        },
+        {
+          "word": "gravierendste",
+          "gloss": "gravest"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Das schlimmste Ereignis war der Sturm.",
+          "translation": "The worst event was the storm.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Schlimmste steht uns noch bevor. (Noun: the worst thing)",
+          "translation": "The worst is still ahead of us.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn das der schlimmste Fehler wäre, verziehe ich ihm.",
+          "translation": "If that were the worst mistake, I would forgive him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die schlimmste Auswirkung wird im Bericht diskutiert.",
+          "translation": "The worst impact is discussed in the report.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Fluss",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "river / stream / flow / flux / fluency (speech)",
+      "intro": "A geographical river/stream, physical flow/flux, or fluency in speech/writing. Related to verb 'fließen'. Related to 'Tante' (#1709) and 'schlechteste' (#1706).",
+      "usage": "der Fluss, des Flusses, die Flüsse (plural with Umlaut). 'In Fluss kommen' (to get going).",
+      "synonyms": [
+        {
+          "word": "Strom",
+          "gloss": "large river / stream"
+        },
+        {
+          "word": "Bach",
+          "gloss": "creek / brook"
+        },
+        {
+          "word": "Strömung",
+          "gloss": "current / flow"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der breite Fluss mündet ins Meer.",
+          "translation": "The wide river flows into the sea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sein Redefluss war nicht zu bremsen.",
+          "translation": "His flow of speech was not to be stopped.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Fluss tiefer wäre, schifften wir dort.",
+          "translation": "If the river were deeper, we would sail there.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Fluss wird von einer Brücke überquert.",
+          "translation": "The river is crossed by a bridge.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Tante",
+      "partOfSpeech": "noun",
+      "gender": "feminine",
+      "translation": "aunt / auntie",
+      "intro": "A female relative (aunt). Loanword. Related to 'Fluss' (#1708).",
+      "usage": "die Tante, die Tanten. 'Großtante' (great-aunt).",
+      "synonyms": [],
+      "examples": [
+        {
+          "sentence": "Meine Tante wohnt in München.",
+          "translation": "My aunt lives in Munich.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er schenkt seiner Tante Blumen.",
+          "translation": "He gives flowers to his aunt.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn meine Tante reicher wäre, kaufte sie mir ein Auto.",
+          "translation": "If my aunt were richer, she would buy me a car.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Tante wird von den Kindern besucht.",
+          "translation": "The aunt is visited by the children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "lächelnd",
+      "partOfSpeech": "adjective / verb",
+      "translation": "smiling / smilingly",
+      "intro": "Present participle of the verb 'lächeln' (to smile) used as adjective meaning smiling or smilingly. Related to 'witzelnd' (#99) and 'geduldig' (#98).",
+      "usage": "Regular adjective (das lächelnde Gesicht) or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "schmunzelnd",
+          "gloss": "smiling gently"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie sah ihn mit einem lächelnden Gesicht an.",
+          "translation": "She looked at him with a smiling face.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er antwortete lächelnd auf die Frage.",
+          "translation": "He answered the question smilingly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn sie lächelnder dastünde, sähe sie freundlicher aus.",
+          "translation": "If she stood there smiling more, she would look friendlier.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das lächelnde Modell wird fotografiert.",
+          "translation": "The smiling model is photographed.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "geduldig",
+      "partOfSpeech": "adjective / adverb",
+      "translation": "patient / patiently / with patience",
+      "intro": "Describes a patient character, behaving with patience, or waiting calmly. Related to noun 'Geduld'. Related to 'Patient' (#100) and 'lächelnd' (#97).",
+      "usage": "Regular adjective (ein geduldiger Zuhörer - a patient listener). Adverbial: patiently.",
+      "synonyms": [
+        {
+          "word": "langmütig",
+          "gloss": "long-suffering / patient"
+        },
+        {
+          "word": "beharrlich",
+          "gloss": "persistent / patient"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er wartet geduldig auf den Arzt.",
+          "translation": "He waits patiently for the doctor.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Sie ist eine sehr geduldige Lehrerin.",
+          "translation": "She is a very patient teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich geduldiger wäre, schimpfte ich nicht.",
+          "translation": "If I were more patient, I wouldn't scold.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der kranke Mann wird geduldig gepflegt. (Verb helper)",
+          "translation": "The sick man is cared for patiently.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "witzelnd",
+      "partOfSpeech": "adjective / verb",
+      "translation": "making witticisms / joking (slightly mocking)",
+      "intro": "Present participle of the verb 'witzeln' (to joke / make witticisms - Chunk 17 companion) used as adjective meaning joking or making jokes. Related to 'lächelnd' (#97) and 'geduldig' (#98).",
+      "usage": "Regular adjective or participle adverbial.",
+      "synonyms": [
+        {
+          "word": "scherzend",
+          "gloss": "joking"
+        },
+        {
+          "word": "albernd",
+          "gloss": "fooling around"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Wir hörten die witzelnden Schüler im Klassenzimmer.",
+          "translation": "We heard the joking students in the classroom.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Er verbrachte die Pause, witzelnd über den Lehrer.",
+          "translation": "He spent the break making jokes about the teacher.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn er witzelnder argumentierte, wäre der Vortrag lustiger. (Lecture m)",
+          "translation": "If he argued more jokingly, the lecture would be funnier.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das witzelnde Publikum wird vom Comedian zum Lachen gebracht. (Comedian m)",
+          "translation": "The joking audience is made to laugh by the comedian.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "Patient",
+      "partOfSpeech": "noun",
+      "gender": "masculine",
+      "translation": "patient (medical)",
+      "intro": "A medical patient under treatment. Loanword from Latin. Related to 'geduldig' (#98).",
+      "usage": "der Patient, des Patienten, die Patienten. Weak masculine noun (requires -en in inflected forms). Feminine: Patientin.",
+      "synonyms": [
+        {
+          "word": "Kranker",
+          "gloss": "sick person (masculine)"
+        },
+        {
+          "word": "Behandelter",
+          "gloss": "treated person"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Arzt untersucht den neuen Patienten.",
+          "translation": "The doctor examines the new patient.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Die Patienten warten ungeduldig im Flur.",
+          "translation": "The patients wait impatiently in the hall.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn der Patient gesünder wäre, verließe er das Krankenhaus.",
+          "translation": "If the patient were healthier, he would leave the hospital.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Patient wird vom Pflegepersonal versorgt.",
+          "translation": "The patient is cared for by the nursing staff.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "singen",
+      "partOfSpeech": "verb",
+      "translation": "to sing",
+      "intro": "To sing a song or melody.",
+      "usage": "Strong irregular verb: singen, sang, hat gesungen. Transitive or intransitive.",
+      "synonyms": [
+        {
+          "word": "trällern",
+          "gloss": "to hum"
+        },
+        {
+          "word": "jodeln",
+          "gloss": "to yodel"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie singt ein schönes Lied.",
+          "translation": "She is singing a beautiful song.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wir sangen gestern im Chor.",
+          "translation": "We sang in the choir yesterday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn ich besser sänge, träte ich im Fernsehen auf.",
+          "translation": "If I sang better, I would appear on TV.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Lied wird von den Kindern gesungen.",
+          "translation": "The song is sung by the children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "festkleben",
+      "partOfSpeech": "verb",
+      "translation": "to glue down / stick down / stick / get stuck",
+      "intro": "To physically glue something down, stick down, or get stuck (reflexive).",
+      "usage": "Weak regular separable verb: festkleben, klebte fest, hat/ist festgeklebt. Auxiliary 'haben' for transitive, 'sein' for reflexive.",
+      "synonyms": [
+        {
+          "word": "aufkleben",
+          "gloss": "to glue on"
+        },
+        {
+          "word": "verkleben",
+          "gloss": "to glue together"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Bitte klebe das Etikett fest.",
+          "translation": "Please glue the label down.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Das Kaugummi ist am Schuh festgeklebt. (Intransitive/state)",
+          "translation": "The chewing gum got stuck to the shoe.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn du das Poster festklebtest, hielte es länger.",
+          "translation": "If you glued the poster down, it would hold longer.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Papier wird mit Klebstoff festgeklebt.",
+          "translation": "The paper is glued down with glue.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "beherrschen",
+      "partOfSpeech": "verb",
+      "translation": "to master (skill/language) / dominate / control / rule",
+      "intro": "To master a language/skill, dominate a market/region, rule a state, or control oneself (reflexive).",
+      "usage": "Weak regular verb: beherrschen, beherrschte, hat beherrscht. Transitive or reflexive. Governs accusative.",
+      "synonyms": [
+        {
+          "word": "meistern",
+          "gloss": "to master"
+        },
+        {
+          "word": "dominieren",
+          "gloss": "to dominate"
+        },
+        {
+          "word": "kontrollieren",
+          "gloss": "to control"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er beherrscht drei Fremdsprachen perfekt.",
+          "translation": "He masters three foreign languages perfectly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Bitte beherrsche dich in dieser Situation. (Reflexive)",
+          "translation": "Please control yourself in this situation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn wir das System beherrschten, sparten wir Geld.",
+          "translation": "If we mastered the system, we would save money.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Der Markt wird von einer großen Firma beherrscht.",
+          "translation": "The market is dominated by a large company.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "herrschen",
+      "partOfSpeech": "verb",
+      "translation": "to rule / reign / prevail / exist",
+      "intro": "To rule over a state, reign, prevail, or exist (like chaos/peace).",
+      "usage": "Weak regular verb: herrschen, herrschte, hat geherrscht. Intransitive.",
+      "synonyms": [
+        {
+          "word": "regieren",
+          "gloss": "to rule / reign"
+        },
+        {
+          "word": "vorherrscht",
+          "gloss": "to prevail"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Der Kaiser herrschte über ein großes Land.",
+          "translation": "The emperor ruled over a large country.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Im Raum herrschte dichte Dunkelheit.",
+          "translation": "Thick darkness prevailed in the room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn dort Frieden herrschte, kehrten die Flüchtlinge zurück.",
+          "translation": "If peace prevailed there, the refugees would return.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Das Reich wird regiert, während der König herrscht. (Verb active)",
+          "translation": "The empire is governed while the king rules.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "weilen",
+      "partOfSpeech": "verb",
+      "translation": "to stay / linger / dwell (formal/poetic)",
+      "intro": "To stay, linger, or dwell somewhere. Formal or poetic register.",
+      "usage": "Weak regular verb: weilen, weilte, hat geweilt. Intransitive.",
+      "synonyms": [
+        {
+          "word": "verweilen",
+          "gloss": "to stay / linger"
+        },
+        {
+          "word": "bleiben",
+          "gloss": "to stay"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Er weilte einige Tage in der Stadt.",
+          "translation": "He stayed a few days in the city.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Geist weilt unter uns. (Poetic)",
+          "translation": "The spirit dwells among us.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn du noch etwas bei uns weiltest, freute ich mich.",
+          "translation": "If you stayed with us a bit longer, I would be pleased.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Es wird eine Weile am See geweilt.",
+          "translation": "There is lingering at the lake for a while.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "phantasieren",
+      "partOfSpeech": "verb",
+      "translation": "to fantasize / dream up / rave (medical)",
+      "intro": "To fantasize/dream up, or rave/be delirious in a fever.",
+      "usage": "Weak regular verb: phantasieren, phantasierte, hat phantasiert. Intransitive or transitive. Spelling variant: 'fantasieren'.",
+      "synonyms": [
+        {
+          "word": "träumen",
+          "gloss": "to dream"
+        },
+        {
+          "word": "ausdenken",
+          "gloss": "to dream up"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "Sie phantasiert oft von einer besseren Zukunft.",
+          "translation": "She often fantasizes about a better future.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Der Kranke phantasiert im Schlaf. (Raves/is delirious)",
+          "translation": "The sick person is raving in sleep.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "Wenn er weniger phantasierte, täte er echte Arbeit.",
+          "translation": "If he fantasized less, he would do real work.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "Die Geschichte wird vom Autoren phantasiert.",
+          "translation": "The story is fantasized by the author.",
+          "type": "passive"
+        }
+      ]
+    }
+  ]
+}

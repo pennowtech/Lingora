@@ -1,6 +1,6 @@
 # 🔍 Sofortige Suche und mehrmotoriges Wörterbuch
 
-Der Bildschirm **Suchen & Wörterbuch** ist die Suchmaschine von Lemony. Es ermöglicht Ihnen die Suche nach Wörtern in Ihrer Ziel- oder Muttersprache und bietet sofortige Offline-Übereinstimmungen mit der FTS5-Datenbank, zweisprachige Wörterbuchübersetzungen, eine Vorschau des Wortführers und die Generierung von KI-Lernkarten mit nur einem Tastendruck.
+Der Bildschirm **Suchen & Wörterbuch** ist die Suchmaschine von Lemory. Es ermöglicht Ihnen die Suche nach Wörtern in Ihrer Ziel- oder Muttersprache und bietet sofortige Offline-Übereinstimmungen mit der FTS5-Datenbank, zweisprachige Wörterbuchübersetzungen, eine Vorschau des Wortführers und die Generierung von KI-Lernkarten mit nur einem Tastendruck.
 
 ![Suche nach "laufen" mit der Wörterbuchübersetzung und der AI-Insights-Vorschau](search-dictionary)
 
@@ -17,7 +17,7 @@ Der Bildschirm **Suchen & Wörterbuch** ist die Suchmaschine von Lemony. Es erm�
 ---
 
 ### 2. Mehrstufige neue Worterkennungspipeline
-Wenn Sie nach einem Wort suchen, für das es in Ihrer Bibliothek noch keine exakte Übereinstimmung gibt, füllt Lemony automatisch bis zu drei interaktive Entdeckungskarten über den Suchergebnissen aus:
+Wenn Sie nach einem Wort suchen, für das es in Ihrer Bibliothek noch keine exakte Übereinstimmung gibt, füllt Lemory automatisch bis zu drei interaktive Entdeckungskarten über den Suchergebnissen aus:
 
 #### A. 📖 Vorschau des Wortführers (Offline-Wörterbuch)
 - **Quelle**: Kostenlose, offline installierte Sprachwörterbuchdatenbank.
@@ -64,8 +64,8 @@ Wenn Sie nach einem Wort suchen, für das es in Ihrer Bibliothek noch keine exak
 ---
 
 ### 5. Von überall aus suchen (Systemfreigabe und Text verarbeiten)
-- **Android Process Text**: Markieren Sie ein beliebiges Wort in einem Webbrowser, E-Book oder einer Messaging-App und tippen Sie auf die drei Punkte $\rightarrow$ **„Suche in Lemony“**, um direkt in die Suche zu springen und das Wort vorinstalliert zu haben.
-- **Systemfreigabeblatt**: Geben Sie Text oder Phrasen aus externen Apps direkt an Lemony weiter.
+- **Android Process Text**: Markieren Sie ein beliebiges Wort in einem Webbrowser, E-Book oder einer Messaging-App und tippen Sie auf die drei Punkte $\rightarrow$ **„Suche in Lemory“**, um direkt in die Suche zu springen und das Wort vorinstalliert zu haben.
+- **Systemfreigabeblatt**: Geben Sie Text oder Phrasen aus externen Apps direkt an Lemory weiter.
 
 ---
 

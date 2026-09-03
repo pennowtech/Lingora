@@ -255,7 +255,7 @@ export function useCloudSync(): CloudSyncState {
 // ─── Automatic background sync ───────────────────────────────────────────────
 //
 // Triggered when the app is backgrounded (the same boundary Shelfie fires on, minus its "chapter/
-// book close" hook — Lemony has no equivalent mid-session boundary worth syncing on). Gated only
+// book close" hook — Lemory has no equivalent mid-session boundary worth syncing on). Gated only
 // by the minimum-interval cooldown and being signed in — deliberately no Wi-Fi-only check.
 
 let db: DatabaseAdapter | null = null

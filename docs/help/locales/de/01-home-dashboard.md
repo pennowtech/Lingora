@@ -1,6 +1,6 @@
 # 🏠 Home & Daily Study Hub
 
-Das **Home Dashboard** ist der tägliche Ausgangspunkt in Lemony. Es bietet Ihnen einen Echtzeitüberblick über Ihre Wiederholungslast bei räumlichen Wiederholungen, die aktuelle Lernserie, die kuratierte Wort-des-Tages-Entdeckung und sofortige Verknüpfungen zur Wörterbuchsuche und zum Satz-Mining.
+Das **Home Dashboard** ist der tägliche Ausgangspunkt in Lemory. Es bietet Ihnen einen Echtzeitüberblick über Ihre Wiederholungslast bei räumlichen Wiederholungen, die aktuelle Lernserie, die kuratierte Wort-des-Tages-Entdeckung und sofortige Verknüpfungen zur Wörterbuchsuche und zum Satz-Mining.
 
 ![Das Home Dashboard mit der täglichen Ladeanzeige, den Schnellzugriff-Kacheln und der Wort-des-Tages-Karte](home-daily-study-hub)
 
@@ -76,7 +76,7 @@ Wenn Sie 0 Karten in Ihrer Bibliothek haben, tauscht das Dashboard automatisch d
 ---
 
 ### 7. App-Updates und In-App-Hilfe
-- **Was ist neu Modal**: Wird automatisch einmal pro Version angezeigt, wenn eine neue Version von Lemony gestartet wird, und fasst neu eingeführte Funktionen zusammen.
+- **Was ist neu Modal**: Wird automatisch einmal pro Version angezeigt, wenn eine neue Version von Lemory gestartet wird, und fasst neu eingeführte Funktionen zusammen.
 - **Heimhilfe-Akkordeon**: Über das Fragezeichen-Symbol in der Kopfzeile zugänglich, bietet es schnelle Antworten zu täglichen Fälligkeitszählungen, Aufbewahrungsstatistiken, Wort des Tages und Verknüpfungen.
 
 ---

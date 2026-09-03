@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <BookOpen size={20} color="var(--text-primary)" />
         </div>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Lemony</h1>
+          <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Lemory</h1>
           <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Desktop</span>
         </div>
       </div>

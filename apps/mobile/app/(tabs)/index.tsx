@@ -11,7 +11,7 @@ import {
   type DatabaseAdapter,
 } from '@lingora/database'
 import { useQuery } from '@tanstack/react-query'
-import { router, Stack, useFocusEffect } from 'expo-router'
+import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
@@ -128,10 +128,21 @@ export default function HomeScreen(): JSX.Element {
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const help = useHelpAccordion('due')
+  const { openWotd } = useLocalSearchParams<{ openWotd?: string }>()
 
   const [wotdModalOpen, setWotdModalOpen] = useState(false)
   const [aiSetupModalOpen, setAiSetupModalOpen] = useState(false)
   const [whatsNewOpen, setWhatsNewOpen] = useState(false)
+
+  // Tapping the Word of the Day notification deep-links here with ?openWotd=1 (see
+  // WordOfTheDayLifecycle) so it opens the exact same summary popup the dashboard tile does,
+  // instead of skipping straight to the full word detail screen. Cleared immediately via
+  // setParams so navigating back to Home later (tab switch, back button) doesn't reopen it.
+  useEffect(() => {
+    if (openWotd !== '1') return
+    setWotdModalOpen(true)
+    router.setParams({ openWotd: '' })
+  }, [openWotd])
 
   useEffect(() => {
     void shouldShowWhatsNew().then((show) => {

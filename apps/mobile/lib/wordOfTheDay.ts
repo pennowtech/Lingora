@@ -174,7 +174,11 @@ async function scheduleNotification(
       content: {
         title: t('✨ Word of the Day: {{word}}', { word }),
         body: explanation,
-        data: { path: `/word/${encodeURIComponent(word)}`, initialExplanation: explanation },
+        // Opens the same Home-screen "Word of the Day" summary popup a tap on the dashboard tile
+        // opens (see openWotd in app/(tabs)/index.tsx) - not straight to the full word/[form]
+        // detail screen. The popup's own "Explore Full Details" button is still there for anyone
+        // who wants to go deeper.
+        data: { path: '/', openWotd: '1' },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -188,6 +192,39 @@ async function scheduleNotification(
     })
     return undefined
   }
+}
+
+const MAX_UNIQUE_WORD_ATTEMPTS = 5
+
+function normalizedWord(word: string): string {
+  return word.normalize('NFKC').trim().toLocaleLowerCase()
+}
+
+/**
+ * Asks the AI for a word, then actually verifies it's not a repeat instead of trusting the
+ * prompt's exclude-list instruction alone — a model can and does occasionally ignore it,
+ * especially once excludeWords gets long. Retries with the offending word appended to the
+ * exclude list up to MAX_UNIQUE_WORD_ATTEMPTS times. A repeated result is never persisted as a
+ * new daily word: after the final attempt this throws, leaving the previous value stale so the
+ * next foreground transition can retry instead of silently recording a duplicate for today.
+ */
+async function requestUniqueWord(
+  ai: AIProvider,
+  ctx: { cefrLevel: CefrLevel; language: LanguageCode; nativeLanguage: LanguageCode },
+  excludeWords: string[],
+): ReturnType<AIProvider['suggestWordOfTheDay']> {
+  const alreadySeen = new Set(excludeWords.map(normalizedWord))
+  let attemptExclude = excludeWords
+
+  for (let attempt = 1; attempt <= MAX_UNIQUE_WORD_ATTEMPTS; attempt++) {
+    const result = await ai.suggestWordOfTheDay(ctx, attemptExclude)
+    if (!alreadySeen.has(normalizedWord(result.data.word))) return result
+    log.warn('vocabulary.word_of_the_day_duplicate_suggested', {
+      message: `AI suggested an already-known/recent word on attempt ${attempt} of ${MAX_UNIQUE_WORD_ATTEMPTS} - retrying`,
+    })
+    attemptExclude = [...attemptExclude, result.data.word]
+  }
+  throw new Error(`AI suggested a repeated Word of the Day ${MAX_UNIQUE_WORD_ATTEMPTS} times`)
 }
 
 /**
@@ -222,7 +259,7 @@ export async function refreshWordOfTheDayIfNeeded(params: {
       readHistory(),
     ])
     const excludeList = Array.from(new Set([...knownWords, ...historyWords]))
-    const result = await ai.suggestWordOfTheDay({ cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
+    const result = await requestUniqueWord(ai, { cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
     const notificationId = await scheduleNotification(
       result.data.word,
       result.data.explanation,

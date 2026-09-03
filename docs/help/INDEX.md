@@ -95,12 +95,23 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
-### 8. ⛏️ Sentence Mining & Capture Queue
-*Collect real-world sentences from reading and media, and convert them to flashcards.*
-- **[Sentence Mining Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)**
-  - **Staging Holding Area**: Safe staging area where captured sentences wait without incurring AI costs.
-  - **Flexible Capture Methods**: Manual typing, one-tap clipboard paste, and system share sheet integration.
-  - **Batch AI Card Generation**: Select captured sentences and convert them to rich cloze flashcards in your chosen deck.
+### 8. ⛏️ Mining Studio & Passage Analysis
+*Capture whole passages from reading and media, and mine each one individually for translation, grammar, and vocabulary.*
+- **[Mining Studio Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)**
+  - **Passage Library**: Captured passages (up to 1000 characters) persist as a library, not a disposable queue — a "Mined" badge shows which ones already produced cards.
+  - **Flexible Capture Methods**: Manual typing, one-tap clipboard paste, and system share sheet / Android Process Text integration.
+  - **Study & Mine Analysis**: One tap per passage produces a fluent translation, a CEFR-calibrated grammar breakdown, and extracted key vocabulary.
+  - **Accurate Deck Additions**: Adding words reports exactly what was added, already present, or failed — never a silent duplicate or overwrite.
+
+---
+
+### 9. ✨ Word of the Day
+*A daily AI-curated word, tailored to your level, delivered on the Home screen and as a local notification.*
+- **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)**
+  - **Requires an AI provider**: inert on the free/offline tier — the Home card shows "Offline Mode" instead until a key is configured.
+  - **CEFR-tailored & never repeated**: excludes your existing library plus a rolling history, verified after generation rather than trusted on the prompt alone.
+  - **Refreshes on every foreground**: not just once per app session, so the word and its notification stay in sync with the calendar day.
+  - **Daily local notification**: configurable time in Settings → Learning, opens the same summary popup as the Home card.
 
 ---
 
@@ -115,4 +126,5 @@ Below is the complete, concise list of all supported screens and features across
 | **[Spaced Repetition Review](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/05-srs-review.md)** | Active study sessions, FSRS cognitive scheduling, multi-format review exercises, and keyboard/touch shortcuts |
 | **[Learning Statistics](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/06-learning-statistics.md)** | 30-day retention rate, 5-week study heatmap, 7-day FSRS forecast, and difficult word drills |
 | **[Settings & Configuration](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/07-settings-engines.md)** | Bring-Your-Own-Key AI engines, neural TTS voices, FSRS parameters, cloud sync, and card templates |
-| **[Sentence Mining Queue](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)** | Sentence staging holding area, clipboard/share capture, and batch AI card generation |
+| **[Mining Studio](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/08-sentence-mining.md)** | Passage capture library, per-passage translation/grammar/vocabulary analysis, and accurate deck additions |
+| **[Word of the Day](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)** | AI-curated daily word (requires an AI provider), CEFR-tailored, never repeated, with a daily notification |

@@ -76,6 +76,9 @@ If you have 0 cards in your library, the dashboard automatically swaps the due-c
 
 ### 5. Word of the Day (WOTD)
 
+> [!NOTE]
+> Full details — how the word is picked and never repeated, when it refreshes, and how the daily notification works — live in the dedicated **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)**. This section covers only the Home-screen card itself.
+
 #### When an AI Provider is Configured (`tier === 'full'`):
 - **Bento Card**: Displays the word, a 2-line explanation, and the ✨ `AI Discovery` badge.
 - **Interactive Popup Modal**: Tapping the card opens the full discovery dialog:
@@ -124,7 +127,7 @@ If you have 0 cards in your library, the dashboard automatically swaps the due-c
 
 > [!NOTE]
 > **Why does the Word of the Day say "Offline Mode"?**
-> Word of the Day discovery is dynamically generated each day. To enable fresh daily words, add an API key (such as Google Gemini's free tier or OpenAI) in **Settings $\rightarrow$ AI Providers**.
+> Word of the Day requires an AI provider — it's inert without one. Add an API key (such as Google Gemini's free tier or OpenAI) in **Settings $\rightarrow$ AI Providers** and the card switches over automatically. See the **[Word of the Day Guide](file:///Users/sukhdeep.singh/Mine/Lingora/docs/help/screens/09-word-of-the-day.md)** for how the word itself is chosen and refreshed.
 
 > [!TIP]
 > **How is the retention rate calculated?**

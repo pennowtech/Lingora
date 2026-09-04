@@ -16,7 +16,24 @@ import { DEFAULT_ENABLED_QUESTION_TYPES, QUESTION_TYPE_META } from '@lingora/cor
 import type { QuestionType } from '@lingora/types';
 
 const AppContent: React.FC = () => {
-  const { db, decks: dbDecks, isLoading, dueCards, addNewCard, loadReviewQueue } = useDesktopServices();
+  const {
+    db,
+    decks: dbDecks,
+    isLoading,
+    dueCards,
+    addNewCard,
+    loadReviewQueue,
+    // Renamed on destructure - this is the real pending-mining-entries count (see
+    // desktopServices.tsx's refreshDataInternal), kept separate from this component's own
+    // `miningQueue` local state below, which still backs the Mining Studio screen's own
+    // interactive (mock) queue - that screen's real backend is a separate, later phase.
+    miningQueue: pendingMiningEntries,
+    recentWords,
+    retention30d,
+    streakDays,
+    dailyActivity,
+    difficultWords,
+  } = useDesktopServices();
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard');
   const [words, setWords] = useState(MOCK_WORDS);
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
@@ -27,6 +44,13 @@ const AppContent: React.FC = () => {
   // rather than landing on Settings' own default tab and making the user find it themselves.
   const navigateToAiProviderSettings = () => {
     setSettingsInitialTab('ai');
+    setActiveScreen('settings');
+  };
+
+  // Dashboard's language-pair badge, mirroring apps/mobile's Home - tapping it jumps straight to
+  // Settings' Learning tab (native/target language pickers), same pattern as the AI-provider jump.
+  const navigateToLanguageSettings = () => {
+    setSettingsInitialTab('learning');
     setActiveScreen('settings');
   };
 
@@ -103,7 +127,7 @@ const AppContent: React.FC = () => {
         activeScreen={activeScreen}
         onSelectScreen={setActiveScreen}
         dueCardsCount={totalDueCards}
-        miningCount={miningQueue.length}
+        miningCount={pendingMiningEntries.length}
       />
 
       {/* Main Content Area */}
@@ -116,10 +140,15 @@ const AppContent: React.FC = () => {
         {activeScreen === 'dashboard' && (
           <DashboardScreen
             decks={decks}
-            miningQueue={miningQueue}
-            recentWords={words}
+            miningQueue={pendingMiningEntries}
+            recentWords={recentWords}
+            retention30d={retention30d}
+            streakDays={streakDays}
+            dailyActivity={dailyActivity}
+            difficultWords={difficultWords}
             onStartReview={handleStartReview}
             onSelectScreen={setActiveScreen}
+            onOpenLanguageSettings={navigateToLanguageSettings}
           />
         )}
 
@@ -154,7 +183,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeScreen === 'stats' && (
-          <StatsScreen />
+          <StatsScreen onSelectScreen={setActiveScreen} />
         )}
 
         {activeScreen === 'settings' && (

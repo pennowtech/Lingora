@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { DatabaseAdapter } from '@lingora/database';
+import type { CardListItem, DatabaseAdapter, DayReviewCount, DifficultWord } from '@lingora/database';
 import {
   getAllDecks,
   getDeckById,
@@ -22,7 +22,13 @@ import {
   getDefaultTemplate,
   loadCardView,
   createCloze,
-  setCloze
+  setCloze,
+  getRecentlyAddedWords,
+  getPendingMineEntries,
+  getRetentionRate,
+  getReviewedDayIndexes,
+  getReviewCountsByDay,
+  getDifficultWords
 } from '@lingora/database';
 import { schedule, createInitialCardState } from '@lingora/srs';
 import { renderCardHtml, SEPARABLE_PREFIXES } from './templates';
@@ -47,7 +53,7 @@ import {
   type AIProvider,
   type DictionaryProvider
 } from '@lingora/ai';
-import { DEFAULT_ENABLED_QUESTION_TYPES, DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, type GenerationProviderName } from '@lingora/core';
+import { DEFAULT_ENABLED_QUESTION_TYPES, DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, streakFromDayIndexes, type GenerationProviderName } from '@lingora/core';
 import { getDesktopDatabase } from './database';
 import { desktopFetch } from './desktopFetch';
 
@@ -112,6 +118,11 @@ interface DesktopServicesContextType {
   decks: any[];
   dueCards: any[];
   miningQueue: any[];
+  recentWords: CardListItem[];
+  retention30d: number;
+  streakDays: number;
+  dailyActivity: DayReviewCount[];
+  difficultWords: DifficultWord[];
   cefrLevel: CefrLevel;
   nativeLanguage: LanguageCode;
   targetLanguage: LanguageCode;
@@ -150,6 +161,11 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const [decks, setDecks] = useState<any[]>([]);
   const [dueCards, setDueCards] = useState<any[]>([]);
   const [miningQueue, setMiningQueue] = useState<any[]>([]);
+  const [recentWords, setRecentWords] = useState<CardListItem[]>([]);
+  const [retention30d, setRetention30d] = useState(0);
+  const [streakDays, setStreakDays] = useState(0);
+  const [dailyActivity, setDailyActivity] = useState<DayReviewCount[]>([]);
+  const [difficultWords, setDifficultWords] = useState<DifficultWord[]>([]);
 
   // Persistent Language & CEFR Settings
   const [cefrLevel, setCefrLevelState] = useState<CefrLevel>(
@@ -377,6 +393,24 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
         [Date.now()]
       );
       setDueCards(dueRows || []);
+
+      // Dashboard's "Recently Searched" / "Mined Sentences" / retention & streak / daily-practice
+      // chart / difficult-words column - real queries shared with apps/mobile's stats.tsx and
+      // Home dashboard, not mock data.
+      const [recent, pendingMining, retention, reviewedDays, dailyCounts, leeches] = await Promise.all([
+        getRecentlyAddedWords(adapter, 3, targetLanguage, nativeLanguage),
+        getPendingMineEntries(adapter, targetLanguage),
+        getRetentionRate(adapter, 30, targetLanguage, nativeLanguage),
+        getReviewedDayIndexes(adapter, 366, targetLanguage, nativeLanguage),
+        getReviewCountsByDay(adapter, 7, targetLanguage, nativeLanguage),
+        getDifficultWords(adapter, 5, targetLanguage, nativeLanguage),
+      ]);
+      setRecentWords(recent);
+      setMiningQueue(pendingMining);
+      setRetention30d(retention);
+      setStreakDays(streakFromDayIndexes(reviewedDays));
+      setDailyActivity(dailyCounts);
+      setDifficultWords(leeches);
     } catch (err) {
       console.error('[Desktop Services] Error refreshing data:', err);
     }
@@ -838,6 +872,11 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       decks,
       dueCards,
       miningQueue,
+      recentWords,
+      retention30d,
+      streakDays,
+      dailyActivity,
+      difficultWords,
       theme,
       cefrLevel,
       nativeLanguage,

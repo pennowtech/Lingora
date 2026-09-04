@@ -1349,6 +1349,8 @@ Home: 'Accueil',
   'Instant Lookup and Card Generations': 'Recherche instantanée et création de cartes',
   'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
     "Cherchez instantanément n'importe quel mot en {{target}} ou en {{native}} - les formes fléchies et conjuguées fonctionnent aussi. Pas encore dans votre bibliothèque ? Une pression **génère une carte complète** avec les sens, des exemples et la prononciation, pour ne jamais avoir à quitter l'application pour chercher un mot.",
+  'Look up any {{target}} or {{native}} word instantly. If it\'s not in your library yet, one tap **generates a full flashcard**.':
+    "Cherchez instantanément un mot en {{target}} ou en {{native}}. Pas encore dans votre bibliothèque ? Une pression **génère une carte complète**.",
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     "La **Recherche** permet de consulter n'importe quel mot sans quitter l'application : tapez-le et obtenez des résultats instantanément, et s'il est nouveau pour vous, une pression **génère une carte complète** avec les sens, des exemples et la prononciation.",
   'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
@@ -1358,6 +1360,15 @@ Home: 'Accueil',
     "Les retours sont publiés sous forme d'issue GitHub publique. L'adresse e-mail que vous avez saisie y sera visible par quiconque la consulte - pas seulement par notre équipe. Revenez en arrière pour la supprimer si vous préférez la garder privée, ou envoyez tel quel si cela vous convient.",
   'Go Back': 'Retour',
   'Send Anyway': 'Envoyer quand même',
+
+  // ── Review completion celebration ──────────────────────────────────
+  'Session Completed': 'Session terminée',
+  'Remembered!': 'Mémorisé !',
+  'Great job 🎉': 'Beau travail 🎉',
+  'Strong memory': 'Mémoire solide',
+  'Keep it up!': 'Continue comme ça !',
+  'Replay introduction': "Revoir l'introduction",
+
   // ── About & Google Play updates ────────────────────────────────────
   'Google Play & App Updates': 'Google Play et mises à jour',
   'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.':

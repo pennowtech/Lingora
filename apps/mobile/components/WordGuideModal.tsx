@@ -44,11 +44,24 @@ export function WordGuideModal(props: {
    * sheet (word/[form].tsx, review/[deckId].tsx), which renders through this same presentation
    * but isn't the installed word-guides dictionary. */
   footnote?: string
+  /**
+   * `'forward'` (default) means `guide` was found by its own headword — the natural case, where
+   * leading with the target-language example sentence and showing its translation underneath
+   * makes sense. `'reverse'` means it was found the other way (a native-language search term
+   * matched this entry's translation/intro instead — see useWordGuideLookup) — the learner's
+   * point of reference is the native-language word they actually typed, so each example leads
+   * with its translation instead, sentence underneath. Same underlying example data either way,
+   * just which line reads as "what you searched for" vs. "what it looks like in the target
+   * language" — the same front/back swap the app's existing Reverse review mode already does for
+   * saved cards, applied here to an unsaved dictionary preview.
+   */
+  direction?: 'forward' | 'reverse'
 }): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const { guide } = props
+  const reversed = props.direction === 'reverse'
 
   return (
     <Modal visible={props.visible && !!guide} animationType="fade" transparent onRequestClose={props.onClose}>
@@ -96,10 +109,22 @@ export function WordGuideModal(props: {
                     <Text style={styles.sectionTitle}>{t('Examples of Usage')}</Text>
                     {guide.examples.map((ex) => (
                       <View key={ex.sentence} style={styles.exampleRow}>
+                        {/* Always pronounces the target-language sentence, regardless of
+                            direction — that's the language being learned; the gloss text isn't
+                            what has (or needs) audio. */}
                         <SpeakerButton text={ex.sentence} language={guide.language} size={18} />
                         <View style={styles.exampleText}>
-                          <Text style={styles.exampleSentence}>{ex.sentence}</Text>
-                          <Text style={styles.exampleTranslation}>{ex.translation}</Text>
+                          {reversed ? (
+                            <>
+                              <Text style={styles.exampleSentence}>{ex.translation}</Text>
+                              <Text style={styles.exampleTranslation}>{ex.sentence}</Text>
+                            </>
+                          ) : (
+                            <>
+                              <Text style={styles.exampleSentence}>{ex.sentence}</Text>
+                              <Text style={styles.exampleTranslation}>{ex.translation}</Text>
+                            </>
+                          )}
                         </View>
                       </View>
                     ))}

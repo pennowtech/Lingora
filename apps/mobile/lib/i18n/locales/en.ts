@@ -503,6 +503,8 @@ export const ENGLISH_PHRASES = [
   "Removes every installed chunk from this device. Cards you already added to your deck are not affected.",
   "No translation to add.",
   "No dictionary entry to add.",
+  "Found in your installed dictionary:",
+  "related",
   "Details",
   "More info",
   "Hide details",

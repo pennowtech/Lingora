@@ -787,6 +787,8 @@ export const de: Record<Phrase, string> = {
     'Entfernt jeden installierten Abschnitt von diesem Gerät. Bereits zu deinem Stapel hinzugefügte Karten sind davon nicht betroffen.',
   'No translation to add.': 'Keine Übersetzung zum Hinzufügen.',
   'No dictionary entry to add.': 'Kein Wörterbucheintrag zum Hinzufügen.',
+  'Found in your installed dictionary:': 'Gefunden in deinem installierten Wörterbuch:',
+  'related': 'verwandt',
   'More info': 'Mehr Infos',
   'Hide details': 'Details ausblenden',
   'Understanding the {{language}} {{wordClass}} "{{headword}}"':

@@ -2,7 +2,6 @@ import {
   createDeck,
   findLemmaBySurfaceForm,
   getCardByLemmaAndNativeLanguage,
-  getWordGuide,
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
@@ -17,7 +16,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
@@ -28,6 +27,7 @@ import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
 import { CardSourceIcon, dictionaryNameToCardSource } from '../../lib/cardSource'
+import { useWordGuideLookup } from '../../lib/useWordGuideLookup'
 import { PROVIDER_META } from '../../lib/aiProviderMeta'
 import { detectSearchLanguage, formatUserFriendlyProviderError, isNetworkError, networkErrorMessage } from '@lingora/ai'
 import { AI_GENERATED_SOURCES } from '@lingora/core'
@@ -204,22 +204,22 @@ export default function SearchScreen(): JSX.Element {
   }
 
   // A free, offline lookup against the installed word-guides dictionary (see
-  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — shown as a
-  // read-only preview by default, with an explicit "Add to deck" action
-  // (addFromGuide below) for the user to opt into turning it into a real
-  // card. Independent of `pipeline`/`tier`/an internet connection, unlike
-  // quickTranslate/generate below.
-  const wordGuide = useQuery({
-    queryKey: ['word-guide-preview', term, targetLanguage],
-    queryFn: () => getWordGuide(db, term, targetLanguage),
-    enabled: term !== '' && !hasExactSearchMatch(term),
-  })
+  // LingoraDocs/6_word_guides_plan.md) for an unrecognized word — tries the typed word as an
+  // exact headword first, then (only once that comes back empty) as a translation/intro match
+  // instead, so it works whichever side of the language pair was actually typed. Shown as a
+  // read-only preview by default, with an explicit "Add to deck" action (addFromGuide below) for
+  // the user to opt into turning it into a real card. Independent of `pipeline`/`tier`/an
+  // internet connection, unlike quickTranslate/generate below. See useWordGuideLookup's own doc
+  // comment for why both queries key off the dictionary's own language, not targetLanguage.
+  const wordGuideLookup = useWordGuideLookup(db, term, nativeLanguage, targetLanguage, !hasExactSearchMatch(term))
+  const activeGuideEntry = wordGuideLookup.active?.entry ?? null
 
   useFocusEffect(
     useCallback(() => {
       void search.refetch()
-      void wordGuide.refetch()
-    }, [search, wordGuide]),
+      void wordGuideLookup.forward.refetch()
+      void wordGuideLookup.reverse.refetch()
+    }, [search, wordGuideLookup.forward, wordGuideLookup.reverse]),
   )
 
   // A short (~50-word) AI gist of a not-yet-generated word, shown by default in place of the bare
@@ -240,14 +240,22 @@ export default function SearchScreen(): JSX.Element {
       !hasExactSearchMatch(explainTerm) &&
       tier === 'full' &&
       !!ai &&
-      !wordGuide.data,
+      !wordGuideLookup.forward.data,
     staleTime: 24 * 60 * 60 * 1000,
   })
 
   const addFromGuide = useMutation({
     mutationFn: async ({ deckId, cloze }: { deckId: string; cloze?: ClozeEditorResult }) => {
-      if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      const result = await persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
+      // The entry's translation/intro text is written in the dictionary's own nativeLanguage
+      // (e.g. always English today), not necessarily the app's current native-language setting —
+      // for a DE->EN pair those differ (app native is 'de', but this gloss text is English).
+      const result = await persistWordGuideAsCard(
+        db,
+        activeGuideEntry,
+        deckId,
+        wordGuideLookup.dictionary?.nativeLanguage ?? nativeLanguage,
+      )
       if (cloze) {
         await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
       }
@@ -256,6 +264,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
+      wordGuideLookup.selectReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -353,8 +362,13 @@ export default function SearchScreen(): JSX.Element {
         updatedAt: now,
       })
       if (deckPickerFor === 'guide') {
-        if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-        const result = await persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        if (!activeGuideEntry) throw new Error(t('No dictionary entry to add.'))
+        const result = await persistWordGuideAsCard(
+          db,
+          activeGuideEntry,
+          id,
+          wordGuideLookup.dictionary?.nativeLanguage ?? nativeLanguage,
+        )
         if (cloze) {
           await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
         }
@@ -370,6 +384,7 @@ export default function SearchScreen(): JSX.Element {
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
       setGuideModalOpen(false)
+      wordGuideLookup.selectReverseMatch(null)
       await queryClient.invalidateQueries()
       router.push({ pathname: '/word/[form]', params: { form: lemma.form } })
     },
@@ -732,28 +747,28 @@ export default function SearchScreen(): JSX.Element {
           ListHeaderComponent={
             !hasExactSearchMatch(term) ? (
               <View style={styles.newWordCards}>
-                {wordGuide.data ? (
+                {wordGuideLookup.forward.data ? (
                   <Card style={styles.guideCard}>
                     <View style={styles.guideHeaderRow}>
                       <View style={styles.guideTitleGroup}>
-                        <Text style={styles.guideHeadword}>{wordGuide.data.headword}</Text>
-                        {wordGuide.data.partOfSpeech ? (
+                        <Text style={styles.guideHeadword}>{wordGuideLookup.forward.data.headword}</Text>
+                        {wordGuideLookup.forward.data.partOfSpeech ? (
                           <Text style={styles.guidePosText}>
-                            {wordGuide.data.partOfSpeech}
-                            {wordGuide.data.gender ? ` · ${wordGuide.data.gender}` : ''}
+                            {wordGuideLookup.forward.data.partOfSpeech}
+                            {wordGuideLookup.forward.data.gender ? ` · ${wordGuideLookup.forward.data.gender}` : ''}
                           </Text>
                         ) : null}
                       </View>
                       <View style={styles.guideActionIcons}>
-                        <SpeakerButton text={wordGuide.data.headword} language={wordGuide.data.language} size={18} />
+                        <SpeakerButton text={wordGuideLookup.forward.data.headword} language={wordGuideLookup.forward.data.language} size={18} />
                         <CardSourceIcon source="word_guide" size={16} />
                       </View>
                     </View>
 
-                    <Text style={styles.guideTranslationText}>{wordGuide.data.translation}</Text>
+                    <Text style={styles.guideTranslationText}>{wordGuideLookup.forward.data.translation}</Text>
 
-                    {wordGuide.data.intro ? (
-                      <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
+                    {wordGuideLookup.forward.data.intro ? (
+                      <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuideLookup.forward.data.intro}</Text>
                     ) : null}
 
                     {/* No ReviewModeBadges here either - a Word Guide entry isn't a saved card
@@ -777,13 +792,55 @@ export default function SearchScreen(): JSX.Element {
                       </View>
                     </View>
                   </Card>
+                ) : !wordGuideLookup.forward.isPending && (wordGuideLookup.reverse.data?.length ?? 0) > 0 ? (
+                  // No exact target-language headword, but the query matched one or more installed
+                  // entries by their native-language gloss/description — e.g. typing "cannon" while
+                  // learning German surfaces "Kanone". Shown as a compact row of candidates rather
+                  // than a single card since more than one headword can share a gloss; tapping one
+                  // opens the same detail modal + "Add to deck" flow the exact-match card uses.
+                  <View style={styles.reverseMatchesSection}>
+                    <Text style={styles.reverseMatchesLabel}>{t('Found in your installed dictionary:')}</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.reverseMatchesRow}
+                      // This ScrollView is nested inside the results FlatList's (vertical)
+                      // ListHeaderComponent — without this, Android's gesture handling gives the
+                      // outer FlatList every touch here and the horizontal drag never registers.
+                      nestedScrollEnabled
+                    >
+                      {wordGuideLookup.reverse.data!.map((match) => (
+                        <Pressable
+                          key={match.entry.headword}
+                          style={styles.reverseMatchChip}
+                          accessibilityRole="button"
+                          onPress={() => {
+                            wordGuideLookup.selectReverseMatch(match.entry)
+                            setGuideModalOpen(true)
+                          }}
+                        >
+                          <Text style={styles.reverseMatchHeadword}>{match.entry.headword}</Text>
+                          <Text style={styles.reverseMatchTranslation} numberOfLines={1}>
+                            {match.entry.translation}
+                          </Text>
+                          {!match.matchedTranslation ? (
+                            <Text style={styles.reverseMatchWeakBadge}>{t('related')}</Text>
+                          ) : null}
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
                 ) : null}
 
                 {/* ── Word guide detail modal ── */}
                 <WordGuideModal
                   visible={guideModalOpen}
-                  guide={wordGuide.data ?? null}
-                  onClose={() => setGuideModalOpen(false)}
+                  guide={activeGuideEntry}
+                  direction={wordGuideLookup.active?.direction ?? 'forward'}
+                  onClose={() => {
+                    setGuideModalOpen(false)
+                    wordGuideLookup.selectReverseMatch(null)
+                  }}
                   footer={
                     <Button label={t('Add to deck')} icon="CirclePlus" onPress={() => setDeckPickerFor('guide')} />
                   }
@@ -928,10 +985,10 @@ export default function SearchScreen(): JSX.Element {
         title={t('Add "{{term}}" to...', { term })}
         targetLanguage={targetLanguage}
         nativeLanguage={nativeLanguage}
-        {...(deckPickerFor === 'guide' && wordGuide.data ? {
-          word: wordGuide.data.headword,
-          ...(wordGuide.data.examples[0]?.sentence && { exampleSentence: wordGuide.data.examples[0].sentence }),
-          ...(wordGuide.data.examples[0]?.translation && { exampleTranslation: wordGuide.data.examples[0].translation }),
+        {...(deckPickerFor === 'guide' && activeGuideEntry ? {
+          word: activeGuideEntry.headword,
+          ...(activeGuideEntry.examples[0]?.sentence && { exampleSentence: activeGuideEntry.examples[0].sentence }),
+          ...(activeGuideEntry.examples[0]?.translation && { exampleTranslation: activeGuideEntry.examples[0].translation }),
         } : {})}
         onSelectDeck={(deck, cloze) => {
           if (deckPickerFor === 'guide') addFromGuide.mutate({ deckId: deck.id, ...(cloze && { cloze }) })
@@ -1095,6 +1152,47 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
+    },
+    reverseMatchesSection: {
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+    },
+    reverseMatchesLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    reverseMatchesRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    reverseMatchChip: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      minWidth: 120,
+      maxWidth: 180,
+      gap: 2,
+    },
+    reverseMatchHeadword: {
+      fontSize: type.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    reverseMatchTranslation: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+    },
+    reverseMatchWeakBadge: {
+      fontSize: type.micro,
+      fontWeight: '600',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      marginTop: 2,
     },
     translateCard: {
       marginTop: spacing.md,

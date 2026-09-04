@@ -137,7 +137,7 @@ interface DesktopServicesContextType {
   deeplValidated: boolean;
   deeplValidating: boolean;
   deeplError?: string;
-  validateProviderKey: (name: ProviderName) => Promise<void>;
+  validateProviderKey: (name: ProviderName, activateOnSuccess?: boolean) => Promise<void>;
   validateDeeplKey: () => Promise<void>;
   loadReviewQueue: (deckId?: string, clozeOnly?: boolean, cardId?: string) => Promise<any[]>;
 }
@@ -276,7 +276,15 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   // Validation Logic — delegates to @lingora/ai's shared validators (also used by apps/mobile),
   // which give a real reachability pre-check and friendly, specific error messages (bad key vs.
   // quota vs. rate limit vs. server error vs. offline) instead of a single generic fallback string.
-  const validateProviderKey = async (name: ProviderName) => {
+  //
+  // activateOnSuccess: used by the provider grid's "click to make this the active provider" flow
+  // (SettingsScreen.tsx) - a key can expire, get revoked, or have its previously-selected model
+  // removed/renamed on the provider's side well after it was last checked, so switching Active
+  // needs a real live check here, not just trusting whatever `validated` said from that last
+  // check. The explicit "Validate" button inside a provider's own expanded panel leaves this
+  // false - re-checking a key shouldn't silently steal Active away from a different provider the
+  // learner is deliberately keeping active while just poking at this one's settings.
+  const validateProviderKey = async (name: ProviderName, activateOnSuccess = false) => {
     setProviders(prev => ({ ...prev, [name]: { ...prev[name], validating: true, validated: false, error: undefined } }));
     const p = providers[name];
 
@@ -296,8 +304,10 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
     };
     setProviders(updatedProviders);
 
-    // Active requires a validated key — a provider that just failed validation can't stay Active.
-    if (!result.ok && selectedGenerationProvider === name) {
+    if (result.ok) {
+      if (activateOnSuccess) setSelectedGenerationProvider(name);
+    } else if (selectedGenerationProvider === name) {
+      // Active requires a validated key — a provider that just failed validation can't stay Active.
       const fallback = pickFallbackGenerationProvider(updatedProviders, name);
       if (fallback !== name) setSelectedGenerationProvider(fallback);
     }

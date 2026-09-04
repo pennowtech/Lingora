@@ -235,19 +235,20 @@ export default function AiProvidersScreen(): JSX.Element {
   const changeModel = (name: GenerationProviderName, value: string): void => {
     updateProvider(name, { model: value })
   }
+  // Re-validates the key/model live before actually switching, instead of trusting whatever
+  // `validated[name]` says from the last time it was checked - a key can expire, get revoked, or
+  // have its previously-selected model removed/renamed on the provider's side well after that
+  // last check, and pressing Activate is exactly the moment a learner expects a real check, not a
+  // stale green light. `validate` itself only flips this provider to the active one on success;
+  // on failure it shows why and leaves the previous active provider in place.
   const changeGenerationProvider = (name: GenerationProviderName): void => {
     updateProvider(name, { enabled: true })
-    setGenerationProviderState(name)
-    void Promise.all([
-      SecureStore.setItemAsync(STORE_KEYS.generationProvider, name),
-      SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].enabled, 'true'),
-    ]).then(() => {
-      void reloadServices()
-    })
-    log.info('settings.generation_provider_changed', {
-      message: 'Active generation provider changed',
+    void SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].enabled, 'true')
+    log.info('settings.generation_provider_activation_requested', {
+      message: 'Activating a provider - re-validating its key/model first',
       metadata: { provider: name },
     })
+    validate(name)
   }
 
   const validate = (name: GenerationProviderName): void => {
@@ -272,7 +273,15 @@ export default function AiProvidersScreen(): JSX.Element {
             message: result.message,
           })
         } else {
-          if (!validated[name]) {
+          // Only skip clearing "validated" for a transient failure (no internet right now) - a
+          // definitive rejection from the provider itself (expired/revoked key, a model that's
+          // been removed or renamed since it was last checked) must always flip this to invalid,
+          // even if it was previously validated. The previous `if (!validated[name])` guard here
+          // did the opposite - it only ever recorded an invalid result for a key that was ALREADY
+          // showing as invalid, so a key that went bad after its one successful validation kept
+          // showing "Active"/"Validated" indefinitely, since nothing ever re-checked it against
+          // the guard's own condition.
+          if (!result.networkUnavailable) {
             await SecureStore.setItemAsync(PROVIDER_STORE_KEYS[name].validatedKey, 'invalid')
             setValidated((prev) => ({ ...prev, [name]: false }))
           }
@@ -375,6 +384,7 @@ export default function AiProvidersScreen(): JSX.Element {
             const isValidated = Boolean(validated[name])
             const isActive = name === activeGenerationProvider
             const isPreviewed = expandedProvider === name
+            const isActivating = validating[name] ?? false
 
             return (
               <View
@@ -421,12 +431,17 @@ export default function AiProvidersScreen(): JSX.Element {
                     ) : hasKey ? (
                       <Pressable
                         style={styles.activatePillButton}
+                        disabled={isActivating}
                         onPress={(e) => {
                           e.stopPropagation()
                           changeGenerationProvider(name)
                         }}
                       >
-                        <Text style={styles.activatePillButtonText}>{t('Activate')}</Text>
+                        {isActivating ? (
+                          <ActivityIndicator size="small" color={colors.text} />
+                        ) : (
+                          <Text style={styles.activatePillButtonText}>{t('Activate')}</Text>
+                        )}
                       </Pressable>
                     ) : null}
                     <Icon name={isPreviewed ? 'ChevronUp' : 'ChevronDown'} size={18} color={colors.textMuted} />

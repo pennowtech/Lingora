@@ -81,6 +81,7 @@
       "reactNativeDirectoryCheck": {
         "exclude": [
           "process-text-intent",
+          "play-in-app-update",
           "react-native-nitro-google-signin"
         ]
       }

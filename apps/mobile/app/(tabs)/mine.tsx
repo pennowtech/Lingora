@@ -25,6 +25,7 @@ import {
   View,
 } from 'react-native'
 import mineArtwork from '../../assets/backgrounds/mine-conversation-subtle.png'
+import mineArtworkDark from '../../assets/backgrounds/mine-conversation-subtle-dark.png'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon, type IconName } from '../../components/Icon'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
@@ -78,7 +79,8 @@ function MineScreenArtwork(): JSX.Element | null {
   const { theme } = useTheme()
   const styles = useThemedStyles(createStyles)
 
-  if (theme.mode === 'dark') return null
+  const isDark = theme.mode === 'dark'
+  const artwork = isDark ? mineArtworkDark : mineArtwork
 
   return (
     <View
@@ -88,8 +90,8 @@ function MineScreenArtwork(): JSX.Element | null {
       style={styles.mineArtworkLayer}
     >
       <Image
-        source={mineArtwork}
-        style={styles.mineArtwork}
+        source={artwork}
+        style={[styles.mineArtwork, isDark && styles.mineArtworkDark]}
         resizeMode="contain"
         accessible={false}
       />
@@ -537,6 +539,9 @@ const createStyles = (colors: ThemeColors) =>
       width: '100%',
       height: '100%',
       opacity: 0.20,
+    },
+    mineArtworkDark: {
+      opacity: 0.25,
     },
     scroll: {
       padding: spacing.md,

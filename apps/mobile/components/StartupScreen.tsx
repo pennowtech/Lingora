@@ -12,12 +12,16 @@ import { Button } from './ui'
 import { saveOnboardingPreferences } from '../lib/onboarding'
 import { useServices } from '../lib/services'
 import { radius, spacing, type } from '../lib/theme'
-import { useColors, useThemedStyles } from '../lib/ThemeContext'
+import { useColors, useTheme, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
 import featureReading from '../assets/onboarding/feature-reading.png'
+import featureReadingDark from '../assets/onboarding/feature-reading-dark.png'
 import featureHotelConversation from '../assets/onboarding/feature-hotel-conversation.png'
+import featureHotelConversationDark from '../assets/onboarding/feature-hotel-conversation-dark.png'
 import featureMountainHike from '../assets/onboarding/feature-mountain-hike.png'
+import featureMountainHikeDark from '../assets/onboarding/feature-mountain-hike-dark.png'
 import featurePresentation from '../assets/onboarding/feature-presentation.png'
+import featurePresentationDark from '../assets/onboarding/feature-presentation-dark.png'
 
 interface StartupScreenProps {
   visible: boolean
@@ -106,6 +110,7 @@ interface FeatureSlide {
   descKey: string
   badgeKey: string
   artwork: ImageSourcePropType
+  artworkDark: ImageSourcePropType
 }
 
 const FEATURE_SLIDES: FeatureSlide[] = [
@@ -117,6 +122,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     descKey: 'Generate complete, accurate word packages with meanings, authentic example sentences, CEFR levels, and grammar notes in seconds.',
     badgeKey: 'SMART LOOKUP',
     artwork: featurePresentation,
+    artworkDark: featurePresentationDark,
   },
   {
     id: 'fsrs_spaced_repetition',
@@ -126,6 +132,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     descKey: 'Scientifically proven memory scheduling algorithms ensure you review cards right before you forget them for maximum retention.',
     badgeKey: 'SMART REVIEWS',
     artwork: featureReading,
+    artworkDark: featureReadingDark,
   },
   {
     id: 'cloze_mining',
@@ -135,6 +142,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     descKey: 'Capture sentences from any app or website, turn them into cloze fill-in-the-blank cards, and master words in real context.',
     badgeKey: 'REAL CONTEXT',
     artwork: featureHotelConversation,
+    artworkDark: featureHotelConversationDark,
   },
   {
     id: 'offline_privacy',
@@ -144,16 +152,20 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     descKey: 'Your vocabulary database stays 100% on your device. Bring your own AI keys or use built-in offline dictionaries anytime.',
     badgeKey: 'YOUR DATA',
     artwork: featureMountainHike,
+    artworkDark: featureMountainHikeDark,
   },
 ]
 
 function FeatureSlideshow(props: { onComplete: () => void; onSkip: () => void }): JSX.Element {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const slide = FEATURE_SLIDES[currentIndex]!
+  const isDark = theme.mode === 'dark'
+  const artwork = isDark ? slide.artworkDark : slide.artwork
 
   const handleNext = () => {
     if (currentIndex < FEATURE_SLIDES.length - 1) {
@@ -178,7 +190,12 @@ function FeatureSlideshow(props: { onComplete: () => void; onSkip: () => void })
         {/* Animated Feature Visual Badge */}
         <View style={[styles.featureCardVisual, { backgroundColor: colors.surface }]}>
           <View style={styles.featureArtworkClip}>
-            <Image source={slide.artwork} style={styles.featureArtwork} resizeMode="cover" accessible={false} />
+            <Image
+              source={artwork}
+              style={[styles.featureArtwork, isDark && styles.featureArtworkDark]}
+              resizeMode="cover"
+              accessible={false}
+            />
           </View>
           <View style={[styles.featureBadgeTag, { backgroundColor: colors.surface, borderColor: slide.accentColor + '50' }]}>
             <Text style={[styles.featureBadgeTagText, { color: slide.accentColor }]}>{t(slide.badgeKey)}</Text>
@@ -469,6 +486,7 @@ const createStyles = (colors: ThemeColors) =>
       overflow: 'hidden',
     },
     featureArtwork: { width: '100%', height: '100%', opacity: 0.96 },
+    featureArtworkDark: { opacity: 0.92 },
     featureBadgeTag: {
       position: 'absolute',
       top: -12,

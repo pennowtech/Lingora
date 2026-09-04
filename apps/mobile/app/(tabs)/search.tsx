@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import searchArtwork from '../../assets/backgrounds/search-presentation-subtle.png'
+import searchArtworkDark from '../../assets/backgrounds/search-presentation-subtle-dark.png'
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
@@ -154,7 +155,8 @@ function SearchScreenArtwork(): JSX.Element | null {
   const { theme } = useTheme()
   const styles = useThemedStyles(createStyles)
 
-  if (theme.mode === 'dark') return null
+  const isDark = theme.mode === 'dark'
+  const artwork = isDark ? searchArtworkDark : searchArtwork
 
   return (
     <View
@@ -164,8 +166,8 @@ function SearchScreenArtwork(): JSX.Element | null {
       style={styles.searchArtworkLayer}
     >
       <Image
-        source={searchArtwork}
-        style={styles.searchArtwork}
+        source={artwork}
+        style={[styles.searchArtwork, isDark && styles.searchArtworkDark]}
         resizeMode="contain"
         accessible={false}
       />
@@ -1009,6 +1011,9 @@ const createStyles = (colors: ThemeColors) =>
       width: '100%',
       height: '100%',
       opacity: 0.22,
+    },
+    searchArtworkDark: {
+      opacity: 0.25,
     },
     searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, zIndex: 2 },
     searchBox: {

@@ -1352,4 +1352,38 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Phản hồi được đăng dưới dạng issue công khai trên GitHub. Địa chỉ email bạn nhập sẽ hiển thị ở đó với bất kỳ ai xem - không chỉ đội ngũ của chúng tôi. Quay lại để xóa nếu bạn muốn giữ riêng tư, hoặc gửi như hiện tại nếu bạn thấy ổn.',
   'Go Back': 'Quay lại',
   'Send Anyway': 'Vẫn gửi',
-}
+  // ── About & Google Play updates ────────────────────────────────────
+  'Google Play & App Updates': 'Google Play & cập nhật ứng dụng',
+  'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.':
+    'Lemony kiểm tra trực tiếp từ **Cửa hàng Google Play** để xem có bản phát hành mới cho thiết bị của bạn không.',
+  '**Automatic Checks**: When enabled, Lemony checks Google Play at most once every 24 hours while active to save battery, and notifies you when an update is available.':
+    '**Kiểm tra tự động**: Khi bật, Lemony kiểm tra Google Play tối đa 24 giờ một lần khi đang mở để tiết kiệm pin và thông báo khi có bản cập nhật.',
+  '**User Control**: You can turn off update checks at any time. When turned off, Lemony stops all automatic checks and notifications completely.':
+    '**Quyền kiểm soát**: Bạn có thể tắt tính năng kiểm tra bất cứ lúc nào. Khi tắt, Lemony sẽ ngừng hoàn toàn mọi kiểm tra và thông báo tự động.',
+  "**What's Fresh in Lemony**: Tapping any update notification or release card displays the full changelog digest with an instant link to update on Google Play.":
+    '**Có gì mới trong Lemony**: Nhấn vào thông báo cập nhật hoặc thẻ phiên bản để xem tóm tắt thay đổi cùng liên kết cập nhật trực tiếp trên Google Play.',
+  'Google Play Auto-Updates': 'Tự động cập nhật Google Play',
+  "If Google Play's own auto-update is active on your device, Play Store may silently update the app overnight over Wi-Fi.":
+    'Nếu tính năng tự động cập nhật của Google Play được bật, Play Store có thể tự cập nhật ứng dụng qua Wi-Fi vào ban đêm.',
+  'When this happens, Lemony detects the new version on launch and displays what changed, without sending redundant update notifications.':
+    'Khi điều này xảy ra, Lemony sẽ nhận biết phiên bản mới khi khởi động và hiển thị nội dung thay đổi mà không gửi thông báo trùng lặp.',
+  'App Updates': 'Cập nhật ứng dụng',
+  'Check for updates': 'Kiểm tra bản cập nhật',
+  'Automatically checks Google Play and notifies you when a new version is ready':
+    'Tự động kiểm tra Google Play và thông báo khi có phiên bản mới sẵn sàng',
+  'Disabled. Lemony will not check for updates or send notifications.':
+    'Đã tắt. Lemony sẽ không kiểm tra bản cập nhật hoặc gửi thông báo.',
+  'Checking Play Store...': 'Đang kiểm tra Play Store...',
+  'Check Play Store for updates': 'Kiểm tra cập nhật trên Play Store',
+  'Send test update notification': 'Gửi thông báo cập nhật thử nghiệm',
+  'A new version is available on Google Play!': 'Đã có phiên bản mới trên Google Play!',
+  'Could not query Google Play Store. Verify Play services.':
+    'Không thể kết nối Cửa hàng Google Play. Vui lòng kiểm tra dịch vụ Play.',
+  'Lemony is up to date on Google Play (v{{version}})': 'Lemony đã là phiên bản mới nhất trên Google Play (v{{version}})',
+  "What's Fresh →": 'Có gì mới →',
+  'Later': 'Để sau',
+  'Update on Play Store →': 'Cập nhật trên Play Store →',
+  'Lemony Update Available': 'Có bản cập nhật Lemony',
+  "A new version is ready on Google Play Store. Tap to see what's fresh!":
+    'Đã có phiên bản mới trên Google Play Store. Nhấn để xem có gì mới!',
+};

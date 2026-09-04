@@ -110,6 +110,9 @@ importers:
       '@lingora/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@lingora/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@lingora/observability':
         specifier: workspace:*
         version: link:../../packages/observability
@@ -360,6 +363,8 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@25.9.1)(lightningcss@1.32.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
+
+  packages/i18n: {}
 
   packages/observability:
     devDependencies:

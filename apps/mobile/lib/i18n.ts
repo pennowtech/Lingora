@@ -2,7 +2,7 @@ import { getLocales } from 'expo-localization'
 import * as SecureStore from 'expo-secure-store'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import { resources } from './resources'
+import { APP_LANGUAGES, isAppLanguage, resources, type AppLanguage, type AppLanguagePreference } from '@lingora/i18n'
 
 /**
  * App UI localization — English, German, French, Spanish, Hindi. Same
@@ -10,16 +10,22 @@ import { resources } from './resources'
  * author): i18next + react-i18next, `expo-localization` for device-locale
  * detection, keys are the English phrase itself (`keySeparator: false`) so
  * a missing translation falls back to readable English rather than a raw
- * key. See `resources.ts` for the actual phrase maps and current coverage.
+ * key. The phrase catalog itself (locale files, resources assembly,
+ * APP_LANGUAGES) lives in `@lingora/i18n` — shared with apps/desktop and any
+ * future client, so there's one place to add or update a phrase instead of
+ * each app maintaining its own disconnected catalog. This module only wires
+ * that shared data into i18next with mobile's own platform primitives
+ * (device-locale detection via expo-localization, persisted preference via
+ * SecureStore) and re-exports APP_LANGUAGES/AppLanguage/isAppLanguage so
+ * existing call sites importing them from here don't need to change.
  *
  * Word Guide dictionary *content* (LingoraDocs/6_word_guides_plan.md) is a
  * separate, unrelated concept — this module is only the app's own UI chrome
  * (buttons, labels, screen titles).
  */
 
-export const APP_LANGUAGES = ['en', 'de', 'fr', 'es', 'hi', 'vi'] as const
-export type AppLanguage = (typeof APP_LANGUAGES)[number]
-export type AppLanguagePreference = AppLanguage | 'system'
+export { APP_LANGUAGES, isAppLanguage }
+export type { AppLanguage, AppLanguagePreference }
 
 /**
  * Not `STORE_KEYS.appLanguage` from `lib/services.tsx` — that file would
@@ -28,10 +34,6 @@ export type AppLanguagePreference = AppLanguage | 'system'
  * here instead, following the same `lingora.*` naming convention.
  */
 const APP_LANGUAGE_STORE_KEY = 'lingora.app_language'
-
-export function isAppLanguage(value: string | null | undefined): value is AppLanguage {
-  return (APP_LANGUAGES as readonly string[]).includes(value ?? '')
-}
 
 function deviceLanguage(): AppLanguage {
   const code = getLocales()[0]?.languageCode

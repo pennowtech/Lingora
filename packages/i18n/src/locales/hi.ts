@@ -1833,4 +1833,58 @@ Home: 'होम',
   'Lemony Update Available': 'Lemony अपडेट उपलब्ध है',
   "A new version is ready on Google Play Store. Tap to see what's fresh!":
     'Google Play Store पर नया संस्करण तैयार है। नया क्या है देखने के लिए टैप करें!',
+  // ── Decks screen summary ───────────────────────────────────────────
+  "Due": "बाकी",
+  "Total": "कुल",
+  "Unique": "अद्वितीय",
+  "Retention": "स्मरण",
+  "{{due}} Due / {{total}} Total / {{decks}} Decks": "{{due}} बाकी / {{total}} कुल / {{decks}} डेक",
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons': 'रिव्यू मोड आइकन',
+  'Each deck displays icon capsules showing which review formats are active for its cards:':
+    'प्रत्येक डेक में आइकन कैप्सूल होते हैं जो दिखाते हैं कि उसके कार्डों के लिए कौन से रिव्यू फ़ॉर्मैट सक्रिय हैं:',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.':
+    '• **शब्दावली (⇄)**: लक्षित शब्द से अर्थ — शब्द देखकर उसका अर्थ याद करें।',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.':
+    '• **रिवर्स (⮌)**: अर्थ से लक्षित शब्द — अर्थ देखकर लक्षित शब्द याद करें।',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.':
+    '• **रिक्त स्थान भरें (T)**: उदाहरण वाक्य में छूटे हुए शब्द को पूरा करें।',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.':
+    '• **बहुविकल्पीय (☰)**: दिए गए विकल्पों में से सही अर्थ चुनें।',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.':
+    '• **सही/गलत (✓)**: त्वरित जाँच — निर्णय लें कि दिखाया गया अर्थ सही है या गलत।',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
+    '**आवश्यकताएं**: सही/गलत के लिए कम से कम 1 अन्य सहेजा गया कार्ड और बहुविकल्पी के लिए कम से कम 3 अन्य कार्ड आवश्यक हैं। पर्याप्त कार्ड न होने पर फ़ॉर्मैट स्वचालित रूप से छोड़ दिया जाता है।',
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'Deck Detail': 'डेक विवरण',
+  'The four top boxes track your deck metrics at a glance:':
+    'शीर्ष चार बॉक्स आपके डेक के आँकड़े एक नज़र में दिखाते हैं:',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
+    '• **कार्ड**: सभी सक्रिय अध्ययन प्रारूपों (जैसे शब्दावली, रिवर्स, क्लोज़) में कुल अभ्यास कार्ड।',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
+    '• **अद्वितीय**: इस डेक में सहेजे गए अलग-अलग शब्दावली शब्द / अनूठे कार्डों की संख्या।',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
+    '• **बाकी**: स्पेसड रिपीटिशन के तहत अभी समीक्षा के लिए तैयार अनूठे कार्ड।',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.':
+    '• **स्मरण**: आपके समीक्षित कार्डों की 30-दिवसीय स्मृति प्रतिधारण दर।',
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode': 'मोड',
+  'Recent': 'हालिया',
+  'A-Z': 'A–Z',
+  'Due Date': 'नियत तारीख',
+  'A–Z': 'A–Z',
+  'Cards in Deck ({{count}})': 'डेक में कार्ड ({{count}})',
+  'Review {{count}} Due Cards': '{{count}} बाकी कार्ड रिव्यू करें',
+  'Review All Cards': 'सभी कार्ड रिव्यू करें',
+  'Learned': 'सीखा हुआ',
+  'Vocab': 'शब्दावली',
+  'Reverse': 'उल्टा',
+  'True/False': 'सही/गलत',
+  'MCQ': 'MCQ',
+  'Start Review': 'रिव्यू शुरू करें',
+  'Z–A': 'Z–A',
+  'Z-A': 'Z–A',
+  'Ascending': 'आरोही',
+  'Descending': 'अवरोही',
 };
+

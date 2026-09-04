@@ -1401,4 +1401,63 @@ Home: 'Inicio',
   'Lemony Update Available': 'Actualización de Lemony disponible',
   "A new version is ready on Google Play Store. Tap to see what's fresh!":
     '¡Hay una nueva versión en Google Play Store! Toca para ver las novedades.',
+  // ── Decks screen summary ───────────────────────────────────────────
+  "Due": "Pendientes",
+  "Total": "Total",
+  "Unique": "Únicas",
+  "Retention": "Retención",
+  "{{due}} Due / {{total}} Total / {{decks}} Decks": "{{due}} Pendientes / {{total}} Total / {{decks}} Mazos",
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons': 'Iconos de modos de repaso',
+  'Each deck displays icon capsules showing which review formats are active for its cards:':
+    'Cada mazo muestra cápsulas de iconos con los formatos de repaso activos:',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.':
+    '• **Vocabulario (⇄)**: Palabra a significado — recuerda la definición al ver el término.',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.':
+    '• **Inverso (⮌)**: Significado a palabra — recuerda el término al ver la definición.',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.':
+    '• **Texto con huecos (T)**: Rellenar el espacio — completa la palabra que falta en la frase de ejemplo.',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.':
+    '• **Opción múltiple (☰)**: Elige el significado correcto entre varias opciones.',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.':
+    '• **Verdadero/Falso (✓)**: Verificación rápida — decide si la definición mostrada es correcta.',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
+    '**Requisitos**: Verdadero/falso requiere al menos 1 tarjeta guardada más y opción múltiple al menos 3 para generar opciones alternativas. Se omite automáticamente si no hay suficientes tarjetas.',
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'The four top boxes track your deck metrics at a glance:':
+    'Las cuatro casillas superiores muestran las estadísticas de tu mazo de un vistazo:',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
+    '• **Tarjetas**: Total de tarjetas de práctica generadas en todos los formatos activos (p. ej., vocabulario, inverso, texto con huecos).',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
+    '• **Únicas**: Número de palabras de vocabulario distintas / tarjetas únicas en este mazo.',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
+    '• **Pendientes**: Número de tarjetas únicas programadas y listas para repasar ahora.',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.':
+    '• **Retención**: Tasa de retención de memoria de 30 días en tus tarjetas repasadas.',
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode': 'Modo',
+  'Recent': 'Recientes',
+  'A-Z': 'A–Z',
+  'Due Date': 'Fecha de vencimiento',
+  'A–Z': 'A–Z',
+  'Cards in Deck ({{count}})': 'Tarjetas en mazo ({{count}})',
+  'Review {{count}} Due Cards': 'Repasar {{count}} tarjetas pendientes',
+  'Review All Cards': 'Repasar todas las tarjetas',
+  'Learned': 'Aprendido',
+  'Vocab': 'Vocab',
+  'Reverse': 'Inverso',
+  'True/False': 'Verdadero/Falso',
+  'MCQ': 'MCQ',
+  'Start Review': 'Iniciar repaso',
+  'The stats row': 'La fila de estadísticas',
+  'The "..." menu': 'El menú "..."',
+  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'El repaso presenta las tarjetas pendientes de este mazo en cada formato elegible seleccionado al crear el mazo, como palabra, inverso, texto con huecos, verdadero/falso u opción múltiple.',
+  'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
+    'Renombra, mueve, cambia los modos de repaso, exporta, reinicia el progreso o elimina este mazo; eliminar siempre pide confirmación primero.',
+  'Z–A': 'Z–A',
+  'Z-A': 'Z–A',
+  'Ascending': 'Ascendente',
+  'Descending': 'Descendente',
 };
+

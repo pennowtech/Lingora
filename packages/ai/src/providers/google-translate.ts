@@ -212,7 +212,7 @@ export class GoogleTranslateProvider implements DictionaryProvider {
     let response: Response
 
     try {
-      response = await this.fetchFn(url, { signal: timeout.signal })
+      response = await timeout.guard(this.fetchFn(url, { signal: timeout.signal }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

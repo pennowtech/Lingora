@@ -134,7 +134,7 @@ export class DeepLProvider implements DictionaryProvider {
     let response: Response
 
     try {
-      response = await this.fetchFn(`${this.baseUrl}/v2/translate`, {
+      response = await timeout.guard(this.fetchFn(`${this.baseUrl}/v2/translate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export class DeepLProvider implements DictionaryProvider {
           ...(sourceLang ? { source_lang: sourceLang } : {}),
         }),
         signal: timeout.signal,
-      })
+      }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

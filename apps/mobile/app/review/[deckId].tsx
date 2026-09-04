@@ -119,8 +119,6 @@ function ReviewCardArtwork(): JSX.Element | null {
   const { theme } = useTheme()
   const styles = useThemedStyles(createStyles)
 
-  // The illustration has a pale paper background, so keeping it out of dark
-  // themes avoids a bright rectangle that fights the selected color scheme.
   if (theme.mode === 'dark') return null
 
   return (

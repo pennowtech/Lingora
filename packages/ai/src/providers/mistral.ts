@@ -400,7 +400,7 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
     let response: Response
 
     try {
-      response = await this.fetchFn(`${this.baseUrl}/chat/completions`, {
+      response = await timeout.guard(this.fetchFn(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -415,7 +415,7 @@ export class MistralProvider implements AIProvider, DictionaryProvider {
           },
         }),
         signal: timeout.signal,
-      })
+      }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

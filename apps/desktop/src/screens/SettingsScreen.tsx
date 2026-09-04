@@ -633,7 +633,12 @@ export const SettingsScreen: React.FC<{ initialTab?: 'learning' | 'ai' | 'transl
                   <div
                     key={name}
                     onClick={() => {
-                      if (p.validated) setSelectedGenerationProvider(name);
+                      // Re-validates live instead of trusting a possibly-stale `validated` flag -
+                      // the key can have expired/been revoked, or the model it was last checked
+                      // against can have been removed, since the last time this was checked. Only
+                      // fires when switching TO a different, keyed provider (clicking the
+                      // already-active card, or one with no key yet, should just toggle preview).
+                      if (!isActive && hasKey) void validateProviderKey(name, true);
                       setExpandedProvider((prev) => (prev === name ? null : name));
                     }}
                     style={{

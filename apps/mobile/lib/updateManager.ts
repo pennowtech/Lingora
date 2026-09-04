@@ -18,8 +18,8 @@ const AUTO_UPDATE_KEY = 'lingora.auto_update_enabled'
 const LAST_NOTIFIED_VERSION_KEY = 'lingora.last_notified_version'
 const LAST_CHECK_TIME_KEY = 'lingora.last_update_check_time'
 
-// Check interval when app is active: minimum 4 hours between automatic checks
-const MIN_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000
+// Check interval when app is active: minimum 24 hours between automatic checks to conserve battery
+const MIN_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
 export interface AppUpdateNotificationPayload {
   version?: string | undefined
@@ -49,22 +49,23 @@ async function ensureNotificationPermission(): Promise<boolean> {
     const requested = await Notifications.requestPermissionsAsync()
     return requested.granted
   } catch (err) {
-    log.error('updater.permission_error', err, { message: 'Failed to request notification permission' })
+    log.error('app.permission_error', err, { message: 'Failed to request notification permission' })
     return false
   }
 }
 
 /**
- * Returns true if auto-update is enabled. Defaults to false so users receive
- * notifications when a new update is published on Google Play.
+ * Returns true if update checks and notifications are enabled.
+ * Defaults to true. If the user disables it, updateManager respects
+ * that decision and triggers no automatic checks or notifications.
  */
 export async function getAutoUpdateEnabled(): Promise<boolean> {
   try {
     const stored = await SecureStore.getItemAsync(AUTO_UPDATE_KEY)
-    if (stored === null) return false // Default: false (manual updates with notifications)
+    if (stored === null) return true // Default: true (enabled by default)
     return stored === 'true'
   } catch {
-    return false
+    return true
   }
 }
 
@@ -72,7 +73,7 @@ export async function setAutoUpdateEnabled(enabled: boolean): Promise<void> {
   try {
     await SecureStore.setItemAsync(AUTO_UPDATE_KEY, enabled ? 'true' : 'false')
   } catch (err) {
-    log.error('updater.set_preference_failed', err, { message: 'Failed to save auto-update preference' })
+    log.error('app.set_preference_failed', err, { message: 'Failed to save auto-update preference' })
   }
 }
 
@@ -109,14 +110,14 @@ export async function notifyUpdateAvailable(payload?: AppUpdateNotificationPaylo
     const versionKey = payload?.versionCode ? `vc_${payload.versionCode}` : versionLabel
     await SecureStore.setItemAsync(LAST_NOTIFIED_VERSION_KEY, versionKey).catch(() => {})
   } catch (err) {
-    log.error('updater.notification_failed', err, { message: 'Failed to schedule Play Store update notification' })
+    log.error('app.notification_failed', err, { message: 'Failed to schedule Play Store update notification' })
   }
 }
 
 /**
  * Main update check logic querying the Google Play Store directly.
  * Checks for updates if:
- * 1. auto-update is disabled (or force === true), AND
+ * 1. user has enabled update checks (or force === true), AND
  * 2. enough time has elapsed since last check (unless force === true).
  */
 export async function checkForAppUpdate(options?: {
@@ -129,8 +130,8 @@ export async function checkForAppUpdate(options?: {
   const playStoreUrl = `market://details?id=${PLAY_STORE_PACKAGE}`
 
   if (!options?.force) {
-    // If auto-update is turned ON, user doesn't want manual update notification reminders
-    if (autoUpdate) {
+    // If the user disabled update checks, strictly respect that decision: no checks, no triggers, no notifications
+    if (!autoUpdate) {
       return {
         updateAvailable: false,
         currentVersion,

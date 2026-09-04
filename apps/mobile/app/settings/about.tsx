@@ -33,12 +33,22 @@ const HELP_SECTIONS: HelpSection[] = [
   },
   {
     id: 'updates',
-    title: 'Updates & Release Highlights',
+    title: 'Google Play & App Updates',
     icon: 'Sparkles',
     paragraphs: [
-      'We release frequent updates with new features, language support, and bug fixes.',
-      'Check the **"What\'s New"** section to review what changed in recent versions.',
-      'When automatic updates are turned off, Lemony sends a push notification when a new version is released so you can explore what is fresh.',
+      'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.',
+      '**Automatic Checks**: When enabled, Lemony checks Google Play at most once every 24 hours while active to save battery, and notifies you when an update is available.',
+      '**User Control**: You can turn off update checks at any time. When turned off, Lemony stops all automatic checks and notifications completely.',
+      '**What\'s Fresh in Lemony**: Tapping any update notification or release card displays the full changelog digest with an instant link to update on Google Play.',
+    ],
+  },
+  {
+    id: 'playstore',
+    title: 'Google Play Auto-Updates',
+    icon: 'RefreshCw',
+    paragraphs: [
+      'If Google Play\'s own auto-update is active on your device, Play Store may silently update the app overnight over Wi-Fi.',
+      'When this happens, Lemony detects the new version on launch and displays what changed, without sending redundant update notifications.',
     ],
   },
 ]
@@ -51,7 +61,7 @@ export default function AboutScreen(): JSX.Element {
   const [whatsNewModalOpen, setWhatsNewModalOpen] = useState(false)
   const [featureReplayOpen, setFeatureReplayOpen] = useState(false)
 
-  const [autoUpdateEnabled, setAutoUpdateEnabledState] = useState(false)
+  const [autoUpdateEnabled, setAutoUpdateEnabledState] = useState(true)
   const [checkingUpdates, setCheckingUpdates] = useState(false)
   const [checkResult, setCheckResult] = useState<CheckUpdateResult | null>(null)
   const [activeModalVersion, setActiveModalVersion] = useState<string | undefined>()
@@ -71,7 +81,7 @@ export default function AboutScreen(): JSX.Element {
     setCheckingUpdates(true)
     setCheckResult(null)
     try {
-      const result = await checkForAppUpdate({ force: true, notify: !autoUpdateEnabled })
+      const result = await checkForAppUpdate({ force: true, notify: autoUpdateEnabled })
       setCheckResult(result)
       if (result.updateAvailable) {
         setShowPlayStoreInModal(true)
@@ -86,7 +96,7 @@ export default function AboutScreen(): JSX.Element {
       version: '0.3.1',
       versionCode: (Constants.expoConfig?.android?.versionCode ?? 13) + 1,
       changelog: `### 🌟 What's Fresh in Lemony
-- **Play Store Update Notifications**: Receive timely notifications when a new update is released on Google Play while auto-update is off.
+- **Play Store Update Notifications**: Receive timely notifications when a new update is released on Google Play.
 - **Direct What's Fresh**: Tapping the notification immediately displays release highlights and changes.
 - **Polished Dark Themes**: Harmonious backgrounds and typography across Search, Mining Studio, and Review.`,
     })
@@ -148,11 +158,11 @@ export default function AboutScreen(): JSX.Element {
 
         <View style={styles.settingRow}>
           <View style={styles.settingTextWrap}>
-            <Text style={styles.settingLabel}>{t('Automatic updates')}</Text>
+            <Text style={styles.settingLabel}>{t('Check for updates')}</Text>
             <Text style={styles.settingDesc}>
               {autoUpdateEnabled
-                ? t('Updates install automatically via Google Play Store')
-                : t('Notify me when a new update is ready on Google Play Store so I can see what is fresh')}
+                ? t('Automatically checks Google Play and notifies you when a new version is ready')
+                : t('Disabled. Lemony will not check for updates or send notifications.')}
             </Text>
           </View>
           <Switch

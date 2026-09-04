@@ -1,126 +1,283 @@
-import React from 'react';
-import { BarChart3, TrendingUp, Calendar, Target, Award, Brain } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { BarChart3, TrendingUp, Calendar, Target, Flame, AlertTriangle, ArrowRight } from 'lucide-react';
+import {
+  getDifficultWords,
+  getRetentionRate,
+  getReviewCountsByDay,
+  getReviewedDayIndexes,
+  getReviewForecast,
+  getTotalCardCount,
+  getVocabularyGrowth,
+  type DatabaseAdapter,
+  type DifficultWord,
+  type ReviewForecastDay,
+  type WeeklyGrowth,
+} from '@lingora/database';
+import { buildHeatmap, streakFromDayIndexes } from '@lingora/core';
+import type { LanguageCode } from '@lingora/types';
+import { useDesktopServices } from '../services/desktopServices';
 
-export const StatsScreen: React.FC = () => {
-  // Generate dummy activity heatmap grid (7 rows x 20 cols)
-  const heatmapCells = Array.from({ length: 140 }, (_, i) => {
-    const value = Math.floor(Math.random() * 5);
-    return value;
-  });
+const HEAT_COLORS = ['rgba(255, 255, 255, 0.05)', 'rgba(99, 102, 241, 0.25)', 'rgba(99, 102, 241, 0.5)', 'rgba(99, 102, 241, 0.75)', 'var(--accent-primary)'];
 
-  const getHeatmapColor = (val: number) => {
-    if (val === 0) return 'rgba(255, 255, 255, 0.05)';
-    if (val === 1) return 'rgba(99, 102, 241, 0.25)';
-    if (val === 2) return 'rgba(99, 102, 241, 0.5)';
-    if (val === 3) return 'rgba(99, 102, 241, 0.75)';
-    return 'var(--accent-primary)';
+interface StatsData {
+  retention30d: number;
+  streakDays: number;
+  totalCards: number;
+  newThisWeek: number;
+  heatmap: number[][];
+  growth: WeeklyGrowth[];
+  difficultWords: DifficultWord[];
+  forecast: ReviewForecastDay[];
+}
+
+async function loadStats(db: DatabaseAdapter, targetLanguage?: LanguageCode, nativeLanguage?: LanguageCode): Promise<StatsData> {
+  const [retention30d, totalCards, days, reviewCounts, growth, difficultWords, forecast] = await Promise.all([
+    getRetentionRate(db, 30, targetLanguage, nativeLanguage),
+    getTotalCardCount(db, targetLanguage, nativeLanguage),
+    getReviewedDayIndexes(db, 366, targetLanguage, nativeLanguage),
+    getReviewCountsByDay(db, 35, targetLanguage, nativeLanguage),
+    getVocabularyGrowth(db, 7, targetLanguage, nativeLanguage),
+    getDifficultWords(db, 10, targetLanguage, nativeLanguage),
+    getReviewForecast(db, 7, targetLanguage, nativeLanguage),
+  ]);
+  return {
+    retention30d,
+    totalCards,
+    streakDays: streakFromDayIndexes(days),
+    newThisWeek: growth[growth.length - 1]?.count ?? 0,
+    heatmap: buildHeatmap(reviewCounts),
+    growth,
+    difficultWords,
+    forecast,
   };
+}
+
+interface StatsScreenProps {
+  onSelectScreen?: (screen: any) => void;
+}
+
+export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
+  const { db, targetLanguage, nativeLanguage } = useDesktopServices();
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!db) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    loadStats(db, targetLanguage, nativeLanguage)
+      .then((data) => {
+        if (!cancelled) setStats(data);
+      })
+      .catch((err) => {
+        console.error('[StatsScreen] Failed to load stats:', err);
+        if (!cancelled) setError(err?.message || String(err));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [db, targetLanguage, nativeLanguage]);
+
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
+          <span style={{ color: 'var(--text-secondary)' }}>Loading statistics...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
+          <span style={{ color: 'var(--danger)' }}>Failed to load statistics: {error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats || stats.totalCards === 0) {
+    return (
+      <div className="page-container">
+        <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
+          <BarChart3 size={32} color="var(--text-muted)" style={{ marginBottom: '12px' }} />
+          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>No stats yet</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Add and review some words to see your learning statistics here.</div>
+        </div>
+      </div>
+    );
+  }
+
+  const maxGrowth = Math.max(1, ...stats.growth.map((w) => w.count));
+  const maxForecast = Math.max(1, ...stats.forecast.map((f) => f.dueCount));
 
   return (
     <div className="page-container">
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Learning Analytics & FSRS Memory Score</h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Detailed metrics on memory retention, review consistency, and vocabulary growth.</p>
+        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Learning Statistics</h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Retention, review activity, vocabulary growth, and the words giving you the most trouble.</p>
       </div>
 
       {/* Grid of Key Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--accent-primary)' }}>
-            <Brain size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>FSRS Stability Index</span>
-          </div>
-          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>18.4 Days</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Average memory half-life score</div>
-        </div>
-
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--success)' }}>
             <TrendingUp size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>True Retention</span>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>Retention (30d)</span>
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--success)' }}>92.4%</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Passed vs total reviews</div>
+          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--success)' }}>{Math.round(stats.retention30d * 100)}%</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Remembered on first review</div>
         </div>
 
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--warning)' }}>
-            <Target size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>Total Reviews</span>
+            <Flame size={20} />
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>Day Streak</span>
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--warning)' }}>1,842</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Cards reviewed all time</div>
+          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--warning)' }}>{stats.streakDays}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Consecutive study days</div>
+        </div>
+
+        <div className="glass-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--accent-primary)' }}>
+            <Target size={20} />
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>Total Cards</span>
+          </div>
+          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>{stats.totalCards}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Saved across all decks</div>
+        </div>
+
+        <div className="glass-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--info)' }}>
+            <BarChart3 size={20} />
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>New This Week</span>
+          </div>
+          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--info)' }}>+{stats.newThisWeek}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Words added in the last 7 days</div>
         </div>
       </div>
 
-      {/* Heatmap Activity */}
+      {/* Activity Heatmap */}
       <div className="glass-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={18} color="var(--accent-primary)" />
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Review Consistency Heatmap</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Review Activity</h3>
           </div>
-          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Last 20 Weeks</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Last 5 Weeks</span>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateRows: 'repeat(7, 14px)',
-          gridAutoFlow: 'column',
-          gridAutoColumns: '14px',
-          gap: '5px',
-          overflowX: 'auto',
-          paddingBottom: '8px'
-        }}>
-          {heatmapCells.map((val, idx) => (
-            <div
-              key={idx}
-              style={{
-                width: '14px',
-                height: '14px',
-                borderRadius: '3px',
-                backgroundColor: getHeatmapColor(val),
-                transition: 'transform 0.1s ease'
-              }}
-              title={`Level ${val} review activity`}
-            />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          {stats.heatmap.map((row, rowIndex) => (
+            <div key={rowIndex} style={{ display: 'flex', gap: '5px' }}>
+              {row.map((intensity, colIndex) => (
+                <div
+                  key={colIndex}
+                  style={{
+                    flex: 1,
+                    aspectRatio: '1',
+                    borderRadius: '3px',
+                    backgroundColor: HEAT_COLORS[intensity] ?? HEAT_COLORS[0],
+                  }}
+                />
+              ))}
+            </div>
           ))}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '10px' }}>
           <span>Less</span>
-          {[0, 1, 2, 3, 4].map(v => (
-            <div key={v} style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: getHeatmapColor(v) }} />
+          {HEAT_COLORS.map((c) => (
+            <div key={c} style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: c }} />
           ))}
           <span>More</span>
         </div>
       </div>
 
-      {/* CEFR Mastery Breakdown */}
-      <div className="glass-card">
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
-          CEFR Level Vocabulary Distribution
-        </h3>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {[
-            { level: 'A1 / A2 Beginner', count: 210, total: 300, color: 'var(--success)' },
-            { level: 'B1 Intermediate', count: 340, total: 400, color: 'var(--info)' },
-            { level: 'B2 Upper Intermediate', count: 180, total: 300, color: 'var(--accent-primary)' },
-            { level: 'C1 Advanced', count: 45, total: 150, color: 'var(--accent-secondary)' }
-          ].map(item => (
-            <div key={item.level} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.level}</span>
-                <span style={{ color: 'var(--text-secondary)' }}>{item.count} / {item.total} mastered</span>
+      {/* 7-Day Review Forecast + Vocabulary Growth, side by side */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="glass-card">
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Upcoming Review Forecast</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '120px' }}>
+            {stats.forecast.map((day) => (
+              <div key={day.dateMs} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)' }}>{day.dueCount}</span>
+                <div style={{ width: '18px', borderRadius: '4px', backgroundColor: 'var(--accent-primary)', height: Math.max(8, (day.dueCount / maxForecast) * 80) }} />
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{day.dayLabel}</span>
               </div>
-              <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ width: `${(item.count / item.total) * 100}%`, height: '100%', backgroundColor: item.color }} />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>Projected due cards for the next 7 days</p>
         </div>
+
+        <div className="glass-card">
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Vocabulary Growth</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '120px' }}>
+            {stats.growth.map((week, i) => (
+              <div key={week.weekStart} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ width: '18px', borderRadius: '4px', backgroundColor: 'var(--info)', height: Math.max(8, (week.count / maxGrowth) * 96) }} />
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>W{i + 1}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>New words per week</p>
+        </div>
+      </div>
+
+      {/* Difficult Words / Leeches */}
+      <div className="glass-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={18} color="var(--danger)" />
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Difficult Words</h3>
+          </div>
+          {onSelectScreen && (
+            <button onClick={() => onSelectScreen('search')} className="btn btn-ghost" style={{ fontSize: '13px' }}>
+              Practice <ArrowRight size={14} />
+            </button>
+          )}
+        </div>
+
+        {stats.difficultWords.length === 0 ? (
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>No lapses yet - nothing difficult to show.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {stats.difficultWords.map((word, i) => (
+              <div
+                key={word.form}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 4px',
+                  borderTop: i > 0 ? '1px solid var(--border-color)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{word.form}</span>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: 'var(--danger)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                  }}
+                >
+                  {word.lapses} lapses
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

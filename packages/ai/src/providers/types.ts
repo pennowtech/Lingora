@@ -7,6 +7,7 @@ import type {
   GeneratedPhrase,
   GeneratedSynonym,
   LanguageCode,
+  MinedPassageAnalysis,
   WordGenerationPayload,
 } from '@lingora/types'
 import type { PartialWordGeneration } from '../schemas/generation'
@@ -166,7 +167,7 @@ export interface AIProvider {
   suggestWordOfTheDay(
     ctx: GenerationContext,
     excludeWords: string[],
-  ): Promise<AIResult<{ word: string; explanation: string }>>
+  ): Promise<AIResult<{ word: string; explanation: string; exampleSentence?: string; exampleTranslation?: string }>>
 
   translate(text: string, source: LanguageCode, target: LanguageCode): Promise<AIResult<string>>
 
@@ -184,4 +185,13 @@ export interface AIProvider {
     ctx: GenerationContext,
     history: ChatTurn[],
   ): Promise<AIResult<string>>
+
+  /**
+   * Passage & paragraph mining: translates a passage into the learner's native language,
+   * generates CEFR-calibrated grammar explanations, and extracts key vocabulary candidates.
+   */
+  analyzePassage(
+    passage: string,
+    ctx: GenerationContext,
+  ): Promise<AIResult<MinedPassageAnalysis>>
 }

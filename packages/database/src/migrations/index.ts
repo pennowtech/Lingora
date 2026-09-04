@@ -20,6 +20,8 @@ import { smallerDefaultCardText } from './0019_smaller_default_card_text'
 import { clusterMoreInfo } from './0020_cluster_more_info'
 import { reviewEventQuestionType } from './0021_review_event_question_type'
 import { deckQuestionTypes } from './0022_deck_question_types'
+import { deckLanguagePair } from './0023_deck_language_pair'
+import { mineQueueLanguage } from './0024_mine_queue_language'
 import type { Migration } from './types'
 
 export type { Migration } from './types'
@@ -50,6 +52,8 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   clusterMoreInfo,
   reviewEventQuestionType,
   deckQuestionTypes,
+  deckLanguagePair,
+  mineQueueLanguage,
 ]
 
 /**

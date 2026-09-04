@@ -1,12 +1,14 @@
 {
   "expo": {
-    "name": "Lemmory",
+    "name": "Lemony",
     "slug": "lingora",
     "scheme": [
+      "lemony",
+      "lemory",
       "lemmory",
       "lingora"
     ],
-    "version": "0.1.0",
+    "version": "0.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon-lingora.png",
     "userInterfaceStyle": "light",
@@ -22,7 +24,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json",
-      "versionCode": 10
+      "versionCode": 13
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -54,7 +56,20 @@
             "extraProguardRules": "-keep class com.swmansion.reanimated.** { *; }\n-keep class com.facebook.react.turbomodule.** { *; }"
           }
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-font",
+      "expo-router",
+      "expo-sharing",
+      "expo-video",
+      "expo-asset",
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {

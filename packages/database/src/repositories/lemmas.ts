@@ -112,15 +112,18 @@ export async function searchLemmas(
   db: DatabaseAdapter,
   input: string,
   language: LanguageCode,
+  nativeLanguage?: LanguageCode,
 ): Promise<Lemma[]> {
   const query = buildFTSQuery(input)
   if (!query) return []
-  // Prefix matching is right for fts_lemmas (autocompleting a word in your own target-language
-  // vocabulary as you type it) but wrong for fts_meanings — that text is in the *other* language,
-  // so a target-language search term that's a short prefix of some unrelated word's translation
-  // would otherwise false-positive-match purely by coincidence (see buildFTSExactQuery's own
-  // doc comment for the confirmed "Wand" -> "wander" repro).
   const meaningQuery = buildFTSExactQuery(input)
+
+  let meaningWhere = `fts_meanings MATCH ? AND l.language = ?`
+  const meaningParams: unknown[] = [meaningQuery, language]
+  if (nativeLanguage) {
+    meaningWhere += ` AND c.native_language = ?`
+    meaningParams.push(nativeLanguage)
+  }
 
   return db.query<Lemma>(
     `SELECT id, form, language, partOfSpeech, gender, plural, createdAt, updatedAt
@@ -137,12 +140,12 @@ export async function searchLemmas(
        JOIN meanings m ON m.rowid = fts_meanings.rowid
        JOIN cards c ON c.id = m.card_id
        JOIN lemmas l ON l.id = c.lemma_id
-       WHERE fts_meanings MATCH ? AND l.language = ?
+       WHERE ${meaningWhere}
      )
      GROUP BY id
      ORDER BY MIN(rank)
      LIMIT 20`,
-    [query, language, meaningQuery, language],
+    [query, language, ...meaningParams],
   )
 }
 
@@ -178,7 +181,7 @@ export async function searchLemmasWithPreview(
   language: LanguageCode,
   nativeLanguage: LanguageCode,
 ): Promise<LemmaSearchPreview[]> {
-  const lemmas = await searchLemmas(db, input, language)
+  const lemmas = await searchLemmas(db, input, language, nativeLanguage)
   const previews: LemmaSearchPreview[] = []
 
   for (const lemma of lemmas) {

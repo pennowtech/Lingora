@@ -1,8 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
-virtualStoreDir: .pnpm
-virtualStoreDirMaxLength: 30
+autoInstallPeers: false
 allowBuilds:
   '@firebase/util': true
   better-sqlite3: false

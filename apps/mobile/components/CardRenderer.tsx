@@ -11,13 +11,9 @@ import type { ThemeColors } from '../lib/themes'
  * editor's live preview, so what an editor sees while editing is exactly
  * what the review session renders.
  *
- * `onMessage` is the bridge back out of the WebView for template-embedded
- * interactive elements (currently just the speaker button baked into
- * DEFAULT_BACK_TEMPLATE/CLOZE_BACK_TEMPLATE, which calls
- * `window.ReactNativeWebView.postMessage('speak')` on tap) — a plain
- * string payload, not JSON, since there's only ever been one message kind
- * so far. The template editor's own preview doesn't pass this prop, so
- * tapping the speaker there is a harmless no-op.
+ * `onMessage` is an optional bridge for template-embedded interactive elements. Pronunciation
+ * controls intentionally remain native UI outside templates so their icon, accessibility, and
+ * behavior stay consistent regardless of the user's card HTML/CSS.
  */
 export function CardRenderer(props: {
   html: string

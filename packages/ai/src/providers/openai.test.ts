@@ -37,7 +37,7 @@ describe('OpenAIProvider request shape', () => {
 
     const { url, body } = fetchFn.calls[0]!
     expect(url).toBe('https://api.openai.com/v1/chat/completions')
-    expect(body['model']).toBe('gpt-4.1-mini')
+    expect(body['model']).toBe('gpt-4o-mini')
 
     const responseFormat = body['response_format'] as {
       type: string

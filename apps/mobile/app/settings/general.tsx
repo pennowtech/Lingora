@@ -1,12 +1,12 @@
 import type { LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
-import { router, Stack } from 'expo-router'
+import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Card, Chip, ConfirmModal, Dropdown, IconButton, LinkRow } from '../../components/ui'
+import { Card, Chip, ConfirmModal, Dropdown, IconButton } from '../../components/ui'
 import { getCaptureDestination, setCaptureDestination, type CaptureDestination } from '../../lib/captureIntent'
 import {
   APP_LANGUAGES,
@@ -19,8 +19,7 @@ import {
 import { FULLY_SUPPORTED_VOCAB_LANGUAGES, STORE_KEYS, SUPPORTED_LANGUAGES, useServices } from '../../lib/services'
 import { spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
-import { THEMES, THEME_ORDER } from '../../lib/themes'
-import type { ThemeColors, ThemeKey } from '../../lib/themes'
+import { THEMES, THEME_ORDER, type ThemeColors, type ThemeKey, type ThemePreference } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'GeneralSettingsScreen' })
 
@@ -50,12 +49,6 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
   {
-    id: 'audio',
-    title: 'Audio Settings',
-    icon: 'Volume2',
-    paragraphs: ['This opens a separate screen for the voice that reads words out loud, and how fast it speaks.'],
-  },
-  {
     id: 'language',
     title: 'App Language',
     icon: 'Languages',
@@ -69,8 +62,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Share & Search',
     icon: 'Share2',
     paragraphs: [
-      'Long-press a word in any app and pick "Search in Lemmory" to look it up here right away.',
-      'You can also share text from another app straight to Lemmory, the same way you\'d share a link or a photo.',
+      'Long-press a word in any app and pick "Search in Lemony" to look it up here right away.',
+      'You can also share text from another app straight to Lemony, the same way you\'d share a link or a photo.',
       { text: 'This setting decides what happens next.', bold: true },
       'Always open Search, split between Search and the Mining queue depending on how much text it is, or ask you every time.',
     ],
@@ -78,14 +71,12 @@ const HELP_SECTIONS: HelpSection[] = [
 ]
 
 /** The "General Settings" sub-screen: app-wide interface preferences that aren't specific to
- * learning or AI — Audio Settings (formerly "Pronunciation", listed under Data) and App Language
- * (formerly its own card on the Learning screen; it's an interface preference, not a learning
- * one — a Hindi-UI user can still be learning German). */
+ * learning or AI — Theme, App Language, and Share & Search. */
 export default function GeneralSettingsScreen(): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
-  const { themeKey, setThemeKey } = useTheme()
+  const { themePreference, setThemePreference } = useTheme()
   const { nativeLanguage, targetLanguage, reloadServices } = useServices()
   const [appLanguage, setAppLanguageState] = useState<AppLanguagePreference>('system')
   const [captureDestination, setCaptureDestinationState] = useState<CaptureDestination>('search')
@@ -166,18 +157,15 @@ export default function GeneralSettingsScreen(): JSX.Element {
         <Text style={styles.fieldLabel}>{t('Theme')}</Text>
         <Dropdown
           label={t('Theme')}
-          value={themeKey}
-          onChange={(value) => value && setThemeKey(value as ThemeKey)}
-          options={THEME_ORDER.map((key) => ({ label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`, value: key }))}
-        />
-      </Card>
-
-      <Card>
-        <LinkRow
-          icon="Volume2"
-          label={t('Audio Settings')}
-          detail={t('Voice, rate, pitch')}
-          onPress={() => router.push('/settings/tts')}
+          value={themePreference}
+          onChange={(value) => value && setThemePreference(value as ThemePreference)}
+          options={[
+            { label: `⚙️  ${t('System (Auto)')}`, value: 'system' },
+            ...THEME_ORDER.map((key) => ({
+              label: `${THEMES[key].icon}  ${t(THEMES[key].name)}`,
+              value: key,
+            })),
+          ]}
         />
       </Card>
 

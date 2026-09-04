@@ -13,13 +13,13 @@ import { useServices } from '../lib/services'
 const log = logger.child({ feature: 'app', component: 'CaptureIntentHandler' })
 
 /**
- * Navigates by building a real `lemmory://` deep link and opening it, rather than calling
+ * Navigates by building a real `lemony://` deep link and opening it, rather than calling
  * `router.push` directly — a cold app launch driven by an external intent (Process Text or share)
  * can win the race against the root navigator's own first mount, and an imperative `router.push`
  * in that window either throws ("Attempted to navigate before mounting the Root Layout") or, seen
  * once on-device, dispatches a malformed nested action nothing handles ("Do you have a route named
  * '__root'?"). `Linking.openURL` goes through Expo Router's own deep-link resolution instead — the
- * same well-tested path a real `lemmory://...` link from outside the app already uses — so it's
+ * same well-tested path a real `lemony://...` link from outside the app already uses — so it's
  * correct however early it fires, cold start or not. Callers are still responsible for not calling
  * this after the component has unmounted (see `isMountedRef` below) — a share intent can make the
  * whole root remount mid-session (Android restarts the activity when it isn't the task root), and
@@ -34,7 +34,7 @@ function openInApp(path: string, queryParams: Record<string, string>): void {
 
 /**
  * Headless — routes text captured from outside the app to wherever the user's capture-destination
- * setting (Settings > General > "Add to Lemmory", see `lib/captureIntent.ts`) says it should go,
+ * setting (Settings > General > "Add to Lemony", see `lib/captureIntent.ts`) says it should go,
  * and renders the "Quick-add chooser" sheet when that's the active setting. Two independent
  * capture sources feed into the same `handleCapture`:
  *  - Android's "Process Text" selection-toolbar entry (`modules/process-text-intent`) — usually a
@@ -46,13 +46,13 @@ function openInApp(path: string, queryParams: Record<string, string>): void {
  * ServicesProvider, not at the true root next to ShareIntentProvider itself.
  */
 export function CaptureIntentHandler(): JSX.Element | null {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const queryClient = useQueryClient()
   const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext()
   const [chooser, setChooser] = useState<{ text: string; source: CaptureSource } | null>(null)
 
   // Guards two real races, both confirmed on-device:
-  //  - A share intent can make Lemmory's activity non-task-root, and expo-share-intent's own
+  //  - A share intent can make Lemony's activity non-task-root, and expo-share-intent's own
   //    native side reacts by restarting the activity (new task, finish the old one) — see its
   //    handleShareIntent — so this component can unmount mid-flight, between the `await`s below and
   //    the eventual openInApp call, while a stale continuation from the dying instance is still
@@ -79,16 +79,17 @@ export function CaptureIntentHandler(): JSX.Element | null {
         status: 'pending',
         capturedAt: Date.now(),
         processed: false,
+        targetLanguage,
       })
-      // The bottom tab bar's Queue badge and the Queue screen itself both read this same query key
-      // (see BottomTabBar.tsx / app/(tabs)/mine.tsx) — without invalidating it, a query mounted
-      // earlier (the badge, always present) keeps serving its pre-capture snapshot for the rest of
-      // its staleTime, and the freshly-written entry doesn't show up even on a brand-new mount of
-      // the Queue screen itself, since it reads the same cached result rather than the database.
+      // The bottom tab bar's Mining badge (['mine-queue', 'pending']) and the Mining screen's own
+      // list (['mine-queue', 'all']) are separate cache entries (see BottomTabBar.tsx / app/(tabs)/
+      // mine.tsx - kept apart on purpose, sharing one key used to make already-mined passages
+      // flicker whenever the other query refetched) but both share the ['mine-queue'] prefix, so
+      // this one invalidateQueries call still refreshes both without needing two calls.
       await queryClient.invalidateQueries({ queryKey: ['mine-queue'] })
       if (isMountedRef.current) openInApp('/mine', {})
     },
-    [db, queryClient],
+    [db, queryClient, targetLanguage],
   )
 
   const handleCapture = useCallback(

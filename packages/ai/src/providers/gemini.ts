@@ -5,6 +5,7 @@ import type {
   GeneratedPhrase,
   GeneratedSynonym,
   LanguageCode,
+  MinedPassageAnalysis,
 } from '@lingora/types'
 import { z } from 'zod'
 import { logger } from '@lingora/observability'
@@ -22,6 +23,7 @@ import {
   wordGenerationJsonTargetSchema,
   wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
+import { minedPassageSchema } from '../schemas/mining'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
 import { toGeminiJsonSchema } from './json-schema'
@@ -89,6 +91,8 @@ const explainWordDetailResponseSchema = z.object({
 const suggestWordOfTheDayResponseSchema = z.object({
   word: z.string().min(1),
   explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+  exampleSentence: z.string().optional(),
+  exampleTranslation: z.string().optional(),
 })
 const chatAboutWordResponseSchema = z.object({
   reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),
@@ -118,7 +122,7 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
 
   constructor(config: GeminiProviderConfig) {
     this.apiKey = config.apiKey
-    this.model = config.model ?? 'gemini-2.5-flash'
+    this.model = config.model ?? 'gemini-3.5-flash-lite'
     this.baseUrl = (config.baseUrl ?? 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
     // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
@@ -307,6 +311,16 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.detectLanguage.template, { text })
     const result = await this.generateStrict(prompt, detectLanguageResponseSchema)
     return { data: result.data.language, usage: result.usage }
+  }
+
+  async analyzePassage(passage: string, ctx: GenerationContext): Promise<AIResult<MinedPassageAnalysis>> {
+    const prompt = renderPrompt(PROMPTS.passageMining.template, {
+      passage,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, minedPassageSchema)
+    return { data: result.data, usage: result.usage }
   }
 
   private async generateStrict<T>(prompt: string, schema: z.ZodType<T>): Promise<AIResult<T>> {

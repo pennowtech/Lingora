@@ -9,11 +9,20 @@
  *   accent → primary, accentSoft → primarySoft, accentText → primaryDark, bgBase → background,
  *   bgCard → surface, bgSurface → surfaceMuted, text1/2/3 → text/textSecondary/textMuted,
  *   textOnAccent → textOnPrimary, success/warn/danger → success/warning/danger (soft variants
- *   computed below since Shelfie doesn't define them — it has no equivalent of Lemmory's
+ *   computed below since Shelfie doesn't define them — it has no equivalent of Lemony's
  *   CEFR/rating badge UI).
  */
 
-export type ThemeKey = 'lingoraLight' | 'midnight' | 'carbon' | 'arctic' | 'warmSand' | 'paperlight'
+export type ThemeKey =
+  | 'lingoraLight'
+  | 'midnight'
+  | 'carbon'
+  | 'forestPine'
+  | 'espressoNoir'
+  | 'deepOcean'
+  | 'arctic'
+  | 'warmSand'
+  | 'paperlight'
 export type ThemeMode = 'light' | 'dark'
 
 export interface ThemeColors {
@@ -55,7 +64,7 @@ function soft(hex: string): string {
 
 const lingoraLight: AppTheme = {
   key: 'lingoraLight',
-  name: 'Lemmory Light',
+  name: 'Lemony Light',
   icon: '🇩🇪',
   mode: 'light',
   colors: {
@@ -95,13 +104,13 @@ const midnight: AppTheme = {
     surfaceMuted: '#141629',
     border: '#2E3260',
     text: '#EEF0FF',
-    textSecondary: '#9DA4CC',
-    textMuted: '#5A6090',
+    textSecondary: '#B4BCE4',
+    textMuted: '#8B94C8',
     textOnPrimary: '#FFFFFF',
     success: '#4ADE80',
     successSoft: soft('#4ADE80'),
     warning: '#FBBF24',
-    warningSoft: soft('#FBBF24'),
+    warningSoft: '#2B2412',
     danger: '#F87171',
     dangerSoft: soft('#F87171'),
     info: '#38BDF8',
@@ -115,7 +124,7 @@ const carbon: AppTheme = {
   icon: '🌚',
   mode: 'dark',
   colors: {
-    primary: '#E5E5E5',
+    primary: '#a6a4a4ff',
     primarySoft: '#2A2A2A',
     primaryDark: '#FFFFFF',
     background: '#0A0A0A',
@@ -123,13 +132,13 @@ const carbon: AppTheme = {
     surfaceMuted: '#111111',
     border: '#2A2A2A',
     text: '#F5F5F5',
-    textSecondary: '#888888',
-    textMuted: '#444444',
+    textSecondary: '#ABABAB',
+    textMuted: '#777777',
     textOnPrimary: '#000000',
     success: '#22C55E',
     successSoft: soft('#22C55E'),
     warning: '#EAB308',
-    warningSoft: soft('#EAB308'),
+    warningSoft: '#282310',
     danger: '#EF4444',
     dangerSoft: soft('#EF4444'),
     info: '#60A5FA',
@@ -157,7 +166,7 @@ const arctic: AppTheme = {
     success: '#16A34A',
     successSoft: soft('#16A34A'),
     warning: '#D97706',
-    warningSoft: soft('#D97706'),
+    warningSoft: '#FEF3C7',
     danger: '#DC2626',
     dangerSoft: soft('#DC2626'),
     info: '#0284C7',
@@ -185,7 +194,7 @@ const warmSand: AppTheme = {
     success: '#3A8A3A',
     successSoft: soft('#3A8A3A'),
     warning: '#C08020',
-    warningSoft: soft('#C08020'),
+    warningSoft: '#F8EDE0',
     danger: '#C03020',
     dangerSoft: soft('#C03020'),
     info: '#1A6A9A',
@@ -213,7 +222,7 @@ const paperlight: AppTheme = {
     success: '#15803D',
     successSoft: soft('#15803D'),
     warning: '#B45309',
-    warningSoft: soft('#B45309'),
+    warningSoft: '#FEF3C7',
     danger: '#B91C1C',
     dangerSoft: soft('#B91C1C'),
     info: '#0369A1',
@@ -221,6 +230,129 @@ const paperlight: AppTheme = {
   },
 }
 
-export const THEMES: Record<ThemeKey, AppTheme> = { lingoraLight, midnight, carbon, arctic, warmSand, paperlight }
-export const THEME_ORDER: ThemeKey[] = ['lingoraLight', 'midnight', 'carbon', 'arctic', 'warmSand', 'paperlight']
+const forestPine: AppTheme = {
+  key: 'forestPine',
+  name: 'Forest Pine',
+  icon: '🌲',
+  mode: 'dark',
+  colors: {
+    primary: '#1fbc83ff',
+    primarySoft: '#064E3B',
+    primaryDark: '#6EE7B7',
+    background: '#050B08',
+    surface: '#13241C',
+    surfaceMuted: '#1A3328',
+    border: '#244537',
+    text: '#ECFDF5',
+    textSecondary: '#A7D9C4',
+    textMuted: '#7AA894',
+    textOnPrimary: '#062E1F',
+    success: '#34D399',
+    successSoft: soft('#34D399'),
+    warning: '#FBBF24',
+    warningSoft: '#2D2208',
+    danger: '#F87171',
+    dangerSoft: soft('#F87171'),
+    info: '#38BDF8',
+    infoSoft: soft('#38BDF8'),
+  },
+}
+
+const espressoNoir: AppTheme = {
+  key: 'espressoNoir',
+  name: 'Espresso Noir',
+  icon: '☕',
+  mode: 'dark',
+  colors: {
+    primary: '#cc870fff',
+    primarySoft: '#451A03',
+    primaryDark: '#FDE68A',
+    background: '#120F0D',
+    surface: '#201A16',
+    surfaceMuted: '#2B231E',
+    border: '#3F342C',
+    text: '#FDF8F3',
+    textSecondary: '#D1C2B4',
+    textMuted: '#9E8E81',
+    textOnPrimary: '#201205',
+    success: '#4ADE80',
+    successSoft: soft('#4ADE80'),
+    warning: '#FBBF24',
+    warningSoft: '#302206',
+    danger: '#F87171',
+    dangerSoft: soft('#F87171'),
+    info: '#60A5FA',
+    infoSoft: soft('#60A5FA'),
+  },
+}
+
+const deepOcean: AppTheme = {
+  key: 'deepOcean',
+  name: 'Deep Ocean',
+  icon: '🌊',
+  mode: 'dark',
+  colors: {
+    primary: '#07a2beff',
+    primarySoft: '#083344',
+    primaryDark: '#67E8F9',
+    background: '#070E17',
+    surface: '#0F1C2E',
+    surfaceMuted: '#17283F',
+    border: '#213A59',
+    text: '#F0F9FF',
+    textSecondary: '#A5C9E8',
+    textMuted: '#7395B5',
+    textOnPrimary: '#04222B',
+    success: '#10B981',
+    successSoft: soft('#10B981'),
+    warning: '#F59E0B',
+    warningSoft: '#2E1E05',
+    danger: '#EF4444',
+    dangerSoft: soft('#EF4444'),
+    info: '#38BDF8',
+    infoSoft: soft('#38BDF8'),
+  },
+}
+
+export type ThemePreference = 'system' | ThemeKey
+
+export const THEMES: Record<ThemeKey, AppTheme> = {
+  lingoraLight,
+  midnight,
+  carbon,
+  forestPine,
+  espressoNoir,
+  deepOcean,
+  arctic,
+  warmSand,
+  paperlight,
+}
+export const THEME_ORDER: ThemeKey[] = [
+  'lingoraLight',
+  'midnight',
+  'carbon',
+  'forestPine',
+  'espressoNoir',
+  'deepOcean',
+  'arctic',
+  'warmSand',
+  'paperlight',
+]
+export const DEFAULT_THEME_PREFERENCE: ThemePreference = 'system'
 export const DEFAULT_THEME_KEY: ThemeKey = 'lingoraLight'
+export const DEFAULT_LIGHT_THEME_KEY: ThemeKey = 'lingoraLight'
+export const DEFAULT_DARK_THEME_KEY: ThemeKey = 'midnight'
+
+/**
+ * Resolves the active ThemeKey based on the user's preference and device system color scheme.
+ * When set to 'system', automatically maps to Midnight Indigo for dark mode and Lemony Light for light mode.
+ */
+export function resolveThemeKey(
+  preference: ThemePreference,
+  systemColorScheme?: string | null,
+): ThemeKey {
+  if (preference === 'system') {
+    return systemColorScheme === 'dark' ? DEFAULT_DARK_THEME_KEY : DEFAULT_LIGHT_THEME_KEY
+  }
+  return preference
+}

@@ -281,6 +281,10 @@ export const sentenceMiningQueue = sqliteTable(
     capturedAt: integer('captured_at').notNull(), // Timestamp of when the sentence was captured
     processed: integer('processed', { mode: 'boolean' }).notNull().default(false), // Whether the sentence has been processed for sentence mining into cards
     cardId: text('card_id'),
+    targetLanguage: text('target_language').notNull().default('de'), // The language the passage was captured in (migration 0024) - scopes the Mining Studio list to the active language pair
   },
-  (table) => [index('mine_queue_processed_idx').on(table.processed)],
+  (table) => [
+    index('mine_queue_processed_idx').on(table.processed),
+    index('mine_queue_target_language_idx').on(table.targetLanguage),
+  ],
 )

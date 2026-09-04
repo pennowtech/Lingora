@@ -1,6 +1,6 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import type { AIProvider } from '@lingora/ai'
-import { getAllLemmaFormsForLanguage, type DatabaseAdapter } from '@lingora/database'
+import { getAllLemmaFormsForLanguage, getRandomWordGuide, type DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import * as Notifications from 'expo-notifications'
@@ -14,6 +14,7 @@ const log = logger.child({ feature: 'vocabulary', component: 'wordOfTheDay' })
 type TranslateFn = (key: string, options?: any) => string
 
 const STORE_KEY = 'lingora.word_of_the_day'
+const HISTORY_KEY = 'lingora.wotd_history'
 const NOTIFICATION_TIME_KEY = 'lingora.wotd_notification_time'
 /** Default local time the daily notification fires at, until the learner picks their own in
  * Settings → Learning (see getNotificationTime/setNotificationTime) — see scheduleNotification's
@@ -61,11 +62,17 @@ export async function setNotificationTime(time: NotificationTime, t: TranslateFn
 export interface WordOfTheDay {
   word: string
   explanation: string
+  exampleSentence?: string
+  exampleTranslation?: string
   language: LanguageCode
   nativeLanguage: LanguageCode
   cefrLevel: CefrLevel
   /** Local YYYY-MM-DD the word was generated for — see todayDateKey. */
   dateKey: string
+  /** Where this word came from - lets the Home screen badge/nudge tell an AI-curated pick apart
+   * from an offline dictionary one (see refreshWordOfTheDayIfNeeded's priority order:
+   * AI -> installed dictionary -> TODO(phase6/7?) cards/search-history, not built yet). */
+  source: 'ai' | 'dictionary'
 }
 
 interface StoredWordOfTheDay extends WordOfTheDay {
@@ -101,10 +108,38 @@ async function writeStored(value: StoredWordOfTheDay): Promise<void> {
   }
 }
 
-/** Returns whatever's cached, stale or not — callers that just want something to show right away
- * (the Home card) use this; refreshIfNeeded is what keeps it from staying stale forever. */
-export async function getStoredWordOfTheDay(): Promise<WordOfTheDay | null> {
-  return readStored()
+async function readHistory(): Promise<string[]> {
+  try {
+    const raw = await SecureStore.getItemAsync(HISTORY_KEY)
+    if (!raw) return []
+    return JSON.parse(raw) as string[]
+  } catch {
+    return []
+  }
+}
+
+async function appendToHistory(word: string): Promise<void> {
+  try {
+    const history = await readHistory()
+    const updated = [word, ...history.filter((w) => w.toLowerCase() !== word.toLowerCase())].slice(0, 60)
+    await SecureStore.setItemAsync(HISTORY_KEY, JSON.stringify(updated))
+  } catch {
+    // Ignore history write errors.
+  }
+}
+
+/** Returns whatever's cached if matching the current level/language, or null if a level change happened. */
+export async function getStoredWordOfTheDay(
+  cefrLevel?: CefrLevel,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<WordOfTheDay | null> {
+  const stored = await readStored()
+  if (!stored) return null
+  if (cefrLevel && stored.cefrLevel !== cefrLevel) return null
+  if (targetLanguage && stored.language !== targetLanguage) return null
+  if (nativeLanguage && stored.nativeLanguage !== nativeLanguage) return null
+  return stored
 }
 
 let permissionRequested = false
@@ -143,13 +178,11 @@ async function scheduleNotification(
       content: {
         title: t('✨ Word of the Day: {{word}}', { word }),
         body: explanation,
-        // `explanation` here lets word/[form].tsx show this same text immediately (see its
-        // isGeneratingNewWord skeleton) instead of a bare loading badge while the full AI card
-        // generates in the background — the notification already told the learner what this word
-        // means, so the tap shouldn't throw that away and show nothing until enrichment finishes.
-        // Kept as a separate field (not baked into `path`) so WordOfTheDayLifecycle's tap handler
-        // can pass it through Linking.createURL's own `queryParams` option, which handles encoding.
-        data: { path: `/word/${encodeURIComponent(word)}`, initialExplanation: explanation },
+        // Opens the same Home-screen "Word of the Day" summary popup a tap on the dashboard tile
+        // opens (see openWotd in app/(tabs)/index.tsx) - not straight to the full word/[form]
+        // detail screen. The popup's own "Explore Full Details" button is still there for anyone
+        // who wants to go deeper.
+        data: { path: '/', openWotd: '1' },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -165,24 +198,61 @@ async function scheduleNotification(
   }
 }
 
+const MAX_UNIQUE_WORD_ATTEMPTS = 5
+
+function normalizedWord(word: string): string {
+  return word.normalize('NFKC').trim().toLocaleLowerCase()
+}
+
+/**
+ * Asks the AI for a word, then actually verifies it's not a repeat instead of trusting the
+ * prompt's exclude-list instruction alone — a model can and does occasionally ignore it,
+ * especially once excludeWords gets long. Retries with the offending word appended to the
+ * exclude list up to MAX_UNIQUE_WORD_ATTEMPTS times. A repeated result is never persisted as a
+ * new daily word: after the final attempt this throws, leaving the previous value stale so the
+ * next foreground transition can retry instead of silently recording a duplicate for today.
+ */
+async function requestUniqueWord(
+  ai: AIProvider,
+  ctx: { cefrLevel: CefrLevel; language: LanguageCode; nativeLanguage: LanguageCode },
+  excludeWords: string[],
+): ReturnType<AIProvider['suggestWordOfTheDay']> {
+  const alreadySeen = new Set(excludeWords.map(normalizedWord))
+  let attemptExclude = excludeWords
+
+  for (let attempt = 1; attempt <= MAX_UNIQUE_WORD_ATTEMPTS; attempt++) {
+    const result = await ai.suggestWordOfTheDay(ctx, attemptExclude)
+    if (!alreadySeen.has(normalizedWord(result.data.word))) return result
+    log.warn('vocabulary.word_of_the_day_duplicate_suggested', {
+      message: `AI suggested an already-known/recent word on attempt ${attempt} of ${MAX_UNIQUE_WORD_ATTEMPTS} - retrying`,
+    })
+    attemptExclude = [...attemptExclude, result.data.word]
+  }
+  throw new Error(`AI suggested a repeated Word of the Day ${MAX_UNIQUE_WORD_ATTEMPTS} times`)
+}
+
 /**
  * Generates and persists a fresh Word of the Day if the stored one is missing, from a previous
  * calendar day, or was generated for a CEFR level/language pair the learner has since changed in
- * Settings — a level change mid-day shouldn't leave yesterday's (now wrong-level) word sitting
- * there until midnight. (Re)schedules today's notification with whatever it settles on. A no-op,
- * returning the existing value, if it's still fresh on every count — so calling this on every app
- * open/Home focus is cheap and safe. Only ever called when tier === 'full' (an AI provider is
- * configured) — the whole feature is unavailable otherwise, see the Home screen's own gating.
+ * Settings — a level change mid-day immediately generates a new word at their new level.
+ *
+ * Source priority (final intended order - only the first two are built so far): the learner's own
+ * difficult/due card -> AI (when `ai` is provided, i.e. tier === 'full') -> an installed local
+ * dictionary pack (works fully offline, no provider needed at all) -> a word from the learner's
+ * other cards -> recent search history -> whatever was already stored, if nothing has anything
+ * left to offer today. TODO(phase?): wire in the difficult-card and cards/search-history tiers -
+ * not built yet, currently just AI -> dictionary. Every tier shares the same excludeList (known
+ * lemmas + the 60-word rolling history below), so a word is never repeated regardless of which
+ * tier eventually supplies it, and the whole chain is already scoped to the caller's
+ * targetLanguage/nativeLanguage pair - switching the pair in Settings picks a fresh word for the
+ * new pair, never reuses the old pair's stored one (see the dateKey/language/cefrLevel match above).
  */
 export async function refreshWordOfTheDayIfNeeded(params: {
-  ai: AIProvider
+  ai: AIProvider | null
   db: DatabaseAdapter
   targetLanguage: LanguageCode
   nativeLanguage: LanguageCode
   cefrLevel: CefrLevel
-  /** Same permissive shape as lib/providerValidation.ts's TranslateFn — accepts react-i18next's
-   * real `t` (its exact overload signature is awkward to match structurally) or any simple
-   * fallback with the same basic call shape. */
   t: TranslateFn
 }): Promise<WordOfTheDay | null> {
   const { ai, db, targetLanguage, nativeLanguage, cefrLevel, t } = params
@@ -198,35 +268,78 @@ export async function refreshWordOfTheDayIfNeeded(params: {
     return existing
   }
 
+  const [knownWords, historyWords] = await Promise.all([
+    getAllLemmaFormsForLanguage(db, targetLanguage),
+    readHistory(),
+  ])
+  const excludeList = Array.from(new Set([...knownWords, ...historyWords]))
+
+  if (ai) {
+    try {
+      const result = await requestUniqueWord(ai, { cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
+      const notificationId = await scheduleNotification(
+        result.data.word,
+        result.data.explanation,
+        existing?.notificationId,
+        t,
+      )
+      const fresh: StoredWordOfTheDay = {
+        word: result.data.word,
+        explanation: result.data.explanation,
+        ...(result.data.exampleSentence && { exampleSentence: result.data.exampleSentence }),
+        ...(result.data.exampleTranslation && { exampleTranslation: result.data.exampleTranslation }),
+        language: targetLanguage,
+        nativeLanguage,
+        cefrLevel,
+        dateKey: today,
+        source: 'ai',
+        ...(notificationId && { notificationId }),
+      }
+      await Promise.all([
+        writeStored(fresh),
+        appendToHistory(result.data.word),
+      ])
+      log.info('vocabulary.word_of_the_day_refreshed', {
+        message: 'Word of the Day generated',
+        metadata: { tokenCountBucket: result.usage.tokensUsed > 500 ? '500+' : '<500' },
+      })
+      return fresh
+    } catch (error) {
+      log.error('vocabulary.word_of_the_day_refresh_failed', error, {
+        message: 'Could not generate a fresh Word of the Day',
+      })
+      return existing
+    }
+  }
+
   try {
-    const knownWords = await getAllLemmaFormsForLanguage(db, targetLanguage)
-    const result = await ai.suggestWordOfTheDay({ cefrLevel, language: targetLanguage, nativeLanguage }, knownWords)
-    const notificationId = await scheduleNotification(
-      result.data.word,
-      result.data.explanation,
-      existing?.notificationId,
-      t,
-    )
+    const entry = await getRandomWordGuide(db, targetLanguage, excludeList)
+    if (!entry) return existing
+    const firstExample = entry.examples[0]
+    const notificationId = await scheduleNotification(entry.headword, entry.intro, existing?.notificationId, t)
     const fresh: StoredWordOfTheDay = {
-      word: result.data.word,
-      explanation: result.data.explanation,
+      word: entry.headword,
+      explanation: entry.intro,
+      ...(firstExample && { exampleSentence: firstExample.sentence, exampleTranslation: firstExample.translation }),
       language: targetLanguage,
       nativeLanguage,
       cefrLevel,
       dateKey: today,
+      source: 'dictionary',
       ...(notificationId && { notificationId }),
     }
-    await writeStored(fresh)
+    await Promise.all([
+      writeStored(fresh),
+      appendToHistory(entry.headword),
+    ])
     log.info('vocabulary.word_of_the_day_refreshed', {
-      message: 'Word of the Day generated',
-      metadata: { tokenCountBucket: result.usage.tokensUsed > 500 ? '500+' : '<500' },
+      message: 'Word of the Day picked from the installed local dictionary (no AI provider active)',
     })
     return fresh
   } catch (error) {
     log.error('vocabulary.word_of_the_day_refresh_failed', error, {
-      message: 'Could not generate a fresh Word of the Day',
+      message: 'Could not pick a Word of the Day from the installed dictionary',
     })
-    // Stale is still better than nothing on the Home card, even though it failed to refresh.
     return existing
   }
 }

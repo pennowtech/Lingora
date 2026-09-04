@@ -28,6 +28,6 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "expo-sqlite": ">=57.0.1 <58"
+    "expo-sqlite": ">=57.0.2 <58"
   }
 }

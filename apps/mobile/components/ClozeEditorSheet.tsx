@@ -27,6 +27,7 @@ export function ClozeEditorSheet(props: {
   onSave: (result: ClozeEditorResult) => void
   saving?: boolean
   saveError?: string
+  title?: string
 }): JSX.Element {
   const { t } = useTranslation()
   const styles = useThemedStyles(createStyles)
@@ -44,13 +45,14 @@ export function ClozeEditorSheet(props: {
         <Pressable style={styles.backdrop} onPress={props.onCancel} />
         <View style={styles.sheet}>
           <ScrollView keyboardShouldPersistTaps="handled">
-            <Text style={styles.title}>{t('Add cloze card')}</Text>
+            <Text style={styles.title}>{props.title ?? t('Add cloze card')}</Text>
 
             {props.visible ? (
               <ClozeMarkupEditor
                 initialSentence={props.initialSentence}
                 initialTranslation={props.initialTranslation}
                 {...(props.word !== undefined && { word: props.word })}
+                showSentenceInput={false}
                 onChange={setResult}
               />
             ) : null}

@@ -1,4 +1,4 @@
-import type { CefrLevel, LanguageCode, QuestionType } from '@lingora/types'
+import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { logger } from '@lingora/observability'
 import { useQueryClient } from '@tanstack/react-query'
 import { Stack } from 'expo-router'
@@ -16,7 +16,6 @@ import {
   SESSION_CARD_LIMIT_OPTIONS,
   setSessionCardLimit,
 } from '../../lib/reviewSession'
-import { ALL_QUESTION_TYPES, getEnabledQuestionTypes, QUESTION_TYPE_META, setEnabledQuestionTypes, toggleQuestionType } from '../../lib/reviewTypes'
 import {
   DEFAULT_NATIVE_LANGUAGE,
   DEFAULT_TARGET_LANGUAGE,
@@ -79,20 +78,11 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
   {
-    id: 'questionTypes',
-    title: 'Practice question types',
-    icon: 'Shuffle',
-    paragraphs: [
-      'Mixed practice presents due cards in a random mix of whichever formats are enabled here.',
-      'Cloze here is scored separately from the dedicated Cloze Practice mode.',
-    ],
-  },
-  {
     id: 'sessionLimit',
     title: 'Cards per session',
     icon: 'Layers',
     paragraphs: [
-      'Caps how many due cards a single review session pulls in - the most overdue cards first. Applies to every practice mode, not just Mixed.',
+      'Caps how many due cards a single review session pulls in - the most overdue cards first.',
       'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
     ],
   },
@@ -119,7 +109,6 @@ export default function LearningScreen(): JSX.Element {
   const [nativeLanguage, setNativeLanguageState] = useState<LanguageCode>(DEFAULT_NATIVE_LANGUAGE)
   const [targetLanguage, setTargetLanguageState] = useState<LanguageCode>(DEFAULT_TARGET_LANGUAGE)
   const [wotdTime, setWotdTimeState] = useState<NotificationTime>({ hour: 9, minute: 0 })
-  const [enabledTypes, setEnabledTypesState] = useState<QuestionType[]>(['vocab'])
   const [sessionCardLimit, setSessionCardLimitState] = useState<number>(DEFAULT_SESSION_CARD_LIMIT)
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   // The "vice versa" half of general.tsx's app-language cross-prompt: offered right after a
@@ -151,7 +140,6 @@ export default function LearningScreen(): JSX.Element {
           setTargetLanguageState(storedTargetLanguage as LanguageCode)
         }
         setWotdTimeState(await getNotificationTime())
-        setEnabledTypesState(await getEnabledQuestionTypes())
         setSessionCardLimitState(await getSessionCardLimit())
       } catch (error) {
         log.error('settings.load_failed', error, { message: 'Failed to load stored learning settings' })
@@ -184,30 +172,12 @@ export default function LearningScreen(): JSX.Element {
   const setCefr = (level: CefrLevel): void => {
     setCefrState(level)
     persist(STORE_KEYS.defaultCefr, level)
+    if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    reloadTimer.current = setTimeout(() => void reloadServices(), 600)
   }
 
-  // This is the global default, used whenever a deck has no review-modes override of its own
-  // (see Deck.enabledQuestionTypes, set at deck-creation time) - not the only place this can be
-  // configured any more, but still what every deck falls back to. At least one type must stay
-  // enabled here too — otherwise Mixed practice would have nothing eligible to present and
-  // silently fall back to plain vocab every time (see pickEligibleTypes), which reads as the
-  // setting doing nothing rather than as a real constraint.
-  const handleToggleQuestionType = (questionType: QuestionType): void => {
-    const next = toggleQuestionType(enabledTypes, questionType)
-    setEnabledTypesState(next)
-    void (async () => {
-      await setEnabledQuestionTypes(next)
-      // Invalidating this query key is what makes "the next Mixed practice session, on any deck
-      // with no override of its own" pick up the change — without it, review/[deckId].tsx's own
-      // ['enabled-question-types'] query could keep serving a cached pre-change value for up to
-      // its 30s staleTime.
-      await queryClient.invalidateQueries({ queryKey: ['enabled-question-types'] })
-    })()
-  }
-
-  // Applies to every review mode (plain/cloze/reverse/mixed), not just Mixed practice — see
-  // lib/reviewSession.ts. Same invalidation reasoning as toggleQuestionType above: without it, an
-  // already-open ['session-card-limit'] query could keep serving the old cap for up to 30s.
+  // Same invalidation pattern as other persisted settings: an already-open review query should
+  // not keep serving the old session cap after the learner changes it here.
   const setSessionLimit = (limit: number): void => {
     setSessionCardLimitState(limit)
     void (async () => {
@@ -219,7 +189,7 @@ export default function LearningScreen(): JSX.Element {
   const warnUnsupportedLanguage = (language: LanguageCode): void => {
     setNotice({
       title: t('Not supported yet'),
-      message: t('{{language}} isn\'t ready yet - English and German are the only languages Lemmory fully supports right now.', {
+      message: t('{{language}} isn\'t ready yet - English and German are the only languages Lemony fully supports right now.', {
         language: t(VOCAB_LANGUAGE_LABELS[language]),
       }),
     })
@@ -317,28 +287,6 @@ export default function LearningScreen(): JSX.Element {
           onChange={(value) => value && setTargetLanguage(value as LanguageCode)}
           options={SUPPORTED_LANGUAGES.map((language) => ({ label: t(VOCAB_LANGUAGE_LABELS[language]), value: language }))}
         />
-      </Card>
-
-      <Card>
-        <View style={styles.fieldLabelRow}>
-          <Text style={styles.fieldLabel}>{t('Practice question types')}</Text>
-          <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('questionTypes')} color={colors.textMuted} size={16} />
-        </View>
-        <View style={styles.chipRow}>
-          {ALL_QUESTION_TYPES.map((questionType) => {
-            const meta = QUESTION_TYPE_META[questionType]
-            return (
-              <Chip
-                key={questionType}
-                {...(meta.arrowFrom !== undefined && meta.arrowTo !== undefined
-                  ? { arrow: { from: t(meta.arrowFrom), to: t(meta.arrowTo) } }
-                  : { label: t(meta.label) })}
-                selected={enabledTypes.includes(questionType)}
-                onPress={() => handleToggleQuestionType(questionType)}
-              />
-            )
-          })}
-        </View>
       </Card>
 
       <Card>

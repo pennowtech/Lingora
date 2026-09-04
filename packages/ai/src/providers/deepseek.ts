@@ -5,6 +5,7 @@ import type {
   GeneratedPhrase,
   GeneratedSynonym,
   LanguageCode,
+  MinedPassageAnalysis,
 } from '@lingora/types'
 import { z } from 'zod'
 import { logger } from '@lingora/observability'
@@ -22,6 +23,7 @@ import {
   wordGenerationJsonTargetSchema,
   wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
+import { minedPassageSchema } from '../schemas/mining'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
 import { toOpenAIJsonSchema } from './json-schema'
@@ -87,6 +89,8 @@ const explainWordDetailResponseSchema = z.object({
 const suggestWordOfTheDayResponseSchema = z.object({
   word: z.string().min(1),
   explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+  exampleSentence: z.string().optional(),
+  exampleTranslation: z.string().optional(),
 })
 const chatAboutWordResponseSchema = z.object({
   reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),
@@ -116,7 +120,7 @@ export class DeepSeekProvider implements AIProvider, DictionaryProvider {
 
   constructor(config: DeepSeekProviderConfig) {
     this.apiKey = config.apiKey
-    this.model = config.model ?? 'deepseek-v4-flash'
+    this.model = config.model ?? 'deepseek-chat'
     this.baseUrl = (config.baseUrl ?? 'https://api.deepseek.com/v1').replace(/\/$/, '')
     // Confirmed against a live key: DeepSeek consistently takes roughly 2x as long as the other
     // providers for the same request over this network (a one-word translate validation probe
@@ -313,6 +317,16 @@ export class DeepSeekProvider implements AIProvider, DictionaryProvider {
     const prompt = renderPrompt(PROMPTS.detectLanguage.template, { text })
     const result = await this.generateStrict(prompt, 'language_detection', detectLanguageResponseSchema)
     return { data: result.data.language, usage: result.usage }
+  }
+
+  async analyzePassage(passage: string, ctx: GenerationContext): Promise<AIResult<MinedPassageAnalysis>> {
+    const prompt = renderPrompt(PROMPTS.passageMining.template, {
+      passage,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, 'passage_mining', minedPassageSchema)
+    return { data: result.data, usage: result.usage }
   }
 
   private async generateStrict<T>(

@@ -16,6 +16,7 @@ import { ErrorState, Spinner } from '../components/ui'
 import i18n from '../lib/i18n'
 import { ServicesProvider } from '../lib/services'
 import { ThemeProvider, useTheme } from '../lib/ThemeContext'
+import { ToastProvider } from '../lib/ToastContext'
 
 import { isOnboardingCompleted } from '../lib/onboarding'
 import { StartupScreen } from '../components/StartupScreen'
@@ -65,7 +66,7 @@ function AppStack(): JSX.Element {
   const isReviewScreen = pathname.startsWith('/review/')
   // Home is the only screen with `headerShown: false` (see (tabs)/_layout.tsx) — it gets the
   // floating LanguagePairBadge standing in for a header; every other screen shows the same pair
-  // via AppHeader's own embedded compact pill instead (see AppHeader.tsx's doc comment for why).
+  // via AppHeader's own embedded compact pill instead.
   const isHomeScreen = pathname === '/'
 
   return (
@@ -83,7 +84,11 @@ function AppStack(): JSX.Element {
           {isReviewScreen || !isHomeScreen ? null : <LanguagePairBadge />}
           <Stack
             screenOptions={{
-              header: AppHeader,
+              // See (tabs)/_layout.tsx's matching comment: a custom `header` render prop can miss
+              // the theme context's first real update on some screens and keep rendering its
+              // initial (possibly stale) colors. Keying by theme.key forces just that header
+              // instance to remount on every theme change instead of relying on it to notice.
+              header: (props) => <AppHeader key={theme.key} {...props} />,
               contentStyle: { backgroundColor: colors.background },
             }}
           >
@@ -123,7 +128,9 @@ export default function RootLayout(): JSX.Element {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemeProvider>
           <I18nextProvider i18n={i18n}>
-            <AppStack />
+            <ToastProvider>
+              <AppStack />
+            </ToastProvider>
           </I18nextProvider>
         </ThemeProvider>
       </GestureHandlerRootView>

@@ -1,7 +1,61 @@
 import type { DatabaseAdapter } from './adapter'
 
 /**
- * DEVELOPMENT SEED DATA
+ * Inserts the app's built-in default vocab/cloze card templates (fixed ids, INSERT OR IGNORE) —
+ * unlike seedDevSampleData below, this is NOT dev-only content: it's the row `getDefaultTemplate`
+ * looks up for every real user's cards. Every caller of getDefaultTemplate already tolerates a
+ * `null` result by falling back to the built-in DEFAULT_FRONT_TEMPLATE/etc. constants from
+ * @lingora/core, so this isn't strictly required for rendering to work, but keeping a real `templates`
+ * row from day one matches what Settings > Card Templates expects to edit and keeps `is_default`
+ * bookkeeping consistent instead of relying on every caller's fallback staying in sync by hand.
+ * Safe to call on every app boot, in every build (dev and production alike).
+ */
+export async function seedDefaultTemplates(db: DatabaseAdapter): Promise<void> {
+  const now = Date.now()
+
+  await db.transaction(async (tx) => {
+    // ── Default card template ────────────────────────────────
+
+    await tx.execute(
+      `INSERT OR IGNORE INTO templates (id, name, type, front_template, back_template, styles, is_default, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'template-default',
+        'Default',
+        'vocab',
+        '<div class="dc-front">\n  <div class="dc-word">{{ word }}</div>\n  {% if gender %}<div class="dc-tag">{{ gender }}</div>{% endif %}\n</div>',
+        '<div class="dc-back">\n  <div class="dc-meaning">{{ meaning }}</div>\n  {% if example %}\n  <div class="dc-example">\n    <div class="dc-example-de">{{ example_highlighted }}</div>\n    {% if translation %}<div class="dc-example-en">{{ translation }}</div>{% endif %}\n  </div>\n  {% endif %}\n  {% if synonyms.size > 0 %}\n  <div class="dc-synonyms">\n    <div class="dc-syn-list">\n      {% for s in synonyms %}<span class="dc-syn-pill">{{ s.word }}</span>{% endfor %}\n    </div>\n  </div>\n  {% endif %}\n</div>',
+        '.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; }\n.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: 3.2rem; font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.1; }\n.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); }\n\n.dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }\n.dc-meaning { font-size: 2.1rem; font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; }\n.dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; }\n.dc-example-de { font-size: 1.1rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; }\n.dc-example-en { font-size: 0.92rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; }\n.dc-example-de mark.dc-hl { background: var(--theme-primary-soft, #F1F0FE); color: var(--theme-primary, #6C63FF); font-weight: 800; padding: 1px 5px; border-radius: 4px; font-style: normal; }\n\n.dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }\n.dc-syn-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }\n.dc-syn-pill { font-size: 0.82rem; font-weight: 600; color: var(--theme-text, #1C1B22); background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); padding: 4px 12px; border-radius: 999px; }',
+        1,
+        now,
+        now,
+      ],
+    )
+
+    // ── Default cloze template ───────────────────────────────
+
+    await tx.execute(
+      `INSERT OR IGNORE INTO templates (id, name, type, front_template, back_template, styles, is_default, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'template-cloze-default',
+        'Default',
+        'cloze',
+        '<div class="dc-cloze">\n  <div class="dc-cloze-sentence">{{ cloze_blanked }}</div>\n  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}\n</div>',
+        '<div class="dc-cloze">\n  <div class="dc-cloze-sentence">{{ cloze_revealed }}</div>\n  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}\n</div>',
+        ':root{--accent:#534AB7;}\n.dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; }\n.dc-cloze-sentence { font-size: 1.15rem; font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; }\n.dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; }\n.dc-blank { display: inline-block; min-width: 2.5em; border-bottom: 2px solid var(--accent); color: transparent; }\nmark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }',
+        1,
+        now,
+        now,
+      ],
+    )
+  })
+}
+
+/**
+ * DEVELOPMENT SEED DATA — dev builds only (see apps/mobile/lib/services.tsx's `__DEV__` gate).
+ * Never call this from a production bootstrap path; use cleanupProductionDemoSeed below to remove
+ * it from an install that already got it before this file was split.
  *
  * Populates the database with sample German vocabulary so the app has real
  * content to display during development. 'ausgehen' is seeded end-to-end
@@ -12,7 +66,7 @@ import type { DatabaseAdapter } from './adapter'
  * Run once after migrate(). Safe to run multiple times — every insert uses
  * INSERT OR IGNORE with fixed IDs.
  */
-export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
+export async function seedDevSampleData(db: DatabaseAdapter): Promise<void> {
   const now = Date.now()
 
   await db.transaction(async (tx) => {
@@ -247,41 +301,41 @@ export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
         'A2',
       ],
     )
-
-    // ── Default card template ────────────────────────────────
-
-    await tx.execute(
-      `INSERT OR IGNORE INTO templates (id, name, type, front_template, back_template, styles, is_default, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        'template-default',
-        'Default',
-        'vocab',
-        '<div class="dc-front">\n  <div class="dc-word">{{ word }}</div>\n  {% if gender %}<div class="dc-tag">{{ gender }}</div>{% endif %}\n</div>',
-        '<div class="dc-back">\n  <div class="dc-meaning">{{ meaning }}</div>\n  {% if example %}\n  <div class="dc-example">\n    <div class="dc-example-de">{{ example_highlighted }}</div>\n    {% if translation %}<div class="dc-example-en">{{ translation }}</div>{% endif %}\n  </div>\n  {% endif %}\n  {% if synonyms.size > 0 %}\n  <div class="dc-synonyms">\n    <div class="dc-syn-list">\n      {% for s in synonyms %}<span class="dc-syn-pill">{{ s.word }}</span>{% endfor %}\n    </div>\n  </div>\n  {% endif %}\n</div>',
-        '.dc-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 160px; }\n.dc-word { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; font-size: 3.2rem; font-weight: 700; color: var(--theme-primary, #6C63FF); letter-spacing: -0.02em; line-height: 1.1; }\n.dc-tag { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; color: var(--theme-primary, #6C63FF); background: var(--theme-primary-soft, #F1F0FE); padding: 5px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid var(--theme-border, #E2E4F6); }\n\n.dc-back { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }\n.dc-meaning { font-size: 2.1rem; font-weight: 800; color: var(--theme-text, #1C1B22); text-align: center; letter-spacing: -0.01em; line-height: 1.25; }\n.dc-example { position: relative; background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); border-left: 5px solid var(--theme-primary, #6C63FF); border-radius: 16px; padding: 18px 20px; width: 100%; max-width: 440px; box-sizing: border-box; text-align: left; }\n.dc-example-de { font-size: 1.1rem; font-weight: 500; color: var(--theme-text, #1C1B22); line-height: 1.55; }\n.dc-example-en { font-size: 0.92rem; color: var(--theme-text-sec, #6B7280); margin-top: 8px; line-height: 1.45; font-weight: 400; }\n.dc-example-de mark.dc-hl { background: var(--theme-primary-soft, #F1F0FE); color: var(--theme-primary, #6C63FF); font-weight: 800; padding: 1px 5px; border-radius: 4px; font-style: normal; }\n\n.dc-synonyms { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }\n.dc-syn-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }\n.dc-syn-pill { font-size: 0.82rem; font-weight: 600; color: var(--theme-text, #1C1B22); background: var(--theme-surface-muted, #F8F9FE); border: 1px solid var(--theme-border, #E2E4F6); padding: 4px 12px; border-radius: 999px; }',
-        1,
-        now,
-        now,
-      ],
-    )
-
-    // ── Default cloze template ───────────────────────────────
-
-    await tx.execute(
-      `INSERT OR IGNORE INTO templates (id, name, type, front_template, back_template, styles, is_default, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        'template-cloze-default',
-        'Default',
-        'cloze',
-        '<div class="dc-cloze">\n  <div class="dc-cloze-sentence">{{ cloze_blanked }}</div>\n  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}\n</div>',
-        '<div class="dc-cloze">\n  <div class="dc-cloze-sentence">{{ cloze_revealed }}</div>\n  {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}\n</div>',
-        ':root{--accent:#534AB7;}\n.dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; }\n.dc-cloze-sentence { font-size: 1.15rem; font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; }\n.dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; }\n.dc-blank { display: inline-block; min-width: 2.5em; border-bottom: 2px solid var(--accent); color: transparent; }\nmark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }',
-        1,
-        now,
-        now,
-      ],
-    )
   })
+}
+
+/**
+ * One-time cleanup for a production install that already ran the old, unsplit `seedDatabase` before
+ * a `__DEV__` gate existed — removes exactly the demo card and its scoped content (meanings,
+ * examples, synonyms, phrases, cloze, FSRS state, deck membership all cascade via `cards`'s own
+ * `ON DELETE CASCADE` foreign keys), plus the demo "My Vocabulary" deck itself but ONLY if it's
+ * still empty afterward — a user may have added real cards to it since, and deleting a deck with
+ * real content in it would be destructive. Deliberately leaves the seeded lemmas/inflections/
+ * clusters in place: they're harmless dictionary metadata with no card attached, and keeping them
+ * means a real lookup of "ausgehen"/"laufen"/"Haus" later reuses the existing lemma row instead of
+ * creating a duplicate. Safe to call unconditionally (see the SecureStore one-time flag in
+ * apps/mobile/lib/services.tsx that actually gates when this runs).
+ */
+export async function cleanupProductionDemoSeed(db: DatabaseAdapter): Promise<void> {
+  await db.transaction(async (tx) => {
+    await tx.execute(`DELETE FROM cards WHERE id = 'card-ausgehen'`)
+    const remaining = await tx.querySingle<{ count: number }>(
+      `SELECT COUNT(*) AS count FROM deck_cards WHERE deck_id = 'deck-default'`,
+    )
+    if ((remaining?.count ?? 0) === 0) {
+      await tx.execute(`DELETE FROM decks WHERE id = 'deck-default'`)
+    }
+  })
+}
+
+/**
+ * Combined convenience wrapper (default templates + dev sample data) kept for callers that haven't
+ * split their own bootstrap into a `__DEV__` branch yet - apps/desktop's services/database.ts and
+ * this package's own backup.test.ts fixture setup. apps/mobile/lib/services.tsx calls
+ * seedDefaultTemplates/seedDevSampleData/cleanupProductionDemoSeed directly instead (see its own
+ * `__DEV__` gate) and does not use this.
+ */
+export async function seedDatabase(db: DatabaseAdapter): Promise<void> {
+  await seedDefaultTemplates(db)
+  await seedDevSampleData(db)
 }

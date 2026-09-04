@@ -1,20 +1,21 @@
 import { logger } from '@lingora/observability'
 import type { LanguageCode } from '@lingora/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState, type JSX } from 'react'
+import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Icon } from '../../components/Icon'
-import { AlertModal, Button, Card, Chip, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
+import { AlertModal, Button, Card, ConfirmModal, ErrorState, SectionHeader, Spinner } from '../../components/ui'
 import {
   getBundledChunkIndexes,
+  getDictionariesForLanguagePair,
   getInstalledChunkIndexes,
-  getWordGuideLanguages,
   getWordGuideManifest,
   installAllAvailable,
   installBundledChunk,
   uninstallAllInstalled,
   uninstallChunk,
+  type BundledDictionary,
   type WordGuideManifestChunk,
 } from '../../lib/wordGuides'
 import { useServices } from '../../lib/services'
@@ -24,43 +25,98 @@ import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'settings', screen: 'WordGuidesScreen' })
 
-type ChunkStatus = 'installed' | 'available' | 'pending'
+type ChunkStatus = 'installed' | 'available'
 
 interface ChunkRow extends Omit<WordGuideManifestChunk, 'status'> {
   status: ChunkStatus
 }
 
-/** Display name for a word-guide language tab — kept local rather than imported from
- * settings/learning.tsx's VOCAB_LANGUAGE_LABELS since that map is intentionally duplicated
- * per screen throughout Settings (see ttsSettings.ts's APP_KEY_PREFIX comment for the same
- * convention). Only languages actually bundled here (getWordGuideLanguages()) ever need a label. */
-const WORD_GUIDE_LANGUAGE_LABELS: Partial<Record<LanguageCode, string>> = {
+/**
+ * Display name for a language mentioned on this screen — kept local rather than imported from
+ * settings/learning.tsx's VOCAB_LANGUAGE_LABELS, since that map is intentionally duplicated per
+ * screen throughout Settings (see ttsSettings.ts's APP_KEY_PREFIX comment for the same
+ * convention). Needs an entry for every language a bundled dictionary could reference on either
+ * side of its pair (see BundledDictionary), not just the "headword" languages — today that
+ * includes English, since every bundled dictionary currently explains into it.
+ */
+const LANGUAGE_LABELS: Partial<Record<LanguageCode, string>> = {
   de: 'German',
+  en: 'English',
   fr: 'French',
   hi: 'Hindi',
 }
 
 /**
- * A free, offline starter dictionary — chunks of pre-generated word content
- * (see LingoraDocs/6_word_guides_plan.md) a user can install without an AI
- * key. Installing feeds the explain-flow's dictionary-lookup step
- * (word/[form].tsx, review/[deckId].tsx); nothing here touches decks/cards.
+ * Local Dictionaries — free, offline starter word packs (see LingoraDocs/6_word_guides_plan.md) a
+ * learner can install without an AI key, feeding the explain-flow's dictionary-lookup step
+ * (word/[form].tsx, review/[deckId].tsx) as a fallback before a live AI call.
+ *
+ * Only ever shows dictionaries that actually cover the learner's *current* native/target language
+ * pair (in either direction — see getDictionariesForLanguagePair) instead of a language-picker
+ * chip row letting them browse every bundled language regardless of what they're studying. That
+ * also means there's nothing to switch between: at most one dictionary matches a given pair today,
+ * so this screen just shows it directly, or a "coming soon" message if none does yet.
  */
 export default function WordGuidesScreen(): JSX.Element {
-  const { db, targetLanguage } = useServices()
+  const { nativeLanguage, targetLanguage } = useServices()
+  const styles = useThemedStyles(createStyles)
+  const dictionaries = getDictionariesForLanguagePair(nativeLanguage, targetLanguage)
+
+  return (
+    <View style={styles.container}>
+      {dictionaries.length === 0 ? (
+        <ComingSoonCard nativeLanguage={nativeLanguage} targetLanguage={targetLanguage} />
+      ) : (
+        dictionaries.map((dictionary) => <DictionarySection key={dictionary.language} dictionary={dictionary} />)
+      )}
+    </View>
+  )
+}
+
+/** Shown when no bundled dictionary covers the current pair yet — a professional heads-up instead
+ * of an empty screen or (the old behavior) a language switcher offering dictionaries for languages
+ * the learner isn't even studying. */
+function ComingSoonCard({
+  nativeLanguage,
+  targetLanguage,
+}: {
+  nativeLanguage: LanguageCode
+  targetLanguage: LanguageCode
+}): JSX.Element {
+  const { t } = useTranslation()
+  const colors = useColors()
+  const styles = useThemedStyles(createStyles)
+  const nativeLabel = t(LANGUAGE_LABELS[nativeLanguage] ?? nativeLanguage)
+  const targetLabel = t(LANGUAGE_LABELS[targetLanguage] ?? targetLanguage)
+
+  return (
+    <Card style={styles.comingSoonCard}>
+      <View style={styles.comingSoonIconWrap}>
+        <Icon name="BookOpen" size={22} color={colors.primary} />
+      </View>
+      <Text style={styles.comingSoonTitle}>{t('Coming soon for this language pair')}</Text>
+      <Text style={styles.comingSoonBody}>
+        {t(
+          "We don't have an offline dictionary for {{native}} → {{target}} yet. We're actively adding new language pairs — check back soon.",
+          { native: nativeLabel, target: targetLabel },
+        )}
+      </Text>
+    </Card>
+  )
+}
+
+/** One bundled dictionary's full install/uninstall UI — its own screen section, with its own data
+ * fetching and mutations, so multiple dictionaries (if a pair ever has more than one — see
+ * getDictionariesForLanguagePair) can render side by side without hooks called conditionally. */
+function DictionarySection({ dictionary }: { dictionary: BundledDictionary }): JSX.Element {
+  const { db } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
-  const guideLanguages = useMemo(() => getWordGuideLanguages(), [])
-  // Defaults to whatever the user is currently learning if a word guide is bundled for it,
-  // otherwise the first bundled language — a bare fallback since guideLanguages is never empty
-  // in a real build (German always ships).
-  const [language, setLanguage] = useState<LanguageCode>(
-    () => guideLanguages.find((l) => l === targetLanguage) ?? guideLanguages[0] ?? 'de',
-  )
+  const { language } = dictionary
   const manifest = getWordGuideManifest(language)
-  const bundledChunkIndexes = useMemo(() => new Set(getBundledChunkIndexes(language)), [language])
+  const bundledChunkIndexes = new Set(getBundledChunkIndexes(language))
   const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
   const [uninstallAllConfirmOpen, setUninstallAllConfirmOpen] = useState(false)
   const showError = (title: string, error: unknown): void => setNotice({ title, message: String(error) })
@@ -116,43 +172,26 @@ export default function WordGuidesScreen(): JSX.Element {
     },
   })
 
-  const confirmUninstallAll = (): void => {
-    setUninstallAllConfirmOpen(true)
-  }
-
   const installedSet = new Set(installedQuery.data ?? [])
   // Chunks that are neither installed nor actually bundled into this app build never show up —
   // there's nothing a user could do with a "not generated yet" row besides be confused by it.
   const rows: ChunkRow[] = manifest.chunks
     .map((chunk) => ({
       ...chunk,
-      status: installedSet.has(chunk.index)
-        ? 'installed'
-        : bundledChunkIndexes.has(chunk.index)
-          ? 'available'
-          : ('pending' as const),
+      status: installedSet.has(chunk.index) ? 'installed' : bundledChunkIndexes.has(chunk.index) ? 'available' : null,
     }))
-    .filter((row): row is ChunkRow & { status: 'installed' | 'available' } => row.status !== 'pending')
+    .filter((row): row is ChunkRow => row.status !== null)
   const installedCount = rows.filter((r) => r.status === 'installed').length
   const availableCount = rows.filter((r) => r.status === 'available').length
 
   return (
-    <View style={styles.container}>
-      {guideLanguages.length > 1 ? (
-        <View style={styles.languageRow}>
-          {guideLanguages.map((l) => (
-            <Chip
-              key={l}
-              label={t(WORD_GUIDE_LANGUAGE_LABELS[l] ?? l)}
-              selected={l === language}
-              onPress={() => setLanguage(l)}
-            />
-          ))}
-        </View>
-      ) : null}
+    <>
       <Card style={styles.summaryCard}>
         <Text style={styles.title}>
-          {t('{{language}}-English Dictionary', { language: t(WORD_GUIDE_LANGUAGE_LABELS[language] ?? language) })}
+          {t('{{language}}-{{nativeLanguage}} Dictionary', {
+            language: t(LANGUAGE_LABELS[dictionary.language] ?? dictionary.language),
+            nativeLanguage: t(LANGUAGE_LABELS[dictionary.nativeLanguage] ?? dictionary.nativeLanguage),
+          })}
         </Text>
         {installedQuery.isPending ? (
           <Spinner />
@@ -178,7 +217,7 @@ export default function WordGuidesScreen(): JSX.Element {
                 label={uninstallAll.isPending ? t('Uninstalling...') : t('Uninstall all')}
                 icon="Trash2"
                 variant="secondary"
-                onPress={confirmUninstallAll}
+                onPress={() => setUninstallAllConfirmOpen(true)}
                 disabled={uninstallAll.isPending}
                 style={styles.installAllButton}
               />
@@ -186,6 +225,15 @@ export default function WordGuidesScreen(): JSX.Element {
           </>
         )}
       </Card>
+
+      <View style={styles.dictionaryHintCard}>
+        <View style={styles.dictionaryHintIconWrap}>
+          <Icon name="Info" size={16} color={colors.primary} />
+        </View>
+        <Text style={styles.dictionaryHintText}>
+          {t('Our offline starter dictionaries are currently in active development. We are continuously adding more vocabulary and improving accuracy with each update — thank you for your support as we grow!')}
+        </Text>
+      </View>
 
       <SectionHeader title={t('Chunks')} />
 
@@ -244,18 +292,37 @@ export default function WordGuidesScreen(): JSX.Element {
         message={notice?.message ?? ''}
         onClose={() => setNotice(null)}
       />
-    </View>
+    </>
   )
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
-    languageRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
     summaryCard: { gap: spacing.sm, marginBottom: spacing.sm },
     title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
     progress: { fontSize: type.caption, fontWeight: '600', color: colors.text, marginTop: spacing.xs },
     installAllButton: { marginTop: spacing.sm },
+    dictionaryHintCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    dictionaryHintIconWrap: {
+      marginTop: 2,
+    },
+    dictionaryHintText: {
+      flex: 1,
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
     listContent: { paddingBottom: spacing.xxl },
     chunkRow: {
       flexDirection: 'row',
@@ -284,4 +351,31 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.full,
     },
     uninstallLabel: { fontSize: type.caption, fontWeight: '700', color: colors.danger },
+    comingSoonCard: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xl,
+    },
+    comingSoonIconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.xs,
+    },
+    comingSoonTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    comingSoonBody: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+      paddingHorizontal: spacing.md,
+    },
   })

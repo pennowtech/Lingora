@@ -1,5 +1,6 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
 import { useEffect, useState, type JSX, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Modal,
@@ -36,16 +37,18 @@ export function Card(props: {
   onPress?: () => void
   onLongPress?: () => void
   onLayout?: (event: LayoutChangeEvent) => void
+  disabled?: boolean
 }): JSX.Element {
-  const { children, style, onPress, onLongPress, onLayout } = props
+  const { children, style, onPress, onLongPress, onLayout, disabled } = props
   const styles = useThemedStyles(createStyles)
   if (onPress) {
     return (
       <Pressable
+        disabled={disabled}
         onPress={onPress}
         onLongPress={onLongPress}
         onLayout={onLayout}
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed, style]}
+        style={({ pressed }) => [styles.card, pressed && !disabled && styles.cardPressed, style]}
       >
         {children}
       </Pressable>
@@ -214,14 +217,27 @@ export function CardActionBar(props: {
   /** "Delete" — permanently deletes this generated card. */
   onDelete?: () => void
   deleteLoading?: boolean
+  /** "Add to Deck" / "In Deck" star button */
+  onAddToDeck?: () => void
+  isDecked?: boolean
+  deckLabel?: string
 }): JSX.Element {
+  const { t } = useTranslation()
   const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.cardActionBar}>
+      {props.onAddToDeck ? (
+        <CardActionButton
+          icon="Star"
+          label={props.deckLabel ?? t('Deck')}
+          {...(props.isDecked !== undefined && { active: props.isDecked })}
+          onPress={props.onAddToDeck}
+        />
+      ) : null}
       {props.onListen ? (
         <CardActionButton
           icon="Volume1"
-          label="Listen"
+          label={t('Listen')}
           onPress={props.onListen}
         />
       ) : null}
@@ -230,7 +246,7 @@ export function CardActionBar(props: {
           props.explainIcon ??
           (props.explainVisible ? 'Book' : 'BookOpen')
         }
-        label={props.explainLabel ?? 'Explain'}
+        label={props.explainLabel ?? t('Explain')}
         active={props.explainVisible}
         onPress={props.onExplain}
         {...(props.explainLoading !== undefined && { loading: props.explainLoading })}
@@ -239,7 +255,7 @@ export function CardActionBar(props: {
       {props.onAskAI ? (
         <CardActionButton
           icon="MessageCircle"
-          label="Ask AI"
+          label={t('Ask AI')}
           onPress={props.onAskAI}
           {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
@@ -247,25 +263,25 @@ export function CardActionBar(props: {
       {props.onRegenerate ? (
         <CardActionButton
           icon="RefreshCw"
-          label="Regenerate"
+          label={t('Regenerate')}
           onPress={props.onRegenerate}
           {...(props.regenerateLoading !== undefined && { loading: props.regenerateLoading })}
           {...(props.aiActionsDisabled !== undefined && { disabled: props.aiActionsDisabled })}
         />
       ) : null}
       {props.onEdit ? (
-        <CardActionButton icon="Pencil" label="Edit" onPress={props.onEdit} />
+        <CardActionButton icon="Pencil" label={t('Edit')} onPress={props.onEdit} />
       ) : null}
       {props.onDelete ? (
         <CardActionButton
           icon="Trash2"
-          label="Delete"
+          label={t('Delete')}
           destructive
           onPress={props.onDelete}
           {...(props.deleteLoading !== undefined && { loading: props.deleteLoading })}
         />
       ) : null}
-      <CardActionButton icon="Globe" label="Look up" onPress={props.onLookup} />
+      <CardActionButton icon="Globe" label={t('Look up')} onPress={props.onLookup} />
     </View>
   )
 }
@@ -300,7 +316,9 @@ function CardActionButton(props: {
       ) : (
         <Icon name={props.icon} size={20} color={textColor} />
       )}
-      <Text style={[styles.cardActionLabel, { color: textColor }]}>{props.label}</Text>
+      <Text numberOfLines={1} style={[styles.cardActionLabel, { color: textColor }]}>
+        {props.label}
+      </Text>
     </Pressable>
   )
 }
@@ -367,6 +385,7 @@ export function Dropdown(props: {
   onChange: (value: string | null) => void
   clearable?: boolean
 }): JSX.Element {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
@@ -387,7 +406,7 @@ export function Dropdown(props: {
             </View>
           ) : null}
           <Text style={[styles.dropdownValue, !selected && styles.dropdownPlaceholder]} numberOfLines={1}>
-            {selected?.label ?? props.placeholder ?? 'Select...'}
+            {selected?.label ?? props.placeholder ?? t('Select...')}
           </Text>
           {selected?.badgeCount !== undefined ? (
             <View style={styles.dropdownBadge}>
@@ -409,7 +428,7 @@ export function Dropdown(props: {
                 onPress={() => choose(null)}
               >
                 <Text style={[styles.dropdownOptionLabel, props.value === null && styles.dropdownOptionLabelSelected]}>
-                  None
+                  {t('None')}
                 </Text>
                 {props.value === null ? (
                   <View style={styles.dropdownCheckCircle}>
@@ -471,7 +490,7 @@ const EXPORT_FORMAT_OPTIONS: ExportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'Re-importable spreadsheet - word, meaning, example, and more.', icon: 'LayoutGrid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Study in Anki/AnkiDroid/AnkiMobile. Cards start fresh.', icon: 'Layers' },
   { format: 'markdown', label: 'Markdown', description: 'A readable word - meaning - example list. Not re-importable.', icon: 'FileText' },
-  { format: 'lem', label: 'Lemmory (.lem)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'CloudDownload' },
+  { format: 'lem', label: 'Lemony (.lem)', description: 'Full-fidelity backup, export-only for a single deck.', icon: 'CloudDownload' },
 ]
 
 /**
@@ -527,7 +546,7 @@ interface ImportFormatOption {
 const IMPORT_FORMAT_OPTIONS: ImportFormatOption[] = [
   { format: 'csv', label: 'CSV', description: 'A spreadsheet with word/meaning columns you map yourself.', icon: 'LayoutGrid' },
   { format: 'apkg', label: 'Anki (.apkg)', description: 'Bring an existing Anki deck - including Cloze notes.', icon: 'Layers' },
-  { format: 'lem', label: 'Lemmory (.lem)', description: 'A deck someone shared from Lemmory - full fidelity, including review history.', icon: 'Sparkles' },
+  { format: 'lem', label: 'Lemony (.lem)', description: 'A deck someone shared from Lemony - full fidelity, including review history.', icon: 'Sparkles' },
 ]
 
 /** The import-side twin of `ExportFormatSheet` — one "Import" entry per deck menu instead of one button per format. */
@@ -833,6 +852,7 @@ export function Spinner(props: { message?: string }): JSX.Element {
 
 /** Query/mutation failure with an optional retry. */
 export function ErrorState(props: { message: string; onRetry?: () => void }): JSX.Element {
+  const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   return (
@@ -840,11 +860,11 @@ export function ErrorState(props: { message: string; onRetry?: () => void }): JS
       <View style={[styles.emptyIcon, { backgroundColor: colors.dangerSoft }]}>
         <Icon name="CircleAlert" size={32} color={colors.danger} />
       </View>
-      <Text style={styles.emptyTitle}>Something went wrong</Text>
+      <Text style={styles.emptyTitle}>{t('Something went wrong')}</Text>
       <Text style={styles.emptyMessage}>{props.message}</Text>
       {props.onRetry ? (
         <View style={styles.errorRetry}>
-          <Button label="Try again" onPress={props.onRetry} variant="secondary" small />
+          <Button label={t('Try again')} onPress={props.onRetry} variant="secondary" small />
         </View>
       ) : null}
     </View>
@@ -867,6 +887,7 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1,
       borderColor: colors.border,
       padding: spacing.lg,
+      overflow: 'hidden',
     },
     cardPressed: {
       opacity: 0.85,
@@ -877,7 +898,14 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       paddingVertical: spacing.sm,
     },
-    cardActionButton: { alignItems: 'center', gap: 2, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    cardActionButton: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center',
+      gap: 2,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+    },
     cardActionButtonDisabled: { opacity: 0.4 },
     cardActionLabel: { fontSize: type.micro, color: colors.textSecondary, fontWeight: '600' },
     sectionHeader: {
@@ -1151,6 +1179,16 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.lg,
       maxWidth: '100%',
+      // A soft translucent outline plus a real offset+blur glow beneath it - same treatment as
+      // Home's hero "Start review" button (see app/(tabs)/index.tsx's heroButton), so the toast
+      // reads as the same "raised, lit" family instead of a flat pill.
+      borderWidth: 1,
+      borderColor: '#FFFFFF55',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 6,
     },
     toastText: { color: colors.textOnPrimary, fontSize: type.caption, fontWeight: '600', flexShrink: 1 },
   })

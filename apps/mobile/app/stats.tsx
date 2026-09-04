@@ -1,3 +1,4 @@
+import type { LanguageCode } from '@lingora/types'
 import {
   getDifficultWords,
   getRetentionRate,
@@ -37,15 +38,19 @@ interface StatsData {
   forecast: ReviewForecastDay[]
 }
 
-async function loadStats(db: DatabaseAdapter): Promise<StatsData> {
+async function loadStats(
+  db: DatabaseAdapter,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<StatsData> {
   const [retention30d, totalCards, days, reviewCounts, growth, difficultWords, forecast] = await Promise.all([
-    getRetentionRate(db, 30),
-    getTotalCardCount(db),
-    getReviewedDayIndexes(db),
-    getReviewCountsByDay(db, 35),
-    getVocabularyGrowth(db, 7),
-    getDifficultWords(db, 10),
-    getReviewForecast(db, 7),
+    getRetentionRate(db, 30, targetLanguage, nativeLanguage),
+    getTotalCardCount(db, targetLanguage, nativeLanguage),
+    getReviewedDayIndexes(db, 366, targetLanguage, nativeLanguage),
+    getReviewCountsByDay(db, 35, targetLanguage, nativeLanguage),
+    getVocabularyGrowth(db, 7, targetLanguage, nativeLanguage),
+    getDifficultWords(db, 10, targetLanguage, nativeLanguage),
+    getReviewForecast(db, 7, targetLanguage, nativeLanguage),
   ])
   return {
     retention30d,
@@ -63,11 +68,14 @@ async function loadStats(db: DatabaseAdapter): Promise<StatsData> {
  * Learning statistics: retention, streak heatmap, growth, 7-day FSRS forecast, and tap-to-study difficult words.
  */
 export default function StatsScreen(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
-  const statsQuery = useQuery({ queryKey: ['learning-stats'], queryFn: () => loadStats(db) })
+  const statsQuery = useQuery({
+    queryKey: ['learning-stats', targetLanguage, nativeLanguage],
+    queryFn: () => loadStats(db, targetLanguage, nativeLanguage),
+  })
 
   if (statsQuery.isPending) {
     return <Spinner />

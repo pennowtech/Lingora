@@ -239,7 +239,7 @@ const HTML_ESCAPE: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&
  * manually-typed example sentence is ever allowed to carry. escapeHtmlShell (below) skips
  * escaping these exact matches so highlightWord's target-word mark-wrapping doesn't mangle them
  * into visible escaped text; anything else typed still gets escaped normally. */
-const FORMATTING_TAG_PATTERN = /<\/?(?:b|i|span style="color:#[0-9a-fA-F]{6}")>/g
+const FORMATTING_TAG_PATTERN = /<\/?(?:b|i)>|<mark class="dc-hl">|<\/mark>|<span style="color:#[0-9a-fA-F]{6}">|<\/span>/g
 
 function escapeHtmlShell(value: string): string {
   // Split on the whitelisted tags, escape only the plain-text chunks between them, then stitch
@@ -351,19 +351,16 @@ export const CLOZE_FRONT_TEMPLATE = `<div class="dc-cloze">
 </div>`
 
 export const CLOZE_BACK_TEMPLATE = `<div class="dc-cloze dc-cloze-back">
-  <button type="button" class="dc-speaker" aria-label="Play pronunciation" onclick="window.ReactNativeWebView && window.ReactNativeWebView.postMessage('speak')">&#128266;</button>
   <div class="dc-cloze-sentence">{{ cloze_revealed }}</div>
   {% if translation %}<div class="dc-cloze-translation">{{ translation }}</div>{% endif %}
 </div>`
 
 export const CLOZE_STYLES = `:root{--accent:#534AB7;}
 .dc-cloze { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 8px; width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word; }
-.dc-cloze-back { position: relative; }
 .dc-cloze-sentence { font-size: clamp(1.0rem, 4vw, 1.25rem); font-weight: 600; color: #1C1B22; text-align: center; line-height: 1.6; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
 .dc-cloze-translation { font-size: 0.9rem; color: #6B7280; text-align: center; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
 .dc-blank { display: inline-block; min-width: 2.5em; border-bottom: 2px solid var(--accent); color: transparent; }
-mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }
-.dc-speaker { position: absolute; top: 0; right: 0; width: 26px; height: 26px; padding: 0; border: none; border-radius: 999px; background: #F7F6FC; box-shadow: 0 1px 3px rgba(0,0,0,0.18); font-size: 13px; line-height: 26px; text-align: center; }`
+mark.dc-hl { background: transparent; color: var(--accent); font-weight: 700; }`
 
 /** Sample data for the cloze template editor's live preview — a two-blank sentence, matching the "there can be 2+ clozes" case. */
 export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
@@ -387,7 +384,7 @@ export const CLOZE_SAMPLE_CONTEXT: CardTemplateContext = {
 /**
  * Renders one side of a card (front or back) to a full HTML document string,
  * ready to load into a WebView (mobile) or an iframe (desktop). Synchronous (LiquidJS's
- * `parseAndRenderSync` — none of Lemmory's templates use async filters/tags) so callers can use
+ * `parseAndRenderSync` — none of Lemony's templates use async filters/tags) so callers can use
  * it directly during render without extra async state. Falls back to a
  * visible error message instead of throwing — a malformed template (bad
  * Liquid syntax) shouldn't crash the review session or the editor's live

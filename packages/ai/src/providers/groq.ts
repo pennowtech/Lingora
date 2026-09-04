@@ -5,6 +5,7 @@ import type {
   GeneratedPhrase,
   GeneratedSynonym,
   LanguageCode,
+  MinedPassageAnalysis,
 } from '@lingora/types'
 import { z } from 'zod'
 import { logger } from '@lingora/observability'
@@ -22,6 +23,7 @@ import {
   wordGenerationJsonTargetSchema,
   wordGenerationSchemaForLanguage,
 } from '../schemas/generation'
+import { minedPassageSchema } from '../schemas/mining'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
 import { bucketTokenCount, startRequestTimeout } from './http'
 import { toOpenAIJsonSchema } from './json-schema'
@@ -87,6 +89,8 @@ const explainWordDetailResponseSchema = z.object({
 const suggestWordOfTheDayResponseSchema = z.object({
   word: z.string().min(1),
   explanation: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 30, '30 words or fewer'),
+  exampleSentence: z.string().optional(),
+  exampleTranslation: z.string().optional(),
 })
 const chatAboutWordResponseSchema = z.object({
   reply: z.string().min(1).refine((s) => s.trim().split(/\s+/).length <= 100, '100 words or fewer'),
@@ -311,6 +315,16 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
     return { data: result.data.language, usage: result.usage }
   }
 
+  async analyzePassage(passage: string, ctx: GenerationContext): Promise<AIResult<MinedPassageAnalysis>> {
+    const prompt = renderPrompt(PROMPTS.passageMining.template, {
+      passage,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+    })
+    const result = await this.generateStrict(prompt, 'passage_mining', minedPassageSchema)
+    return { data: result.data, usage: result.usage }
+  }
+
   private async generateStrict<T>(
     prompt: string,
     schemaName: string,
@@ -441,6 +455,25 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
 
     if (!response.ok) {
       const body = await response.text().catch(() => '')
+      // Groq's own JSON-mode validation ("json_object" mode has no real schema enforcement, just a
+      // server-side "did the model even produce parseable JSON" check - see performChat's own doc
+      // comment on why this provider uses that mode) rejects a malformed generation with this
+      // specific 400 before any content ever comes back - functionally the same situation as "we
+      // got a response but it wasn't valid JSON," which generateValidated's own repair-retry
+      // pipeline already handles for every other cause of that (a truncated response, invalid
+      // syntax, etc.) by retrying once with a corrective instruction. Previously this threw
+      // immediately instead, so a single malformed generation was a hard failure with zero chance
+      // to self-correct - worth special-casing since the smaller/faster models Groq hosts hit this
+      // more often than the strict-json_schema providers' equivalent failure mode.
+      let errorCode: string | undefined
+      try {
+        errorCode = (JSON.parse(body) as { error?: { code?: string } })?.error?.code
+      } catch {
+        // Not JSON - fall through to the normal throw below.
+      }
+      if (errorCode === 'json_validate_failed') {
+        return { text: '', tokensUsed: 0, latencyMs: Date.now() - startedAt }
+      }
       throw new AIProviderError(
         `Groq returned ${response.status}: ${body.slice(0, 500)}`,
         this.name,

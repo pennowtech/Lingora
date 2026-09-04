@@ -7,6 +7,7 @@ import { createDeck } from './repositories/decks'
 import { getLemmaByForm } from './repositories/lemmas'
 import {
   getInstalledWordGuideChunkIds,
+  getRandomWordGuide,
   getWordGuide,
   installWordGuideChunk,
   persistTranslationAsCard,
@@ -102,6 +103,25 @@ describe('word_guides repository', () => {
     expect(entry?.intro).toBe('An updated explanation.')
     const rows = await db.query('SELECT * FROM word_guides')
     expect(rows).toHaveLength(1)
+  })
+
+  it('getRandomWordGuide picks an entry excluding the given headwords, case-insensitively', async () => {
+    await installWordGuideChunk(db, 1, 'de', [ERFAHREN, HAUS])
+
+    const picked = await getRandomWordGuide(db, 'de', ['ERFAHREN'])
+    expect(picked?.headword).toBe('Haus')
+  })
+
+  it('getRandomWordGuide returns null once every installed entry is excluded', async () => {
+    await installWordGuideChunk(db, 1, 'de', [ERFAHREN, HAUS])
+
+    expect(await getRandomWordGuide(db, 'de', ['erfahren', 'haus'])).toBeNull()
+  })
+
+  it('getRandomWordGuide returns null for a language with nothing installed', async () => {
+    await installWordGuideChunk(db, 1, 'de', [ERFAHREN])
+
+    expect(await getRandomWordGuide(db, 'en', [])).toBeNull()
   })
 
   it('installs the real chunk-0001.json (WP2 pilot data) and looks up a real entry end-to-end', async () => {

@@ -349,12 +349,15 @@ Return strict JSON only: {"paragraphs": ["...", "..."]}`,
    */
   suggestWordOfTheDay: {
     name: 'suggest_word_of_the_day',
-    version: 1,
+    version: 2,
     template: `You are a friendly {{targetLanguage}} language mentor picking a "Word of the Day" for a {{cefrLevel}} learner — something useful, interesting, and genuinely worth knowing at their level, in a warm, natural voice in {{nativeLanguage}}.
 
 Pick exactly ONE {{targetLanguage}} word or short common phrase. The learner already knows these — never pick one of them or an obvious variant: {{excludeList}}
 
-Then explain it, in {{nativeLanguage}}, in one short, natural sentence or two — 30 words or fewer, no exceptions. Speak naturally and directly — NEVER dry textbook formulas like "X means that...". No examples, no lists. Return strict JSON only: {"word": "...", "explanation": "..."}`,
+Explain it, in {{nativeLanguage}}, in one short, natural sentence or two — 30 words or fewer, no exceptions. Speak naturally and directly — NEVER dry textbook formulas like "X means that...".
+Also provide ONE realistic, natural example sentence in {{targetLanguage}} showing the word in context, along with its accurate translation in {{nativeLanguage}}.
+
+Return strict JSON only: {"word": "...", "explanation": "...", "exampleSentence": "...", "exampleTranslation": "..."}`,
   },
   /**
    * The word detail screen's "Ask AI" chat window — a genuine multi-turn conversation, unlike
@@ -386,6 +389,52 @@ Conversation so far, oldest first:
 Reminder before you write: your reply's own prose must be in {{nativeLanguage}}, never {{targetLanguage}} — even if the learner just typed their message in {{targetLanguage}}, or asked about a {{targetLanguage}} phrase. Matching the learner's input language is wrong here; only the quoted {{targetLanguage}} words/examples inside your reply (each followed by its {{nativeLanguage}} translation in parentheses) may be in {{targetLanguage}}.
 
 Write only your next reply as the tutor — not the learner's turn, not a repeat of an earlier message. Return strict JSON only: {"reply": "..."}`,
+  },
+  /**
+   * Passage & paragraph mining: analyzes a passage for a {{cefrLevel}} learner, providing a fluent
+   * translation, level-calibrated grammar breakdown, and extracted contextual vocabulary candidates.
+   */
+  passageMining: {
+    name: 'passage_mining',
+    version: 1,
+    template: `You are an expert {{targetLanguage}} language teacher analyzing a passage for a learner whose native language is {{nativeLanguage}} and whose proficiency level is {{cefrLevel}}.
+
+Source passage in {{targetLanguage}}:
+"""
+{{passage}}
+"""
+
+Your task:
+1. Provide a fluent, natural translation of the entire passage into {{nativeLanguage}}.
+2. Provide 2-4 key grammar insights calibrated specifically to a {{cefrLevel}} learner.
+   - For A1-A2: Highlight basic word order, verb conjugations, modal verbs, case usage.
+   - For B1-B2: Highlight subordinate clauses (connectors like weil/obwohl/dass), passive voice, subjunctive/Konjunktiv, reflexive verbs, separable prefixes.
+   - For C1-C2: Highlight nuanced stylistic constructions, nominal style, participial attributes, fixed preposition combinations.
+   - Explanations must be concise (maximum 20 words per explanation), written in {{nativeLanguage}}, with target language terms quoted in {{targetLanguage}}.
+3. Extract 2-5 key vocabulary words or phrases from the passage that are useful and appropriate for a {{cefrLevel}} learner to learn.
+   - "form": The dictionary/canonical lemma in {{targetLanguage}} (e.g. infinitive for verbs, noun with article if applicable).
+   - "partOfSpeech": "noun" | "verb" | "adjective" | "adverb" | "phrase" | "idiom".
+   - "meaning": The concise contextual translation/meaning in {{nativeLanguage}}.
+   - "contextSentence": The specific sentence from the passage where this word appears.
+
+Return strict JSON only matching this schema:
+{
+  "translation": "...",
+  "grammarPoints": [
+    {
+      "title": "Short title in {{nativeLanguage}} (e.g. Subordinate clause with 'obwohl')",
+      "explanation": "Clear, concise explanation in {{nativeLanguage}} (maximum 20 words)...",
+      "ruleOrPattern": "Optional concise structure pattern..."
+    }
+  ],
+  "vocabulary": [
+    {
+      "form": "canonical word in {{targetLanguage}}",
+      "meaning": "contextual meaning in {{nativeLanguage}}",
+      "contextSentence": "exact sentence from passage in {{targetLanguage}} (maximum 10 words)"
+    }
+  ]
+}`,
   },
 } as const satisfies Record<string, PromptTemplate>
 

@@ -190,6 +190,10 @@ export interface Deck {
    * QuestionType) - undefined/null means "no override," which falls back to the learner's
    * global Settings -> Learning preference, same as a deck created before this existed. */
   enabledQuestionTypes?: QuestionType[] | null
+  /** The target language being learned in this deck (e.g. 'de', 'es'). Defaults to 'de'. */
+  targetLanguage?: LanguageCode
+  /** The learner's native language for translations in this deck (e.g. 'en', 'hi'). Defaults to 'en'. */
+  nativeLanguage?: LanguageCode
   createdAt: number
   updatedAt: number
 }
@@ -306,7 +310,30 @@ export interface SentenceMineEntry {
   capturedAt: number
   processed: boolean
   cardId?: string // set once processed
+  /** The language this passage was captured in - scopes the Mining Studio list to the active
+   * target language, the same way decks are scoped to a language pair (migration 0024). */
+  targetLanguage: LanguageCode
 }
+
+export interface MinedPassageWord {
+  form: string // Lemma / dictionary form, e.g. "voranschreiten", "die Herausforderung"
+  partOfSpeech: string // "noun" | "verb" | "adjective" | "adverb" | "phrase" | "idiom"
+  meaning: string // Contextual meaning in learner's native language
+  contextSentence: string // The exact sentence from the passage containing this word
+}
+
+export interface MinedGrammarPoint {
+  title: string // Short title e.g. "Konzessivsatz mit 'Obwohl'" or "Passiv mit Modalverb"
+  explanation: string // Level-appropriate grammar explanation in native language
+  ruleOrPattern?: string | undefined // Optional concise rule e.g. "Obwohl + Nebensatz (Verb am Ende)"
+}
+
+export interface MinedPassageAnalysis {
+  translation: string // Fluent full translation in native language
+  grammarPoints: MinedGrammarPoint[] // 2-4 CEFR-calibrated insights
+  vocabulary: MinedPassageWord[] // 2-6 target words extracted from the passage
+}
+
 
 // ─── AI and generation ────────────────────────────────────────────────────────
 //TODO: this is very OpenAI-centric right now. As we add more providers, we may want to split this into provider-agnostic metadata + provider-specific metadata.

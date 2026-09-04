@@ -1436,7 +1436,7 @@ export const SettingsScreen: React.FC<{ initialTab?: 'learning' | 'ai' | 'transl
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               {[
-                { key: 'lingoraLight', name: 'Lingora Light', icon: '🇩🇪', color: '#534AB7' },
+                { key: 'lingoraLight', name: 'Lemony Light', icon: '🇩🇪', color: '#534AB7' },
                 { key: 'midnight', name: 'Midnight Indigo', icon: '🌙', color: '#6C63FF' },
                 { key: 'carbon', name: 'Carbon Noir', icon: '🌚', color: '#E5E5E5' },
                 { key: 'arctic', name: 'Arctic Day', icon: '☀️', color: '#2563EB' },

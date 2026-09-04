@@ -17,7 +17,7 @@ export interface ProviderMetaData {
 export const PROVIDER_META_DATA: Record<GenerationProviderName, ProviderMetaData> = {
   openai: {
     label: 'OpenAI',
-    models: ['gpt-4.1-mini', 'gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo', 'gpt-4-turbo'],
+    models: ['gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4o', 'gpt-3.5-turbo', 'gpt-4-turbo'],
     usageUrl: 'https://platform.openai.com/usage',
     description: 'Meanings, examples, clusters, phrases, and cloze - the default generation provider.',
   },
@@ -29,7 +29,7 @@ export const PROVIDER_META_DATA: Record<GenerationProviderName, ProviderMetaData
   },
   gemini: {
     label: 'Gemini',
-    models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+    models: ['gemini-3.5-flash-lite', 'gemini-2.5-flash'],
     usageUrl: 'https://aistudio.google.com/usage',
     description: 'Google Gemini BYOK for card generation and translation.',
   },
@@ -41,13 +41,13 @@ export const PROVIDER_META_DATA: Record<GenerationProviderName, ProviderMetaData
   },
   deepseek: {
     label: 'DeepSeek',
-    models: ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-v4-flash-vision-exp'],
+    models: ['deepseek-chat', 'deepseek-reasoner'],
     usageUrl: 'https://platform.deepseek.com/usage',
     description: 'BYOK alternative for card generation and translation.',
   },
   groq: {
     label: 'Groq',
-    models: ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'groq/compound', 'groq/compound-mini'],
+    models: ['openai/gpt-oss-20b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
     usageUrl: 'https://console.groq.com/home',
     description: 'Fast inference BYOK for card generation and translation.',
   },

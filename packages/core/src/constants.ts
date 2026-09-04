@@ -20,11 +20,11 @@ export const TRANSLATION_PROVIDERS = ['google', 'deepl', 'openai', 'groq', 'mist
 export type TranslationProviderName = (typeof TRANSLATION_PROVIDERS)[number]
 
 export const DEFAULT_MODELS: Record<GenerationProviderName, string> = {
-  openai: 'gpt-4.1-mini',
+  openai: 'gpt-4o-mini',
   mistral: 'mistral-small-latest',
-  gemini: 'gemini-2.5-flash',
+  gemini: 'gemini-3.5-flash-lite',
   anthropic: 'claude-haiku-4-5-20251001',
-  deepseek: 'deepseek-v4-flash',
+  deepseek: 'deepseek-chat',
   groq: 'openai/gpt-oss-20b',
 }
 
@@ -66,6 +66,7 @@ export const STORE_KEYS = {
   ttsPitch: 'lingora.tts_pitch',
   ttsRate: 'lingora.tts_rate',
   hasSeeded: 'lingora.has_seeded',
+  seedCleanupDone: 'lingora.seed_cleanup_done',
   reviewQuestionTypes: 'lingora.review_question_types',
   sessionCardLimit: 'lingora.session_card_limit',
 } as const
@@ -101,6 +102,17 @@ export const LANGUAGE_FLAGS: Record<LanguageCode, string> = {
   vi: '🇻🇳',
 }
 
+export const VOCAB_LANGUAGE_NAMES: Record<LanguageCode, string> = {
+  de: 'German',
+  en: 'English',
+  es: 'Spanish',
+  fr: 'French',
+  hi: 'Hindi',
+  ja: 'Japanese',
+  vi: 'Vietnamese',
+}
+
 /** Preserves the app's original hardcoded German->English behavior for users who never open the setting. */
 export const DEFAULT_NATIVE_LANGUAGE: LanguageCode = 'en'
 export const DEFAULT_TARGET_LANGUAGE: LanguageCode = 'de'
+

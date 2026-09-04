@@ -33,13 +33,24 @@ interface TabEntry {
  * Maestro flows that already tap on them.
  */
 export function BottomTabBar(): JSX.Element {
-  const { db } = useServices()
+  const { db, targetLanguage } = useServices()
   const { t } = useTranslation()
   const pathname = usePathname()
   const insets = useSafeAreaInsets()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
-  const mineQuery = useQuery({ queryKey: ['mine-queue'], queryFn: () => getPendingMineEntries(db) })
+  // 'pending' suffix keeps this cache entry distinct from the Mining screen's own ['mine-queue',
+  // 'all'] query (mine.tsx) - both used to share the bare ['mine-queue'] key despite fetching
+  // different, incompatible result sets (pending-only here vs. every passage there), so whichever
+  // one refetched last silently overwrote the other's cached data - already-mined passages would
+  // flash out of the Mining list the instant this badge query refetched, then reappear once
+  // mine.tsx's own query won the race again. `invalidateQueries({ queryKey: ['mine-queue'] })`
+  // elsewhere still prefix-matches both suffixed keys, so every existing invalidation call keeps
+  // refreshing both without changes.
+  const mineQuery = useQuery({
+    queryKey: ['mine-queue', 'pending', targetLanguage],
+    queryFn: () => getPendingMineEntries(db, targetLanguage),
+  })
   const pendingCount = mineQuery.data?.length ?? 0
 
   const tabs: TabEntry[] = [
@@ -48,7 +59,7 @@ export function BottomTabBar(): JSX.Element {
     { route: '/decks', label: t('Decks'), icon: 'Layers', testID: 'tab-decks' },
     {
       route: '/mine',
-      label: t('Queue'),
+      label: t('Mining'),
       icon: 'Download',
       testID: 'tab-mine',
       ...(pendingCount > 0 && { badge: pendingCount }),

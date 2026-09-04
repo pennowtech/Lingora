@@ -34,9 +34,11 @@ import { applyStoredLanguagePreference } from './i18n'
 import { withUsageTracking } from './providerUsage'
 import { warmUpSpeechEngine } from './speech'
 import {
+  cleanupProductionDemoSeed,
   ExpoSQLiteAdapter,
   migrate,
-  seedDatabase,
+  seedDefaultTemplates,
+  seedDevSampleData,
   type DatabaseAdapter,
   type ExpoSQLiteDatabase,
 } from '@lingora/database'
@@ -168,16 +170,33 @@ async function openDatabase(): Promise<DatabaseAdapter> {
       const db = await ExpoSQLiteAdapter.create(raw as unknown as ExpoSQLiteDatabase)
       await migrate(db)
       dbLog.info('database.migrations_applied', { message: 'Pending schema migrations applied', result: 'success' })
-      // Demo seed (fixed ids, INSERT OR IGNORE) — gives a brand-new install some content to look
-      // at. Gated behind a one-time SecureStore flag, not just seedDatabase's own idempotency:
-      // INSERT OR IGNORE only no-ops while the deck-default row still exists, so re-running it
-      // unconditionally on every launch silently resurrected the demo deck/card the instant a user
-      // deleted it (deleteDeck really does remove the row) — deleting "My Vocabulary" looked
-      // permanent but came back on the next app open.
-      const alreadySeeded = (await SecureStore.getItemAsync(STORE_KEYS.hasSeeded)) === 'true'
-      if (!alreadySeeded) {
-        await seedDatabase(db)
-        await SecureStore.setItemAsync(STORE_KEYS.hasSeeded, 'true')
+      // Default card templates (fixed ids, INSERT OR IGNORE) — not demo content, every real card
+      // renders through these; safe and cheap to upsert on every boot, dev and production alike.
+      await seedDefaultTemplates(db)
+      if (__DEV__) {
+        // Demo vocabulary (fixed ids, INSERT OR IGNORE) — dev builds only, gives a fresh dev
+        // install some content to look at without polluting a real user's due-review queue with a
+        // fake card. Gated behind a one-time SecureStore flag, not just seedDevSampleData's own
+        // idempotency: INSERT OR IGNORE only no-ops while the deck-default row still exists, so
+        // re-running it unconditionally on every launch silently resurrected the demo deck/card
+        // the instant a user deleted it (deleteDeck really does remove the row) — deleting "My
+        // Vocabulary" looked permanent but came back on the next app open.
+        const alreadySeeded = (await SecureStore.getItemAsync(STORE_KEYS.hasSeeded)) === 'true'
+        if (!alreadySeeded) {
+          await seedDevSampleData(db)
+          await SecureStore.setItemAsync(STORE_KEYS.hasSeeded, 'true')
+        }
+      } else {
+        // One-time cleanup for any install that got the demo card before this __DEV__ gate
+        // existed — real users were seeing a hardcoded German "ausgehen" review card on first
+        // launch regardless of their chosen language pair. Safe to run unconditionally (see
+        // cleanupProductionDemoSeed's own doc comment); gated behind its own flag purely to avoid
+        // re-running the lookup query on every single boot once it's already been done.
+        const cleanupDone = (await SecureStore.getItemAsync(STORE_KEYS.seedCleanupDone)) === 'true'
+        if (!cleanupDone) {
+          await cleanupProductionDemoSeed(db)
+          await SecureStore.setItemAsync(STORE_KEYS.seedCleanupDone, 'true')
+        }
       }
       dbLog.info('database.open_completed', {
         message: 'Database ready',
@@ -221,7 +240,14 @@ async function readProviderConfig(
   ])
   const k = (key ?? '').trim()
   const m = model ?? defaultModel
-  const validated = k !== '' && validatedKeyRaw !== 'invalid'
+  const validated =
+    k !== '' &&
+    validatedKeyRaw != null &&
+    validatedKeyRaw !== 'invalid' &&
+    validatedKeyRaw !== '' &&
+    (validatedKeyRaw === `${k}:::${m}` ||
+      validatedKeyRaw === k ||
+      validatedKeyRaw.startsWith(`${k}:::`))
   return { key: k, enabled: enabledRaw !== 'false', model: m, validated }
 }
 
@@ -334,13 +360,16 @@ async function buildAIServices(
 
   const configs: Record<GenerationProviderName, ProviderConfig> = { openai, mistral, gemini, anthropic: claude, deepseek, groq }
   const configured = GENERATION_PROVIDERS.filter(
-    (name) => configs[name].enabled && configs[name].key !== '' && configs[name].validated,
+    (name) => configs[name].key !== '' && configs[name].validated && configs[name].enabled,
   )
+  const withKeys = GENERATION_PROVIDERS.filter((name) => configs[name].key !== '' && configs[name].enabled)
   const preferred = (GENERATION_PROVIDERS as readonly string[]).includes(storedGenerationProvider ?? '')
     ? (storedGenerationProvider as GenerationProviderName)
     : undefined
   const generationProviderName =
-    preferred && configured.includes(preferred) ? preferred : configured[0]
+    preferred && (configured.includes(preferred) || withKeys.includes(preferred))
+      ? preferred
+      : configured[0] ?? withKeys[0]
 
   // The dictionary slot: Google's free tier needs no key and is the default;
   // DeepL and any configured generation provider can also serve translation.

@@ -6,6 +6,7 @@ import {
   persistTranslationAsCard,
   persistWordGuideAsCard,
   searchLemmasWithPreview,
+  setCloze,
   type LemmaSearchPreview,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -18,9 +19,11 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Icon } from '../../components/Icon'
-import { Button, Card, Chip, EmptyState, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
+import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
+import type { ClozeEditorResult } from '../../components/ClozeMarkupEditor'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
+import { AISetupModal } from '../../components/AISetupModal'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
 import { ProgressOverlay } from '../../components/ProgressOverlay'
 import { WordGuideModal } from '../../components/WordGuideModal'
@@ -52,7 +55,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Instant lookup',
     icon: 'Search',
     paragraphs: [
-      'Type a word in either language you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
+      '**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it\'s new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.',
+      'Type a word in **either language** you\'ve set up under Learning - your own vocabulary is searched instantly as you type.',
       'Inflected or conjugated forms work too, not just the base/dictionary form of a word.',
     ],
   },
@@ -61,9 +65,23 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'When a word is new to you',
     icon: 'Sparkles',
     paragraphs: [
-      'If a word isn\'t in your library yet, you may see a quick built-in dictionary entry and/or a translation preview - both are read-only until you choose to add one to a deck.',
-      'The "AI Insights" preview gives a short, direct explanation of what the word means and where or why it\'s used - tap it any time to generate the full flashcard.',
-      '"Generate with AI" generates a full explanation card with meanings, examples, grammar, and more, using whichever AI provider you\'ve set up in Settings.',
+      'If a word isn\'t in your library yet, you may see a **quick built-in dictionary entry** or a **translation preview** - both are ready to be added to a deck.',
+      'The **"Word Guide"** preview gives a concise explanation of meaning and usage, and lets you open detailed grammar tables.',
+      '**"Generate with AI"** creates a rich flashcard with meanings, examples, synonyms, and phrases using your active AI provider.',
+    ],
+  },
+  {
+    id: 'modes',
+    title: 'Card types & review modes',
+    icon: 'SlidersHorizontal',
+    paragraphs: [
+      'When you tap **"Add to deck"**, small **icon badges** next to each deck show which *study formats* it practices with:',
+      '• **Vocab** (⇄): Classic word-to-translation recall.',
+      '• **Reverse** (⮌): Translation-to-word recall.',
+      '• **Cloze** (T): Fill-in-the-blank practice inside example sentences.',
+      '• **Multiple Choice** (☰): Fast quiz practice with distractors.',
+      '• **True / False** (✓): Rapid verification practice.',
+      'When adding a card to a deck, it will automatically be practiced across that deck\'s enabled modes.',
     ],
   },
   {
@@ -71,8 +89,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Adding to a deck',
     icon: 'Layers',
     paragraphs: [
-      'Tapping "Add to deck" always asks which deck to add the word to, and lets you create a brand-new deck on the spot.',
-      'A green checkmark means the word is already in one of your decks.',
+      'Tapping **"Add to deck"** opens the deck selector where you can pick which deck(s) will practice this card.',
+      'Each deck displays its enabled **review mode icons** so you know exactly which exercises it generates.',
+      'A green checkmark (**✓**) means the word is already saved in that deck.',
     ],
   },
   {
@@ -80,9 +99,9 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Search from anywhere',
     icon: 'Share2',
     paragraphs: [
-      'Long-press a word in any app - your browser, messages, anywhere - and pick "Search in Lemmory." It opens right here with that word ready to go.',
-      'You can also share text to Lemmory, the same way you\'d share a link or a photo to any other app.',
-      'Want it to work a bit differently? There\'s a setting for that in Settings, under "Share & Search."',
+      'Long-press a word in any app - your browser, messages, anywhere - and pick **"Search in Lemony."** It opens right here with that word ready to go.',
+      'You can also share text to Lemony, the same way you\'d share a link or a photo to any other app.',
+      'Configure search integration in **Settings → Share & Search**.',
     ],
   },
 ]
@@ -147,6 +166,7 @@ export default function SearchScreen(): JSX.Element {
   const params = useLocalSearchParams<{ q?: string }>()
   const [query, setQueryState] = useState(params.q ?? lastSearchQuery)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
+  const [aiSetupModalOpen, setAiSetupModalOpen] = useState(false)
   // Which "Add to deck" button opened the picker — decides which persist call the picker's
   // onSelectDeck/onCreateDeck reach for once the user actually picks or creates a deck.
   const [deckPickerFor, setDeckPickerFor] = useState<'guide' | 'translation' | null>(null)
@@ -225,9 +245,13 @@ export default function SearchScreen(): JSX.Element {
   })
 
   const addFromGuide = useMutation({
-    mutationFn: (deckId: string) => {
+    mutationFn: async ({ deckId, cloze }: { deckId: string; cloze?: ClozeEditorResult }) => {
       if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-      return persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      const result = await persistWordGuideAsCard(db, wordGuide.data, deckId, nativeLanguage)
+      if (cloze) {
+        await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
+      }
+      return result
     },
     onSuccess: async ({ lemma }) => {
       setDeckPickerFor(null)
@@ -316,13 +340,25 @@ export default function SearchScreen(): JSX.Element {
   // deck, then runs whichever of the two persist calls above `deckPickerFor` points at with the
   // new deck's id.
   const createDeckAndAdd = useMutation({
-    mutationFn: async ({ name, questionTypes }: { name: string; questionTypes: QuestionType[] }) => {
+    mutationFn: async ({ name, questionTypes, cloze }: { name: string; questionTypes: QuestionType[]; cloze?: ClozeEditorResult }) => {
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       if (deckPickerFor === 'guide') {
         if (!wordGuide.data) throw new Error(t('No dictionary entry to add.'))
-        return persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        const result = await persistWordGuideAsCard(db, wordGuide.data, id, nativeLanguage)
+        if (cloze) {
+          await setCloze(db, result.cardId, { ...cloze, difficulty: 'contextual', cefrLevel: defaultCefr })
+        }
+        return result
       }
       if (deckPickerFor === 'translation') {
         const args = translationAsCardArgs()
@@ -566,6 +602,9 @@ export default function SearchScreen(): JSX.Element {
           <Text style={styles.inDeckBadgeText}>{t('Already in your library')}</Text>
         </View>
       ) : (
+        // No ReviewModeBadges here - this is a read-only translation preview, not a saved card,
+        // so there's no deck/card review-mode context to badge yet (see the identical fix on the
+        // word-guide preview's footer below).
         <View style={styles.guideFooterRow}>
           <Button
             label={t('Add to deck')}
@@ -649,14 +688,27 @@ export default function SearchScreen(): JSX.Element {
       </View>
 
       {term === '' ? (
-        <EmptyState
-          icon="Search"
-          title={t('Instant lookup')}
-          message={t('Search in {{target}} or {{native}}.\nInflected or conjugated forms work too.', {
-            target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
-            native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
-          })}
-        />
+        // Only shown when there's genuinely nothing yet - hidden the moment a query produces
+        // results, an error, or a loading state below.
+        <View style={styles.emptyCentered}>
+          <View style={styles.overviewCard}>
+            <View style={styles.overviewIconWrap}>
+              <Icon name="Search" size={24} color={colors.primary} />
+            </View>
+            <Text style={styles.overviewTitle}>{t('Instant Lookup and Card Generations')}</Text>
+            <InlineMarkdown
+              text={t(
+                'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.',
+                {
+                  target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
+                  native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
+                },
+              )}
+              style={styles.overviewBody}
+              boldStyle={styles.overviewBold}
+            />
+          </View>
+        </View>
       ) : search.isPending ? (
         <View style={styles.centered}>
           <ActivityIndicator color={colors.primary} />
@@ -704,21 +756,25 @@ export default function SearchScreen(): JSX.Element {
                       <Text style={styles.guideSnippet} numberOfLines={2}>{wordGuide.data.intro}</Text>
                     ) : null}
 
+                    {/* No ReviewModeBadges here either - a Word Guide entry isn't a saved card
+                        yet, so there's no deck to report review modes for. */}
                     <View style={styles.guideFooterRow}>
-                      <Button
-                        label={t('Add to deck')}
-                        icon="CirclePlus"
-                        variant="primary"
-                        small
-                        onPress={() => setDeckPickerFor('guide')}
-                      />
-                      <Button
-                        label={t('More info')}
-                        icon="BookOpen"
-                        variant="secondary"
-                        small
-                        onPress={() => setGuideModalOpen(true)}
-                      />
+                      <View style={styles.guideActionsRow}>
+                        <Button
+                          label={t('Add to deck')}
+                          icon="CirclePlus"
+                          variant="primary"
+                          small
+                          onPress={() => setDeckPickerFor('guide')}
+                        />
+                        <Button
+                          label={t('More info')}
+                          icon="BookOpen"
+                          variant="secondary"
+                          small
+                          onPress={() => setGuideModalOpen(true)}
+                        />
+                      </View>
                     </View>
                   </Card>
                 ) : null}
@@ -789,14 +845,21 @@ export default function SearchScreen(): JSX.Element {
                     </Card>
                   )
                 ) : (
-                  <Pressable onPress={() => router.push('/settings/ai-providers')}>
-                    <Card style={styles.limitedCard}>
-                      <Icon name="Key" size={18} color={colors.textSecondary} />
-                      <Text style={styles.limitedLabel}>
-                        {t('No AI provider is active - add and enable one in Settings to generate new words')}
-                      </Text>
-                    </Card>
-                  </Pressable>
+                  <Card
+                    onPress={() => setAiSetupModalOpen(true)}
+                    style={styles.limitedCard}
+                  >
+                    <View style={styles.limitedTop}>
+                      <Text style={styles.limitedWord}>{t('AI Word Generation')}</Text>
+                      <View style={styles.limitedLearnAction}>
+                        <Text style={styles.limitedLearnText}>{t('More info')}</Text>
+                        <Icon name="ArrowRight" size={13} color={colors.warning} />
+                      </View>
+                    </View>
+                    <Text style={styles.limitedExplanation} numberOfLines={2}>
+                      {t('Configure an AI provider in Settings to search & generate new words, or install local dictionaries for offline use.')}
+                    </Text>
+                  </Card>
                 )}
                 {generate.isError ? (
                   <Text style={styles.generateError}>
@@ -831,8 +894,29 @@ export default function SearchScreen(): JSX.Element {
               </Card>
             )
           }}
+          ListFooterComponent={
+            term !== '' ? (
+              <Pressable
+                style={styles.searchFeedbackRow}
+                onPress={() => router.push({ pathname: '/settings/feedback', params: { category: 'support' } })}
+              >
+                <Icon name="MessageSquareText" size={14} color={colors.textMuted} />
+                <Text style={styles.searchFeedbackText}>
+                  {t("Can't find a word or need help? Send feedback")}
+                </Text>
+              </Pressable>
+            ) : null
+          }
         />
       )}
+
+      {/* ── AI & Local Dictionaries Setup Info Dialog ── */}
+      <AISetupModal
+        visible={aiSetupModalOpen}
+        onClose={() => setAiSetupModalOpen(false)}
+        title={t('Word Lookup Setup')}
+        subtitle={t("Choose how you'd like to search & generate words")}
+      />
 
       {/* ── Deck picker — shared by the dictionary-preview and translation-preview "Add to deck"
           buttons above, whichever last set deckPickerFor. Neither preview has a real card yet, so
@@ -842,12 +926,21 @@ export default function SearchScreen(): JSX.Element {
         visible={deckPickerFor !== null}
         onClose={() => setDeckPickerFor(null)}
         title={t('Add "{{term}}" to...', { term })}
-        onSelectDeck={(deck) => {
-          if (deckPickerFor === 'guide') addFromGuide.mutate(deck.id)
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
+        {...(deckPickerFor === 'guide' && wordGuide.data ? {
+          word: wordGuide.data.headword,
+          ...(wordGuide.data.examples[0]?.sentence && { exampleSentence: wordGuide.data.examples[0].sentence }),
+          ...(wordGuide.data.examples[0]?.translation && { exampleTranslation: wordGuide.data.examples[0].translation }),
+        } : {})}
+        onSelectDeck={(deck, cloze) => {
+          if (deckPickerFor === 'guide') addFromGuide.mutate({ deckId: deck.id, ...(cloze && { cloze }) })
           else if (deckPickerFor === 'translation') addFromTranslation.mutate(deck.id)
         }}
         selecting={addFromGuide.isPending || addFromTranslation.isPending}
-        onCreateDeck={(name, questionTypes) => createDeckAndAdd.mutate({ name, questionTypes })}
+        onCreateDeck={(name, questionTypes, cloze) =>
+          createDeckAndAdd.mutate({ name, questionTypes, ...(cloze && { cloze }) })
+        }
         creating={createDeckAndAdd.isPending}
         {...((addFromGuide.isError || addFromTranslation.isError) && {
           selectError: String(addFromGuide.error ?? addFromTranslation.error),
@@ -891,6 +984,44 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: 2,
     },
     input: { flex: 1, fontSize: type.body, color: colors.text, paddingVertical: spacing.md },
+    emptyCentered: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    overviewCard: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.lg,
+      padding: spacing.xl,
+      maxWidth: 420,
+    },
+    overviewIconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    overviewTitle: {
+      fontSize: type.subheading,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    overviewBody: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 19,
+      textAlign: 'center',
+    },
+    overviewBold: {
+      fontWeight: '700',
+      color: colors.primaryDark,
+    },
     centered: { paddingTop: spacing.xxl, alignItems: 'center' },
     list: { paddingTop: spacing.lg },
     row: {
@@ -960,6 +1091,11 @@ const createStyles = (colors: ThemeColors) =>
       gap: spacing.sm,
       marginTop: spacing.xs,
     },
+    guideActionsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
     translateCard: {
       marginTop: spacing.md,
       marginBottom: spacing.md,
@@ -977,6 +1113,19 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: type.caption,
       fontWeight: '600',
       color: colors.success,
+    },
+    searchFeedbackRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+    },
+    searchFeedbackText: {
+      fontSize: type.caption,
+      color: colors.textMuted,
+      fontWeight: '500',
     },
     translateDirectionRow: {
       flexDirection: 'row',
@@ -1060,19 +1209,52 @@ const createStyles = (colors: ThemeColors) =>
     },
     explainLoadingLabel: { flex: 1, fontSize: type.body, fontWeight: '600', color: colors.primary },
     limitedCard: {
+      gap: spacing.xs,
+      padding: spacing.lg,
+      borderWidth: 1.5,
+      borderColor: colors.warning,
+      backgroundColor: colors.warningSoft,
+      borderRadius: radius.xl,
+      marginTop: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.06,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    limitedTop: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
       gap: spacing.sm,
-      marginTop: spacing.md,
-      backgroundColor: colors.surfaceMuted,
-      borderColor: colors.border,
+      backgroundColor: 'transparent',
     },
-    limitedLabel: {
-      flex: 1,
+    limitedWord: {
+      fontSize: type.body,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -0.2,
+      backgroundColor: 'transparent',
+    },
+    limitedLearnAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: 'transparent',
+    },
+    limitedLearnText: {
+      fontSize: type.micro,
+      fontWeight: '800',
+      color: colors.warning,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    limitedExplanation: {
       fontSize: type.caption,
-      fontWeight: '600',
       color: colors.textSecondary,
+      lineHeight: 19,
+      fontStyle: 'italic',
+      backgroundColor: 'transparent',
     },
     generateError: {
       marginTop: spacing.md,

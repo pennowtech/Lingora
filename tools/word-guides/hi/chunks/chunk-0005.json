@@ -1,0 +1,4014 @@
+{
+  "chunkIndex": 5,
+  "language": "hi",
+  "explanationLanguage": "en",
+  "generatedBy": "gemini-3.8-flash (authored directly in-conversation, no provider API call)",
+  "generatedAt": "2026-09-03",
+  "note": "Intermediate format — not yet a .lin file. Content authored directly adhering strictly to Lingora schema. Contains 100 high-frequency Hindi headwords (ranks 401 to 500). Each entry has 4 examples: two plain (indicative), one conditional/subjunctive (संभाव्य/संकेतवाचक), one passive voice (कर्मवाच्य). All nouns are annotated with their grammatical gender (masculine/feminine). Total entries this chunk: 100.",
+  "entries": [
+    {
+      "headword": "खोजना",
+      "partOfSpeech": "verb",
+      "translation": "to search / seek / look for / discover",
+      "intro": "To actively search for someone or something lost, or to discover new knowledge. Near-synonym to ढूंढना.",
+      "usage": "Transitive verb. Takes the ergative marker 'ने' with the subject in perfective tenses. Verb agrees with object in gender and number when 'ने' is used without 'को'.",
+      "synonyms": [
+        {
+          "word": "ढूंढना",
+          "gloss": "to look for / find"
+        },
+        {
+          "word": "तलाश करना",
+          "gloss": "to search / seek"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वैज्ञानिक ब्रह्मांड में नए ग्रहों को खोज रहे हैं।",
+          "translation": "Scientists are searching for new planets in the universe.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पुलिस ने खोई हुई गाड़ी को जंगल में खोज लिया।",
+          "translation": "The police discovered the lost vehicle in the forest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम ध्यान से खोजते, तो तुम्हें तुम्हारी चाबी मिल जाती।",
+          "translation": "If you had searched carefully, you would have found your key.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इंटरनेट पर उपयोगी जानकारी आसानी से खोजी जा सकती है।",
+          "translation": "Useful information can be easily searched on the internet.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "चुनना",
+      "partOfSpeech": "verb",
+      "translation": "to choose / select / pick / elect",
+      "intro": "To select or choose from among several alternatives; also to elect a political representative.",
+      "usage": "Transitive verb. Takes 'ने' in perfective tenses. In passive constructions, 'चुना जाना' is standard.",
+      "synonyms": [
+        {
+          "word": "पसंद करना",
+          "gloss": "to prefer / like (#301)"
+        },
+        {
+          "word": "छांटना",
+          "gloss": "to sort / pick out"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "नागरिक चुनाव में अपना नेता चुनते हैं।",
+          "translation": "Citizens choose their leader in elections.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने अपने जन्मदिन के लिए एक सुंदर पोशाक चुनी।",
+          "translation": "She chose a beautiful dress for her birthday.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आप सही रास्ता चुनते, तो कोई कठिनाई न होती।",
+          "translation": "If you had chosen the right path, there would have been no difficulty.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "समिति द्वारा योग्य उम्मीदवार को अध्यक्ष चुना गया।",
+          "translation": "The qualified candidate was elected president by the committee.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बचाना",
+      "partOfSpeech": "verb",
+      "translation": "to save / rescue / protect / conserve (money/time)",
+      "intro": "To rescue someone from danger, or to save resources such as money, food, or time. Causative counterpart to बचना (to be saved/survive).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Governs 'से' for protection from something (मुसीबत से बचाना).",
+      "synonyms": [
+        {
+          "word": "रक्षा करना",
+          "gloss": "to protect"
+        },
+        {
+          "word": "सुरक्षित करना",
+          "gloss": "to secure"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गोताखोर ने डूबते हुए बच्चे को नदी से बचाया।",
+          "translation": "The diver saved the drowning child from the river.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हम हर महीने भविष्य के लिए कुछ पैसे बचाते हैं।",
+          "translation": "We save some money every month for the future.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि डॉक्टर समय पर दवा देते, तो वे मरीज की जान बचा लेते।",
+          "translation": "If doctors had administered medicine on time, they would have saved the patient's life.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सैनिकों द्वारा बाढ़ पीड़ितों को सुरक्षित बचाया गया।",
+          "translation": "Flood victims were safely rescued by the soldiers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गिरना",
+      "partOfSpeech": "verb",
+      "translation": "to fall / drop / tumble / collapse",
+      "intro": "To descend freely under gravity, slip and fall, or drop in value/temperature. Intransitive.",
+      "usage": "Intransitive verb. Does NOT take 'ने' in past tenses (वह गिरा, वह गिरी). Conveys accidental falling.",
+      "synonyms": [
+        {
+          "word": "फिसलना",
+          "gloss": "to slip"
+        },
+        {
+          "word": "नीचे आना",
+          "gloss": "to come down"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पेड़ से सूखा पत्ता धीरे-धीरे जमीन पर गिरा।",
+          "translation": "The dry leaf fell slowly from the tree to the ground.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सर्दियों में तापमान शून्य डिग्री से नीचे गिर जाता है।",
+          "translation": "In winter the temperature falls below zero degrees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर बारिश में वह संभलकर चलता, तो कीचड़ में न गिरता।",
+          "translation": "If he had walked carefully in the rain, he would not have fallen into the mud.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हवाई हमले में पुरानी इमारत का बड़ा हिस्सा गिरा दिया गया।",
+          "translation": "A large portion of the old building was brought down (felled) in the air strike.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "उठाना",
+      "partOfSpeech": "verb",
+      "translation": "to lift / raise / pick up / wake someone up / bear (costs/responsibility)",
+      "intro": "To raise physically, pick up an object from the floor, wake someone up, or bear expenses/burdens. Transitive causative of उठना (to rise).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Idioms: 'कदम उठाना' (take steps), 'खर्चा उठाना' (bear expenses).",
+      "synonyms": [
+        {
+          "word": "ऊपर करना",
+          "gloss": "to raise up"
+        },
+        {
+          "word": "जगाना",
+          "gloss": "to wake up"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कुली ने भारी संदूक को अपने सिर पर उठाया।",
+          "translation": "The porter lifted the heavy trunk onto his head.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सरकार ने गरीबी कम करने के लिए कड़े कदम उठाए हैं।",
+          "translation": "The government has taken strict steps to reduce poverty.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सुबह मुझे उठा देते, तो मेरी रेलगाड़ी न छूटती।",
+          "translation": "If you had woken me up in the morning, I would not have missed my train.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़क पर गिरा हुआ पर्स एक ईमानदार नागरिक द्वारा उठाया गया।",
+          "translation": "The purse dropped on the road was picked up by an honest citizen.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पहुंचाना",
+      "partOfSpeech": "verb",
+      "translation": "to deliver / convey / transport / cause (harm/benefit)",
+      "intro": "To transport or deliver goods or persons to a destination; or to cause harm or benefit ('नुकसान पहुंचाना'). Causative of पहुंचना (to reach/arrive).",
+      "usage": "Transitive verb. Takes 'ने' in perfective tenses. Collocations: 'मदद पहुंचाना' (deliver aid), 'नुकसान पहुंचाना' (cause harm).",
+      "synonyms": [
+        {
+          "word": "भेजना",
+          "gloss": "to send"
+        },
+        {
+          "word": "सुपुर्द करना",
+          "gloss": "to deliver / entrust"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "डाकिया शाम तक जरूरी दस्तावेज कार्यालय पहुंचा देगा।",
+          "translation": "The postman will deliver the important documents to the office by evening.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "एंबुलेंस ने घायल यात्री को तुरंत अस्पताल पहुंचाया।",
+          "translation": "The ambulance conveyed the injured passenger to the hospital immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि राहत सामग्री समय पर पहुंचाई जाती, तो लोगों को राहत मिलती।",
+          "translation": "If relief materials had been delivered on time, people would have received relief.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ प्रभावित इलाकों में भोजन के पैकेट वायुसेना द्वारा पहुंचाए गए।",
+          "translation": "Food packets were delivered to flood-affected areas by the air force.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "खींचना",
+      "partOfSpeech": "verb",
+      "translation": "to pull / draw / drag / attract / take (a photograph: फोटो खींचना)",
+      "intro": "To exert force on someone or something to move them toward oneself; to draw lines; or to take photographs ('तस्वीर खींचना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Common collocation: 'ध्यान खींचना' (draw attention), 'फोटो खींचना' (take photo).",
+      "synonyms": [
+        {
+          "word": "घसीटना",
+          "gloss": "to drag"
+        },
+        {
+          "word": "आकर्षित करना",
+          "gloss": "to attract"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "घोड़ा भारी गाड़ी को पहाड़ी रास्ते पर खींच रहा है।",
+          "translation": "The horse is pulling the heavy cart on the mountain path.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पर्यटक ने सूर्यास्त के समय समुद्र तट की सुंदर तस्वीर खींची।",
+          "translation": "The tourist took a beautiful photograph of the beach at sunset.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम रस्सी को इतनी जोर से खींचते, तो वह टूट जाती।",
+          "translation": "If you pulled the rope so hard, it would snap.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मैदान के बीच सफेद चूने से सीधी रेखा खींची गई।",
+          "translation": "A straight line was drawn across the field with white lime.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "छिपाना",
+      "partOfSpeech": "verb",
+      "translation": "to hide / conceal / secret away / keep secret",
+      "intro": "To put or keep out of sight, prevent from being seen or noticed. Causative of छिपना (to hide oneself).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Antonym: दिखाना (to show/reveal).",
+      "synonyms": [
+        {
+          "word": "गोपनीय रखना",
+          "gloss": "to keep confidential"
+        },
+        {
+          "word": "ढकना",
+          "gloss": "to cover"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उसने अपनी निजी डायरी को अलमारी की किताबों के पीछे छिपाया।",
+          "translation": "He hid his personal diary behind the books in the cupboard.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच्चा मित्र कभी अपने साथी से कोई राज़ नहीं छिपाता।",
+          "translation": "A true friend never conceals any secret from his companion.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर तुम अपनी बीमारी न छिपाते, तो समय पर इलाज हो जाता।",
+          "translation": "If you had not hidden your illness, treatment would have taken place on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अपराधियों द्वारा लूटा गया धन खंडहर में छिपाया गया था।",
+          "translation": "The looted money had been concealed in ruins by the criminals.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दिखाना",
+      "partOfSpeech": "verb",
+      "translation": "to show / display / exhibit / demonstrate",
+      "intro": "To allow something to be visible, exhibit goods, guide someone, or prove a trait. Causative of दिखना (to be visible / appear).",
+      "usage": "Transitive verb. Takes 'ने' in past tenses. Antonym: छिपाना (to hide).",
+      "synonyms": [
+        {
+          "word": "प्रदर्शित करना",
+          "gloss": "to display / exhibit"
+        },
+        {
+          "word": "बताना",
+          "gloss": "to point out / explain"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दुकानदार ने ग्राहकों को रेशम की नई साड़ियां दिखाईं।",
+          "translation": "The shopkeeper showed the new silk sarees to the customers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गाइड ने विदेशी पर्यटकों को ऐतिहासिक किले के सभी गुप्त कमरे दिखाए।",
+          "translation": "The guide showed foreign tourists all the secret rooms of the historic fort.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आप मुझे सही रास्ता दिखा देते, तो मैं समय पर पहुंच जाता।",
+          "translation": "If you had shown me the right way, I would have arrived on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कलाकारों की सर्वश्रेष्ठ पेंटिंग्स राष्ट्रीय दीर्घा में दिखाई गईं।",
+          "translation": "Artists' best paintings were exhibited in the national gallery.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हटाना",
+      "partOfSpeech": "verb",
+      "translation": "to remove / displace / clear away / dismiss",
+      "intro": "To take away from a place, clear an obstacle, or dismiss someone from employment. Causative of हटना (to move away / step aside).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Collocations: 'रुकावट हटाना' (remove obstruction), 'पद से हटाना' (dismiss from post).",
+      "synonyms": [
+        {
+          "word": "दूर करना",
+          "gloss": "to remove / dispel"
+        },
+        {
+          "word": "अलग करना",
+          "gloss": "to separate / detach"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "नगर निगम के कर्मचारियों ने सड़क से गिरे हुए पेड़ को हटाया।",
+          "translation": "Municipal workers removed the fallen tree from the road.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कंपनी के बोर्ड ने अक्षम प्रबंधक को उसके पद से हटा दिया।",
+          "translation": "The company's board removed the incompetent manager from his post.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वे रास्ते से पत्थरों को हटा देते, तो गाड़ियां आसानी से निकल जातीं।",
+          "translation": "If they had cleared stones from the road, vehicles would have passed easily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सफाई अभियान के तहत नदी के किनारों से सारा कचरा हटाया गया।",
+          "translation": "All trash was removed from river banks under the cleanliness drive.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "रोकना",
+      "partOfSpeech": "verb",
+      "translation": "to stop / halt / prevent / detain / obstruct",
+      "intro": "To bring someone or something to a halt, restrain action, or prevent an occurrence. Transitive counterpart of रुकना (to stop oneself).",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Governs 'से' when meaning to prevent from doing something (करने से रोकना).",
+      "synonyms": [
+        {
+          "word": "थमाना",
+          "gloss": "to halt"
+        },
+        {
+          "word": "मना करना",
+          "gloss": "to forbid / restrain"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यातायात पुलिसकर्मी ने लाल बत्ती पर तेज रफ्तार कार को रोका।",
+          "translation": "The traffic police officer stopped the speeding car at the red light.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "टीकाकरण बच्चों को संक्रामक बीमारियों से प्रभावी रूप से रोकता है।",
+          "translation": "Vaccination effectively prevents children from contagious diseases.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चौकीदार अजनबियों को दरवाजे पर ही रोकता, तो चोरी न होती।",
+          "translation": "If the watchman had stopped strangers at the gate itself, theft would not have occurred.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुरक्षा कारणों से सीमा पर वाहनों को जांच के लिए रोका जाता है।",
+          "translation": "Vehicles are stopped at the border for inspection for security reasons.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "बदलना",
+      "partOfSpeech": "verb",
+      "translation": "to change / alter / exchange / transform / convert",
+      "intro": "To make or become different; to exchange clothing or currency (पैसे बदलना); or to transform. Can be both transitive and intransitive.",
+      "usage": "Both transitive (takes 'ने') and intransitive (does not take 'ने'). Context dictates transitivity.",
+      "synonyms": [
+        {
+          "word": "परिवर्तित करना",
+          "gloss": "to transform / modify"
+        },
+        {
+          "word": "अदला-बदली करना",
+          "gloss": "to exchange"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ऋतु के साथ ही प्रकृति का पूरा रंग-रूप बदल जाता है।",
+          "translation": "With the season, nature's entire appearance changes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यात्री ने बैंक में विदेशी मुद्रा को भारतीय रुपयों में बदला।",
+          "translation": "The traveler exchanged foreign currency into Indian rupees at the bank.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम अपनी पुरानी आदतें बदल लेते, तो हमारा स्वास्थ्य बेहतर होता।",
+          "translation": "If we changed our old habits, our health would be better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तकनीक के विकास के साथ पुराने नियमों को बदला गया है।",
+          "translation": "Old rules have been changed with the development of technology.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पकाना",
+      "partOfSpeech": "verb",
+      "translation": "to cook / bake / boil / ripen (fruit: फल पकाना)",
+      "intro": "To prepare food by applying heat (boiling, baking, frying); or to cause fruit to ripen. Transitive causative of पकना (to cook / ripen).",
+      "usage": "Transitive verb. Takes 'ने' in perfective tenses. Collocation: 'खाना पकाना' (to cook food).",
+      "synonyms": [
+        {
+          "word": "रांधना",
+          "gloss": "to cook (archaic/regional)"
+        },
+        {
+          "word": "तैयार करना",
+          "gloss": "to prepare (food)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रसोइया दोपहर के भोजन के लिए स्वादिष्ट दाल और चावल पका रहा है।",
+          "translation": "The cook is cooking delicious lentils and rice for lunch.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दादी जी ने त्योहार के अवसर पर मिट्टी के चूल्हे पर खीर पकाई।",
+          "translation": "Grandmother cooked rice pudding on the clay stove on the occasion of the festival.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सब्जी को धीमी आंच पर पकाते, तो उसका स्वाद और भी अच्छा होता।",
+          "translation": "If you cooked the vegetables on low heat, their taste would be even better.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शादी की दावत के लिए भोजन अनुभवी हलवाइयों द्वारा पकाया गया।",
+          "translation": "Food for the wedding feast was cooked by experienced caterers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "हिलाना",
+      "partOfSpeech": "verb",
+      "translation": "to shake / stir / wag (tail) / rock (cradle) / move",
+      "intro": "To move back and forth or up and down, stir a liquid, wag a tail, or rock a cradle. Transitive causative of हिलना (to shake / vibrate).",
+      "usage": "Transitive verb. Takes 'ने' in perfective tenses. Idioms: 'सिर हिलाना' (nod or shake head), 'दुम हिलाना' (wag tail).",
+      "synonyms": [
+        {
+          "word": "चलाना (चम्मच)",
+          "gloss": "to stir with spoon"
+        },
+        {
+          "word": "डोलना",
+          "gloss": "to swing / rock"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मालिक को घर लौटते देखकर वफादार कुत्ता खुशी से अपनी पूंछ हिलाने लगा।",
+          "translation": "Seeing the master return home, the faithful dog began to wag its tail joyfully.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दवा पीने से पहले शीशी को अच्छी तरह हिलाना चाहिए।",
+          "translation": "Before drinking medicine, one should shake the bottle thoroughly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम दूध में चीनी डालकर चम्मच से हिलाते, तो वह जल्दी घुल जाती।",
+          "translation": "If you stirred the sugar into the milk with a spoon, it would dissolve quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तेज भूकंप के झटकों द्वारा शहर की ऊंची इमारतों को हिला दिया गया।",
+          "translation": "The city's tall buildings were shaken by the severe earthquake tremors.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "काटना",
+      "partOfSpeech": "verb",
+      "translation": "to cut / chop / slice / bite (insects/dogs: कुत्ते का काटना) / spend (time)",
+      "intro": "To divide or sever with a sharp tool; to bite or sting (mosquito/dog); or to spend/pass time ('समय काटना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Collocations: 'सब्जी काटना' (chop vegetables), 'टिकट काटना' (issue ticket).",
+      "synonyms": [
+        {
+          "word": "तराशना",
+          "gloss": "to carve / trim"
+        },
+        {
+          "word": "खंडित करना",
+          "gloss": "to cut into pieces"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "किसान खेत में पकी हुई गेहूं की फसल को हंसिये से काट रहे हैं।",
+          "translation": "Farmers are cutting the ripe wheat crop in the field with sickles.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दर्जी ने नए कोट की सिलाई के लिए कैंची से रेशमी कपड़ा काटा।",
+          "translation": "The tailor cut the silk cloth with scissors for stitching the new coat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सेब को छोटे टुकड़ों में काटते, तो बच्चे आसानी से खा लेते।",
+          "translation": "If you had cut the apple into small pieces, children would have eaten it easily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़क चौड़ी करने के लिए पुराने पेड़ों को वन विभाग द्वारा काटा गया।",
+          "translation": "Old trees were cut down by the forest department to widen the road.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तोड़ना",
+      "partOfSpeech": "verb",
+      "translation": "to break / fracture / pluck (flowers: फूल तोड़ना) / violate (rules/promise)",
+      "intro": "To smash or fracture into pieces; to pluck flowers or fruit from a branch; or to breach a promise or law ('नियम तोड़ना'). Transitive counterpart to टूटना (to break/shatter).",
+      "usage": "Transitive verb. Takes 'ने' in past tenses. Collocations: 'वादा तोड़ना' (break promise), 'फूल तोड़ना' (pluck flower).",
+      "synonyms": [
+        {
+          "word": "फोड़ना",
+          "gloss": "to burst / smash"
+        },
+        {
+          "word": "भंग करना",
+          "gloss": "to breach / violate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "माली ने सुबह ताजे गुलाब के फूलों को बगीचे से तोड़ा।",
+          "translation": "The gardener plucked fresh rose flowers from the garden in the morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "क्रोध में आकर उस खिलाड़ी ने अपना बल्ला जमीन पर मारकर तोड़ दिया।",
+          "translation": "In anger that player smashed and broke his bat on the ground.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम यातायात के नियम तोड़ते, तो पुलिस तुम्हारा चालान काट देती।",
+          "translation": "If you broke traffic rules, the police would issue you a fine.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "चोरों द्वारा आधी रात को दुकान का ताला तोड़ा गया।",
+          "translation": "The shop's lock was broken by thieves in the middle of the night.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "जोड़ना",
+      "partOfSpeech": "verb",
+      "translation": "to join / connect / unite / add (numbers: जोड़ना) / save (money: पाई-पाई जोड़ना)",
+      "intro": "To connect two pieces together, add numbers in mathematics, unite people, or accumulate savings ('पैसे जोड़ना'). Antonym of तोड़ना.",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Mathematics: 'योग करना' (addition). Opposite of तोड़ना (break) and घटाना (subtract).",
+      "synonyms": [
+        {
+          "word": "मिलाना",
+          "gloss": "to combine / connect"
+        },
+        {
+          "word": "एकत्र करना",
+          "gloss": "to accumulate / gather"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बढ़ई ने फेविकोल और कीलों की मदद से मेज के दोनों टुकड़ों को जोड़ा।",
+          "translation": "The carpenter joined both pieces of the table with the help of glue and nails.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गणित के अध्यापक ने छात्रों को दो बड़े अंकों को आपस में जोड़ना सिखाया।",
+          "translation": "The mathematics teacher taught students how to add two large numbers together.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सरकार सभी नदियों को आपस में जोड़ दे, तो सूखे की समस्या खत्म हो जाए।",
+          "translation": "If the government linked all rivers together, the drought problem would end.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पुल के निर्माण द्वारा दो अलग-अलग किनारों को सफलतापूर्वक जोड़ा गया।",
+          "translation": "Two separate banks were successfully connected through bridge construction.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "नापना",
+      "partOfSpeech": "verb",
+      "translation": "to measure (length, volume, area) / gauge",
+      "intro": "To ascertain the size, amount, length, or degree of something by using an instrument. Often paired with तोलना (नापना-तोलना).",
+      "usage": "Transitive verb. Takes 'ने' in perfective tenses. Noun: नाप (measurement).",
+      "synonyms": [
+        {
+          "word": "मापना",
+          "gloss": "to measure"
+        },
+        {
+          "word": "आंकना",
+          "gloss": "to assess / gauge"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दर्जी ने कमीज सिलने से पहले ग्राहक के कंधों और सीने की नाप ली।",
+          "translation": "The tailor measured the customer's shoulders and chest before stitching the shirt.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पटवारी ने फीता लेकर किसान के पूरे खेत की जमीन को नापा।",
+          "translation": "The revenue clerk took a measuring tape and measured the farmer's entire field land.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम कमरे की चौड़ाई सही से नापते, तो यह कालीन ठीक बैठता।",
+          "translation": "If you had measured the room's width correctly, this carpet would fit well.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मकान की नींव डालने से पहले जमीन को इंजीनियरों द्वारा नापा गया।",
+          "translation": "The land was measured by engineers before laying the house's foundation.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "तोलना",
+      "partOfSpeech": "verb",
+      "translation": "to weigh (mass) / evaluate / ponder (words: सोच-तोल कर बोलना)",
+      "intro": "To measure the mass/weight of an item using scales; or metaphorically to weigh one's words before speaking ('तोल-मोल कर बोलना').",
+      "usage": "Transitive verb. Takes 'ने' in perfective aspect. Idiom: 'पहले तोलो, फिर बोलो' (weigh your words before speaking).",
+      "synonyms": [
+        {
+          "word": "वजन करना",
+          "gloss": "to weigh"
+        },
+        {
+          "word": "परखना",
+          "gloss": "to assess / evaluate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सब्जी विक्रेता ने तराजू पर एक किलो ताजे टमाटर तोले।",
+          "translation": "The vegetable vendor weighed one kilogram of fresh tomatoes on the scales.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समझदार व्यक्ति हमेशा सभा में अपने शब्दों को तोलकर बोलता है।",
+          "translation": "A sensible person always speaks weighing his words in a gathering.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह सोने के आभूषण को डिजिटल कांटे पर तोलता, तो सही वजन पता चलता।",
+          "translation": "If he weighed the gold ornament on digital scales, the exact weight would be known.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हवाई अड्डे पर यात्रियों के सामान को चेक-इन काउंटर पर तोला जाता है।",
+          "translation": "Passengers' luggage is weighed at the check-in counter at the airport.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पहाड़",
+      "partOfSpeech": "noun",
+      "translation": "mountain / hill / huge rock / uphill task (metaphor)",
+      "intro": "A large natural elevation of the earth's surface rising abruptly from the surrounding level; or metaphorically a huge burden ('मुसीबतों का पहाड़').",
+      "usage": "Masculine noun (der पहाड़). Plural direct: पहाड़, oblique: पहाड़ों. Idiom: 'पहाड़ टूटना' (a calamity befalls), 'राई का पहाड़ बनाना' (make a mountain out of a molehill).",
+      "synonyms": [
+        {
+          "word": "पर्वत",
+          "gloss": "mountain (Sanskritized)"
+        },
+        {
+          "word": "गिरि",
+          "gloss": "mountain / hill"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हिमालय के ऊंचे पहाड़ साल भर सफेद बर्फ की चादर से ढके रहते हैं।",
+          "translation": "The high mountains of the Himalayas remain covered with a blanket of white snow all year round.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पिता की आकस्मिक मृत्यु के बाद परिवार पर दुखों का पहाड़ टूट पड़ा।",
+          "translation": "After the father's sudden death, a mountain of grief befell the family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम उस ऊंचे पहाड़ की चोटी पर चढ़ जाते, तो पूरा शहर दिखाई देता।",
+          "translation": "If we climbed to the summit of that high mountain, the entire city would be visible.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़क बनाने के लिए विशाल पहाड़ों को बारूद से काटा जाता है।",
+          "translation": "Vast mountains are cut with explosives to build roads.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "नदी",
+      "partOfSpeech": "noun",
+      "translation": "river / stream",
+      "intro": "A natural flowing watercourse, usually freshwater, flowing toward an ocean, lake, or another river (गंगा नदी).",
+      "usage": "Feminine noun. Singular: नदी, plural direct: नदियां, oblique: नदियों. Highly revered in Indian culture (पवित्र नदियां).",
+      "synonyms": [
+        {
+          "word": "सरिता",
+          "gloss": "river (poetic)"
+        },
+        {
+          "word": "जलधारा",
+          "gloss": "stream / watercourse"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गंगा भारत की सबसे पवित्र और लंबी नदी मानी जाती है।",
+          "translation": "Ganga is considered the holiest and longest river of India.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बरसात के मौसम में तेज बहाव के कारण नदी उफान पर आ गई।",
+          "translation": "Due to heavy current in the rainy season, the river overflowed its banks.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इस स्वच्छ नदी का पानी न सूखता, तो गांव वालों को पीने के पानी का संकट न होता।",
+          "translation": "If this clean river's water had not dried up, villagers would not face a drinking water crisis.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शहरों का गंदा पानी साफ किए बिना नदियों में नहीं बहाया जाना चाहिए।",
+          "translation": "City wastewater should not be discharged into rivers without purification.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "झील",
+      "partOfSpeech": "noun",
+      "translation": "lake / lagoon",
+      "intro": "A large body of water surrounded by land (डल झील, नैनीताल झील).",
+      "usage": "Feminine noun. Singular: झील, plural direct: झीलें, oblique: झीलों.",
+      "synonyms": [
+        {
+          "word": "सरोवर",
+          "gloss": "lake / pond (formal)"
+        },
+        {
+          "word": "तालाब",
+          "gloss": "pond / pool"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "श्रीनगर की प्रसिद्ध डल झील में तैरते हुए शिकारे पर्यटकों को बहुत लुभाते हैं।",
+          "translation": "The floating shikaras in Srinagar's famous Dal Lake attract tourists immensely.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पहाड़ों के बीच स्थित यह शांत झील प्रवासी पक्षियों का प्रमुख बसेरा है।",
+          "translation": "This quiet lake situated among mountains is a major haven for migratory birds.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि झील का पानी इतना ठंडा न होता, तो हम उसमें तैरने का आनंद लेते।",
+          "translation": "If the lake water were not so cold, we would enjoy swimming in it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्रदूषण को रोकने के लिए स्थानीय झील की नियमित सफाई की जाती है।",
+          "translation": "Regular cleaning of the local lake is carried out to prevent pollution.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "समुद्र",
+      "partOfSpeech": "noun",
+      "translation": "sea / ocean / deep waters",
+      "intro": "The continuous body of salt water that covers most of the Earth's surface (हिंद महासागर, अरब सागर).",
+      "usage": "Masculine noun. Direct plural: समुद्र, oblique plural: समुद्रों. Direct synonym: सागर.",
+      "synonyms": [
+        {
+          "word": "सागर",
+          "gloss": "sea / ocean"
+        },
+        {
+          "word": "सिंधु",
+          "gloss": "ocean / Indus"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शाम के समय समुद्र की लहरें तट की सुनहरी रेत से टकराती हैं।",
+          "translation": "In the evening the sea waves crash against the golden sand of the shore.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मछुआरों की नावें सुबह सवेरे गहरे समुद्र में मछली पकड़ने निकलती हैं।",
+          "translation": "Fishermen's boats depart early in the morning into the deep sea to catch fish.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समुद्र में तूफान न आता, तो विशाल जहाज सुरक्षित बंदरगाह पहुंच जाता।",
+          "translation": "If a storm had not arisen in the sea, the huge ship would have reached the port safely.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "समुद्र के भीतर खनिज और तेल के विशाल भंडारों की खोज की जाती है।",
+          "translation": "Vast reserves of minerals and oil are explored under the sea.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "जंगल",
+      "partOfSpeech": "noun",
+      "translation": "forest / jungle / wilderness / woods",
+      "intro": "An area covered with dense trees, wild flora, and fauna. Sanskrit origin (जाङ्गल).",
+      "usage": "Masculine noun. Direct plural: जंगल, oblique: जंगलों. Collocation: 'जंगल का कानून' (law of the jungle).",
+      "synonyms": [
+        {
+          "word": "वन",
+          "gloss": "forest / woods"
+        },
+        {
+          "word": "अरण्य",
+          "gloss": "wilderness"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मध्य प्रदेश के घने जंगलों में बंगाल टाइगर और तेंदुए विचरण करते हैं।",
+          "translation": "Bengal tigers and leopards roam in the dense forests of Madhya Pradesh.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रात के सन्नाटे में जंगल के भीतर से जंगली जानवरों की डरावनी आवाजें आ रही थीं।",
+          "translation": "In the silence of the night scary sounds of wild animals were coming from inside the forest.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मानव जंगलों की अंधाधुंध कटाई बंद कर दे, तो वन्यजीव सुरक्षित रहेंगे।",
+          "translation": "If humans stopped indiscriminate deforestation, wildlife would remain safe.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पर्यावरण संरक्षण के लिए सरकार द्वारा नए जंगल लगाए जा रहे हैं।",
+          "translation": "New forests are being planted by the government for environmental conservation.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "पत्ता",
+      "partOfSpeech": "noun",
+      "translation": "leaf (tree) / playing card (ताश का पत्ता) / hint / address (spelled पता)",
+      "intro": "A flat green blade of a plant (पेड़ का पत्ता); or a playing card (ताश का पत्ता). Distinct from पता (address).",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: पत्ते, oblique: पत्तों. Idiom: 'पत्ता भी न हिलना' (not a leaf stirs / utter silence).",
+      "synonyms": [
+        {
+          "word": "पर्ण",
+          "gloss": "leaf (Sanskritized)"
+        },
+        {
+          "word": "पात",
+          "gloss": "leaf (poetic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पतझड़ के मौसम में सूखे पीले पत्ते पेड़ों से टूटकर जमीन पर बिखर जाते हैं।",
+          "translation": "In the autumn season dry yellow leaves break from trees and scatter on the ground.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हवा इतनी शांत थी कि बगीचे में एक पत्ता भी नहीं हिल रहा था।",
+          "translation": "The air was so still that not even a single leaf was stirring in the garden.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नीम के हरे पत्ते पानी में उबाले जाएं, तो वे त्वचा के लिए लाभकारी होते हैं।",
+          "translation": "If green neem leaves were boiled in water, they would be beneficial for the skin.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पूजा के लिए बरगद और आम के पत्ते तोड़े जाते हैं।",
+          "translation": "Banyan and mango leaves are plucked for worship.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "घास",
+      "partOfSpeech": "noun",
+      "translation": "grass / lawn / fodder / weed",
+      "intro": "Vegetation consisting of typically short plants with long narrow leaves; fodder for cattle.",
+      "usage": "Feminine noun. Singular: घास, plural direct: घासें (rarely used, collective), oblique: घासों. Idiom: 'घास छीलना' (waste time idling).",
+      "synonyms": [
+        {
+          "word": "तृण",
+          "gloss": "grass / straw"
+        },
+        {
+          "word": "दूब",
+          "gloss": "sacred Bermuda grass"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सुबह की ठंडी ओस हरी घास की पत्तियों पर मोतियों की तरह चमक रही थी।",
+          "translation": "Morning cool dew was shining like pearls on the blades of green grass.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गाय और बकरियां खुली चरागाह में हरी घास शांति से चर रही हैं।",
+          "translation": "Cows and goats are grazing peacefully on green grass in the open pasture.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि बगीचे की घास समय पर काटी जाती, तो लॉन बहुत सुंदर दिखता।",
+          "translation": "If the garden grass had been trimmed on time, the lawn would look very beautiful.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सर्दियों में पशुओं के चारे के लिए सूखी घास काटी और जमा की जाती है।",
+          "translation": "Dry grass is cut and collected in winter for cattle fodder.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "आकाश",
+      "partOfSpeech": "noun",
+      "translation": "sky / firmament / space / heavens",
+      "intro": "The vault of heaven over the earth; sky or celestial space. Sanskrit borrowing.",
+      "usage": "Masculine noun. No plural in normal usage. Collocation: 'नीला आकाश' (blue sky). Synonyms: आसमान, गगन.",
+      "synonyms": [
+        {
+          "word": "आसमान",
+          "gloss": "sky (Persian loan)"
+        },
+        {
+          "word": "गगन",
+          "gloss": "sky / firmament"
+        },
+        {
+          "word": "नभ",
+          "gloss": "sky / celestial vault"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रात के समय साफ आकाश में अनगिनत तारे जगमगाते हुए दिखाई देते हैं।",
+          "translation": "At night countless stars appear glittering in the clear sky.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "काले बादलों के घिरने से नीला आकाश पूरी तरह अंधेरे में छिप गया।",
+          "translation": "With black clouds gathering, the blue sky was completely hidden in darkness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आकाश में बादल न होते, तो हम खगोलीय दूरबीन से चंद्रमा को साफ देखते।",
+          "translation": "If there were no clouds in the sky, we would view the moon clearly with the telescope.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मौसम के पूर्वानुमान के लिए आकाश में उपग्रह छोड़े जाते हैं।",
+          "translation": "Satellites are launched into space/sky for weather forecasting.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "तारा",
+      "partOfSpeech": "noun",
+      "translation": "star (celestial / cinema: फिल्म स्टार) / pupil of the eye (आंख का तारा)",
+      "intro": "A luminous celestial point in the night sky; a celebrated performer (सिनेमा का तारा); or apple of one's eye ('आंख का तारा').",
+      "usage": "Masculine marked noun (-आ). Plural direct: तारे, oblique: तारों. Idiom: 'आंख का तारा' (the apple of one's eye / dearest darling), 'दिन में तारे दिखाई देना'.",
+      "synonyms": [
+        {
+          "word": "नक्षत्र",
+          "gloss": "constellation / star"
+        },
+        {
+          "word": "सितारा",
+          "gloss": "star (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ध्रुव तारा उत्तर दिशा में हमेशा स्थिर और सबसे चमकदार दिखाई देता है।",
+          "translation": "The Pole Star always appears steady and brightest in the northern direction.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इकलौता बेटा अपनी बूढ़ी मां की आंखों का सबसे प्यारा तारा है।",
+          "translation": "The only son is the most beloved apple of his elderly mother's eyes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रात में घना कोहरा न होता, तो हमें टूटता हुआ तारा साफ दिखता।",
+          "translation": "If there were no dense fog at night, we would clearly see the shooting star.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अंतरिक्ष विज्ञान में नए तारों और आकाशगंगाओं की खोज की जाती है।",
+          "translation": "New stars and galaxies are discovered in astrophysics.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "रोशनी",
+      "partOfSpeech": "noun",
+      "translation": "light / illumination / brightness / eyesight (आंखों की रोशनी)",
+      "intro": "Natural or artificial illumination that makes things visible; or visual acuity ('आंखों की रोशनी'). Persian origin.",
+      "usage": "Feminine noun. Singular: रोशनी, plural: रोशनियां (illuminations). Opposites: अंधेरा (#430).",
+      "synonyms": [
+        {
+          "word": "प्रकाश",
+          "gloss": "light (Sanskritized)"
+        },
+        {
+          "word": "उजाला",
+          "gloss": "light / daylight"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सवेरा होते ही सूरज की पहली सुनहरी रोशनी कमरे में बिखर गई।",
+          "translation": "As dawn broke, the first golden light of the sun scattered into the room.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दीपावली के पावन पर्व पर पूरे शहर को रंग-बिरंगी रोशनी से सजाया गया।",
+          "translation": "On the auspicious festival of Diwali, the entire city was decorated with colorful lights.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कमरे में पर्याप्त रोशनी होती, तो पढ़ाई करते समय आंखों पर जोर न पड़ता।",
+          "translation": "If there were adequate light in the room, eyes would not be strained while studying.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बिजली चले जाने पर आपातकालीन रोशनी जलाई जाती है।",
+          "translation": "Emergency lights are switched on when power goes out.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "अंधेरा",
+      "partOfSpeech": "noun",
+      "translation": "darkness / gloom / obscurity / blackout",
+      "intro": "The partial or total absence of light. Antonym of रोशनी (#429) and उजाला.",
+      "usage": "Masculine noun (-आ). Plural oblique: अंधेरे. Collocations: 'घना अंधेरा' (dense darkness). Idiom: 'दीये तले अंधेरा' (darkness under the lamp).",
+      "synonyms": [
+        {
+          "word": "अंधकार",
+          "gloss": "darkness (formal)"
+        },
+        {
+          "word": "स्याही",
+          "gloss": "blackness / gloom"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सूरज डूबते ही पहाड़ी घाटी में अचानक गहरा अंधेरा छा गया।",
+          "translation": "As soon as the sun set, deep darkness suddenly enveloped the mountain valley.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अचानक बिजली गुल होने से पूरा अस्पताल अंधेरे में डूब गया।",
+          "translation": "With sudden power failure the entire hospital plunged into darkness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमारे पास टॉर्च होती, तो हम इस घने अंधेरे में रास्ता न भटकते।",
+          "translation": "If we had a flashlight, we would not lose our way in this dense darkness.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ज्ञान के प्रकाश द्वारा समाज से अज्ञानता का अंधेरा मिटाया जाता है।",
+          "translation": "The darkness of ignorance is dispelled from society through the light of knowledge.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मौसम",
+      "partOfSpeech": "noun",
+      "translation": "weather / season / climate / time",
+      "intro": "The state of the atmosphere at a place and time regarding heat, cloudiness, rain; season. Arabic loanword (mawsim).",
+      "usage": "Masculine noun. Plural direct: मौसम, oblique: मौसमों. Collocations: 'सुहावना मौसम' (pleasant weather), 'खराब मौसम'.",
+      "synonyms": [
+        {
+          "word": "ऋतु",
+          "gloss": "season (#334)"
+        },
+        {
+          "word": "जलवायु",
+          "gloss": "climate"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हल्की बारिश के बाद शाम का मौसम बहुत ही सुहावना और ठंडा हो गया।",
+          "translation": "After mild rain, the evening weather became very pleasant and cool.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मौसम विभाग ने तटीय इलाकों में अगले दो दिनों के लिए भारी तूफान की चेतावनी दी है।",
+          "translation": "The meteorological department has warned of severe storm in coastal areas for the next two days.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कल मौसम अच्छा रहे, तो हम परिवार सहित पिकनिक मनाने बाहर जाएं।",
+          "translation": "If the weather remains good tomorrow, we would go out on a picnic with family.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विमानों की उड़ानें खराब मौसम के कारण अक्सर रद्द की जाती हैं।",
+          "translation": "Flights of airplanes are often cancelled due to bad weather.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "बारिश",
+      "partOfSpeech": "noun",
+      "translation": "rain / rainfall / shower",
+      "intro": "Moisture condensed from the atmosphere that falls visibly in separate drops; rainfall. Persian loanword (bārish).",
+      "usage": "Feminine noun. Singular: बारिश, plural: बारिशें (rare, poetic). Near-synonym: वर्षा (formal Sanskritized).",
+      "synonyms": [
+        {
+          "word": "वर्षा",
+          "gloss": "rain (formal)"
+        },
+        {
+          "word": "बरसात",
+          "gloss": "rainy season / rain"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लगातार तीन दिन से हो रही मूसलाधार बारिश के कारण सड़कों पर पानी भर गया।",
+          "translation": "Due to torrential rain falling continuously for three days, roads were flooded with water.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "गर्मी से झुलस रहे किसानों के लिए पहली मानसूनी बारिश वरदान साबित हुई।",
+          "translation": "The first monsoon rain proved to be a boon for farmers scorching in the heat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इस साल समय पर अच्छी बारिश होती, तो धान की फसल बहुत बढ़िया होती।",
+          "translation": "If good rain had occurred on time this year, the paddy crop would be great.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "छतों पर गिरने वाले बारिश के पानी को वाटर हार्वेस्टिंग द्वारा संचित किया जाता है।",
+          "translation": "Rainwater falling on roofs is conserved through water harvesting.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बादल",
+      "partOfSpeech": "noun",
+      "translation": "cloud / overcast sky",
+      "intro": "A visible mass of condensed watery vapor floating in the atmosphere.",
+      "usage": "Masculine noun. Direct plural: बादल, oblique: बादलों. Collocation: 'काले बादल' (dark rainclouds).",
+      "synonyms": [
+        {
+          "word": "मेघ",
+          "gloss": "cloud (formal)"
+        },
+        {
+          "word": "घटा",
+          "gloss": "dark gathering clouds"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "आसमान में काले घने बादल उमड़ते ही तेज ठंडी हवाएं चलने लगीं।",
+          "translation": "As dark dense clouds surged in the sky, brisk cool winds began to blow.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हवाई जहाज बादलों के ऊपर पहुंचकर बिल्कुल शांत वातावरण में उड़ता है।",
+          "translation": "Reaching above the clouds, the airplane flies in a completely serene environment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आसमान में इतने घने बादल न छाए होते, तो हम सूर्य ग्रहण देख पाते।",
+          "translation": "If such thick clouds had not covered the sky, we would be able to view the solar eclipse.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कृत्रिम बारिश कराने के लिए रासायनिक छिड़काव बादलों पर किया जाता है।",
+          "translation": "Chemical spraying is done on clouds to induce artificial rain.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "धूप",
+      "partOfSpeech": "noun",
+      "translation": "sunshine / sunlight / incense (पूजा की धूप)",
+      "intro": "Direct sunlight and heat from the sun; or fragrant incense burned in rituals (पूजा की धूप).",
+      "usage": "Feminine noun. Uncountable. Collocations: 'कड़ी धूप' (scorching sun), 'धूप सेकना' (bask in the sun).",
+      "synonyms": [
+        {
+          "word": "घाम",
+          "gloss": "sunlight / sunshine"
+        },
+        {
+          "word": "सौर प्रकाश",
+          "gloss": "solar light"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सर्दियों की सुबह में बुजुर्ग और बच्चे छत पर बैठकर गुनगुनी धूप सेकते हैं।",
+          "translation": "In winter mornings the elderly and children sit on the terrace basking in mild sunshine.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दोपहर की चिलचिलाती धूप में बाहर निकलने से लू लगने का खतरा रहता है।",
+          "translation": "Going out in the scorching noon sun carries the danger of heatstroke.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि थोड़ी देर और धूप निकलती, तो हमारे गीले कपड़े जल्दी सूख जाते।",
+          "translation": "If sunshine appeared a little longer, our wet clothes would dry quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सौर ऊर्जा पैनलों द्वारा सीधी धूप को बिजली में बदला जाता है।",
+          "translation": "Direct sunlight is converted into electricity by solar panels.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "मिट्टी",
+      "partOfSpeech": "noun",
+      "translation": "soil / earth / clay / dust / corpse (final rites: मिट्टी देना)",
+      "intro": "The upper layer of earth in which plants grow; clay or mud. Idiom: 'मिट्टी में मिलाना' (ruin / destroy).",
+      "usage": "Feminine noun. Singular: मिट्टी, plural: मिट्टियां (types of soils), oblique: मिट्टियों. Collocation: 'उपजाऊ मिट्टी' (fertile soil).",
+      "synonyms": [
+        {
+          "word": "मृदा",
+          "gloss": "soil (technical/formal)"
+        },
+        {
+          "word": "माटी",
+          "gloss": "earth / soil (poetic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गंगा के मैदानों की जलोढ़ मिट्टी कृषि के लिए विश्व में सबसे अधिक उपजाऊ मानी जाती है।",
+          "translation": "Alluvial soil of the Gangetic plains is considered the most fertile in the world for agriculture.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कुम्हार ने चाक पर गीली मिट्टी से सुंदर दीपक और घड़े तैयार किए।",
+          "translation": "The potter prepared beautiful lamps and pitchers from wet clay on the wheel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि खेत की मिट्टी में जैविक खाद मिलाई जाए, तो पैदावार दोगुनी हो जाएगी।",
+          "translation": "If organic manure were mixed into the field soil, yield would double.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पौधों के पोषण के लिए प्रयोगशाला में मिट्टी की गुणवत्ता की जांच की जाती है।",
+          "translation": "Quality of soil is tested in laboratories for plant nutrition.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "पत्थर",
+      "partOfSpeech": "noun",
+      "translation": "stone / rock / pebble / hailstone / hard-hearted person (पत्थरदिल)",
+      "intro": "Hard solid non-metallic mineral matter; stone; or figuratively cold-heartedness ('पत्थर दिल').",
+      "usage": "Masculine noun. Direct plural: पत्थर, oblique: पत्थरों. Idiom: 'पत्थर की लकीर' (etched in stone / irrevocable).",
+      "synonyms": [
+        {
+          "word": "पाषाण",
+          "gloss": "stone (formal/Sanskrit)"
+        },
+        {
+          "word": "शिला",
+          "gloss": "rock slab / stone"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ताजमहल का निर्माण राजस्थान के सफेद संगमरमर के पत्थरों से किया गया है।",
+          "translation": "The Taj Mahal was constructed from white marble stones of Rajasthan.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शरारती बच्चों ने आम तोड़ने के लिए पेड़ की डालियों पर पत्थर फेंके।",
+          "translation": "Mischievous children threw stones at tree branches to pluck mangoes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह इतना पत्थरदिल न होता, तो जरूरतमंद अनाथ की मदद कर देता।",
+          "translation": "If he were not so stone-hearted, he would help the needy orphan.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मूर्तिकारों द्वारा कठोर पत्थरों को तराश कर भव्य मूर्तियां बनाई जाती हैं।",
+          "translation": "Magnificent statues are sculpted by sculptors carving hard stones.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "रेत",
+      "partOfSpeech": "noun",
+      "translation": "sand / gravel / seashore grit",
+      "intro": "A loose granular substance resulting from erosion of siliceous rocks on beaches and deserts.",
+      "usage": "Feminine noun. Uncountable generally; plural oblique: रेतों. Collocation: 'रेगिस्तान की रेत' (desert sand).",
+      "synonyms": [
+        {
+          "word": "बालू",
+          "gloss": "sand"
+        },
+        {
+          "word": "सिकता",
+          "gloss": "sand (archaic)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "राजस्थान के थार रेगिस्तान में दूर-दूर तक केवल सुनहरी रेत के टीले नजर आते हैं।",
+          "translation": "In the Thar desert of Rajasthan, only golden sand dunes are visible far and wide.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समुद्र किनारे बच्चे बाल्टी और फावड़े से रेत के सुंदर महल बना रहे थे।",
+          "translation": "On the seashore children were making beautiful sandcastles with bucket and spade.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रेगिस्तान की तपती रेत पर पानी की बूंदें गिरतीं, तो वे तुरंत भाप बन जातीं।",
+          "translation": "If water droplets fell on the scalding desert sand, they would turn to steam instantly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मकान के निर्माण कार्य में सीमेंट के साथ महीन रेत को मिलाया जाता है।",
+          "translation": "Fine sand is mixed with cement in house construction work.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "कस्बा",
+      "partOfSpeech": "noun",
+      "translation": "town / small township / settlement (larger than village, smaller than city)",
+      "intro": "A human settlement larger than a village but smaller than a city; town. Arabic origin (qasbah).",
+      "usage": "Masculine marked noun (-आ). Plural direct: कस्बे, oblique: कस्बों.",
+      "synonyms": [
+        {
+          "word": "नगर",
+          "gloss": "town / city"
+        },
+        {
+          "word": "बस्ती",
+          "gloss": "settlement / colony"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "यह शांत कस्बा चारों ओर से घने जंगलों और हरी-भरी पहाड़ियों से घिरा हुआ है।",
+          "translation": "This quiet town is surrounded on all sides by dense forests and lush green hills.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आसपास के गांवों के किसान अपनी उपज बेचने के लिए हर रविवार को कस्बे के बाजार में आते हैं।",
+          "translation": "Farmers from neighboring villages come to the town market every Sunday to sell their produce.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इस कस्बे में एक अच्छा कॉलेज खुल जाए, तो युवाओं को पढ़ाई के लिए शहर न जाना पड़े।",
+          "translation": "If a good college opened in this town, youth would not have to go to the city to study.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विकास योजना के अंतर्गत सभी छोटे कस्बों को राष्ट्रीय राजमार्ग से जोड़ा गया है।",
+          "translation": "All small towns have been connected to national highways under the development plan.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "पन्ना",
+      "partOfSpeech": "noun",
+      "translation": "page / leaf of a book / emerald (gemstone: हरा पन्ना)",
+      "intro": "A page or leaf of paper in a book or notebook; or the green gemstone emerald (पन्ना रत्न).",
+      "usage": "Masculine marked noun (-आ). Plural direct: पन्ने, oblique: पन्नों. Synonyms: पृष्ठ.",
+      "synonyms": [
+        {
+          "word": "पृष्ठ",
+          "gloss": "page (formal Sanskritized)"
+        },
+        {
+          "word": "वरक",
+          "gloss": "leaf / foil"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उपन्यासकार ने अपने जीवन की यादों को डायरी के पन्नों पर दर्ज किया।",
+          "translation": "The novelist recorded memories of his life on the pages of his diary.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "राजा के राजमुकुट में हरे रंग का एक बेशकीमती और चमकीला पन्ना जड़ा हुआ था।",
+          "translation": "A priceless and glittering green emerald was studded in the king's crown.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम इस किताब के महत्वपूर्ण पन्ने ध्यान से पढ़ते, तो परीक्षा में सफल होते।",
+          "translation": "If you had read important pages of this book attentively, you would succeed in the exam.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इतिहास के भूले-बिसरे पन्नों को पुरातत्वविदों द्वारा फिर से उजागर किया गया।",
+          "translation": "Forgotten pages of history were brought to light again by archaeologists.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अक्षर",
+      "partOfSpeech": "noun",
+      "translation": "letter / character / syllable / alphabet / indestructible (etymological)",
+      "intro": "A character representing one or more of the sounds used in speech; an alphabetic letter (देवनागरी अक्षर). Sanskrit borrowing (अ-क्षर = imperishable).",
+      "usage": "Masculine noun. Direct plural: अक्षर, oblique: अक्षरों. Idiom: 'काला अक्षर भैंस बराबर' (completely illiterate).",
+      "synonyms": [
+        {
+          "word": "वर्ण",
+          "gloss": "letter / phoneme"
+        },
+        {
+          "word": "हरफ़",
+          "gloss": "letter (Urdu/Persian)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कक्षा एक के छोटे बच्चे अपनी स्लेट पर चाक से हिंदी के अक्षर लिखना सीख रहे हैं।",
+          "translation": "Small children of class one are learning to write Hindi letters on their slates with chalk.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "प्राचीन पत्थरों पर खुदे हुए ब्राह्मी लिपि के अक्षरों को पढ़ना बहुत कठिन कार्य है।",
+          "translation": "Reading letters of the Brahmi script carved on ancient stones is a very difficult task.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि विद्यार्थी हर अक्षर को सुंदर और स्पष्ट लिखता, तो उसकी लिखावट की प्रशंसा होती।",
+          "translation": "If the student wrote every letter beautifully and clearly, his handwriting would be praised.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "किताब के मुख्य शीर्षक को सुनहरे अक्षरों में उभारा गया है।",
+          "translation": "The main title of the book has been embossed in golden letters.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कहानी",
+      "partOfSpeech": "noun",
+      "translation": "story / tale / narrative / fiction / fable",
+      "intro": "An account of imaginary or real people and events told for entertainment; short story (लघुकथा).",
+      "usage": "Feminine noun. Singular: कहानी, plural direct: कहानियां, oblique: कहानियों. Literature: कथा, किस्सा.",
+      "synonyms": [
+        {
+          "word": "कथा",
+          "gloss": "tale / narrative"
+        },
+        {
+          "word": "किस्सा",
+          "gloss": "anecdote / story (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रात को सोते समय दादी मां बच्चों को परियों और राजकुमारों की रोचक कहानियां सुनाती हैं।",
+          "translation": "At bedtime grandmother narrates interesting stories of fairies and princes to children.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "मुंशी प्रेमचंद की प्रसिद्ध कहानियां भारतीय समाज के यथार्थ को गहराई से दर्शाती हैं।",
+          "translation": "Munshi Premchand's famous stories depict the reality of Indian society deeply.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि लेखक कहानी का अंत सुखद रखता, तो पाठकों को अधिक संतोष मिलता।",
+          "translation": "If the author kept a happy ending to the story, readers would receive more satisfaction.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्रसिद्ध ऐतिहासिक घटनाओं पर आधारित कहानियां फिल्मों में फिल्माई जाती हैं।",
+          "translation": "Stories based on famous historical events are filmed in cinema.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "गीत",
+      "partOfSpeech": "noun",
+      "translation": "song / lyric / hymn (भगवद्गीता)",
+      "intro": "A short poem or other set of words set to music or meant to be sung. Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: गीत, oblique: गीतों. Collocations: 'देशभक्ति गीत' (patriotic song), 'लोकगीत' (folksong).",
+      "synonyms": [
+        {
+          "word": "गाना",
+          "gloss": "song (#205)"
+        },
+        {
+          "word": "तराना",
+          "gloss": "melody / song"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "स्वतंत्रता दिवस के अवसर पर स्कूली बच्चों ने देशभक्ति का सुरीला गीत गाया।",
+          "translation": "On the occasion of Independence Day, school children sang a melodious patriotic song.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शादी समारोह में महिलाओं ने पारंपरिक मांगलिक लोकगीत गाकर खुशी मनाई।",
+          "translation": "At the wedding ceremony women celebrated joyfully by singing traditional auspicious folksongs.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गायक यह भावपूर्ण गीत गाता, तो श्रोता भावविभोर हो जाते।",
+          "translation": "If the singer sang this soulful song, the listeners would be deeply moved.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "फिल्मों के लोकप्रिय गीत संगीत स्टूडियो में आधुनिक वाद्ययंत्रों के साथ रिकॉर्ड किए जाते हैं।",
+          "translation": "Popular film songs are recorded in music studios with modern musical instruments.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "आशा",
+      "partOfSpeech": "noun",
+      "translation": "hope / expectation / optimism / aspiration",
+      "intro": "A feeling of expectation and desire for a certain thing to happen; hope. Antonym: निराशा (despair).",
+      "usage": "Feminine noun. Singular: आशा, plural: आशाएं, oblique: आशाओं. Collocations: 'आशा की किरण' (ray of hope).",
+      "synonyms": [
+        {
+          "word": "उम्मीद",
+          "gloss": "hope / expectation (Persian)"
+        },
+        {
+          "word": "भरोसा",
+          "gloss": "trust / hope"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "घोर निराशा के अंधकार में भी मनुष्य को आशा की एक किरण दिखाई देती है।",
+          "translation": "Even in the darkness of utter despair, human beings see a ray of hope.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "माता-पिता को अपने होनहार बच्चों से भविष्य में बड़ी सफलता की आशा होती है।",
+          "translation": "Parents have hope of great success in the future from their promising children.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मरीज में जीने की दृढ़ आशा होती, तो वह बीमारी को जल्दी हरा देता।",
+          "translation": "If the patient had firm hope of living, he would defeat the illness quickly.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सकारात्मक बदलाव की आशा सामाजिक कार्यकर्ताओं द्वारा जगाई जाती है।",
+          "translation": "Hope for positive change is awakened by social workers.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "डर",
+      "partOfSpeech": "noun",
+      "translation": "fear / dread / terror / fright / apprehension",
+      "intro": "An unpleasant emotion caused by the belief that someone or something is dangerous, likely to cause pain, or a threat.",
+      "usage": "Masculine noun. Uncountable generally; oblique: डरों. Collocation: 'डर लगना' (to feel afraid). Related to हिम्मत (#445).",
+      "synonyms": [
+        {
+          "word": "भय",
+          "gloss": "fear (formal Sanskritized)"
+        },
+        {
+          "word": "खौफ",
+          "gloss": "dread / fear (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अचानक सामने विशाल सांप को देखकर छोटा बच्चा डर से कांपने लगा।",
+          "translation": "Seeing a huge snake suddenly in front, the small child began to tremble with fear.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच्चे और ईमानदार इंसान को किसी भी झूठे आरोप से कोई डर नहीं होता।",
+          "translation": "A true and honest human has no fear whatsoever of any false allegation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारे मन में असफलता का डर न होता, तो तुम यह जोखिम जरूर उठाते।",
+          "translation": "If there were no fear of failure in your mind, you would certainly take this risk.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "काल्पनिक डरों को मनोवैज्ञानिक परामर्श द्वारा दूर किया जाता है।",
+          "translation": "Imaginary fears are dispelled through psychological counseling.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हिम्मत",
+      "partOfSpeech": "noun",
+      "translation": "courage / bravery / grit / boldness / daring",
+      "intro": "The ability to do something that frightens one; bravery; pluck. Arabic origin (himmah).",
+      "usage": "Feminine noun. Uncountable. Collocations: 'हिम्मत जुटाना' (gather courage), 'हिम्मत हारना' (lose heart). Opposites: डर (#444).",
+      "synonyms": [
+        {
+          "word": "साहस",
+          "gloss": "courage / boldness (formal)"
+        },
+        {
+          "word": "बहादुरी",
+          "gloss": "bravery"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सैनिक ने असाधारण हिम्मत और पराक्रम दिखाकर घायल साथी को युद्धक्षेत्र से निकाला।",
+          "translation": "Showing extraordinary courage and valor, the soldier extracted his injured comrade from the battlefield.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कठिन से कठिन परिस्थिति में भी हमें कभी अपनी हिम्मत नहीं हारनी चाहिए।",
+          "translation": "Even in the most difficult circumstances, we must never lose our courage.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम थोड़ी सी हिम्मत दिखाते, तो अन्यायी अधिकारी के खिलाफ आवाज उठा सकते थे।",
+          "translation": "If you had shown a little courage, you could have raised your voice against the unjust official.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विपत्ति के समय धैर्य और हिम्मत की परीक्षा ली जाती है।",
+          "translation": "Patience and courage are put to the test in times of adversity.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "गुस्सा",
+      "partOfSpeech": "noun",
+      "translation": "anger / rage / wrath / fury / temper",
+      "intro": "A strong feeling of annoyance, displeasure, or hostility. Arabic origin (ghussah).",
+      "usage": "Masculine marked noun ending in -आ. Oblique: गुस्से. Collocations: 'गुस्सा आना' (to get angry), 'गुस्सा शांत करना' (to calm anger).",
+      "synonyms": [
+        {
+          "word": "क्रोध",
+          "gloss": "anger / wrath (#229)"
+        },
+        {
+          "word": "नाराजगी",
+          "gloss": "displeasure / annoyance"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गुस्से में आकर इंसान अक्सर अनुचित शब्द बोल देता है जिनका बाद में पछतावा होता है।",
+          "translation": "In anger, a person often utters improper words which are regretted later.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पिताजी ने बच्चे की गलती पर गुस्सा करने के बजाय उसे प्यार से समझाया।",
+          "translation": "Instead of getting angry at the child's mistake, the father explained lovingly to him.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपने बेकाबू गुस्से पर नियंत्रण रखते, तो यह झगड़ा इतना बड़ा न होता।",
+          "translation": "If you kept control over your runaway anger, this fight would not be so big.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "मनोवैज्ञानिकों द्वारा तनाव और गुस्से को ध्यान द्वारा शांत किया जाता है।",
+          "translation": "Stress and anger are pacified through meditation by psychologists.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "दिक्कत",
+      "partOfSpeech": "noun",
+      "translation": "difficulty / trouble / hitch / problem / inconvenience",
+      "intro": "A state or condition that is hard to deal with; inconvenience. Arabic loanword (diqqat). Direct synonym to समस्या (#448).",
+      "usage": "Feminine noun. Singular: दिक्कत, plural direct: दिक्कतें, oblique: दिक्कतों. Collocation: 'दिक्कत पेश आना' (encounter trouble).",
+      "synonyms": [
+        {
+          "word": "समस्या",
+          "gloss": "problem / difficulty (#448)"
+        },
+        {
+          "word": "मुसीबत",
+          "gloss": "trouble / adversity"
+        },
+        {
+          "word": "कठिनाई",
+          "gloss": "hardship"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अचानक ट्रेन रद्द हो जाने से यात्रियों को यात्रा करने में भारी दिक्कत का सामना करना पड़ा।",
+          "translation": "Due to sudden cancellation of the train, passengers had to face huge difficulty in traveling.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि आपको सॉफ्टवेयर चलाने में कोई दिक्कत हो, तो ग्राहक सेवा से संपर्क करें।",
+          "translation": "If you experience any difficulty running the software, contact customer care.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अगर वे योजना बनाकर काम शुरू करते, तो रास्ते में कोई अप्रत्याशित दिक्कत न आती।",
+          "translation": "If they had started work with a plan, no unexpected trouble would arise on the way.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तकनीकी दिक्कतों को विशेषज्ञों द्वारा तुरंत दूर किया जाता है।",
+          "translation": "Technical glitches are removed immediately by experts.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "समस्या",
+      "partOfSpeech": "noun",
+      "translation": "problem / issue / dilemma / predicament / puzzle",
+      "intro": "A matter or situation regarded as unwelcome or harmful and needing to be dealt with and overcome. Sanskrit borrowing.",
+      "usage": "Feminine noun. Singular: समस्या, plural direct: समस्याएं, oblique: समस्याओं. Direct synonym to दिक्कत (#447).",
+      "synonyms": [
+        {
+          "word": "दिक्कत",
+          "gloss": "difficulty (#447)"
+        },
+        {
+          "word": "मुश्किल",
+          "gloss": "difficulty / trouble"
+        },
+        {
+          "word": "विपत्ति",
+          "gloss": "calamity"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बढ़ता वायु प्रदूषण आज पूरे विश्व के लिए एक अत्यंत गंभीर पर्यावरणीय समस्या बन चुका है।",
+          "translation": "Growing air pollution has become an extremely serious environmental problem for the entire world today.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दोनों देशों ने सीमा विवाद की जटिल समस्या को बातचीत द्वारा सुलझाने का संकल्प लिया।",
+          "translation": "Both countries resolved to solve the complicated problem of border dispute through dialogue.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम सब मिलकर प्रयास करते, तो पानी की इस समस्या का समाधान निकल आता।",
+          "translation": "If we all made an effort together, a solution to this water problem would emerge.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "जटिल सामाजिक समस्याओं को शिक्षा और जागरूकता से हल किया जाता है।",
+          "translation": "Complex social problems are solved through education and awareness.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": " उपाय",
+      "partOfSpeech": "noun",
+      "translation": "remedy / solution / measure / resource / expedient",
+      "intro": "A method, plan, or course of action taken to achieve a purpose or solve a problem; remedy. Sanskrit borrowing.",
+      "usage": "Masculine noun. Direct plural: उपाय, oblique: उपायों. Collocations: 'रोकथाम के उपाय' (preventive measures), 'इलाज का उपाय'.",
+      "synonyms": [
+        {
+          "word": "समाधान",
+          "gloss": "solution / resolution"
+        },
+        {
+          "word": "तरीका",
+          "gloss": "method / way"
+        },
+        {
+          "word": "नुस्खा",
+          "gloss": "remedy / recipe"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "डॉक्टर ने मरीज को खांसी और जुकाम से राहत पाने के लिए घरेलू उपाय बताए।",
+          "translation": "The doctor told the patient home remedies to obtain relief from cough and cold.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सरकार ने महंगाई पर काबू पाने के लिए कई कड़े आर्थिक उपाय लागू किए हैं।",
+          "translation": "The government has implemented several strict economic measures to curb inflation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम पहले ही कोई कारगर उपाय कर लेते, तो यह आर्थिक संकट पैदा न होता।",
+          "translation": "If you had taken an effective measure earlier, this economic crisis would not arise.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ की रोकथाम के लिए बांध निर्माण जैसे ठोस उपाय किए जा रहे हैं।",
+          "translation": "Concrete measures like dam construction are being taken for flood prevention.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कारण",
+      "partOfSpeech": "noun",
+      "translation": "cause / reason / motive / factor / sake (के कारण = because of)",
+      "intro": "A person or thing that gives rise to an action, phenomenon, or condition; reason. Also used in postpositional phrase 'के कारण' (because of).",
+      "usage": "Masculine noun. Direct plural: कारण, oblique: कारणों. Postposition: 'के कारण' (due to / on account of).",
+      "synonyms": [
+        {
+          "word": "वजह",
+          "gloss": "reason / cause (Arabic loan)"
+        },
+        {
+          "word": "हेतु",
+          "gloss": "purpose / reason (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सड़क दुर्घटना का मुख्य कारण घने कोहरे में तेज गति से गाड़ी चलाना था।",
+          "translation": "The main cause of the road accident was driving at high speed in dense fog.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भारी बारिश के कारण कई ट्रेनों के आवागमन में घंटों की देरी हुई।",
+          "translation": "Due to heavy rain there was hours of delay in the movement of several trains.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमें विफलता का वास्तविक कारण पता चल जाता, तो हम गलती सुधार लेते।",
+          "translation": "If we learned the real cause of failure, we would rectify the mistake.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वैज्ञानिकों द्वारा जलवायु परिवर्तन के मुख्य कारणों की गहन जांच की जा रही है।",
+          "translation": "In-depth investigation of the main causes of climate change is being carried out by scientists.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "नतीजा",
+      "partOfSpeech": "noun",
+      "translation": "result / outcome / consequence / conclusion / verdict",
+      "intro": "A thing that is caused or produced by something else; consequence; outcome of an exam or trial. Arabic origin (natījah). Direct synonym: परिणाम.",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: नतीजे, oblique: नतीजों. Direct synonym to परिणाम.",
+      "synonyms": [
+        {
+          "word": "परिणाम",
+          "gloss": "result / consequence (Sanskritized)"
+        },
+        {
+          "word": "फल",
+          "gloss": "fruit / outcome"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वार्षिक बोर्ड परीक्षा का नतीजा कल दोपहर शिक्षा परिषद की वेबसाइट पर घोषित होगा।",
+          "translation": "The result of the annual board examination will be declared on the education board's website tomorrow afternoon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "लापरवाही से गाड़ी चलाने का नतीजा हमेशा जानलेवा दुर्घटना के रूप में सामने आता है।",
+          "translation": "The consequence of driving recklessly always emerges in the form of a fatal accident.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि टीम ने लगन से अभ्यास किया होता, तो मैच का नतीजा कुछ और ही होता।",
+          "translation": "If the team had practiced diligently, the outcome of the match would be quite different.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शोध प्रयोगों के नतीजों को वैज्ञानिक शोधपत्र में प्रकाशित किया जाता है।",
+          "translation": "Results of research experiments are published in scientific papers.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "उम्र",
+      "partOfSpeech": "noun",
+      "translation": "age / lifespan / lifetime",
+      "intro": "The length of time that a person has lived or a thing has existed; lifespan. Arabic loanword ('umr).",
+      "usage": "Feminine noun. Singular: उम्र, plural oblique: उमरों (rare). Collocations: 'उम्र भर' (all life long), 'लंबी उम्र' (long life).",
+      "synonyms": [
+        {
+          "word": "आयु",
+          "gloss": "age (formal Sanskritized)"
+        },
+        {
+          "word": "वय",
+          "gloss": "age"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अस्सी वर्ष की उम्र में भी दादा जी हर सुबह दो किलोमीटर पैदल टहलते हैं।",
+          "translation": "Even at the age of eighty years, grandfather walks two kilometers on foot every morning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सरकारी नौकरी के आवेदन के लिए न्यूनतम उम्र इक्कीस वर्ष निर्धारित की गई है।",
+          "translation": "For applying to government jobs, the minimum age has been set at twenty-one years.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कम उम्र में ही अच्छी आदतें डाली जाएं, तो पूरा जीवन संवर जाता है।",
+          "translation": "If good habits were instilled at a young age itself, one's entire life would be refined.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वृक्षों की उम्र उनके तने के भीतरी छल्लों को गिनकर आंकी जाती है।",
+          "translation": "The age of trees is estimated by counting the inner rings of their trunks.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "वजन",
+      "partOfSpeech": "noun",
+      "translation": "weight / heaviness / burden / influence (figurative: बात में वजन)",
+      "intro": "The heaviness of a person or thing; or figuratively importance/authority ('उसकी बात में वजन है'). Arabic loanword (wazn).",
+      "usage": "Masculine noun. Direct plural: वजन, oblique: वजनों. Related to तोलना (#419).",
+      "synonyms": [
+        {
+          "word": "भार",
+          "gloss": "weight / burden (formal)"
+        },
+        {
+          "word": "बोझ",
+          "gloss": "load / burden"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "नियमित व्यायाम और संतुलित आहार अपनाकर उसने अपना दस किलो वजन कम किया।",
+          "translation": "By adopting regular exercise and a balanced diet, he reduced his weight by ten kilograms.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "एक वरिष्ठ वैज्ञानिक होने के नाते उनकी हर बात में गहरा वजन होता है।",
+          "translation": "Being a senior scientist, there is deep weight (authority) in everything he says.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि संदूक का वजन इतना अधिक न होता, तो अकेला मजदूर इसे उठा लेता।",
+          "translation": "If the weight of the trunk were not so heavy, a single laborer would lift it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "हवाई जहाज में चढ़ने से पहले प्रत्येक यात्री का बैग वजन के लिए रखा जाता है।",
+          "translation": "Before boarding the airplane, each passenger's bag is placed for weighing.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कद",
+      "partOfSpeech": "noun",
+      "translation": "height / stature (physical height or social stature)",
+      "intro": "The measurement of someone from head to foot, or of an object from base to top; physical height; or social stature ('सामाजिक कद'). Arabic origin (qadd).",
+      "usage": "Masculine noun. Direct plural: कद, oblique: कदों. Collocation: 'लंबा कद' (tall height).",
+      "synonyms": [
+        {
+          "word": "ऊंचाई",
+          "gloss": "height / altitude"
+        },
+        {
+          "word": "लंबाई",
+          "gloss": "length / height"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बास्केटबॉल टीम के सभी खिलाड़ियों का औसत कद छह फीट से अधिक है।",
+          "translation": "The average height of all players in the basketball team is over six feet.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अपने परोपकारी कार्यों के कारण समाज में उस नेता का राजनीतिक कद बहुत बढ़ गया।",
+          "translation": "Due to his philanthropic deeds, that leader's political stature grew greatly in society.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि उसका कद दो इंच और लंबा होता, तो वह पुलिस भर्ती परीक्षा में आसानी से चयनित हो जाता।",
+          "translation": "If his height were two inches taller, he would be easily selected in the police recruitment exam.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सेना में भर्ती के समय उम्मीदवारों का कद और सीना बारीकी से नापा जाता है।",
+          "translation": "At the time of recruitment into the army, candidates' height and chest are measured meticulously.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "अगाध",
+      "partOfSpeech": "adjective",
+      "translation": "unfathomable / boundless / immense / immeasurable / profound",
+      "intro": "Extremely deep, immeasurable, or boundless; profound faith or love (अगाध प्रेम, अगाध श्रद्धा). Sanskrit origin.",
+      "usage": "Uninflected adjective in standard usage (अगाध प्रेम, अगाध श्रद्धा, अगाध ज्ञान). Synonyms: असीम, अपार.",
+      "synonyms": [
+        {
+          "word": "असीम",
+          "gloss": "boundless"
+        },
+        {
+          "word": "अपार",
+          "gloss": "immense / boundless"
+        },
+        {
+          "word": "गंभीर",
+          "gloss": "profound / serious"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ईश्वर के प्रति भक्त के हृदय में अगाध श्रद्धा और प्रेम भरा हुआ था।",
+          "translation": "In the devotee's heart there was boundless faith and love for God.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "समुद्र के अगाध जल में कई रहस्यमयी और दुर्लभ जीव निवास करते हैं।",
+          "translation": "Many mysterious and rare creatures inhabit the unfathomable waters of the sea.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गुरु का अगाध ज्ञान और मार्गदर्शन न मिलता, तो शिष्य का जीवन अधूरा रहता।",
+          "translation": "If the guru's immense knowledge and guidance were not received, the disciple's life would remain incomplete.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "साधकों द्वारा ध्यान के माध्यम से अगाध आत्मिक शांति का अनुभव किया जाता है।",
+          "translation": "Boundless spiritual peace is experienced through meditation by spiritual seekers.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कोमल",
+      "partOfSpeech": "adjective",
+      "translation": "soft / tender / delicate / gentle / mild",
+      "intro": "Pleasantly soft or delicate to the touch; gentle in nature or disposition (कोमल हृदय). Sanskrit borrowing. Antonym: कठोर (#457).",
+      "usage": "Uninflected adjective (कोमल हाथ, कोमल पत्तियां, कोमल भावनाएं). Opposite: कठोर (hard/stern).",
+      "synonyms": [
+        {
+          "word": "मुलायम",
+          "gloss": "soft / tender (Arabic loan)"
+        },
+        {
+          "word": "नाजुक",
+          "gloss": "delicate (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गुलाब के फूल की कोमल पंखुड़ियों पर सुबह की ओस की बूंदें चमक रही थीं।",
+          "translation": "Morning dew droplets were shining on the soft petals of the rose flower.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "छोटे नवजात शिशु की त्वचा बहुत ही कोमल, नाजुक और संवेदनशील होती है।",
+          "translation": "The skin of a newborn baby is very soft, delicate, and sensitive.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारा हृदय इतना कोमल न होता, तो तुम दूसरों का दुख देखकर न रो पड़ते।",
+          "translation": "If your heart were not so tender, you would not weep seeing others' sorrow.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "रेशमी धागों से बच्चों के लिए अत्यंत कोमल वस्त्र तैयार किए जाते हैं।",
+          "translation": "Extremely soft garments are prepared for children from silk threads.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "विशाल",
+      "partOfSpeech": "adjective",
+      "translation": "huge / vast / immense / gigantic / colossal / grand",
+      "intro": "Extremely large in size, extent, or amount; gigantic (विशाल भवन, विशाल सागर). Sanskrit borrowing. Antonym: लघु / छोटा.",
+      "usage": "Uninflected adjective in standard usage (विशाल सेना, विशालकाय, विशाल हृदय).",
+      "synonyms": [
+        {
+          "word": "विराट",
+          "gloss": "colossal / gigantic"
+        },
+        {
+          "word": "भव्य",
+          "gloss": "grand / magnificent"
+        },
+        {
+          "word": "महान",
+          "gloss": "great / vast"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "राजा ने अपनी राजधानी में सफेद संगमरमर का एक अत्यंत भव्य और विशाल महल बनवाया।",
+          "translation": "The king built an extremely grand and vast palace of white marble in his capital.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नीली व्हेल पृथ्वी पर पाया जाने वाला सबसे विशाल और भारी स्तनधारी प्राणी है।",
+          "translation": "The blue whale is the most colossal and heavy mammal found on Earth.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि देश के पास विशाल अनाज भंडार न होता, तो सूखे के समय भुखमरी फैल जाती।",
+          "translation": "If the country had no vast grain reserves, starvation would spread during drought.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अंतरराष्ट्रीय सम्मेलनों के आयोजन के लिए शहर में विशाल सभागार बनाए जाते हैं।",
+          "translation": "Vast auditoriums are constructed in the city for hosting international conferences.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पतला",
+      "partOfSpeech": "adjective",
+      "translation": "thin / slender / slim / watery (liquid: पतला दूध) / dilute",
+      "intro": "Having opposite surfaces close together; slim/slender person; or dilute/watery liquid (पतली दाल).",
+      "usage": "Inflected adjective: पतला (m.sg), पतले (m.pl/obl), पतली (f). Antonym: मोटा (#459) and गाढ़ा (thick/dense).",
+      "synonyms": [
+        {
+          "word": "दुबला",
+          "gloss": "lean / slim"
+        },
+        {
+          "word": "बारीक",
+          "gloss": "fine / thin"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लंबी बीमारी के बाद वह बहुत कमजोर और पतला हो गया था।",
+          "translation": "After prolonged illness, he had become very weak and thin.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दूधवाले ने ज्यादा मुनाफा कमाने के लिए दूध में पानी मिलाकर उसे पतला कर दिया।",
+          "translation": "The milkman diluted the milk with water to earn more profit.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि धागा इतना पतला न होता, तो पतंग उड़ाते समय बीच में न टूटता।",
+          "translation": "If the thread were not so thin, it would not snap in between while flying the kite.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कागज की पतली परतों को मशीन द्वारा सावधानी से काटा जाता है।",
+          "translation": "Thin sheets of paper are cut carefully by machine.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "मोटा",
+      "partOfSpeech": "adjective",
+      "translation": "fat / thick / stout / coarse (cloth/flour: मोटा आटा)",
+      "intro": "Having a large amount of excess flesh; thick of dimension (मोटी किताब); coarse in texture. Antonym: पतला (#458) and बारीक.",
+      "usage": "Inflected adjective: मोटा (m.sg), मोटे (m.pl/obl), मोटी (f). Collocation: 'मोटी किताब' (thick book), 'मोटा कपड़ा'.",
+      "synonyms": [
+        {
+          "word": "स्थूल",
+          "gloss": "bulky / thick"
+        },
+        {
+          "word": "भारी",
+          "gloss": "heavy (#240)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पुस्तकालय की मेज पर इतिहास की एक बहुत पुरानी और मोटी किताब रखी थी।",
+          "translation": "A very old and thick book of history was kept on the library table.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जंक फूड खाने और व्यायाम न करने से वह दिन-ब-दिन मोटा होता जा रहा है।",
+          "translation": "By eating junk food and not exercising, he is getting fatter day by day.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुमने सर्दियों में मोटा ऊनी कंबल ओढ़ा होता, तो तुम्हें ठंड न लगती।",
+          "translation": "If you had covered yourself with a thick woolen blanket in winter, you wouldn't feel cold.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सर्दियों में बचाव के लिए मोटे गर्म कपड़े पहने जाते हैं।",
+          "translation": "Thick warm clothes are worn for protection in winters.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "सीधा",
+      "partOfSpeech": "adjective",
+      "translation": "straight / direct / simple / honest / upright / right (right side: सीधा हाथ)",
+      "intro": "Extending uniformly in one direction without curving; direct; honest/guileless (सीधा-सादा); or the right hand/side (सीधा हाथ = right hand).",
+      "usage": "Inflected adjective: सीधा (m.sg), सीधे (m.pl/obl), सीधी (f). Opposites: टेढ़ा (#461) and उल्टा (reverse/left).",
+      "synonyms": [
+        {
+          "word": "सरल",
+          "gloss": "simple (#338)"
+        },
+        {
+          "word": "प्रत्यक्ष",
+          "gloss": "direct / straight"
+        },
+        {
+          "word": "दाहिना",
+          "gloss": "right (hand/side)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "राजमार्ग से सीधे आगे बढ़ते हुए बिना मुड़े पांच किलोमीटर का सफर तय करें।",
+          "translation": "Moving straight ahead on the highway, cover a journey of five kilometers without turning.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "वह बहुत ही सीधा और ईमानदार इंसान है, जो किसी से कपट नहीं करता।",
+          "translation": "He is a very simple and honest person who practices no deceit with anyone.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम सीधा जवाब देते, तो बात इतनी घुमावदार न बनती।",
+          "translation": "If you gave a straight answer, the matter would not become so convoluted.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "जमीन में खंभा लगाने से पहले उसे साहुल से बिल्कुल सीधा किया जाता है।",
+          "translation": "Before installing the pole in the ground, it is aligned completely straight with a plumb line.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "टेढ़ा",
+      "partOfSpeech": "adjective",
+      "translation": "crooked / bent / curved / complicated / tricky (टेढ़ी खीर)",
+      "intro": "Bent, curved, or twisted; not straight; or figuratively complicated/difficult ('टेढ़ी खीर' = tough nut to crack).",
+      "usage": "Inflected adjective: टेढ़ा (m.sg), टेढ़े (m.pl/obl), टेढ़ी (f). Antonym: सीधा (#460). Idiom: 'टेढ़ी उंगली से घी निकालना'.",
+      "synonyms": [
+        {
+          "word": "मुड़ा हुआ",
+          "gloss": "bent / curved"
+        },
+        {
+          "word": "जटिल",
+          "gloss": "complicated (#339)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पहाड़ी इलाके में ऊपर चढ़ने के लिए गाड़ियां टेढ़े-मेढ़े रास्तों से गुजरती हैं।",
+          "translation": "To climb up in mountain terrain, vehicles pass through winding (crooked) paths.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "इस जटिल कानूनी पहेली को सुलझाना वास्तव में एक बहुत टेढ़ी खीर है।",
+          "translation": "Solving this complex legal puzzle is truly a very tricky task (crooked pudding).",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पेड़ की डाली इतनी टेढ़ी न होती, तो बढ़ई उससे सीधी तख्ती बना लेता।",
+          "translation": "If the tree branch were not so crooked, the carpenter would make a straight plank from it.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "लोहे की मुड़ी हुई छड़ों को गर्म करके सीधा किया जाता है।",
+          "translation": "Bent rods of iron are heated and straightened.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "गोल",
+      "partOfSpeech": "adjective",
+      "translation": "round / circular / spherical / vague (गोल-मोल जवाब)",
+      "intro": "Shaped like a circle or sphere; round; or figuratively vague/evasive ('गोल-मोल बात').",
+      "usage": "Uninflected adjective in standard usage (गोल मेज, गोल चेहरे). Noun: गोल (goal in sports).",
+      "synonyms": [
+        {
+          "word": "वृत्ताकार",
+          "gloss": "circular"
+        },
+        {
+          "word": "गोलाकार",
+          "gloss": "spherical"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मां ने रसोई में बेलन की सहायता से गेहूं के आटे की गोल रोटियां बनाईं।",
+          "translation": "Mother made round rotis of wheat flour in the kitchen with the help of a rolling pin.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नेताओं ने बैठक में जनता के सीधे सवालों का गोल-मोल जवाब दिया।",
+          "translation": "Leaders gave vague and evasive answers to the public's direct questions in the meeting.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि पृथ्वी गोल न होती, तो दिन और रात का चक्र इस प्रकार न चलता।",
+          "translation": "If the Earth were not round, the cycle of day and night would not operate like this.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "क्रिकेट खेलने के लिए लाल चमड़े की गोल गेंदें बनाई जाती हैं।",
+          "translation": "Round balls of red leather are manufactured for playing cricket.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "कच्चा",
+      "partOfSpeech": "adjective",
+      "translation": "raw / unripe / unpaved (कच्ची सड़क) / inexperienced / temporary",
+      "intro": "Not cooked (कच्ची सब्जी); unripe (कच्चा फल); unpaved/dirt road (कच्चा रास्ता); or unconfirmed/rough.",
+      "usage": "Inflected adjective: कच्चा (m.sg), कच्चे (m.pl/obl), कच्ची (f). Antonym: पक्का (#464).",
+      "synonyms": [
+        {
+          "word": "अपक्व",
+          "gloss": "unripe / uncooked"
+        },
+        {
+          "word": "अनगढ़",
+          "gloss": "unrefined / crude"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तोते ने पेड़ पर लटके हुए कच्चे हरे आम को चोंच मारकर चखा।",
+          "translation": "The parrot tasted the raw green mango hanging on the tree by pecking it.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बरसात के दिनों में गांव की कच्ची सड़कों पर चलना बहुत मुश्किल हो जाता है।",
+          "translation": "Walking on the village's unpaved roads becomes very difficult during rainy days.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि भोजन कच्चा न रहता, तो किसी के पेट में दर्द न होता।",
+          "translation": "If the food had not remained undercooked (raw), nobody would suffer a stomachache.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कारखानों में उत्पाद बनाने के लिए कच्चा माल विदेशों से मंगाया जाता है।",
+          "translation": "Raw materials are imported from abroad to manufacture products in factories.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "पक्का",
+      "partOfSpeech": "adjective",
+      "translation": "cooked / ripe / paved (पक्की सड़क) / firm / permanent / authentic",
+      "intro": "Cooked or ripe (पक्का फल); solidly constructed or paved (पक्का मकान, पक्की सड़क); firm/resolute (पक्का इरादा); fast color.",
+      "usage": "Inflected adjective: पक्का (m.sg), पक्के (m.pl/obl), पक्की (f). Antonym: कच्चा (#463). Collocation: 'पक्का दोस्त' (firm friend).",
+      "synonyms": [
+        {
+          "word": "मजबूत",
+          "gloss": "strong / solid (#237)"
+        },
+        {
+          "word": "स्थायी",
+          "gloss": "permanent"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गांव को शहर से जोड़ने वाली नई पक्की सड़क बनने से यात्रा बहुत आसान हो गई।",
+          "translation": "With the new paved road connecting the village to the city being built, travel became very easy.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने अपने पक्के इरादे और कठोर परिश्रम से सिविल सेवा परीक्षा में प्रथम स्थान पाया।",
+          "translation": "With his firm resolve and hard work, he achieved first place in the civil services exam.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि घर की छत पक्की बनी होती, तो बारिश का पानी कमरे में न टपकता।",
+          "translation": "If the house roof were firmly constructed, rainwater would not drip into the room.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सामान खरीदने पर दुकानदार द्वारा ग्राहकों को पक्का बिल दिया जाता है।",
+          "translation": "An authentic receipt (firm bill) is given to customers by the shopkeeper upon purchasing goods.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "ताकतवर",
+      "partOfSpeech": "adjective",
+      "translation": "powerful / strong / mighty / robust",
+      "intro": "Having great power or physical strength; robust. Suffix -वर + ताकत (strength). Direct antonym of कमजोर (#238).",
+      "usage": "Uninflected adjective (ताकतवर आदमी, ताकतवर सेना). Persian-origin compound. Synonyms: बलवान, शक्तिशाली.",
+      "synonyms": [
+        {
+          "word": "शक्तिशाली",
+          "gloss": "powerful / mighty"
+        },
+        {
+          "word": "बलवान",
+          "gloss": "strong"
+        },
+        {
+          "word": "मजबूत",
+          "gloss": "sturdy (#237)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "जंगल में शेर एक अत्यंत ताकतवर और निडर शिकारी जानवर माना जाता है।",
+          "translation": "The lion is considered an extremely powerful and fearless predatory animal in the jungle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "नियमित दूध और बादाम का सेवन करने से शरीर फुर्तीला और ताकतवर बनता है।",
+          "translation": "By consuming milk and almonds regularly, the body becomes agile and strong.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि देश की सेना इतनी ताकतवर न होती, तो शत्रु सीमा पर घुसपैठ कर लेता।",
+          "translation": "If the nation's military were not so powerful, the enemy would infiltrate the border.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "भारी निर्माण कार्यों के लिए शक्तिशाली और ताकतवर क्रेन का उपयोग किया जाता है।",
+          "translation": "Powerful and strong cranes are used for heavy construction works.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अकेला",
+      "partOfSpeech": "adjective",
+      "translation": "alone / lonely / solitary / single / isolated",
+      "intro": "Having no one else present; solitary; without companions or help. Idiom: 'अकेला चना भाड़ नहीं फोड़ सकता'.",
+      "usage": "Inflected adjective: अकेला (m.sg), अकेले (m.pl/obl), अकेली (f). Adverbial use: अकेले (by oneself). Opposite: साथ (#467).",
+      "synonyms": [
+        {
+          "word": "तनहा",
+          "gloss": "lonely / solitary (Persian)"
+        },
+        {
+          "word": "एकाकी",
+          "gloss": "solitary (formal)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पहाड़ी बंगले में बूढ़ा लेखक बिल्कुल अकेला रहकर अपनी नई किताब लिखता है।",
+          "translation": "In the mountain cottage, the elderly author lives completely alone writing his new book.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भीड़भाड़ भरे बड़े शहर में कई बार इंसान खुद को बहुत अकेला महसूस करता है।",
+          "translation": "In a bustling large city, many times a person feels oneself very lonely.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि वह सुनसान रात में अकेला न निकलता, तो लुटेरे उसे निशाना न बनाते।",
+          "translation": "If he had not stepped out alone on the deserted night, robbers would not have targeted him.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "अकेले पड़े बुजुर्गों की सहायता के लिए स्वयंसेवी संस्थाएं बनाई जाती हैं।",
+          "translation": "Volunteer organizations are established to help elderly people left alone.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "संग",
+      "partOfSpeech": "postposition",
+      "translation": "with / together with / in company of / along with",
+      "intro": "In the company or fellowship of someone; accompanied by; along with. Sanskrit borrowing (सङ्ग). Common synonym of साथ.",
+      "usage": "Postposition used with 'के' (के संग) or directly. Idiom: 'सत्संग' (noble company).",
+      "synonyms": [
+        {
+          "word": "साथ",
+          "gloss": "with / along with (#41)"
+        },
+        {
+          "word": "सहित",
+          "gloss": "accompanied by"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तीर्थयात्री भजनों की धुन पर साधु-संतों के संग पवित्र यात्रा पर निकले।",
+          "translation": "Pilgrims set out on the holy journey in the company of ascetics to the tune of devotional hymns.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सच्चे मित्र के संग बिताया गया हर एक पल जीवन भर की सुखद याद बन जाता है।",
+          "translation": "Every moment spent in the company of a true friend becomes a lifelong happy memory.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम बुद्धिमान गुरुजनों के संग रहते, तो तुम्हारा ज्ञान और विवेक बढ़ता।",
+          "translation": "If you stayed in the company of wise elders, your knowledge and discretion would increase.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "शादी समारोह में दूल्हे के संग बारातियों का आदर-सत्कार किया जाता है।",
+          "translation": "Along with the bridegroom, the wedding guests are honored and welcomed at the marriage ceremony.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अलग",
+      "partOfSpeech": "adjective",
+      "translation": "separate / distinct / different / apart / detached",
+      "intro": "Not joined or touching physically; divided; distinct in character; apart. Antonym: साथ (#467) and इकट्ठा (#469).",
+      "usage": "Uninflected adjective/adverb (अलग विचार, अलग रहना). Collocations: 'अलग-थलग' (isolated), 'अलग-अलग' (various/different).",
+      "synonyms": [
+        {
+          "word": "पृथक",
+          "gloss": "separate (formal)"
+        },
+        {
+          "word": "भिन्न",
+          "gloss": "different / distinct"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हर इंसान का व्यक्तित्व और सोचने का ढंग एक दूसरे से बिल्कुल अलग होता है।",
+          "translation": "Every human's personality and way of thinking is completely distinct from one another.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शादी के बाद बड़े भाई ने अपना अलग कारोबार शुरू करने का फैसला किया।",
+          "translation": "After marriage, the elder brother decided to start his own separate business.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपने निजी जीवन को दफ्तर के काम से अलग रखते, तो मानसिक शांति मिलती।",
+          "translation": "If you kept your personal life separate from office work, you would find peace of mind.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कचरा प्रबंधन के तहत गीले और सूखे कचरे को अलग किया जाता है।",
+          "translation": "Wet and dry waste is separated under waste management.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "इकट्ठा",
+      "partOfSpeech": "adjective",
+      "translation": "collected / gathered / assembled / accumulated / together",
+      "intro": "Brought together in one place; gathered; assembled. Can function as adjective or adverb.",
+      "usage": "Inflected adjective: इकट्ठा (m.sg), इकट्ठे (m.pl/obl), इकट्ठी (f). Collocation: 'इकट्ठा करना' (to gather/collect). Opposite: अलग (#468).",
+      "synonyms": [
+        {
+          "word": "एकत्र",
+          "gloss": "gathered (formal)"
+        },
+        {
+          "word": "जमा",
+          "gloss": "collected / accumulated"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "गांव के सभी पंच पुराने बरगद के पेड़ के नीचे पंचायत के लिए इकट्ठे हुए।",
+          "translation": "All elders of the village gathered under the old banyan tree for the panchayat.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसने अपनी छोटी-छोटी बचतों से घर खरीदने के लिए काफी धन इकट्ठा कर लिया।",
+          "translation": "He accumulated considerable money from his small savings to buy a house.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि लोग मतदान के दिन इतनी संख्या में इकट्ठे होते, तो लोकतंत्र और मजबूत होता।",
+          "translation": "If people gathered in such numbers on voting day, democracy would be even stronger.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "दान शिविर में गरीबों के लिए कंबल और कपड़े इकट्ठे किए गए।",
+          "translation": "Blankets and clothes were collected for the poor in the charity camp.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "दूर",
+      "partOfSpeech": "adverb",
+      "translation": "far / distant / away / remote",
+      "intro": "At, to, or by a great distance; far off. Also functions as adjective ('दूर का रिश्तेदार'). Antonym: पास (#471) / नजदीक.",
+      "usage": "Invariant adverb or adjective. Collocation: 'दूर-दूर तक' (far and wide), 'दूर रहना' (stay away). Governs 'से' (से दूर = far from).",
+      "synonyms": [
+        {
+          "word": "फासले पर",
+          "gloss": "at a distance"
+        },
+        {
+          "word": "सुदूर",
+          "gloss": "remote / far-off"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हमारा नया कार्यालय शहर की व्यस्त भीड़भाड़ से काफी दूर एक शांत जगह पर है।",
+          "translation": "Our new office is quite far from the busy hustle and bustle of the city in a quiet place.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "दूर क्षितिज पर चमकती हुई नौकाओं की बत्तियां बहुत सुंदर दिखाई दे रही थीं।",
+          "translation": "The glowing lights of boats on the far horizon were appearing very beautiful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि अस्पताल गांव से इतनी दूर न होता, तो बीमार व्यक्ति को तुरंत इलाज मिल जाता।",
+          "translation": "If the hospital were not so far from the village, the sick person would receive treatment immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "खराब आदतों और बुरी संगत को बच्चों से हमेशा दूर रखा जाना चाहिए।",
+          "translation": "Bad habits and evil company should always be kept far away from children.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "समीप",
+      "partOfSpeech": "adverb",
+      "translation": "near / nearby / adjacent / in vicinity / in proximity",
+      "intro": "At a short distance in space or time; close by; adjacent. Sanskrit borrowing (समीप). Direct formal equivalent to पास.",
+      "usage": "Invariant adverb or postposition used with 'के' (के समीप). Antonym: दूर (#470).",
+      "synonyms": [
+        {
+          "word": "पास",
+          "gloss": "near / close (#43)"
+        },
+        {
+          "word": "निकट",
+          "gloss": "close / proximate"
+        },
+        {
+          "word": "सन्निकट",
+          "gloss": "adjacent"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "प्राचीन शिव मंदिर पवित्र नदी के तट के बिल्कुल समीप स्थित है।",
+          "translation": "The ancient Shiva temple is situated right adjacent to the bank of the holy river.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हवाई अड्डे के समीप रहने वाले निवासियों को उड़ानों के तेज शोर का सामना करना पड़ता है।",
+          "translation": "Residents living near the airport have to face the loud noise of flights.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि परीक्षा का समय इतना समीप न आ पहुंचा होता, तो हम थोड़ा आराम कर लेते।",
+          "translation": "If exam time had not arrived so close, we would take a little rest.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पर्यटन स्थलों के समीप सुरक्षा व्यवस्था के पुख्ता इंतजाम किए जाते हैं।",
+          "translation": "Solid security arrangements are made in the vicinity of tourist destinations.",
+          "type": "passive"
+        }
+      ]
+    },
+    {
+      "headword": "अनुभव",
+      "partOfSpeech": "noun",
+      "translation": "experience / feeling / perception / empirical knowledge",
+      "intro": "Practical contact with and observation of facts or events; professional experience (कार्य अनुभव). Sanskrit borrowing.",
+      "usage": "Masculine noun. Direct plural: अनुभव, oblique: अनुभवों. Compound verb: 'अनुभव करना' (to experience / feel).",
+      "synonyms": [
+        {
+          "word": "तजुर्बा",
+          "gloss": "experience (Arabic loan)"
+        },
+        {
+          "word": "एहसास",
+          "gloss": "feeling / perception"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कंपनी में वरिष्ठ पद के लिए कम से कम पांच वर्ष का कार्य अनुभव आवश्यक है।",
+          "translation": "For a senior post in the company, at least five years of work experience is necessary.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "पहाड़ों पर पहली बार ट्रैकिंग करना मेरे जीवन का सबसे रोमांचक अनुभव था।",
+          "translation": "Trekking on the mountains for the first time was the most exciting experience of my life.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि युवा पीढ़ी बुजुर्गों के अनुभवों से सीख ले, तो वह जीवन में कम गलतियां करेगी।",
+          "translation": "If the younger generation learned from the experiences of the elderly, it would make fewer mistakes in life.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कठिन परिस्थितियों से गुजरने के बाद ही सच्चा अनुभव प्राप्त किया जाता है।",
+          "translation": "Genuine experience is gained only after passing through difficult circumstances.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "प्रयास",
+      "partOfSpeech": "noun",
+      "translation": "effort / attempt / endeavor / trial / endeavor",
+      "intro": "Vigorous or determined attempt; exertion of physical or mental power. Sanskrit origin. Direct synonym: कोशिश.",
+      "usage": "Masculine noun. Direct plural: प्रयास, oblique: प्रयासों. Collocation: 'प्रयास करना' (to attempt / make an effort).",
+      "synonyms": [
+        {
+          "word": "कोशिश",
+          "gloss": "effort / attempt (Persian loan)"
+        },
+        {
+          "word": "यत्न",
+          "gloss": "endeavor / exertion"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "वैज्ञानिकों के निरंतर प्रयास से चंद्रयान सफलतापूर्वक चंद्रमा के दक्षिणी ध्रुव पर उतरा।",
+          "translation": "With the continuous effort of scientists, Chandrayaan successfully landed on the south pole of the moon.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सफलता पाने के लिए हमें अंतिम क्षण तक पूरी निष्ठा से अपना सर्वोत्तम प्रयास करना चाहिए।",
+          "translation": "To achieve success, we should make our best effort with complete dedication until the last moment.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुमने पहले प्रयास में ही हिम्मत न हारी होती, तो आज तुम विजेता होते।",
+          "translation": "If you had not lost heart in the very first attempt, you would be a winner today.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "प्रदूषण कम करने के लिए पर्यावरणविदों द्वारा सामूहिक प्रयास किए जा रहे हैं।",
+          "translation": "Collective efforts are being made by environmentalists to reduce pollution.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "विश्वास",
+      "partOfSpeech": "noun",
+      "translation": "trust / belief / confidence / faith / reliance",
+      "intro": "Firm belief in the reliability, truth, or ability of someone or something; faith. Sanskrit borrowing. Opposite: अविश्वास.",
+      "usage": "Masculine noun. Direct plural: विश्वास, oblique: विश्वासों. Collocations: 'विश्वास दिलाना' (assure), 'विश्वास जीतना' (win trust).",
+      "synonyms": [
+        {
+          "word": "भरोसा",
+          "gloss": "trust / reliance"
+        },
+        {
+          "word": "यकीन",
+          "gloss": "certainty / faith (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुझे अपनी मेहनत और ईश्वर की कृपा पर पूरा विश्वास है कि मैं सफल होऊंगा।",
+          "translation": "I have complete trust in my hard work and God's grace that I will succeed.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "व्यापार में ग्राहकों का विश्वास जीतना ही दीर्घकालिक सफलता की असली कुंजी है।",
+          "translation": "Winning customers' trust in business is the real key to long-term success.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम अपने मित्रों के विश्वास को न तोड़ते, तो वे मुसीबत में तुम्हारा साथ न छोड़ते।",
+          "translation": "If you had not broken your friends' trust, they would not abandon you in trouble.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "पारदर्शिता और ईमानदारी से ही किसी संस्था में जनता का विश्वास कायम किया जाता है।",
+          "translation": "Public trust in an institution is established only through transparency and honesty.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "संदेह",
+      "partOfSpeech": "noun",
+      "translation": "doubt / suspicion / skepticism / misgiving",
+      "intro": "A feeling of uncertainty or lack of conviction; suspicion. Sanskrit borrowing. Opposite: निश्चय / विश्वास.",
+      "usage": "Masculine noun. Direct plural: संदेह, oblique: संदेहों. Collocations: 'संदेह होना' (to doubt), 'संदेह के घेरे में' (under suspicion).",
+      "synonyms": [
+        {
+          "word": "शक",
+          "gloss": "suspicion / doubt (Arabic loan)"
+        },
+        {
+          "word": "आशंका",
+          "gloss": "apprehension / misgiving"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पुलिस को बैंक में हुई चोरी के पीछे किसी अंदरूनी कर्मचारी के मिले होने का संदेह है।",
+          "translation": "Police suspect an insider employee's involvement behind the bank robbery.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "उसकी ईमानदारी और कर्तव्यनिष्ठा पर किसी को भी रत्ती भर भी संदेह नहीं था।",
+          "translation": "Nobody had even an iota of doubt regarding his honesty and dutifulness.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मन में कोई संदेह उत्पन्न हो, तो अध्यापक से तुरंत सवाल पूछकर उसका निवारण कर लें।",
+          "translation": "If any doubt arose in mind, resolve it immediately by asking the teacher a question.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "संदेह की स्थिति में अदालत द्वारा अभियुक्त को संदेह का लाभ दिया जाता है।",
+          "translation": "In a situation of doubt, benefit of doubt is given to the accused by the court.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "आदत",
+      "partOfSpeech": "noun",
+      "translation": "habit / custom / practice / addiction",
+      "intro": "A settled or regular tendency or practice, especially one that is hard to give up; habit. Arabic loanword ('ādat).",
+      "usage": "Feminine noun. Singular: आदत, plural direct: आदतें, oblique: आदतों. Collocations: 'बुरी आदत' (bad habit), 'आदत पड़ना'.",
+      "synonyms": [
+        {
+          "word": "स्वभाव",
+          "gloss": "nature / disposition"
+        },
+        {
+          "word": "लत",
+          "gloss": "addiction"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "रोज सुबह जल्दी उठकर व्यायाम करने की आदत स्वास्थ्य के लिए अत्यंत लाभकारी होती है।",
+          "translation": "The habit of waking up early every morning and exercising is extremely beneficial for health.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अपनी फिजूलखर्ची की बुरी आदत के कारण वह महीने के अंत में कर्ज में डूब जाता है।",
+          "translation": "Due to his bad habit of wasteful spending, he sinks into debt at the end of the month.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि बच्चे बचपन से ही सच बोलने की अच्छी आदत डालें, तो उनका भविष्य उज्ज्वल होगा।",
+          "translation": "If children cultivate the good habit of speaking truth from childhood, their future will be bright.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बुरी आदतों को दृढ़ संकल्प और निरंतर अभ्यास द्वारा बदला जा सकता है।",
+          "translation": "Bad habits can be changed through firm resolve and continuous practice.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "नियम",
+      "partOfSpeech": "noun",
+      "translation": "rule / regulation / law / principle / discipline",
+      "intro": "One of a set of explicit or understood regulations or principles governing conduct or procedure; law; routine. Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: नियम, oblique: नियमों. Collocations: 'नियम का पालन करना' (abide by rule), 'नियम तोड़ना' (break rule).",
+      "synonyms": [
+        {
+          "word": "कानून",
+          "gloss": "law (#130)"
+        },
+        {
+          "word": "सिद्धांत",
+          "gloss": "principle / doctrine"
+        },
+        {
+          "word": "विधि",
+          "gloss": "procedure / rule"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "सड़क सुरक्षा के लिए प्रत्येक वाहन चालक को यातायात के नियमों का कड़ाई से पालन करना चाहिए।",
+          "translation": "For road safety every vehicle driver must strictly abide by traffic rules.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "परीक्षा हॉल में मोबाइल फोन और किसी भी प्रकार की इलेक्ट्रॉनिक घड़ी ले जाना नियमों के खिलाफ है।",
+          "translation": "Taking mobile phones and any electronic watch into the examination hall is against regulations.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सभी नागरिक स्वच्छता के सामान्य नियमों का पालन करते, तो शहर बहुत सुंदर दिखता।",
+          "translation": "If all citizens observed basic rules of cleanliness, the city would look very beautiful.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कार्यालय में अनुशासन बनाए रखने के लिए प्रबंधन द्वारा सख्त नियम बनाए जाते हैं।",
+          "translation": "Strict rules are formulated by management to maintain discipline in the office.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "मौका",
+      "partOfSpeech": "noun",
+      "translation": "opportunity / chance / occasion / opening",
+      "intro": "A set of circumstances that makes it possible to do something; chance; occasion. Arabic loanword (mawqa'). Direct synonym: अवसर.",
+      "usage": "Masculine marked noun ending in -आ. Plural direct: मौके, oblique: मौकों. Idiom: 'मौका गंवाना' (miss the boat / lose opportunity).",
+      "synonyms": [
+        {
+          "word": "अवसर",
+          "gloss": "opportunity (formal)"
+        },
+        {
+          "word": "संयोग",
+          "gloss": "chance / coincidence"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "जीवन में आगे बढ़ने के लिए मिले हर अच्छे मौके का पूरा फायदा उठाना चाहिए।",
+          "translation": "To advance in life, one should take full advantage of every good opportunity received.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "त्योहार के शुभ मौके पर दूर-दराज रहने वाले सभी रिश्तेदार घर पर एकत्रित हुए।",
+          "translation": "On the auspicious occasion of the festival, all relatives living far and wide gathered at home.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें विदेश जाकर उच्च शिक्षा प्राप्त करने का मौका मिलता, तो तुम जरूर जाते।",
+          "translation": "If you received the opportunity to go abroad for higher education, you would certainly go.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "युवा प्रतिभाओं को अपनी कला प्रदर्शित करने के लिए मंच पर मौका दिया जाता है।",
+          "translation": "An opportunity is provided on stage for young talents to showcase their art.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "खतरा",
+      "partOfSpeech": "noun",
+      "translation": "danger / hazard / peril / risk / jeopardy",
+      "intro": "The possibility of suffering harm or injury; risk. Arabic loanword (khatrah). Related to खतरनाक (#342).",
+      "usage": "Masculine marked noun (-आ). Plural direct: खतरे, oblique: खतरों. Idiom: 'खतरे की घंटी' (warning bell / alarm).",
+      "synonyms": [
+        {
+          "word": "जोखिम",
+          "gloss": "risk / hazard"
+        },
+        {
+          "word": "संकट",
+          "gloss": "crisis / peril"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पहाड़ों पर भारी बारिश के बाद चट्टानें खिसकने का गंभीर खतरा बना रहता है।",
+          "translation": "A serious danger of landslides persists on mountains after heavy rainfall.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "रसायन कारखाने में गैस रिसाव की सूचना मिलते ही खतरे का सायरन बज उठा।",
+          "translation": "Upon receiving news of a gas leak in the chemical factory, the danger siren sounded.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम समय रहते एहतियात बरतते, तो इतना बड़ा जान-माल का खतरा न होता।",
+          "translation": "If we had exercised caution in time, there would not be such a huge danger to life and property.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तटीय चक्रवात के समय मछुआरों को समुद्र के खतरे के प्रति चेतावनी दी जाती है।",
+          "translation": "Fishermen are cautioned regarding sea hazards at the time of coastal cyclones.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "नुकसान",
+      "partOfSpeech": "noun",
+      "translation": "loss / harm / damage / detriment / injury",
+      "intro": "Injury, damage, or financial loss; detriment. Arabic loanword (nuqsān). Antonym: फायदा (#481) / लाभ.",
+      "usage": "Masculine noun. Direct plural: नुकसान, oblique: नुकसानों. Collocations: 'नुकसान उठाना' (suffer loss), 'नुकसान पहुंचाना' (cause harm).",
+      "synonyms": [
+        {
+          "word": "हानि",
+          "gloss": "loss / harm (formal)"
+        },
+        {
+          "word": "क्षति",
+          "gloss": "damage / injury"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शेयर बाजार में भारी गिरावट के कारण कई निवेशकों को लाखों रुपये का नुकसान हुआ।",
+          "translation": "Due to a heavy crash in the stock market, many investors suffered a loss of millions of rupees.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कीटनाशकों का अत्यधिक उपयोग फसलों और मिट्टी की उर्वरता को भारी नुकसान पहुंचाता है।",
+          "translation": "Excessive use of pesticides causes heavy damage to crops and soil fertility.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि गोदाम में आग न लगती, तो व्यापार में इतना भारी आर्थिक नुकसान न उठाना पड़ता।",
+          "translation": "If fire had not caught in the warehouse, such heavy financial loss would not have to be suffered in business.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ से हुए नुकसान का आकलन करने के लिए केंद्रीय सर्वेक्षण दल भेजा गया।",
+          "translation": "A central survey team was dispatched to assess the damage caused by the flood.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "फायदा",
+      "partOfSpeech": "noun",
+      "translation": "profit / benefit / advantage / gain / utility",
+      "intro": "A financial gain, advantage, or benefit resulting from an action or transaction. Arabic origin (fā'idah). Antonym: नुकसान (#480).",
+      "usage": "Masculine marked noun (-आ). Plural direct: फायदे, oblique: फायदों. Collocations: 'फायदा उठाना' (take advantage), 'फायदेमंद' (advantageous).",
+      "synonyms": [
+        {
+          "word": "लाभ",
+          "gloss": "profit / benefit (formal)"
+        },
+        {
+          "word": "मुनाफा",
+          "gloss": "profit (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "प्रतिदिन योगाभ्यास और प्राणायाम करने से पूरे शरीर को अनगिनत फायदे मिलते हैं।",
+          "translation": "Innumerable benefits accrue to the entire body from daily practice of yoga and pranayama.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "व्यापारी ने सस्ते दामों पर थोक माल खरीदकर बाजार में अच्छा मुनाफा और फायदा कमाया।",
+          "translation": "The trader earned good profit and gain in the market by buying wholesale goods at cheap rates.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मरीज समय पर पौष्टिक आहार लेता, तो उसे दवाइयों का पूरा फायदा मिलता।",
+          "translation": "If the patient took a nutritious diet on time, he would receive the full benefit of medicines.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सरकारी योजनाओं का सीधा फायदा जरूरतमंद गरीबों तक पहुंचाया जाता है।",
+          "translation": "Direct benefit of government schemes is delivered to the needy poor.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "कीमत",
+      "partOfSpeech": "noun",
+      "translation": "price / cost / value / worth (अनमोल कीमत)",
+      "intro": "The amount of money expected, required, or given in payment for something; value or worth. Arabic loanword (qīmat). Direct synonym: मूल्य.",
+      "usage": "Feminine noun. Singular: कीमत, plural direct: कीमतें, oblique: कीमतों. Collocation: 'कीमत चुकाना' (pay the price).",
+      "synonyms": [
+        {
+          "word": "मूल्य",
+          "gloss": "price / value (formal)"
+        },
+        {
+          "word": "दाम",
+          "gloss": "price"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कच्चे तेल की बढ़ती दरों के कारण अंतरराष्ट्रीय बाजार में पेट्रोल की कीमत बढ़ गई।",
+          "translation": "Due to rising rates of crude oil, the price of petrol increased in the international market.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "आजादी की वास्तविक कीमत केवल वही कौम जानती है जिसने लंबे समय तक गुलामी झेली हो।",
+          "translation": "Only that nation knows the real value (price) of freedom which has suffered slavery for a long time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि इस मकान की कीमत हमारे बजट में होती, तो हम इसे तुरंत खरीद लेते।",
+          "translation": "If the price of this house were in our budget, we would buy it immediately.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सोने और चांदी की कीमतें प्रतिदिन सुबह सर्राफा बाजार द्वारा तय की जाती हैं।",
+          "translation": "Prices of gold and silver are fixed every morning by the bullion market.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "आवाज",
+      "partOfSpeech": "noun",
+      "translation": "voice / sound / noise / call / protest (आवाज उठाना)",
+      "intro": "Sound produced in a person's larynx and uttered through the mouth; sound or noise; or protest ('आवाज उठाना'). Persian origin (āwāz).",
+      "usage": "Feminine noun. Singular: आवाज, plural direct: आवाजें, oblique: आवाजों. Idiom: 'आवाज उठाना' (raise voice in protest).",
+      "synonyms": [
+        {
+          "word": "ध्वनि",
+          "gloss": "sound / acoustic wave (formal)"
+        },
+        {
+          "word": "स्वर",
+          "gloss": "voice / tone"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "लता मंगेशकर की मधुर और जादुई आवाज आज भी लाखों संगीत प्रेमियों के दिलों पर राज करती है।",
+          "translation": "Lata Mangeshkar's melodious and magical voice still rules the hearts of millions of music lovers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अन्याय और शोषण के खिलाफ समाज के हर जागरूक नागरिक को अपनी आवाज उठानी चाहिए।",
+          "translation": "Every conscious citizen of society should raise his voice against injustice and exploitation.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि लाउडस्पीकर की आवाज इतनी तेज न होती, तो आसपास के बीमार लोगों को परेशानी न होती।",
+          "translation": "If the sound of the loudspeaker were not so loud, nearby sick people would not be troubled.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "रेडियो उद्घोषक की गंभीर आवाज स्टूडियो में माइक्रोफोन द्वारा रिकॉर्ड की जाती है।",
+          "translation": "The radio announcer's deep voice is recorded by microphone in the studio.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "नजर",
+      "partOfSpeech": "noun",
+      "translation": "sight / vision / glance / look / evil eye (नजर लगना)",
+      "intro": "The faculty of seeing; sight; glance; or superstitious 'evil eye' ('बुरी नजर'). Arabic origin (nazar).",
+      "usage": "Feminine noun. Singular: नजर, plural direct: नजरें, oblique: नजरों. Idioms: 'नजर रखना' (keep an eye on), 'नजरअंदाज करना' (ignore).",
+      "synonyms": [
+        {
+          "word": "दृष्टि",
+          "gloss": "vision / glance (formal)"
+        },
+        {
+          "word": "निगाह",
+          "gloss": "look / gaze (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "चील की तेज नजर आसमान की असीम ऊंचाइयों से भी जमीन पर चल रहे चूहे को देख लेती है।",
+          "translation": "The eagle's sharp sight spots even a running mouse on the ground from boundless heights of the sky.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "सुरक्षा गार्डों को मॉल के प्रवेश द्वार पर आने-जाने वाले हर संदिग्ध व्यक्ति पर नजर रखनी होती है।",
+          "translation": "Security guards have to keep an eye on every suspicious person coming and going at the mall entrance.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारी नजर इतनी कमजोर न होती, तो तुम्हें चश्मा लगाने की जरूरत न पड़ती।",
+          "translation": "If your eyesight were not so weak, you would not need to wear glasses.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "संसद की कार्यवाही पर पूरे देश की जनता द्वारा पैनी नजर रखी जाती है।",
+          "translation": "A keen eye is kept on parliament proceedings by the citizens of the entire country.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "ध्यान",
+      "partOfSpeech": "noun",
+      "translation": "attention / concentration / care / meditation (योग ध्यान)",
+      "intro": "Notice taken of someone or something; concentration; care; or spiritual meditation (ध्यान लगाना). Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: ध्यान, oblique: ध्यानों (rare). Idioms: 'ध्यान देना' (pay attention), 'ध्यान रखना' (take care of).",
+      "synonyms": [
+        {
+          "word": "एकाग्रता",
+          "gloss": "concentration"
+        },
+        {
+          "word": "साधना",
+          "gloss": "meditation / spiritual discipline"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "छात्रों को शिक्षक के व्याख्यान पर पूरी एकाग्रता और ध्यान से गौर करना चाहिए।",
+          "translation": "Students should pay attention to the teacher's lecture with complete concentration.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "साधु ने हिमालय की गुफा में बैठकर ईश्वर की भक्ति में गहरा ध्यान लगाया।",
+          "translation": "The ascetic engaged in deep meditation in devotion to God sitting in a Himalayan cave.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि चालक ने आगे चल रहे वाहन पर ध्यान दिया होता, तो टक्कर कभी न होती।",
+          "translation": "If the driver had paid attention to the vehicle moving ahead, a collision would never occur.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "कारखाने में काम करते समय कर्मचारियों द्वारा सुरक्षा नियमों पर विशेष ध्यान दिया जाता है।",
+          "translation": "Special attention is paid to safety rules by workers while working in the factory.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "शौक",
+      "partOfSpeech": "noun",
+      "translation": "hobby / passion / fond interest / penchant",
+      "intro": "An activity done regularly in one's leisure time for pleasure; passion or fond interest. Arabic loanword (shawq).",
+      "usage": "Masculine noun. Direct plural: शौक, oblique: शौकों. Collocation: 'शौक पालना' (nurture a hobby).",
+      "synonyms": [
+        {
+          "word": "रुचि",
+          "gloss": "interest / taste"
+        },
+        {
+          "word": "पसंद",
+          "gloss": "liking (#301)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "बचपन से ही उसे डाक टिकटों और प्राचीन सिक्कों को जमा करने का गहरा शौक है।",
+          "translation": "Since childhood, he has a deep passion for collecting postage stamps and ancient coins.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "फुर्सत के समय में बागवानी करना और नए पौधे लगाना मेरी माताजी का मुख्य शौक है।",
+          "translation": "Gardening and planting new saplings in leisure time is my mother's main hobby.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हें शास्त्रीय संगीत सीखने का सच्चा शौक होता, तो तुम रोज रियाज करते।",
+          "translation": "If you had a genuine passion for learning classical music, you would practice daily.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "विदेशी फोटोग्राफरों द्वारा वन्यजीवों की तस्वीरें खींचने का शौक पूरा किया जाता है।",
+          "translation": "The passion for capturing wildlife photographs is pursued by foreign photographers.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "हुनर",
+      "partOfSpeech": "noun",
+      "translation": "skill / talent / art / craft / expertise",
+      "intro": "Special skill or craftsmanship; talent. Persian loanword (hunar). Direct synonym: कला, कौशल.",
+      "usage": "Masculine noun. Direct plural: हुनर, oblique: हुनरों. Collocation: 'हुनरमंद' (skilled / talented).",
+      "synonyms": [
+        {
+          "word": "कौशल",
+          "gloss": "skill / aptitude"
+        },
+        {
+          "word": "कला",
+          "gloss": "art / craft"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हाथ से कशीदाकारी करने वाले कश्मीरी कारीगरों का हुनर पूरी दुनिया में मशहूर है।",
+          "translation": "The skill of Kashmiri artisans who do hand embroidery is famous throughout the world.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "कठिन मेहनत के बिना कोई भी इंसान अपने भीतर छिपे हुए हुनर को निखार नहीं सकता।",
+          "translation": "Without hard work, no human can refine the talent hidden within oneself.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम चित्रकला के अपने हुनर पर ध्यान देते, तो एक प्रसिद्ध चित्रकार बन सकते थे।",
+          "translation": "If you had paid attention to your skill in painting, you could become a famous painter.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "युवाओं को आत्मनिर्भर बनाने के लिए व्यावसायिक केंद्रों में नए हुनर सिखाए जाते हैं।",
+          "translation": "New skills are taught in vocational centers to make youth self-reliant.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "सलाह",
+      "partOfSpeech": "noun",
+      "translation": "advice / counsel / consultation / recommendation / peace (सुलह)",
+      "intro": "Guidance or recommendations offered with regard to prudent future action; counsel. Arabic origin (salāh). Direct synonym: मशविरा, राय.",
+      "usage": "Feminine noun. Singular: सलाह, plural direct: सलाहें, oblique: सलाहों. Collocations: 'सलाह देना' (advise), 'सलाह लेना' (take advice).",
+      "synonyms": [
+        {
+          "word": "परामर्श",
+          "gloss": "consultation / counsel (formal)"
+        },
+        {
+          "word": "राय",
+          "gloss": "opinion / advice"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "मुकदमे के संबंध में कानूनी कदम उठाने से पहले उसने अपने वरिष्ठ वकील से सलाह ली।",
+          "translation": "Before taking legal steps regarding the lawsuit, he took counsel from his senior lawyer.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "डॉक्टर ने दिल के मरीज को नियमित सुबह की सैर और हल्का भोजन करने की सलाह दी।",
+          "translation": "The doctor advised the heart patient to take regular morning walks and eat light food.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम समय पर अपने अनुभवी पिता की नेक सलाह मान लेते, तो व्यापार में घाटा न होता।",
+          "translation": "If you had heeded the good advice of your experienced father in time, there would be no loss in business.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "वित्तीय मामलों में हमेशा स्वतंत्र विशेषज्ञों द्वारा उचित सलाह दी जाती है।",
+          "translation": "Proper advice is always given by independent experts in financial matters.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "मदद",
+      "partOfSpeech": "noun",
+      "translation": "help / aid / assistance / support / relief",
+      "intro": "The action of helping someone to do something; aid or assistance. Arabic origin (madad). Related to मदद करना (#216).",
+      "usage": "Feminine noun. Singular: मदद, plural direct: मददें, oblique: मददों. Collocations: 'मदद मांगना' (ask for help), 'मदद पहुंचाना' (deliver aid).",
+      "synonyms": [
+        {
+          "word": "सहायता",
+          "gloss": "assistance / help (formal)"
+        },
+        {
+          "word": "सहयोग",
+          "gloss": "cooperation / support"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "पड़ोसियों ने आग लगने पर तुरंत पानी और रेत डालकर परिवार की बहुत मदद की।",
+          "translation": "Neighbors helped the family greatly upon outbreak of fire by pouring water and sand immediately.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बाढ़ प्रभावित इलाकों में सरकार और स्वयंसेवकों ने दवाइयों और भोजन की मदद पहुंचाई।",
+          "translation": "The government and volunteers delivered aid of medicines and food in flood-affected areas.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि संकट की उस घड़ी में सच्चा दोस्त मदद न करता, तो हम बहुत परेशान हो जाते।",
+          "translation": "If a true friend had not helped in that hour of crisis, we would be very troubled.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आपदा पीड़ितों को राहत शिविरों में हर संभव मदद दी जाती है।",
+          "translation": "Every possible assistance is provided to disaster victims in relief camps.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "संदेश",
+      "partOfSpeech": "noun",
+      "translation": "message / errand / news / dispatch / moral lesson",
+      "intro": "A verbal, written, or recorded communication sent to or left for a recipient who cannot be contacted directly; moral message of a fable. Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: संदेश, oblique: संदेशों. Collocation: 'संदेश भेजना' (send message).",
+      "synonyms": [
+        {
+          "word": "पैगाम",
+          "gloss": "message (Persian loan)"
+        },
+        {
+          "word": "सूचना",
+          "gloss": "information / notice"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "महात्मा गांधी ने अपने पूरे जीवन में सत्य और अहिंसा का अमर संदेश दिया।",
+          "translation": "Mahatma Gandhi gave the immortal message of truth and non-violence throughout his entire life.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "डाकिए ने सैनिक के परिवार को मोर्चे से भेजा गया एक गोपनीय संदेश पहुंचाया।",
+          "translation": "The postman delivered a confidential message sent from the war front to the soldier's family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि तुम्हारा संदेश मुझे समय पर मिल जाता, तो मैं स्टेशन पर तुम्हें लेने जरूर आता।",
+          "translation": "If your message had reached me on time, I would certainly come to the station to receive you.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "इंटरनेट के माध्यम से आवश्यक संदेश पलक झपकते ही दुनिया भर में भेजे जाते हैं।",
+          "translation": "Essential messages are sent across the world in the blink of an eye via the internet.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "समाचार",
+      "partOfSpeech": "noun",
+      "translation": "news / report / information / tidings",
+      "intro": "Newly received or noteworthy information, especially about recent or important events; news broadcast (समाचार पत्र = newspaper). Sanskrit origin.",
+      "usage": "Masculine noun. Direct plural: समाचार, oblique: समाचारों. Synonyms: खबर.",
+      "synonyms": [
+        {
+          "word": "खबर",
+          "gloss": "news / report (Arabic loan)"
+        },
+        {
+          "word": "वृत्तांत",
+          "gloss": "account / narrative"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "दादा जी हर शाम आठ बजे टेलीविजन पर राष्ट्रीय और अंतरराष्ट्रीय समाचार देखते हैं।",
+          "translation": "Grandfather watches national and international news on television every evening at eight o'clock.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "चंद्रमा पर रोवर के सफल अवतरण का शुभ समाचार सुनकर पूरा देश खुशी से झूम उठा।",
+          "translation": "Hearing the good news of the rover's successful landing on the moon, the whole nation rejoiced.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हमें समय रहते खतरे का समाचार मिल जाता, तो हम पहले ही सतर्क हो जाते।",
+          "translation": "If we had received news of the danger in time, we would have been alert beforehand.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "ताजा समाचार रेडियो और टीवी चैनलों पर चौबीसों घंटे प्रसारित किए जाते हैं।",
+          "translation": "Latest news is broadcast twenty-four hours a day on radio and TV channels.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "चिट्ठी",
+      "partOfSpeech": "noun",
+      "translation": "letter / note / epistle / dispatch",
+      "intro": "A written communication, usually sent by post or delivered by hand; letter. Popular conversational synonym of पत्र (#367) and खत.",
+      "usage": "Feminine noun. Singular: चिट्ठी, plural direct: चिट्ठियां, oblique: चिट्ठियों. Collocation: 'चिट्ठी-पत्री' (correspondence).",
+      "synonyms": [
+        {
+          "word": "पत्र",
+          "gloss": "letter (#367)"
+        },
+        {
+          "word": "खत",
+          "gloss": "letter (Arabic loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "विदेश में पढ़ रहे बेटे ने अपनी मां के नाम एक भावुक और लंबी चिट्ठी लिखी।",
+          "translation": "The son studying abroad wrote an emotional and long letter to his mother.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "डाकिए ने फौजी के घर पहुंचकर मोर्चे से आई जरूरी चिट्ठी परिजनों को सौंपी।",
+          "translation": "The postman reached the soldier's house and handed over the important letter from the front to family members.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि डाकिया समय पर मेरी चिट्ठी पहुंचा देता, तो मैं समय पर परीक्षा में पहुंच जाता।",
+          "translation": "If the postman had delivered my letter on time, I would arrive at the exam on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "आजकल व्यक्तिगत चिट्ठियों के बजाय ईमेल और मैसेज ज्यादा भेजे जाते हैं।",
+          "translation": "Nowadays emails and messages are sent more instead of personal letters.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "पता",
+      "partOfSpeech": "noun",
+      "translation": "address / whereabouts / trace / knowledge (पता होना = to know)",
+      "intro": "The particulars of the place where someone lives or an organization is situated (घर का पता); or knowledge of something ('मुझे नहीं पता' = I don't know). Distinct from पत्ता (#425, leaf).",
+      "usage": "Masculine noun. Singular: पता, plural direct: पते, oblique: पतों. Verbal idiom: 'पता चलना' (come to know), 'पता लगाना' (trace/find out).",
+      "synonyms": [
+        {
+          "word": "ठिकाना",
+          "gloss": "whereabouts / residence"
+        },
+        {
+          "word": "जानकारी",
+          "gloss": "knowledge / information"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "कूरियर डिलीवरी करने वाले ने पार्सल पहुंचाने के लिए फोन पर घर का सही पता पूछा।",
+          "translation": "The courier delivery person asked for the correct home address on phone to deliver the parcel.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "काफी छानबीन करने के बाद भी पुलिस को फरार अपराधी के गुप्त ठिकाने का पता नहीं चला।",
+          "translation": "Even after much investigation, police did not find out the secret whereabouts of the absconding criminal.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि मुझे इस समारोह का सही समय और पता मालूम होता, तो मैं जरूर शामिल होता।",
+          "translation": "If I knew the correct time and address of this ceremony, I would certainly participate.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "खोए हुए बच्चों का पता लगाने के लिए सोशल मीडिया पर अभियान चलाए जाते हैं।",
+          "translation": "Campaigns are run on social media to trace lost children.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "यात्रा",
+      "partOfSpeech": "noun",
+      "translation": "journey / travel / trip / pilgrimage (तीर्थ यात्रा) / tour",
+      "intro": "An act of traveling from one place to another; journey; pilgrimage (तीर्थयात्रा). Sanskrit origin. Direct synonym: सफर.",
+      "usage": "Feminine noun. Singular: यात्रा, plural direct: यात्राएं, oblique: यात्राओं. Collocations: 'शुभ यात्रा' (bon voyage), 'यात्रा करना' (to travel).",
+      "synonyms": [
+        {
+          "word": "सफर",
+          "gloss": "journey (Arabic loan)"
+        },
+        {
+          "word": "दौरा",
+          "gloss": "tour / visit"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "ट्रेन की खिड़की से प्राकृतिक नजारों को देखते हुए पहाड़ों की यात्रा बहुत आनंददायक रही।",
+          "translation": "Viewing natural vistas from the train window, the journey to the mountains was very delightful.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "प्रधानमंत्री ने द्विपक्षीय व्यापारिक समझौतों को मजबूत करने के लिए मित्र देश की आधिकारिक यात्रा की।",
+          "translation": "The Prime Minister undertook an official trip to a friendly nation to strengthen bilateral trade agreements.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि सड़क मार्ग की स्थिति बेहतर होती, तो यह लंबी यात्रा इतनी थकाऊ न लगती।",
+          "translation": "If the condition of the road route were better, this long journey would not seem so exhausting.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "तीर्थयात्रियों द्वारा हर साल कठिन रास्तों से होते हुए अमरनाथ यात्रा पूरी की जाती है।",
+          "translation": "The Amarnath pilgrimage is completed every year by pilgrims passing through arduous trails.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "सफर",
+      "partOfSpeech": "noun",
+      "translation": "journey / travel / passage / voyage / life's journey (जिंदगी का सफर)",
+      "intro": "An act of traveling; journey; passage through life ('जिंदगी का सफर'). Arabic loanword (safar). Direct synonym: यात्रा (#494).",
+      "usage": "Masculine noun. Direct plural: सफर, oblique: सफरों. Collocation: 'सफर करना' (to travel), 'सफर पर निकलना' (set out on journey).",
+      "synonyms": [
+        {
+          "word": "यात्रा",
+          "gloss": "journey (#494)"
+        },
+        {
+          "word": "रास्ता",
+          "gloss": "path / journey (#135)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "अच्छी किताबों और मधुर संगीत के साथ रेलगाड़ी का लंबा सफर बहुत जल्दी कट जाता है।",
+          "translation": "With good books and sweet music, a long train journey passes very quickly.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "जिंदगी का यह अनूठा सफर कई सुखद और दुखद यादों से भरा हुआ होता है।",
+          "translation": "This unique journey of life is filled with many pleasant and painful memories.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि हम सुबह जल्दी सफर पर निकलते, तो दोपहर की तेज धूप से बच जाते।",
+          "translation": "If we had set out on the journey early in the morning, we would escape the scorching afternoon sun.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुरक्षित सफर के लिए वाहनों की गति सीमा पर यातायात पुलिस द्वारा निगरानी रखी जाती है।",
+          "translation": "Monitoring is maintained by traffic police over vehicle speed limits for safe travel.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "रेलगाड़ी",
+      "partOfSpeech": "noun",
+      "translation": "train / railway train",
+      "intro": "A series of connected railway carriages or wagons moved by a locomotive; railway train. Hybrid compound (English 'rail' + Hindi 'गाड़ी').",
+      "usage": "Feminine noun. Singular: रेलगाड़ी, plural direct: रेलगाड़ियां, oblique: रेलगाड़ियों. Direct synonym to ट्रेन.",
+      "synonyms": [
+        {
+          "word": "ट्रेन",
+          "gloss": "train (English loan)"
+        },
+        {
+          "word": "लोहपथगामिनी",
+          "gloss": "train (formal neologism)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "तेज रफ्तार राजधानी रेलगाड़ी अपने निर्धारित समय पर प्लेटफॉर्म नंबर एक पर पहुंची।",
+          "translation": "The high-speed Rajdhani train arrived at platform number one at its scheduled time.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "हरी झंडी मिलते ही लंबी मालवाहक रेलगाड़ी सीटी बजाते हुए धीरे-धीरे आगे बढ़ गई।",
+          "translation": "Upon receiving the green flag, the long freight train moved forward slowly sounding its whistle.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि रेलगाड़ी समय पर चलती, तो यात्री महत्वपूर्ण बैठक में समय से पहुंच जाते।",
+          "translation": "If the train ran on time, passengers would reach the important meeting on time.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "देश के दूर-दराज इलाकों को जोड़ने के लिए भारतीय रेलवे द्वारा नई रेलगाड़ियां चलाई जाती हैं।",
+          "translation": "New trains are operated by Indian Railways to connect remote areas of the country.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "बस",
+      "partOfSpeech": "noun",
+      "translation": "bus (omnibus) / enough! / stop! (बस करो) / control / power (वश में)",
+      "intro": "A large motor vehicle carrying passengers by road (बस f); or interjection meaning 'enough! / stop!' (बस!); or power/control (बस में होना = to be in control).",
+      "usage": "Feminine noun (when meaning bus: लाल बस, बसें). Uninflected interjection (बस = enough). Sanskrit loan 'वश' (control) is also written 'बस'.",
+      "synonyms": [
+        {
+          "word": "सवारी गाड़ी",
+          "gloss": "passenger bus"
+        },
+        {
+          "word": "पर्याप्त",
+          "gloss": "enough (#348)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "शहर के व्यस्त रूट पर चलने वाली इलेक्ट्रिक बस यात्रियों से पूरी तरह भरी हुई थी।",
+          "translation": "The electric bus running on the city's busy route was completely full of passengers.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "बस बहुत हो गया, अब इस व्यर्थ के विवाद को तुरंत बंद कर देना चाहिए!",
+          "translation": "Enough, this is too much, now this futile dispute should be stopped immediately!",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समय पर अंतिम बस मिल जाती, तो यात्रियों को रात स्टेशन पर न गुजारनी पड़ती।",
+          "translation": "If the last bus were caught on time, passengers wouldn't have to spend the night at the station.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सार्वजनिक परिवहन के लिए राज्य सरकार द्वारा नई वातानुकूलित बसें चलाई जाती हैं।",
+          "translation": "New air-conditioned buses are operated by the state government for public transport.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "कार",
+      "partOfSpeech": "noun",
+      "translation": "car / motorcar / automobile",
+      "intro": "A four-wheeled road vehicle powered by an engine and able to carry a small number of people. English loanword.",
+      "usage": "Feminine noun. Singular: कार, plural direct: कारें, oblique: कारों. Direct synonym to मोटरगाड़ी.",
+      "synonyms": [
+        {
+          "word": "मोटरगाड़ी",
+          "gloss": "motorcar"
+        },
+        {
+          "word": "गाड़ी",
+          "gloss": "vehicle (#496)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "उसने अपने परिवार की सुविधा के लिए एक नई और आरामदायक पारिवारिक कार खरीदी।",
+          "translation": "He bought a new and comfortable family car for the convenience of his family.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "भीड़भाड़ भरे बाजार में संकरी गलियों के कारण कार को पार्क करने में काफी समय लगा।",
+          "translation": "It took considerable time to park the car in the bustling market due to narrow lanes.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि कार में एयरबैग और सीटबेल्ट न होते, तो हादसे में सवारियों को गंभीर चोट लगती।",
+          "translation": "If there were no airbags and seatbelts in the car, occupants would suffer serious injury in the accident.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सड़क सुरक्षा नियमों के तहत हर साल कारों की तकनीकी जांच की जाती है।",
+          "translation": "Technical inspection of cars is carried out every year under road safety rules.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    },
+    {
+      "headword": "जहाज",
+      "partOfSpeech": "noun",
+      "translation": "ship / vessel (पानी का जहाज) / airplane (हवाई जहाज)",
+      "intro": "A large boat for transporting people or goods by sea (पानी का जहाज); or an aircraft (हवाई जहाज). Arabic loanword (jahāz).",
+      "usage": "Masculine noun. Direct plural: जहाज, oblique: जहाजों. Collocations: 'हवाई जहाज' (airplane), 'जंगी जहाज' (warship).",
+      "synonyms": [
+        {
+          "word": "पोत",
+          "gloss": "ship / vessel (formal)"
+        },
+        {
+          "word": "विमान",
+          "gloss": "airplane / aircraft"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "हजारों टन माल से लदा हुआ विशाल मालवाहक जहाज मुंबई बंदरगाह पर लंगर डाले खड़ा है।",
+          "translation": "The huge cargo ship laden with thousands of tons of cargo stands anchored at Mumbai port.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "अंतरराष्ट्रीय हवाई अड्डे से यात्री जहाज ने बादलों को चीरते हुए आसमान में उड़ान भरी।",
+          "translation": "From the international airport the passenger airplane took off into the sky piercing the clouds.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि समुद्री जहाज में रडार प्रणाली काम न करती, तो घने कोहरे में वह चट्टान से टकरा जाता।",
+          "translation": "If the radar system did not function in the ship, it would collide with the rock in dense fog.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "सुरक्षा गश्त के लिए नौसेना द्वारा आधुनिक जंगी जहाजों को समुद्र में तैनात किया जाता है।",
+          "translation": "Modern warships are deployed in the sea by the navy for security patrol.",
+          "type": "passive"
+        }
+      ],
+      "gender": "masculine"
+    },
+    {
+      "headword": "नाव",
+      "partOfSpeech": "noun",
+      "translation": "boat / rowboat / canoe / skiff",
+      "intro": "A small vessel for traveling over water, propelled by oars, sails, or an engine. Sanskrit borrowing (नौ). Direct synonym: किश्ती, नौका.",
+      "usage": "Feminine noun. Singular: नाव, plural direct: नावें, oblique: नावों. Collocations: 'नाव चलाना' (to row a boat), 'नाविक' (boatman).",
+      "synonyms": [
+        {
+          "word": "नौका",
+          "gloss": "boat (formal Sanskrit)"
+        },
+        {
+          "word": "किश्ती",
+          "gloss": "boat (Persian loan)"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "नाविक ने अपने दोनों चप्पू चलाकर लकड़ी की नाव को नदी के दूसरे किनारे पर पहुंचाया।",
+          "translation": "The boatman conveyed the wooden boat to the other bank of the river rowing both his oars.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "शाम के समय बनारस के अस्सी घाट पर सुंदर रंग-बिरंगी नावों में नौका विहार का अलग ही आनंद है।",
+          "translation": "At evening at Varanasi's Assi Ghat, boating in beautiful colorful boats has a unique delight.",
+          "type": "indicative"
+        },
+        {
+          "sentence": "यदि नाव में कोई सुराख हो जाता, तो उसमें धीरे-धीरे पानी भर जाता और वह डूब जाती।",
+          "translation": "If a hole formed in the boat, water would slowly fill into it and it would sink.",
+          "type": "konjunktivII"
+        },
+        {
+          "sentence": "बाढ़ के समय बचाव दलों द्वारा रबर की मजबूत नावों से लोगों को निकाला जाता है।",
+          "translation": "People are evacuated with sturdy rubber boats by rescue teams during floods.",
+          "type": "passive"
+        }
+      ],
+      "gender": "feminine"
+    }
+  ]
+}

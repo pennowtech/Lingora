@@ -1,92 +1,47 @@
-import { logger } from '@lingora/observability'
 import Constants from 'expo-constants'
 import { Stack } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import appIcon from '../../assets/icon-lingora.png'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { AlertModal, Button, Card, Chip, IconButton } from '../../components/ui'
-import { useServices } from '../../lib/services'
+import { Icon } from '../../components/Icon'
+import { Button, Card, IconButton } from '../../components/ui'
+import { WhatsNewModal } from '../../components/WhatsNewModal'
+import { parseChangelogMarkdown } from '../../lib/changelog'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
-const log = logger.child({ feature: 'settings', screen: 'AboutScreen' })
-
-type Category = 'bug' | 'feature' | 'general'
-
-const CATEGORY_META: Record<Category, { label: string; icon: 'Bug' | 'Lightbulb' | 'MessagesSquare' }> = {
-  bug: { label: 'Bug / Issue', icon: 'Bug' },
-  feature: { label: 'Feature request', icon: 'Lightbulb' },
-  general: { label: 'General feedback', icon: 'MessagesSquare' },
-}
-const CATEGORIES = Object.keys(CATEGORY_META) as Category[]
-
 const HELP_SECTIONS: HelpSection[] = [
   {
-    id: 'public',
-    title: 'This becomes a public issue',
-    icon: 'Globe',
+    id: 'privacy',
+    title: 'Offline-first & Privacy',
+    icon: 'ShieldCheck',
     paragraphs: [
-      'Submitting posts your message as a GitHub issue on Lemmory\'s public repository - anyone can read it, including your contact email if you provide one.',
-      'Please don\'t include anything private in your message.',
+      'Lemony is built **offline-first**. All your cards, review history, and learning progress stay strictly on your device unless you enable optional Cloud Sync.',
+      'AI lookups only send the term you search for to your chosen AI provider, never your full study history.',
     ],
   },
   {
-    id: 'diagnostics',
-    title: 'What diagnostics includes',
-    icon: 'Info',
+    id: 'updates',
+    title: 'Updates & Release Highlights',
+    icon: 'Sparkles',
     paragraphs: [
-      'Only app version, platform, and your current feature tier (Full or Translation-only) - enough to help reproduce a bug.',
-      'Never included: word content, translations, AI responses, or API keys.',
-    ],
-  },
-  {
-    id: 'status',
-    title: 'Why nothing sends yet',
-    icon: 'Wrench',
-    paragraphs: [
-      'Creating a GitHub issue needs a token with write access to the repo - that can never ship inside the app, since a compiled build can be decompiled and any embedded secret treated as public.',
-      'This screen is a preview of the full flow; submitting just confirms locally for now. A small server-side function will handle real submission in a future update.',
+      'We release frequent updates with new features, language support, and bug fixes.',
+      'Check the **"What\'s New"** section to review what changed in recent versions.',
     ],
   },
 ]
 
-/**
- * "About & Support" — the app identity card (unchanged from the standalone About screen) plus the
- * "Send Feedback" form (also unchanged — see below), merged into one settings-menu destination so
- * the main menu doesn't need a separate row for each. Kept as two distinct sections in one
- * ScrollView rather than actually interleaving their logic — they have nothing to share, and
- * keeping the feedback form's own code block intact (instead of restructuring it) minimizes the
- * chance of breaking its working submission-preview flow.
- *
- * The feedback form itself — UI shell for the flow designed in
- * LingoraDocs/10_feedback_to_github_issue.md. Deliberately frontend-only for now: creating a
- * GitHub issue needs a repo-write token that can never ship inside the app (see that doc's §2), so
- * there is no real submission path yet — Submit just confirms locally.
- *
- * TODO(feedback-backend): once the Firebase Cloud Function from doc 10 §5 exists, replace
- * handleSubmit's local confirmation with a real call to it (category/title/message/diagnostics/
- * contactEmail, exactly the fields already collected here) and surface the created issue's URL or
- * a rate-limit error instead of the placeholder Alert.
- */
 export default function AboutScreen(): JSX.Element {
   const { t } = useTranslation()
-  const { tier } = useServices()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
-  const help = useHelpAccordion('public')
+  const help = useHelpAccordion('privacy')
+  const [whatsNewModalOpen, setWhatsNewModalOpen] = useState(false)
 
-  const [category, setCategory] = useState<Category>('bug')
-  const [title, setTitle] = useState('')
-  const [message, setMessage] = useState('')
-  const [includeDiagnostics, setIncludeDiagnostics] = useState(true)
-  const [contactEmail, setContactEmail] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null)
-
-  const appVersion = Constants.expoConfig?.version ?? '0.1.0'
+  const appVersion = Constants.expoConfig?.version ?? '0.2.0'
   const buildNumber =
     Constants.nativeBuildVersion ??
     (Platform.OS === 'android'
@@ -95,156 +50,91 @@ export default function AboutScreen(): JSX.Element {
     '8'
 
   const buildLabel = `v${appVersion} (${t('Build')} ${buildNumber})`
-  const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android'
 
-  const canSubmit = title.trim() !== '' && message.trim() !== '' && !submitting
-
-  const handleSubmit = (): void => {
-    if (!canSubmit) return
-    setSubmitting(true)
-    log.info('settings.feedback_submitted_locally', {
-      message: 'User completed the feedback form (no backend wired up yet)',
-      metadata: { settingKey: category },
-    })
-    // No backend yet (see file doc comment) — this is where the real submission call goes once
-    // LingoraDocs/10_feedback_to_github_issue.md's Cloud Function exists.
-    setTimeout(() => {
-      setSubmitting(false)
-      setNotice({
-        title: t('Thanks for the feedback'),
-        message: t("This is a preview of the feedback form - sending isn't connected yet, so nothing was sent anywhere. Once it is, this exact form will open a GitHub issue on your behalf."),
-      })
-      setCategory('bug')
-      setTitle('')
-      setMessage('')
-      setContactEmail('')
-    }, 400)
-  }
+  const release = useMemo(() => parseChangelogMarkdown(), [])
+  const recentSections = release.sections.slice(0, 3)
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-      {/* Help lives in the native header, next to the "About & Support" title (set by
-          app/_layout.tsx), not inline in the body — see the header-right pattern shared with
-          Search, Mine, word/[form], and the other Settings screens that have a help sheet. */}
       <Stack.Screen
         options={{
+          title: t('About Lemony'),
           headerRight: () => (
-            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('public')} color={colors.primary} size={22} />
+            <IconButton icon="CircleQuestionMark" onPress={() => help.openSection('privacy')} color={colors.primary} size={22} />
           ),
         }}
       />
 
+      {/* App Identity Card */}
       <Card style={styles.aboutCard}>
         <View style={styles.iconWrap}>
           <Image source={appIcon} style={styles.icon} resizeMode="contain" />
         </View>
-        <Text style={styles.appName}>Lemmory</Text>
+        <Text style={styles.appName}>Lemony</Text>
         <View style={styles.versionBadgeContainer}>
           <Text style={styles.versionBadgeText}>{buildLabel}</Text>
         </View>
-        <Text style={styles.detail}>{t('offline-first · your data stays on device')}</Text>
+        <Text style={styles.tagline}>{t('offline-first · your data stays on device')}</Text>
       </Card>
 
-      <Text style={styles.sectionLabel}>{t('Send Feedback')}</Text>
-
-      <Text style={styles.fieldLabel}>{t('What kind of feedback?')}</Text>
-      <Card>
-        <View style={styles.categoryRow}>
-          {CATEGORIES.map((key) => {
-            const meta = CATEGORY_META[key]
-            const selected = category === key
-            return (
-              <Chip
-                key={key}
-                testID={`feedback-category-${key}`}
-                label={t(meta.label)}
-                selected={selected}
-                onPress={() => setCategory(key)}
-              />
-            )
-          })}
-        </View>
-      </Card>
-
-      <Card style={styles.detailsCard}>
-        <Text style={styles.fieldLabel}>{t('Title')}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={t('A short summary')}
-          placeholderTextColor={colors.textMuted}
-          value={title}
-          onChangeText={setTitle}
-          maxLength={120}
-        />
-
-        <Text style={[styles.fieldLabel, styles.fieldSpacing]}>{t('Message')}</Text>
-        <TextInput
-          style={[styles.input, styles.messageInput]}
-          placeholder={t('What happened, or what would you like to see?')}
-          placeholderTextColor={colors.textMuted}
-          value={message}
-          onChangeText={setMessage}
-          multiline
-          textAlignVertical="top"
-        />
-      </Card>
-
-      <Card>
-        <View style={styles.switchRow}>
-          <View style={styles.switchLabelWrap}>
-            <Text style={styles.fieldLabel}>{t('Include diagnostics')}</Text>
-            <Text style={styles.fieldHint}>{t('App version, platform, and feature tier - helps reproduce a bug.')}</Text>
+      {/* What's New Card */}
+      <Card style={styles.sectionCard}>
+        <View style={styles.sectionHeaderRow}>
+          <View style={styles.sectionTitleWrap}>
+            <Icon name="Sparkles" size={20} color={colors.primary} />
+            <Text style={styles.sectionTitle}>{t("What's New in v{{version}}", { version: release.version })}</Text>
           </View>
-          <Switch testID="feedback-diagnostics-toggle" value={includeDiagnostics} onValueChange={setIncludeDiagnostics} />
+          <Pressable
+            style={styles.seeAllButton}
+            onPress={() => setWhatsNewModalOpen(true)}
+            hitSlop={8}
+          >
+            <Text style={styles.seeAllLabel}>{t('View all')}</Text>
+            <Icon name="ChevronRight" size={14} color={colors.primary} />
+          </Pressable>
         </View>
-        {includeDiagnostics ? (
-          <Text style={styles.diagnosticsPreview}>
-            {t('App {{version}} · {{platform}} · {{tier}}', {
-              version: appVersion,
-              platform: platformLabel,
-              tier: tier === 'full' ? t('Full') : t('Translation-only'),
-            })}
-          </Text>
-        ) : null}
-      </Card>
 
-      <Card>
-        <Text style={styles.fieldLabel}>{t('Email (Optional)')}</Text>
-        <Text style={styles.fieldHint}>{t('Only if you want a reply - also becomes public once posted.')}</Text>
-        <TextInput
-          style={[styles.input, styles.fieldSpacing]}
-          placeholder={t('you@example.com')}
-          placeholderTextColor={colors.textMuted}
-          value={contactEmail}
-          onChangeText={setContactEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
+        <View style={styles.whatsNewHighlights}>
+          {recentSections.map((item) => (
+            <Pressable
+              key={item.id}
+              style={({ pressed }) => [styles.highlightRow, pressed && styles.highlightRowPressed]}
+              onPress={() => setWhatsNewModalOpen(true)}
+            >
+              <View style={[styles.highlightIconBubble, { backgroundColor: colors.primarySoft }]}>
+                <Icon name={item.icon} size={16} color={colors.primary} />
+              </View>
+              <View style={styles.highlightTextWrap}>
+                <Text style={styles.highlightTitle}>{t(item.title)}</Text>
+                <Text style={styles.highlightDesc} numberOfLines={2}>{t(item.subtitle)}</Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+
+        <Button
+          label={t('Explore All Updates')}
+          icon="Sparkles"
+          variant="secondary"
+          small
+          onPress={() => setWhatsNewModalOpen(true)}
+          style={styles.whatsNewFullBtn}
         />
       </Card>
 
-      <Button
-        label={submitting ? t('Sending...') : t('Send Feedback')}
-        icon="Send"
-        onPress={handleSubmit}
-        disabled={!canSubmit}
-        style={styles.submitButton}
+      <WhatsNewModal
+        visible={whatsNewModalOpen}
+        onClose={() => setWhatsNewModalOpen(false)}
       />
 
       <HelpAccordionSheet
         visible={help.visible}
         onClose={help.close}
-        title={t('Send Feedback help')}
+        title={t('About & Privacy')}
         sections={HELP_SECTIONS}
         activeSectionId={help.sectionId}
         onSectionPress={(id) => help.setSectionId(help.sectionId === id ? null : id)}
         translate={t}
-      />
-      <AlertModal
-        visible={notice !== null}
-        title={notice?.title ?? ''}
-        message={notice?.message ?? ''}
-        onClose={() => setNotice(null)}
       />
     </ScrollView>
   )
@@ -253,68 +143,99 @@ export default function AboutScreen(): JSX.Element {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
-    aboutCard: { alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.xl, marginBottom: spacing.sm },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
+    aboutCard: {
+      alignItems: 'center',
+      padding: spacing.lg,
+      gap: spacing.xs,
+      backgroundColor: colors.surface,
+    },
     iconWrap: {
       width: 72,
       height: 72,
       borderRadius: radius.lg,
-      backgroundColor: colors.primarySoft,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.sm,
       overflow: 'hidden',
+      marginBottom: spacing.xs,
     },
-    icon: { width: 72, height: 72 },
-    appName: { fontSize: type.heading, fontWeight: '800', color: colors.text },
+    icon: { width: '100%', height: '100%' },
+    appName: { fontSize: 24, fontWeight: '800', color: colors.text },
     versionBadgeContainer: {
       backgroundColor: colors.primarySoft,
       paddingHorizontal: spacing.md,
-      paddingVertical: 2,
+      paddingVertical: 4,
       borderRadius: radius.full,
-      marginVertical: spacing.xs,
     },
-    versionBadgeText: {
-      fontSize: type.caption,
+    versionBadgeText: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
+    tagline: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center', marginTop: 2 },
+    sectionCard: {
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    sectionHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    sectionTitleWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    sectionTitle: {
+      fontSize: type.body,
       fontWeight: '700',
+      color: colors.text,
+    },
+    seeAllButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    seeAllLabel: {
+      fontSize: type.caption,
+      fontWeight: '600',
       color: colors.primary,
     },
-    detail: { fontSize: type.caption, color: colors.textMuted, textAlign: 'center' },
-    sectionLabel: {
+    whatsNewHighlights: {
+      gap: spacing.xs,
+    },
+    highlightRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      borderRadius: radius.md,
+    },
+    highlightRowPressed: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    highlightIconBubble: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    highlightTextWrap: {
+      flex: 1,
+      gap: 2,
+    },
+    highlightTitle: {
       fontSize: type.caption,
       fontWeight: '700',
-      color: colors.textMuted,
-      textTransform: 'uppercase',
-      letterSpacing: 0.4,
-      marginTop: spacing.sm,
-      marginBottom: spacing.xs,
-    },
-    fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
-    fieldHint: { fontSize: type.micro, color: colors.textMuted, marginTop: spacing.xs, lineHeight: 16 },
-    fieldSpacing: { marginTop: spacing.md },
-    categoryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    detailsCard: { gap: 0 },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.sm,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.md,
-      fontSize: type.caption,
       color: colors.text,
-      backgroundColor: colors.background,
+    },
+    highlightDesc: {
+      fontSize: type.micro,
+      color: colors.textSecondary,
+      lineHeight: 16,
+    },
+    whatsNewFullBtn: {
       marginTop: spacing.xs,
     },
-    messageInput: { minHeight: 120 },
-    switchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    switchLabelWrap: { flex: 1 },
-    diagnosticsPreview: {
-      fontSize: type.caption,
-      color: colors.textSecondary,
-      marginTop: spacing.md,
-      backgroundColor: colors.surfaceMuted,
-      borderRadius: radius.sm,
-      padding: spacing.sm,
-    },
-    submitButton: { marginTop: spacing.md },
   })

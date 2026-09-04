@@ -63,7 +63,7 @@ type Step = 'pick' | 'source-deck' | 'target' | 'preview'
  * over with fresh IDs.
  */
 export default function LemImportScreen(): JSX.Element {
-  const { db, targetLanguage } = useServices()
+  const { db, targetLanguage, nativeLanguage } = useServices()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const params = useLocalSearchParams<{ deckId?: string }>()
@@ -96,7 +96,15 @@ export default function LemImportScreen(): JSX.Element {
       if (trimmed === '') throw new Error(t('Give the deck a name.'))
       const id = crypto.randomUUID()
       const now = Date.now()
-      await createDeck(db, { id, name: trimmed, enabledQuestionTypes: questionTypes, createdAt: now, updatedAt: now })
+      await createDeck(db, {
+        id,
+        name: trimmed,
+        enabledQuestionTypes: questionTypes,
+        targetLanguage,
+        nativeLanguage,
+        createdAt: now,
+        updatedAt: now,
+      })
       return { id, name: trimmed }
     },
     onSuccess: async ({ id, name }) => {
@@ -434,7 +442,7 @@ export default function LemImportScreen(): JSX.Element {
         <Card style={styles.card}>
           <Text style={styles.title}>{t('Import from a .lem file')}</Text>
           <Text style={styles.body}>
-            {t('Choose a Lemmory `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
+            {t('Choose a Lemony `.lem` file - a deck someone shared with you, or one of your own deck exports. Full fidelity: meanings, examples, synonyms, cloze cards, review history, and FSRS scheduling all come across.')}
           </Text>
           <Button label={t('Choose .lem file')} icon="FolderOpen" onPress={handlePickFile} />
           {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
@@ -498,6 +506,8 @@ export default function LemImportScreen(): JSX.Element {
         visible={deckPickerOpen}
         onClose={() => setDeckPickerOpen(false)}
         title={t('Add to deck')}
+        targetLanguage={targetLanguage}
+        nativeLanguage={nativeLanguage}
         onSelectDeck={(deck) => {
           setTargetDeckId(deck.id)
           setTargetDeckName(deck.name)

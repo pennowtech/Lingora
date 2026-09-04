@@ -123,4 +123,9 @@ export * from './repositories/word-guides'
 export { ExpoSQLiteAdapter, type ExpoSQLiteDatabase } from './adapters/expo'
 export { splitSqlStatements } from './adapters/sql-split'
 
-export { seedDatabase } from './seed_dummy_data'
+export {
+  cleanupProductionDemoSeed,
+  seedDatabase,
+  seedDefaultTemplates,
+  seedDevSampleData,
+} from './seed_dummy_data'

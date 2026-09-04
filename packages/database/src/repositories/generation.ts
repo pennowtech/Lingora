@@ -385,11 +385,22 @@ export async function regenerateWordPackage(
     await tx.execute(`DELETE FROM inflections WHERE lemma_id = ?`, [lemmaId])
     await createInflections(tx, lemmaId, [payload.lemma.form, ...payload.inflections])
 
-    // Clear the FK-less primary_meaning_id before the meanings it points to are cascade-deleted
-    // with their cluster, then wipe every cluster (cascades meanings/examples/synonyms) and the
-    // card-scoped phrases/cloze variants.
+    // A lemma can be shared by more than one card (another native-language card, or a second
+    // sense card from createCardForSense) — meaning_clusters is keyed by lemma_id, not card_id,
+    // so a blanket `DELETE ... WHERE lemma_id = ?` would cascade away another card's meanings/
+    // examples/synonyms too, not just this card's. Scope the wipe to what this card actually
+    // owns instead: its own meanings/examples/synonyms directly, then only the clusters that are
+    // now completely unreferenced (i.e. were exclusively this card's, never shared).
     await tx.execute(`UPDATE cards SET primary_meaning_id = NULL WHERE id = ?`, [cardId])
-    await tx.execute(`DELETE FROM meaning_clusters WHERE lemma_id = ?`, [lemmaId])
+    await tx.execute(`DELETE FROM meanings WHERE card_id = ?`, [cardId])
+    await tx.execute(`DELETE FROM examples WHERE card_id = ?`, [cardId])
+    await tx.execute(`DELETE FROM synonyms WHERE card_id = ?`, [cardId])
+    await tx.execute(
+      `DELETE FROM meaning_clusters
+       WHERE lemma_id = ?
+         AND id NOT IN (SELECT DISTINCT meaning_cluster_id FROM meanings)`,
+      [lemmaId],
+    )
     await tx.execute(`DELETE FROM phrases WHERE card_id = ?`, [cardId])
     await tx.execute(`DELETE FROM cloze_cards WHERE card_id = ?`, [cardId])
 

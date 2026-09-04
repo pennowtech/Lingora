@@ -298,9 +298,9 @@ export async function getDeckCounts(
   nativeLanguage?: LanguageCode,
 ): Promise<DeckCounts[]> {
   let query = `SELECT dc.deck_id AS deckId,
-            COUNT(*) AS cardCount,
-            SUM(CASE WHEN (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL
-                     THEN 1 ELSE 0 END) AS dueCount
+            COUNT(DISTINCT c.lemma_id) AS cardCount,
+            COUNT(DISTINCT CASE WHEN (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL
+                     THEN c.lemma_id ELSE NULL END) AS dueCount
      FROM deck_cards dc
      JOIN cards c ON c.id = dc.card_id
      JOIN card_states cs ON cs.card_id = c.id

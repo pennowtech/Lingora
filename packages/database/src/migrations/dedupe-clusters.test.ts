@@ -64,7 +64,7 @@ describe('migration 0008: dedupe clusters and orphaned lemmas', () => {
       ['synonym-1', 'card-1', 'cluster-3', 'Gebäude'],
     )
 
-    await db.executeScript(dedupeClustersAndOrphans.up)
+    await db.executeScript(dedupeClustersAndOrphans.up as string)
 
     const clusters = await db.query<{ id: string }>('SELECT id FROM meaning_clusters WHERE lemma_id = ?', ['lemma-1'])
     expect(clusters).toHaveLength(1)
@@ -103,7 +103,7 @@ describe('migration 0008: dedupe clusters and orphaned lemmas', () => {
       now,
     ])
 
-    await db.executeScript(dedupeClustersAndOrphans.up)
+    await db.executeScript(dedupeClustersAndOrphans.up as string)
 
     expect(await db.query('SELECT id FROM lemmas WHERE id = ?', ['orphan-lemma'])).toEqual([])
     expect(await db.query('SELECT id FROM meaning_clusters WHERE id = ?', ['orphan-cluster'])).toEqual([])
@@ -136,7 +136,7 @@ describe('migration 0008: dedupe clusters and orphaned lemmas', () => {
       ['cluster-clean', 'lemma-clean'],
     )
 
-    await db.executeScript(dedupeClustersAndOrphans.up)
+    await db.executeScript(dedupeClustersAndOrphans.up as string)
 
     expect(await db.query('SELECT id FROM lemmas WHERE id = ?', ['lemma-clean'])).toHaveLength(1)
     expect(await db.query('SELECT id FROM cards WHERE id = ?', ['card-clean'])).toHaveLength(1)
@@ -169,7 +169,7 @@ describe('migration 0008: dedupe clusters and orphaned lemmas', () => {
     )
     // Deliberately no deck_cards row for this card at all.
 
-    await db.executeScript(dedupeClustersAndOrphans.up)
+    await db.executeScript(dedupeClustersAndOrphans.up as string)
 
     expect(await db.query('SELECT id FROM cards WHERE id = ?', ['deckless-card'])).toEqual([])
     expect(await db.query('SELECT id FROM lemmas WHERE id = ?', ['deckless-lemma'])).toEqual([])

@@ -1,5 +1,7 @@
 import type { QuestionType, ReviewRating, Template, WordGuideEntry } from '@lingora/types'
 import {
+  getCardState,
+  getCardsByLemma,
   getDeckById,
   getDefaultTemplate,
   getDistractorMeanings,
@@ -339,15 +341,15 @@ export default function ReviewSessionScreen(): JSX.Element {
   // the opposite direction, not a distinct skill the way cloze is. Only the rendering direction
   // (isReverse below) differs.
   const reverseOnly = params.mode === 'reverse'
+  // Set when opened from the deck detail screen's card list — a specific word, not a practice
+  // session — so loadReviewQueue builds a one-card "queue" for it regardless of due status.
+  const singleCardId = params.cardId
   // Mixed practice: each due card gets a random presentation (vocab/reverse/cloze/true-false/
   // multiple-choice) from the user's enabled types (see lib/reviewTypes.ts), instead of one format
   // for the whole session. Uses the exact same due queue/FSRS schedule as plain vocab review
   // (clozeOnly stays false below) — every presentation, including a cloze-formatted one, is scored
   // onto card_states, never cloze_states. Dedicated Cloze Practice (mode=cloze) is untouched.
-  const mixedOnly = params.mode === 'mixed'
-  // Set when opened from the deck detail screen's card list — a specific word, not a practice
-  // session — so loadReviewQueue builds a one-card "queue" for it regardless of due status.
-  const singleCardId = params.cardId
+  const mixedOnly = params.mode === 'mixed' || (!clozeOnly && !reverseOnly && !singleCardId)
 
   const { theme } = useTheme()
   const activeRatingColors = theme.mode === 'dark' ? darkRatingColors : ratingColors
@@ -690,6 +692,32 @@ export default function ReviewSessionScreen(): JSX.Element {
         },
         newState,
       )
+
+      // Also advance sibling cards for the same lemma in this deck so all representations of the word stay synchronized in FSRS
+      try {
+        const siblings = await getCardsByLemma(db, view.card.lemmaId)
+        for (const sib of siblings) {
+          if (sib.id !== cardId) {
+            const sibState = await getCardState(db, sib.id)
+            if (sibState) {
+              await recordReview(
+                db,
+                {
+                  id: crypto.randomUUID(),
+                  cardId: sib.id,
+                  rating: worst,
+                  reviewedAt: now,
+                  durationMs: 0,
+                },
+                { ...newState, cardId: sib.id },
+              )
+            }
+          }
+        }
+      } catch {
+        // Non-fatal: primary card was recorded successfully
+      }
+
       return { wrote: true, durationMs: elapsed }
     },
     onSuccess: async ({ durationMs, wrote }) => {

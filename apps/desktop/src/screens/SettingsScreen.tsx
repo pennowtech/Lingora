@@ -389,8 +389,9 @@ export const SettingsScreen: React.FC<{ initialTab?: 'learning' | 'ai' | 'transl
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Configure your learning languages, CEFR level, AI generation engines, translation slots, and FSRS parameters.</p>
       </div>
 
-      {/* Settings Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+      {/* Settings Navigation Tabs - wraps to multiple rows instead of overflowing horizontally
+          and dragging the whole page into a sideways scroll on a narrow window. */}
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
         <button
           onClick={() => setActiveTab('learning')}
           className={`btn ${activeTab === 'learning' ? 'btn-primary' : 'btn-ghost'}`}

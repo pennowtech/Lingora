@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useBreakpoint } from '../lib/useBreakpoint';
 import { Search, Volume2, Sparkles, Plus, BookOpen, Check, Layers2, CheckCircle2, Globe, RefreshCw, X, AlertCircle, Pencil, HelpCircle, SlidersHorizontal, Trash2, ExternalLink, Info, MessageCircle, Send, Shuffle, Quote, ArrowRight, ArrowLeft, ChevronUp, ChevronDown } from 'lucide-react';
 import type { WordLemma, Deck } from '../mockData';
 import { DeckPickerModal } from '../components/DeckPickerModal';
@@ -154,10 +155,17 @@ interface SearchLookupScreenProps {
   /** Jumps to Settings' AI Providers tab — used by the "no AI provider configured" prompt below,
    * which replaces "Generate with AI" when the active generation provider has no validated key. */
   onNavigateToAiProviderSettings: () => void;
+  /** Set by App.tsx when another screen (e.g. the Dashboard's Word of the Day card) navigates here
+   * with a specific word to look up — bumping this (a fresh string each time, even for the same
+   * word twice in a row) runs that search immediately rather than waiting on the usual
+   * type-to-search debounce. Purely a one-shot trigger, not a controlled value: after it fires the
+   * word becomes an ordinary typed query the learner can edit/clear like any other. */
+  initialQuery?: string;
 }
 
-export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard, onNavigateToAiProviderSettings }) => {
+export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, decks, onAddCard, onNavigateToAiProviderSettings, initialQuery }) => {
   const { db, dictionary, activeAiProvider, cefrLevel, generateWithGemini, nativeLanguage, targetLanguage, selectedGenerationProvider, providers, addNewDeck, refreshData } = useDesktopServices();
+  const narrow = useBreakpoint() === 'narrow';
   const [query, setQueryState] = useState(lastSearchQuery);
   const debouncedQuery = useDebounced(query, 400);
   const [searchResults, setSearchResults] = useState<WordLemma[]>(words);
@@ -621,6 +629,15 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
   };
 
   const handleExecuteSearch = () => executeSearch(query);
+
+  // A word handed in from another screen (see initialQuery's doc comment above) runs immediately
+  // instead of waiting on the debounce below.
+  useEffect(() => {
+    if (!initialQuery) return;
+    setQuery(initialQuery);
+    void executeSearch(initialQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
 
   // Live search-as-you-type — mirrors apps/mobile's Search screen, in addition to (not instead
   // of) the explicit Search button/Enter below, which still runs immediately without waiting for
@@ -1296,11 +1313,20 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         </div>
       )}
 
-      {/* Main Split Inspector View */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '340px 1fr', gap: '24px', minHeight: 0 }}>
+      {/* Main Split Inspector View - stacks to a single column below the narrow breakpoint, since
+          a fixed 340px left pane leaves almost nothing for the detail pane on a narrow window and
+          wraps every line of every example sentence to one word per line. */}
+      <div style={{
+        flex: 1,
+        display: narrow ? 'flex' : 'grid',
+        flexDirection: narrow ? 'column' : undefined,
+        gridTemplateColumns: narrow ? undefined : '340px 1fr',
+        gap: '24px',
+        minHeight: 0,
+      }}>
         {/* Left pane: search results list, or (once a real card is open) this word's own Cluster
             Index - see showSenseIndex above. */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: narrow ? '340px' : undefined }}>
           {showSenseIndex ? (
             <>
               <button
@@ -1433,9 +1459,9 @@ export const SearchLookupScreen: React.FC<SearchLookupScreenProps> = ({ words, d
         </div>
 
         {/* Right Word Detail Inspector */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto', minWidth: 0 }}>
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
                 <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>

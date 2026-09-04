@@ -18,6 +18,7 @@
     "@lingora/ai": "workspace:*",
     "@lingora/core": "workspace:*",
     "@lingora/database": "workspace:*",
+    "@lingora/i18n": "workspace:*",
     "@lingora/observability": "workspace:*",
     "@lingora/types": "workspace:*",
     "@react-native-firebase/app": "^26.0.0",

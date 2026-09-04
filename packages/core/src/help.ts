@@ -429,3 +429,25 @@ export function sanitizeVideoTitle(raw: string | undefined): string {
   }
   return raw
 }
+
+/**
+ * The embed URL apps/mobile's HelpVideoPlayerModal (and, eventually, desktop's own equivalent)
+ * point their player at - one place to tune YouTube's embed parameters so a fix made for one
+ * platform's player automatically applies to the other's too, instead of each independently
+ * rediscovering the same YouTube-specific quirks. Two of these were hard-won on-device:
+ *
+ * - No `enablejsapi=1`: nothing here calls the YouTube JS postMessage API (no play/pause/seek
+ *   control needed - `controls=1` already gives native iframe playback controls), and turning the
+ *   JS API on without ever supplying a matching `origin=` param is exactly what triggers YouTube's
+ *   strict origin check, which fails inside an embedding context with no real page origin (a
+ *   React Native WebView loading a raw HTML string, for instance) with "Video player configuration
+ *   error" (YouTube error 153).
+ * - `youtube-nocookie.com` (not `youtube.com`): the privacy-enhanced domain, and also happens to
+ *   need a real `baseUrl`/origin on the embedding page regardless - see each platform's own player
+ *   component for how it supplies one (confirmed live: using `youtube.com` itself as that origin
+ *   is worse, not better - YouTube appears to specifically reject an embed that claims to be
+ *   embedding itself as spoofed rather than legitimate, failing with error 152 instead of 153).
+ */
+export function buildYouTubeEmbedUrl(videoId: string): string {
+  return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&fs=0`
+}

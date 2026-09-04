@@ -13,7 +13,7 @@ import {
 } from 'react-native'
 import { WebView } from 'react-native-webview'
 import * as ScreenOrientation from 'expo-screen-orientation'
-import { DEFAULT_HELP_VIDEO_ID, extractYouTubeVideoId, sanitizeVideoTitle } from '@lingora/core'
+import { buildYouTubeEmbedUrl, DEFAULT_HELP_VIDEO_ID, extractYouTubeVideoId, sanitizeVideoTitle } from '@lingora/core'
 import { Icon } from './Icon'
 import { IconButton } from './ui'
 import { radius, spacing, type } from '../lib/theme'
@@ -116,8 +116,10 @@ export function HelpVideoPlayerModal({
         </style>
       </head>
       <body>
+        <!-- Embed URL/params live in @lingora/core#buildYouTubeEmbedUrl, shared with desktop's
+             own player - see its doc comment for why enablejsapi is deliberately left off. -->
         <iframe
-          src="https://www.youtube-nocookie.com/embed/${cleanId}?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&enablejsapi=1&fs=0"
+          src="${buildYouTubeEmbedUrl(cleanId)}"
           title="Video Player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         ></iframe>
@@ -149,11 +151,13 @@ export function HelpVideoPlayerModal({
             // baseUrl gives the WebView a real https:// origin instead of the null/about:blank
             // one it has when loading a raw HTML string with none set - YouTube's embedded
             // player validates the embedding page's origin before it'll play, and a null origin
-            // gets rejected with "Video player configuration error" (YouTube error 153), even
-            // though the video plays fine everywhere else (the real app, a browser tab) since
-            // those always have a real origin. Any real https:// origin satisfies the check;
-            // youtube.com's own domain is the safest choice since it's unambiguously allowed.
-            source={{ html: iframeHtml, baseUrl: 'https://www.youtube.com' }}
+            // gets rejected with "Video player configuration error" (YouTube error 153). Using
+            // youtube.com's own domain as that origin was tried first and made things worse
+            // (error 152 "This video is unavailable") - YouTube appears to specifically reject an
+            // embed that claims to be embedding itself, treating it as a spoofed/self-referential
+            // origin rather than a legitimate one. Any unrelated real https:// origin works;
+            // example.com is IANA-reserved specifically for this kind of placeholder use.
+            source={{ html: iframeHtml, baseUrl: 'https://example.com' }}
             allowsFullscreenVideo={false}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
@@ -249,11 +253,13 @@ export function HelpVideoPlayerModal({
               // baseUrl gives the WebView a real https:// origin instead of the null/about:blank
             // one it has when loading a raw HTML string with none set - YouTube's embedded
             // player validates the embedding page's origin before it'll play, and a null origin
-            // gets rejected with "Video player configuration error" (YouTube error 153), even
-            // though the video plays fine everywhere else (the real app, a browser tab) since
-            // those always have a real origin. Any real https:// origin satisfies the check;
-            // youtube.com's own domain is the safest choice since it's unambiguously allowed.
-            source={{ html: iframeHtml, baseUrl: 'https://www.youtube.com' }}
+            // gets rejected with "Video player configuration error" (YouTube error 153). Using
+            // youtube.com's own domain as that origin was tried first and made things worse
+            // (error 152 "This video is unavailable") - YouTube appears to specifically reject an
+            // embed that claims to be embedding itself, treating it as a spoofed/self-referential
+            // origin rather than a legitimate one. Any unrelated real https:// origin works;
+            // example.com is IANA-reserved specifically for this kind of placeholder use.
+            source={{ html: iframeHtml, baseUrl: 'https://example.com' }}
               allowsFullscreenVideo={false}
               allowsInlineMediaPlayback
               mediaPlaybackRequiresUserAction={false}

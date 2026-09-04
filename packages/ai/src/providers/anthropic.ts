@@ -407,7 +407,7 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
     let response: Response
 
     try {
-      response = await this.fetchFn(`${this.baseUrl}/messages`, {
+      response = await timeout.guard(this.fetchFn(`${this.baseUrl}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -428,7 +428,7 @@ export class AnthropicProvider implements AIProvider, DictionaryProvider {
           tool_choice: { type: 'tool', name: schemaName },
         }),
         signal: timeout.signal,
-      })
+      }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

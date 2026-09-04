@@ -393,7 +393,7 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
     let response: Response
 
     try {
-      response = await this.fetchFn(`${this.baseUrl}/models/${this.model}:generateContent`, {
+      response = await timeout.guard(this.fetchFn(`${this.baseUrl}/models/${this.model}:generateContent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ export class GeminiProvider implements AIProvider, DictionaryProvider {
           },
         }),
         signal: timeout.signal,
-      })
+      }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

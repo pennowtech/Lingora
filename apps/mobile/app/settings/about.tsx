@@ -1,17 +1,25 @@
 import Constants from 'expo-constants'
 import { Stack } from 'expo-router'
-import { useMemo, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import appIcon from '../../assets/icon-lingora.png'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon } from '../../components/Icon'
 import { Button, Card, IconButton } from '../../components/ui'
 import { WhatsNewModal } from '../../components/WhatsNewModal'
+import { StartupScreen } from '../../components/StartupScreen'
 import { parseChangelogMarkdown } from '../../lib/changelog'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+import {
+  checkForAppUpdate,
+  getAutoUpdateEnabled,
+  notifyUpdateAvailable,
+  setAutoUpdateEnabled,
+  type CheckUpdateResult,
+} from '../../lib/updateManager'
 
 const HELP_SECTIONS: HelpSection[] = [
   {
@@ -30,6 +38,7 @@ const HELP_SECTIONS: HelpSection[] = [
     paragraphs: [
       'We release frequent updates with new features, language support, and bug fixes.',
       'Check the **"What\'s New"** section to review what changed in recent versions.',
+      'When automatic updates are turned off, Lemony sends a push notification when a new version is released so you can explore what is fresh.',
     ],
   },
 ]
@@ -40,6 +49,48 @@ export default function AboutScreen(): JSX.Element {
   const styles = useThemedStyles(createStyles)
   const help = useHelpAccordion('privacy')
   const [whatsNewModalOpen, setWhatsNewModalOpen] = useState(false)
+  const [featureReplayOpen, setFeatureReplayOpen] = useState(false)
+
+  const [autoUpdateEnabled, setAutoUpdateEnabledState] = useState(false)
+  const [checkingUpdates, setCheckingUpdates] = useState(false)
+  const [checkResult, setCheckResult] = useState<CheckUpdateResult | null>(null)
+  const [activeModalVersion, setActiveModalVersion] = useState<string | undefined>()
+  const [activeModalChangelog, setActiveModalChangelog] = useState<string | undefined>()
+  const [showPlayStoreInModal, setShowPlayStoreInModal] = useState(false)
+
+  useEffect(() => {
+    void getAutoUpdateEnabled().then(setAutoUpdateEnabledState)
+  }, [])
+
+  const handleToggleAutoUpdate = async (value: boolean): Promise<void> => {
+    setAutoUpdateEnabledState(value)
+    await setAutoUpdateEnabled(value)
+  }
+
+  const handleCheckUpdates = async (): Promise<void> => {
+    setCheckingUpdates(true)
+    setCheckResult(null)
+    try {
+      const result = await checkForAppUpdate({ force: true, notify: !autoUpdateEnabled })
+      setCheckResult(result)
+      if (result.updateAvailable) {
+        setShowPlayStoreInModal(true)
+      }
+    } finally {
+      setCheckingUpdates(false)
+    }
+  }
+
+  const handleTestNotification = async (): Promise<void> => {
+    await notifyUpdateAvailable({
+      version: '0.3.1',
+      versionCode: (Constants.expoConfig?.android?.versionCode ?? 13) + 1,
+      changelog: `### 🌟 What's Fresh in Lemony
+- **Play Store Update Notifications**: Receive timely notifications when a new update is released on Google Play while auto-update is off.
+- **Direct What's Fresh**: Tapping the notification immediately displays release highlights and changes.
+- **Polished Dark Themes**: Harmonious backgrounds and typography across Search, Mining Studio, and Review.`,
+    })
+  }
 
   const appVersion = Constants.expoConfig?.version ?? '0.2.0'
   const buildNumber =
@@ -55,6 +106,7 @@ export default function AboutScreen(): JSX.Element {
   const recentSections = release.sections.slice(0, 3)
 
   return (
+    <>
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Stack.Screen
         options={{
@@ -75,6 +127,113 @@ export default function AboutScreen(): JSX.Element {
           <Text style={styles.versionBadgeText}>{buildLabel}</Text>
         </View>
         <Text style={styles.tagline}>{t('offline-first · your data stays on device')}</Text>
+        <Button
+          label={t('Replay introduction')}
+          icon="Play"
+          variant="secondary"
+          small
+          onPress={() => setFeatureReplayOpen(true)}
+          style={styles.replayButton}
+        />
+      </Card>
+
+      {/* App Updates & Notification Card */}
+      <Card style={styles.sectionCard}>
+        <View style={styles.sectionHeaderRow}>
+          <View style={styles.sectionTitleWrap}>
+            <Icon name="Bell" size={20} color={colors.primary} />
+            <Text style={styles.sectionTitle}>{t('App Updates')}</Text>
+          </View>
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingTextWrap}>
+            <Text style={styles.settingLabel}>{t('Automatic updates')}</Text>
+            <Text style={styles.settingDesc}>
+              {autoUpdateEnabled
+                ? t('Updates install automatically via Google Play Store')
+                : t('Notify me when a new update is ready on Google Play Store so I can see what is fresh')}
+            </Text>
+          </View>
+          <Switch
+            value={autoUpdateEnabled}
+            onValueChange={(val) => void handleToggleAutoUpdate(val)}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#ffffff"
+          />
+        </View>
+
+        <View style={styles.updateActionsRow}>
+          <Button
+            label={checkingUpdates ? t('Checking Play Store...') : t('Check Play Store for updates')}
+            {...(checkingUpdates ? {} : { icon: 'RefreshCw' as const })}
+            variant="secondary"
+            small
+            disabled={checkingUpdates}
+            onPress={() => void handleCheckUpdates()}
+            style={styles.checkBtn}
+          />
+          <IconButton
+            icon="Bell"
+            size={18}
+            color={colors.primary}
+            onPress={() => void handleTestNotification()}
+            accessibilityLabel={t('Send test update notification')}
+          />
+        </View>
+
+        {checkResult ? (
+          <View
+            style={[
+              styles.feedbackBanner,
+              checkResult.updateAvailable
+                ? styles.feedbackAvailable
+                : checkResult.error
+                  ? styles.feedbackError
+                  : styles.feedbackUpToDate,
+            ]}
+          >
+            <Icon
+              name={
+                checkResult.updateAvailable
+                  ? 'Sparkles'
+                  : checkResult.error
+                    ? 'CircleAlert'
+                    : 'CircleCheck'
+              }
+              size={16}
+              color={
+                checkResult.updateAvailable
+                  ? colors.primary
+                  : checkResult.error
+                    ? colors.danger
+                    : colors.success
+              }
+            />
+            <View style={styles.feedbackTextWrap}>
+              <Text style={styles.feedbackText}>
+                {checkResult.updateAvailable
+                  ? t('A new version is available on Google Play!')
+                  : checkResult.error
+                    ? t('Could not query Google Play Store. Verify Play services.')
+                    : t('Lemony is up to date on Google Play (v{{version}})', { version: checkResult.currentVersion })}
+              </Text>
+            </View>
+            {checkResult.updateAvailable ? (
+              <Pressable
+                style={styles.inlineWhatsNewButton}
+                onPress={() => {
+                  setActiveModalVersion(checkResult.latestVersion)
+                  setActiveModalChangelog(checkResult.changelog)
+                  setShowPlayStoreInModal(true)
+                  setWhatsNewModalOpen(true)
+                }}
+              >
+                <Text style={styles.inlineWhatsNewText}>{t("What's Fresh →")}</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
       </Card>
 
       {/* What's New Card */}
@@ -86,7 +245,12 @@ export default function AboutScreen(): JSX.Element {
           </View>
           <Pressable
             style={styles.seeAllButton}
-            onPress={() => setWhatsNewModalOpen(true)}
+            onPress={() => {
+              setActiveModalVersion(undefined)
+              setActiveModalChangelog(undefined)
+              setShowPlayStoreInModal(false)
+              setWhatsNewModalOpen(true)
+            }}
             hitSlop={8}
           >
             <Text style={styles.seeAllLabel}>{t('View all')}</Text>
@@ -99,7 +263,12 @@ export default function AboutScreen(): JSX.Element {
             <Pressable
               key={item.id}
               style={({ pressed }) => [styles.highlightRow, pressed && styles.highlightRowPressed]}
-              onPress={() => setWhatsNewModalOpen(true)}
+              onPress={() => {
+                setActiveModalVersion(undefined)
+                setActiveModalChangelog(undefined)
+                setShowPlayStoreInModal(false)
+                setWhatsNewModalOpen(true)
+              }}
             >
               <View style={[styles.highlightIconBubble, { backgroundColor: colors.primarySoft }]}>
                 <Icon name={item.icon} size={16} color={colors.primary} />
@@ -117,14 +286,27 @@ export default function AboutScreen(): JSX.Element {
           icon="Sparkles"
           variant="secondary"
           small
-          onPress={() => setWhatsNewModalOpen(true)}
+          onPress={() => {
+            setActiveModalVersion(undefined)
+            setActiveModalChangelog(undefined)
+            setShowPlayStoreInModal(false)
+            setWhatsNewModalOpen(true)
+          }}
           style={styles.whatsNewFullBtn}
         />
       </Card>
 
       <WhatsNewModal
         visible={whatsNewModalOpen}
-        onClose={() => setWhatsNewModalOpen(false)}
+        onClose={() => {
+          setWhatsNewModalOpen(false)
+          setActiveModalVersion(undefined)
+          setActiveModalChangelog(undefined)
+          setShowPlayStoreInModal(false)
+        }}
+        version={activeModalVersion}
+        markdownContent={activeModalChangelog}
+        showPlayStoreButton={showPlayStoreInModal}
       />
 
       <HelpAccordionSheet
@@ -137,6 +319,14 @@ export default function AboutScreen(): JSX.Element {
         translate={t}
       />
     </ScrollView>
+    {featureReplayOpen ? (
+      <StartupScreen
+        visible
+        mode="feature-replay"
+        onComplete={() => setFeatureReplayOpen(false)}
+      />
+    ) : null}
+    </>
   )
 }
 
@@ -167,6 +357,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     versionBadgeText: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
     tagline: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center', marginTop: 2 },
+    replayButton: { alignSelf: 'stretch', marginTop: spacing.sm },
     sectionCard: {
       backgroundColor: colors.surface,
       padding: spacing.md,
@@ -189,6 +380,76 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: type.body,
       fontWeight: '700',
       color: colors.text,
+    },
+    settingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.xs,
+      gap: spacing.md,
+    },
+    settingTextWrap: {
+      flex: 1,
+      gap: 2,
+    },
+    settingLabel: {
+      fontSize: type.body,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    settingDesc: {
+      fontSize: type.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    updateActionsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    checkBtn: {
+      flex: 1,
+    },
+    feedbackBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      padding: spacing.sm,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      marginTop: spacing.xs,
+    },
+    feedbackAvailable: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    feedbackError: {
+      backgroundColor: colors.dangerSoft,
+      borderColor: colors.danger,
+    },
+    feedbackUpToDate: {
+      backgroundColor: colors.successSoft,
+      borderColor: colors.success,
+    },
+    feedbackTextWrap: {
+      flex: 1,
+    },
+    feedbackText: {
+      fontSize: type.caption,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    inlineWhatsNewButton: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+      backgroundColor: colors.primary,
+    },
+    inlineWhatsNewText: {
+      fontSize: type.micro + 1,
+      fontWeight: '700',
+      color: '#ffffff',
     },
     seeAllButton: {
       flexDirection: 'row',

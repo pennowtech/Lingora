@@ -10,6 +10,7 @@ import { AppHeader } from '../components/AppHeader'
 import { BottomTabBar } from '../components/BottomTabBar'
 import { CaptureIntentHandler } from '../components/CaptureIntentHandler'
 import { CloudSyncLifecycle } from '../components/CloudSyncLifecycle'
+import { AppUpdateLifecycle } from '../components/AppUpdateLifecycle'
 import { LanguagePairBadge } from '../components/LanguagePairBadge'
 import { WordOfTheDayLifecycle } from '../components/WordOfTheDayLifecycle'
 import { ErrorState, Spinner } from '../components/ui'
@@ -77,6 +78,7 @@ function AppStack(): JSX.Element {
       <QueryClientProvider client={queryClient}>
         <CloudSyncLifecycle />
         <WordOfTheDayLifecycle />
+        <AppUpdateLifecycle />
         <CaptureIntentHandler />
         <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>

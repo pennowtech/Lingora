@@ -158,9 +158,18 @@ Halten Sie Ihren Lernfortschritt auf Ihrem Telefon, Tablet und Desktop synchroni
 ---
 
 ### D. ℹ️ Über Lemony
-- Zeigen Sie die installierte App-Version und Build-Nummer an.
-- **Was ist neu Modal**: Sehen Sie sich Versionshinweise und Änderungsprotokolle an, die neue Funktionen zusammenfassen.
-- Open-Source-Lizenzen und GitHub-Repository-Links.
+- **App-Identität & Version**: Zeigt die aktuell installierte App-Version und die native Build-Nummer an.
+- **Google Play & App-Updates**:
+  - **Direkte Play Store-Integration**: Fragt den Google Play Store direkt über die Google Play In-App Updates-API ab, um zu prüfen, ob ein Update für Ihr Gerät vorliegt. Fragt niemals externe Drittanbieterserver ab.
+  - **Akkusparende automatische Prüfungen**: Wenn aktiviert, prüft Lemony Google Play höchstens einmal alle 24 Stunden, während die App aktiv im Vordergrund läuft. Keine Hintergrunddienste, Daemons oder Wakelocks bei geschlossener App.
+  - **Vollständige Benutzerkontrolle**: Sie können Update-Prüfungen jederzeit deaktivieren. Wenn deaktiviert, stoppt Lemony alle automatischen Prüfungen und Benachrichtigungen vollständig.
+  - **Zusammenspiel mit Google Play-Auto-Update**: Wenn Ihr Telefon Lemony über Nacht automatisch im Hintergrund aktualisiert, erkennt Lemony die neue Version beim nächsten Start, ohne überflüssige Update-Benachrichtigungen zu senden.
+  - **Manuelle Prüfung auf Abruf**: Tippen Sie jederzeit auf **Google Play nach Updates durchsuchen**, um den Update-Status sofort zu überprüfen.
+- **„Was ist neu in Lemony“-Übersicht**:
+  - Durch Antippen einer Update-Benachrichtigung oder von **Was gibt's Neues →** öffnet sich ein übersichtliches Akkordeon-Modal mit allen Neuerungen, Verbesserungen und Fehlerbehebungen.
+  - Enthält eine direkte Schaltfläche **Im Play Store aktualisieren →**, um den Google Play Store sofort zu öffnen.
+- **Einführung erneut abspielen**: Starten Sie die Willkommenstour und Funktions-Highlights jederzeit neu.
+- **Lizenzen & Rechtliches**: Zeigen Sie Open-Source-Lizenzen und Projektinformationen an.
 
 ---
 

@@ -1368,4 +1368,39 @@ Home: 'Accueil',
   'Strong memory': 'Mémoire solide',
   'Keep it up!': 'Continue comme ça !',
   'Replay introduction': "Revoir l'introduction",
-}
+
+  // ── About & Google Play updates ────────────────────────────────────
+  'Google Play & App Updates': 'Google Play et mises à jour',
+  'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.':
+    'Lemony interroge directement le **Google Play Store** pour vérifier si une nouvelle version est prête pour votre appareil.',
+  '**Automatic Checks**: When enabled, Lemony checks Google Play at most once every 24 hours while active to save battery, and notifies you when an update is available.':
+    '**Vérifications automatiques** : lorsqu’elles sont activées, Lemony interroge Google Play au maximum une fois toutes les 24 heures pendant l’utilisation pour économiser la batterie, et vous avertit dès qu’une mise à jour est disponible.',
+  '**User Control**: You can turn off update checks at any time. When turned off, Lemony stops all automatic checks and notifications completely.':
+    '**Contrôle total** : vous pouvez désactiver les vérifications à tout moment. Lorsqu’elles sont désactivées, Lemony interrompt complètement les recherches et notifications automatiques.',
+  "**What's Fresh in Lemony**: Tapping any update notification or release card displays the full changelog digest with an instant link to update on Google Play.":
+    '**Nouveautés de Lemony** : appuyez sur une notification ou une fiche de version pour afficher le journal des modifications avec un lien direct de mise à jour sur Google Play.',
+  'Google Play Auto-Updates': 'Mises à jour automatiques Google Play',
+  "If Google Play's own auto-update is active on your device, Play Store may silently update the app overnight over Wi-Fi.":
+    'Si la mise à jour automatique du Google Play Store est activée sur votre appareil, Play Store peut mettre à jour l’application en arrière-plan pendant la nuit via Wi-Fi.',
+  'When this happens, Lemony detects the new version on launch and displays what changed, without sending redundant update notifications.':
+    'Dans ce cas, Lemony détecte la nouvelle version au démarrage et affiche les nouveautés sans envoyer de notifications superflues.',
+  'App Updates': 'Mises à jour de l’application',
+  'Check for updates': 'Rechercher des mises à jour',
+  'Automatically checks Google Play and notifies you when a new version is ready':
+    'Recherche automatiquement sur Google Play et vous prévient lorsqu’une nouvelle version est disponible',
+  'Disabled. Lemony will not check for updates or send notifications.':
+    'Désactivé. Lemony ne recherchera pas de mises à jour et n’enverra pas de notifications.',
+  'Checking Play Store...': 'Interrogation du Play Store...',
+  'Check Play Store for updates': 'Rechercher sur le Play Store',
+  'Send test update notification': 'Envoyer une notification de test',
+  'A new version is available on Google Play!': 'Une nouvelle version est disponible sur Google Play !',
+  'Could not query Google Play Store. Verify Play services.':
+    'Impossible d’interroger le Google Play Store. Vérifiez les services Google Play.',
+  'Lemony is up to date on Google Play (v{{version}})': 'Lemony est à jour sur Google Play (v{{version}})',
+  "What's Fresh →": 'Nouveautés →',
+  'Later': 'Plus tard',
+  'Update on Play Store →': 'Mettre à jour sur Google Play →',
+  'Lemony Update Available': 'Mise à jour Lemony disponible',
+  "A new version is ready on Google Play Store. Tap to see what's fresh!":
+    'Une nouvelle version est prête sur Google Play Store. Touchez pour voir les nouveautés !',
+};

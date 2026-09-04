@@ -158,9 +158,18 @@ Keep your study progress synchronized across your phone, tablet, and desktop:
 ---
 
 ### D. ℹ️ About Lemony
-- View the installed app version and build number.
-- **What's New Modal**: View release notes and changelogs summarizing new features.
-- Open-source licenses and GitHub repository links.
+- **App Identity & Version**: View the currently installed app version and native build number.
+- **Google Play & App Updates**:
+  - **Direct Store Integration**: Queries the Google Play Store directly through Google Play In-App Updates to verify if an update is published for your device. Never checks or pings external third-party servers.
+  - **Battery-Conscious Automatic Checks**: When enabled, checks Google Play at most once every 24 hours while the app is in the foreground. Never runs background services, daemons, or wakelocks when the app is closed.
+  - **User Control & Disabling**: You can toggle update checks on or off at any time. When disabled, Lemony completely silences all automatic checks and notifications.
+  - **Google Play Auto-Update Synergy**: If your phone auto-updates Lemony overnight via Google Play's own background updater, Lemony detects the updated version on next launch without triggering duplicate or redundant update notifications.
+  - **On-Demand Manual Check**: Tap **Check Play Store for updates** at any time to immediately verify update status.
+- **"What's Fresh in Lemony" Digest**:
+  - Tapping any update notification or tapping **What's Fresh →** opens a clean accordion modal detailing all new features, improvements, and bug fixes for the release.
+  - Features an instant **Update on Play Store →** button to launch the Google Play Store directly.
+- **Replay Introduction**: Re-run the initial welcome tour and feature highlights at any time.
+- **Licenses & Legal**: View open-source licenses and project information.
 
 ---
 

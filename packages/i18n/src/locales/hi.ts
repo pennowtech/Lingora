@@ -1798,4 +1798,39 @@ Home: 'होम',
   'Great job 🎉': 'बहुत बढ़िया 🎉',
   'Strong memory': 'मजबूत याददाश्त',
   'Keep it up!': 'इसे जारी रखें!',
-}
+
+  // ── About & Google Play updates ────────────────────────────────────
+  'Google Play & App Updates': 'Google Play और ऐप अपडेट',
+  'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.':
+    'Lemony सीधे **Google Play Store** से जाँच करता है कि क्या आपके डिवाइस के लिए कोई नया संस्करण तैयार है।',
+  '**Automatic Checks**: When enabled, Lemony checks Google Play at most once every 24 hours while active to save battery, and notifies you when an update is available.':
+    '**स्वचालित जांच**: सक्षम होने पर, Lemony बैटरी बचाने के लिए सक्रिय रहने पर 24 घंटे में अधिकतम एक बार Google Play की जांच करता है, और अपडेट उपलब्ध होने पर आपको सूचित करता है।',
+  '**User Control**: You can turn off update checks at any time. When turned off, Lemony stops all automatic checks and notifications completely.':
+    '**उपयोगकर्ता नियंत्रण**: आप किसी भी समय अपडेट जांच बंद कर सकते हैं। बंद करने पर, Lemony सभी स्वचालित जांच और सूचनाएं पूरी तरह रोक देता है।',
+  "**What's Fresh in Lemony**: Tapping any update notification or release card displays the full changelog digest with an instant link to update on Google Play.":
+    '**Lemony में क्या नया है**: किसी भी अपडेट सूचना या रिलीज कार्ड पर टैप करने से पूर्ण चेंजलॉग सारांश प्रदर्शित होता है, जिसमें Google Play पर अपडेट करने का सीधा लिंक शामिल है।',
+  'Google Play Auto-Updates': 'Google Play ऑटो-अपडेट',
+  "If Google Play's own auto-update is active on your device, Play Store may silently update the app overnight over Wi-Fi.":
+    'यदि आपके डिवाइस पर Google Play का अपना ऑटो-अपडेट सक्रिय है, तो Play Store रात में वाई-फ़ाई पर ऐप को चुपचाप अपडेट कर सकता है।',
+  'When this happens, Lemony detects the new version on launch and displays what changed, without sending redundant update notifications.':
+    'ऐसा होने पर, Lemony शुरू होने पर नए संस्करण का पता लगाता है और बिना किसी अनावश्यक सूचना के दिखाता है कि क्या बदला है।',
+  'App Updates': 'ऐप अपडेट',
+  'Check for updates': 'अपडेट के लिए जांचें',
+  'Automatically checks Google Play and notifies you when a new version is ready':
+    'स्वचालित रूप से Google Play की जांच करता है और नया संस्करण तैयार होने पर आपको सूचित करता है',
+  'Disabled. Lemony will not check for updates or send notifications.':
+    'अक्षम। Lemony अपडेट की जांच नहीं करेगा या सूचनाएं नहीं भेजेगा।',
+  'Checking Play Store...': 'Play Store की जांच हो रही है...',
+  'Check Play Store for updates': 'अपडेट के लिए Play Store जांचें',
+  'Send test update notification': 'परीक्षण अपडेट सूचना भेजें',
+  'A new version is available on Google Play!': 'Google Play पर एक नया संस्करण उपलब्ध है!',
+  'Could not query Google Play Store. Verify Play services.':
+    'Google Play Store से संपर्क नहीं हो सका। Play सेवाओं की जांच करें।',
+  'Lemony is up to date on Google Play (v{{version}})': 'Lemony Google Play पर अद्यतित है (v{{version}})',
+  "What's Fresh →": 'क्या नया है →',
+  'Later': 'बाद में',
+  'Update on Play Store →': 'Play Store पर अपडेट करें →',
+  'Lemony Update Available': 'Lemony अपडेट उपलब्ध है',
+  "A new version is ready on Google Play Store. Tap to see what's fresh!":
+    'Google Play Store पर नया संस्करण तैयार है। नया क्या है देखने के लिए टैप करें!',
+};

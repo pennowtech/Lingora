@@ -1343,6 +1343,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Instant Lookup and Card Generations': 'Tra cứu tức thì và tạo thẻ',
   'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
     'Tra cứu ngay lập tức bất kỳ từ {{target}} hoặc {{native}} nào - các dạng biến cách và chia động từ cũng hoạt động. Chưa có trong thư viện của bạn? Chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm, để bạn không bao giờ phải rời khỏi ứng dụng để tra một từ.',
+  'Look up any {{target}} or {{native}} word instantly. If it\'s not in your library yet, one tap **generates a full flashcard**.':
+    'Tra cứu từ bằng tiếng {{target}} hoặc {{native}} ngay lập tức. Chưa có trong thư viện? Một chạm để **tạo thẻ ghi nhớ đầy đủ**.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     'Tìm kiếm là cách bạn tra từ mà không cần rời khỏi ứng dụng: gõ từ và nhận kết quả ngay lập tức, nếu từ đó còn mới với bạn, chỉ một chạm sẽ **tạo ra một thẻ ghi nhớ đầy đủ** với nghĩa, ví dụ và cách phát âm.',
   'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
@@ -1352,4 +1354,12 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Phản hồi được đăng dưới dạng issue công khai trên GitHub. Địa chỉ email bạn nhập sẽ hiển thị ở đó với bất kỳ ai xem - không chỉ đội ngũ của chúng tôi. Quay lại để xóa nếu bạn muốn giữ riêng tư, hoặc gửi như hiện tại nếu bạn thấy ổn.',
   'Go Back': 'Quay lại',
   'Send Anyway': 'Vẫn gửi',
+
+  // ── Review completion celebration ──────────────────────────────────
+  'Session Completed': 'Phiên học hoàn thành',
+  'Remembered!': 'Đã ghi nhớ!',
+  'Great job 🎉': 'Làm tốt lắm 🎉',
+  'Strong memory': 'Trí nhớ tốt',
+  'Keep it up!': 'Cứ phát huy nhé!',
+  'Replay introduction': 'Xem lại phần giới thiệu',
 }

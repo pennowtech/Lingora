@@ -1,15 +1,17 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Search, 
-  Layers, 
-  Sparkles, 
-  Flame, 
-  BarChart3, 
-  Settings, 
-  Zap, 
-  BookOpen 
+import { useTranslation } from 'react-i18next';
+import {
+  LayoutDashboard,
+  Search,
+  Layers,
+  Sparkles,
+  Flame,
+  BarChart3,
+  Settings,
+  Zap,
+  BookOpen
 } from 'lucide-react';
+import { useBreakpoint } from '../lib/useBreakpoint';
 
 export type ScreenId = 'dashboard' | 'search' | 'review' | 'decks' | 'mining' | 'stats' | 'settings';
 
@@ -26,33 +28,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
   dueCardsCount,
   miningCount
 }) => {
+  const { t } = useTranslation();
+  const breakpoint = useBreakpoint();
+  // Icon-only rail below the narrow breakpoint - the fixed 260px sidebar plus the main content's
+  // own minimum comfortable width doesn't fit a narrow/split-screen window otherwise. Swaps
+  // visible content (hides labels), not just column count, so this needs the JS breakpoint hook
+  // rather than a pure-CSS fix - see useBreakpoint's own doc comment.
+  const collapsed = breakpoint === 'narrow';
+
   const navItems = [
-    { id: 'dashboard' as ScreenId, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'search' as ScreenId, label: 'Search & Lookup', icon: Search },
-    { id: 'review' as ScreenId, label: 'Review Session', icon: Zap, badge: dueCardsCount > 0 ? dueCardsCount : null, badgeColor: 'bg-indigo-500' },
-    { id: 'decks' as ScreenId, label: 'Decks', icon: Layers },
-    { id: 'mining' as ScreenId, label: 'Sentence Mining', icon: Sparkles, badge: miningCount > 0 ? miningCount : null, badgeColor: 'bg-emerald-500' },
-    { id: 'stats' as ScreenId, label: 'Analytics', icon: BarChart3 },
-    { id: 'settings' as ScreenId, label: 'Settings', icon: Settings },
+    { id: 'dashboard' as ScreenId, label: t('Dashboard'), icon: LayoutDashboard },
+    { id: 'search' as ScreenId, label: t('Search & Lookup'), icon: Search },
+    { id: 'review' as ScreenId, label: t('Review Session'), icon: Zap, badge: dueCardsCount > 0 ? dueCardsCount : null, badgeColor: 'bg-indigo-500' },
+    { id: 'decks' as ScreenId, label: t('Decks'), icon: Layers },
+    { id: 'mining' as ScreenId, label: t('Sentence Mining'), icon: Sparkles, badge: miningCount > 0 ? miningCount : null, badgeColor: 'bg-emerald-500' },
+    { id: 'stats' as ScreenId, label: t('Analytics'), icon: BarChart3 },
+    { id: 'settings' as ScreenId, label: t('Settings'), icon: Settings },
   ];
 
   return (
     <aside style={{
-      width: '260px',
+      width: collapsed ? '72px' : '260px',
       height: '100%',
       backgroundColor: 'var(--bg-surface)',
       borderRight: '1px solid var(--border-color)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '20px 14px',
-      userSelect: 'none'
+      padding: collapsed ? '20px 10px' : '20px 14px',
+      userSelect: 'none',
+      transition: 'width 0.15s ease',
+      flexShrink: 0,
     }}>
       {/* Brand Header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'flex-start',
         gap: '12px',
-        padding: '0 10px 20px 10px',
+        padding: collapsed ? '0 0 20px 0' : '0 10px 20px 10px',
         borderBottom: '1px solid var(--border-color)'
       }}>
         <div style={{
@@ -63,32 +76,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: 'var(--shadow-glow)'
+          boxShadow: 'var(--shadow-glow)',
+          flexShrink: 0,
         }}>
           <BookOpen size={20} color="var(--text-primary)" />
         </div>
-        <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Lemony</h1>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Desktop</span>
-        </div>
+        {!collapsed && (
+          <div>
+            <h1 style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>Lemony</h1>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{t('Desktop')}</span>
+          </div>
+        )}
       </div>
 
       {/* Daily Streak Card */}
       <div style={{
         margin: '18px 0',
-        padding: '12px 14px',
+        padding: collapsed ? '12px 8px' : '12px 14px',
         background: 'var(--warning-bg)',
         border: '1px solid rgba(245, 158, 11, 0.25)',
         borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'flex-start',
         gap: '12px'
       }}>
-        <Flame size={22} color="var(--warning)" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--warning)' }}>14 Day Streak</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>18 cards due today</div>
-        </div>
+        <Flame size={22} color="var(--warning)" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))', flexShrink: 0 }} />
+        {!collapsed && (
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--warning)' }}>{t('{{count}} Day Streak', { count: 14 })}</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{t('{{count}} cards due today', { count: 18 })}</div>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
@@ -100,11 +119,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onSelectScreen(item.id)}
+              title={collapsed ? item.label : undefined}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '11px 14px',
+                justifyContent: collapsed ? 'center' : 'space-between',
+                padding: collapsed ? '11px 0' : '11px 14px',
                 borderRadius: '8px',
                 border: 'none',
                 background: isActive ? 'var(--accent-secondary)' : 'transparent',
@@ -122,11 +142,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 if (!isActive) e.currentTarget.style.background = 'transparent';
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: collapsed ? 0 : '12px' }}>
                 <Icon size={18} color={isActive ? 'var(--accent-primary)' : 'var(--text-muted)'} />
-                <span>{item.label}</span>
+                {!collapsed && <span>{item.label}</span>}
               </div>
-              {item.badge && (
+              {!collapsed && item.badge && (
                 <span style={{
                   fontSize: '11px',
                   fontWeight: 700,
@@ -144,18 +164,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Footer Info */}
-      <div style={{
-        paddingTop: '14px',
-        borderTop: '1px solid var(--border-color)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '12px',
-        color: 'var(--text-muted)'
-      }}>
-        <span>FSRS v4.5</span>
-        <span className="badge badge-emerald">FTS5 Ready</span>
-      </div>
+      {!collapsed && (
+        <div style={{
+          paddingTop: '14px',
+          borderTop: '1px solid var(--border-color)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '12px',
+          color: 'var(--text-muted)'
+        }}>
+          <span>FSRS v4.5</span>
+          <span className="badge badge-emerald">FTS5 Ready</span>
+        </div>
+      )}
     </aside>
   );
 };

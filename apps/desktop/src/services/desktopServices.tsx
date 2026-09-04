@@ -56,6 +56,7 @@ import {
 import { DEFAULT_ENABLED_QUESTION_TYPES, DEFAULT_MODELS, GENERATION_PROVIDERS, PROVIDER_META_DATA, streakFromDayIndexes, type GenerationProviderName } from '@lingora/core';
 import { getDesktopDatabase } from './database';
 import { desktopFetch } from './desktopFetch';
+import { getStoredWordOfTheDay, refreshWordOfTheDayIfNeeded, type WordOfTheDay } from '../lib/wordOfTheDay';
 
 // Reuses @lingora/core's GenerationProviderName instead of a separately hand-maintained literal
 // union, so a new generation provider (see GENERATION_PROVIDERS) doesn't silently drift out of
@@ -123,6 +124,8 @@ interface DesktopServicesContextType {
   streakDays: number;
   dailyActivity: DayReviewCount[];
   difficultWords: DifficultWord[];
+  wordOfTheDay: WordOfTheDay | null;
+  wordOfTheDayLoading: boolean;
   cefrLevel: CefrLevel;
   nativeLanguage: LanguageCode;
   targetLanguage: LanguageCode;
@@ -166,6 +169,8 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   const [streakDays, setStreakDays] = useState(0);
   const [dailyActivity, setDailyActivity] = useState<DayReviewCount[]>([]);
   const [difficultWords, setDifficultWords] = useState<DifficultWord[]>([]);
+  const [wordOfTheDay, setWordOfTheDay] = useState<WordOfTheDay | null>(() => getStoredWordOfTheDay());
+  const [wordOfTheDayLoading, setWordOfTheDayLoading] = useState(false);
 
   // Persistent Language & CEFR Settings
   const [cefrLevel, setCefrLevelState] = useState<CefrLevel>(
@@ -423,6 +428,31 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
   useEffect(() => {
     loadDatabase();
   }, []);
+
+  // Dashboard's Word of the Day card - regenerates whenever the stored word is missing, stale
+  // (a previous calendar day), or was picked for a CEFR level/language pair the learner has since
+  // changed in Settings (refreshWordOfTheDayIfNeeded itself no-ops otherwise). Re-runs on every
+  // dependency change rather than just once on mount, matching apps/mobile's WordOfTheDayLifecycle
+  // re-checking on every foreground transition - here that's "whenever the inputs that could make
+  // it stale change" instead, since a desktop window doesn't have a foreground/background concept.
+  useEffect(() => {
+    if (!db) return;
+    let cancelled = false;
+    setWordOfTheDayLoading(true);
+    refreshWordOfTheDayIfNeeded({ ai: activeAiProvider, db, targetLanguage, nativeLanguage, cefrLevel })
+      .then((result) => {
+        if (!cancelled) setWordOfTheDay(result);
+      })
+      .catch((err) => {
+        console.error('[Desktop Services] Error refreshing Word of the Day:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setWordOfTheDayLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [db, activeAiProvider, targetLanguage, nativeLanguage, cefrLevel]);
 
   // isCloze picks which schedule/table gets updated - card_states (recordReview) for a plain/
   // reverse-mode card or cloze_states (recordClozeReview) for one reviewed in Cloze form, matching
@@ -878,6 +908,8 @@ export const DesktopServicesProvider: React.FC<{ children: ReactNode }> = ({ chi
       dailyActivity,
       difficultWords,
       theme,
+      wordOfTheDay,
+      wordOfTheDayLoading,
       cefrLevel,
       nativeLanguage,
       targetLanguage,

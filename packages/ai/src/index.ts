@@ -27,6 +27,7 @@ export { DeepLProvider, type DeepLProviderConfig } from './providers/deepl'
 // Pipeline
 export { createAIPipeline, type AIPipeline, type AIPipelineOptions } from './pipeline/create'
 export type { LookupOptions, LookupOutcome } from './pipeline/lookup-or-generate'
+export { pickWordOfTheDay, type WordOfTheDayPick } from './pipeline/word-of-the-day'
 
 // Errors — switch on error.code: 'provider' | 'parse' | 'validation'
 export {

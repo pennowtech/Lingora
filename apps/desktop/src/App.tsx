@@ -33,12 +33,23 @@ const AppContent: React.FC = () => {
     streakDays,
     dailyActivity,
     difficultWords,
+    wordOfTheDay,
+    wordOfTheDayLoading,
   } = useDesktopServices();
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard');
   const [words, setWords] = useState(MOCK_WORDS);
   const [cardsQueue, setCardsQueue] = useState(MOCK_CARDS_QUEUE);
   const [miningQueue, setMiningQueue] = useState(MOCK_MINING_QUEUE);
   const [settingsInitialTab, setSettingsInitialTab] = useState<'learning' | 'ai' | 'translation' | 'audio' | 'srs' | 'desktop' | undefined>(undefined);
+  const [pendingSearchQuery, setPendingSearchQuery] = useState<string | undefined>(undefined);
+
+  // Word of the Day's "Explore Full Details" - jumps to Search & Lookup with that word searched
+  // immediately, the desktop equivalent of apps/mobile's word/[form] detail screen (desktop has no
+  // separate detail route; Search & Lookup's split view already serves that role).
+  const navigateToWordSearch = (word: string) => {
+    setPendingSearchQuery(word);
+    setActiveScreen('search');
+  };
 
   // Search & Lookup's "no AI provider configured" prompt jumps straight to the AI Providers tab,
   // rather than landing on Settings' own default tab and making the user find it themselves.
@@ -146,9 +157,13 @@ const AppContent: React.FC = () => {
             streakDays={streakDays}
             dailyActivity={dailyActivity}
             difficultWords={difficultWords}
+            wordOfTheDay={wordOfTheDay}
+            wordOfTheDayLoading={wordOfTheDayLoading}
             onStartReview={handleStartReview}
             onSelectScreen={setActiveScreen}
             onOpenLanguageSettings={navigateToLanguageSettings}
+            onNavigateToAiProviderSettings={navigateToAiProviderSettings}
+            onExploreWord={navigateToWordSearch}
           />
         )}
 
@@ -158,6 +173,7 @@ const AppContent: React.FC = () => {
             decks={decks}
             onAddCard={handleAddCard}
             onNavigateToAiProviderSettings={navigateToAiProviderSettings}
+            initialQuery={pendingSearchQuery}
           />
         )}
 

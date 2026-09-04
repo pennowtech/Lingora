@@ -4,7 +4,10 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 
 const mobileRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const englishPath = path.join(mobileRoot, 'lib/i18n/locales/en.ts')
+// Locale files live in the shared @lingora/i18n package (packages/i18n/src/locales/), not
+// app-local - see that package's own doc comment for why (one catalog shared with apps/desktop).
+const i18nLocalesRoot = path.resolve(mobileRoot, '../../packages/i18n/src/locales')
+const englishPath = path.join(i18nLocalesRoot, 'en.ts')
 const requiredLocales = [
   { code: 'de', name: 'German' },
   { code: 'hi', name: 'Hindi' },
@@ -66,7 +69,7 @@ for (const statement of englishFile.statements) {
 }
 const translations = new Map()
 for (const locale of requiredLocales) {
-  const localePath = path.join(mobileRoot, `lib/i18n/locales/${locale.code}.ts`)
+  const localePath = path.join(i18nLocalesRoot, `${locale.code}.ts`)
   const localeSource = fs.readFileSync(localePath, 'utf8')
   const localeFile = ts.createSourceFile(localePath, localeSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
   let values = new Map()

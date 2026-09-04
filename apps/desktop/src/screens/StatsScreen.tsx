@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BarChart3, TrendingUp, Calendar, Target, Flame, AlertTriangle, ArrowRight } from 'lucide-react';
 import {
   getDifficultWords,
@@ -16,6 +17,7 @@ import {
 import { buildHeatmap, streakFromDayIndexes } from '@lingora/core';
 import type { LanguageCode } from '@lingora/types';
 import { useDesktopServices } from '../services/desktopServices';
+import { useBreakpoint } from '../lib/useBreakpoint';
 
 const HEAT_COLORS = ['rgba(255, 255, 255, 0.05)', 'rgba(99, 102, 241, 0.25)', 'rgba(99, 102, 241, 0.5)', 'rgba(99, 102, 241, 0.75)', 'var(--accent-primary)'];
 
@@ -57,6 +59,9 @@ interface StatsScreenProps {
 }
 
 export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
+  const { t, i18n } = useTranslation();
+  const breakpoint = useBreakpoint();
+  const narrow = breakpoint === 'narrow';
   const { db, targetLanguage, nativeLanguage } = useDesktopServices();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +92,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
     return (
       <div className="page-container">
         <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
-          <span style={{ color: 'var(--text-secondary)' }}>Loading statistics...</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{t('Loading statistics...')}</span>
         </div>
       </div>
     );
@@ -97,7 +102,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
     return (
       <div className="page-container">
         <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
-          <span style={{ color: 'var(--danger)' }}>Failed to load statistics: {error}</span>
+          <span style={{ color: 'var(--danger)' }}>{t('Failed to load statistics: {{error}}', { error })}</span>
         </div>
       </div>
     );
@@ -108,8 +113,8 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
       <div className="page-container">
         <div className="glass-card" style={{ textAlign: 'center', padding: '48px' }}>
           <BarChart3 size={32} color="var(--text-muted)" style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>No stats yet</div>
-          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Add and review some words to see your learning statistics here.</div>
+          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{t('No stats yet')}</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{t('Add and review some words to see your learning statistics here.')}</div>
         </div>
       </div>
     );
@@ -117,62 +122,64 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
 
   const maxGrowth = Math.max(1, ...stats.growth.map((w) => w.count));
   const maxForecast = Math.max(1, ...stats.forecast.map((f) => f.dueCount));
+  const keyStatsColumns = narrow ? 'repeat(auto-fit, minmax(160px, 1fr))' : 'repeat(4, 1fr)';
+  const splitColumns = narrow ? '1fr' : '1fr 1fr';
 
   return (
     <div className="page-container">
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Learning Statistics</h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Retention, review activity, vocabulary growth, and the words giving you the most trouble.</p>
+        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>{t('Learning Statistics')}</h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{t('Retention, review activity, vocabulary growth, and the words giving you the most trouble.')}</p>
       </div>
 
       {/* Grid of Key Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: keyStatsColumns, gap: '16px' }}>
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--success)' }}>
             <TrendingUp size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>Retention (30d)</span>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>{t('Retention (30d)')}</span>
           </div>
           <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--success)' }}>{Math.round(stats.retention30d * 100)}%</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Remembered on first review</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{t('Remembered on first review')}</div>
         </div>
 
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--warning)' }}>
             <Flame size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>Day Streak</span>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>{t('Day Streak')}</span>
           </div>
           <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--warning)' }}>{stats.streakDays}</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Consecutive study days</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{t('Consecutive study days')}</div>
         </div>
 
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--accent-primary)' }}>
             <Target size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>Total Cards</span>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>{t('Total Cards')}</span>
           </div>
           <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>{stats.totalCards}</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Saved across all decks</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{t('Saved across all decks')}</div>
         </div>
 
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: 'var(--info)' }}>
             <BarChart3 size={20} />
-            <span style={{ fontSize: '14px', fontWeight: 700 }}>New This Week</span>
+            <span style={{ fontSize: '14px', fontWeight: 700 }}>{t('New This Week')}</span>
           </div>
           <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--info)' }}>+{stats.newThisWeek}</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Words added in the last 7 days</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{t('Words added in the last 7 days')}</div>
         </div>
       </div>
 
       {/* Activity Heatmap */}
       <div className="glass-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={18} color="var(--accent-primary)" />
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Review Activity</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('Review Activity')}</h3>
           </div>
-          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Last 5 Weeks</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{t('Last 5 Weeks')}</span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -194,32 +201,34 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '10px' }}>
-          <span>Less</span>
+          <span>{t('Less')}</span>
           {HEAT_COLORS.map((c) => (
             <div key={c} style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: c }} />
           ))}
-          <span>More</span>
+          <span>{t('More')}</span>
         </div>
       </div>
 
       {/* 7-Day Review Forecast + Vocabulary Growth, side by side */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: splitColumns, gap: '24px' }}>
         <div className="glass-card">
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Upcoming Review Forecast</h3>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>{t('Upcoming Review Forecast')}</h3>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '120px' }}>
-            {stats.forecast.map((day) => (
+            {stats.forecast.map((day, i) => (
               <div key={day.dateMs} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)' }}>{day.dueCount}</span>
                 <div style={{ width: '18px', borderRadius: '4px', backgroundColor: 'var(--accent-primary)', height: Math.max(8, (day.dueCount / maxForecast) * 80) }} />
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{day.dayLabel}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  {i === 0 ? t('Today') : new Date(day.dateMs).toLocaleDateString(i18n.language, { weekday: 'short' })}
+                </span>
               </div>
             ))}
           </div>
-          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>Projected due cards for the next 7 days</p>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>{t('Projected due cards for the next 7 days')}</p>
         </div>
 
         <div className="glass-card">
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>Vocabulary Growth</h3>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>{t('Vocabulary Growth')}</h3>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '120px' }}>
             {stats.growth.map((week, i) => (
               <div key={week.weekStart} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
@@ -228,26 +237,26 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
               </div>
             ))}
           </div>
-          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>New words per week</p>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>{t('New words per week')}</p>
         </div>
       </div>
 
       {/* Difficult Words / Leeches */}
       <div className="glass-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertTriangle size={18} color="var(--danger)" />
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Difficult Words</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('Difficult Words')}</h3>
           </div>
           {onSelectScreen && (
             <button onClick={() => onSelectScreen('search')} className="btn btn-ghost" style={{ fontSize: '13px' }}>
-              Practice <ArrowRight size={14} />
+              {t('Practice')} <ArrowRight size={14} />
             </button>
           )}
         </div>
 
         {stats.difficultWords.length === 0 ? (
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>No lapses yet - nothing difficult to show.</p>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>{t('No lapses yet - nothing difficult to show.')}</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {stats.difficultWords.map((word, i) => (
@@ -272,7 +281,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onSelectScreen }) => {
                     borderRadius: '999px',
                   }}
                 >
-                  {word.lapses} lapses
+                  {t('{{count}} lapses', { count: word.lapses })}
                 </span>
               </div>
             ))}

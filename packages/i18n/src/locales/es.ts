@@ -1347,6 +1347,8 @@ Home: 'Inicio',
   'Instant Lookup and Card Generations': 'Búsqueda instantánea y creación de tarjetas',
   'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.':
     'Busca cualquier palabra en {{target}} o {{native}} al instante - las formas flexionadas y conjugadas también funcionan. ¿Aún no está en tu biblioteca? Un toque **genera una tarjeta completa** con significados, ejemplos y pronunciación, para que nunca tengas que salir de la app para buscar algo.',
+  'Look up any {{target}} or {{native}} word instantly. If it\'s not in your library yet, one tap **generates a full flashcard**.':
+    'Busca cualquier palabra en {{target}} o {{native}} al instante. ¿Aún no está en tu biblioteca? Un toque **genera una tarjeta completa**.',
   "**Search** is how you look up any word without leaving the app: type it and get results instantly, and if it's new to you, one tap **generates a full flashcard** with meanings, examples, and pronunciation.":
     '**Buscar** es la forma de consultar cualquier palabra sin salir de la app: escríbela y obtén resultados al instante, y si es nueva para ti, un toque **genera una tarjeta completa** con significados, ejemplos y pronunciación.',
   'Feedback is posted as a public GitHub issue - this email will be visible to anyone who views it.':
@@ -1356,4 +1358,12 @@ Home: 'Inicio',
     'Los comentarios se publican como un issue público de GitHub. La dirección de correo que introdujiste será visible allí para cualquiera que lo vea, no solo para nuestro equipo. Vuelve atrás para eliminarla si prefieres mantenerla privada, o envíala tal cual si te parece bien.',
   'Go Back': 'Volver',
   'Send Anyway': 'Enviar de todos modos',
+
+  // ── Review completion celebration ──────────────────────────────────
+  'Session Completed': 'Sesión completada',
+  'Remembered!': '¡Recordado!',
+  'Great job 🎉': '¡Gran trabajo 🎉!',
+  'Strong memory': 'Memoria sólida',
+  'Keep it up!': '¡Sigue así!',
+  'Replay introduction': 'Volver a ver la introducción',
 }

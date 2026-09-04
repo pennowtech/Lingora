@@ -1,6 +1,6 @@
 import type { CefrLevel, LanguageCode } from '@lingora/types'
-import type { AIProvider } from '@lingora/ai'
-import { getAllLemmaFormsForLanguage, getRandomWordGuide, type DatabaseAdapter } from '@lingora/database'
+import { pickWordOfTheDay, type AIProvider } from '@lingora/ai'
+import { getAllLemmaFormsForLanguage, type DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
 import * as SecureStore from 'expo-secure-store'
 import * as Notifications from 'expo-notifications'
@@ -198,39 +198,6 @@ async function scheduleNotification(
   }
 }
 
-const MAX_UNIQUE_WORD_ATTEMPTS = 5
-
-function normalizedWord(word: string): string {
-  return word.normalize('NFKC').trim().toLocaleLowerCase()
-}
-
-/**
- * Asks the AI for a word, then actually verifies it's not a repeat instead of trusting the
- * prompt's exclude-list instruction alone — a model can and does occasionally ignore it,
- * especially once excludeWords gets long. Retries with the offending word appended to the
- * exclude list up to MAX_UNIQUE_WORD_ATTEMPTS times. A repeated result is never persisted as a
- * new daily word: after the final attempt this throws, leaving the previous value stale so the
- * next foreground transition can retry instead of silently recording a duplicate for today.
- */
-async function requestUniqueWord(
-  ai: AIProvider,
-  ctx: { cefrLevel: CefrLevel; language: LanguageCode; nativeLanguage: LanguageCode },
-  excludeWords: string[],
-): ReturnType<AIProvider['suggestWordOfTheDay']> {
-  const alreadySeen = new Set(excludeWords.map(normalizedWord))
-  let attemptExclude = excludeWords
-
-  for (let attempt = 1; attempt <= MAX_UNIQUE_WORD_ATTEMPTS; attempt++) {
-    const result = await ai.suggestWordOfTheDay(ctx, attemptExclude)
-    if (!alreadySeen.has(normalizedWord(result.data.word))) return result
-    log.warn('vocabulary.word_of_the_day_duplicate_suggested', {
-      message: `AI suggested an already-known/recent word on attempt ${attempt} of ${MAX_UNIQUE_WORD_ATTEMPTS} - retrying`,
-    })
-    attemptExclude = [...attemptExclude, result.data.word]
-  }
-  throw new Error(`AI suggested a repeated Word of the Day ${MAX_UNIQUE_WORD_ATTEMPTS} times`)
-}
-
 /**
  * Generates and persists a fresh Word of the Day if the stored one is missing, from a previous
  * calendar day, or was generated for a CEFR level/language pair the learner has since changed in
@@ -274,71 +241,38 @@ export async function refreshWordOfTheDayIfNeeded(params: {
   ])
   const excludeList = Array.from(new Set([...knownWords, ...historyWords]))
 
-  if (ai) {
-    try {
-      const result = await requestUniqueWord(ai, { cefrLevel, language: targetLanguage, nativeLanguage }, excludeList)
-      const notificationId = await scheduleNotification(
-        result.data.word,
-        result.data.explanation,
-        existing?.notificationId,
-        t,
-      )
-      const fresh: StoredWordOfTheDay = {
-        word: result.data.word,
-        explanation: result.data.explanation,
-        ...(result.data.exampleSentence && { exampleSentence: result.data.exampleSentence }),
-        ...(result.data.exampleTranslation && { exampleTranslation: result.data.exampleTranslation }),
-        language: targetLanguage,
-        nativeLanguage,
-        cefrLevel,
-        dateKey: today,
-        source: 'ai',
-        ...(notificationId && { notificationId }),
-      }
-      await Promise.all([
-        writeStored(fresh),
-        appendToHistory(result.data.word),
-      ])
-      log.info('vocabulary.word_of_the_day_refreshed', {
-        message: 'Word of the Day generated',
-        metadata: { tokenCountBucket: result.usage.tokensUsed > 500 ? '500+' : '<500' },
-      })
-      return fresh
-    } catch (error) {
-      log.error('vocabulary.word_of_the_day_refresh_failed', error, {
-        message: 'Could not generate a fresh Word of the Day',
-      })
-      return existing
-    }
-  }
+  // pickWordOfTheDay (packages/ai) owns the AI-vs-dictionary selection itself, including the
+  // AI's retry-on-duplicate loop — this only owns what's platform-specific: persistence, the
+  // rolling history, and the daily notification. A null result (AI failed, or no dictionary
+  // installed) means keep showing whatever was already stored rather than clearing it.
+  const pick = await pickWordOfTheDay({ ai, db, targetLanguage, nativeLanguage, cefrLevel, excludeWords: excludeList })
+  if (!pick) return existing
 
   try {
-    const entry = await getRandomWordGuide(db, targetLanguage, excludeList)
-    if (!entry) return existing
-    const firstExample = entry.examples[0]
-    const notificationId = await scheduleNotification(entry.headword, entry.intro, existing?.notificationId, t)
+    const notificationId = await scheduleNotification(pick.word, pick.explanation, existing?.notificationId, t)
     const fresh: StoredWordOfTheDay = {
-      word: entry.headword,
-      explanation: entry.intro,
-      ...(firstExample && { exampleSentence: firstExample.sentence, exampleTranslation: firstExample.translation }),
+      word: pick.word,
+      explanation: pick.explanation,
+      ...(pick.exampleSentence && { exampleSentence: pick.exampleSentence }),
+      ...(pick.exampleTranslation && { exampleTranslation: pick.exampleTranslation }),
       language: targetLanguage,
       nativeLanguage,
       cefrLevel,
       dateKey: today,
-      source: 'dictionary',
+      source: pick.source,
       ...(notificationId && { notificationId }),
     }
-    await Promise.all([
-      writeStored(fresh),
-      appendToHistory(entry.headword),
-    ])
+    await Promise.all([writeStored(fresh), appendToHistory(pick.word)])
     log.info('vocabulary.word_of_the_day_refreshed', {
-      message: 'Word of the Day picked from the installed local dictionary (no AI provider active)',
+      message:
+        pick.source === 'ai'
+          ? 'Word of the Day generated'
+          : 'Word of the Day picked from the installed local dictionary (no AI provider active)',
     })
     return fresh
   } catch (error) {
     log.error('vocabulary.word_of_the_day_refresh_failed', error, {
-      message: 'Could not pick a Word of the Day from the installed dictionary',
+      message: 'Could not store the freshly picked Word of the Day',
     })
     return existing
   }

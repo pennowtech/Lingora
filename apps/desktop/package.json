@@ -14,6 +14,7 @@
     "@lingora/ai": "workspace:*",
     "@lingora/core": "workspace:*",
     "@lingora/database": "workspace:*",
+    "@lingora/i18n": "workspace:*",
     "@lingora/observability": "workspace:*",
     "@lingora/srs": "workspace:*",
     "@lingora/types": "workspace:*",
@@ -22,10 +23,12 @@
     "@tauri-apps/plugin-fs": "^2",
     "@tauri-apps/plugin-http": "^2",
     "fts5-sql-bundle": "^1.0.2",
+    "i18next": "^26.3.6",
     "liquidjs": "^10.27.2",
     "lucide-react": "^0.475.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-i18next": "^17.0.11",
     "sql.js": "^1.12.0"
   },
   "devDependencies": {

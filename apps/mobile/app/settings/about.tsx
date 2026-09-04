@@ -8,6 +8,7 @@ import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../co
 import { Icon } from '../../components/Icon'
 import { Button, Card, IconButton } from '../../components/ui'
 import { WhatsNewModal } from '../../components/WhatsNewModal'
+import { StartupScreen } from '../../components/StartupScreen'
 import { parseChangelogMarkdown } from '../../lib/changelog'
 import { radius, spacing, type } from '../../lib/theme'
 import { useColors, useThemedStyles } from '../../lib/ThemeContext'
@@ -40,6 +41,7 @@ export default function AboutScreen(): JSX.Element {
   const styles = useThemedStyles(createStyles)
   const help = useHelpAccordion('privacy')
   const [whatsNewModalOpen, setWhatsNewModalOpen] = useState(false)
+  const [featureReplayOpen, setFeatureReplayOpen] = useState(false)
 
   const appVersion = Constants.expoConfig?.version ?? '0.2.0'
   const buildNumber =
@@ -55,6 +57,7 @@ export default function AboutScreen(): JSX.Element {
   const recentSections = release.sections.slice(0, 3)
 
   return (
+    <>
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Stack.Screen
         options={{
@@ -75,6 +78,14 @@ export default function AboutScreen(): JSX.Element {
           <Text style={styles.versionBadgeText}>{buildLabel}</Text>
         </View>
         <Text style={styles.tagline}>{t('offline-first · your data stays on device')}</Text>
+        <Button
+          label={t('Replay introduction')}
+          icon="Play"
+          variant="secondary"
+          small
+          onPress={() => setFeatureReplayOpen(true)}
+          style={styles.replayButton}
+        />
       </Card>
 
       {/* What's New Card */}
@@ -137,6 +148,14 @@ export default function AboutScreen(): JSX.Element {
         translate={t}
       />
     </ScrollView>
+    {featureReplayOpen ? (
+      <StartupScreen
+        visible
+        mode="feature-replay"
+        onComplete={() => setFeatureReplayOpen(false)}
+      />
+    ) : null}
+    </>
   )
 }
 
@@ -167,6 +186,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     versionBadgeText: { fontSize: type.caption, fontWeight: '700', color: colors.primary },
     tagline: { fontSize: type.caption, color: colors.textSecondary, textAlign: 'center', marginTop: 2 },
+    replayButton: { alignSelf: 'stretch', marginTop: spacing.sm },
     sectionCard: {
       backgroundColor: colors.surface,
       padding: spacing.md,

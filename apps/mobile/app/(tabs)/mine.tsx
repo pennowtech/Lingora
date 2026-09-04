@@ -13,6 +13,7 @@ import { router, Stack } from 'expo-router'
 import { useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -23,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import mineArtwork from '../../assets/backgrounds/mine-conversation-subtle.png'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
 import { Icon, type IconName } from '../../components/Icon'
 import { InlineMarkdown } from '../../components/InlineMarkdown'
@@ -30,7 +32,7 @@ import { AlertModal, Button, Card, ConfirmModal, ErrorState, IconButton, Spinner
 import { timeAgo } from '@lingora/core'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'mining', screen: 'MiningStudioScreen' })
@@ -71,6 +73,29 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
 ]
+
+function MineScreenArtwork(): JSX.Element | null {
+  const { theme } = useTheme()
+  const styles = useThemedStyles(createStyles)
+
+  if (theme.mode === 'dark') return null
+
+  return (
+    <View
+      pointerEvents="none"
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      style={styles.mineArtworkLayer}
+    >
+      <Image
+        source={mineArtwork}
+        style={styles.mineArtwork}
+        resizeMode="contain"
+        accessible={false}
+      />
+    </View>
+  )
+}
 
 export default function MiningStudioScreen(): JSX.Element {
   const { db, targetLanguage } = useServices()
@@ -344,6 +369,7 @@ export default function MiningStudioScreen(): JSX.Element {
   if (entries.length === 0) {
     return (
       <View style={styles.container}>
+        <MineScreenArtwork />
         <View style={styles.emptyCentered}>{overviewCard}</View>
         {captureFab}
         {captureModal}
@@ -391,6 +417,7 @@ export default function MiningStudioScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      <MineScreenArtwork />
       {clearToolbar}
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {entries.map((entry) => {
@@ -496,16 +523,33 @@ const createStyles = (colors: ThemeColors) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    mineArtworkLayer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 320,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      zIndex: 0,
+    },
+    mineArtwork: {
+      width: '100%',
+      height: '100%',
+      opacity: 0.20,
+    },
     scroll: {
       padding: spacing.md,
       paddingBottom: 110,
       gap: spacing.sm,
+      zIndex: 1,
     },
     emptyCentered: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: spacing.xl,
+      zIndex: 1,
     },
     overviewCard: {
       alignItems: 'center',

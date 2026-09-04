@@ -1403,4 +1403,63 @@ Home: 'Accueil',
   'Lemony Update Available': 'Mise à jour Lemony disponible',
   "A new version is ready on Google Play Store. Tap to see what's fresh!":
     'Une nouvelle version est prête sur Google Play Store. Touchez pour voir les nouveautés !',
+  // ── Decks screen summary ───────────────────────────────────────────
+  "Due": "À réviser",
+  "Total": "Total",
+  "Unique": "Uniques",
+  "Retention": "Rétention",
+  "{{due}} Due / {{total}} Total / {{decks}} Decks": "{{due}} À réviser / {{total}} Total / {{decks}} Paquets",
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons': 'Icônes des modes de révision',
+  'Each deck displays icon capsules showing which review formats are active for its cards:':
+    'Chaque paquet affiche des capsules d’icônes pour les formats de révision actifs :',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.':
+    '• **Vocabulaire (⇄)** : Mot vers sens — rappelez-vous la définition à partir du mot cible.',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.':
+    '• **Inversé (⮌)** : Sens vers mot — rappelez-vous le mot cible à partir de la définition.',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.':
+    '• **Texte à trous (T)** : Compléter la phrase — retrouvez le mot manquant dans la phrase d’exemple.',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.':
+    '• **Choix multiple (☰)** : Choisissez la bonne signification parmi plusieurs propositions.',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.':
+    '• **Vrai/Faux (✓)** : Vérification rapide — évaluez si la définition affichée est exacte.',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
+    '**Conditions requises** : Vrai/Faux nécessite au moins 1 autre carte enregistrée et Choix multiple au moins 3 autres cartes pour les options de réponse. Un format est ignoré tant qu’il n’y a pas assez de cartes.',
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'The four top boxes track your deck metrics at a glance:':
+    'Les quatre cases supérieures résument les statistiques de votre paquet :',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
+    '• **Cartes** : Total des cartes d’entraînement générées pour tous les formats actifs (ex. vocabulaire, inversé, texte à trous).',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
+    '• **Uniques** : Nombre de mots de vocabulaire distincts / cartes uniques dans ce paquet.',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
+    '• **À réviser** : Nombre de cartes uniques prêtes à être révisées dès maintenant.',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.':
+    '• **Rétention** : Taux de mémorisation sur 30 jours pour vos cartes révisées.',
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode': 'Mode',
+  'Recent': 'Récents',
+  'A-Z': 'A–Z',
+  'Due Date': "Date d'échéance",
+  'A–Z': 'A–Z',
+  'Cards in Deck ({{count}})': 'Cartes du paquet ({{count}})',
+  'Review {{count}} Due Cards': 'Réviser {{count}} cartes dues',
+  'Review All Cards': 'Réviser toutes les cartes',
+  'Learned': 'Appris',
+  'Vocab': 'Vocab',
+  'Reverse': 'Inversé',
+  'True/False': 'Vrai/Faux',
+  'MCQ': 'MCQ',
+  'Start Review': 'Commencer la révision',
+  'The stats row': 'La ligne de statistiques',
+  'The "..." menu': 'Le menu « ... »',
+  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'La révision présente les cartes dues de ce paquet dans chaque format éligible sélectionné lors de la création du paquet, tel que mot, inversé, texte à trous, vrai/faux ou choix multiple.',
+  'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
+    'Renommer, déplacer, modifier les modes de révision, exporter, réinitialiser la progression ou supprimer ce paquet — la suppression demande toujours confirmation d’abord.',
+  'Z–A': 'Z–A',
+  'Z-A': 'Z–A',
+  'Ascending': 'Croissant',
+  'Descending': 'Décroissant',
 };
+

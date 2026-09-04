@@ -1527,6 +1527,50 @@ export const ENGLISH_PHRASES = [
   'Update on Play Store →',
   'Lemony Update Available',
   "A new version is ready on Google Play Store. Tap to see what's fresh!",
+
+  // ── Decks screen summary ───────────────────────────────────────────
+  'Due',
+  'Total',
+  'Unique',
+  'Retention',
+  '{{due}} Due / {{total}} Total / {{decks}} Decks',
+
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons',
+  'Each deck displays icon capsules showing which review formats are active for its cards:',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.',
+
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'The four top boxes track your deck metrics at a glance:',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.',
+
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode',
+  'Recent',
+  'A-Z',
+  'Due Date',
+  'A–Z',
+  'Cards in Deck ({{count}})',
+  'Review {{count}} Due Cards',
+  'Review All Cards',
+  'Learned',
+  'Vocab',
+  'Reverse',
+  'True/False',
+  'MCQ',
+  'Start Review',
+  'Z–A',
+  'Z-A',
+  'Ascending',
+  'Descending',
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

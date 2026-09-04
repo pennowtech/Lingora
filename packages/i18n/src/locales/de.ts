@@ -1846,4 +1846,58 @@ export const de: Record<Phrase, string> = {
   'Lemony Update Available': 'Lemony-Update verfügbar',
   "A new version is ready on Google Play Store. Tap to see what's fresh!":
     'Eine neue Version ist im Google Play Store bereit. Tippen, um die Neuerungen zu sehen!',
+  // ── Decks screen summary ───────────────────────────────────────────
+  "Due": "Fällig",
+  "Total": "Gesamt",
+  "Unique": "Einzigartig",
+  "Retention": "Behalten",
+  "{{due}} Due / {{total}} Total / {{decks}} Decks": "{{due}} Fällig / {{total}} Gesamt / {{decks}} Stapel",
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons': 'Symbole der Wiederholungsmodi',
+  'Each deck displays icon capsules showing which review formats are active for its cards:':
+    'Jeder Stapel zeigt Symbol-Kapseln für die aktiven Wiederholungsformate seiner Karten:',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.':
+    '• **Vokabel (⇄)**: Zielwort zur Bedeutung – rufe die Definition ab, wenn das Stichwort angezeigt wird.',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.':
+    '• **Umgekehrt (⮌)**: Bedeutung zum Zielwort – rufe das Stichwort ab, wenn die Definition angezeigt wird.',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.':
+    '• **Lückentext (T)**: Lückentext ausfüllen – ergänze das fehlende Wort in einem Beispielsatz.',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.':
+    '• **Multiple Choice (☰)**: Wähle die richtige Bedeutung aus mehreren Antwortmöglichkeiten.',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.':
+    '• **Richtig/Falsch (✓)**: Schnelle Prüfung – beurteile, ob die angezeigte Bedeutung zutrifft.',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
+    '**Voraussetzungen**: Richtig/Falsch erfordert mindestens 1 andere gespeicherte Karte und Multiple Choice mindestens 3 andere Karten für Antwortoptionen. Ein Format wird übersprungen, bis genügend Karten vorhanden sind.',
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'The four top boxes track your deck metrics at a glance:':
+    'Die vier oberen Boxen zeigen Ihre Deck-Statistiken auf einen Blick:',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
+    '• **Karten**: Gesamtzahl der Übungskarten über alle aktiven Lernformate (z. B. Vokabeln, Umgekehrt, Lückentext).',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
+    '• **Einzigartig**: Anzahl der einzelnen Vokabeln / eindeutigen Karten in diesem Deck.',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
+    '• **Fällig**: Anzahl der einzelnen Karten, die jetzt zur Wiederholung anstehen.',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.':
+    '• **Behalten**: 30-Tage-Erinnerungsrate für Ihre wiederholten Karten.',
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode': 'Modus',
+  'Recent': 'Neueste',
+  'A-Z': 'A–Z',
+  'Due Date': 'Fälligkeitsdatum',
+  'A–Z': 'A–Z',
+  'Cards in Deck ({{count}})': 'Karten im Stapel ({{count}})',
+  'Review {{count}} Due Cards': '{{count}} fällige Karten wiederholen',
+  'Review All Cards': 'Alle Karten wiederholen',
+  'Learned': 'Gelernt',
+  'Vocab': 'Vokabeln',
+  'Reverse': 'Umgekehrt',
+  'True/False': 'Richtig/Falsch',
+  'MCQ': 'MCQ',
+  'Start Review': 'Wiederholung starten',
+  'Z–A': 'Z–A',
+  'Z-A': 'Z–A',
+  'Ascending': 'Aufsteigend',
+  'Descending': 'Absteigend',
 };
+
+

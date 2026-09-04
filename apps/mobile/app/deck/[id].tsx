@@ -1,8 +1,9 @@
-import type { Deck } from '@lingora/types'
+import type { Deck, QuestionType } from '@lingora/types'
 import {
   deleteDeck,
   getAllDecks,
   getCardCountForDeck,
+  getCardsDueForReview,
   getCardsForDeck,
   getDeckById,
   getDueCardsCount,
@@ -17,14 +18,25 @@ import {
 import { logger } from '@lingora/observability'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useState, type JSX } from 'react'
+import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   AlertModal,
   Button,
   Card,
-  CefrBadge,
   ConfirmModal,
   ErrorState,
   ExportFormatSheet,
@@ -35,14 +47,23 @@ import {
   type ImportFormat,
 } from '../../components/ui'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Icon } from '../../components/Icon'
+import { Icon, type IconName } from '../../components/Icon'
 import { ExportNameModal } from '../../components/ExportNameModal'
-import { collectDescendantIds } from '@lingora/core'
+import { collectDescendantIds, getDeckQuestionTypes } from '@lingora/core'
+import { QUESTION_TYPE_META } from '../../lib/reviewTypes'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+
+const MODE_META: Record<QuestionType, { label: string; icon: IconName }> = {
+  vocab: { label: 'Vocab', icon: 'ArrowLeftRight' },
+  reverse: { label: 'Reverse', icon: 'CornerUpLeft' },
+  cloze: { label: 'Cloze', icon: 'Pencil' },
+  trueFalse: { label: 'True/False', icon: 'CircleCheckBig' },
+  mcq: { label: 'MCQ', icon: 'List' },
+}
 
 const log = logger.child({ feature: 'export', screen: 'DeckDetailScreen' })
 
@@ -58,7 +79,11 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'The stats row',
     icon: 'ChartColumn',
     paragraphs: [
-      'Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.',
+      'The four top boxes track your deck metrics at a glance:',
+      '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
+      '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
+      '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.',
+      '• **Retention**: 30-day recall retention rate across your reviewed cards.',
     ],
   },
   {
@@ -82,26 +107,34 @@ const HELP_SECTIONS: HelpSection[] = [
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
-  const [cardCount, dueCount, retention, cards] = await Promise.all([
+  const [cardCount, dueCount, retention, cards, dueCards] = await Promise.all([
     getCardCountForDeck(db, deckId),
     getDueCardsCount(db, deckId),
     getRetentionRate(db, 30), // global for now — per-deck retention lands with Phase 5 stats
     getCardsForDeck(db, deckId),
+    getCardsDueForReview(db, deckId),
   ])
-  return { deck, cardCount, dueCount, retention, cards }
+  const dueCardIds = new Set(dueCards.map((c) => c.id))
+  return { deck, cardCount, dueCount, retention, cards, dueCardIds }
 }
 
 /**
  * Deck detail: header stats, card list, rename/delete actions.
  */
 export default function DeckDetailScreen(): JSX.Element {
+  const insets = useSafeAreaInsets()
+  const topInset = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0)
   const { id } = useLocalSearchParams<{ id: string }>()
   const { db } = useServices()
   const { t } = useTranslation()
+  const { theme } = useTheme()
+  const isDark = theme.mode === 'dark'
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
   const queryClient = useQueryClient()
   const help = useHelpAccordion('stats')
+  const [sortBy, setSortBy] = useState<'due' | 'alpha' | 'recent'>('due')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [menuOpen, setMenuOpen] = useState(false)
   const [importSheetOpen, setImportSheetOpen] = useState(false)
   const [exportSheetOpen, setExportSheetOpen] = useState(false)
@@ -126,6 +159,44 @@ export default function DeckDetailScreen(): JSX.Element {
     queryFn: () => loadDeckDetail(db, id ?? ''),
     enabled: (id ?? '') !== '',
   })
+
+  const queryCards = deckQuery.data?.cards
+  const dueCardIds = deckQuery.data?.dueCardIds
+  const sortedCards = useMemo(() => {
+    if (!queryCards) return []
+    const list = [...queryCards]
+    if (sortBy === 'due') {
+      return list.sort((a, b) => {
+        const aDue = dueCardIds?.has(a.cardId) ? 1 : 0
+        const bDue = dueCardIds?.has(b.cardId) ? 1 : 0
+        if (aDue !== bDue) {
+          return sortOrder === 'desc' ? bDue - aDue : aDue - bDue
+        }
+        return sortOrder === 'desc' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt
+      })
+    }
+    if (sortBy === 'alpha') {
+      return list.sort((a, b) =>
+        sortOrder === 'asc'
+          ? a.form.localeCompare(b.form)
+          : b.form.localeCompare(a.form)
+      )
+    }
+    return list.sort((a, b) =>
+      sortOrder === 'desc'
+        ? b.createdAt - a.createdAt
+        : a.createdAt - b.createdAt
+    )
+  }, [queryCards, dueCardIds, sortBy, sortOrder])
+
+  const handleSortPress = (field: 'due' | 'alpha' | 'recent') => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortBy(field)
+      setSortOrder(field === 'alpha' ? 'asc' : 'desc')
+    }
+  }
 
   const allDecksQuery = useQuery({
     queryKey: ['decks'],
@@ -291,26 +362,50 @@ export default function DeckDetailScreen(): JSX.Element {
 
   if (deckQuery.isPending) {
     return (
-      <>
-        <Stack.Screen options={{ title: t('Deck') }} />
+      <View style={[styles.container, { paddingTop: topInset }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.screenHeader}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={t('Go back')}
+            style={styles.backButton}
+          >
+            <Icon name="ArrowLeft" size={20} color={colors.textSecondary} />
+          </Pressable>
+        </View>
         <Spinner />
-      </>
+      </View>
     )
   }
 
   if (deckQuery.isError || !deckQuery.data) {
     return (
-      <>
-        <Stack.Screen options={{ title: t('Deck') }} />
+      <View style={[styles.container, { paddingTop: topInset }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.screenHeader}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={t('Go back')}
+            style={styles.backButton}
+          >
+            <Icon name="ArrowLeft" size={20} color={colors.textSecondary} />
+          </Pressable>
+        </View>
         <ErrorState
           message={deckQuery.isError ? String(deckQuery.error) : t('This deck no longer exists.')}
           {...(deckQuery.isError && { onRetry: () => void deckQuery.refetch() })}
         />
-      </>
+      </View>
     )
   }
 
   const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
+  const questionTypes = getDeckQuestionTypes(deck)
+  const totalPracticeCards = cardCount * questionTypes.length
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -319,122 +414,293 @@ export default function DeckDetailScreen(): JSX.Element {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: deck.name,
-          headerRight: () => (
-            <View style={styles.headerActions}>
-              <IconButton icon="CircleQuestionMark" size={24} color={colors.primary} onPress={() => help.openSection('stats')} />
-              <IconButton testID="deck-menu-button" icon="Ellipsis" onPress={() => setMenuOpen(true)} />
-            </View>
-          ),
-        }}
-      />
-      <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
-        <View style={styles.statsRow}>
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{cardCount}</Text>
-            <Text style={styles.statLabel}>{t('cards')}</Text>
-          </Card>
-          <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: colors.primary }]}>{dueCount}</Text>
-            <Text style={styles.statLabel}>{t('due now')}</Text>
-          </Card>
-          <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: colors.success }]}>
-              {Math.round(retention * 100)}%
-            </Text>
-            <Text style={styles.statLabel}>{t('retention')}</Text>
-          </Card>
-        </View>
-
-        {/* One clear entry point: the review session expands every due card into the formats saved
-            on this deck at creation time, skipping formats that are not eligible for that card. */}
-        {cardCount > 0 ? (
-          <Button
-            testID="deck-review-button"
-            label={t('Review')}
-            icon="Play"
-            onPress={() =>
-              router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
-            }
-            style={styles.reviewButton}
-          />
-        ) : null}
-
-        <SectionHeader
-          title={selectMode ? t('{{count}} selected', { count: selectedCardIds.size }) : t('Cards')}
-        />
-        {cards.map((card) => {
-          const selected = selectedCardIds.has(card.cardId)
-          return (
-            <Card
-              key={card.cardId}
-              style={styles.cardRow}
-              // Opens like a review card (tap-to-flip word/meaning, and a header toggle to the
-              // cloze view too if this word has one) rather than the full word management page —
-              // this is "look at this card the way I'd study it", not "edit this card". Long-press
-              // enters multi-select (mirrors the deck list's own selection pattern); once in select
-              // mode, a normal tap toggles selection instead of opening the card.
-              onPress={() =>
-                selectMode
-                  ? toggleCardSelected(card.cardId)
-                  : router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, cardId: card.cardId } })
-              }
-              onLongPress={() => toggleCardSelected(card.cardId)}
+      <Stack.Screen options={{ headerShown: false }} />
+      <View style={[styles.container, { paddingTop: topInset }]}>
+        {/* ── Screen Header ── */}
+        <View style={styles.screenHeader}>
+          <View style={styles.headerLeftMeta}>
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={t('Go back')}
+              style={styles.backButton}
             >
-              {selectMode ? (
-                <View style={[styles.checkbox, selected ? styles.checkboxChecked : null]}>
-                  {selected ? <Icon name="Check" size={14} color={colors.textOnPrimary} /> : null}
-                </View>
-              ) : null}
-              <View style={styles.cardRowText}>
-                <Text style={styles.cardForm}>{card.form}</Text>
-                {card.translation ? <Text style={styles.cardMeaning}>{card.translation}</Text> : null}
-              </View>
-              <View style={styles.cardRowRight}>
-                {card.hasCloze ? (
-                  <View style={styles.clozeBadge}>
-                    <Icon name="SquarePen" size={12} color={colors.warning} />
-                  </View>
-                ) : null}
-                {card.cefrLevel ? <CefrBadge level={card.cefrLevel} /> : null}
-                {selectMode ? null : <Icon name="ChevronRight" size={16} color={colors.textMuted} />}
-              </View>
-            </Card>
-          )
-        })}
-        {cards.length === 0 ? (
-          <Text style={styles.footnote}>{t('No cards yet - add words from Search.')}</Text>
-        ) : null}
-      </ScrollView>
-
-      {selectMode ? (
-        <View style={styles.selectionBar}>
-          <Pressable onPress={cancelSelectMode} hitSlop={8}>
-            <Text style={styles.selectionCancel}>{t('Cancel')}</Text>
-          </Pressable>
-          <Button
-            testID="bulk-delete-cards-button"
-            label={removeCards.isPending ? t('Removing...') : t('Remove {{count}}', { count: selectedCardIds.size })}
-            icon="Trash2"
-            variant="danger"
-            small
-            onPress={confirmRemoveSelected}
-            disabled={removeCards.isPending || selectedCardIds.size === 0}
-          />
+              <Icon name="ArrowLeft" size={24} color={colors.text} />
+            </Pressable>
+            <Text style={styles.deckName} numberOfLines={1}>
+              {deck.name}
+            </Text>
+          </View>
+          <View style={styles.headerActions}>
+            <Pressable
+              style={[styles.actionIconBtn, styles.helpBtn]}
+              onPress={() => help.openSection('stats')}
+              accessibilityLabel={t('Help')}
+            >
+              <Text style={styles.helpBtnText}>?</Text>
+            </Pressable>
+            <Pressable
+              testID="deck-menu-button"
+              style={styles.actionIconBtn}
+              onPress={() => setMenuOpen(true)}
+              accessibilityLabel={t('Deck options')}
+            >
+              <Icon name="Ellipsis" size={18} color={colors.text} />
+            </Pressable>
+          </View>
         </View>
-      ) : null}
 
-      {selectMode ? null : (
-        <Pressable
-          testID="add-card-fab"
-          style={styles.fab}
-          onPress={() => router.push({ pathname: '/deck/add-card', params: { deckId: id } })}
-        >
-          <Icon name="Plus" size={28} color={colors.textOnPrimary} />
-        </Pressable>
-      )}
+        {/* ── Scrollable Screen Canvas ── */}
+        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scroll}>
+          {/* ── 1. Editorial 4-Box Stats Card with Hairline Dividers ── */}
+          <View style={styles.editorialStatsPanel}>
+            <View style={styles.statCol}>
+              <Text style={styles.statDigit}>{totalPracticeCards}</Text>
+              <Text style={styles.statTag}>{t('Cards')}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statCol}>
+              <Text style={styles.statDigit}>{cardCount}</Text>
+              <Text style={styles.statTag}>{t('Unique')}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statCol}>
+              <Text style={[styles.statDigit, dueCount > 0 && styles.statDigitDue]}>
+                {dueCount}
+              </Text>
+              <Text style={styles.statTag}>{t('Due')}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statCol}>
+              <Text style={[styles.statDigit, styles.statDigitRetention]}>
+                {Math.round(retention * 100)}%
+              </Text>
+              <Text style={styles.statTag}>{t('Retention')}</Text>
+            </View>
+          </View>
+
+          {/* ── 2. Active Review Modes Strip ── */}
+          {questionTypes.length > 0 ? (
+            <View style={styles.reviewModesStrip}>
+              <Text style={styles.modesStripTitle}>{t('Mode')}</Text>
+              <View style={styles.modesCapsulesGroup}>
+                {questionTypes.map((type) => {
+                  const meta = MODE_META[type]
+                  const iconName = meta?.icon
+                  const tagTheme = getModeTagTheme(type, isDark)
+                  if (!iconName) return null
+                  return (
+                    <View
+                      key={type}
+                      style={[
+                        styles.miniCapsule,
+                        { backgroundColor: tagTheme.bg, borderColor: tagTheme.border },
+                      ]}
+                    >
+                      <Icon name={iconName} size={10.5} strokeWidth={2.4} color={tagTheme.text} />
+                      <Text
+                        style={[styles.miniCapsuleText, { color: tagTheme.text }]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.7}
+                      >
+                        {t(meta?.label ?? type)}
+                      </Text>
+                    </View>
+                  )
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          {/* ── 3. Full Row View "Review" Button (Exact Hero Action) ── */}
+          {cardCount > 0 ? (
+            <View style={styles.reviewHeroButtonRow}>
+              <Pressable
+                testID="deck-review-button"
+                style={({ pressed }) => [
+                  styles.fullReviewBtn,
+                  pressed && styles.fullReviewBtnPressed,
+                ]}
+                onPress={() =>
+                  router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
+                }
+              >
+                <View style={styles.playIconBox}>
+                  <Icon name="Play" size={10} color="#ffffff" />
+                </View>
+                <Text style={styles.fullReviewBtnText}>
+                  {t('Start Review')}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          {/* ── 4. Pro HUD Sorting Toolbar ── */}
+          <View style={styles.hudSortingToolbar}>
+            <Text style={styles.toolbarSectionTitle}>
+              {selectMode
+                ? t('{{count}} selected', { count: selectedCardIds.size })
+                : t('Cards')}
+            </Text>
+            {!selectMode && cards.length > 1 ? (
+              <View style={styles.sortPillsCluster}>
+                <Pressable
+                  onPress={() => handleSortPress('due')}
+                  style={[styles.sortPill, sortBy === 'due' && styles.sortPillActive]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('Due Date')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                >
+                  <Text
+                    style={[
+                      styles.sortPillText,
+                      sortBy === 'due' && { color: isDark ? '#38bdf8' : colors.primary },
+                    ]}
+                  >
+                    {t('Due Date')}
+                  </Text>
+                  {sortBy === 'due' ? (
+                    <Icon
+                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                      size={10.5}
+                      strokeWidth={2.4}
+                      color={isDark ? '#38bdf8' : colors.primary}
+                    />
+                  ) : null}
+                </Pressable>
+                <Pressable
+                  onPress={() => handleSortPress('alpha')}
+                  style={[styles.sortPill, sortBy === 'alpha' && styles.sortPillActive]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('A–Z')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                >
+                  <Text
+                    style={[
+                      styles.sortPillText,
+                      sortBy === 'alpha' && { color: isDark ? '#38bdf8' : colors.primary },
+                    ]}
+                  >
+                    {sortBy === 'alpha' && sortOrder === 'desc' ? t('Z–A') : t('A–Z')}
+                  </Text>
+                  {sortBy === 'alpha' ? (
+                    <Icon
+                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                      size={10.5}
+                      strokeWidth={2.4}
+                      color={isDark ? '#38bdf8' : colors.primary}
+                    />
+                  ) : null}
+                </Pressable>
+                <Pressable
+                  onPress={() => handleSortPress('recent')}
+                  style={[styles.sortPill, sortBy === 'recent' && styles.sortPillActive]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('Recent')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                >
+                  <Text
+                    style={[
+                      styles.sortPillText,
+                      sortBy === 'recent' && { color: isDark ? '#38bdf8' : colors.primary },
+                    ]}
+                  >
+                    {t('Recent')}
+                  </Text>
+                  {sortBy === 'recent' ? (
+                    <Icon
+                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                      size={10.5}
+                      strokeWidth={2.4}
+                      color={isDark ? '#38bdf8' : colors.primary}
+                    />
+                  ) : null}
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+
+          {/* ── 5. Refined Vocabulary Card List ── */}
+          <View style={styles.cardsStack}>
+            {sortedCards.map((card) => {
+              const selected = selectedCardIds.has(card.cardId)
+              const isDue = dueCardIds?.has(card.cardId) ?? false
+              return (
+                <Pressable
+                  key={card.cardId}
+                  style={({ pressed }) => [
+                    styles.editorialVocabCard,
+                    pressed && styles.editorialVocabCardPressed,
+                    selected && styles.editorialVocabCardSelected,
+                  ]}
+                  onPress={() =>
+                    selectMode
+                      ? toggleCardSelected(card.cardId)
+                      : router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, cardId: card.cardId } })
+                  }
+                  onLongPress={() => toggleCardSelected(card.cardId)}
+                >
+                  {selectMode ? (
+                    <View style={[styles.checkbox, selected ? styles.checkboxChecked : null]}>
+                      {selected ? <Icon name="Check" size={14} color={colors.textOnPrimary} /> : null}
+                    </View>
+                  ) : null}
+                  <View style={styles.vocabCardLeft}>
+                    <View style={styles.wordTitleRow}>
+                      <Text style={styles.cardHeadword}>{card.form}</Text>
+                    </View>
+                    {card.translation ? (
+                      <Text style={styles.cardDefinition} numberOfLines={1}>
+                        {card.translation}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.vocabCardRight}>
+                    {isDue ? (
+                      <View style={styles.duePillTag}>
+                        <Text style={styles.duePillText}>{t('Due')}</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.okPillTag}>
+                        <Text style={styles.okPillText}>{t('Learned')}</Text>
+                      </View>
+                    )}
+                  </View>
+                </Pressable>
+              )
+            })}
+          </View>
+          {cards.length === 0 ? (
+            <Text style={styles.footnote}>{t('No cards yet - add words from Search.')}</Text>
+          ) : null}
+        </ScrollView>
+
+        {selectMode ? (
+          <View style={styles.selectionBar}>
+            <Pressable onPress={cancelSelectMode} hitSlop={8}>
+              <Text style={styles.selectionCancel}>{t('Cancel')}</Text>
+            </Pressable>
+            <Button
+              testID="bulk-delete-cards-button"
+              label={removeCards.isPending ? t('Removing...') : t('Remove {{count}}', { count: selectedCardIds.size })}
+              icon="Trash2"
+              variant="danger"
+              small
+              onPress={confirmRemoveSelected}
+              disabled={removeCards.isPending || selectedCardIds.size === 0}
+            />
+          </View>
+        ) : null}
+
+        {selectMode ? null : (
+          <Pressable
+            testID="add-card-fab"
+            style={styles.fab}
+            onPress={() => router.push({ pathname: '/deck/add-card', params: { deckId: id } })}
+          >
+            <Icon name="Plus" size={26} color="#ffffff" />
+          </Pressable>
+        )}
+      </View>
 
       {/* ── Deck actions menu ── */}
       <Modal visible={menuOpen} animationType="fade" transparent onRequestClose={() => setMenuOpen(false)}>
@@ -729,49 +995,407 @@ export default function DeckDetailScreen(): JSX.Element {
   )
 }
 
+function getModeTagTheme(type: QuestionType, isDark: boolean) {
+  if (isDark) {
+    switch (type) {
+      case 'cloze':
+        return {
+          bg: 'rgba(168, 85, 247, 0.22)',
+          text: '#e9d5ff',
+          border: 'rgba(192, 132, 252, 0.45)',
+        }
+      case 'vocab':
+        return {
+          bg: 'rgba(59, 130, 246, 0.22)',
+          text: '#bfdbfe',
+          border: 'rgba(147, 197, 253, 0.45)',
+        }
+      case 'reverse':
+        return {
+          bg: 'rgba(99, 102, 241, 0.22)',
+          text: '#c7d2fe',
+          border: 'rgba(165, 180, 252, 0.45)',
+        }
+      case 'mcq':
+        return {
+          bg: 'rgba(245, 158, 11, 0.22)',
+          text: '#fde68a',
+          border: 'rgba(252, 211, 77, 0.45)',
+        }
+      case 'trueFalse':
+        return {
+          bg: 'rgba(16, 185, 129, 0.22)',
+          text: '#a7f3d0',
+          border: 'rgba(110, 231, 183, 0.45)',
+        }
+      default:
+        return {
+          bg: 'rgba(148, 163, 184, 0.2)',
+          text: '#f1f5f9',
+          border: 'rgba(148, 163, 184, 0.35)',
+        }
+    }
+  }
+
+  // Light theme: crisp, high-contrast, saturated borders and text
+  switch (type) {
+    case 'cloze':
+      return {
+        bg: 'rgba(168, 85, 247, 0.12)',
+        text: '#6b21a8',
+        border: 'rgba(168, 85, 247, 0.45)',
+      }
+    case 'vocab':
+      return {
+        bg: 'rgba(59, 130, 246, 0.12)',
+        text: '#1d4ed8',
+        border: 'rgba(59, 130, 246, 0.45)',
+      }
+    case 'reverse':
+      return {
+        bg: 'rgba(99, 102, 241, 0.12)',
+        text: '#3730a3',
+        border: 'rgba(99, 102, 241, 0.45)',
+      }
+    case 'mcq':
+      return {
+        bg: 'rgba(245, 158, 11, 0.14)',
+        text: '#b45309',
+        border: 'rgba(245, 158, 11, 0.45)',
+      }
+    case 'trueFalse':
+      return {
+        bg: 'rgba(16, 185, 129, 0.14)',
+        text: '#047857',
+        border: 'rgba(16, 185, 129, 0.45)',
+      }
+    default:
+      return {
+        bg: 'rgba(100, 116, 139, 0.1)',
+        text: '#334155',
+        border: 'rgba(100, 116, 139, 0.35)',
+      }
+  }
+}
+
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scroll: { padding: spacing.lg },
-    headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    fab: {
-      position: 'absolute',
-      right: spacing.xl,
-      bottom: spacing.xl,
-      width: 56,
-      height: 56,
-      borderRadius: radius.full,
-      backgroundColor: colors.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      elevation: 4,
-      shadowColor: '#000',
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-    },
-    statsRow: { flexDirection: 'row', gap: spacing.sm },
-    statCard: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
-    statValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
-    statLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
-    reviewButton: { marginTop: spacing.lg },
-    cardRow: {
+    scrollContainer: { flex: 1 },
+    scroll: { paddingHorizontal: 18, paddingTop: 16, paddingBottom: 90, gap: 16 },
+    screenHeader: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: spacing.sm,
-      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 10,
+      backgroundColor: colors.background,
+      minHeight: 56,
     },
-    cardRowText: { flex: 1, marginRight: spacing.md },
-    cardForm: { fontSize: type.body, fontWeight: '700', color: colors.text },
-    cardMeaning: { fontSize: type.caption, color: colors.textSecondary, marginTop: 2 },
-    cardRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    clozeBadge: {
-      width: 20,
-      height: 20,
-      borderRadius: radius.full,
-      backgroundColor: colors.warningSoft,
+    headerLeftMeta: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginRight: 12,
+    },
+    backButton: {
+      padding: spacing.xs,
+    },
+    deckName: {
+      flex: 1,
+      fontSize: type.heading,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    actionIconBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    helpBtn: {},
+    helpBtnText: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: colors.primary,
+    },
+    editorialStatsPanel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 20,
+      paddingVertical: 14,
+      paddingHorizontal: 6,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      elevation: 2,
+    },
+    statCol: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 4,
+    },
+    statDivider: {
+      width: StyleSheet.hairlineWidth,
+      height: 28,
+      backgroundColor: colors.border,
+      alignSelf: 'center',
+    },
+    statDigit: {
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      fontSize: 21,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -0.5,
+      lineHeight: 25,
+      marginBottom: 4,
+    },
+    statDigitDue: {
+      color: colors.warning ?? '#f97316',
+    },
+    statDigitRetention: {
+      color: colors.success ?? '#10b981',
+    },
+    statTag: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    reviewModesStrip: {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      gap: 8,
+    },
+    modesStripTitle: {
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      color: colors.textMuted,
+    },
+    modesCapsulesGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: 5,
+      width: '100%',
+    },
+    miniCapsule: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexShrink: 1,
+      minWidth: 0,
+      gap: 3.5,
+      paddingVertical: 5,
+      paddingHorizontal: 8,
+      borderRadius: radius.full,
+      borderWidth: 1,
+    },
+    miniCapsuleText: {
+      fontSize: 10.5,
+      fontWeight: '700',
+      flexShrink: 1,
+    },
+    reviewHeroButtonRow: {
+      flexDirection: 'column',
+      gap: 6,
+    },
+    fullReviewBtn: {
+      width: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: radius.md,
+      paddingVertical: 15,
+      paddingHorizontal: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.35,
+      shadowRadius: 16,
+      elevation: 5,
+    },
+    fullReviewBtnPressed: {
+      opacity: 0.92,
+      transform: [{ scale: 0.99 }],
+    },
+    playIconBox: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fullReviewBtnText: {
+      color: '#ffffff',
+      fontSize: 15,
+      fontWeight: '800',
+      letterSpacing: 0.2,
+    },
+    hudSortingToolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 4,
+      paddingHorizontal: 2,
+    },
+    toolbarSectionTitle: {
+      fontSize: 13,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+      color: colors.textSecondary,
+    },
+    sortPillsCluster: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.full,
+      padding: 3,
+    },
+    sortPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3.5,
+      paddingVertical: 4,
+      paddingHorizontal: 9,
+      borderRadius: radius.full,
+    },
+    sortPillActive: {
+      backgroundColor: colors.surfaceMuted,
+    },
+    sortPillText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: colors.textSecondary,
+    },
+    sortPillTextActive: {
+      color: colors.primary,
+    },
+    cardsStack: {
+      flexDirection: 'column',
+      gap: 9,
+    },
+    editorialVocabCard: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingVertical: 13,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    editorialVocabCardPressed: {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.primary,
+    },
+    editorialVocabCardSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primarySoft,
+    },
+    vocabCardLeft: {
+      flex: 1,
+      flexDirection: 'column',
+      marginRight: spacing.md,
+      gap: 2,
+    },
+    wordTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: 8,
+    },
+    cardHeadword: {
+      fontSize: 16.5,
+      fontWeight: '700',
+      color: colors.text,
+      letterSpacing: -0.2,
+    },
+    cardDefinition: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+      marginTop: 2,
+    },
+    vocabCardRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    duePillTag: {
+      paddingVertical: 3,
+      paddingHorizontal: 7,
+      borderRadius: 6,
+      backgroundColor: 'rgba(249, 115, 22, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(249, 115, 22, 0.3)',
+    },
+    duePillText: {
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      fontSize: 10,
+      fontWeight: '800',
+      color: colors.warning ?? '#f97316',
+      textTransform: 'uppercase',
+      letterSpacing: 0.3,
+    },
+    okPillTag: {
+      paddingVertical: 3,
+      paddingHorizontal: 7,
+      borderRadius: 6,
+      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(16, 185, 129, 0.3)',
+    },
+    okPillText: {
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      fontSize: 10,
+      fontWeight: '700',
+      color: colors.success ?? '#10b981',
+    },
+    fab: {
+      position: 'absolute',
+      right: 22,
+      bottom: 22,
+      width: 54,
+      height: 54,
+      borderRadius: 27,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.35,
+      shadowRadius: 12,
+      elevation: 5,
     },
     footnote: { fontSize: type.micro, color: colors.textMuted, textAlign: 'center', marginTop: spacing.md },
     checkbox: {

@@ -1397,4 +1397,63 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Lemony Update Available': 'Có bản cập nhật Lemony',
   "A new version is ready on Google Play Store. Tap to see what's fresh!":
     'Đã có phiên bản mới trên Google Play Store. Nhấn để xem có gì mới!',
+  // ── Decks screen summary ───────────────────────────────────────────
+  "Due": "Cần ôn",
+  "Total": "Tổng số",
+  "Unique": "Độc nhất",
+  "Retention": "Ghi nhớ",
+  "{{due}} Due / {{total}} Total / {{decks}} Decks": "{{due}} Cần ôn / {{total}} Tổng số / {{decks}} Bộ thẻ",
+  // ── Decks screen help panel ────────────────────────────────────────
+  'Review mode icons': 'Biểu tượng chế độ ôn tập',
+  'Each deck displays icon capsules showing which review formats are active for its cards:':
+    'Mỗi bộ thẻ hiển thị các viên nang biểu tượng cho biết các hình thức ôn tập đang hoạt động:',
+  '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.':
+    '• **Từ vựng (⇄)**: Từ mục tiêu sang nghĩa — nhớ lại định nghĩa khi nhìn thấy từ khóa.',
+  '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.':
+    '• **Đảo ngược (⮌)**: Nghĩa sang từ mục tiêu — nhớ lại từ khóa khi nhìn thấy định nghĩa.',
+  '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.':
+    '• **Điền vào chỗ trống (T)**: Hoàn thành từ còn thiếu trong câu ví dụ.',
+  '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.':
+    '• **Trắc nghiệm (☰)**: Chọn nghĩa đúng trong số các phương án lựa chọn.',
+  '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.':
+    '• **Đúng/Sai (✓)**: Xác minh nhanh — đánh giá xem định nghĩa hiển thị là đúng hay sai.',
+  '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
+    '**Yêu cầu**: Đúng/sai cần ít nhất 1 thẻ đã lưu khác và trắc nghiệm cần ít nhất 3 thẻ khác để tạo đáp án nhiễu. Định dạng sẽ tự động bỏ qua nếu chưa đủ thẻ.',
+  // ── Deck detail screen stats help ──────────────────────────────────
+  'The four top boxes track your deck metrics at a glance:':
+    'Bốn ô trên cùng tóm tắt số liệu bộ thẻ của bạn trong nháy mắt:',
+  '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
+    '• **Thẻ**: Tổng số thẻ luyện tập qua tất cả các định dạng đang hoạt động (ví dụ: từ vựng, đảo ngược, điền từ).',
+  '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
+    '• **Độc nhất**: Số lượng từ vựng riêng biệt / thẻ duy nhất được lưu trong bộ thẻ này.',
+  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
+    '• **Cần ôn**: Số lượng thẻ duy nhất đến hạn và sẵn sàng ôn tập ngay bây giờ.',
+  '• **Retention**: 30-day recall retention rate across your reviewed cards.':
+    '• **Ghi nhớ**: Tỷ lệ ghi nhớ trong 30 ngày qua các thẻ bạn đã ôn tập.',
+  // ── Deck detail screen controls ───────────────────────────────────
+  'Mode': 'Chế độ',
+  'Recent': 'Gần đây',
+  'A-Z': 'A–Z',
+  'Due Date': 'Ngày đến hạn',
+  'A–Z': 'A–Z',
+  'Cards in Deck ({{count}})': 'Thẻ trong bộ ({{count}})',
+  'Review {{count}} Due Cards': 'Ôn tập {{count}} thẻ đến hạn',
+  'Review All Cards': 'Ôn tập tất cả thẻ',
+  'Learned': 'Đã học',
+  'Vocab': 'Từ vựng',
+  'Reverse': 'Đảo ngược',
+  'True/False': 'Đúng/Sai',
+  'MCQ': 'MCQ',
+  'Start Review': 'Bắt đầu ôn tập',
+  'The stats row': 'Hàng thống kê',
+  'The "..." menu': 'Menu "..."',
+  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'Phần ôn tập hiển thị các thẻ đến hạn của bộ thẻ này ở mọi định dạng hợp lệ đã chọn khi tạo bộ thẻ, chẳng hạn như từ vựng, đảo ngược, điền từ, đúng/sai hoặc trắc nghiệm.',
+  'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
+    'Đổi tên, di chuyển, thay đổi chế độ ôn tập, xuất, đặt lại tiến trình hoặc xóa bộ thẻ này - việc xóa luôn yêu cầu xác nhận trước.',
+  'Z–A': 'Z–A',
+  'Z-A': 'Z–A',
+  'Ascending': 'Tăng dần',
+  'Descending': 'Giảm dần',
 };
+

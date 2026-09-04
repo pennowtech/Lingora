@@ -31,7 +31,7 @@ import {
   View,
 } from 'react-native'
 import { HelpAccordionSheet, useHelpAccordion, type HelpSection } from '../../components/HelpAccordion'
-import { Icon } from '../../components/Icon'
+import { Icon, type IconName } from '../../components/Icon'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
 import { ExportNameModal } from '../../components/ExportNameModal'
 import { ReviewModesPicker } from '../../components/ReviewModesPicker'
@@ -54,10 +54,18 @@ import { collectDescendantIds } from '@lingora/core'
 import { defaultExportFileName, runExport, type ExportFormat } from '../../lib/export'
 import { useServices } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 const log = logger.child({ feature: 'export', screen: 'DecksScreen' })
+
+const MODE_META: Record<QuestionType, { label: string; icon: IconName }> = {
+  vocab: { label: 'Vocab', icon: 'ArrowLeftRight' },
+  reverse: { label: 'Reverse', icon: 'CornerUpLeft' },
+  cloze: { label: 'Cloze', icon: 'Pencil' },
+  trueFalse: { label: 'True/False', icon: 'CircleCheckBig' },
+  mcq: { label: 'MCQ', icon: 'List' },
+}
 
 const IMPORT_ROUTES: Record<ImportFormat, '/settings/csv-import' | '/settings/apkg-import' | '/settings/lem-import'> = {
   csv: '/settings/csv-import',
@@ -85,12 +93,16 @@ const HELP_SECTIONS: HelpSection[] = [
   },
   {
     id: 'modes',
-    title: 'Review modes',
+    title: 'Review mode icons',
     icon: 'SquareCheck',
     paragraphs: [
-      'Each deck uses its own mix of review formats (word, reverse, cloze, true/false, multiple choice). Choose them when creating the deck, and Review will include every selected format that the card can support.',
-      '**True/false requires at least 1 other saved card** and **multiple choice requires at least 3 other saved cards** to provide meaningful wrong answers. Those cards can come from any deck. A format is skipped when there are not enough suitable cards yet.',
-      '**True/false and multiple choice are graded automatically:** a correct answer counts as **Good**, and an incorrect answer counts as **Again**. They do not show the Again, Hard, Good, and Easy rating buttons.',
+      'Each deck displays icon capsules showing which review formats are active for its cards:',
+      '• **Vocab (⇄)**: Target word to meaning — recall the definition when shown the headword.',
+      '• **Reverse (⮌)**: Meaning to target word — recall the headword when shown its definition.',
+      '• **Cloze (T)**: Fill in the blank — recall the missing word within an example sentence.',
+      '• **Multiple choice (☰)**: Choose the correct meaning among generated answer options.',
+      '• **True/False (✓)**: Fast verification — evaluate whether the displayed definition is accurate.',
+      '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.',
     ],
   },
 ]
@@ -509,9 +521,39 @@ export default function DecksScreen(): JSX.Element {
             </View>
 
             <View style={styles.masteryFootnoteRow}>
-              <Text style={styles.masteryFootnoteText}>
-                {t('{{due}} cards due today', { due: decksQuery.data?.totalDue ?? 0 })} · {t('{{total}} total cards in {{decks}} decks', { total: decksQuery.data?.totalCards ?? 0, decks: decksQuery.data?.totalDecks ?? 0 })}
-              </Text>
+              <View
+                style={styles.heroStatsRow}
+                accessibilityLabel={t('{{due}} Due / {{total}} Total / {{decks}} Decks', {
+                  due: decksQuery.data?.totalDue ?? 0,
+                  total: decksQuery.data?.totalCards ?? 0,
+                  decks: decksQuery.data?.totalDecks ?? 0,
+                })}
+              >
+                <View style={styles.heroStatItem}>
+                  <Text style={[styles.heroStatValue, (decksQuery.data?.totalDue ?? 0) > 0 && styles.heroStatDueValue]}>
+                    {decksQuery.data?.totalDue ?? 0}
+                  </Text>
+                  <Text style={styles.heroStatLabel}>{t('Due')}</Text>
+                </View>
+
+                <Text style={styles.heroStatDivider}>/</Text>
+
+                <View style={styles.heroStatItem}>
+                  <Text style={styles.heroStatValue}>
+                    {decksQuery.data?.totalCards ?? 0}
+                  </Text>
+                  <Text style={styles.heroStatLabel}>{t('Total')}</Text>
+                </View>
+
+                <Text style={styles.heroStatDivider}>/</Text>
+
+                <View style={styles.heroStatItem}>
+                  <Text style={styles.heroStatValue}>
+                    {decksQuery.data?.totalDecks ?? 0}
+                  </Text>
+                  <Text style={styles.heroStatLabel}>{t('Decks')}</Text>
+                </View>
+              </View>
             </View>
           </Pressable>
 
@@ -970,42 +1012,96 @@ export default function DecksScreen(): JSX.Element {
   )
 }
 
-function getModeDisplayLabel(type: QuestionType): string {
-  switch (type) {
-    case 'cloze':
-      return 'Cloze'
-    case 'vocab':
-      return 'Vocab'
-    case 'reverse':
-      return 'Reverse'
-    case 'mcq':
-      return 'MCQ'
-    case 'trueFalse':
-      return 'True/False'
+function getModeTagTheme(type: QuestionType, isDark: boolean) {
+  if (isDark) {
+    switch (type) {
+      case 'cloze':
+        return {
+          bg: 'rgba(168, 85, 247, 0.22)',
+          text: '#e9d5ff',
+          border: 'rgba(192, 132, 252, 0.45)',
+        }
+      case 'vocab':
+        return {
+          bg: 'rgba(59, 130, 246, 0.22)',
+          text: '#bfdbfe',
+          border: 'rgba(147, 197, 253, 0.45)',
+        }
+      case 'reverse':
+        return {
+          bg: 'rgba(99, 102, 241, 0.22)',
+          text: '#c7d2fe',
+          border: 'rgba(165, 180, 252, 0.45)',
+        }
+      case 'mcq':
+        return {
+          bg: 'rgba(245, 158, 11, 0.22)',
+          text: '#fde68a',
+          border: 'rgba(252, 211, 77, 0.45)',
+        }
+      case 'trueFalse':
+        return {
+          bg: 'rgba(16, 185, 129, 0.22)',
+          text: '#a7f3d0',
+          border: 'rgba(110, 231, 183, 0.45)',
+        }
+      default:
+        return {
+          bg: 'rgba(148, 163, 184, 0.2)',
+          text: '#f1f5f9',
+          border: 'rgba(148, 163, 184, 0.35)',
+        }
+    }
   }
-}
 
-function getModeTagTheme(type: QuestionType, colors: ThemeColors) {
+  // Light themes (lingoraLight, warmSand, paperlight) - rich deep high-contrast tones
   switch (type) {
     case 'cloze':
-      return { bg: 'rgba(168, 85, 247, 0.15)', text: '#c084fc' }
+      return {
+        bg: 'rgba(147, 51, 234, 0.12)',
+        text: '#6b21a8',
+        border: 'rgba(147, 51, 234, 0.28)',
+      }
     case 'vocab':
+      return {
+        bg: 'rgba(37, 99, 235, 0.12)',
+        text: '#1e40af',
+        border: 'rgba(37, 99, 235, 0.28)',
+      }
     case 'reverse':
-      return { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa' }
+      return {
+        bg: 'rgba(79, 70, 229, 0.12)',
+        text: '#3730a3',
+        border: 'rgba(79, 70, 229, 0.28)',
+      }
     case 'mcq':
-      return { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24' }
+      return {
+        bg: 'rgba(217, 119, 6, 0.14)',
+        text: '#92400e',
+        border: 'rgba(217, 119, 6, 0.32)',
+      }
     case 'trueFalse':
-      return { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399' }
+      return {
+        bg: 'rgba(5, 150, 105, 0.12)',
+        text: '#065f46',
+        border: 'rgba(5, 150, 105, 0.28)',
+      }
     default:
-      return { bg: colors.surfaceMuted, text: colors.textSecondary }
+      return {
+        bg: 'rgba(100, 116, 139, 0.12)',
+        text: '#1e293b',
+        border: 'rgba(100, 116, 139, 0.25)',
+      }
   }
 }
 
 function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck) => void }): JSX.Element {
   const { node, depth, onOpenMenu } = props
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const isDark = theme.mode === 'dark'
   const questionTypes = node.deck.enabledQuestionTypes ?? DEFAULT_ENABLED_QUESTION_TYPES
 
   return (
@@ -1022,11 +1118,27 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
             </Text>
             <View style={styles.modesRow}>
               {questionTypes.map((type) => {
-                const label = getModeDisplayLabel(type)
-                const tagTheme = getModeTagTheme(type, colors)
+                const meta = MODE_META[type]
+                const iconName = meta?.icon
+                const tagTheme = getModeTagTheme(type, isDark)
+                if (!iconName) return null
                 return (
-                  <View key={type} style={[styles.modeMiniBadge, { backgroundColor: tagTheme.bg }]}>
-                    <Text style={[styles.modeMiniBadgeLabel, { color: tagTheme.text }]}>{label}</Text>
+                  <View
+                    key={type}
+                    style={[
+                      styles.modeMiniBadge,
+                      { backgroundColor: tagTheme.bg, borderColor: tagTheme.border },
+                    ]}
+                  >
+                    <Icon name={iconName} size={10} strokeWidth={2.4} color={tagTheme.text} />
+                    <Text
+                      style={[styles.modeCapsuleText, { color: tagTheme.text }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.7}
+                    >
+                      {t(meta?.label ?? type)}
+                    </Text>
                   </View>
                 )
               })}
@@ -1050,17 +1162,6 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
               onPress={() => onOpenMenu(node.deck)}
               accessibilityLabel={t('Deck options')}
             />
-          </View>
-        </View>
-
-        <View style={styles.deckCardDivider} />
-
-        <View style={styles.deckCardBottomRow}>
-          <Text style={styles.cardCountText}>
-            {t('{{count}} cards registered', { count: node.cardCount.toLocaleString() })}
-          </Text>
-          <View style={styles.viewDeckArrow}>
-            <Icon name="ChevronRight" size={16} color={colors.textMuted} />
           </View>
         </View>
       </Pressable>
@@ -1130,13 +1231,38 @@ const createStyles = (colors: ThemeColors) =>
     masteryFootnoteRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
       paddingTop: 2,
     },
-    masteryFootnoteText: {
+    heroStatsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    heroStatItem: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: 4,
+    },
+    heroStatValue: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -0.2,
+    },
+    heroStatDueValue: {
+      color: colors.primary,
+    },
+    heroStatLabel: {
       fontSize: 12,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    heroStatDivider: {
+      fontSize: 13,
+      fontWeight: '600',
       color: colors.textMuted,
-      fontWeight: '500',
+      opacity: 0.5,
+      marginHorizontal: 2,
     },
     sectionHeaderRow: {
       flexDirection: 'row',
@@ -1160,8 +1286,8 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: 20,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: spacing.lg,
-      gap: spacing.md,
+      paddingVertical: spacing.md + 2,
+      paddingHorizontal: spacing.lg,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
@@ -1170,23 +1296,41 @@ const createStyles = (colors: ThemeColors) =>
     },
     deckCardTopRow: {
       flexDirection: 'row',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       justifyContent: 'space-between',
       gap: spacing.md,
     },
-    deckHeaderInfo: { flex: 1, gap: 6 },
+    deckHeaderInfo: { flex: 1, minWidth: 0, gap: 6 },
     deckName: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.2 },
-    modesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    modesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: 4,
+      width: '100%',
+    },
     modeMiniBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexShrink: 1,
+      minWidth: 0,
+      gap: 3,
+      paddingVertical: 3.5,
+      paddingHorizontal: 7,
       borderRadius: radius.full,
-      paddingVertical: 3,
-      paddingHorizontal: 8,
+      borderWidth: 1,
     },
-    modeMiniBadgeLabel: {
-      fontSize: 11,
-      fontWeight: '500',
+    modeCapsuleText: {
+      fontSize: 10,
+      fontWeight: '700',
+      flexShrink: 1,
     },
-    deckTopRightGroup: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    deckTopRightGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      flexShrink: 0,
+    },
     dueCountHeroBox: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -1201,14 +1345,6 @@ const createStyles = (colors: ThemeColors) =>
     upToDateHeroBox: {
       padding: 6,
     },
-    deckCardDivider: { height: 1, backgroundColor: colors.border },
-    deckCardBottomRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    cardCountText: { fontSize: type.caption, color: colors.textSecondary, fontWeight: '500' },
-    viewDeckArrow: { paddingLeft: spacing.xs },
     fab: {
       position: 'absolute',
       right: spacing.xl,

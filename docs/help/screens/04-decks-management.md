@@ -24,9 +24,9 @@ The **Decks** tab is where you track overall study progress, organize vocabulary
 ---
 
 ### 3. Review Modes per Deck
-When creating or editing a deck, you choose which **study formats** that deck uses during review sessions:
-- **Vocab (⇄)**: Classic prompt-to-translation flashcards.
-- **Reverse (⮌)**: Native translation prompt asking you to recall the target word.
+Each deck card displays compact icon capsules indicating which study formats it practices:
+- **Vocab (⇄)**: Classic prompt-to-translation flashcards (word to meaning).
+- **Reverse (⮌)**: Native translation prompt asking you to recall the target word (meaning to word).
 - **Cloze (T)**: Fill-in-the-blank practice inside example sentences.
 - **Multiple Choice (☰)**: Fast recognition quizzes with generated distractors.
 - **True / False (✓)**: Rapid verification questions.
@@ -63,10 +63,11 @@ Tapping the **⋮** menu on any deck row (or long-pressing the deck) opens a com
 ### 6. Inside a Deck: Deck Detail Screen
 When you tap on any deck in the list, you enter its study and inspection screen:
 
-- **Deck Stats Row**:
-  - **Cards**: Total vocabulary cards inside this deck.
-  - **Due Now**: Cards ready for review right now.
-  - **Retention**: Average 30-day recall rate.
+- **The 4 Top Metric Boxes**:
+  - **Cards**: Total practice cards generated across all active review formats (e.g. word $\rightarrow$ meaning, reverse, cloze).
+  - **Unique**: Total distinct vocabulary words / unique cards saved in this deck.
+  - **Due**: Number of unique cards scheduled and ready for review right now based on your FSRS spaced repetition schedule.
+  - **Retention**: 30-day memory recall retention rate based on recent review history.
 - **▶ Review Button**: Launches your spaced repetition study session for this deck.
 - **Interactive Card List**:
   - **Single-Tap on a Row (Card Preview)**: Tapping any card opens it in **Study Preview Mode** — you see the card exactly as it appears in review (tap to flip front/back and view cloze blanks), rather than an intimidating edit form.

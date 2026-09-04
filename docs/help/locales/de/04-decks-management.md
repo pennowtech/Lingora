@@ -24,12 +24,12 @@ Auf der Registerkarte **Decks** können Sie den gesamten Lernfortschritt verfolg
 ---
 
 ### 3. Überprüfen Sie die Modi pro Deck
-Beim Erstellen oder Bearbeiten eines Decks wählen Sie aus, welche **Studienformate** dieses Deck während der Überprüfungssitzungen verwendet:
-- **Vokabeln (⇄)**: Klassische Karteikarten mit Aufforderung zur Übersetzung.
-- **Umgekehrt (⮌)**: Muttersprachliche Übersetzungsaufforderung, die Sie auffordert, sich an das Zielwort zu erinnern.
+Jede Deck-Karte zeigt kompakte Symbol-Kapseln an, die angeben, welche Lernformate sie übt:
+- **Vokabeln (⇄)**: Klassische Karteikarten (Zielwort zur Bedeutung).
+- **Umgekehrt (⮌)**: Muttersprachliche Übersetzung zur Erinnerung an das Zielwort (Bedeutung zum Wort).
 - **Lückentext (T)**: Übung zum Ausfüllen von Lücken in Beispielsätzen.
-- **Multiple Choice (☰)**: Schnelle Erkennungsquiz mit generierten Ablenkern.
-- **Richtig/Falsch ( ✓ )**: Schnelle Verifizierungsfragen.
+- **Multiple Choice (☰)**: Schnelle Erkennungsquizze mit generierten Ablenkern.
+- **Richtig/Falsch (✓)**: Schnelle Verifizierungsfragen.
 
 > [!NOTE]
 > Die automatische Kartengenerierung im Test nutzt automatisch jeden aktivierten Modus, den eine Karte unterstützt!
@@ -63,10 +63,11 @@ Durch Tippen auf das **⋮**-Menü in einer Deckzeile (oder durch langes Drücke
 ### 6. In einem Deck: Deck-Detailbildschirm
 Wenn Sie auf ein beliebiges Deck in der Liste tippen, gelangen Sie zu dessen Studien- und Inspektionsbildschirm:
 
-- **Deck-Statistikzeile**:
-  - **Karten**: Gesamtzahl der Vokabelkarten in diesem Deck.
-  - **Jetzt fällig**: Karten sind jetzt zur Überprüfung bereit.
-  - **Aufbewahrung**: Durchschnittliche 30-Tage-Erinnerungsrate.
+- **Die 4 oberen Statistik-Boxen**:
+  - **Karten**: Gesamtzahl der Übungskarten über alle aktiven Lernformate (z. B. Wort $\rightarrow$ Bedeutung, Umgekehrt, Lückentext).
+  - **Einzigartig**: Gesamtzahl der einzelnen Vokabeln / eindeutigen Karten in diesem Deck.
+  - **Fällig**: Anzahl der einzelnen Karten, die basierend auf Ihrem FSRS-Wiederholungsplan jetzt zur Überprüfung anstehen.
+  - **Behalten**: 30-Tage-Erinnerungsrate basierend auf den bisherigen Wiederholungen.
 - **▶ Schaltfläche „Überprüfen“**: Startet Ihre Lernsitzung mit räumlichen Wiederholungen für dieses Deck.
 - **Interaktive Kartenliste**:
   - **Einmaliges Tippen auf eine Zeile (Kartenvorschau)**: Wenn Sie auf eine beliebige Karte tippen, wird diese im **Studienvorschaumodus** geöffnet – Sie sehen die Karte genau so, wie sie in der Überprüfung angezeigt wird (tippen Sie, um die Vorder-/Rückseite umzudrehen und Lückentexte anzuzeigen), und nicht in einem einschüchternden Bearbeitungsformular.

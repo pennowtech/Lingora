@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import {
+  ArrowDown,
   ArrowLeft,
   ArrowLeftRight,
   ArrowRight,
@@ -134,6 +135,7 @@ import { DeepSeekIcon, GroqIcon } from './BrandIcons'
  * set), so the bundle only pays for what's drawn.
  */
 const ICONS = {
+  ArrowDown,
   ArrowLeft,
   ArrowLeftRight,
   ArrowRight,

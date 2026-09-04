@@ -1440,6 +1440,31 @@ export const ENGLISH_PHRASES = [
   'AI provider needed',
   'Mining Studio needs an AI provider to translate, explain grammar, and extract vocabulary from a passage. Add and enable one in Settings.',
   'Set up AI Provider',
+
+  // ── About & Google Play updates ────────────────────────────────────
+  'Google Play & App Updates',
+  'Lemony checks the **Google Play Store** directly to see if a newer release is ready for your device.',
+  '**Automatic Checks**: When enabled, Lemony checks Google Play at most once every 24 hours while active to save battery, and notifies you when an update is available.',
+  '**User Control**: You can turn off update checks at any time. When turned off, Lemony stops all automatic checks and notifications completely.',
+  "**What's Fresh in Lemony**: Tapping any update notification or release card displays the full changelog digest with an instant link to update on Google Play.",
+  'Google Play Auto-Updates',
+  "If Google Play's own auto-update is active on your device, Play Store may silently update the app overnight over Wi-Fi.",
+  'When this happens, Lemony detects the new version on launch and displays what changed, without sending redundant update notifications.',
+  'App Updates',
+  'Check for updates',
+  'Automatically checks Google Play and notifies you when a new version is ready',
+  'Disabled. Lemony will not check for updates or send notifications.',
+  'Checking Play Store...',
+  'Check Play Store for updates',
+  'Send test update notification',
+  'A new version is available on Google Play!',
+  'Could not query Google Play Store. Verify Play services.',
+  'Lemony is up to date on Google Play (v{{version}})',
+  "What's Fresh →",
+  'Later',
+  'Update on Play Store →',
+  'Lemony Update Available',
+  "A new version is ready on Google Play Store. Tap to see what's fresh!",
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

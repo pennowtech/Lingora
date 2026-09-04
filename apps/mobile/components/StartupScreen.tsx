@@ -5,7 +5,7 @@ import { useEffect, useState, type JSX } from 'react'
 
 const videoSource = require('../assets/startup-intro.mp4')
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Icon, type IconName } from './Icon'
 import { Button } from './ui'
@@ -14,10 +14,15 @@ import { useServices } from '../lib/services'
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
+import featureReading from '../assets/onboarding/feature-reading.png'
+import featureHotelConversation from '../assets/onboarding/feature-hotel-conversation.png'
+import featureMountainHike from '../assets/onboarding/feature-mountain-hike.png'
+import featurePresentation from '../assets/onboarding/feature-presentation.png'
 
 interface StartupScreenProps {
   visible: boolean
   onComplete: () => void
+  mode?: 'onboarding' | 'feature-replay'
 }
 
 const CEFR_LEVELS: { level: CefrLevel; titleKey: string; descKey: string }[] = [
@@ -100,6 +105,7 @@ interface FeatureSlide {
   titleKey: string
   descKey: string
   badgeKey: string
+  artwork: ImageSourcePropType
 }
 
 const FEATURE_SLIDES: FeatureSlide[] = [
@@ -110,6 +116,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     titleKey: 'AI-Powered Vocabulary',
     descKey: 'Generate complete, accurate word packages with meanings, authentic example sentences, CEFR levels, and grammar notes in seconds.',
     badgeKey: 'SMART LOOKUP',
+    artwork: featurePresentation,
   },
   {
     id: 'fsrs_spaced_repetition',
@@ -118,6 +125,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     titleKey: 'FSRS Spaced Repetition',
     descKey: 'Scientifically proven memory scheduling algorithms ensure you review cards right before you forget them for maximum retention.',
     badgeKey: 'SMART REVIEWS',
+    artwork: featureReading,
   },
   {
     id: 'cloze_mining',
@@ -126,6 +134,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     titleKey: 'Sentence Mining & Cloze',
     descKey: 'Capture sentences from any app or website, turn them into cloze fill-in-the-blank cards, and master words in real context.',
     badgeKey: 'REAL CONTEXT',
+    artwork: featureHotelConversation,
   },
   {
     id: 'offline_privacy',
@@ -134,6 +143,7 @@ const FEATURE_SLIDES: FeatureSlide[] = [
     titleKey: 'Offline-First & Private',
     descKey: 'Your vocabulary database stays 100% on your device. Bring your own AI keys or use built-in offline dictionaries anytime.',
     badgeKey: 'YOUR DATA',
+    artwork: featureMountainHike,
   },
 ]
 
@@ -166,12 +176,15 @@ function FeatureSlideshow(props: { onComplete: () => void; onSkip: () => void })
 
       <View style={styles.slideContainer}>
         {/* Animated Feature Visual Badge */}
-        <View style={[styles.featureCardVisual, { borderColor: slide.accentColor + '40', backgroundColor: colors.surface }]}>
-          <View style={[styles.featureBadgeTag, { backgroundColor: slide.accentColor + '20' }]}>
+        <View style={[styles.featureCardVisual, { backgroundColor: colors.surface }]}>
+          <View style={styles.featureArtworkClip}>
+            <Image source={slide.artwork} style={styles.featureArtwork} resizeMode="cover" accessible={false} />
+          </View>
+          <View style={[styles.featureBadgeTag, { backgroundColor: colors.surface, borderColor: slide.accentColor + '50' }]}>
             <Text style={[styles.featureBadgeTagText, { color: slide.accentColor }]}>{t(slide.badgeKey)}</Text>
           </View>
-          <View style={[styles.featureIconContainer, { backgroundColor: slide.accentColor + '15' }]}>
-            <Icon name={slide.icon} size={54} color={slide.accentColor} />
+          <View style={[styles.featureIconContainer, { backgroundColor: colors.surface, borderColor: slide.accentColor + '35' }]}>
+            <Icon name={slide.icon} size={26} color={slide.accentColor} />
           </View>
         </View>
 
@@ -211,7 +224,8 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
   const styles = useThemedStyles(createStyles)
   const services = useServices()
 
-  const [step, setStep] = useState<'video' | 'slideshow' | 'setup'>('video')
+  const replayingFeatures = props.mode === 'feature-replay'
+  const [step, setStep] = useState<'video' | 'slideshow' | 'setup'>(replayingFeatures ? 'slideshow' : 'video')
   const [nativeLang, setNativeLang] = useState<LanguageCode>('en')
   const [targetLang, setTargetLang] = useState<LanguageCode>('de')
   const [selectedLevel, setSelectedLevel] = useState<CefrLevel>('B1')
@@ -220,12 +234,17 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
   const [showTargetModal, setShowTargetModal] = useState(false)
   const [showNativeModal, setShowNativeModal] = useState(false)
 
+  useEffect(() => {
+    if (props.visible) setStep(replayingFeatures ? 'slideshow' : 'video')
+  }, [props.visible, replayingFeatures])
+
   const handleVideoEnd = () => {
     setStep('slideshow')
   }
 
   const handleSlideshowComplete = () => {
-    setStep('setup')
+    if (replayingFeatures) props.onComplete()
+    else setStep('setup')
   }
 
   const activeLevelConfig = CEFR_LEVELS.find((item) => item.level === selectedLevel) || CEFR_LEVELS[2]!
@@ -259,7 +278,10 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
       {step === 'video' ? (
         <FullVideoSplash onEnded={handleVideoEnd} />
       ) : step === 'slideshow' ? (
-        <FeatureSlideshow onComplete={handleSlideshowComplete} onSkip={handleSlideshowComplete} />
+        <FeatureSlideshow
+          onComplete={handleSlideshowComplete}
+          onSkip={replayingFeatures ? props.onComplete : handleSlideshowComplete}
+        />
       ) : (
         <SafeAreaView style={styles.container}>
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -268,132 +290,132 @@ export function StartupScreen(props: StartupScreenProps): JSX.Element {
               <Icon name="Languages" size={32} color={colors.primaryDark} />
             </View>
 
-          {/* Title & Subtitle */}
-          <Text style={styles.title}>{t('Welcome to Lemony')}</Text>
-          <Text style={styles.subtitle}>
-            {t('Learn {{target}} the way it actually works - in context, at your level, with real examples.', {
-              target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German'),
-            })}
-          </Text>
-
-          {/* Language Pair Selector (Native Left -> Target Right) */}
-          <Text style={styles.sectionHeader}>{t('CHOOSE YOUR LANGUAGE PAIR')}</Text>
-          <View style={styles.languagePairRow}>
-            {/* Native Language (Left) */}
-            <Pressable
-              onPress={() => setShowNativeModal(true)}
-              style={[styles.flagCircle, styles.flagCircleActive]}
-            >
-              <Text style={styles.flagEmoji}>{LANG_EMOJIS[nativeLang] ?? '🌐'}</Text>
-            </Pressable>
-            <Icon name="ArrowRight" size={18} color={colors.textSecondary} style={styles.arrowIcon} />
-            {/* Target Language (Right) */}
-            <Pressable
-              onPress={() => setShowTargetModal(true)}
-              style={[styles.flagCircle, styles.flagCircleActive]}
-            >
-              <Text style={styles.flagEmoji}>{LANG_EMOJIS[targetLang] ?? '🌐'}</Text>
-            </Pressable>
-          </View>
-          <Text style={styles.comingSoonText}>
-            {VOCAB_LANGUAGE_NAMES[nativeLang]} ({t('Native')})
-            {' > '}
-            {VOCAB_LANGUAGE_NAMES[targetLang]} ({t('Learning')})
-          </Text>
-
-          {/* CEFR Level Selector */}
-          <Text style={styles.sectionHeader}>
-            {t('YOUR CURRENT {{target}} LEVEL', {
-              target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German').toUpperCase(),
-            })}
-          </Text>
-          <View style={styles.levelPillsRow}>
-            {CEFR_LEVELS.map((item) => {
-              const isSelected = item.level === selectedLevel
-              return (
-                <Pressable
-                  key={item.level}
-                  onPress={() => setSelectedLevel(item.level)}
-                  style={[styles.levelPill, isSelected && styles.levelPillSelected]}
-                >
-                  <Text style={[styles.levelPillText, isSelected && styles.levelPillTextSelected]}>
-                    {item.level}
-                  </Text>
-                </Pressable>
-              )
-            })}
-          </View>
-
-          {/* Active Level Description Card */}
-          <View style={styles.levelDescCard}>
-            <Text style={styles.levelDescText}>
-              <Text style={styles.levelDescTitle}>{t(activeLevelConfig.titleKey)}. </Text>
-              {t(activeLevelConfig.descKey)}
+            {/* Title & Subtitle */}
+            <Text style={styles.title}>{t('Welcome to Lemony')}</Text>
+            <Text style={styles.subtitle}>
+              {t('Learn {{target}} the way it actually works - in context, at your level, with real examples.', {
+                target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German'),
+              })}
             </Text>
-          </View>
 
-          {/* CTA Buttons */}
-          <Button
-            label={saving ? t('Saving...') : t('Continue')}
-            icon="ArrowRight"
-            onPress={handleContinue}
-            disabled={saving}
-            style={styles.continueButton}
-          />
-
-          <Pressable onPress={handleSkip} style={styles.skipButton} hitSlop={12}>
-            <Text style={styles.skipText}>{t("I'll set this up later")}</Text>
-          </Pressable>
-
-          {/* Target Language Modal */}
-          <Modal visible={showTargetModal} animationType="fade" transparent onRequestClose={() => setShowTargetModal(false)}>
-            <Pressable style={styles.modalBackdrop} onPress={() => setShowTargetModal(false)} />
-            <View style={styles.pickerSheet}>
-              <View style={styles.modalHandle} />
-              <Text style={styles.pickerSheetTitle}>{t("Language you're learning")}</Text>
-              <ScrollView style={styles.pickerList}>
-                {LANG_OPTIONS.map((opt) => (
-                  <Pressable
-                    key={opt.code}
-                    style={styles.pickerOption}
-                    onPress={() => {
-                      setTargetLang(opt.code)
-                      setShowTargetModal(false)
-                    }}
-                  >
-                    <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
-                    {targetLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
-                  </Pressable>
-                ))}
-              </ScrollView>
+            {/* Language Pair Selector (Native Left -> Target Right) */}
+            <Text style={styles.sectionHeader}>{t('CHOOSE YOUR LANGUAGE PAIR')}</Text>
+            <View style={styles.languagePairRow}>
+              {/* Native Language (Left) */}
+              <Pressable
+                onPress={() => setShowNativeModal(true)}
+                style={[styles.flagCircle, styles.flagCircleActive]}
+              >
+                <Text style={styles.flagEmoji}>{LANG_EMOJIS[nativeLang] ?? '🌐'}</Text>
+              </Pressable>
+              <Icon name="ArrowRight" size={18} color={colors.textSecondary} style={styles.arrowIcon} />
+              {/* Target Language (Right) */}
+              <Pressable
+                onPress={() => setShowTargetModal(true)}
+                style={[styles.flagCircle, styles.flagCircleActive]}
+              >
+                <Text style={styles.flagEmoji}>{LANG_EMOJIS[targetLang] ?? '🌐'}</Text>
+              </Pressable>
             </View>
-          </Modal>
+            <Text style={styles.comingSoonText}>
+              {VOCAB_LANGUAGE_NAMES[nativeLang]} ({t('Native')})
+              {' > '}
+              {VOCAB_LANGUAGE_NAMES[targetLang]} ({t('Learning')})
+            </Text>
 
-          {/* Native Language Modal */}
-          <Modal visible={showNativeModal} animationType="fade" transparent onRequestClose={() => setShowNativeModal(false)}>
-            <Pressable style={styles.modalBackdrop} onPress={() => setShowNativeModal(false)} />
-            <View style={styles.pickerSheet}>
-              <View style={styles.modalHandle} />
-              <Text style={styles.pickerSheetTitle}>{t('Your native / UI language')}</Text>
-              <ScrollView style={styles.pickerList}>
-                {LANG_OPTIONS.map((opt) => (
+            {/* CEFR Level Selector */}
+            <Text style={styles.sectionHeader}>
+              {t('YOUR CURRENT {{target}} LEVEL', {
+                target: t(VOCAB_LANGUAGE_NAMES[targetLang] ?? 'German').toUpperCase(),
+              })}
+            </Text>
+            <View style={styles.levelPillsRow}>
+              {CEFR_LEVELS.map((item) => {
+                const isSelected = item.level === selectedLevel
+                return (
                   <Pressable
-                    key={opt.code}
-                    style={styles.pickerOption}
-                    onPress={() => {
-                      setNativeLang(opt.code)
-                      setShowNativeModal(false)
-                    }}
+                    key={item.level}
+                    onPress={() => setSelectedLevel(item.level)}
+                    style={[styles.levelPill, isSelected && styles.levelPillSelected]}
                   >
-                    <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
-                    {nativeLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
+                    <Text style={[styles.levelPillText, isSelected && styles.levelPillTextSelected]}>
+                      {item.level}
+                    </Text>
                   </Pressable>
-                ))}
-              </ScrollView>
+                )
+              })}
             </View>
-          </Modal>
-        </ScrollView>
-      </SafeAreaView>
+
+            {/* Active Level Description Card */}
+            <View style={styles.levelDescCard}>
+              <Text style={styles.levelDescText}>
+                <Text style={styles.levelDescTitle}>{t(activeLevelConfig.titleKey)}. </Text>
+                {t(activeLevelConfig.descKey)}
+              </Text>
+            </View>
+
+            {/* CTA Buttons */}
+            <Button
+              label={saving ? t('Saving...') : t('Continue')}
+              icon="ArrowRight"
+              onPress={handleContinue}
+              disabled={saving}
+              style={styles.continueButton}
+            />
+
+            <Pressable onPress={handleSkip} style={styles.skipButton} hitSlop={12}>
+              <Text style={styles.skipText}>{t("I'll set this up later")}</Text>
+            </Pressable>
+
+            {/* Target Language Modal */}
+            <Modal visible={showTargetModal} animationType="fade" transparent onRequestClose={() => setShowTargetModal(false)}>
+              <Pressable style={styles.modalBackdrop} onPress={() => setShowTargetModal(false)} />
+              <View style={styles.pickerSheet}>
+                <View style={styles.modalHandle} />
+                <Text style={styles.pickerSheetTitle}>{t("Language you're learning")}</Text>
+                <ScrollView style={styles.pickerList}>
+                  {LANG_OPTIONS.map((opt) => (
+                    <Pressable
+                      key={opt.code}
+                      style={styles.pickerOption}
+                      onPress={() => {
+                        setTargetLang(opt.code)
+                        setShowTargetModal(false)
+                      }}
+                    >
+                      <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
+                      {targetLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            </Modal>
+
+            {/* Native Language Modal */}
+            <Modal visible={showNativeModal} animationType="fade" transparent onRequestClose={() => setShowNativeModal(false)}>
+              <Pressable style={styles.modalBackdrop} onPress={() => setShowNativeModal(false)} />
+              <View style={styles.pickerSheet}>
+                <View style={styles.modalHandle} />
+                <Text style={styles.pickerSheetTitle}>{t('Your native / UI language')}</Text>
+                <ScrollView style={styles.pickerList}>
+                  {LANG_OPTIONS.map((opt) => (
+                    <Pressable
+                      key={opt.code}
+                      style={styles.pickerOption}
+                      onPress={() => {
+                        setNativeLang(opt.code)
+                        setShowNativeModal(false)
+                      }}
+                    >
+                      <Text style={styles.pickerOptionLabel}>{opt.flag}  {t(opt.label)}</Text>
+                      {nativeLang === opt.code ? <Icon name="Check" size={18} color={colors.primary} /> : null}
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            </Modal>
+          </ScrollView>
+        </SafeAreaView>
       )}
     </Modal>
   )
@@ -432,18 +454,34 @@ const createStyles = (colors: ThemeColors) =>
       width: 220,
       height: 220,
       borderRadius: 110,
-      borderWidth: 2,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: spacing.xxl,
       position: 'relative',
     },
+    featureArtworkClip: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      borderRadius: 110,
+      overflow: 'hidden',
+    },
+    featureArtwork: { width: '100%', height: '100%', opacity: 0.96 },
     featureBadgeTag: {
       position: 'absolute',
       top: -12,
-      paddingVertical: 4,
-      paddingHorizontal: spacing.md,
+      zIndex: 2,
+      paddingVertical: 5,
+      paddingHorizontal: spacing.md + 2,
       borderRadius: radius.full,
+      borderWidth: 1,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
     },
     featureBadgeTagText: {
       fontSize: type.micro,
@@ -451,9 +489,13 @@ const createStyles = (colors: ThemeColors) =>
       letterSpacing: 1,
     },
     featureIconContainer: {
-      width: 100,
-      height: 100,
+      position: 'absolute',
+      right: 12,
+      bottom: 12,
+      width: 54,
+      height: 54,
       borderRadius: radius.full,
+      borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },

@@ -15,12 +15,14 @@ import { parseChangelogMarkdown, type ParsedChangelogSection } from '../lib/chan
 import { radius, spacing, type } from '../lib/theme'
 import { useColors, useThemedStyles } from '../lib/ThemeContext'
 import type { ThemeColors } from '../lib/themes'
+import { openPlayStoreListing } from '../modules/play-in-app-update'
 
 interface WhatsNewModalProps {
   visible: boolean
   onClose: () => void
-  version?: string
-  markdownContent?: string
+  version?: string | undefined
+  markdownContent?: string | undefined
+  showPlayStoreButton?: boolean | undefined
 }
 
 function renderFormattedBullet(bullet: string, colors: ThemeColors, styles: ReturnType<typeof createStyles>): JSX.Element {
@@ -42,6 +44,7 @@ export function WhatsNewModal({
   onClose,
   version,
   markdownContent,
+  showPlayStoreButton = false,
 }: WhatsNewModalProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
@@ -151,11 +154,30 @@ export function WhatsNewModal({
 
           {/* Footer CTA */}
           <View style={styles.footer}>
-            <Button
-              label={t("Got it, Let's Explore! →")}
-              onPress={onClose}
-              style={styles.ctaButton}
-            />
+            {showPlayStoreButton ? (
+              <View style={styles.footerTwoButtons}>
+                <Button
+                  label={t('Later')}
+                  variant="secondary"
+                  onPress={onClose}
+                  style={styles.flexBtn}
+                />
+                <Button
+                  label={t('Update on Play Store →')}
+                  onPress={() => {
+                    onClose()
+                    void openPlayStoreListing()
+                  }}
+                  style={styles.flexBtn}
+                />
+              </View>
+            ) : (
+              <Button
+                label={t("Got it, Let's Explore! →")}
+                onPress={onClose}
+                style={styles.ctaButton}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -319,6 +341,15 @@ const createStyles = (colors: ThemeColors) =>
     },
     footer: {
       marginTop: spacing.md,
+    },
+    footerTwoButtons: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      width: '100%',
+    },
+    flexBtn: {
+      flex: 1,
     },
     ctaButton: {
       width: '100%',

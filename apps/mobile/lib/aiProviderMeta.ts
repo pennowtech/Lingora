@@ -4,9 +4,11 @@ import {
   DEEPL_USAGE_URL,
   emptyProviderState,
   PROVIDER_META_DATA,
+  PROVIDER_MODEL_PROFILES,
   PROVIDER_STORE_KEYS,
   ZERO_USAGE,
   type GenerationProviderName,
+  type ModelInfo,
   type ProviderFormState,
 } from '@lingora/core'
 import {
@@ -58,13 +60,7 @@ export const PROVIDER_META: Record<GenerationProviderName, ProviderMeta> = {
   groq: { ...PROVIDER_META_DATA.groq, ...ICON_COLOR_BY_PROVIDER.groq },
 }
 
-export interface ModelInfo {
-  id: string
-  label: string
-  speedTag?: string
-  description?: string
-  isDefault?: boolean
-}
+export type { ModelInfo }
 
 export const PROVIDER_PORTAL_URLS: Record<GenerationProviderName, { label: string; url: string }> = {
   openai: { label: 'platform.openai.com', url: 'https://platform.openai.com/api-keys' },
@@ -75,36 +71,10 @@ export const PROVIDER_PORTAL_URLS: Record<GenerationProviderName, { label: strin
   deepseek: { label: 'platform.deepseek.com', url: 'https://platform.deepseek.com/api_keys' },
 }
 
-export const PROVIDER_MODEL_PROFILES: Record<GenerationProviderName, ModelInfo[]> = {
-  openai: [
-    { id: 'gpt-4o-mini', label: 'GPT-4o Mini', speedTag: '🌟 Recommended', description: 'Fast, accurate & cost-effective ($0.0001/card)', isDefault: true },
-    { id: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', speedTag: '⚡ Fast', description: 'Next-gen lightweight model' },
-    { id: 'gpt-4o', label: 'GPT-4o (Omni)', speedTag: '🧠 Deep Quality', description: 'Highest quality reasoning & nuance' },
-    { id: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', speedTag: 'Legacy', description: 'Classic lightweight model' },
-  ],
-  groq: [
-    { id: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B', speedTag: '🌟 Recommended', description: 'OpenAI\'s open-weight model, fast on Groq LPUs', isDefault: true },
-    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', speedTag: '⚡ Fastest', description: 'Ultra-low latency (~200ms) on Groq LPUs' },
-    { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B', speedTag: '⚡ Instant', description: 'Lightweight ultra-fast model' },
-    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B', speedTag: '🌐 Multilingual', description: 'Strong multilingual translation & grammar' },
-  ],
-  gemini: [
-    { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite', speedTag: '⚡ Ultra-Light', description: 'Fastest next-gen lightweight Gemini model', isDefault: true },
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', speedTag: '🆓 Free Tier / Fast', description: 'High speed, generous free quota limits' },
-  ],
-  anthropic: [
-    { id: 'claude-haiku-4-5-20251001', label: 'Claude 3.5 Haiku', speedTag: '⚡ Fast & Smart', description: 'Rapid responses with Anthropic precision', isDefault: true },
-    { id: 'claude-sonnet-5', label: 'Claude 3.5 Sonnet', speedTag: '🧠 Best Nuance', description: 'Gold standard for example sentences & idioms' },
-  ],
-  mistral: [
-    { id: 'mistral-small-latest', label: 'Mistral Small', speedTag: '🌟 Recommended', description: 'Fast, cost-efficient European hosting', isDefault: true },
-    { id: 'mistral-medium-latest', label: 'Mistral Medium', speedTag: '🧠 Deep Grammar', description: 'Higher capacity for advanced linguistic queries' },
-  ],
-  deepseek: [
-    { id: 'deepseek-chat', label: 'DeepSeek V3 (Chat)', speedTag: '🌟 Recommended', description: 'Very low cost with capable language generation', isDefault: true },
-    { id: 'deepseek-reasoner', label: 'DeepSeek R1 (Reasoner)', speedTag: '🧠 Deep Reasoning', description: 'Chain-of-thought analysis for complex grammar' },
-  ],
-}
+// Re-exported from @lingora/core - the same list apps/desktop's Settings > AI Providers reads
+// (via PROVIDER_META_DATA.models, derived from this exact array). One place to add/remove a
+// model so both platforms pick it up.
+export { PROVIDER_MODEL_PROFILES }
 
 export const VALIDATORS: Record<GenerationProviderName, (key: string, model: string) => Promise<ValidationResult>> = {
   openai: validateOpenAIKey,

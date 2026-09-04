@@ -17,7 +17,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import searchArtwork from '../../assets/backgrounds/search-presentation-subtle.png'
+import searchArtworkDark from '../../assets/backgrounds/search-presentation-subtle-dark.png'
 import { Icon } from '../../components/Icon'
 import { Button, Card, Chip, ErrorState, IconButton, SpeakerButton } from '../../components/ui'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
@@ -34,7 +36,7 @@ import { AI_GENERATED_SOURCES } from '@lingora/core'
 import { DEFAULT_DECK_ID, useServices, type GenerationProviderName } from '../../lib/services'
 import { radius, spacing, type } from '../../lib/theme'
 import { useCyclingIndex } from '../../lib/useCyclingIndex'
-import { useColors, useThemedStyles } from '../../lib/ThemeContext'
+import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
 /** Vocabulary languages (what's being looked up/learned), duplicated intentionally per-screen —
@@ -147,6 +149,30 @@ function useSlowDebounced(value: string, delayMs: number): [string, () => void] 
   }, [value, delayMs])
   const flush = (): void => setDebounced(value)
   return [debounced, flush]
+}
+
+function SearchScreenArtwork(): JSX.Element | null {
+  const { theme } = useTheme()
+  const styles = useThemedStyles(createStyles)
+
+  const isDark = theme.mode === 'dark'
+  const artwork = isDark ? searchArtworkDark : searchArtwork
+
+  return (
+    <View
+      pointerEvents="none"
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      style={styles.searchArtworkLayer}
+    >
+      <Image
+        source={artwork}
+        style={[styles.searchArtwork, isDark && styles.searchArtworkDark]}
+        resizeMode="contain"
+        accessible={false}
+      />
+    </View>
+  )
 }
 
 /**
@@ -642,6 +668,7 @@ export default function SearchScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      <SearchScreenArtwork />
       {/* Help lives in the native header, next to the "Search" title, not inline in the body —
           see the header-right pattern shared with Mine, word/[form], and the Settings screens
           that have a help sheet. */}
@@ -698,7 +725,7 @@ export default function SearchScreen(): JSX.Element {
             <Text style={styles.overviewTitle}>{t('Instant Lookup and Card Generations')}</Text>
             <InlineMarkdown
               text={t(
-                'Look up any {{target}} or {{native}} word instantly - inflected and conjugated forms work too. Not in your library yet? One tap **generates a full flashcard** with meanings, examples, and pronunciation, so you never have to leave the app to look something up.',
+                'Look up any {{target}} or {{native}} word instantly. If it\'s not in your library yet, one tap **generates a full flashcard**.',
                 {
                   target: t(VOCAB_LANGUAGE_LABELS[targetLanguage]),
                   native: t(VOCAB_LANGUAGE_LABELS[nativeLanguage]),
@@ -970,7 +997,25 @@ export default function SearchScreen(): JSX.Element {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
-    searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    searchArtworkLayer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 320,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      zIndex: 0,
+    },
+    searchArtwork: {
+      width: '100%',
+      height: '100%',
+      opacity: 0.22,
+    },
+    searchArtworkDark: {
+      opacity: 0.25,
+    },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, zIndex: 2 },
     searchBox: {
       flex: 1,
       flexDirection: 'row',
@@ -989,22 +1034,22 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: spacing.xl,
+      zIndex: 1,
     },
     overviewCard: {
       alignItems: 'center',
       gap: spacing.sm,
-      backgroundColor: colors.primarySoft,
-      borderRadius: radius.lg,
-      padding: spacing.xl,
-      maxWidth: 420,
+      maxWidth: 340,
+      paddingHorizontal: spacing.md,
     },
     overviewIconWrap: {
       width: 48,
       height: 48,
       borderRadius: radius.full,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.primarySoft,
       alignItems: 'center',
       justifyContent: 'center',
+      marginBottom: 2,
     },
     overviewTitle: {
       fontSize: type.subheading,

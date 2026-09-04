@@ -431,7 +431,7 @@ export class DeepSeekProvider implements AIProvider, DictionaryProvider {
         : messages
 
     try {
-      response = await this.fetchFn(`${this.baseUrl}/chat/completions`, {
+      response = await timeout.guard(this.fetchFn(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -443,7 +443,7 @@ export class DeepSeekProvider implements AIProvider, DictionaryProvider {
           response_format: { type: 'json_object' },
         }),
         signal: timeout.signal,
-      })
+      }))
     } catch (error) {
       throw new AIProviderError(
         timeout.didTimeout()

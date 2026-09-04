@@ -21,6 +21,7 @@ import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Linking,
   Modal,
@@ -35,6 +36,7 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Svg, { Circle } from 'react-native-svg'
 import { Icon } from '../../components/Icon'
 import { AIExplanationSheet } from '../../components/AIExplanationSheet'
 import { CardRenderer } from '../../components/CardRenderer'
@@ -74,6 +76,7 @@ import { ALL_DECKS_ID, useServices, type GenerationProviderName } from '../../li
 import { darkRatingColors, radius, ratingColors, spacing, type } from '../../lib/theme'
 import { useColors, useTheme, useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
+import reviewCardArtwork from '../../assets/review/park-path-reader-subtle.png'
 
 const log = logger.child({ feature: 'srs', screen: 'ReviewSessionScreen' })
 
@@ -111,6 +114,26 @@ const WORD_EDIT_HELP_SECTIONS: HelpSection[] = [
  * extended to up/down for the two extra FSRS ratings.
  */
 const SWIPE_THRESHOLD = 96
+
+function ReviewCardArtwork(): JSX.Element | null {
+  const { theme } = useTheme()
+  const styles = useThemedStyles(createStyles)
+
+  if (theme.mode === 'dark') return null
+
+  return (
+    <View
+      pointerEvents="none"
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      style={styles.reviewCardArtworkLayer}
+    >
+      <Image source={reviewCardArtwork} style={styles.reviewCardArtwork} resizeMode="cover" accessible={false} />
+    </View>
+  )
+}
+
+const ORBIT_DOT_ANGLES = Array.from({ length: 8 }, (_, i) => -Math.PI / 2 + (i * 2 * Math.PI) / 8)
 
 function tokenizeEditableExample(sentence: string): string[] {
   return sentence.split(/(\s+)/).filter((token) => token.length > 0)
@@ -227,6 +250,7 @@ function SwipeableCard(props: {
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.card, styles.cardFlippedContent, cardStyle]}>
+        <ReviewCardArtwork />
         <Animated.Text
           style={[
             styles.swipeBadge,
@@ -267,7 +291,7 @@ function SwipeableCard(props: {
         >
           {t('HARD')}
         </Animated.Text>
-        {props.children}
+        <View style={styles.reviewCardContent}>{props.children}</View>
       </Animated.View>
     </GestureDetector>
   )
@@ -925,16 +949,16 @@ export default function ReviewSessionScreen(): JSX.Element {
   const aiExplanationGuide: WordGuideEntry | null =
     explainVisible && !guideModalOpen && !lookupWordGuide.isPending && !generateExplanation.isPending && view?.explanation
       ? {
-          headword: view.form,
-          language: view.language,
-          chunkId: 0,
-          partOfSpeech: view.partOfSpeech,
-          translation: view.meaning ?? '',
-          ...(view.usage && { usage: view.usage }),
-          intro: view.explanation,
-          synonyms: view.synonyms.map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
-          examples: view.example ? [{ sentence: view.example, translation: view.exampleTranslation ?? '', type: 'indicative' as const }] : [],
-        }
+        headword: view.form,
+        language: view.language,
+        chunkId: 0,
+        partOfSpeech: view.partOfSpeech,
+        translation: view.meaning ?? '',
+        ...(view.usage && { usage: view.usage }),
+        intro: view.explanation,
+        synonyms: view.synonyms.map((s) => ({ word: s.word, gloss: s.nuance ?? '' })),
+        examples: view.example ? [{ sentence: view.example, translation: view.exampleTranslation ?? '', type: 'indicative' as const }] : [],
+      }
       : null
 
   const handleLookup = (): void => {
@@ -1013,40 +1037,46 @@ export default function ReviewSessionScreen(): JSX.Element {
     : isCloze
       ? renderCardHtml(activeTemplate.backTemplate, templateStyles, view.templateContext, 'back', colors)
       : renderCardHtml(
-          `${activeTemplate.frontTemplate}<hr/>${activeTemplate.backTemplate}`,
-          templateStyles,
-          backContext ?? view.templateContext,
-          'back',
-          colors,
-        )
+        `${activeTemplate.frontTemplate}<hr/>${activeTemplate.backTemplate}`,
+        templateStyles,
+        backContext ?? view.templateContext,
+        'back',
+        colors,
+      )
 
   return (
     <SafeAreaView style={styles.safe}>
       {/* Header: close, progress, mode, counter */}
-      <View style={styles.header}>
-        <IconButton icon="X" onPress={() => router.back()} />
-        <View style={styles.progressWrap}>
-          <ProgressBar progress={done ? 1 : queue.length > 0 ? index / queue.length : 0} />
-        </View>
+      {!done ? (
+        <View style={styles.header}>
+          <IconButton icon="X" onPress={() => router.back()} />
+          <View style={styles.progressWrap}>
+            <ProgressBar progress={queue.length > 0 ? index / queue.length : 0} />
+          </View>
 
-        {/* Previewing one specific word from the deck's card list, not a practice session — a
-            tappable pill (not just a mode indicator like isCloze/isReverse above) offering to
-            flip to the other view when this word actually has one, instead of leaving cloze
-            content invisible just because vocab mode opened first (or vice versa). */}
-        {singleCardId && !clozeOnly && view?.hasClozeVariant ? (
-          <Pressable style={styles.modePill} onPress={() => router.setParams({ mode: 'cloze' })}>
-            <Text style={styles.modePillLabel}>{t('cloze')}</Text>
-          </Pressable>
-        ) : null}
-        {singleCardId && clozeOnly && view?.hasVocabVariant ? (
-          <Pressable style={styles.modePill} onPress={() => router.setParams({ mode: '' })}>
-            <Text style={styles.modePillLabel}>{t('Word')}</Text>
-          </Pressable>
-        ) : null}
-        <Text style={styles.counter}>
-          {Math.min(index + (done ? 0 : 1), queue.length)}/{queue.length}
-        </Text>
-      </View>
+          {/* Previewing one specific word from the deck's card list, not a practice session — a
+              tappable pill (not just a mode indicator like isCloze/isReverse above) offering to
+              flip to the other view when this word actually has one, instead of leaving cloze
+              content invisible just because vocab mode opened first (or vice versa). */}
+          {singleCardId && !clozeOnly && view?.hasClozeVariant ? (
+            <Pressable style={styles.modePill} onPress={() => router.setParams({ mode: 'cloze' })}>
+              <Text style={styles.modePillLabel}>{t('cloze')}</Text>
+            </Pressable>
+          ) : null}
+          {singleCardId && clozeOnly && view?.hasVocabVariant ? (
+            <Pressable style={styles.modePill} onPress={() => router.setParams({ mode: '' })}>
+              <Text style={styles.modePillLabel}>{t('Word')}</Text>
+            </Pressable>
+          ) : null}
+          <Text style={styles.counter}>
+            {Math.min(index + 1, queue.length)}/{queue.length}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.doneHeader}>
+          <IconButton icon="X" onPress={() => router.back()} />
+        </View>
+      )}
 
       {awaitingFreshQueue ? (
         <View style={styles.doneWrap}>
@@ -1054,43 +1084,88 @@ export default function ReviewSessionScreen(): JSX.Element {
         </View>
       ) : done || !view ? (
         <View style={styles.doneWrap}>
-          <EmptyState
-            icon={queue.length === 0 ? 'CheckCheck' : 'Trophy'}
-            title={queue.length === 0 ? t('Nothing due right now') : t('Session complete!')}
-            message={
-              queue.length === 0
-                ? t('This deck has no cards due for review. Add words or check back later.')
-                : queueQuery.data?.hasMore
-                  ? // More due cards than fit in this session's cap (Settings > Learning > Cards
-                    // per session) — offered "Practice more" below instead of making them wait.
-                    t('You reviewed {{count}} cards. There are more cards due - keep going or come back later.', {
-                      count: new Set(queue.map((entry) => entry.cardId)).size,
-                    })
-                  : // Distinct cards, not queue.length — a Mixed session's queue can have several
-                    // entries per card (one per format tested), but "You reviewed 20 cards" for a
-                    // 4-card deck would be a confusing overcount.
-                    t('You reviewed {{count}} cards. Great work - come back when the next cards are due.', {
-                      count: new Set(queue.map((entry) => entry.cardId)).size,
-                    })
-            }
-          />
-          {queue.length > 0 && queueQuery.data?.hasMore ? (
-            <Pressable style={styles.doneButton} onPress={practiceMore}>
-              <Text style={styles.doneButtonLabel}>{t('Practice more')}</Text>
-            </Pressable>
-          ) : null}
-          <Pressable
-            style={queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondary : styles.doneButton}
-            onPress={() => router.back()}
-          >
-            <Text
-              style={
-                queue.length > 0 && queueQuery.data?.hasMore ? styles.doneButtonSecondaryLabel : styles.doneButtonLabel
-              }
-            >
-              {t('Back to deck')}
-            </Text>
-          </Pressable>
+          <ScrollView contentContainerStyle={styles.doneScrollContent} showsVerticalScrollIndicator={false}>
+            {queue.length === 0 ? (
+              <>
+                <EmptyState
+                  icon="CheckCheck"
+                  title={t('Nothing due right now')}
+                  message={t('This deck has no cards due for review. Add words or check back later.')}
+                />
+                <Pressable style={styles.doneButton} onPress={() => router.back()}>
+                  <Text style={styles.doneButtonLabel}>{t('Back to deck')}</Text>
+                </Pressable>
+              </>
+            ) : (
+              <View style={styles.completionContent}>
+                <View style={styles.badgeWrap}>
+                  <View style={styles.badgeGlow} />
+                  <Svg width={160} height={160} style={StyleSheet.absoluteFill}>
+                    <Circle
+                      cx={80}
+                      cy={80}
+                      r={64}
+                      stroke={colors.success}
+                      strokeOpacity={0.35}
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      fill="none"
+                    />
+                    {ORBIT_DOT_ANGLES.map((angle, idx) => {
+                      const cx = 80 + 64 * Math.cos(angle)
+                      const cy = 80 + 64 * Math.sin(angle)
+                      return (
+                        <Circle
+                          key={idx}
+                          cx={cx}
+                          cy={cy}
+                          r={3.5}
+                          fill={colors.success}
+                          fillOpacity={0.85}
+                        />
+                      )
+                    })}
+                  </Svg>
+                  <View style={styles.badgeCircle}>
+                    <Icon name="Check" size={38} color={colors.success} strokeWidth={3.5} />
+                  </View>
+                </View>
+
+                <Text style={styles.completionTitle}>{t('Session Completed')}</Text>
+                <Text style={styles.completionSubtitle}>{t('Great job 🎉')}</Text>
+
+                <View style={styles.memoryBanner}>
+                  <View style={styles.memoryIconWrap}>
+                    <Icon name="TrendingUp" size={30} color={colors.primary} strokeWidth={2.8} />
+                  </View>
+                  <View style={styles.memoryTextWrap}>
+                    <Text style={styles.memoryTitle}>{t('Strong memory')}</Text>
+                    <Text style={styles.memorySubtitle}>{t('Keep it up!')}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.doneActions}>
+                  {queueQuery.data?.hasMore ? (
+                    <Pressable style={styles.doneButton} onPress={practiceMore}>
+                      <Text style={styles.doneButtonLabel}>{t('Practice more')}</Text>
+                    </Pressable>
+                  ) : null}
+                  <Pressable
+                    style={queueQuery.data?.hasMore ? styles.doneButtonSecondary : styles.doneButton}
+                    onPress={() => router.back()}
+                  >
+                    <Text
+                      style={
+                        queueQuery.data?.hasMore ? styles.doneButtonSecondaryLabel : styles.doneButtonLabel
+                      }
+                    >
+                      {t('Back to deck')}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </ScrollView>
         </View>
       ) : isAutoGraded && view.meaning ? (
         <>
@@ -1100,44 +1175,47 @@ export default function ReviewSessionScreen(): JSX.Element {
               no manual rating buttons/swipe — onAnswered maps correct/incorrect straight onto
               'good'/'again' and calls the same rate mutation every other format uses. */}
           <View style={styles.card}>
-            {isTrueFalse ? (
-              <TrueFalseQuestion
-                // Keyed to this exact (card, format) entry — without it, two consecutive
-                // auto-graded questions of the same type reuse one component instance, and its
-                // internal `choice` state ("already answered") carries over onto the new question,
-                // locking out taps and silently dropping onAnswered. See MultipleChoiceQuestion
-                // below for the identical failure mode.
-                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
-                cardKey={view.card.id}
-                word={view.form}
-                meaning={view.meaning}
-                onListen={() => speak(view.form, view.language)}
-                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
-                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
-              />
-            ) : (
-              <MultipleChoiceQuestion
-                key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
-                cardKey={view.card.id}
-                word={view.form}
-                meaning={view.meaning}
-                onListen={() => speak(view.form, view.language)}
-                distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
-                onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
-              />
-            )}
-            {/* Auto-graded formats keep contextual actions such as Explain, Ask AI, and Look up,
+            <ReviewCardArtwork />
+            <View style={styles.reviewCardContent}>
+              {isTrueFalse ? (
+                <TrueFalseQuestion
+                  // Keyed to this exact (card, format) entry — without it, two consecutive
+                  // auto-graded questions of the same type reuse one component instance, and its
+                  // internal `choice` state ("already answered") carries over onto the new question,
+                  // locking out taps and silently dropping onAnswered. See MultipleChoiceQuestion
+                  // below for the identical failure mode.
+                  key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
+                  cardKey={view.card.id}
+                  word={view.form}
+                  meaning={view.meaning}
+                  onListen={() => speak(view.form, view.language)}
+                  distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                  onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+                />
+              ) : (
+                <MultipleChoiceQuestion
+                  key={`${activeEntry?.cardId}-${activeEntry?.questionType}`}
+                  cardKey={view.card.id}
+                  word={view.form}
+                  meaning={view.meaning}
+                  onListen={() => speak(view.form, view.language)}
+                  distractors={(distractorPoolQuery.data ?? []).filter((d) => d.cardId !== view.card.id)}
+                  onAnswered={(correct) => rate.mutate(correct ? 'good' : 'again')}
+                />
+              )}
+              {/* Auto-graded formats keep contextual actions such as Explain, Ask AI, and Look up,
                 but intentionally omit Edit: changing the answer while answering a generated
                 true/false or multiple-choice prompt is confusing and can invalidate that prompt.
                 Listen also lives beside the prompt word above, so it is not duplicated here. */}
-            <CardActionBar
-              onExplain={handleExplain}
-              explainVisible={isAiCard || explainVisible}
-              explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
-              {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
-              onLookup={handleLookup}
-              onAskAI={handleAskAI}
-            />
+              <CardActionBar
+                onExplain={handleExplain}
+                explainVisible={isAiCard || explainVisible}
+                explainLoading={lookupWordGuide.isPending || generateExplanation.isPending}
+                {...(isAiCard && { explainLabel: t('More info'), explainIcon: 'Info' })}
+                onLookup={handleLookup}
+                onAskAI={handleAskAI}
+              />
+            </View>
           </View>
           <View style={styles.ratingPlaceholder} />
           {rate.isError ? <Text style={styles.errorLabel}>{String(rate.error)}</Text> : null}
@@ -1171,7 +1249,7 @@ export default function ReviewSessionScreen(): JSX.Element {
                   English meaning as the prompt, and speaking German there would leak the answer
                   before the card is even flipped. */}
               {(activeQuestionType === 'vocab' || activeQuestionType === 'cloze' || activeQuestionType === 'reverse') &&
-              backSpeechText ? (
+                backSpeechText ? (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t('Listen')}
@@ -1198,6 +1276,7 @@ export default function ReviewSessionScreen(): JSX.Element {
             </SwipeableCard>
           ) : (
             <Pressable style={styles.card} onPress={() => setFlipped(true)}>
+              <ReviewCardArtwork />
               <View style={styles.templateFrontWrap}>
                 <CardRenderer html={frontHtml} />
                 {activeQuestionType === 'vocab' ? (
@@ -1311,67 +1390,67 @@ export default function ReviewSessionScreen(): JSX.Element {
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.editScrollContent}
             >
-            <View style={styles.editLabelRow}>
-              <Text style={styles.editLabel}>{t('Example sentence')}</Text>
-              {tier === 'full' ? (
-                <Pressable
-                  style={styles.generateInlineButton}
-                  onPress={() => generateEditExample.mutate()}
-                  disabled={generateEditExample.isPending}
-                >
-                  {generateEditExample.isPending ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                  ) : (
-                    <Icon name="Sparkles" size={14} color={colors.primary} />
-                  )}
-                  <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
-                </Pressable>
-              ) : null}
-            </View>
-            <TextInput
-              style={styles.editInput}
-              value={editExample}
-              onChangeText={(text) => {
-                setEditExample(text)
-                setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(text), view?.form ?? ''))
-              }}
-              multiline
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <Text style={styles.editHighlightHint}>{t('Tap words below to highlight them.')}</Text>
-            <View style={styles.editTokenCard}>
-              <View style={styles.editTokenWrap}>
-                {tokenizeEditableExample(editExample).map((token, tokenIndex) => {
-                  if (/^\s+$/.test(token)) return null
-                  const selected = editExampleHighlights.has(tokenIndex)
-                  return (
-                    <Pressable
-                      key={tokenIndex}
-                      style={[styles.editToken, selected && styles.editTokenSelected]}
-                      onPress={() => setEditExampleHighlights((current) => {
-                        const next = new Set(current)
-                        if (next.has(tokenIndex)) next.delete(tokenIndex)
-                        else next.add(tokenIndex)
-                        return next
-                      })}
-                    >
-                      <Text style={[styles.editTokenText, selected && styles.editTokenTextSelected]}>{token}</Text>
-                    </Pressable>
-                  )
-                })}
+              <View style={styles.editLabelRow}>
+                <Text style={styles.editLabel}>{t('Example sentence')}</Text>
+                {tier === 'full' ? (
+                  <Pressable
+                    style={styles.generateInlineButton}
+                    onPress={() => generateEditExample.mutate()}
+                    disabled={generateEditExample.isPending}
+                  >
+                    {generateEditExample.isPending ? (
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                      <Icon name="Sparkles" size={14} color={colors.primary} />
+                    )}
+                    <Text style={styles.generateInlineLabel}>{t('Generate with AI')}</Text>
+                  </Pressable>
+                ) : null}
               </View>
-            </View>
-            <Text style={styles.editLabel}>{t('Example translation')}</Text>
-            <TextInput
-              style={styles.editInput}
-              value={editTranslation}
-              onChangeText={setEditTranslation}
-              multiline
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
+              <TextInput
+                style={styles.editInput}
+                value={editExample}
+                onChangeText={(text) => {
+                  setEditExample(text)
+                  setEditExampleHighlights(guessExampleHighlight(tokenizeEditableExample(text), view?.form ?? ''))
+                }}
+                multiline
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Text style={styles.editHighlightHint}>{t('Tap words below to highlight them.')}</Text>
+              <View style={styles.editTokenCard}>
+                <View style={styles.editTokenWrap}>
+                  {tokenizeEditableExample(editExample).map((token, tokenIndex) => {
+                    if (/^\s+$/.test(token)) return null
+                    const selected = editExampleHighlights.has(tokenIndex)
+                    return (
+                      <Pressable
+                        key={tokenIndex}
+                        style={[styles.editToken, selected && styles.editTokenSelected]}
+                        onPress={() => setEditExampleHighlights((current) => {
+                          const next = new Set(current)
+                          if (next.has(tokenIndex)) next.delete(tokenIndex)
+                          else next.add(tokenIndex)
+                          return next
+                        })}
+                      >
+                        <Text style={[styles.editTokenText, selected && styles.editTokenTextSelected]}>{token}</Text>
+                      </Pressable>
+                    )
+                  })}
+                </View>
+              </View>
+              <Text style={styles.editLabel}>{t('Example translation')}</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editTranslation}
+                onChangeText={setEditTranslation}
+                multiline
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              {saveEdit.isError ? <Text style={styles.errorLabel}>{String(saveEdit.error)}</Text> : null}
             </ScrollView>
             <View style={styles.editActions}>
               <Button label={t('Cancel')} variant="ghost" onPress={() => setEditOpen(false)} />
@@ -1488,6 +1567,7 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'center',
       padding: spacing.xl,
+      overflow: 'hidden',
     },
     // Overrides `card`'s centering for the flipped state, which stacks
     // several native rows (speakers, WebView content, action bar) top to
@@ -1502,8 +1582,19 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.sm,
       paddingVertical: 4,
       paddingHorizontal: spacing.md,
+      zIndex: 2,
     },
-    templateFrontWrap: { flex: 1, alignSelf: 'stretch' },
+    reviewCardArtworkLayer: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 0,
+    },
+    reviewCardArtwork: { width: '100%', height: '100%', opacity: 0.18 },
+    reviewCardContent: { flex: 1, alignSelf: 'stretch', zIndex: 1 },
+    templateFrontWrap: { flex: 1, alignSelf: 'stretch', zIndex: 1 },
     wordSpeakerButton: {
       position: 'absolute',
       zIndex: 2,
@@ -1578,13 +1669,121 @@ const createStyles = (colors: ThemeColors) =>
     editTokenText: { fontSize: type.body, lineHeight: 24, color: colors.text },
     editTokenTextSelected: { color: colors.primary, fontWeight: '800' },
     editActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.lg },
-    doneWrap: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.xl },
+    doneWrap: { flex: 1 },
+    doneHeader: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.xs,
+    },
+    doneScrollContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.xl,
+    },
+    completionContent: {
+      alignItems: 'center',
+      width: '100%',
+      maxWidth: 400,
+      alignSelf: 'center',
+    },
+    badgeWrap: {
+      width: 160,
+      height: 160,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
+    badgeGlow: {
+      position: 'absolute',
+      width: 112,
+      height: 112,
+      borderRadius: 56,
+      backgroundColor: colors.successSoft,
+      opacity: 0.6,
+      shadowColor: colors.success,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.45,
+      shadowRadius: 20,
+      elevation: 4,
+    },
+    badgeCircle: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      borderWidth: 3.5,
+      borderColor: colors.success,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.success,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 10,
+      elevation: 4,
+    },
+    completionTitle: {
+      fontSize: 28,
+      fontWeight: '800',
+      color: colors.text,
+      marginTop: spacing.md,
+      textAlign: 'center',
+      letterSpacing: -0.5,
+    },
+    completionSubtitle: {
+      fontSize: type.body,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    memoryBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 68,
+      gap: spacing.lg,
+      paddingHorizontal: spacing.md,
+    },
+    memoryIconWrap: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 10,
+      elevation: 4,
+    },
+    memoryTextWrap: {
+      alignItems: 'flex-start',
+    },
+    memoryTitle: {
+      fontSize: 24,
+      fontWeight: '800',
+      color: colors.primary,
+      letterSpacing: -0.4,
+    },
+    memorySubtitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginTop: 3,
+    },
+    doneActions: {
+      width: '100%',
+      marginTop: 48,
+      gap: spacing.sm,
+    },
     doneButton: {
       backgroundColor: colors.primary,
       borderRadius: radius.md,
       paddingVertical: 14,
       alignItems: 'center',
-      marginTop: -spacing.xl,
     },
     doneButtonLabel: { color: colors.textOnPrimary, fontSize: type.body, fontWeight: '700' },
     doneButtonSecondary: {
@@ -1592,7 +1791,6 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.md,
       paddingVertical: 14,
       alignItems: 'center',
-      marginTop: spacing.sm,
     },
     doneButtonSecondaryLabel: { color: colors.text, fontSize: type.body, fontWeight: '700' },
   })

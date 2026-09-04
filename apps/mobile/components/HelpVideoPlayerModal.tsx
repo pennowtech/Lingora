@@ -146,7 +146,14 @@ export function HelpVideoPlayerModal({
           <WebView
             style={styles.webview}
             originWhitelist={['*']}
-            source={{ html: iframeHtml }}
+            // baseUrl gives the WebView a real https:// origin instead of the null/about:blank
+            // one it has when loading a raw HTML string with none set - YouTube's embedded
+            // player validates the embedding page's origin before it'll play, and a null origin
+            // gets rejected with "Video player configuration error" (YouTube error 153), even
+            // though the video plays fine everywhere else (the real app, a browser tab) since
+            // those always have a real origin. Any real https:// origin satisfies the check;
+            // youtube.com's own domain is the safest choice since it's unambiguously allowed.
+            source={{ html: iframeHtml, baseUrl: 'https://www.youtube.com' }}
             allowsFullscreenVideo={false}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
@@ -239,7 +246,14 @@ export function HelpVideoPlayerModal({
             <WebView
               style={styles.webview}
               originWhitelist={['*']}
-              source={{ html: iframeHtml }}
+              // baseUrl gives the WebView a real https:// origin instead of the null/about:blank
+            // one it has when loading a raw HTML string with none set - YouTube's embedded
+            // player validates the embedding page's origin before it'll play, and a null origin
+            // gets rejected with "Video player configuration error" (YouTube error 153), even
+            // though the video plays fine everywhere else (the real app, a browser tab) since
+            // those always have a real origin. Any real https:// origin satisfies the check;
+            // youtube.com's own domain is the safest choice since it's unambiguously allowed.
+            source={{ html: iframeHtml, baseUrl: 'https://www.youtube.com' }}
               allowsFullscreenVideo={false}
               allowsInlineMediaPlayback
               mediaPlaybackRequiresUserAction={false}

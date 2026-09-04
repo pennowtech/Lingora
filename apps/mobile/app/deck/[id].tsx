@@ -991,6 +991,16 @@ export default function DeckDetailScreen(): JSX.Element {
         confirmLabel={t('Merge')}
         destructive
       />
+
+      <HelpAccordionSheet
+        visible={help.visible}
+        onClose={help.close}
+        title={t('Deck Detail')}
+        sections={HELP_SECTIONS}
+        activeSectionId={help.sectionId}
+        onSectionPress={help.setSectionId}
+        translate={t}
+      />
     </>
   )
 }

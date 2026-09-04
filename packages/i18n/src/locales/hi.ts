@@ -1856,6 +1856,7 @@ Home: 'होम',
   '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
     '**आवश्यकताएं**: सही/गलत के लिए कम से कम 1 अन्य सहेजा गया कार्ड और बहुविकल्पी के लिए कम से कम 3 अन्य कार्ड आवश्यक हैं। पर्याप्त कार्ड न होने पर फ़ॉर्मैट स्वचालित रूप से छोड़ दिया जाता है।',
   // ── Deck detail screen stats help ──────────────────────────────────
+  'Deck Detail': 'डेक विवरण',
   'The four top boxes track your deck metrics at a glance:':
     'शीर्ष चार बॉक्स आपके डेक के आँकड़े एक नज़र में दिखाते हैं:',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':

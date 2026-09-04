@@ -1546,6 +1546,7 @@ export const ENGLISH_PHRASES = [
   '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.',
 
   // ── Deck detail screen stats help ──────────────────────────────────
+  'Deck Detail',
   'The four top boxes track your deck metrics at a glance:',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',

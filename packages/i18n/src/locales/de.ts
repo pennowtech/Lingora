@@ -1869,6 +1869,7 @@ export const de: Record<Phrase, string> = {
   '**Requirements**: True/false requires at least 1 other saved card and multiple choice requires at least 3 other cards to provide distractors. A format is automatically skipped until enough cards are available.':
     '**Voraussetzungen**: Richtig/Falsch erfordert mindestens 1 andere gespeicherte Karte und Multiple Choice mindestens 3 andere Karten für Antwortoptionen. Ein Format wird übersprungen, bis genügend Karten vorhanden sind.',
   // ── Deck detail screen stats help ──────────────────────────────────
+  'Deck Detail': 'Deck-Details',
   'The four top boxes track your deck metrics at a glance:':
     'Die vier oberen Boxen zeigen Ihre Deck-Statistiken auf einen Blick:',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':

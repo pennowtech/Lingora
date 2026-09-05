@@ -173,6 +173,82 @@ Translations, explanations, meanings and usage notes: always in {{nativeLanguage
 Return strict JSON only, matching the provided schema exactly. No markdown, no commentary.`,
   },
   /**
+   * Step 1 of the Groq two-step word package pipeline:
+   * Outline only — lemma facts, inflections, and cluster labels/descriptions/cefrLevel.
+   */
+  wordPackageOutline: {
+    name: 'word_package_outline',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
+
+${ANTI_SWAP_LEMMA_WARNING}
+
+Generate the word outline (lemma, inflections, and semantic clusters) for the {{targetLanguage}} word: "{{word}}"
+{{baselineHint}}
+Requirements:
+
+LEMMA
+- Return the dictionary form (lemma) of "{{word}}", in {{targetLanguage}} — not translated into {{nativeLanguage}}. If the input is inflected, the lemma is its base form, still in {{targetLanguage}}.
+- lemma.language must be exactly "{{targetLanguageCode}}".
+- partOfSpeech must be exact. For nouns include the grammatical gender and the plural form when the language marks them; for everything else (or a language without that feature) set gender and/or plural to null.
+- Capitalize the lemma and inflections exactly as {{targetLanguage}}'s own orthography requires (e.g. German nouns are always capitalized; most other languages are not).
+- If {{targetLanguage}}'s orthography makes capitalization a meaningful signal (German: every common noun is capitalized, so a lowercase input word is essentially never a noun), and "{{word}}" as actually typed is genuinely ambiguous between two parts of speech, use its exact capitalization to resolve it rather than picking whichever reading is more common overall.
+
+INFLECTIONS
+- List the surface forms a learner will actually meet (key conjugations for verbs, plural/case forms for nouns, comparative/superlative for adjectives). 3–8 forms, without the lemma itself.
+
+SEMANTIC CLUSTERS
+- Actively identify EVERY genuinely distinct, established semantic context this word has — most words that aren't trivially simple have 2 or more. Think through the word's range of real usages before deciding how many clusters it needs; do not default to a single cluster out of caution.
+- Only create clusters that are real, established usages — never invent a context to fill space.
+- For each cluster, provide ONLY: label (short lowercase in {{nativeLanguage}}), description (one-line in {{nativeLanguage}}), and cefrLevel (the CEFR level where this usage becomes relevant).
+- Do NOT include meanings, examples, or synonyms in this step.
+
+Return strict JSON only, matching the provided schema exactly. No markdown, no commentary.`,
+  },
+  /**
+   * Step 2 of the Groq two-step word package pipeline:
+   * Enrichment for all clusters produced in Step 1 — meanings, examples, and synonyms.
+   */
+  clusterBatchEnrichment: {
+    name: 'cluster_batch_enrichment',
+    version: 1,
+    template: `You are a friendly {{targetLanguage}} language mentor explaining vocabulary to a learner in a warm, natural, human voice in {{nativeLanguage}}. The learner's own language is {{nativeLanguage}}; the language being learned is {{targetLanguage}}.
+
+For the {{targetLanguage}} word "{{word}}", enrich each of the following {{count}} semantic clusters with meanings, examples, and synonyms:
+
+{{clusterList}}
+
+Requirements for EACH cluster (in the exact same order as listed above):
+
+EXPLANATION TONE & STYLE
+- Explanations must sound like a friendly native mentor chatting with a friend.
+- NEVER use dry academic textbook phrasing like "{{word}} means that...", "This term denotes...", or "Defines...". Speak naturally and directly.
+- MEANING USAGE FIELD: Set usage to null for every meaning (detailed usage explanations are fetched on-demand).
+
+MEANINGS
+- 1–3 meanings per cluster that belong strictly to that cluster's semantic context.
+- Write translation and explanation in {{nativeLanguage}}.
+- Label each meaning with its own CEFR level.
+
+EXAMPLES
+- Exactly 2 natural, contemporary {{targetLanguage}} example sentences per cluster that a native speaker would actually say — never textbook-stilted.
+- Learner's level is {{cefrLevel}}. Write examples at or slightly below {{cefrLevel}}.
+- Each example gets a context tag: casual, formal, business, travel, dating, social_media, daily_life or slang.
+- Tag notable grammar structures (grammarTags) in {{targetLanguage}} grammatical terminology (or null if none).
+- Each example's translation is in {{nativeLanguage}}.
+
+SYNONYMS
+- 0–4 {{targetLanguage}} synonyms per cluster that work strictly within that context.
+- For each synonym, provide only the target-language word and its cefrLevel. Set nuance to null and formality to "neutral".
+
+CRITICAL CONSTRAINTS:
+- Every meaning, example, and synonym in a cluster must stay strictly within that cluster's specific semantic context.
+- You MUST return an array of clusters matching exactly the number of clusters listed above ({{count}}).
+- Translations, explanations, and meanings: always in {{nativeLanguage}}. Examples and synonyms: always in {{targetLanguage}}.
+
+Return strict JSON only, matching the provided schema exactly. No markdown, no commentary.`,
+  },
+  /**
    * Sent as a follow-up user message when the first response failed schema
    * validation. {{issues}} is the flattened list of zod problems.
    */

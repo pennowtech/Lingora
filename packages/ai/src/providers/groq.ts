@@ -10,9 +10,10 @@ import type {
 import { z } from 'zod'
 import { logger } from '@lingora/observability'
 import { AIProviderError } from '../errors'
-import { generateValidated, type RawCompletion } from '../generation/structured'
+import { generateValidated, type RawCompletion, type ValidatedGeneration } from '../generation/structured'
 import { formatChatTranscript, languageVars, PROMPTS, renderPrompt } from '../prompts/templates'
 import {
+  clusterBatchEnrichmentSchema,
   generatedClozeBaseSchema,
   generatedClozeSchema,
   generatedExampleSchema,
@@ -22,6 +23,8 @@ import {
   salvagePartial,
   wordGenerationJsonTargetSchema,
   wordGenerationSchemaForLanguage,
+  wordPackageOutlineSchema,
+  type ClusterBatchEnrichment,
 } from '../schemas/generation'
 import { minedPassageSchema } from '../schemas/mining'
 import { cefrLevelSchema, languageCodeSchema } from '../schemas/common'
@@ -36,6 +39,7 @@ import type {
   ExampleGenerationOptions,
   GeneratedClusterOutline,
   GenerationContext,
+  ProviderUsage,
   WordPackageResult,
 } from './types'
 
@@ -45,6 +49,8 @@ export interface GroqProviderConfig {
   model?: string
   baseUrl?: string
   timeoutMs?: number
+  maxTokens?: number
+  useJsonSchema?: boolean
   /** Injectable for tests. */
   fetchFn?: typeof fetch
 }
@@ -113,6 +119,8 @@ const log = logger.child({ feature: 'ai', component: 'GroqProvider' })
 export class GroqProvider implements AIProvider, DictionaryProvider {
   readonly name = 'groq' as const
   readonly model: string
+  readonly maxTokens: number
+  readonly useJsonSchema: boolean
 
   private readonly apiKey: string
   private readonly baseUrl: string
@@ -124,6 +132,8 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
     this.model = config.model ?? 'openai/gpt-oss-20b'
     this.baseUrl = (config.baseUrl ?? 'https://api.groq.com/openai/v1').replace(/\/$/, '')
     this.timeoutMs = config.timeoutMs ?? 60_000
+    this.maxTokens = config.maxTokens ?? 8192
+    this.useJsonSchema = config.useJsonSchema ?? false
     // Bound to globalThis — see openai.ts's identical fetchFn assignment for why.
     this.fetchFn = config.fetchFn ?? fetch.bind(globalThis)
   }
@@ -133,7 +143,8 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
     ctx: GenerationContext,
     hint?: { baselineTranslation: string },
   ): Promise<WordPackageResult> {
-    const prompt = renderPrompt(PROMPTS.wordPackage.template, {
+    // Step 1: Generate word package outline (lemma + inflections + cluster skeletons)
+    const outlinePrompt = renderPrompt(PROMPTS.wordPackageOutline.template, {
       word,
       cefrLevel: ctx.cefrLevel,
       ...languageVars(ctx),
@@ -142,11 +153,83 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
         : '',
     })
 
-    return generateValidated(
-      this.makeCall(prompt, 'word_generation', wordGenerationJsonTargetSchema),
-      wordGenerationSchemaForLanguage(ctx.language),
-      salvagePartial,
+    const outlineResult = await generateValidated(
+      this.makeCall(outlinePrompt, 'word_package_outline', wordPackageOutlineSchema),
+      wordPackageOutlineSchema,
     )
+
+    if (outlineResult.kind !== 'complete') {
+      throw new AIProviderError('word_package_outline returned a partial', this.name, false)
+    }
+
+    const outline = outlineResult.data
+    const clusterList = outline.clusters
+      .map((c, i) => `${i + 1}. "${c.label}" — ${c.description} (CEFR: ${c.cefrLevel})`)
+      .join('\n')
+
+    // Step 2: Batch enrich all clusters
+    const enrichPrompt = renderPrompt(PROMPTS.clusterBatchEnrichment.template, {
+      word,
+      cefrLevel: ctx.cefrLevel,
+      ...languageVars(ctx),
+      clusterList,
+      count: String(outline.clusters.length),
+    })
+
+    let enrichResult: ValidatedGeneration<ClusterBatchEnrichment, never> | undefined
+
+    try {
+      enrichResult = await generateValidated(
+        this.makeCall(enrichPrompt, 'cluster_batch_enrichment', clusterBatchEnrichmentSchema),
+        clusterBatchEnrichmentSchema,
+      )
+    } catch (err) {
+      log.warn('ai.groq_batch_enrichment_failed', {
+        message: `Step 2 cluster batch enrichment failed for "${word}": ${String(err)}`,
+      })
+    }
+
+    const totalUsage: ProviderUsage = {
+      tokensUsed: outlineResult.usage.tokensUsed + (enrichResult?.usage.tokensUsed ?? 0),
+      latencyMs: outlineResult.usage.latencyMs + (enrichResult?.usage.latencyMs ?? 0),
+    }
+
+    const batchClusters = enrichResult?.kind === 'complete' ? enrichResult.data.clusters : []
+    const mergedClusters = outline.clusters.map((c, i) => {
+      const enrichment = batchClusters[i]
+      return {
+        label: c.label,
+        description: c.description,
+        cefrLevel: c.cefrLevel,
+        meanings: enrichment?.meanings ?? [],
+        examples: enrichment?.examples ?? [],
+        synonyms: enrichment?.synonyms ?? [],
+      }
+    })
+
+    const candidate = {
+      lemma: outline.lemma,
+      inflections: outline.inflections,
+      clusters: mergedClusters,
+    }
+
+    const validation = wordGenerationSchemaForLanguage(ctx.language).safeParse(candidate)
+    if (validation.success) {
+      return {
+        kind: 'complete',
+        data: validation.data,
+        usage: totalUsage,
+      }
+    }
+
+    return {
+      kind: 'partial',
+      partial: salvagePartial(candidate),
+      issues: validation.error.issues.map((issue) =>
+        issue.path.length > 0 ? `${issue.path.join('.')}: ${issue.message}` : issue.message,
+      ),
+      usage: totalUsage,
+    }
   }
 
   async generateClusters(
@@ -401,29 +484,37 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
     const timeout = startRequestTimeout(this.timeoutMs)
     let response: Response
 
-    // Groq's "Structured Outputs" (strict response_format: json_schema) is only supported on
-    // specific hosted models and changes over time; DeepSeek's OpenAI-compatible endpoint just
-    // rejected the identical request shape outright (confirmed against a live key — see
-    // deepseek.ts's performChat), so this defaults to the same broadly-supported `json_object`
-    // mode preemptively rather than risking the same failure per-model. That's a bigger loss than
-    // it first looks: every provider's shared prompt text (prompts/templates.ts) was written
-    // assuming strict mode fills in the gaps for enum fields — confirmed live on DeepSeek that
-    // patching individual prompt gaps one at a time doesn't scale (16 separate validation issues
-    // survived even after fixing the one gap that was found first). So instead, the same
-    // jsonSchema the caller already builds (previously unused here) is appended to the prompt as
-    // text, giving the model the same structural contract strict mode would have enforced, just
-    // delivered a different way. json_object mode also requires the word "json" to appear
-    // somewhere in the conversation, satisfied by the same appended text.
-    const jsonInstructedMessages: ChatMessage[] =
-      messages.length > 0
-        ? [
-            ...messages.slice(0, -1),
-            {
-              ...messages[messages.length - 1]!,
-              content: `${messages[messages.length - 1]!.content}\n\nRespond with valid JSON only, matching exactly this schema:\n${JSON.stringify(jsonSchema)}`,
-            },
-          ]
-        : messages
+    const requestBody: Record<string, unknown> = {
+      model: this.model,
+      max_tokens: this.maxTokens,
+    }
+
+    if (this.useJsonSchema) {
+      requestBody.messages = messages
+      requestBody.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: schemaName,
+          schema: jsonSchema,
+          strict: true,
+        },
+      }
+    } else {
+      const compact = compactSchema(jsonSchema)
+      const jsonInstructedMessages: ChatMessage[] =
+        messages.length > 0
+          ? [
+              ...messages.slice(0, -1),
+              {
+                ...messages[messages.length - 1]!,
+                content: `${messages[messages.length - 1]!.content}\n\nRespond with valid JSON only, matching this structure:\n${compact}`,
+              },
+            ]
+          : messages
+
+      requestBody.messages = jsonInstructedMessages
+      requestBody.response_format = { type: 'json_object' }
+    }
 
     try {
       response = await timeout.guard(this.fetchFn(`${this.baseUrl}/chat/completions`, {
@@ -432,11 +523,7 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
         },
-        body: JSON.stringify({
-          model: this.model,
-          messages: jsonInstructedMessages,
-          response_format: { type: 'json_object' },
-        }),
+        body: JSON.stringify(requestBody),
         signal: timeout.signal,
       }))
     } catch (error) {
@@ -498,4 +585,39 @@ export class GroqProvider implements AIProvider, DictionaryProvider {
       latencyMs: Date.now() - startedAt,
     }
   }
+}
+
+/**
+ * Compact schema renderer for JSON-mode instruction prompts.
+ * Generates a human-readable, token-efficient representation of the schema
+ * (~100 tokens vs 2000+ tokens for full JSON Schema).
+ */
+export function compactSchema(node: unknown): string {
+  if (!node || typeof node !== 'object') return 'any'
+  const record = node as Record<string, unknown>
+
+  if (Array.isArray(record['anyOf'])) {
+    return record['anyOf'].map((sub) => compactSchema(sub)).join(' | ')
+  }
+  if (Array.isArray(record['oneOf'])) {
+    return record['oneOf'].map((sub) => compactSchema(sub)).join(' | ')
+  }
+  if (record['enum'] && Array.isArray(record['enum'])) {
+    return record['enum'].map((v) => JSON.stringify(v)).join(' | ')
+  }
+  if (record['type'] === 'array' && record['items']) {
+    return `[${compactSchema(record['items'])}]`
+  }
+  if (record['type'] === 'object' && record['properties'] && typeof record['properties'] === 'object') {
+    const props = record['properties'] as Record<string, unknown>
+    const entries = Object.entries(props).map(([key, val]) => `${key}: ${compactSchema(val)}`)
+    return `{ ${entries.join(', ')} }`
+  }
+  if (Array.isArray(record['type'])) {
+    return record['type'].join(' | ')
+  }
+  if (typeof record['type'] === 'string') {
+    return record['type']
+  }
+  return 'any'
 }

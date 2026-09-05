@@ -1,5 +1,5 @@
 import type { LanguageCode, WordGenerationPayload } from '@lingora/types'
-import { migrate, persistTranslationAsCard } from '@lingora/database'
+import { getCardState, migrate, persistTranslationAsCard, recordReview } from '@lingora/database'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AIProviderError } from '../errors'
 import { salvagePartial } from '../schemas/generation'
@@ -331,6 +331,154 @@ describe('lookupOrGenerate', () => {
     expect(lemma?.form).toBe('Vorteil')
     const cards = await db.query<{ id: string }>(`SELECT id FROM cards WHERE lemma_id = ?`, [outcome.lemma.id])
     expect(cards).toHaveLength(1) // no second card left behind under the old casing
+  })
+
+  it('upgrades in place when the AI canonicalizes an inflected dictionary card to its base lemma', async () => {
+    // When a user searches for an inflected verb like "vertraue", an optimistic card is created
+    // under that form. When AI generates, it canonicalizes to "vertrauen" and lists "vertraue"
+    // in inflections.
+    const { cardId: dictionaryCardId } = await persistTranslationAsCard(
+      db,
+      { form: 'vertraue', language: 'de', translation: 'I trust', provider: 'google' },
+      DECK_ID,
+      'en',
+    )
+
+    const aiPayload: WordGenerationPayload = {
+      ...validPayload(),
+      lemma: { ...validPayload().lemma, form: 'vertrauen' },
+      inflections: ['vertraue', 'vertraust', 'vertraut'],
+    }
+    const ai = mockProvider([complete(aiPayload)])
+    const pipeline = await createAIPipeline({ db, ai })
+    const outcome = await pipeline.lookupOrGenerate('vertraue', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      forceGenerate: true,
+    })
+
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+    expect(outcome.cardId).toBe(dictionaryCardId)
+    expect(outcome.lemma.form).toBe('vertrauen')
+
+    const lemma = await db.querySingle<{ form: string }>(`SELECT form FROM lemmas WHERE id = ?`, [
+      outcome.lemma.id,
+    ])
+    expect(lemma?.form).toBe('vertrauen')
+
+    // Inflections must include both base form and the original surface form
+    const inflections = await db.query<{ form: string }>(
+      `SELECT form FROM inflections WHERE lemma_id = ?`,
+      [outcome.lemma.id],
+    )
+    const forms = inflections.map((i) => i.form)
+    expect(forms).toContain('vertrauen')
+    expect(forms).toContain('vertraue')
+  })
+
+  it('merges onto a pre-existing canonical lemma when it has no card for this native language yet', async () => {
+    // "vertrauen" was already fully mined once (e.g. for a French learner) — no 'en' card exists
+    // on it yet.
+    const canonicalAi = mockProvider([complete({ ...validPayload(), lemma: { ...validPayload().lemma, form: 'vertrauen' } })])
+    const canonicalPipeline = await createAIPipeline({ db, ai: canonicalAi })
+    await canonicalPipeline.lookupOrGenerate('vertrauen', { cefrLevel: 'B1', deckId: DECK_ID, nativeLanguage: 'fr' })
+
+    // Separately, an 'en' learner looked up the inflected "vertraue" via the keyless dictionary
+    // tier, creating an unrelated, mis-lemmatized card.
+    const { cardId: dictionaryCardId } = await persistTranslationAsCard(
+      db,
+      { form: 'vertraue', language: 'de', translation: 'I trust', provider: 'google' },
+      DECK_ID,
+      'en',
+    )
+
+    const aiPayload: WordGenerationPayload = {
+      ...validPayload(),
+      lemma: { ...validPayload().lemma, form: 'vertrauen' },
+      inflections: ['vertraue', 'vertraust', 'vertraut'],
+    }
+    const ai = mockProvider([complete(aiPayload)])
+    const pipeline = await createAIPipeline({ db, ai })
+    const outcome = await pipeline.lookupOrGenerate('vertraue', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      nativeLanguage: 'en',
+      forceGenerate: true,
+    })
+
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+    // The original card was re-pointed onto the canonical lemma, not left behind or deleted.
+    expect(outcome.cardId).toBe(dictionaryCardId)
+    const card = await db.querySingle<{ lemmaId: string }>(`SELECT lemma_id AS lemmaId FROM cards WHERE id = ?`, [
+      dictionaryCardId,
+    ])
+    expect(card?.lemmaId).toBe(outcome.lemma.id)
+
+    // Exactly one lemma named "vertrauen" remains — the stale "vertraue" lemma was cleaned up.
+    const lemmas = await db.query<{ id: string }>(`SELECT id FROM lemmas WHERE form = 'vertrauen'`)
+    expect(lemmas).toHaveLength(1)
+  })
+
+  it('never deletes a card to resolve a merge conflict — both lemmas and cards survive when the canonical lemma already has one', async () => {
+    // "vertrauen" already has its own full-AI 'en' card.
+    const canonicalAi = mockProvider([complete({ ...validPayload(), lemma: { ...validPayload().lemma, form: 'vertrauen' } })])
+    const canonicalPipeline = await createAIPipeline({ db, ai: canonicalAi })
+    const canonicalOutcome = await canonicalPipeline.lookupOrGenerate('vertrauen', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      nativeLanguage: 'en',
+    })
+    if (canonicalOutcome.kind !== 'generated') throw new Error('expected a generated outcome')
+
+    // A separate, mis-lemmatized "vertraue" card also exists for 'en', with real review history —
+    // this must never be silently discarded to resolve the conflict.
+    const { cardId: dictionaryCardId } = await persistTranslationAsCard(
+      db,
+      { form: 'vertraue', language: 'de', translation: 'I trust', provider: 'google' },
+      DECK_ID,
+      'en',
+    )
+    await recordReview(
+      db,
+      { id: crypto.randomUUID(), cardId: dictionaryCardId, rating: 'good', reviewedAt: Date.now(), durationMs: 1000 },
+      { cardId: dictionaryCardId, stability: 3, difficulty: 5, retrievability: 1, nextReviewAt: Date.now(), lapses: 0, state: 'review', reps: 1, learningSteps: 0 },
+    )
+
+    const aiPayload: WordGenerationPayload = {
+      ...validPayload(),
+      lemma: { ...validPayload().lemma, form: 'vertrauen' },
+      inflections: ['vertraue', 'vertraust', 'vertraut'],
+    }
+    const ai = mockProvider([complete(aiPayload)])
+    const pipeline = await createAIPipeline({ db, ai })
+    const outcome = await pipeline.lookupOrGenerate('vertraue', {
+      cefrLevel: 'B1',
+      deckId: DECK_ID,
+      nativeLanguage: 'en',
+      forceGenerate: true,
+    })
+
+    // No crash, no data loss — both cards still exist under their own lemmas.
+    expect(outcome.kind).toBe('generated')
+    if (outcome.kind !== 'generated') return
+    expect(outcome.cardId).toBe(dictionaryCardId)
+
+    const canonicalCardStillThere = await db.querySingle<{ id: string }>(`SELECT id FROM cards WHERE id = ?`, [
+      canonicalOutcome.cardId,
+    ])
+    expect(canonicalCardStillThere?.id).toBe(canonicalOutcome.cardId)
+
+    const dictionaryCardStillThere = await db.querySingle<{ id: string }>(`SELECT id FROM cards WHERE id = ?`, [
+      dictionaryCardId,
+    ])
+    expect(dictionaryCardStillThere?.id).toBe(dictionaryCardId)
+
+    // The pre-existing review history on the un-merged card survived untouched.
+    const state = await getCardState(db, dictionaryCardId)
+    expect(state?.reps).toBe(1)
+    expect(state?.state).toBe('review')
   })
 
   it('propagates provider errors', async () => {

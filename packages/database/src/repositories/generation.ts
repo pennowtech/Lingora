@@ -7,11 +7,14 @@ import type {
   Lemma,
   WordGenerationPayload,
 } from '@lingora/types'
+import { logger } from '@lingora/observability'
 import type { DatabaseAdapter } from '../adapter'
 import { createCluster, createMeaning } from './clusters'
 import { createExample } from './examples'
 import { createInflections, createLemma, getLemmaByForm, getLemmaById } from './lemmas'
 import { createSynonym } from './synonyms'
+
+const log = logger.child({ feature: 'database', component: 'generation' })
 
 /**
  * Generation metadata: a record of exactly what produced each AI-generated
@@ -324,6 +327,123 @@ export async function persistWordGeneration(
 export interface RegeneratedWordGeneration {
   cardId: string
   generationMetadataId: string
+  lemmaId?: string
+}
+
+/** A minimal lemma reference — just enough for resolveLemmaCanonicalization to work with either a
+ * fully-loaded Lemma or the bare {id, form, language} a caller already has on hand. */
+interface CanonicalizationLemmaRef {
+  id: string
+  form: string
+  language: LanguageCode
+}
+
+export interface LemmaCanonicalizationResult {
+  /** The lemma id the caller should persist/regenerate against — unchanged from
+   *  `existingLemma.id` unless `merged` is true. */
+  lemmaId: string
+  /** True when a pre-existing separate lemma already owned the canonical headword and the given
+   *  card was folded onto it (the old lemma row, if nothing else referenced it, was cleaned up). */
+  merged: boolean
+  /** True when a conflicting lemma already holds the canonical form but merging was refused (see
+   *  the class doc). The caller MUST NOT rename `existingLemma` to the payload's headword in this
+   *  case — `lemmas.form` is globally UNIQUE, so that would collide with the conflicting row. */
+  formTaken: boolean
+}
+
+/**
+ * Reconciles a lemma that may have been created under an inflected surface form against a freshly
+ * generated payload that canonicalizes to the true dictionary headword. Translation-tier dictionary
+ * lookups (`persistTranslationAsCard`) have no morphology source, so they store whatever the user
+ * typed verbatim — e.g. "vertraue" instead of the headword "vertrauen" — as the lemma's own form.
+ *
+ * - If the payload's headword already matches `existingLemma.form`, there's nothing to reconcile.
+ * - If it differs but `existingLemma.form` isn't one of the payload's own `inflections`, this isn't
+ *   a canonicalization at all — it's a genuinely different word. This function doesn't throw for
+ *   that case; the caller (`regenerateWordPackage`) owns rejecting it with its own error message.
+ * - If a DIFFERENT lemma row already exists under the canonical headword (same language), the two
+ *   need to merge. The given card is re-pointed onto the canonical lemma — never deleted, since
+ *   deleting a card permanently destroys its FSRS state and review history (`card_states` and
+ *   `review_events` both cascade on `cards.id`) — UNLESS the canonical lemma already has its own
+ *   card for the same native language, in which case merging would leave two cards claiming one
+ *   (lemma, nativeLanguage) slot with no sound way to combine their independent FSRS histories.
+ *   This function refuses to merge in that case: both lemmas and both cards are left exactly as
+ *   they were (not deduplicated, but never destroyed).
+ * - Otherwise the caller still needs to rename `existingLemma` to the canonical form in place —
+ *   this function only decides *which* lemma id to target, it doesn't perform that rename itself,
+ *   since `regenerateWordPackage` needs to do it inside its own single transaction regardless.
+ *
+ * Callers are responsible for wrapping this in a transaction (pass a `tx` if already inside one) —
+ * it issues multiple statements that must succeed or fail together.
+ */
+export async function resolveLemmaCanonicalization(
+  db: DatabaseAdapter,
+  existingLemma: CanonicalizationLemmaRef,
+  cardId: string,
+  payload: WordGenerationPayload,
+): Promise<LemmaCanonicalizationResult> {
+  const existingFormLower = existingLemma.form.trim().toLowerCase()
+  const payloadFormLower = payload.lemma.form.trim().toLowerCase()
+  if (existingFormLower === payloadFormLower) {
+    return { lemmaId: existingLemma.id, merged: false, formTaken: false }
+  }
+  const isKnownInflection = payload.inflections.some(
+    (form) => form.trim().toLowerCase() === existingFormLower,
+  )
+  if (!isKnownInflection) {
+    return { lemmaId: existingLemma.id, merged: false, formTaken: false }
+  }
+
+  const conflicting = await db.querySingle<{ id: string }>(
+    `SELECT id FROM lemmas WHERE LOWER(form) = LOWER(?) AND language = ? AND id != ?`,
+    [payload.lemma.form.trim(), existingLemma.language, existingLemma.id],
+  )
+  if (!conflicting) {
+    return { lemmaId: existingLemma.id, merged: false, formTaken: false }
+  }
+
+  const card = await db.querySingle<{ nativeLanguage: LanguageCode }>(
+    `SELECT native_language AS nativeLanguage FROM cards WHERE id = ?`,
+    [cardId],
+  )
+  if (!card) {
+    return { lemmaId: existingLemma.id, merged: false, formTaken: false }
+  }
+
+  const conflictingCard = await db.querySingle<{ id: string }>(
+    `SELECT id FROM cards WHERE lemma_id = ? AND native_language = ?`,
+    [conflicting.id, card.nativeLanguage],
+  )
+  if (conflictingCard) {
+    log.warn('database.lemma_merge_conflict_skipped', {
+      message:
+        'Canonical lemma already has a card for this native language - keeping both lemmas ' +
+        'rather than risking a card collision or discarding review history',
+      metadata: { recordId: existingLemma.id },
+    })
+    return { lemmaId: existingLemma.id, merged: false, formTaken: true }
+  }
+
+  const now = Date.now()
+  await db.execute(`UPDATE cards SET lemma_id = ?, updated_at = ? WHERE id = ?`, [conflicting.id, now, cardId])
+  await createInflections(db, conflicting.id, [existingLemma.form])
+
+  const remaining = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM cards WHERE lemma_id = ?`,
+    [existingLemma.id],
+  )
+  if (!remaining || remaining.count === 0) {
+    await db.execute(`DELETE FROM inflections WHERE lemma_id = ?`, [existingLemma.id])
+    await db.execute(`DELETE FROM meaning_clusters WHERE lemma_id = ?`, [existingLemma.id])
+    await db.execute(`DELETE FROM lemmas WHERE id = ?`, [existingLemma.id])
+  }
+
+  log.info('database.lemma_merge_completed', {
+    message: 'Reconciled an inflected-form lemma onto its pre-existing canonical lemma',
+    metadata: { recordId: conflicting.id },
+  })
+
+  return { lemmaId: conflicting.id, merged: true, formTaken: false }
 }
 
 /**
@@ -342,9 +462,9 @@ export interface RegeneratedWordGeneration {
  *
  * @param lemmaId The existing lemma to update in place.
  * @param cardId The existing card whose generated content is being replaced.
- * @throws If the new payload's lemma.form doesn't match the existing lemma's form — regeneration
- *         must produce the same headword; a genuinely different word is a new lookup, not a
- *         regeneration of this one.
+ * @throws If the new payload's lemma.form doesn't match the existing lemma's form and the existing
+ *         form is not one of the payload's inflections — regeneration must produce the same word;
+ *         a genuinely different word is a new lookup, not a regeneration of this one.
  */
 export async function regenerateWordPackage(
   db: DatabaseAdapter,
@@ -356,9 +476,10 @@ export async function regenerateWordPackage(
   return db.transaction(async (tx) => {
     const now = Date.now()
 
-    const existing = await tx.querySingle<{ form: string }>(`SELECT form FROM lemmas WHERE id = ?`, [
-      lemmaId,
-    ])
+    const existing = await tx.querySingle<{ form: string; language: LanguageCode }>(
+      `SELECT form, language FROM lemmas WHERE id = ?`,
+      [lemmaId],
+    )
     if (!existing) {
       throw new Error(`Lemma '${lemmaId}' not found — nothing to regenerate`)
     }
@@ -367,23 +488,58 @@ export async function regenerateWordPackage(
     // "vorteil" — while the AI always returns the grammatically correct capitalization ("Vorteil"
     // for German nouns). That's the same word, not a different one, so the form is also updated
     // below to the AI's canonical casing rather than leaving the lemma's headword lowercase.
-    if (existing.form.toLowerCase() !== payload.lemma.form.toLowerCase()) {
+    // Inflections: if the user originally looked up an inflected form (e.g. "vertraue"), the AI's
+    // generated payload canonicalizes the headword to the dictionary base form (e.g. "vertrauen").
+    // If existing.form is in payload.inflections, this is a legitimate lemma canonicalization, not
+    // a hallucinatory word swap.
+    const isExactMatch = existing.form.trim().toLowerCase() === payload.lemma.form.trim().toLowerCase()
+    const isInflectionMatch = payload.inflections.some(
+      (inf) => inf.trim().toLowerCase() === existing.form.trim().toLowerCase(),
+    )
+
+    if (!isExactMatch && !isInflectionMatch) {
       throw new Error(
         `Regenerated payload's headword '${payload.lemma.form}' doesn't match the existing ` +
           `lemma '${existing.form}' — a different word needs a new lookup, not a regeneration`,
       )
     }
 
+    let targetLemmaId = lemmaId
+    // Whether it's safe to rename this lemma to the payload's headword — false when a conflicting
+    // lemma already owns that exact form and resolveLemmaCanonicalization refused to merge onto it
+    // (see its own doc comment); `lemmas.form` is globally UNIQUE, so writing the taken form here
+    // would throw a constraint violation instead of the clean, existing "different word" error.
+    let canRenameForm = true
+    if (!isExactMatch) {
+      const resolution = await resolveLemmaCanonicalization(
+        tx,
+        { id: lemmaId, form: existing.form, language: existing.language },
+        cardId,
+        payload,
+      )
+      targetLemmaId = resolution.lemmaId
+      canRenameForm = !resolution.formTaken
+    }
+    const targetForm = canRenameForm ? payload.lemma.form : existing.form
+
     await tx.execute(
       `UPDATE lemmas SET form = ?, part_of_speech = ?, gender = ?, plural = ?, updated_at = ? WHERE id = ?`,
-      [payload.lemma.form, payload.lemma.partOfSpeech, payload.lemma.gender, payload.lemma.plural, now, lemmaId],
+      [targetForm, payload.lemma.partOfSpeech, payload.lemma.gender, payload.lemma.plural, now, targetLemmaId],
     )
 
     // Inflections aren't scoped by lemma_id alone when re-inserting (form is globally UNIQUE, and
     // createInflections is INSERT OR IGNORE) — clear this lemma's old set first so a form the new
     // generation dropped doesn't linger and misroute a future surface-form lookup.
-    await tx.execute(`DELETE FROM inflections WHERE lemma_id = ?`, [lemmaId])
-    await createInflections(tx, lemmaId, [payload.lemma.form, ...payload.inflections])
+    // Also ensure the original existing.form is preserved in inflections so future lookups for that
+    // surface form still resolve to this canonical lemma. When the headword couldn't be renamed
+    // (canRenameForm is false), skip re-adding it as an inflection too — it belongs to the
+    // conflicting lemma, not this one.
+    await tx.execute(`DELETE FROM inflections WHERE lemma_id = ?`, [targetLemmaId])
+    await createInflections(tx, targetLemmaId, [
+      targetForm,
+      ...(canRenameForm ? payload.inflections : []),
+      existing.form,
+    ])
 
     // A lemma can be shared by more than one card (another native-language card, or a second
     // sense card from createCardForSense) — meaning_clusters is keyed by lemma_id, not card_id,
@@ -399,7 +555,7 @@ export async function regenerateWordPackage(
       `DELETE FROM meaning_clusters
        WHERE lemma_id = ?
          AND id NOT IN (SELECT DISTINCT meaning_cluster_id FROM meanings)`,
-      [lemmaId],
+      [targetLemmaId],
     )
     await tx.execute(`DELETE FROM phrases WHERE card_id = ?`, [cardId])
     await tx.execute(`DELETE FROM cloze_cards WHERE card_id = ?`, [cardId])
@@ -422,7 +578,7 @@ export async function regenerateWordPackage(
       const clusterId = crypto.randomUUID()
       await createCluster(tx, {
         id: clusterId,
-        lemmaId,
+        lemmaId: targetLemmaId,
         label: generated.label,
         description: generated.description,
         cefrLevel: generated.cefrLevel,
@@ -496,6 +652,6 @@ export async function regenerateWordPackage(
       cardId,
     ])
 
-    return { cardId, generationMetadataId }
+    return { lemmaId: targetLemmaId, cardId, generationMetadataId }
   })
 }

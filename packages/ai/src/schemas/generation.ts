@@ -78,6 +78,53 @@ export const generatedClusterSchema = z.object({
   synonyms: z.array(generatedSynonymSchema),
 })
 
+/**
+ * Step 1 of the Groq two-step word package pipeline: lemma + inflections +
+ * cluster skeletons only, no meanings/examples/synonyms. Smaller schema →
+ * less schema injection bloat → more output budget for the model.
+ */
+export const wordPackageOutlineSchema = z.object({
+  lemma: z.object({
+    form: z.string().min(1),
+    language: languageCodeSchema,
+    partOfSpeech: partOfSpeechSchema,
+    gender: grammaticalGenderSchema.nullable(),
+    plural: z.string().nullable(),
+  }),
+  inflections: z.array(z.string().min(1)),
+  clusters: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        description: z.string().min(1),
+        cefrLevel: cefrLevelSchema,
+      }),
+    )
+    .min(1)
+    .max(6),
+})
+
+/**
+ * Step 2 of the Groq two-step word package pipeline: meanings + examples +
+ * synonyms for a single cluster. One call per cluster, run in parallel.
+ */
+export const clusterEnrichmentSchema = z.object({
+  meanings: z.array(generatedMeaningSchema).min(1),
+  examples: z.array(generatedExampleSchema).min(1),
+  synonyms: z.array(generatedSynonymSchema),
+})
+
+/**
+ * Step 2 batch schema for Groq: enrichments for all clusters at once.
+ */
+export const clusterBatchEnrichmentSchema = z.object({
+  clusters: z.array(clusterEnrichmentSchema).min(1).max(6),
+})
+
+export type WordPackageOutline = z.infer<typeof wordPackageOutlineSchema>
+export type ClusterEnrichment = z.infer<typeof clusterEnrichmentSchema>
+export type ClusterBatchEnrichment = z.infer<typeof clusterBatchEnrichmentSchema>
+
 const wordGenerationBaseShape = {
   lemma: z.object({
     form: z.string().min(1),

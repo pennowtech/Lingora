@@ -5,9 +5,10 @@ import {
   getCardCountForDeck,
   getCardsDueForReview,
   getCardsForDeck,
+  getClozeCardCountForDeck,
   getDeckById,
   getDueCardsCount,
-  getRetentionRate,
+  getUniqueWordCountForDeck,
   mergeDecks,
   moveDeck,
   removeCardFromDeck,
@@ -22,6 +23,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { useMemo, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  FlatList,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -80,11 +82,11 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'The stats row',
     icon: 'ChartColumn',
     paragraphs: [
-      'The four top boxes track your deck metrics at a glance:',
-      '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
+      'The three top boxes track your deck metrics at a glance:',
+      '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.',
       '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
       '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.',
-      '• **Retention**: 30-day recall retention rate across your reviewed cards.',
+      'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.',
     ],
   },
   {
@@ -148,15 +150,26 @@ function getCardReviewStatus(card: CardListItem, now: number): {
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
   if (!deck) return null
-  const [cardCount, dueCount, retention, cards, dueCards] = await Promise.all([
+  const [cardCount, dueCount, uniqueCount, clozeCardCount, cards, dueCards] = await Promise.all([
     getCardCountForDeck(db, deckId),
     getDueCardsCount(db, deckId),
-    getRetentionRate(db, 30), // global for now — per-deck retention lands with Phase 5 stats
-    getCardsForDeck(db, deckId),
+    // Its own COUNT query, not cards.length below - getCardsForDeck pages its result for the
+    // on-screen list, so relying on that array's length here silently understated "Unique" for
+    // any deck with more words than one page.
+    getUniqueWordCountForDeck(db, deckId),
+    // Whether Cloze actually has any real content in this deck - see "Cards" below. Vocab/Reverse
+    // always have content (every card gets a meaning) and mcq/trueFalse are generated live from
+    // that same meaning data at review time, so Cloze is the one enabled mode that can be
+    // completely unbacked (an import with no cloze markup at all, e.g.).
+    getClozeCardCountForDeck(db, deckId),
+    // This screen treats the full card list as already in memory (client-side sort, multi-select,
+    // "N cards in deck" subtitle) - pass a high limit rather than the function's conservative
+    // default so a large deck's list isn't silently truncated with no way to see the rest.
+    getCardsForDeck(db, deckId, Number.MAX_SAFE_INTEGER),
     getCardsDueForReview(db, deckId),
   ])
   const dueCardIds = new Set(dueCards.map((c) => c.id))
-  return { deck, cardCount, dueCount, retention, cards, dueCardIds }
+  return { deck, cardCount, dueCount, uniqueCount, clozeCardCount, cards, dueCardIds }
 }
 
 /**
@@ -333,6 +346,16 @@ export default function DeckDetailScreen(): JSX.Element {
     })
   }
 
+  // One toggle button in the toolbar (see below) flips between these depending on whether
+  // everything currently visible (sorted/filtered) is already selected. Both stay in select mode
+  // (unlike Cancel below, which also exits it).
+  const selectAllCards = (): void => {
+    setSelectedCardIds(new Set(sortedCards.map((c) => c.cardId)))
+  }
+  const deselectAllCards = (): void => {
+    setSelectedCardIds(new Set())
+  }
+
   const cancelSelectMode = (): void => {
     setSelectMode(false)
     setSelectedCardIds(new Set())
@@ -421,7 +444,7 @@ export default function DeckDetailScreen(): JSX.Element {
             <Icon name="ArrowLeft" size={20} color={colors.textSecondary} />
           </Pressable>
         </View>
-        <Spinner />
+        <Spinner message={t('Loading deck...')} />
       </View>
     )
   }
@@ -449,10 +472,16 @@ export default function DeckDetailScreen(): JSX.Element {
     )
   }
 
-  const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
+  const { deck, cardCount, dueCount, uniqueCount, clozeCardCount, cards } = deckQuery.data
   const questionTypes = getDeckQuestionTypes(deck)
-  const uniqueCount = cards.length
-  const totalPracticeCards = uniqueCount * questionTypes.length
+  // "Cards" = unique words × enabled formats that actually have content to test - not just
+  // however many formats the deck happens to be configured for. Vocab/Reverse and mcq/trueFalse
+  // are always backed (every card has a real meaning, and mcq/trueFalse are generated live from
+  // that same data), but Cloze is only real if the deck actually has Cloze content - enabling
+  // Cloze mode on a deck imported with none of it shouldn't inflate this number for a format that
+  // will never actually show up in review.
+  const backedModeCount = questionTypes.filter((qt) => qt !== 'cloze' || clozeCardCount > 0).length
+  const totalPracticeCards = uniqueCount * backedModeCount
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -498,232 +527,249 @@ export default function DeckDetailScreen(): JSX.Element {
           </View>
         </View>
 
-        {/* ── Scrollable Screen Canvas ── */}
-        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scroll}>
-          {/* ── 1. Editorial 4-Box Stats Card with Hairline Dividers ── */}
-          <View style={styles.editorialStatsPanel}>
-            <View style={styles.statCol}>
-              <Text style={styles.statDigit}>{totalPracticeCards}</Text>
-              <Text style={styles.statTag}>{t('Cards')}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statCol}>
-              <Text style={styles.statDigit}>{uniqueCount}</Text>
-              <Text style={styles.statTag}>{t('Unique')}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statCol}>
-              <Text style={[styles.statDigit, dueCount > 0 && styles.statDigitDue]}>
-                {dueCount}
-              </Text>
-              <Text style={styles.statTag}>{t('Due')}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statCol}>
-              <Text style={[styles.statDigit, styles.statDigitRetention]}>
-                {Math.round(retention * 100)}%
-              </Text>
-              <Text style={styles.statTag}>{t('Retention')}</Text>
-            </View>
-          </View>
+        {/* ── Scrollable Screen Canvas ──
+            A FlatList, not a ScrollView+.map() - a big deck (hundreds of cards) used to mount
+            every single row on open regardless of how many actually fit on screen; this only ever
+            mounts what's visible plus a small window around it, same windowing DataTable.tsx
+            already uses for Table View. Everything above the card list becomes the list header,
+            so it scrolls away with the cards exactly as it did before; the multi-select bar/FAB/
+            sheets below stay siblings of the list, unchanged. */}
+        <FlatList
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scroll}
+          data={sortedCards}
+          keyExtractor={(card) => card.cardId}
+          windowSize={7}
+          maxToRenderPerBatch={20}
+          initialNumToRender={20}
+          removeClippedSubviews
+          ItemSeparatorComponent={() => <View style={styles.cardRowSeparator} />}
+          ListHeaderComponent={
+            <View style={styles.listHeaderStack}>
+              {/* ── 1. Editorial 4-Box Stats Card with Hairline Dividers ── */}
+              <View style={styles.editorialStatsPanel}>
+                <View style={styles.statCol}>
+                  <Text style={styles.statDigit}>{totalPracticeCards}</Text>
+                  <Text style={styles.statTag}>{t('Cards')}</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statCol}>
+                  <Text style={styles.statDigit}>{uniqueCount}</Text>
+                  <Text style={styles.statTag}>{t('Unique')}</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statCol}>
+                  <Text style={[styles.statDigit, dueCount > 0 && styles.statDigitDue]}>
+                    {dueCount}
+                  </Text>
+                  <Text style={styles.statTag}>{t('Due')}</Text>
+                </View>
+              </View>
 
-          {/* ── 2. Active Review Modes Strip ── */}
-          {questionTypes.length > 0 ? (
-            <View style={styles.reviewModesStrip}>
-              <Text style={styles.modesStripTitle}>{t('Mode')}</Text>
-              <View style={styles.modesCapsulesGroup}>
-                {questionTypes.map((type) => {
-                  const meta = MODE_META[type]
-                  const iconName = meta?.icon
-                  const tagTheme = getModeTagTheme(type, isDark)
-                  if (!iconName) return null
-                  return (
-                    <View
-                      key={type}
-                      style={[
-                        styles.miniCapsule,
-                        { backgroundColor: tagTheme.bg, borderColor: tagTheme.border },
-                      ]}
-                    >
-                      <Icon name={iconName} size={10.5} strokeWidth={2.4} color={tagTheme.text} />
-                      <Text
-                        style={[styles.miniCapsuleText, { color: tagTheme.text }]}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.7}
-                      >
-                        {t(meta?.label ?? type)}
-                      </Text>
+              {/* ── 2. Active Review Modes Strip ── */}
+              {questionTypes.length > 0 ? (
+                <View style={styles.reviewModesStrip}>
+                  <Text style={styles.modesStripTitle}>{t('Mode')}</Text>
+                  <View style={styles.modesCapsulesGroup}>
+                    {questionTypes.map((type) => {
+                      const meta = MODE_META[type]
+                      const iconName = meta?.icon
+                      const tagTheme = getModeTagTheme(type, isDark)
+                      if (!iconName) return null
+                      return (
+                        <View
+                          key={type}
+                          style={[
+                            styles.miniCapsule,
+                            { backgroundColor: tagTheme.bg, borderColor: tagTheme.border },
+                          ]}
+                        >
+                          <Icon name={iconName} size={10.5} strokeWidth={2.4} color={tagTheme.text} />
+                          <Text
+                            style={[styles.miniCapsuleText, { color: tagTheme.text }]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.7}
+                          >
+                            {t(meta?.label ?? type)}
+                          </Text>
+                        </View>
+                      )
+                    })}
+                  </View>
+                </View>
+              ) : null}
+
+              {/* ── 3. Full Row View "Review" Button (Exact Hero Action) ── */}
+              {cardCount > 0 ? (
+                <View style={styles.reviewHeroButtonRow}>
+                  <Pressable
+                    testID="deck-review-button"
+                    style={({ pressed }) => [
+                      styles.fullReviewBtn,
+                      pressed && styles.fullReviewBtnPressed,
+                    ]}
+                    onPress={() =>
+                      router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
+                    }
+                  >
+                    <View style={styles.playIconBox}>
+                      <Icon name="Play" size={10} color="#ffffff" />
                     </View>
-                  )
-                })}
+                    <Text style={styles.fullReviewBtnText}>
+                      {t('Start Review')}
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
+              {/* ── 4. Pro HUD Sorting Toolbar ── */}
+              <View style={styles.hudSortingToolbar}>
+                <Text style={styles.toolbarSectionTitle}>
+                  {selectMode
+                    ? t('{{count}} selected', { count: selectedCardIds.size })
+                    : t('Cards')}
+                </Text>
+                {selectMode ? (
+                  <Pressable
+                    onPress={selectedCardIds.size >= sortedCards.length ? deselectAllCards : selectAllCards}
+                    hitSlop={8}
+                  >
+                    <Text style={styles.selectAllAction}>
+                      {selectedCardIds.size >= sortedCards.length ? t('Deselect All') : t('Select All')}
+                    </Text>
+                  </Pressable>
+                ) : null}
+                {!selectMode && cards.length > 1 ? (
+                  <View style={styles.sortPillsCluster}>
+                    <Pressable
+                      onPress={() => handleSortPress('due')}
+                      style={[styles.sortPill, sortBy === 'due' && styles.sortPillActive]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('Due Date')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                    >
+                      <Text
+                        style={[
+                          styles.sortPillText,
+                          sortBy === 'due' && { color: isDark ? '#38bdf8' : colors.primary },
+                        ]}
+                      >
+                        {t('Due Date')}
+                      </Text>
+                      {sortBy === 'due' ? (
+                        <Icon
+                          name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                          size={10.5}
+                          strokeWidth={2.4}
+                          color={isDark ? '#38bdf8' : colors.primary}
+                        />
+                      ) : null}
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleSortPress('alpha')}
+                      style={[styles.sortPill, sortBy === 'alpha' && styles.sortPillActive]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('A–Z')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                    >
+                      <Text
+                        style={[
+                          styles.sortPillText,
+                          sortBy === 'alpha' && { color: isDark ? '#38bdf8' : colors.primary },
+                        ]}
+                      >
+                        {sortBy === 'alpha' && sortOrder === 'desc' ? t('Z–A') : t('A–Z')}
+                      </Text>
+                      {sortBy === 'alpha' ? (
+                        <Icon
+                          name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                          size={10.5}
+                          strokeWidth={2.4}
+                          color={isDark ? '#38bdf8' : colors.primary}
+                        />
+                      ) : null}
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleSortPress('recent')}
+                      style={[styles.sortPill, sortBy === 'recent' && styles.sortPillActive]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('Recent')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
+                    >
+                      <Text
+                        style={[
+                          styles.sortPillText,
+                          sortBy === 'recent' && { color: isDark ? '#38bdf8' : colors.primary },
+                        ]}
+                      >
+                        {t('Recent')}
+                      </Text>
+                      {sortBy === 'recent' ? (
+                        <Icon
+                          name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
+                          size={10.5}
+                          strokeWidth={2.4}
+                          color={isDark ? '#38bdf8' : colors.primary}
+                        />
+                      ) : null}
+                    </Pressable>
+                  </View>
+                ) : null}
               </View>
             </View>
-          ) : null}
-
-          {/* ── 3. Full Row View "Review" Button (Exact Hero Action) ── */}
-          {cardCount > 0 ? (
-            <View style={styles.reviewHeroButtonRow}>
+          }
+          renderItem={({ item: card }) => {
+            const selected = selectedCardIds.has(card.cardId)
+            const status = getCardReviewStatus(card, now)
+            return (
               <Pressable
-                testID="deck-review-button"
                 style={({ pressed }) => [
-                  styles.fullReviewBtn,
-                  pressed && styles.fullReviewBtnPressed,
+                  styles.editorialVocabCard,
+                  pressed && styles.editorialVocabCardPressed,
+                  selected && styles.editorialVocabCardSelected,
                 ]}
                 onPress={() =>
-                  router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, mode: 'mixed' } })
+                  selectMode
+                    ? toggleCardSelected(card.cardId)
+                    : router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, cardId: card.cardId } })
                 }
+                onLongPress={() => toggleCardSelected(card.cardId)}
               >
-                <View style={styles.playIconBox}>
-                  <Icon name="Play" size={10} color="#ffffff" />
+                {selectMode ? (
+                  <View style={[styles.checkbox, selected ? styles.checkboxChecked : null]}>
+                    {selected ? <Icon name="Check" size={14} color={colors.textOnPrimary} /> : null}
+                  </View>
+                ) : null}
+                <View style={styles.vocabCardLeft}>
+                  <View style={styles.wordTitleRow}>
+                    <Text style={styles.cardHeadword}>{card.form}</Text>
+                  </View>
+                  {card.translation ? (
+                    <Text style={styles.cardDefinition} numberOfLines={1}>
+                      {card.translation}
+                    </Text>
+                  ) : null}
                 </View>
-                <Text style={styles.fullReviewBtnText}>
-                  {t('Start Review')}
-                </Text>
+                <View style={styles.vocabCardRight}>
+                  {status.type === 'due' ? (
+                    <View style={styles.duePillTag}>
+                      <Text style={styles.duePillText}>{t('Due')}</Text>
+                    </View>
+                  ) : status.type === 'learned' ? (
+                    <View style={styles.okPillTag}>
+                      <Text style={styles.okPillText}>{t('Learned')}</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.revPillTag}>
+                      <Text style={styles.revPillText}>{status.label}</Text>
+                    </View>
+                  )}
+                </View>
               </Pressable>
-            </View>
-          ) : null}
-
-          {/* ── 4. Pro HUD Sorting Toolbar ── */}
-          <View style={styles.hudSortingToolbar}>
-            <Text style={styles.toolbarSectionTitle}>
-              {selectMode
-                ? t('{{count}} selected', { count: selectedCardIds.size })
-                : t('Cards')}
-            </Text>
-            {!selectMode && cards.length > 1 ? (
-              <View style={styles.sortPillsCluster}>
-                <Pressable
-                  onPress={() => handleSortPress('due')}
-                  style={[styles.sortPill, sortBy === 'due' && styles.sortPillActive]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('Due Date')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
-                >
-                  <Text
-                    style={[
-                      styles.sortPillText,
-                      sortBy === 'due' && { color: isDark ? '#38bdf8' : colors.primary },
-                    ]}
-                  >
-                    {t('Due Date')}
-                  </Text>
-                  {sortBy === 'due' ? (
-                    <Icon
-                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
-                      size={10.5}
-                      strokeWidth={2.4}
-                      color={isDark ? '#38bdf8' : colors.primary}
-                    />
-                  ) : null}
-                </Pressable>
-                <Pressable
-                  onPress={() => handleSortPress('alpha')}
-                  style={[styles.sortPill, sortBy === 'alpha' && styles.sortPillActive]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('A–Z')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
-                >
-                  <Text
-                    style={[
-                      styles.sortPillText,
-                      sortBy === 'alpha' && { color: isDark ? '#38bdf8' : colors.primary },
-                    ]}
-                  >
-                    {sortBy === 'alpha' && sortOrder === 'desc' ? t('Z–A') : t('A–Z')}
-                  </Text>
-                  {sortBy === 'alpha' ? (
-                    <Icon
-                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
-                      size={10.5}
-                      strokeWidth={2.4}
-                      color={isDark ? '#38bdf8' : colors.primary}
-                    />
-                  ) : null}
-                </Pressable>
-                <Pressable
-                  onPress={() => handleSortPress('recent')}
-                  style={[styles.sortPill, sortBy === 'recent' && styles.sortPillActive]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('Recent')} (${sortOrder === 'desc' ? t('Descending') : t('Ascending')})`}
-                >
-                  <Text
-                    style={[
-                      styles.sortPillText,
-                      sortBy === 'recent' && { color: isDark ? '#38bdf8' : colors.primary },
-                    ]}
-                  >
-                    {t('Recent')}
-                  </Text>
-                  {sortBy === 'recent' ? (
-                    <Icon
-                      name={sortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'}
-                      size={10.5}
-                      strokeWidth={2.4}
-                      color={isDark ? '#38bdf8' : colors.primary}
-                    />
-                  ) : null}
-                </Pressable>
-              </View>
-            ) : null}
-          </View>
-
-          {/* ── 5. Refined Vocabulary Card List ── */}
-          <View style={styles.cardsStack}>
-            {sortedCards.map((card) => {
-              const selected = selectedCardIds.has(card.cardId)
-              const status = getCardReviewStatus(card, now)
-              return (
-                <Pressable
-                  key={card.cardId}
-                  style={({ pressed }) => [
-                    styles.editorialVocabCard,
-                    pressed && styles.editorialVocabCardPressed,
-                    selected && styles.editorialVocabCardSelected,
-                  ]}
-                  onPress={() =>
-                    selectMode
-                      ? toggleCardSelected(card.cardId)
-                      : router.push({ pathname: '/review/[deckId]', params: { deckId: deck.id, cardId: card.cardId } })
-                  }
-                  onLongPress={() => toggleCardSelected(card.cardId)}
-                >
-                  {selectMode ? (
-                    <View style={[styles.checkbox, selected ? styles.checkboxChecked : null]}>
-                      {selected ? <Icon name="Check" size={14} color={colors.textOnPrimary} /> : null}
-                    </View>
-                  ) : null}
-                  <View style={styles.vocabCardLeft}>
-                    <View style={styles.wordTitleRow}>
-                      <Text style={styles.cardHeadword}>{card.form}</Text>
-                    </View>
-                    {card.translation ? (
-                      <Text style={styles.cardDefinition} numberOfLines={1}>
-                        {card.translation}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <View style={styles.vocabCardRight}>
-                    {status.type === 'due' ? (
-                      <View style={styles.duePillTag}>
-                        <Text style={styles.duePillText}>{t('Due')}</Text>
-                      </View>
-                    ) : status.type === 'learned' ? (
-                      <View style={styles.okPillTag}>
-                        <Text style={styles.okPillText}>{t('Learned')}</Text>
-                      </View>
-                    ) : (
-                      <View style={styles.revPillTag}>
-                        <Text style={styles.revPillText}>{status.label}</Text>
-                      </View>
-                    )}
-                  </View>
-                </Pressable>
-              )
-            })}
-          </View>
-          {cards.length === 0 ? (
-            <Text style={styles.footnote}>{t('No cards yet - add words from Search.')}</Text>
-          ) : null}
-        </ScrollView>
+            )
+          }}
+          ListFooterComponent={
+            cards.length === 0 ? <Text style={styles.footnote}>{t('No cards yet - add words from Search.')}</Text> : null
+          }
+        />
 
         {selectMode ? (
           <View style={styles.selectionBar}>
@@ -1143,7 +1189,13 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     scrollContainer: { flex: 1 },
-    scroll: { paddingHorizontal: 18, paddingTop: 16, paddingBottom: 90, gap: 16 },
+    // No `gap` here anymore - a FlatList's header/items/footer are all one flex column under this
+    // contentContainerStyle, so a uniform gap would apply the same spacing between header-and-
+    // first-card as between every pair of cards. listHeaderStack's own paddingBottom and
+    // cardRowSeparator below reproduce the old (16px around sections, 9px between cards) split.
+    scroll: { paddingHorizontal: 18, paddingTop: 16, paddingBottom: 90 },
+    listHeaderStack: { gap: 16, paddingBottom: 16 },
+    cardRowSeparator: { height: 9 },
     screenHeader: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -1228,9 +1280,6 @@ const createStyles = (colors: ThemeColors) =>
     },
     statDigitDue: {
       color: colors.warning ?? '#f97316',
-    },
-    statDigitRetention: {
-      color: colors.success ?? '#10b981',
     },
     statTag: {
       fontSize: 11,
@@ -1332,6 +1381,11 @@ const createStyles = (colors: ThemeColors) =>
       letterSpacing: 0.6,
       color: colors.textSecondary,
     },
+    selectAllAction: {
+      fontSize: type.caption,
+      fontWeight: '700',
+      color: colors.primary,
+    },
     sortPillsCluster: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -1360,10 +1414,6 @@ const createStyles = (colors: ThemeColors) =>
     },
     sortPillTextActive: {
       color: colors.primary,
-    },
-    cardsStack: {
-      flexDirection: 'column',
-      gap: 9,
     },
     editorialVocabCard: {
       backgroundColor: colors.surface,

@@ -90,6 +90,10 @@ export const de: Record<Phrase, string> = {
   'Cloze sentence is required - it must contain {{c1::word}} markup. Everything else is optional.': 'Ein Lückentextsatz ist erforderlich – er muss die Markierung {{c1::word}} enthalten. Alles andere ist optional.',
   'Choose a deck': 'Stapel auswählen',
   'Each row becomes ONE card, never two. Want both a regular and a cloze card from the same file? Import it again afterward with the other option selected.': 'Jede Zeile wird zu EINER Karte, niemals zu zwei. Möchtest du aus derselben Datei sowohl eine normale als auch eine Lückentextkarte? Importiere sie danach erneut mit der anderen ausgewählten Option.',
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.":
+    'Die Wiederholungsmodi dieses Decks umfassen keinen Lückentext. Diese Karten funktionieren trotzdem, werden aber als normale Vokabelkarten statt als Lückentext abgefragt.',
+  'This deck\'s review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.':
+    'Der Wiederholungsmodus dieses Decks ist nur Lückentext, aber diese Karten haben keinen Lückentext-Inhalt. Sie werden stattdessen als normale Vokabelkarten abgefragt.',
   'Feedback Sent!': 'Feedback gesendet!',
   'Thank you for reaching out! Your message has been received and our team will review it.': 'Vielen Dank für deine Nachricht! Sie ist bei uns eingegangen und wird von unserem Team geprüft.',
   'Could not send feedback': 'Feedback konnte nicht gesendet werden',
@@ -235,7 +239,7 @@ export const de: Record<Phrase, string> = {
   'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.':
     'Ein Wort wird erst aus "Fällig" entfernt, wenn jede dieser Karten tatsächlich wiederholt wurde - nur einige zu beantworten und andere fällig zu lassen, zählt nicht.',
   'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
-    'Wenn mehr Wörter fällig sind, beende die Sitzung und tippe auf "Mehr üben" für eine weitere Runde, statt zu warten, bis sie erneut fällig werden.',
+    'Wenn mehr Wörter fällig sind, beende die Sitzung und tippe auf "Weiter üben" für eine weitere Runde, statt zu warten, bis sie erneut fällig werden.',
   'Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears - nothing else in the template is touched.': 'Wenn du ein Feld deaktivierst, wird genau die entsprechende {{ variable }} oder der Block {% for %}...{% endfor %} entfernt – alles andere in der Vorlage bleibt unverändert.',
   ':root{--accent:#534AB7;}': ':root{--accent:#534AB7;}',
   'color: var(--accent);\nborder-color: var(--accent);': 'color: var(--accent);\nborder-color: var(--accent);',
@@ -589,6 +593,7 @@ export const de: Record<Phrase, string> = {
   'Add and review some words to see your learning statistics here.':
     'Füge Wörter hinzu und wiederhole sie, um hier deine Lernstatistiken zu sehen.',
   'remembered (30 d)': 'gemerkt (30 T.)',
+  'based on {{count}} reviews': 'basierend auf {{count}} Wiederholungen',
   'day streak': 'Tage-Serie',
   'total cards': 'Karten insgesamt',
   'new this week': 'neu diese Woche',
@@ -1878,8 +1883,14 @@ export const de: Record<Phrase, string> = {
   'Deck Detail': 'Deck-Details',
   'The four top boxes track your deck metrics at a glance:':
     'Die vier oberen Boxen zeigen Ihre Deck-Statistiken auf einen Blick:',
+  'The three top boxes track your deck metrics at a glance:':
+    'Die drei oberen Boxen zeigen Ihre Deck-Statistiken auf einen Blick:',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.':
+    'Die Retention finden Sie jetzt auf dem Statistik-Bildschirm (tippen Sie auf Statistik von Home oder einem Deck aus) zusammen mit Ihrer vollständigen Erinnerungshistorie, statt eine globale Zahl auf jedem Deck zu wiederholen.',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
     '• **Karten**: Gesamtzahl der Übungskarten über alle aktiven Lernformate (z. B. Vokabeln, Umgekehrt, Lückentext).',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.':
+    '• **Karten**: Einzigartige Wörter multipliziert mit den Wiederholungsformaten, die tatsächlich Inhalt zum Abfragen haben - Lückentext zählt hier nur, wenn das Deck echte Lückentextkarten hat, sodass das Aktivieren des Lückentext-Modus bei einem Import ohne solche Karten diese Zahl nicht aufbläht.',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Einzigartig**: Anzahl der einzelnen Vokabeln / eindeutigen Karten in diesem Deck.',
   '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
@@ -1920,6 +1931,9 @@ export const de: Record<Phrase, string> = {
   'Z-A': 'Z–A',
   'Ascending': 'Aufsteigend',
   'Descending': 'Absteigend',
+  'Select All': 'Alle auswählen',
+  'Deselect All': 'Auswahl aufheben',
+  'Loading deck...': 'Deck wird geladen ...',
 };
 
 

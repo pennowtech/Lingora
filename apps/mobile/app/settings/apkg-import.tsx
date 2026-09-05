@@ -18,7 +18,8 @@ import { useTranslation } from 'react-i18next'
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { DataTable, type DataTableColumn } from '../../components/DataTable'
 import { DeckPickerModal } from '../../components/DeckPickerModal'
-import { AlertModal, Button, Card, Chip, Dropdown, EmptyState, ProgressBar } from '../../components/ui'
+import { Icon } from '../../components/Icon'
+import { AlertModal, Button, Card, Chip, Dropdown, EmptyState, ProgressBar, Spinner } from '../../components/ui'
 import { pickAndParseApkgFile } from '../../lib/apkg'
 import { useServices } from '../../lib/services'
 import { colors, radius, spacing, type } from '../../lib/theme'
@@ -148,6 +149,10 @@ export default function ApkgImportScreen(): JSX.Element {
   const [mapping, setMapping] = useState<ApkgFieldMapping>({})
   const [deckId, setDeckId] = useState<string | null>(params.deckId ?? null)
   const [deckName, setDeckName] = useState<string | null>(null)
+  // Drives deckModeWarning below - null until a deck is actually known (route param fetch, picker
+  // selection, or a just-created deck), not just "no types enabled" (which can't happen for a real
+  // deck anyway). See csv-import.tsx's identical field/warning for the full reasoning.
+  const [deckQuestionTypes, setDeckQuestionTypes] = useState<QuestionType[] | null>(null)
   const [deckPickerOpen, setDeckPickerOpen] = useState(false)
   const [duplicatePolicy, setDuplicatePolicy] = useState<DuplicatePolicy>('skip')
   const [cardType, setCardType] = useState<'basic' | 'cloze'>('basic')
@@ -179,16 +184,36 @@ export default function ApkgImportScreen(): JSX.Element {
         createdAt: now,
         updatedAt: now,
       })
-      return { id, name: trimmed }
+      return { id, name: trimmed, questionTypes }
     },
-    onSuccess: async ({ id, name }) => {
+    onSuccess: async ({ id, name, questionTypes }) => {
       setDeckId(id)
       setDeckName(name)
+      setDeckQuestionTypes(questionTypes)
       setDeckPickerOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['decks'] })
       await queryClient.invalidateQueries({ queryKey: ['deck-counts'] })
     },
   })
+
+  // Whether the chosen cardType's content will actually be exercised by this deck's own review
+  // modes - see csv-import.tsx's identical field/comment. Nothing breaks either way
+  // (pickEligibleTypes falls back to 'vocab' for a card ineligible for every enabled type), so this
+  // is a heads-up, not a block.
+  const deckModeWarning = useMemo(() => {
+    if (!deckQuestionTypes || deckQuestionTypes.length === 0) return null
+    if (cardType === 'cloze' && !deckQuestionTypes.includes('cloze')) {
+      return t(
+        "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.",
+      )
+    }
+    if (cardType === 'basic' && deckQuestionTypes.every((qt) => qt === 'cloze')) {
+      return t(
+        "This deck's review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.",
+      )
+    }
+    return null
+  }, [cardType, deckQuestionTypes, t])
 
   const maxFieldCount = Math.max(1, ...notes.map((n) => n.fields.length))
   // Real field names ("German", "Example", …) from whichever note type has
@@ -257,11 +282,15 @@ export default function ApkgImportScreen(): JSX.Element {
   }, [])
 
   // Reached with a deckId already in the route params (the deck detail screen's "Import into
-  // this deck" menu) — the id alone isn't enough to show a deck name, so fetch it once.
+  // this deck" menu) — the id alone isn't enough to show a deck name (or its review modes, for
+  // deckModeWarning above), so fetch it once.
   useEffect(() => {
     if (!params.deckId) return
     void getDeckById(db, params.deckId).then((deck) => {
-      if (deck) setDeckName(deck.name)
+      if (deck) {
+        setDeckName(deck.name)
+        setDeckQuestionTypes(deck.enabledQuestionTypes ?? null)
+      }
     })
   }, [params.deckId, db])
 
@@ -550,14 +579,20 @@ export default function ApkgImportScreen(): JSX.Element {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       {step === 'pick' ? (
-        <Card style={styles.card}>
-          <Text style={styles.title}>{t('Import from Anki')}</Text>
-          <Text style={styles.body}>
-            {t("Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.")}
-          </Text>
-          <Button label={t('Choose .apkg file')} icon="FolderOpen" onPress={handlePickFile} />
-          {pickError ? <Text style={styles.errorText}>{pickError}</Text> : null}
-        </Card>
+        pickError !== null ? (
+          <Card style={styles.card}>
+            <Text style={styles.title}>{t('Import from Anki')}</Text>
+            <Text style={styles.body}>
+              {t("Choose a `.apkg` export. Review history isn't imported - every card starts fresh - and media (audio/images) is stripped rather than copied.")}
+            </Text>
+            <Button label={t('Choose .apkg file')} icon="FolderOpen" onPress={handlePickFile} />
+            <Text style={styles.errorText}>{pickError}</Text>
+          </Card>
+        ) : (
+          <View style={styles.pickLoading}>
+            <Spinner />
+          </View>
+        )
       ) : null}
 
       {step === 'map' ? (
@@ -645,6 +680,12 @@ export default function ApkgImportScreen(): JSX.Element {
               variant="secondary"
               onPress={() => setDeckPickerOpen(true)}
             />
+            {deckModeWarning ? (
+              <View style={styles.warningBanner}>
+                <Icon name="CircleAlert" size={16} color={colors.warning} />
+                <Text style={styles.warningText}>{deckModeWarning}</Text>
+              </View>
+            ) : null}
           </Card>
 
           <View style={styles.actions}>
@@ -667,6 +708,7 @@ export default function ApkgImportScreen(): JSX.Element {
         onSelectDeck={(deck) => {
           setDeckId(deck.id)
           setDeckName(deck.name)
+          setDeckQuestionTypes(deck.enabledQuestionTypes ?? null)
           setDeckPickerOpen(false)
         }}
         onCreateDeck={(name, questionTypes) => createNewDeck.mutate({ name, questionTypes })}
@@ -697,12 +739,22 @@ function SummaryStat(props: { label: string; value: number; color: string }): JS
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
+  pickLoading: { alignItems: 'center', justifyContent: 'center', paddingTop: spacing.xxl },
   card: { gap: spacing.sm, marginBottom: spacing.sm },
   title: { fontSize: type.subheading, fontWeight: '700', color: colors.text },
   body: { fontSize: type.caption, color: colors.textSecondary, lineHeight: 18 },
   fieldLabel: { fontSize: type.body, fontWeight: '700', color: colors.text },
   hint: { fontSize: type.micro, color: colors.textMuted },
   errorText: { fontSize: type.caption, color: colors.danger },
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    backgroundColor: colors.warningSoft,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+  },
+  warningText: { flex: 1, fontSize: type.caption, color: colors.text },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   mappingRow: { gap: spacing.xs, marginTop: spacing.sm },
   mappingLabel: { fontSize: type.caption, fontWeight: '600', color: colors.textSecondary },

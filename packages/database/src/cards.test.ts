@@ -8,6 +8,7 @@ import {
   getDistractorMeanings,
   getDueCardsCount,
   getRecentlyAddedWords,
+  getUniqueWordCountForDeck,
 } from './repositories/cards'
 import { createDeck } from './repositories/decks'
 import { createLemma } from './repositories/lemmas'
@@ -114,6 +115,59 @@ describe('due-card queries ignore orphaned deck memberships', () => {
 
     expect(await getDueCardsCount(db)).toBe(0)
     expect(await getCardsDueForReview(db)).toHaveLength(0)
+  })
+})
+
+describe('getUniqueWordCountForDeck vs getCardsForDeck paging', () => {
+  let db: NodeSqliteAdapter
+  let deckId: string
+
+  beforeEach(async () => {
+    db = new NodeSqliteAdapter()
+    await migrate(db)
+    const now = Date.now()
+    deckId = 'big-deck'
+    await createDeck(db, { id: deckId, name: 'Big deck', createdAt: now, updatedAt: now })
+
+    // A deck with more unique words than getCardsForDeck's default page size (100) - reproduces
+    // the real bug: the deck detail screen's "Unique" stat used to read straight off
+    // getCardsForDeck's (paged) array length, so it silently reported 100 instead of the deck's
+    // real word count for any deck bigger than one page.
+    for (let i = 0; i < 150; i++) {
+      const lemmaId = crypto.randomUUID()
+      await createLemma(db, {
+        id: lemmaId,
+        form: `Wort${i}`,
+        language: 'de',
+        partOfSpeech: 'noun',
+        createdAt: now,
+        updatedAt: now,
+      })
+      const cardId = crypto.randomUUID()
+      await createCardWithState(
+        db,
+        { id: cardId, lemmaId, deckId, type: 'basic', createdAt: now, updatedAt: now, nativeLanguage: 'en' },
+        { cardId, stability: 1, difficulty: 5, retrievability: 1, nextReviewAt: now, lapses: 0, state: 'new', reps: 0, learningSteps: 0 },
+      )
+    }
+  })
+
+  afterEach(() => {
+    db.close()
+  })
+
+  it('reports the true word count even when it exceeds one page of getCardsForDeck', async () => {
+    expect(await getUniqueWordCountForDeck(db, deckId)).toBe(150)
+
+    // getCardsForDeck's own default page size still caps its result - that's expected, it's a
+    // paged list, not a count - but callers must use getUniqueWordCountForDeck for the real total
+    // rather than this array's length.
+    const firstPage = await getCardsForDeck(db, deckId)
+    expect(firstPage).toHaveLength(100)
+
+    // An explicit high limit (what the deck detail screen now passes) returns everything.
+    const everything = await getCardsForDeck(db, deckId, Number.MAX_SAFE_INTEGER)
+    expect(everything).toHaveLength(150)
   })
 })
 

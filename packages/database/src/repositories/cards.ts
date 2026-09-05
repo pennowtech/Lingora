@@ -421,12 +421,20 @@ export async function getRecentlyAddedWords(
 }
 
 /**
- * The cards of one deck, newest membership first. Deck detail card list.
+ * The cards of one deck, newest membership first, one page at a time. Deck detail card list.
+ *
+ * `limit`/`offset` page the *collapsed* (one row per lemma) result, not the raw SQL rows — a
+ * lemma's basic and cloze sibling rows have to be fetched together for collapseByLemma to merge
+ * them correctly, so this still reads every row for the deck and pages in JS. Fine for the deck
+ * sizes this app deals with; the point of paging at all is so the caller can show "N of M, load
+ * more" instead of a page silently being the *entire* list with no way to see the rest — see
+ * getUniqueWordCountForDeck for the real total this should be compared against.
  */
 export async function getCardsForDeck(
   db: DatabaseAdapter,
   deckId: string,
   limit = 100,
+  offset = 0,
 ): Promise<CardListItem[]> {
   const rows = await db.query<RawCardListRow>(
     `${CARD_LIST_SELECT}, dc.added_at AS createdAt
@@ -439,7 +447,25 @@ export async function getCardsForDeck(
      ORDER BY dc.added_at DESC`,
     [deckId],
   )
-  return collapseByLemma(rows).slice(0, limit)
+  return collapseByLemma(rows).slice(offset, offset + limit)
+}
+
+/**
+ * Exact number of distinct words (lemmas) in a deck — the deck detail screen's "Unique" stat.
+ * Deliberately its own COUNT query rather than `(await getCardsForDeck(...)).length`:
+ * getCardsForDeck pages its already-collapsed results for the on-screen list (see its own doc
+ * comment), so using its length here silently capped "Unique" at whatever page size the caller
+ * happened to ask for, understating it for any deck with more words than one page.
+ */
+export async function getUniqueWordCountForDeck(db: DatabaseAdapter, deckId: string): Promise<number> {
+  const result = await db.querySingle<{ count: number }>(
+    `SELECT COUNT(DISTINCT c.lemma_id) AS count
+     FROM deck_cards dc
+     JOIN cards c ON c.id = dc.card_id
+     WHERE dc.deck_id = ?`,
+    [deckId],
+  )
+  return result?.count ?? 0
 }
 
 /**

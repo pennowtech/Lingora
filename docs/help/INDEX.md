@@ -118,6 +118,16 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
+### 10. 📥 Importing and Exporting Cards
+*Bring vocabulary in from CSV, Anki, or a shared Lemony deck - and send any deck back out the same way.*
+- **[Import/Export Guide](10-import-export.md)**
+  - **Three Import Formats**: CSV (map your own columns), Anki `.apkg` (bring an existing collection), and Lemony `.lem` (full fidelity, including review history).
+  - **Regular vs. Cloze, One Choice Per Pass**: Each import creates one card type for the whole file; get both by importing the same file twice with "Keep both" as the duplicate policy.
+  - **Review-Mode Fallback**: Imported cards that don't match a deck's enabled review modes are never lost - they're tested in whichever format actually has content, with a warning shown before you import if there's a mismatch.
+  - **Four Export Formats**: CSV, Anki `.apkg`, Markdown (read-only), and Lemony `.lem` - the only one that carries a deck's full FSRS state and review history.
+
+---
+
 ## 🗺️ Screen & Feature Directory
 
 | Screen / Feature | Description |
@@ -131,3 +141,4 @@ Below is the complete, concise list of all supported screens and features across
 | **[Mining Studio](07-sentence-mining.md)** | Passage capture library, per-passage translation/grammar/vocabulary analysis, and accurate deck additions |
 | **[Word of the Day](08-word-of-the-day.md)** | AI-curated daily word (requires an AI provider), CEFR-tailored, never repeated, with a daily notification |
 | **[Settings & Configuration](09-settings-engines.md)** | Bring-Your-Own-Key AI engines, neural TTS voices, FSRS parameters, cloud sync, and card templates |
+| **[Importing and Exporting Cards](10-import-export.md)** | CSV/Anki/Lemony import wizards, Regular vs. Cloze card types, review-mode fallback, and four export formats |

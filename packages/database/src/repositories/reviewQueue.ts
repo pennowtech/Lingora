@@ -89,6 +89,17 @@ export async function loadCardView(db: DatabaseAdapter, card: Card, clozeOnly: b
     getClustersForLemma(db, card.lemmaId),
   ])
 
+  // Captured BEFORE the sibling-borrow below touches meanings/clozes — a Mixed-practice session's
+  // pickEligibleTypes (@lingora/core) uses hasClozeVariant to decide whether THIS card should get
+  // a cloze question-type entry. If that reflected borrowed sibling content, a CSV/Anki two-pass
+  // import's "basic" card (no cloze of its own) would borrow its "cloze" sibling's exact sentence
+  // and become cloze-eligible too - showing the identical fill-in-the-blank twice in one session,
+  // once under each sibling's own card id. The borrow below is still needed (and safe) for
+  // *rendering* - the single-card preview's "switch to the other view" toggle for a word whose
+  // content lives on a different sibling card - just not for deciding review-format eligibility.
+  const hasOwnVocabVariant = meanings.length > 0
+  const hasOwnClozeVariant = clozes.length > 0
+
   // If this card lacks meanings or clozes, inspect sibling cards of the same lemma
   if (meanings.length === 0 || clozes.length === 0) {
     const siblings = await getCardsByLemma(db, card.lemmaId)
@@ -146,12 +157,14 @@ export async function loadCardView(db: DatabaseAdapter, card: Card, clozeOnly: b
     clozeAnswer: cloze?.answer ?? null,
     clozeTranslation: cloze?.translation ?? null,
     cefrLevel: primaryMeaning?.cefrLevel ?? cloze?.cefrLevel ?? null,
-    // Default from this card's own content — loadReviewQueue's single-card path overrides these
-    // with a sibling-aware value (a CSV/Anki import can put cloze/vocab content on a separate
-    // sibling card of the same lemma), but the normal due-queue path never did until mixed-session
-    // eligibility (see pickEligibleTypes) needed to know it per due card.
-    hasVocabVariant: meanings.length > 0,
-    hasClozeVariant: clozes.length > 0,
+    // This card's OWN content only (see the doc comment above where these are captured) —
+    // loadReviewQueue's single-card path overrides these with an explicit sibling-aware value
+    // instead (that screen's manual vocab/cloze toggle genuinely wants "does the other view exist
+    // anywhere for this word"), but the normal multi-card due-queue path relies on these being
+    // per-card so Mixed practice's pickEligibleTypes doesn't double-test one sibling's content
+    // under both cards' ids.
+    hasVocabVariant: hasOwnVocabVariant,
+    hasClozeVariant: hasOwnClozeVariant,
     templateContext: buildCardContext({
       lemma,
       meanings,

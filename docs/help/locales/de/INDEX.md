@@ -118,6 +118,16 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
 
 ---
 
+### 10. 📥 Karten importieren und exportieren
+*Bringen Sie Vokabeln aus CSV, Anki oder einem geteilten Lemony-Deck herein - und exportieren Sie jedes Deck auf demselben Weg wieder heraus.*
+- **[Import/Export-Anleitung](10-import-export.md)**
+  - **Drei Importformate**: CSV (eigene Spaltenzuordnung), Anki `.apkg` (bestehende Sammlung übernehmen) und Lemony `.lem` (volle Wiedergabetreue inklusive Wiederholungshistorie).
+  - **Normal vs. Lückentext, eine Wahl pro Durchlauf**: Jeder Import erstellt einen Kartentyp für die ganze Datei; beide erhalten Sie, indem Sie dieselbe Datei zweimal mit „Beide behalten“ als Duplikat-Regel importieren.
+  - **Fallback bei Wiederholungsmodi**: Importierte Karten, die nicht zu den aktivierten Wiederholungsmodi eines Decks passen, gehen nie verloren - sie werden in dem Format abgefragt, für das tatsächlich Inhalt vorhanden ist, mit einer Warnung vor dem Import, falls es eine Abweichung gibt.
+  - **Vier Exportformate**: CSV, Anki `.apkg`, Markdown (nur lesbar) und Lemony `.lem` - das einzige Format, das den vollständigen FSRS-Status und die Wiederholungshistorie eines Decks mitbringt.
+
+---
+
 ## 🗺️ Bildschirm- und Funktionsverzeichnis
 
 | Bildschirm / Funktion | Beschreibung |
@@ -131,3 +141,4 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
 | **[Mining Studio](07-sentence-mining.md)** | Bibliothek zur Passagenerfassung, Übersetzung/Grammatik-/Vokabularanalyse pro Passage und genaue Deckergänzungen |
 | **[Wort des Tages](08-word-of-the-day.md)** | Von der KI kuratiertes tägliches Wort (erfordert einen KI-Anbieter), auf CEFR zugeschnitten, nie wiederholt, mit täglicher Benachrichtigung |
 | **[Einstellungen & Konfiguration](09-settings-engines.md)** | Bring-Your-Own-Key-KI-Engines, neuronale TTS-Stimmen, FSRS-Parameter, Cloud-Synchronisierung und Kartenvorlagen |
+| **[Karten importieren und exportieren](10-import-export.md)** | CSV-/Anki-/Lemony-Import-Assistenten, Normal- vs. Lückentext-Kartentypen, Fallback bei Wiederholungsmodi und vier Exportformate |

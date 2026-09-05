@@ -7,9 +7,10 @@ import { spacing } from '../../lib/theme'
 import { useThemedStyles } from '../../lib/ThemeContext'
 import type { ThemeColors } from '../../lib/themes'
 
-/** The "Data" sub-screen — import/export, card templates, word guides. Each row is just a link to
- * its own existing screen; this one has no state of its own. Audio settings (formerly listed here
- * as "Pronunciation") moved to General Settings, alongside App Language. */
+/** The "Data" sub-screen — card templates, word guides. Each row is just a link to its own
+ * existing screen; this one has no state of its own. Audio settings (formerly listed here as
+ * "Pronunciation") moved to General Settings, alongside App Language. Import/export moved to
+ * being deck-scoped only, reachable from each deck's own menu (Decks tab / deck detail). */
 export default function DataScreen(): JSX.Element {
   const { t } = useTranslation()
   const styles = useThemedStyles(createStyles)
@@ -17,8 +18,7 @@ export default function DataScreen(): JSX.Element {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Card>
-        <LinkRow icon="ArrowUpDown" label={t('Import & export')} detail={t('Anki, CSV, JSON backup')} onPress={() => router.push('/settings/import-export')} />
-        <LinkRow icon="Palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} divider />
+        <LinkRow icon="Palette" label={t('Card templates')} detail={t('Customize card layouts')} onPress={() => router.push('/settings/templates')} />
         <LinkRow icon="Library" label={t('Local Dictionaries')} detail={t('Free starter dictionary - no AI key needed')} onPress={() => router.push('/settings/word-guides')} divider />
       </Card>
     </ScrollView>

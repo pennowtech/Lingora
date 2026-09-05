@@ -292,6 +292,7 @@ export const ENGLISH_PHRASES = [
   "No stats yet",
   "Add and review some words to see your learning statistics here.",
   "remembered (30 d)",
+  "based on {{count}} reviews",
   "word correctly",
   "day streak",
   "total cards",
@@ -1096,6 +1097,8 @@ export const ENGLISH_PHRASES = [
   "Cloze sentence is required - it must contain {{c1::word}} markup. Everything else is optional.",
   "Choose a deck",
   "Each row becomes ONE card, never two. Want both a regular and a cloze card from the same file? Import it again afterward with the other option selected.",
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.",
+  "This deck's review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.",
   "Feedback Sent!",
   "Thank you for reaching out! Your message has been received and our team will review it.",
   "Could not send feedback",
@@ -1550,10 +1553,13 @@ export const ENGLISH_PHRASES = [
   // ── Deck detail screen stats help ──────────────────────────────────
   'Deck Detail',
   'The four top boxes track your deck metrics at a glance:',
+  'The three top boxes track your deck metrics at a glance:',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
   '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.',
   'Card status badges',
   'Each word in the list below shows one of three statuses:',
   '• **Due**: New, or scheduled and ready for review right now.',
@@ -1582,6 +1588,9 @@ export const ENGLISH_PHRASES = [
   'Z-A',
   'Ascending',
   'Descending',
+  'Select All',
+  'Deselect All',
+  'Loading deck...',
 ] as const
 
 export type Phrase = (typeof ENGLISH_PHRASES)[number]

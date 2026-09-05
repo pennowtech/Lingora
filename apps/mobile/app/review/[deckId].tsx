@@ -1016,6 +1016,21 @@ export default function ReviewSessionScreen(): JSX.Element {
     )
   }
 
+  // sessionOrder is built by the effect above, which only runs *after* this render (and, for
+  // Mixed sessions, after enabledTypesQuery/distractorPoolQuery resolve too) - so there's a real
+  // gap where queueQuery already has due cards but sessionOrder is still empty. Without this
+  // guard, `done` (index >= queue.length, both 0 in that gap) reads as "session complete" and
+  // flashes that screen before the real first card renders - only noticeable the first time a
+  // given (deck, mode) session loads, since these queries are cached fast on repeat visits.
+  const buildingSession = sessionOrder.length === 0 && (queueQuery.data?.views.length ?? 0) > 0
+  if (buildingSession) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <Spinner />
+      </SafeAreaView>
+    )
+  }
+
   // What the speaker button (below) reads aloud — the example sentence for a vocab card, or the
   // complete cloze sentence (blank filled back in with its answer, not the "[...]" placeholder)
   // for a cloze card. Null when there's nothing to speak, which is also what hides the button —

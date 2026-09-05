@@ -35,7 +35,12 @@ interface DataTableProps<T> {
 }
 
 const SELECT_COLUMN_WIDTH = 48
-const ROW_NUMBER_COLUMN_WIDTH = 40
+// A fixed width here used to wrap the number onto a second line for any table with 3+ digits of
+// rows (e.g. a 385-row Anki import preview) - sized from the actual row count instead, at roughly
+// one character width per digit (headerCell/cell's fontSize is type.caption) plus the cell's own
+// horizontal padding on both sides, with a floor wide enough for a comfortable 1-2 digit table.
+const ROW_NUMBER_COLUMN_MIN_WIDTH = 32
+const ROW_NUMBER_CHAR_WIDTH = 9
 
 /**
  * The "Preview" table shared by the CSV/Anki/.lem import wizards (pick → map → **preview** →
@@ -49,6 +54,10 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
   const { t } = useTranslation()
   const colors = useColors()
   const styles = useThemedStyles(createStyles)
+  const rowNumberColumnWidth = Math.max(
+    ROW_NUMBER_COLUMN_MIN_WIDTH,
+    String(data.length).length * ROW_NUMBER_CHAR_WIDTH + spacing.sm * 2,
+  )
 
   return (
     <ScrollView horizontal style={styles.outerScroll} showsHorizontalScrollIndicator>
@@ -63,7 +72,7 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
               />
             </Pressable>
           ) : null}
-          {showRowNumber ? <Text style={[styles.headerCell, { width: ROW_NUMBER_COLUMN_WIDTH }]}>{t('#')}</Text> : null}
+          {showRowNumber ? <Text style={[styles.headerCell, { width: rowNumberColumnWidth }]}>{t('#')}</Text> : null}
           {columns.map((col) => (
             <Text key={col.label} style={[styles.headerCell, { width: col.width }]}>
               {t(col.label)}
@@ -93,7 +102,7 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                 </Pressable>
               ) : null}
               {showRowNumber ? (
-                <Text style={[styles.cell, { width: ROW_NUMBER_COLUMN_WIDTH }]}>{rowIndex + 1}</Text>
+                <Text style={[styles.cell, { width: rowNumberColumnWidth }]}>{rowIndex + 1}</Text>
               ) : null}
               {columns.map((col) => (
                 <Text key={col.label} style={[styles.cell, { width: col.width }, col.cellStyle?.(row)]} numberOfLines={4}>

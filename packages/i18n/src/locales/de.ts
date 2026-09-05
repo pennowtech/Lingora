@@ -210,7 +210,6 @@ export const de: Record<Phrase, string> = {
   'Configure search integration in **Settings → Share & Search**.': 'Richte die Suchintegration unter **Einstellungen → Teilen & Suchen** ein.',
   'The stats row': 'Die Statistikzeile',
   'Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.': '„Karten“ umfasst alles in diesem Stapel. „Jetzt fällig“ zeigt die Karten, deren nächste Wiederholung ansteht, und „Behaltensquote“ deine jüngste Erinnerungsleistung in der gesamten Sammlung.',
-  'Review presents this deck\'s due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.': 'Die Wiederholung zeigt die fälligen Karten dieses Stapels in jedem geeigneten Format, das beim Erstellen ausgewählt wurde, etwa Wort, umgekehrt, Lückentext, Richtig/Falsch oder Multiple Choice.',
   'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.': 'Hier kannst du den Stapel umbenennen, verschieben, seine Wiederholungsmodi ändern, ihn exportieren, den Fortschritt zurücksetzen oder ihn löschen. Vor dem Löschen wirst du immer um Bestätigung gebeten.',
   'Editing a word card': 'Eine Wortkarte bearbeiten',
   'Edit the **example sentence** and **example translation** here. Tap words in the token list to highlight the parts you want emphasized on the answer card.': 'Bearbeite hier den **Beispielsatz** und die **Beispielübersetzung**. Tippe in der Wortliste auf die Teile, die auf der Antwortseite hervorgehoben werden sollen.',
@@ -229,7 +228,14 @@ export const de: Record<Phrase, string> = {
   'Direct and secure delivery': 'Direkte und sichere Übermittlung',
   'Submissions are processed securely through the feedback service backend.': 'Einsendungen werden sicher über den Feedback-Dienst verarbeitet.',
   'If you provide an email address, our team can follow up with you regarding your message.': 'Wenn du eine E-Mail-Adresse angibst, kann unser Team dich zu deiner Nachricht kontaktieren.',
-  'Caps how many due cards a single review session pulls in - the most overdue cards first.': 'Begrenzt die Anzahl fälliger Karten pro Wiederholungssitzung; die am längsten überfälligen Karten kommen zuerst.',
+  'Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.':
+    'Begrenzt, wie viele fällige Wörter/Phrasen eine einzelne Wiederholungssitzung lädt - die am längsten überfälligen zuerst, nicht einzelne Karten.',
+  'Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.':
+    'Jeder für ein Wort aktivierte Wiederholungsmodus (Vokabeln, Umgekehrt, Lückentext, Richtig/Falsch, Multiple Choice) sowie jede weitere Karte, die sich dasselbe Wort teilt, erscheint gemeinsam in derselben Sitzung - ein Limit von 10 Wörtern kann daher 30-50+ Karten anzeigen, je nachdem wie viele Modi das Deck unterstützt.',
+  'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.':
+    'Ein Wort wird erst aus "Fällig" entfernt, wenn jede dieser Karten tatsächlich wiederholt wurde - nur einige zu beantworten und andere fällig zu lassen, zählt nicht.',
+  'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Wenn mehr Wörter fällig sind, beende die Sitzung und tippe auf "Mehr üben" für eine weitere Runde, statt zu warten, bis sie erneut fällig werden.',
   'Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears - nothing else in the template is touched.': 'Wenn du ein Feld deaktivierst, wird genau die entsprechende {{ variable }} oder der Block {% for %}...{% endfor %} entfernt – alles andere in der Vorlage bleibt unverändert.',
   ':root{--accent:#534AB7;}': ':root{--accent:#534AB7;}',
   'color: var(--accent);\nborder-color: var(--accent);': 'color: var(--accent);\nborder-color: var(--accent);',
@@ -1876,10 +1882,25 @@ export const de: Record<Phrase, string> = {
     '• **Karten**: Gesamtzahl der Übungskarten über alle aktiven Lernformate (z. B. Vokabeln, Umgekehrt, Lückentext).',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Einzigartig**: Anzahl der einzelnen Vokabeln / eindeutigen Karten in diesem Deck.',
-  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
-    '• **Fällig**: Anzahl der einzelnen Karten, die jetzt zur Wiederholung anstehen.',
+  '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
+    '• **Fällig**: Anzahl der einzelnen Wörter/Phrasen, die gerade zur Wiederholung anstehen - nicht einzelne Karten. Ein Wort verlässt den Status "Fällig" erst, wenn jeder seiner Wiederholungsmodi tatsächlich abgefragt wurde.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Behalten**: 30-Tage-Erinnerungsrate für Ihre wiederholten Karten.',
+  'Card status badges': 'Kartenstatus-Abzeichen',
+  'Each word in the list below shows one of three statuses:':
+    'Jedes Wort in der folgenden Liste zeigt einen von drei Status an:',
+  '• **Due**: New, or scheduled and ready for review right now.':
+    '• **Due**: Neu oder gerade zur Wiederholung geplant.',
+  '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.':
+    '• **REV · Xh / Xd**: Wiederholt - wird in dieser Anzahl Stunden oder Tage erneut fällig.',
+  '• **Learned**: Reviewed with strong, mature retention.':
+    '• **Learned**: Wiederholt mit starker, gefestigter Merkfähigkeit.',
+  'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.':
+    'Ein Wort wechselt erst von Due zu REV, wenn jeder seiner Wiederholungsmodi in derselben Sitzung beantwortet wurde - werden nur einige Formate beantwortet, bleibt es weiterhin als Due markiert.',
+  "Review presents this deck's due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'Die Wiederholung zeigt die fälligen Wörter dieses Stapels in jedem geeigneten Format, das beim Erstellen ausgewählt wurde, etwa Wort, Umgekehrt, Lückentext, Richtig/Falsch oder Multiple Choice.',
+  "All of a word's formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.":
+    'Alle Formate eines Wortes - sowie jede weitere Karte, die sich dasselbe Wort teilt - werden gemeinsam in derselben Sitzung wiederholt; ein Wort gilt erst als wiederholt und verlässt Due, wenn jedes davon beantwortet wurde.',
   // ── Deck detail screen controls ───────────────────────────────────
   'Mode': 'Modus',
   'Recent': 'Neueste',

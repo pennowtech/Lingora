@@ -85,7 +85,7 @@ export async function getCardsDueForReview(
     INNER JOIN decks d ON d.id = dc.deck_id
     INNER JOIN card_states cs ON c.id = cs.card_id
     INNER JOIN lemmas l ON l.id = c.lemma_id
-    WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+    WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)
@@ -273,6 +273,10 @@ export interface CardListItem {
    * `type: 'basic'` card the word-detail screen's manual cloze editor attached one to (see
    * setCloze in repositories/cloze.ts) — shown as a small badge. */
   hasCloze: boolean
+  state?: 'new' | 'learning' | 'review' | 'relearning' | undefined
+  nextReviewDate?: number | undefined
+  reps?: number | undefined
+  stability?: number | undefined
 }
 
 interface RawCardListRow {
@@ -285,13 +289,21 @@ interface RawCardListRow {
   cardType: string
   /** 0/1 from EXISTS() — SQLite has no real boolean column type. */
   hasOwnCloze: number
+  state: 'new' | 'learning' | 'review' | 'relearning' | null
+  nextReviewDate: number | null
+  reps: number | null
+  stability: number | null
 }
 
 const CARD_LIST_SELECT = `SELECT c.id AS cardId, l.id AS lemmaId, l.form,
     COALESCE(m.translation, (SELECT translation FROM meanings WHERE card_id = c.id LIMIT 1)) AS translation,
     COALESCE(m.cefr_level, (SELECT cefr_level FROM meanings WHERE card_id = c.id LIMIT 1)) AS cefrLevel,
     c.type AS cardType,
-    EXISTS(SELECT 1 FROM cloze_cards cz WHERE cz.card_id = c.id) AS hasOwnCloze`
+    EXISTS(SELECT 1 FROM cloze_cards cz WHERE cz.card_id = c.id) AS hasOwnCloze,
+    cs.state AS state,
+    cs.next_review_date AS nextReviewDate,
+    cs.reps AS reps,
+    cs.stability AS stability`
 
 /**
  * Folds a standalone `type: 'cloze'` card onto an existing `type: 'basic'` row for the same
@@ -321,6 +333,10 @@ function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
       cefrLevel: row.cefrLevel,
       createdAt: row.createdAt,
       hasCloze: row.hasOwnCloze === 1,
+      state: row.state ?? undefined,
+      nextReviewDate: row.nextReviewDate ?? undefined,
+      reps: row.reps ?? 0,
+      stability: row.stability ?? 0,
     })
     if (!basicIndexByLemma.has(row.lemmaId)) {
       basicIndexByLemma.set(row.lemmaId, items.length - 1)
@@ -331,7 +347,21 @@ function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
     if (row.cardType !== 'cloze') continue
     const basicIndex = basicIndexByLemma.get(row.lemmaId)
     if (basicIndex !== undefined) {
-      items[basicIndex]!.hasCloze = true
+      const basic = items[basicIndex]!
+      basic.hasCloze = true
+      const now = Date.now()
+      const basicDue = !basic.state || basic.state === 'new' || (basic.nextReviewDate ?? 0) <= now
+      const clozeDue = !row.state || row.state === 'new' || (row.nextReviewDate ?? 0) <= now
+      if (clozeDue && !basicDue) {
+        basic.state = row.state ?? undefined
+        basic.nextReviewDate = row.nextReviewDate ?? undefined
+      } else if (!clozeDue && !basicDue && row.nextReviewDate) {
+        if (basic.nextReviewDate === undefined || row.nextReviewDate < basic.nextReviewDate) {
+          basic.nextReviewDate = row.nextReviewDate
+        }
+      }
+      basic.reps = Math.max(basic.reps ?? 0, row.reps ?? 0)
+      basic.stability = Math.max(basic.stability ?? 0, row.stability ?? 0)
       continue
     }
     items.push({
@@ -342,6 +372,10 @@ function collapseByLemma(rows: RawCardListRow[]): CardListItem[] {
       cefrLevel: row.cefrLevel,
       createdAt: row.createdAt,
       hasCloze: true,
+      state: row.state ?? undefined,
+      nextReviewDate: row.nextReviewDate ?? undefined,
+      reps: row.reps ?? 0,
+      stability: row.stability ?? 0,
     })
   }
 
@@ -377,6 +411,7 @@ export async function getRecentlyAddedWords(
      FROM cards c
      JOIN lemmas l ON l.id = c.lemma_id
      LEFT JOIN meanings m ON m.id = c.primary_meaning_id
+     LEFT JOIN card_states cs ON cs.card_id = c.id
      ${whereClause}
      ORDER BY c.created_at DESC
      LIMIT ?`,
@@ -399,6 +434,7 @@ export async function getCardsForDeck(
      JOIN cards c ON c.id = dc.card_id
      JOIN lemmas l ON l.id = c.lemma_id
      LEFT JOIN meanings m ON m.id = c.primary_meaning_id
+     LEFT JOIN card_states cs ON cs.card_id = c.id
      WHERE dc.deck_id = ?
      ORDER BY dc.added_at DESC`,
     [deckId],
@@ -517,12 +553,12 @@ export async function getDueCardsCount(
   nativeLanguage?: LanguageCode,
 ): Promise<number> {
   const params: unknown[] = [Date.now()]
-  let query = `SELECT COUNT(DISTINCT c.id) as count FROM cards c
+  let query = `SELECT COUNT(DISTINCT l.id) as count FROM cards c
      INNER JOIN deck_cards dc ON c.id = dc.card_id
      INNER JOIN decks d ON d.id = dc.deck_id
      INNER JOIN card_states cs ON c.id = cs.card_id
      INNER JOIN lemmas l ON l.id = c.lemma_id
-     WHERE c.type = 'basic' AND (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
+     WHERE (cs.state = 'new' OR cs.next_review_date <= ?) AND c.suspended_at IS NULL`
   if (deckId) {
     query += ` AND dc.deck_id = ?`
     params.push(deckId)

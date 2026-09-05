@@ -79,7 +79,7 @@ export async function loadCardView(db: DatabaseAdapter, card: Card, clozeOnly: b
   const lemma = await getLemmaById(db, card.lemmaId)
   if (!lemma) return null
 
-  const [meanings, examples, clozes, synonyms, phrases, cardState, clusters] = await Promise.all([
+  let [meanings, examples, clozes, synonyms, phrases, cardState, clusters] = await Promise.all([
     getMeaningsForCard(db, card.id),
     getExamplesForCard(db, card.id),
     getClozesForCard(db, card.id),
@@ -88,6 +88,32 @@ export async function loadCardView(db: DatabaseAdapter, card: Card, clozeOnly: b
     clozeOnly ? getClozeState(db, card.id) : getCardState(db, card.id),
     getClustersForLemma(db, card.lemmaId),
   ])
+
+  // If this card lacks meanings or clozes, inspect sibling cards of the same lemma
+  if (meanings.length === 0 || clozes.length === 0) {
+    const siblings = await getCardsByLemma(db, card.lemmaId)
+    const otherSiblings = siblings.filter((s) => s.id !== card.id)
+    if (meanings.length === 0) {
+      for (const sib of otherSiblings) {
+        const sibMeanings = await getMeaningsForCard(db, sib.id)
+        if (sibMeanings.length > 0) {
+          meanings = sibMeanings
+          examples = await getExamplesForCard(db, sib.id)
+          break
+        }
+      }
+    }
+    if (clozes.length === 0) {
+      for (const sib of otherSiblings) {
+        const sibClozes = await getClozesForCard(db, sib.id)
+        if (sibClozes.length > 0) {
+          clozes = sibClozes
+          break
+        }
+      }
+    }
+  }
+
   const cloze = clozes[0]
 
   // Same selection buildCardContext uses (primary meaning / selected
@@ -217,8 +243,26 @@ export async function loadReviewQueue(
   const allDueCards = clozeOnly
     ? await getClozeCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
     : await getCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
-  const hasMore = sessionCardLimit > 0 && allDueCards.length > sessionCardLimit
-  const cards = sessionCardLimit > 0 ? allDueCards.slice(0, sessionCardLimit) : allDueCards
+
+  // Group by lemma so sessionCardLimit caps unique words/phrases, not raw card rows - but keep
+  // EVERY due row for each included lemma, not just the first one seen. A lemma can have more than
+  // one card row for the same (deck, language) scope - a CSV/Anki import can put word-meaning and
+  // cloze content on two separate sibling cards of the same lemma (see loadCardView's own doc
+  // comment) - and every one of those rows needs to actually appear in the session and be answered
+  // for real; silently dropping a due sibling here would leave it un-reviewed with no way to tell.
+  // Grouping straight from `allDueCards` (already scoped to this deck/language pair by the query
+  // above) keeps this safe - no separate lookup that could pull in a sibling from an unrelated deck
+  // or a different native-language learner's card for the same lemma.
+  const dueCardsByLemma = new Map<string, Card[]>()
+  for (const card of allDueCards) {
+    const existing = dueCardsByLemma.get(card.lemmaId)
+    if (existing) existing.push(card)
+    else dueCardsByLemma.set(card.lemmaId, [card])
+  }
+  const lemmaIds = [...dueCardsByLemma.keys()]
+  const hasMore = sessionCardLimit > 0 && lemmaIds.length > sessionCardLimit
+  const includedLemmaIds = sessionCardLimit > 0 ? lemmaIds.slice(0, sessionCardLimit) : lemmaIds
+  const cards = includedLemmaIds.flatMap((lemmaId) => dueCardsByLemma.get(lemmaId)!)
   const views: ReviewCard[] = []
   for (const card of cards) {
     const view = await loadCardView(db, card, clozeOnly)

@@ -13,6 +13,7 @@ import {
   removeCardFromDeck,
   renameDeck,
   resetDeckProgress,
+  type CardListItem,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -82,8 +83,20 @@ const HELP_SECTIONS: HelpSection[] = [
       'The four top boxes track your deck metrics at a glance:',
       '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
       '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
-      '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.',
+      '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.',
       '• **Retention**: 30-day recall retention rate across your reviewed cards.',
+    ],
+  },
+  {
+    id: 'status',
+    title: 'Card status badges',
+    icon: 'CircleCheckBig',
+    paragraphs: [
+      'Each word in the list below shows one of three statuses:',
+      '• **Due**: New, or scheduled and ready for review right now.',
+      '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.',
+      '• **Learned**: Reviewed with strong, mature retention.',
+      'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.',
     ],
   },
   {
@@ -91,7 +104,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Review',
     icon: 'Play',
     paragraphs: [
-      'Review presents this deck\'s due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.',
+      'Review presents this deck\'s due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.',
+      'All of a word\'s formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.',
     ],
   },
   {
@@ -103,6 +117,33 @@ const HELP_SECTIONS: HelpSection[] = [
     ],
   },
 ]
+
+function getCardReviewStatus(card: CardListItem, now: number): {
+  type: 'due' | 'rev' | 'learned'
+  label: string
+} {
+  const isDue =
+    !card.state ||
+    card.state === 'new' ||
+    (card.nextReviewDate !== undefined && card.nextReviewDate <= now)
+  if (isDue) {
+    return { type: 'due', label: 'Due' }
+  }
+
+  // Mature / learned card: graduated with solid retention (e.g. state is review and stability >= 21 or reps >= 3)
+  const isLearned = card.state === 'review' && ((card.stability ?? 0) >= 21 || (card.reps ?? 0) >= 3)
+  if (isLearned) {
+    return { type: 'learned', label: 'Learned' }
+  }
+
+  const msRemaining = (card.nextReviewDate ?? now) - now
+  const days = Math.ceil(msRemaining / (24 * 60 * 60 * 1000))
+  if (days <= 1) {
+    const hours = Math.max(1, Math.ceil(msRemaining / (60 * 60 * 1000)))
+    return { type: 'rev', label: `REV · ${hours}h` }
+  }
+  return { type: 'rev', label: `REV · ${days}d` }
+}
 
 async function loadDeckDetail(db: DatabaseAdapter, deckId: string) {
   const deck = await getDeckById(db, deckId)
@@ -161,16 +202,21 @@ export default function DeckDetailScreen(): JSX.Element {
   })
 
   const queryCards = deckQuery.data?.cards
-  const dueCardIds = deckQuery.data?.dueCardIds
+  const now = Date.now()
   const sortedCards = useMemo(() => {
     if (!queryCards) return []
     const list = [...queryCards]
     if (sortBy === 'due') {
       return list.sort((a, b) => {
-        const aDue = dueCardIds?.has(a.cardId) ? 1 : 0
-        const bDue = dueCardIds?.has(b.cardId) ? 1 : 0
+        const aDue = !a.state || a.state === 'new' || (a.nextReviewDate !== undefined && a.nextReviewDate <= now) ? 1 : 0
+        const bDue = !b.state || b.state === 'new' || (b.nextReviewDate !== undefined && b.nextReviewDate <= now) ? 1 : 0
         if (aDue !== bDue) {
           return sortOrder === 'desc' ? bDue - aDue : aDue - bDue
+        }
+        const aTime = a.nextReviewDate ?? 0
+        const bTime = b.nextReviewDate ?? 0
+        if (aTime !== bTime) {
+          return sortOrder === 'desc' ? bTime - aTime : aTime - bTime
         }
         return sortOrder === 'desc' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt
       })
@@ -187,7 +233,7 @@ export default function DeckDetailScreen(): JSX.Element {
         ? b.createdAt - a.createdAt
         : a.createdAt - b.createdAt
     )
-  }, [queryCards, dueCardIds, sortBy, sortOrder])
+  }, [queryCards, now, sortBy, sortOrder])
 
   const handleSortPress = (field: 'due' | 'alpha' | 'recent') => {
     if (sortBy === field) {
@@ -405,7 +451,8 @@ export default function DeckDetailScreen(): JSX.Element {
 
   const { deck, cardCount, dueCount, retention, cards } = deckQuery.data
   const questionTypes = getDeckQuestionTypes(deck)
-  const totalPracticeCards = cardCount * questionTypes.length
+  const uniqueCount = cards.length
+  const totalPracticeCards = uniqueCount * questionTypes.length
 
   const allDecks = allDecksQuery.data ?? []
   const excludedIds = collectDescendantIds(allDecks, deck.id)
@@ -461,7 +508,7 @@ export default function DeckDetailScreen(): JSX.Element {
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statCol}>
-              <Text style={styles.statDigit}>{cardCount}</Text>
+              <Text style={styles.statDigit}>{uniqueCount}</Text>
               <Text style={styles.statTag}>{t('Unique')}</Text>
             </View>
             <View style={styles.statDivider} />
@@ -623,7 +670,7 @@ export default function DeckDetailScreen(): JSX.Element {
           <View style={styles.cardsStack}>
             {sortedCards.map((card) => {
               const selected = selectedCardIds.has(card.cardId)
-              const isDue = dueCardIds?.has(card.cardId) ?? false
+              const status = getCardReviewStatus(card, now)
               return (
                 <Pressable
                   key={card.cardId}
@@ -655,13 +702,17 @@ export default function DeckDetailScreen(): JSX.Element {
                     ) : null}
                   </View>
                   <View style={styles.vocabCardRight}>
-                    {isDue ? (
+                    {status.type === 'due' ? (
                       <View style={styles.duePillTag}>
                         <Text style={styles.duePillText}>{t('Due')}</Text>
                       </View>
-                    ) : (
+                    ) : status.type === 'learned' ? (
                       <View style={styles.okPillTag}>
                         <Text style={styles.okPillText}>{t('Learned')}</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.revPillTag}>
+                        <Text style={styles.revPillText}>{status.label}</Text>
                       </View>
                     )}
                   </View>
@@ -1390,6 +1441,21 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: 10,
       fontWeight: '700',
       color: colors.success ?? '#10b981',
+    },
+    revPillTag: {
+      paddingVertical: 3,
+      paddingHorizontal: 7,
+      borderRadius: 6,
+      backgroundColor: 'rgba(56, 189, 248, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(56, 189, 248, 0.35)',
+    },
+    revPillText: {
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      fontSize: 10,
+      fontWeight: '700',
+      color: colors.primary ?? '#38bdf8',
+      letterSpacing: 0.3,
     },
     fab: {
       position: 'absolute',

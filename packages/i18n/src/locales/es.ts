@@ -1430,8 +1430,6 @@ Home: 'Inicio',
     '• **Tarjetas**: Total de tarjetas de práctica generadas en todos los formatos activos (p. ej., vocabulario, inverso, texto con huecos).',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Únicas**: Número de palabras de vocabulario distintas / tarjetas únicas en este mazo.',
-  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
-    '• **Pendientes**: Número de tarjetas únicas programadas y listas para repasar ahora.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Retención**: Tasa de retención de memoria de 30 días en tus tarjetas repasadas.',
   // ── Deck detail screen controls ───────────────────────────────────
@@ -1451,8 +1449,6 @@ Home: 'Inicio',
   'Start Review': 'Iniciar repaso',
   'The stats row': 'La fila de estadísticas',
   'The "..." menu': 'El menú "..."',
-  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
-    'El repaso presenta las tarjetas pendientes de este mazo en cada formato elegible seleccionado al crear el mazo, como palabra, inverso, texto con huecos, verdadero/falso u opción múltiple.',
   'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
     'Renombra, mueve, cambia los modos de repaso, exporta, reinicia el progreso o elimina este mazo; eliminar siempre pide confirmación primero.',
   'Z–A': 'Z–A',

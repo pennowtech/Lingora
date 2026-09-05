@@ -538,8 +538,12 @@ export const vi: Partial<Record<Phrase, string>> = {
   'No card to rate.': 'Không có thẻ nào để đánh giá.',
   'No cards yet - add words from Search.': 'Chưa có thẻ nào - thêm từ từ Tìm kiếm.',
   'No deck selected.': 'Chưa chọn bộ thẻ nào.',
+  'No decks for {{native}} to {{target}}': 'Không có bộ thẻ nào cho {{native}} sang {{target}}',
   'No decks yet': 'Chưa có bộ thẻ nào',
   'No decks yet - create one above.': 'Chưa có bộ thẻ nào - tạo một bộ ở trên.',
+  'You have decks in other language pairs. Switch pair in Settings to see them, or create a new one here.':
+    'Bạn có bộ thẻ ở các cặp ngôn ngữ khác. Đổi cặp ngôn ngữ trong Cài đặt để xem, hoặc tạo một bộ mới ở đây.',
+  'Switch language pair': 'Đổi cặp ngôn ngữ',
   'No dictionary entry to add.': 'Không có mục từ điển nào để thêm.',
   'No explanation yet.': 'Chưa có giải thích.',
   'No internet connection': 'Không có kết nối internet',

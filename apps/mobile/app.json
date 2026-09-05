@@ -37,6 +37,7 @@
       "@react-native-firebase/auth",
       "react-native-nitro-google-signin",
       "./plugins/withDebugUserCaTrust.js",
+      "./plugins/withAndroidBackupRules.js",
       "./modules/process-text-intent/plugin/withProcessTextIntentManifest.js",
       [
         "expo-share-intent",

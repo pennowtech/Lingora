@@ -414,6 +414,10 @@ export const de: Record<Phrase, string> = {
   'No decks yet': 'Noch keine Stapel',
   'Create your first deck with the + button.':
     'Erstelle deinen ersten Stapel mit der +-Schaltfläche.',
+  'No decks for {{native}} to {{target}}': 'Keine Stapel für {{native}} zu {{target}}',
+  'You have decks in other language pairs. Switch pair in Settings to see them, or create a new one here.':
+    'Du hast Stapel in anderen Sprachpaaren. Wechsle das Sprachpaar in den Einstellungen, um sie zu sehen, oder erstelle hier einen neuen.',
+  'Switch language pair': 'Sprachpaar wechseln',
   'New deck': 'Neuer Stapel',
   'Deck name': 'Stapelname',
   'Creating...': 'Wird erstellt...',

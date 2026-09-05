@@ -196,6 +196,14 @@ export default function DecksScreen(): JSX.Element {
     queryFn: () => getAllDecks(db, targetLanguage, nativeLanguage),
     enabled: pickerDeck !== null,
   })
+  // Only fires when the scoped query above comes back empty - distinguishes "you have no decks at
+  // all" from "you have decks, just not for the currently active language pair" (e.g. after
+  // switching native/target language in Settings), which otherwise looks identical to data loss.
+  const otherLanguageDecksQuery = useQuery({
+    queryKey: ['decks-any-language'],
+    queryFn: () => getAllDecks(db),
+    enabled: decksQuery.isSuccess && (decksQuery.data?.totalDecks ?? 0) === 0,
+  })
 
   useFocusEffect(
     useCallback(() => {
@@ -478,11 +486,25 @@ export default function DecksScreen(): JSX.Element {
       ) : decksQuery.isError ? (
         <ErrorState message={String(decksQuery.error)} onRetry={() => void decksQuery.refetch()} />
       ) : (decksQuery.data?.totalDecks ?? 0) === 0 ? (
-        <EmptyState
-          icon="Layers"
-          title={t('No decks yet')}
-          message={t('Create your first deck with the + button.')}
-        />
+        (otherLanguageDecksQuery.data?.length ?? 0) > 0 ? (
+          <View style={styles.languageMismatchEmpty}>
+            <EmptyState
+              icon="Languages"
+              title={t('No decks for {{native}} to {{target}}', {
+                native: nativeLanguage.toUpperCase(),
+                target: targetLanguage.toUpperCase(),
+              })}
+              message={t('You have decks in other language pairs. Switch pair in Settings to see them, or create a new one here.')}
+            />
+            <Button label={t('Switch language pair')} variant="secondary" onPress={() => router.push('/settings/learning')} />
+          </View>
+        ) : (
+          <EmptyState
+            icon="Layers"
+            title={t('No decks yet')}
+            message={t('Create your first deck with the + button.')}
+          />
+        )
       ) : (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* ── Study Progress and Decks Hero Card (Concept 4) ── */}
@@ -1175,6 +1197,7 @@ function DeckRow(props: { node: DeckNode; depth: number; onOpenMenu: (deck: Deck
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+    languageMismatchEmpty: { flex: 1, justifyContent: 'center', gap: spacing.lg, padding: spacing.lg },
     headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
     syncButton: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
     scroll: { padding: spacing.lg, paddingBottom: 96 },

@@ -1,4 +1,4 @@
-# ⛏️ Mining Studio & Passage Mining
+# ⛏️ Mining Studio und Passagen-Mining
 
 **Mining Studio** ist der Ort, an dem echter Text, den Sie gelesen haben – ein Artikel, eine Nachricht, ein Untertitel – in Lernmaterial umgewandelt wird. Erfassen Sie eine Passage, dann erhalten Sie mit einem Fingertipp die **Übersetzung**, die **Grammatik**, die auf Ihrem Niveau erklärt wird, und vorgefertigte **Lernkarten** für die Wörter, die es wert sind, gelernt zu werden. Keine manuelle Suche, kein Wörterbuch-Springen.
 

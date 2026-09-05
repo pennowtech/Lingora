@@ -1,4 +1,4 @@
-# 🏠 Home & Daily Study Hub
+# 🏠 Home Dashboard und tägliches Lernzentrum
 
 Das **Home Dashboard** ist der tägliche Ausgangspunkt in Lemony. Es bietet Ihnen einen Echtzeitüberblick über Ihre Wiederholungslast bei räumlichen Wiederholungen, die aktuelle Lernserie, die kuratierte Wort-des-Tages-Entdeckung und sofortige Verknüpfungen zur Wörterbuchsuche und zum Satz-Mining.
 

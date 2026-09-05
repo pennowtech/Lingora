@@ -1,4 +1,4 @@
-# 🧠 Spaced Repetition (SRS) Review Engine
+# 🧠 Überprüfungs-Engine
 
 Auf dem **Überprüfungsbildschirm** findet die Speicherkonsolidierung statt. Lemony verwendet moderne kognitionswissenschaftliche Algorithmen (FSRS und SM-2), um Karten genau dann zu präsentieren, wenn Sie sie gerade vergessen, und maximiert so die langfristige Erinnerung bei minimaler Lernzeit.
 

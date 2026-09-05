@@ -13,7 +13,7 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
 
 ---
 
-### 1. 🏠 Home & Daily Study Hub
+### 1. 🏠 Home Dashboard und tägliches Lernzentrum
 *Haupteinstiegspunkt für tägliche Lernsitzungen, Streaks und schnelle Suchvorgänge.*
 - **[Home Dashboard-Anleitung](01-home-dashboard.md)**
   - **Floating Language Pair Badge**: Visuelle Muttersprachler-zu-Ziel-Anzeige (z. B. 🇬🇧 EN ➔ 🇩🇪 DE) mit One-Tap-Navigation zu den Spracheinstellungen.
@@ -62,7 +62,7 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
 
 ---
 
-### 5. 🧠 Spaced Repetition (SRS) Review Engine
+### 5. 🧠 Überprüfungs-Engine
 *Wissenschaftlich optimierte Speichererhaltung basierend auf den Algorithmen FSRS und SM-2.*
 - **[Spaced Repetition Review Guide](05-srs-review.md)**
   - **FSRS & SM-2 Scheduling**: Moderner Free Space Repetition Scheduler (FSRS) mit einstellbarer Zielerhaltung (80 %–95 %).
@@ -87,7 +87,7 @@ Nachfolgend finden Sie die vollständige, übersichtliche Liste aller unterstüt
 
 ---
 
-### 7. ⛏️ Mining Studio & Passage Analysis
+### 7. ⛏️ Mining Studio und Passagen-Mining
 *Erfassen Sie ganze Passagen aus Lektüre und Medien und durchsuchen Sie jede einzeln nach Übersetzung, Grammatik und Wortschatz.*
 - **[Mining Studio-Leitfaden](07-sentence-mining.md)**
   - **Passage-Bibliothek**: Erfasste Passagen (bis zu 1000 Zeichen) bleiben als Bibliothek und nicht als Wegwerfwarteschlange bestehen – ein „Mined“-Badge zeigt an, welche bereits Karten produziert haben.

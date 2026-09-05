@@ -62,7 +62,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
-### 5. 🧠 Spaced Repetition (SRS) Review Engine
+### 5. 🧠 Review Engine
 *Scientifically optimized memory retention powered by FSRS and SM-2 algorithms.*
 - **[Spaced Repetition Review Guide](05-srs-review.md)**
   - **FSRS & SM-2 Scheduling**: Modern Free Spaced Repetition Scheduler (FSRS) with adjustable target retention (80%–95%).
@@ -87,7 +87,7 @@ Below is the complete, concise list of all supported screens and features across
 
 ---
 
-### 7. ⛏️ Mining Studio & Passage Analysis
+### 7. ⛏️ Mining Studio & Passage Mining
 *Capture whole passages from reading and media, and mine each one individually for translation, grammar, and vocabulary.*
 - **[Mining Studio Guide](07-sentence-mining.md)**
   - **Passage Library**: Captured passages (up to 1000 characters) persist as a library, not a disposable queue — a "Mined" badge shows which ones already produced cards.

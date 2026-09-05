@@ -244,18 +244,25 @@ export async function loadReviewQueue(
     ? await getClozeCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
     : await getCardsDueForReview(db, scopeDeckId, targetLanguage, nativeLanguage)
 
-  // Deduplicate by lemma so sessionCardLimit limits unique words/phrases, not raw card rows
-  const seenLemmas = new Set<string>()
-  const uniqueDueCards: Card[] = []
+  // Group by lemma so sessionCardLimit caps unique words/phrases, not raw card rows - but keep
+  // EVERY due row for each included lemma, not just the first one seen. A lemma can have more than
+  // one card row for the same (deck, language) scope - a CSV/Anki import can put word-meaning and
+  // cloze content on two separate sibling cards of the same lemma (see loadCardView's own doc
+  // comment) - and every one of those rows needs to actually appear in the session and be answered
+  // for real; silently dropping a due sibling here would leave it un-reviewed with no way to tell.
+  // Grouping straight from `allDueCards` (already scoped to this deck/language pair by the query
+  // above) keeps this safe - no separate lookup that could pull in a sibling from an unrelated deck
+  // or a different native-language learner's card for the same lemma.
+  const dueCardsByLemma = new Map<string, Card[]>()
   for (const card of allDueCards) {
-    if (!seenLemmas.has(card.lemmaId)) {
-      seenLemmas.add(card.lemmaId)
-      uniqueDueCards.push(card)
-    }
+    const existing = dueCardsByLemma.get(card.lemmaId)
+    if (existing) existing.push(card)
+    else dueCardsByLemma.set(card.lemmaId, [card])
   }
-
-  const hasMore = sessionCardLimit > 0 && uniqueDueCards.length > sessionCardLimit
-  const cards = sessionCardLimit > 0 ? uniqueDueCards.slice(0, sessionCardLimit) : uniqueDueCards
+  const lemmaIds = [...dueCardsByLemma.keys()]
+  const hasMore = sessionCardLimit > 0 && lemmaIds.length > sessionCardLimit
+  const includedLemmaIds = sessionCardLimit > 0 ? lemmaIds.slice(0, sessionCardLimit) : lemmaIds
+  const cards = includedLemmaIds.flatMap((lemmaId) => dueCardsByLemma.get(lemmaId)!)
   const views: ReviewCard[] = []
   for (const card of cards) {
     const view = await loadCardView(db, card, clozeOnly)

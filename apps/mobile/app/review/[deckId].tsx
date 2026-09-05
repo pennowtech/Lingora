@@ -1,7 +1,5 @@
 import type { QuestionType, ReviewRating, Template, WordGuideEntry } from '@lingora/types'
 import {
-  getCardState,
-  getCardsByLemma,
   getDeckById,
   getDefaultTemplate,
   getDistractorMeanings,
@@ -498,13 +496,19 @@ export default function ReviewSessionScreen(): JSX.Element {
     queryFn: () => getDistractorMeanings(db, '', undefined, 30, targetLanguage, nativeLanguage),
     enabled: mixedOnly,
   })
-  // Per-card rating aggregation for a session where the same card appears more than once (Mixed
-  // practice — every enabled+eligible format for a card is its own queue entry, see sessionOrder
-  // below). Only the LAST entry for a given card actually writes to card_states/review_events; see
-  // the rate mutation. Reset alongside sessionOrder whenever the session itself resets.
-  const cardAggregation = useRef<Map<string, { worst: ReviewRating; durationMs: number; answeredCount: number }>>(
-    new Map(),
-  )
+  // Per-lemma rating aggregation for a session where a word/phrase appears more than once — either
+  // because Mixed practice tests one card in several formats (see sessionOrder below), or because
+  // the lemma itself has more than one sibling card row (a CSV/Anki import can split word-meaning
+  // and cloze content of the same word onto two separate `cards` rows sharing one `lemma_id`; see
+  // loadReviewQueue's own comment). Every entry for every sibling card of a lemma must be answered
+  // before ANY of that lemma's cards gets its real FSRS advance — a word isn't "reviewed" if three
+  // of its four representations were tested but the fourth wasn't. Only the LAST entry for a given
+  // lemma actually writes to card_states/review_events, and it writes once per distinct sibling
+  // card, each using that card's own prior state — never one card's computed state force-copied
+  // onto another. See the rate mutation. Reset alongside sessionOrder whenever the session resets.
+  const cardAggregation = useRef<
+    Map<string, { worst: ReviewRating; answeredCount: number; cardDurationsMs: Map<string, number> }>
+  >(new Map())
 
   // Shared by the mode-change effect below and the done screen's "Practice more" button — resets
   // every piece of per-session state so a fresh loadReviewQueue call (the cards just finished are
@@ -545,6 +549,7 @@ export default function ReviewSessionScreen(): JSX.Element {
    * enabled for all 5 formats and eligible for all of them appears 5 times. */
   interface SessionEntry {
     cardId: string
+    lemmaId: string
     questionType: QuestionType
   }
 
@@ -578,7 +583,7 @@ export default function ReviewSessionScreen(): JSX.Element {
           enabledTypesQuery.data,
           distractorPoolQuery.data ?? [],
         )
-        for (const questionType of types) entries.push({ cardId: card.card.id, questionType })
+        for (const questionType of types) entries.push({ cardId: card.card.id, lemmaId: card.card.lemmaId, questionType })
       }
       // Interleaved across the whole session, not grouped by card — see shuffleArray's own comment.
       setSessionOrder(shuffleArray(entries))
@@ -586,6 +591,7 @@ export default function ReviewSessionScreen(): JSX.Element {
       setSessionOrder(
         dueCards.map((card) => ({
           cardId: card.card.id,
+          lemmaId: card.card.lemmaId,
           questionType: clozeOnly ? 'cloze' : reverseOnly || card.card.type === 'reverse' ? 'reverse' : 'vocab',
         })),
       )
@@ -656,66 +662,55 @@ export default function ReviewSessionScreen(): JSX.Element {
       if (!view || !activeEntry) throw new Error(t('No card to rate.'))
       const now = Date.now()
       const cardId = view.card.id
+      const lemmaId = activeEntry.lemmaId
       const elapsed = now - cardStartedAt.current
-      const prior = cardAggregation.current.get(cardId)
-      // A card tested in several formats this session (Mixed practice) gets exactly one FSRS
-      // update, using the WORST rating across every format it was tested in — see worstRating's
-      // own doc comment for why (a word isn't "known" if it failed even one presentation of it).
+      const prior = cardAggregation.current.get(lemmaId)
+      // A lemma tested more than once this session — several formats of one card (Mixed practice),
+      // several sibling card rows for the same word, or both — gets exactly one FSRS advance PER
+      // sibling card, all using the WORST rating across every entry tested for the whole lemma; see
+      // worstRating's own doc comment for why (a word isn't "known" if it failed even one
+      // presentation of it).
       const worst = prior ? worstRating(prior.worst, rating) : rating
-      const totalDuration = (prior?.durationMs ?? 0) + elapsed
       const answeredCount = (prior?.answeredCount ?? 0) + 1
-      const totalForCard = queue.filter((entry) => entry.cardId === cardId).length
-      const isFinalAttemptForCard = answeredCount >= totalForCard
+      const cardDurationsMs = new Map(prior?.cardDurationsMs ?? [])
+      cardDurationsMs.set(cardId, (cardDurationsMs.get(cardId) ?? 0) + elapsed)
+      const totalForLemma = queue.filter((entry) => entry.lemmaId === lemmaId).length
+      const isFinalAttemptForLemma = answeredCount >= totalForLemma
 
-      if (!isFinalAttemptForCard) {
-        cardAggregation.current.set(cardId, { worst, durationMs: totalDuration, answeredCount })
+      if (!isFinalAttemptForLemma) {
+        cardAggregation.current.set(lemmaId, { worst, answeredCount, cardDurationsMs })
         return { wrote: false, durationMs: elapsed }
       }
 
-      cardAggregation.current.delete(cardId)
-      const newState = schedule(view.cardState, worst, now)
+      cardAggregation.current.delete(lemmaId)
       // Mixed sessions never touch cloze_states, even when a card happens to be presented in cloze
       // format — see the mixedOnly comment above. Only dedicated Cloze Practice (clozeOnly) does.
       const recordFn = clozeOnly ? recordClozeReview : recordReview
-      await recordFn(
-        db,
-        {
-          id: crypto.randomUUID(),
-          cardId,
-          rating: worst,
-          reviewedAt: now,
-          durationMs: totalDuration,
-          // Only attributable to one format when the card was tested in exactly one format this
-          // session (every non-mixed session, or a mixed card with just one enabled/eligible type)
-          // — an aggregate across several formats has no single format to name.
-          ...(totalForCard === 1 && { questionType: activeEntry.questionType }),
-        },
-        newState,
-      )
-
-      // Also advance sibling cards for the same lemma in this deck so all representations of the word stay synchronized in FSRS
-      try {
-        const siblings = await getCardsByLemma(db, view.card.lemmaId)
-        for (const sib of siblings) {
-          if (sib.id !== cardId) {
-            const sibState = await getCardState(db, sib.id)
-            if (sibState) {
-              await recordReview(
-                db,
-                {
-                  id: crypto.randomUUID(),
-                  cardId: sib.id,
-                  rating: worst,
-                  reviewedAt: now,
-                  durationMs: 0,
-                },
-                { ...newState, cardId: sib.id },
-              )
-            }
-          }
-        }
-      } catch {
-        // Non-fatal: primary card was recorded successfully
+      // Every distinct sibling card row tested for this lemma this session gets its OWN independent
+      // FSRS advance, computed from ITS OWN prior card state (via liveById) — never one card's
+      // computed newState force-copied onto another, which is what corrupted unrelated cards' FSRS
+      // trajectories before this fix.
+      const siblingCardIds = [...new Set(queue.filter((entry) => entry.lemmaId === lemmaId).map((entry) => entry.cardId))]
+      for (const sibCardId of siblingCardIds) {
+        const sibView = sibCardId === cardId ? view : liveById.get(sibCardId)
+        if (!sibView) continue
+        const sibEntries = queue.filter((entry) => entry.cardId === sibCardId)
+        const sibNewState = schedule(sibView.cardState, worst, now)
+        await recordFn(
+          db,
+          {
+            id: crypto.randomUUID(),
+            cardId: sibCardId,
+            rating: worst,
+            reviewedAt: now,
+            durationMs: cardDurationsMs.get(sibCardId) ?? 0,
+            // Only attributable to one format when this card was tested in exactly one format this
+            // session (every non-mixed session, or a mixed card with just one enabled/eligible type)
+            // — an aggregate across several formats has no single format to name.
+            ...(sibEntries.length === 1 && sibEntries[0] && { questionType: sibEntries[0].questionType }),
+          },
+          sibNewState,
+        )
       }
 
       return { wrote: true, durationMs: elapsed }

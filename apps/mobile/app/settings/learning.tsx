@@ -82,8 +82,10 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Cards per session',
     icon: 'Layers',
     paragraphs: [
-      'Caps how many due cards a single review session pulls in - the most overdue cards first.',
-      'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
+      'Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.',
+      'Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.',
+      'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.',
+      'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.',
     ],
   },
   {

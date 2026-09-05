@@ -1432,8 +1432,6 @@ Home: 'Accueil',
     '• **Cartes** : Total des cartes d’entraînement générées pour tous les formats actifs (ex. vocabulaire, inversé, texte à trous).',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Uniques** : Nombre de mots de vocabulaire distincts / cartes uniques dans ce paquet.',
-  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
-    '• **À réviser** : Nombre de cartes uniques prêtes à être révisées dès maintenant.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Rétention** : Taux de mémorisation sur 30 jours pour vos cartes révisées.',
   // ── Deck detail screen controls ───────────────────────────────────
@@ -1453,8 +1451,6 @@ Home: 'Accueil',
   'Start Review': 'Commencer la révision',
   'The stats row': 'La ligne de statistiques',
   'The "..." menu': 'Le menu « ... »',
-  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
-    'La révision présente les cartes dues de ce paquet dans chaque format éligible sélectionné lors de la création du paquet, tel que mot, inversé, texte à trous, vrai/faux ou choix multiple.',
   'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
     'Renommer, déplacer, modifier les modes de révision, exporter, réinitialiser la progression ou supprimer ce paquet — la suppression demande toujours confirmation d’abord.',
   'Z–A': 'Z–A',

@@ -1426,8 +1426,6 @@ export const vi: Partial<Record<Phrase, string>> = {
     '• **Thẻ**: Tổng số thẻ luyện tập qua tất cả các định dạng đang hoạt động (ví dụ: từ vựng, đảo ngược, điền từ).',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Độc nhất**: Số lượng từ vựng riêng biệt / thẻ duy nhất được lưu trong bộ thẻ này.',
-  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
-    '• **Cần ôn**: Số lượng thẻ duy nhất đến hạn và sẵn sàng ôn tập ngay bây giờ.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Ghi nhớ**: Tỷ lệ ghi nhớ trong 30 ngày qua các thẻ bạn đã ôn tập.',
   // ── Deck detail screen controls ───────────────────────────────────
@@ -1447,8 +1445,6 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Start Review': 'Bắt đầu ôn tập',
   'The stats row': 'Hàng thống kê',
   'The "..." menu': 'Menu "..."',
-  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
-    'Phần ôn tập hiển thị các thẻ đến hạn của bộ thẻ này ở mọi định dạng hợp lệ đã chọn khi tạo bộ thẻ, chẳng hạn như từ vựng, đảo ngược, điền từ, đúng/sai hoặc trắc nghiệm.',
   'Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.':
     'Đổi tên, di chuyển, thay đổi chế độ ôn tập, xuất, đặt lại tiến trình hoặc xóa bộ thẻ này - việc xóa luôn yêu cầu xác nhận trước.',
   'Z–A': 'Z–A',

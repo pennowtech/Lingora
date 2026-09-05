@@ -1472,7 +1472,6 @@ Home: 'होम',
   "Configure search integration in **Settings → Share & Search**.": "**सेटिंग्स → शेयर और सर्च** में खोज एकीकरण कॉन्फ़िगर करें।",
   "The stats row": "आँकड़े पंक्ति",
   "Cards is everything in this deck; due now is the number of cards ready for their next review, and retention shows recent recall across your collection.": "इस डेक में कार्ड ही सब कुछ है; अब उनकी अगली रिव्यू के लिए तैयार कार्डों की संख्या due है, और रिटेंशन आपके कलेक्शन में हाल ही में याद किए गए कार्ड दिखाता है।",
-  "Review presents this deck's due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.": "रिव्यू इस डेक के due कार्डों को डेक के निर्माण के समय चुने गए प्रत्येक पात्र फ़ॉर्मैट में प्रस्तुत करती है, जैसे शब्द, रिवर्स, क्लोज़, सही/गलत, या मल्टीपल चॉइस।",
   "Rename, move, change review modes, export, reset progress, or delete this deck - delete always asks for confirmation first.": "नाम बदलें, स्थानांतरित करें, रिव्यू मोड बदलें, एक्सपोर्ट करें, प्रगति रीसेट करें, या इस डेक को हटा दें - डिलीट हमेशा पहले पुष्टि मांगता है।",
   "Editing a word card": "एक शब्द कार्ड का एडिटिंग",
   "Edit the **example sentence** and **example translation** here. Tap words in the token list to highlight the parts you want emphasized on the answer card.": "यहां **उदाहरण वाक्य** और **उदाहरण अनुवाद** एडिट करें। उत्तर कार्ड में जिन भागों पर आप ज़ोर देना चाहते हैं उन्हें हाइलाइट करने के लिए टोकन सूची में शब्दों को टैप करें।",
@@ -1491,7 +1490,14 @@ Home: 'होम',
   "Direct and secure delivery": "सीधी और सुरक्षित डिलीवरी",
   "Submissions are processed securely through the feedback service backend.": "फीडबैक सेवा बैकएंड के माध्यम से सबमिशन को सुरक्षित रूप से संसाधित किया जाता है।",
   "If you provide an email address, our team can follow up with you regarding your message.": "यदि आप एक ईमेल पता प्रदान करते हैं, तो हमारी टीम आपके संदेश के संबंध में आपसे संपर्क कर सकती है।",
-  "Caps how many due cards a single review session pulls in - the most overdue cards first.": "एक एकल रिव्यू सेशन में कितने due कार्ड खींचे जाते हैं, इसकी सीमा तय करता है - सबसे पहले सबसे अधिक ओवरड्यू कार्ड।",
+  "Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.":
+    "एक एकल रिव्यू सेशन में कितने due शब्द/वाक्यांश खींचे जाते हैं, इसकी सीमा तय करता है - सबसे पहले सबसे अधिक ओवरड्यू, अलग-अलग कार्ड नहीं।",
+  "Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.":
+    "किसी शब्द के लिए सक्षम हर रिव्यू मोड (वोकैब, रिवर्स, क्लोज़, सही/गलत, मल्टीपल चॉइस), साथ ही उस शब्द को साझा करने वाला कोई भी अन्य कार्ड, एक ही सेशन में साथ दिखाई देता है - इसलिए 10 शब्दों की सीमा डेक में सपोर्टेड मोड की संख्या के आधार पर 30-50+ कार्ड दिखा सकती है।",
+  "A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.":
+    "कोई शब्द due से तभी हटता है जब उन सभी कार्डों को वास्तव में रिव्यू कर लिया गया हो - कुछ के उत्तर देना और बाकी को due छोड़ देना मान्य नहीं है।",
+  'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'यदि और शब्द due हैं, तो सेशन पूरा करें और अगले राउंड के लिए तुरंत "Practice more" पर टैप करें, बजाय इसके कि वे फिर से due होने तक इंतज़ार करें।',
   "Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears - nothing else in the template is touched.": "किसी फ़ील्ड को बंद करने से बिल्कुल वह {{ variable }} या {% for %}...{% endfor %} ब्लॉक हट जाता है, जहां भी यह दिखाई देता है - टेम्पलेट में और कुछ भी नहीं छुआ जाता है।",
   ":root{--accent:#534AB7;}": ":root{--accent:#534AB7;}",
   "color: var(--accent);\nborder-color: var(--accent);": "color: var(--accent);\nborder-color: var(--accent);",
@@ -1863,10 +1869,25 @@ Home: 'होम',
     '• **कार्ड**: सभी सक्रिय अध्ययन प्रारूपों (जैसे शब्दावली, रिवर्स, क्लोज़) में कुल अभ्यास कार्ड।',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **अद्वितीय**: इस डेक में सहेजे गए अलग-अलग शब्दावली शब्द / अनूठे कार्डों की संख्या।',
-  '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.':
-    '• **बाकी**: स्पेसड रिपीटिशन के तहत अभी समीक्षा के लिए तैयार अनूठे कार्ड।',
+  '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
+    '• **Due**: अभी स्पेस्ड रिपिटीशन के तहत रिव्यू के लिए तैयार यूनीक शब्दों/वाक्यांशों की संख्या - अलग-अलग कार्ड नहीं। कोई शब्द Due से तभी हटता है जब उसके सभी रिव्यू मोड वास्तव में रिव्यू किए जा चुके हों।',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **स्मरण**: आपके समीक्षित कार्डों की 30-दिवसीय स्मृति प्रतिधारण दर।',
+  'Card status badges': 'कार्ड स्टेटस बैज',
+  'Each word in the list below shows one of three statuses:':
+    'नीचे दी गई सूची में हर शब्द तीन स्टेटस में से एक दिखाता है:',
+  '• **Due**: New, or scheduled and ready for review right now.':
+    '• **Due**: नया, या अभी रिव्यू के लिए शेड्यूल किया गया।',
+  '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.':
+    '• **REV · Xh / Xd**: रिव्यू हो चुका है - उतने घंटों या दिनों बाद फिर से due होगा।',
+  '• **Learned**: Reviewed with strong, mature retention.':
+    '• **Learned**: मजबूत, स्थायी याददाश्त के साथ रिव्यू किया गया।',
+  'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.':
+    'कोई शब्द Due से REV में तभी जाता है जब उसी सेशन में उसके सभी रिव्यू मोड के उत्तर दिए जा चुके हों - कुछ फ़ॉर्मैट के उत्तर देना और बाकी को छोड़ देना उसे Due से नहीं हटाता।',
+  "Review presents this deck's due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'रिव्यू इस डेक के due शब्दों को डेक बनाते समय चुने गए प्रत्येक पात्र फ़ॉर्मैट में प्रस्तुत करती है, जैसे शब्द, रिवर्स, क्लोज़, सही/गलत, या मल्टीपल चॉइस।',
+  "All of a word's formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.":
+    'किसी शब्द के सभी फ़ॉर्मैट - और उस शब्द को साझा करने वाला कोई भी अन्य कार्ड - एक ही सेशन में साथ रिव्यू किए जाते हैं; कोई शब्द तभी रिव्यू माना जाता है और Due से हटता है जब उनमें से हर एक का उत्तर दिया जा चुका हो।',
   // ── Deck detail screen controls ───────────────────────────────────
   'Mode': 'मोड',
   'Recent': 'हालिया',

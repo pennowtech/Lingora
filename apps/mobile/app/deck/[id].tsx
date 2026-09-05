@@ -83,8 +83,20 @@ const HELP_SECTIONS: HelpSection[] = [
       'The four top boxes track your deck metrics at a glance:',
       '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).',
       '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.',
-      '• **Due**: Number of unique cards scheduled and ready for review right now under spaced repetition.',
+      '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.',
       '• **Retention**: 30-day recall retention rate across your reviewed cards.',
+    ],
+  },
+  {
+    id: 'status',
+    title: 'Card status badges',
+    icon: 'CircleCheckBig',
+    paragraphs: [
+      'Each word in the list below shows one of three statuses:',
+      '• **Due**: New, or scheduled and ready for review right now.',
+      '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.',
+      '• **Learned**: Reviewed with strong, mature retention.',
+      'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.',
     ],
   },
   {
@@ -92,7 +104,8 @@ const HELP_SECTIONS: HelpSection[] = [
     title: 'Review',
     icon: 'Play',
     paragraphs: [
-      'Review presents this deck\'s due cards in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.',
+      'Review presents this deck\'s due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.',
+      'All of a word\'s formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.',
     ],
   },
   {

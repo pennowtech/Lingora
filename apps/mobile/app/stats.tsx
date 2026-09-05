@@ -1,7 +1,7 @@
 import type { LanguageCode } from '@lingora/types'
 import {
   getDifficultWords,
-  getRetentionRate,
+  getRetentionSummary,
   getReviewCountsByDay,
   getReviewedDayIndexes,
   getReviewForecast,
@@ -29,6 +29,7 @@ const HEAT_COLORS = ['#EFEDF6', '#D8D3F0', '#B4ABE3', '#8C7FD3', '#534AB7']
 
 interface StatsData {
   retention30d: number
+  retentionReviewCount: number
   streakDays: number
   totalCards: number
   newThisWeek: number
@@ -43,8 +44,8 @@ async function loadStats(
   targetLanguage?: LanguageCode,
   nativeLanguage?: LanguageCode,
 ): Promise<StatsData> {
-  const [retention30d, totalCards, days, reviewCounts, growth, difficultWords, forecast] = await Promise.all([
-    getRetentionRate(db, 30, targetLanguage, nativeLanguage),
+  const [retention, totalCards, days, reviewCounts, growth, difficultWords, forecast] = await Promise.all([
+    getRetentionSummary(db, 30, targetLanguage, nativeLanguage),
     getTotalCardCount(db, targetLanguage, nativeLanguage),
     getReviewedDayIndexes(db, 366, targetLanguage, nativeLanguage),
     getReviewCountsByDay(db, 35, targetLanguage, nativeLanguage),
@@ -53,7 +54,8 @@ async function loadStats(
     getReviewForecast(db, 7, targetLanguage, nativeLanguage),
   ])
   return {
-    retention30d,
+    retention30d: retention.rate,
+    retentionReviewCount: retention.reviewCount,
     totalCards,
     streakDays: streakFromDayIndexes(days),
     newThisWeek: growth[growth.length - 1]?.count ?? 0,
@@ -109,6 +111,13 @@ export default function StatsScreen(): JSX.Element {
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>{Math.round(stats.retention30d * 100)}%</Text>
           <Text style={styles.gridLabel}>{t('remembered (30 d)')}</Text>
+          {/* This is a rate over reviews actually done in the window, not a fraction of your due/
+              total card counts - those can differ wildly right after a big import (see
+              getRetentionSummary's own doc comment), so spell out the real sample size here rather
+              than leaving the percentage to be read as "% of my cards." */}
+          <Text style={styles.gridSubLabel}>
+            {t('based on {{count}} reviews', { count: stats.retentionReviewCount })}
+          </Text>
         </Card>
         <Card style={styles.gridCard}>
           <Text style={styles.gridValue}>🔥 {stats.streakDays}</Text>
@@ -218,6 +227,7 @@ const createStyles = (colors: ThemeColors) =>
     gridCard: { width: '48%', flexGrow: 1, alignItems: 'center', paddingVertical: spacing.lg },
     gridValue: { fontSize: type.heading, fontWeight: '800', color: colors.text },
     gridLabel: { fontSize: type.micro, color: colors.textSecondary, marginTop: 2 },
+    gridSubLabel: { fontSize: type.micro, color: colors.textMuted, marginTop: 1 },
     gridHint: {
       fontSize: type.micro,
       color: colors.textMuted,

@@ -313,6 +313,7 @@ Home: 'Inicio',
   'Add and review some words to see your learning statistics here.':
     'Añade y repasa algunas palabras para ver aquí tus estadísticas de aprendizaje.',
   'remembered (30 d)': 'recordado (30 d)',
+  'based on {{count}} reviews': 'basado en {{count}} repasos',
   'day streak': 'racha de días',
   'total cards': 'tarjetas totales',
   'new this week': 'nuevas esta semana',
@@ -1133,6 +1134,18 @@ Home: 'Inicio',
     'Limita cuántas tarjetas pendientes carga una sola sesión de repaso - las más atrasadas primero. Se aplica a todos los modos de práctica, no solo a Mixta.',
   'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
     'Si quedan más pendientes, termina la sesión y toca "Seguir practicando" para otra ronda enseguida, en lugar de esperar a que vuelvan a estar pendientes.',
+  'Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.':
+    'Limita cuántas palabras/frases pendientes carga una sola sesión de repaso - las más atrasadas primero, no tarjetas individuales.',
+  'Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.':
+    'Cada modo de repaso habilitado para una palabra (vocabulario, inverso, texto con huecos, verdadero/falso, opción múltiple), más cualquier otra tarjeta que comparta esa palabra, aparece junto en la misma sesión - así que un límite de 10 palabras puede mostrar 30-50+ tarjetas según cuántos modos admita el mazo.',
+  'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.':
+    'Una palabra no se elimina de pendientes hasta que se haya repasado realmente cada una de esas tarjetas - responder algunas y dejar otras pendientes no cuenta.',
+  'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Si hay más palabras pendientes, termina la sesión y toca "Seguir practicando" para otra ronda enseguida, en lugar de esperar a que vuelvan a estar pendientes.',
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.":
+    'Los modos de repaso de este mazo no incluyen texto con huecos. Estas tarjetas igualmente funcionarán, pero se evaluarán como vocabulario normal en lugar de completar espacios.',
+  'This deck\'s review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.':
+    'El modo de repaso de este mazo es solo texto con huecos, pero estas tarjetas no tienen contenido para completar espacios. En su lugar, se evaluarán como vocabulario normal.',
   'How AI Providers works': 'Cómo funcionan los proveedores de IA',
   'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
     'La generación de tarjetas (significados, ejemplos, grupos, frases, huecos) usa el proveedor configurado y activado abajo.',
@@ -1426,12 +1439,35 @@ Home: 'Inicio',
   // ── Deck detail screen stats help ──────────────────────────────────
   'The four top boxes track your deck metrics at a glance:':
     'Las cuatro casillas superiores muestran las estadísticas de tu mazo de un vistazo:',
+  'The three top boxes track your deck metrics at a glance:':
+    'Las tres casillas superiores muestran las estadísticas de tu mazo de un vistazo:',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.':
+    'La retención ahora vive en la pantalla de Estadísticas (toca Stats desde Inicio o desde un mazo) junto con todo tu historial de recuerdo, en lugar de repetir un número global en cada mazo.',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
     '• **Tarjetas**: Total de tarjetas de práctica generadas en todos los formatos activos (p. ej., vocabulario, inverso, texto con huecos).',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.':
+    '• **Tarjetas**: Palabras únicas multiplicadas por los formatos de repaso que realmente tienen contenido para evaluar - los huecos solo cuentan aquí si el mazo tiene tarjetas de huecos reales, así que activar el modo de huecos en una importación sin ese contenido no infla este número.',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Únicas**: Número de palabras de vocabulario distintas / tarjetas únicas en este mazo.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Retención**: Tasa de retención de memoria de 30 días en tus tarjetas repasadas.',
+  '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
+    '• **Due**: Número de palabras/frases únicas programadas y listas para repasar ahora mismo mediante repetición espaciada, no tarjetas individuales. Una palabra solo sale de Due cuando se ha repasado realmente cada uno de sus modos de repaso.',
+  'Card status badges': 'Insignias de estado de la tarjeta',
+  'Each word in the list below shows one of three statuses:':
+    'Cada palabra en la siguiente lista muestra uno de tres estados:',
+  '• **Due**: New, or scheduled and ready for review right now.':
+    '• **Due**: Nueva, o programada y lista para repasar ahora mismo.',
+  '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.':
+    '• **REV · Xh / Xd**: Repasada - vuelve a estar pendiente en esa cantidad de horas o días.',
+  '• **Learned**: Reviewed with strong, mature retention.':
+    '• **Learned**: Repasada con una retención sólida y duradera.',
+  'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.':
+    'Una palabra solo pasa de Due a REV cuando se ha respondido cada uno de sus modos de repaso en la misma sesión. Responder algunos formatos y dejar otros sin responder no la elimina de Due.',
+  "Review presents this deck's due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'El repaso presenta las palabras pendientes de este mazo en cada formato elegible seleccionado al crear el mazo, como palabra, inverso, texto con huecos, verdadero/falso u opción múltiple.',
+  "All of a word's formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.":
+    'Todos los formatos de una palabra, y cualquier otra tarjeta que comparta esa palabra, se repasan juntos en la misma sesión; una palabra no se marca como repasada ni se elimina de Due hasta que se haya respondido cada uno de ellos.',
   // ── Deck detail screen controls ───────────────────────────────────
   'Mode': 'Modo',
   'Recent': 'Recientes',
@@ -1455,5 +1491,8 @@ Home: 'Inicio',
   'Z-A': 'Z–A',
   'Ascending': 'Ascendente',
   'Descending': 'Descendente',
+  'Select All': 'Seleccionar todo',
+  'Deselect All': 'Deseleccionar todo',
+  'Loading deck...': 'Cargando mazo...',
 };
 

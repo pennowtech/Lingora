@@ -87,7 +87,6 @@ const SEARCHABLE_SETTINGS: SearchableSetting[] = [
   { key: 'delete-ai-keys', label: 'Delete All AI Providers Keys', group: 'AI & Translation', keywords: ['delete', 'remove', 'clear', 'key'], route: '/settings/ai-providers', icon: 'Trash2' },
   { key: 'translation', label: 'Translation Services', group: 'AI & Translation', keywords: ['translate', 'deepl', 'google translate'], route: '/settings/translation', icon: 'Languages' },
 
-  { key: 'import-export', label: 'Import & Export', group: 'Library & Content', keywords: ['anki', 'csv', 'json', 'backup', 'restore', 'apkg', 'import', 'export'], route: '/settings/import-export', icon: 'ArrowUpDown' },
   { key: 'templates', label: 'Card Templates', group: 'Library & Content', keywords: ['layout', 'design', 'liquid', 'template'], route: '/settings/templates', icon: 'Palette' },
   { key: 'word-guides', label: 'Local Dictionaries', group: 'Library & Content', keywords: ['dictionary', 'starter', 'offline'], route: '/settings/word-guides', icon: 'Library' },
 
@@ -105,7 +104,7 @@ function routeToCategory(route: string): SettingsCategoryKey {
   if (route === '/settings/learning') return 'learning'
   if (route === '/settings/sync') return 'sync'
   if (route === '/settings/about' || route === '/settings/feedback') return 'about'
-  if (route === '/settings/data' || route === '/settings/import-export' || route === '/settings/word-guides') return 'data'
+  if (route === '/settings/data' || route === '/settings/word-guides') return 'data'
   if (route === '/settings/templates') return 'general'
   return 'general'
 }
@@ -324,14 +323,6 @@ export default function SettingsScreen(): JSX.Element {
           {/* 3. Library & Content (Flattened direct links) */}
           <Text style={styles.sectionHeader}>{t('Library & Content')}</Text>
           <Card style={styles.menuCard}>
-            <LinkRow
-              testID="settings-menu-import-export"
-              icon="ArrowUpDown"
-              label={t('Import & Export')}
-              detail={t('Anki (.apkg), CSV spreadsheet, Lingora backup')}
-              onPress={() => router.push('/settings/import-export')}
-              tint={categoryColors.data}
-            />
             <LinkRow
               testID="settings-menu-templates"
               icon="Palette"

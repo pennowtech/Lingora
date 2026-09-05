@@ -313,6 +313,7 @@ Home: 'होम',
   'Add and review some words to see your learning statistics here.':
     'यहाँ अपने सीखने के आँकड़े देखने के लिए कुछ शब्द जोड़ें और दोहराएं।',
   'remembered (30 d)': 'याद रखा (30 दिन)',
+  'based on {{count}} reviews': '{{count}} रिव्यू के आधार पर',
   'day streak': 'दिनों की लड़ी',
   'total cards': 'कुल कार्ड',
   'new this week': 'इस सप्ताह नए',
@@ -1352,6 +1353,10 @@ Home: 'होम',
   "Cloze sentence is required - it must contain {{c1::word}} markup. Everything else is optional.": "क्लोज़ वाक्य आवश्यक है—इसमें {{c1::word}} मार्कअप होना चाहिए। बाकी सब ऑप्शनल है।",
   "Choose a deck": "एक डेक चुनें",
   "Each row becomes ONE card, never two. Want both a regular and a cloze card from the same file? Import it again afterward with the other option selected.": "प्रत्येक पंक्ति एक कार्ड बन जाती है, कभी दो नहीं। क्या आप एक ही फ़ाइल से नियमित और क्लोज़ दोनों कार्ड चाहते हैं? बाद में सिलेक्ट किया हुआ अन्य विकल्प के साथ इसे फिर से इम्पोर्ट करें।",
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.":
+    "इस डेक के रिव्यू मोड में क्लोज़ शामिल नहीं है। ये कार्ड फिर भी काम करेंगे, लेकिन फिल-इन-द-ब्लैंक के बजाय सामान्य वोकैबुलरी के रूप में टेस्ट किए जाएंगे।",
+  "This deck's review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.":
+    "इस डेक का रिव्यू मोड केवल क्लोज़ है, लेकिन इन कार्डों में कोई फिल-इन-द-ब्लैंक कंटेंट नहीं है। इन्हें इसके बजाय सामान्य वोकैबुलरी के रूप में टेस्ट किया जाएगा।",
   "Feedback Sent!": "फ़ीडबैक भेजी गई!",
   "Thank you for reaching out! Your message has been received and our team will review it.": "संपर्क करने के लिए धन्यवाद! आपका संदेश प्राप्त हो गया है और हमारी टीम इसकी रिव्यू करेगी।",
   "Could not send feedback": "फ़ीडबैक नहीं भेज सका",
@@ -1497,7 +1502,7 @@ Home: 'होम',
   "A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.":
     "कोई शब्द due से तभी हटता है जब उन सभी कार्डों को वास्तव में रिव्यू कर लिया गया हो - कुछ के उत्तर देना और बाकी को due छोड़ देना मान्य नहीं है।",
   'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
-    'यदि और शब्द due हैं, तो सेशन पूरा करें और अगले राउंड के लिए तुरंत "Practice more" पर टैप करें, बजाय इसके कि वे फिर से due होने तक इंतज़ार करें।',
+    'यदि और शब्द due हैं, तो सेशन पूरा करें और अगले राउंड के लिए तुरंत "और प्रैक्टिस करें" पर टैप करें, बजाय इसके कि वे फिर से due होने तक इंतज़ार करें।',
   "Turning a field off removes exactly that {{ variable }} or {% for %}...{% endfor %} block wherever it appears - nothing else in the template is touched.": "किसी फ़ील्ड को बंद करने से बिल्कुल वह {{ variable }} या {% for %}...{% endfor %} ब्लॉक हट जाता है, जहां भी यह दिखाई देता है - टेम्पलेट में और कुछ भी नहीं छुआ जाता है।",
   ":root{--accent:#534AB7;}": ":root{--accent:#534AB7;}",
   "color: var(--accent);\nborder-color: var(--accent);": "color: var(--accent);\nborder-color: var(--accent);",
@@ -1865,8 +1870,14 @@ Home: 'होम',
   'Deck Detail': 'डेक विवरण',
   'The four top boxes track your deck metrics at a glance:':
     'शीर्ष चार बॉक्स आपके डेक के आँकड़े एक नज़र में दिखाते हैं:',
+  'The three top boxes track your deck metrics at a glance:':
+    'शीर्ष तीन बॉक्स आपके डेक के आँकड़े एक नज़र में दिखाते हैं:',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.':
+    'Retention अब स्टैटिस्टिक्स स्क्रीन पर है (Home या किसी डेक से Stats पर टैप करें), आपके पूरे रिकॉल इतिहास के साथ - हर डेक पर एक ही ग्लोबल नंबर दोहराने के बजाय।',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
     '• **कार्ड**: सभी सक्रिय अध्ययन प्रारूपों (जैसे शब्दावली, रिवर्स, क्लोज़) में कुल अभ्यास कार्ड।',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.':
+    '• **कार्ड**: यूनीक शब्दों को उन रिव्यू फ़ॉर्मैट से गुणा किया जाता है जिनके पास वाकई टेस्ट करने के लिए कंटेंट है - क्लोज़ यहाँ तभी गिना जाता है जब डेक में असली क्लोज़ कार्ड हों, इसलिए बिना क्लोज़ कंटेंट वाले इम्पोर्ट पर क्लोज़ मोड चालू करने से यह संख्या नहीं बढ़ती।',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **अद्वितीय**: इस डेक में सहेजे गए अलग-अलग शब्दावली शब्द / अनूठे कार्डों की संख्या।',
   '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
@@ -1907,5 +1918,8 @@ Home: 'होम',
   'Z-A': 'Z–A',
   'Ascending': 'आरोही',
   'Descending': 'अवरोही',
+  'Select All': 'सभी चुनें',
+  'Deselect All': 'सभी अनचयनित करें',
+  'Loading deck...': 'डेक लोड हो रहा है...',
 };
 

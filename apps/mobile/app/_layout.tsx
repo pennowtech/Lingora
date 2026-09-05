@@ -110,7 +110,6 @@ function AppStack(): JSX.Element {
             <Stack.Screen name="settings/data" options={{ title: t('Data') }} />
             <Stack.Screen name="settings/sync" options={{ title: t('Sync') }} />
             <Stack.Screen name="settings/about" options={{ title: t('About & Support') }} />
-            <Stack.Screen name="settings/import-export" options={{ title: t('Import & Export') }} />
             <Stack.Screen name="settings/csv-import" options={{ title: t('Import CSV') }} />
             <Stack.Screen name="settings/apkg-import" options={{ title: t('Import Anki deck') }} />
             <Stack.Screen name="settings/templates" options={{ title: t('Card Templates') }} />

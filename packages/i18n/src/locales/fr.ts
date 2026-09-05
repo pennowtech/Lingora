@@ -314,6 +314,7 @@ Home: 'Accueil',
   'Add and review some words to see your learning statistics here.':
     'Ajoutez et révisez des mots pour voir vos statistiques ici.',
   'remembered (30 d)': 'mémorisé (30 j)',
+  'based on {{count}} reviews': 'basé sur {{count}} révisions',
   'day streak': 'série de jours',
   'total cards': 'total des cartes',
   'new this week': 'nouveaux cette semaine',
@@ -1134,6 +1135,18 @@ Home: 'Accueil',
     "Limite le nombre de cartes à réviser chargées dans une seule session - les plus en retard d'abord. S'applique à tous les modes d'entraînement, pas seulement Mixte.",
   'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
     'S\'il en reste, termine la session et appuie sur « Continuer » pour une autre série tout de suite, plutôt que d\'attendre qu\'elles soient de nouveau dues.',
+  'Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.':
+    'Limite le nombre de mots/expressions dus qu\'une seule session de révision charge - les plus en retard en premier, pas des cartes individuelles.',
+  'Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.':
+    'Chaque mode de révision activé pour un mot (vocabulaire, inversé, texte à trous, vrai/faux, choix multiple), ainsi que toute autre carte partageant ce mot, apparaît ensemble dans la même session - une limite de 10 mots peut donc afficher 30 à 50+ cartes selon le nombre de modes pris en charge par le paquet.',
+  'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.':
+    'Un mot n\'est retiré des dus que lorsque chacune de ces cartes a réellement été révisée - répondre à certaines et en laisser d\'autres dues ne compte pas.',
+  'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'S\'il reste plus de mots dus, termine la session et appuie sur « Continuer » pour une autre série tout de suite, plutôt que d\'attendre qu\'ils redeviennent dus.',
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.":
+    'Les modes de révision de ce paquet n\'incluent pas le texte à trous. Ces cartes fonctionneront quand même, mais seront testées comme du vocabulaire normal plutôt qu\'en texte à trous.',
+  'This deck\'s review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.':
+    'Le mode de révision de ce paquet est uniquement le texte à trous, mais ces cartes n\'ont pas de contenu à trous. Elles seront testées comme du vocabulaire normal à la place.',
   'How AI Providers works': 'Comment fonctionnent les fournisseurs IA',
   'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
     'La génération de cartes (sens, exemples, groupes, phrases, texte lacunaire) utilise le fournisseur configuré et activé ci-dessous.',
@@ -1428,12 +1441,35 @@ Home: 'Accueil',
   // ── Deck detail screen stats help ──────────────────────────────────
   'The four top boxes track your deck metrics at a glance:':
     'Les quatre cases supérieures résument les statistiques de votre paquet :',
+  'The three top boxes track your deck metrics at a glance:':
+    'Les trois cases supérieures résument les statistiques de votre paquet :',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.':
+    'La rétention se trouve désormais sur l\'écran Statistiques (appuyez sur Stats depuis l\'accueil ou un paquet), avec tout votre historique de mémorisation, plutôt que de répéter un chiffre global sur chaque paquet.',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
     '• **Cartes** : Total des cartes d’entraînement générées pour tous les formats actifs (ex. vocabulaire, inversé, texte à trous).',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.':
+    '• **Cartes** : Mots uniques multipliés par les formats de révision qui ont réellement du contenu à tester - le texte à trous ne compte ici que si le paquet a de vraies cartes à trous, donc activer ce mode sur un import qui n\'en a pas ne gonfle pas ce nombre.',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Uniques** : Nombre de mots de vocabulaire distincts / cartes uniques dans ce paquet.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Rétention** : Taux de mémorisation sur 30 jours pour vos cartes révisées.',
+  '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
+    '• **Due** : Nombre de mots/expressions uniques programmés et prêts à être révisés maintenant selon la répétition espacée, pas des cartes individuelles. Un mot ne quitte Due que lorsque chacun de ses modes de révision a réellement été révisé.',
+  'Card status badges': 'Badges de statut des cartes',
+  'Each word in the list below shows one of three statuses:':
+    'Chaque mot de la liste ci-dessous affiche l\'un des trois statuts suivants :',
+  '• **Due**: New, or scheduled and ready for review right now.':
+    '• **Due** : Nouveau, ou programmé et prêt à être révisé maintenant.',
+  '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.':
+    '• **REV · Xh / Xd** : Révisé - redevient dû dans ce nombre d\'heures ou de jours.',
+  '• **Learned**: Reviewed with strong, mature retention.':
+    '• **Learned** : Révisé avec une rétention solide et durable.',
+  'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.':
+    'Un mot ne passe de Due à REV que lorsque chacun de ses modes de révision a reçu une réponse dans la même session - répondre à certains formats et en laisser d\'autres ne le retire pas de Due.',
+  "Review presents this deck's due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'La révision présente les mots dus de ce paquet dans chaque format éligible sélectionné lors de la création du paquet, tel que mot, inversé, texte à trous, vrai/faux ou choix multiple.',
+  "All of a word's formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.":
+    'Tous les formats d\'un mot, ainsi que toute autre carte partageant ce mot, sont révisés ensemble dans la même session ; un mot n\'est marqué comme révisé et retiré de Due que lorsque chacun d\'eux a reçu une réponse.',
   // ── Deck detail screen controls ───────────────────────────────────
   'Mode': 'Mode',
   'Recent': 'Récents',
@@ -1457,5 +1493,8 @@ Home: 'Accueil',
   'Z-A': 'Z–A',
   'Ascending': 'Croissant',
   'Descending': 'Décroissant',
+  'Select All': 'Tout sélectionner',
+  'Deselect All': 'Tout désélectionner',
+  'Loading deck...': 'Chargement du paquet...',
 };
 

@@ -49,8 +49,8 @@ import {
 } from '@lingora/database'
 import { LANGUAGE_NAMES, PROMPTS, renderPrompt } from '@lingora/ai'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useState, type JSX } from 'react'
+import { router, Stack, useIsFocused, useLocalSearchParams } from 'expo-router'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -286,6 +286,20 @@ export default function WordDetailScreen(): JSX.Element {
     const providerLabel = ai?.name ? (PROVIDER_META[ai.name as GenerationProviderName]?.label ?? ai.name) : 'AI'
     setErrorNotice({ title, message: formatUserFriendlyProviderError(providerLabel, error, t) })
   }
+  // generateMissingWord below fires automatically on mount, with no button press behind it - by
+  // the time its response comes back (this app keeps prior screens mounted in the stack rather
+  // than unmounting on navigate), the user may well have moved on to a completely different
+  // screen. AlertModal renders via React Native's own Modal, a native overlay that shows up over
+  // whatever screen is actually in front regardless of which mounted screen "owns" it - so without
+  // this guard, a slow/failed background generation surfaces its error on top of an unrelated
+  // screen (confirmed: a Groq quota error from an earlier auto-generate appearing mid Anki-import).
+  // A ref, not the isFocused value itself, because this callback is captured once and invoked
+  // later, asynchronously, and needs whatever the focus state is *at that later moment*.
+  const isFocused = useIsFocused()
+  const isFocusedRef = useRef(isFocused)
+  useEffect(() => {
+    isFocusedRef.current = isFocused
+  }, [isFocused])
 
   const handleToggleSynonym = async (syn: Synonym, contextDescription?: string) => {
     const nextState = !expandedSynonyms[syn.id]
@@ -556,7 +570,12 @@ export default function WordDetailScreen(): JSX.Element {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['word', form] })
     },
-    onError: (error: unknown) => showAIError(t('Could not generate word card'), error),
+    // Only pop the alert if the user is still actually looking at this screen - see
+    // isFocusedRef's own comment above. The inline generateMissingWord.isError state further down
+    // still reflects the failure whenever they do come back to this word, so nothing is lost.
+    onError: (error: unknown) => {
+      if (isFocusedRef.current) showAIError(t('Could not generate word card'), error)
+    },
   })
 
   useEffect(() => {

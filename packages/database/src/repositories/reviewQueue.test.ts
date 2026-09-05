@@ -58,4 +58,22 @@ describe('loadReviewQueue lemma grouping (sibling card rows of the same word)', 
     expect(result.views.length).toBe(3)
     expect(result.hasMore).toBe(false)
   })
+
+  it("a sibling card's hasClozeVariant reflects only its own content, not a borrowed sibling's - so Mixed practice never double-tests the same cloze sentence", async () => {
+    const result = await loadReviewQueue(db, deckId, false, 2, undefined, 'de', 'en')
+    const einbrechenViews = result.views.filter((v) => v.form === 'einbrechen' || v.example?.includes('einbrechen'))
+    const basicView = result.views.find((v) => v.card.lemmaId === einbrechenViews[0]?.card.lemmaId && v.card.type === 'basic')
+    const clozeView = result.views.find((v) => v.card.lemmaId === einbrechenViews[0]?.card.lemmaId && v.card.type === 'cloze')
+    expect(basicView).toBeDefined()
+    expect(clozeView).toBeDefined()
+
+    // The basic sibling has no cloze content of its own - it must NOT be reported as cloze-eligible,
+    // even though it still renders the borrowed cloze sentence (for the single-card preview toggle).
+    expect(basicView?.hasClozeVariant).toBe(false)
+    expect(basicView?.clozeSentence).toBe(clozeView?.clozeSentence)
+    expect(basicView?.clozeSentence).toContain('Haus')
+
+    // The cloze sibling genuinely has its own cloze content.
+    expect(clozeView?.hasClozeVariant).toBe(true)
+  })
 })

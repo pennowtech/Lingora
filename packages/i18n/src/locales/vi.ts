@@ -953,6 +953,7 @@ export const vi: Partial<Record<Phrase, string>> = {
   'new words per week': 'từ mới mỗi tuần',
   'regenerate this card': 'tạo lại thẻ này',
   'remembered (30 d)': 'đã nhớ (30 ngày)',
+  'based on {{count}} reviews': 'dựa trên {{count}} lượt ôn tập',
   reverse: 'chiều ngược lại',
   'reviewed today': 'đã ôn hôm nay',
   'rule - reference it in your CSS below as':
@@ -1128,6 +1129,18 @@ export const vi: Partial<Record<Phrase, string>> = {
     'Giới hạn số thẻ đến hạn mà một phiên ôn tập tải vào - thẻ quá hạn lâu nhất trước. Áp dụng cho mọi chế độ luyện tập, không chỉ Hỗn hợp.',
   'If more are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
     'Nếu còn thẻ đến hạn, hãy hoàn thành phiên và nhấn "Luyện thêm" để có thêm một vòng ngay lập tức, thay vì chờ đến khi chúng đến hạn lần nữa.',
+  'Caps how many due words/phrases a single review session pulls in - the most overdue first, not raw cards.':
+    'Giới hạn số từ/cụm từ đến hạn mà một phiên ôn tập tải vào - những từ quá hạn lâu nhất trước, không phải từng thẻ riêng lẻ.',
+  'Every review mode enabled for a word (vocab, reverse, cloze, true/false, multiple choice), plus any sibling card sharing that word, appears together in the same session - so a limit of 10 words can show 30-50+ cards depending on how many modes the deck supports.':
+    'Mỗi chế độ ôn tập được bật cho một từ (từ vựng, đảo ngược, điền từ, đúng/sai, trắc nghiệm), cùng với bất kỳ thẻ nào khác chia sẻ từ đó, sẽ xuất hiện cùng nhau trong cùng một phiên - vì vậy giới hạn 10 từ có thể hiển thị 30-50+ thẻ tùy theo số chế độ mà bộ thẻ hỗ trợ.',
+  'A word is not removed from due until every one of those cards has actually been reviewed - answering some and leaving others due does not count.':
+    'Một từ không bị loại khỏi danh sách đến hạn cho đến khi mỗi thẻ đó thực sự đã được ôn tập - trả lời một số và để những cái khác còn đến hạn sẽ không được tính.',
+  'If more words are due, finish the session and tap "Practice more" for another round right away, instead of waiting until they come due again.':
+    'Nếu còn nhiều từ đến hạn, hãy hoàn thành phiên và nhấn "Luyện thêm" để ôn ngay một vòng khác, thay vì chờ đến khi chúng đến hạn trở lại.',
+  "This deck's review modes don't include Cloze. These cards will still work, but will be tested as regular vocabulary instead of fill-in-the-blank.":
+    'Các chế độ ôn tập của bộ thẻ này không bao gồm điền từ. Các thẻ này vẫn hoạt động bình thường, nhưng sẽ được kiểm tra như từ vựng thông thường thay vì điền vào chỗ trống.',
+  'This deck\'s review mode is Cloze only, but these cards have no fill-in-the-blank content. They will be tested as regular vocabulary instead.':
+    'Chế độ ôn tập của bộ thẻ này chỉ có điền từ, nhưng các thẻ này không có nội dung điền vào chỗ trống. Thay vào đó, chúng sẽ được kiểm tra như từ vựng thông thường.',
   'How AI Providers works': 'Cách hoạt động của Nhà cung cấp AI',
   'Card generation (meanings, examples, clusters, phrases, cloze) uses whichever provider below is configured and enabled.':
     'Việc tạo thẻ (nghĩa, ví dụ, cụm, cụm từ, điền khuyết) sử dụng nhà cung cấp đã được cấu hình và bật bên dưới.',
@@ -1422,12 +1435,35 @@ export const vi: Partial<Record<Phrase, string>> = {
   // ── Deck detail screen stats help ──────────────────────────────────
   'The four top boxes track your deck metrics at a glance:':
     'Bốn ô trên cùng tóm tắt số liệu bộ thẻ của bạn trong nháy mắt:',
+  'The three top boxes track your deck metrics at a glance:':
+    'Ba ô trên cùng tóm tắt số liệu bộ thẻ của bạn trong nháy mắt:',
+  'Retention now lives on the Statistics screen (tap Stats from Home or a deck) alongside your full recall history, instead of repeating a global number on every deck.':
+    'Chỉ số ghi nhớ giờ nằm ở màn hình Thống kê (nhấn Stats từ Trang chủ hoặc từ một bộ thẻ) cùng với toàn bộ lịch sử ghi nhớ của bạn, thay vì lặp lại một con số chung trên mọi bộ thẻ.',
   '• **Cards**: Total practice cards generated across all active study formats (e.g. vocab, reverse, cloze).':
     '• **Thẻ**: Tổng số thẻ luyện tập qua tất cả các định dạng đang hoạt động (ví dụ: từ vựng, đảo ngược, điền từ).',
+  '• **Cards**: Unique words multiplied by the review formats that actually have content to test - Cloze only counts here if the deck has real Cloze cards, so enabling Cloze mode on an import with none of it does not inflate this number.':
+    '• **Thẻ**: Số từ duy nhất nhân với số định dạng ôn tập thực sự có nội dung để kiểm tra - điền từ chỉ được tính ở đây nếu bộ thẻ có thẻ điền từ thật, vì vậy bật chế độ điền từ cho một lượt nhập không có nội dung đó sẽ không làm tăng con số này.',
   '• **Unique**: Number of distinct vocabulary words / unique cards saved in this deck.':
     '• **Độc nhất**: Số lượng từ vựng riêng biệt / thẻ duy nhất được lưu trong bộ thẻ này.',
   '• **Retention**: 30-day recall retention rate across your reviewed cards.':
     '• **Ghi nhớ**: Tỷ lệ ghi nhớ trong 30 ngày qua các thẻ bạn đã ôn tập.',
+  '• **Due**: Number of unique words/phrases scheduled and ready for review right now under spaced repetition - not raw cards. A word only leaves Due once every one of its review modes has actually been reviewed.':
+    '• **Due**: Số lượng từ/cụm từ duy nhất đang đến hạn và sẵn sàng ôn tập ngay bây giờ theo phương pháp lặp lại ngắt quãng, không phải từng thẻ riêng lẻ. Một từ chỉ rời khỏi Due khi mỗi chế độ ôn tập của nó đã thực sự được ôn tập.',
+  'Card status badges': 'Huy hiệu trạng thái thẻ',
+  'Each word in the list below shows one of three statuses:':
+    'Mỗi từ trong danh sách dưới đây hiển thị một trong ba trạng thái:',
+  '• **Due**: New, or scheduled and ready for review right now.':
+    '• **Due**: Mới, hoặc đã đến hạn và sẵn sàng ôn tập ngay bây giờ.',
+  '• **REV · Xh / Xd**: Reviewed - comes back due again in that many hours or days.':
+    '• **REV · Xh / Xd**: Đã ôn tập - sẽ đến hạn trở lại sau số giờ hoặc số ngày đó.',
+  '• **Learned**: Reviewed with strong, mature retention.':
+    '• **Learned**: Đã ôn tập với khả năng ghi nhớ vững chắc, lâu dài.',
+  'A word only moves from Due to REV once every one of its review modes has been answered in the same session - answering some formats and leaving others does not remove it from Due.':
+    'Một từ chỉ chuyển từ Due sang REV khi mỗi chế độ ôn tập của nó đã được trả lời trong cùng một phiên - trả lời một số định dạng và bỏ qua các định dạng khác sẽ không loại nó khỏi Due.',
+  "Review presents this deck's due words in every eligible format selected when the deck was created, such as word, reverse, cloze, true/false, or multiple choice.":
+    'Ôn tập trình bày các từ đến hạn của bộ thẻ này ở mọi định dạng hợp lệ đã chọn khi tạo bộ thẻ, chẳng hạn như từ vựng, đảo ngược, điền từ, đúng/sai hoặc trắc nghiệm.',
+  "All of a word's formats - and any sibling card sharing that word - are reviewed together in the same session; a word is not marked reviewed and removed from Due until every one of them has been answered.":
+    'Tất cả các định dạng của một từ, cùng với bất kỳ thẻ nào khác chia sẻ từ đó, đều được ôn tập cùng nhau trong cùng một phiên; một từ chỉ được đánh dấu là đã ôn tập và loại khỏi Due khi mỗi định dạng đó đã được trả lời.',
   // ── Deck detail screen controls ───────────────────────────────────
   'Mode': 'Chế độ',
   'Recent': 'Gần đây',
@@ -1451,5 +1487,8 @@ export const vi: Partial<Record<Phrase, string>> = {
   'Z-A': 'Z–A',
   'Ascending': 'Tăng dần',
   'Descending': 'Giảm dần',
+  'Select All': 'Chọn tất cả',
+  'Deselect All': 'Bỏ chọn tất cả',
+  'Loading deck...': 'Đang tải bộ thẻ...',
 };
 

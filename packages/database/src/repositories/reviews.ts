@@ -321,14 +321,21 @@ export async function getReviewCountsByDay(
 }
 
 /**
- * Get the retention rate over the last N days, optionally scoped to language pair.
+ * Retention rate over the last N days, plus how many actual reviews it's built from - the count
+ * matters because the rate on its own reads like "how many of my cards are retained," when it's
+ * really "of the reviews I've actually done in this window, what fraction weren't rated Again."
+ * Those can look wildly different for a deck that was just imported: hundreds of due/total cards,
+ * but a rate based on a handful of real reviews from a different deck entirely (confirmed against
+ * a real device: 439 due / 515 total cards next to a 71% rate that turned out to reflect only 28
+ * actual reviews in the last 30 days). Surfacing reviewCount alongside the rate is what lets the
+ * UI say "based on 28 reviews" instead of leaving the percentage to be misread as a backlog stat.
  */
-export async function getRetentionRate(
+export async function getRetentionSummary(
   db: DatabaseAdapter,
   days = 30,
   targetLanguage?: LanguageCode,
   nativeLanguage?: LanguageCode,
-): Promise<number> {
+): Promise<{ rate: number; reviewCount: number }> {
   const since = Date.now() - days * 24 * 60 * 60 * 1000
   const params: unknown[] = [since]
 
@@ -354,8 +361,20 @@ export async function getRetentionRate(
     remembered: number
   }>(query, params)
 
-  if (!result || result.total === 0) return 0
-  return result.remembered / result.total
+  if (!result || result.total === 0) return { rate: 0, reviewCount: 0 }
+  return { rate: result.remembered / result.total, reviewCount: result.total }
+}
+
+/**
+ * Get the retention rate over the last N days, optionally scoped to language pair.
+ */
+export async function getRetentionRate(
+  db: DatabaseAdapter,
+  days = 30,
+  targetLanguage?: LanguageCode,
+  nativeLanguage?: LanguageCode,
+): Promise<number> {
+  return (await getRetentionSummary(db, days, targetLanguage, nativeLanguage)).rate
 }
 
 /** One entry of the stats screen's "difficult words" list. */

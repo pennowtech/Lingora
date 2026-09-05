@@ -2,10 +2,8 @@ import {
   createBackup,
   createDeckBackup,
   parseBackup,
-  restoreBackup,
   type BackupPayload,
   type BackupSettings,
-  type RestoreResult,
 } from '@lingora/database'
 import type { DatabaseAdapter } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -15,7 +13,7 @@ import * as SecureStore from 'expo-secure-store'
 import { expoFileStorage } from './save-file'
 import { STORE_KEYS } from './services'
 
-const log = logger.child({ feature: 'export', screen: 'ImportExportScreen' })
+const log = logger.child({ feature: 'export', screen: 'DeckExport' })
 
 /** Everything backed up from Settings — never an API key, only preferences. */
 async function readBackupSettings(): Promise<BackupSettings> {
@@ -29,18 +27,6 @@ async function readBackupSettings(): Promise<BackupSettings> {
     ...(translationProvider ? { translationProvider } : {}),
     ...(generationProvider ? { generationProvider } : {}),
   }
-}
-
-async function applyBackupSettings(settings: BackupSettings): Promise<void> {
-  await Promise.all([
-    settings.defaultCefr ? SecureStore.setItemAsync(STORE_KEYS.defaultCefr, settings.defaultCefr) : null,
-    settings.translationProvider
-      ? SecureStore.setItemAsync(STORE_KEYS.translationProvider, settings.translationProvider)
-      : null,
-    settings.generationProvider
-      ? SecureStore.setItemAsync(STORE_KEYS.generationProvider, settings.generationProvider)
-      : null,
-  ])
 }
 
 /**
@@ -103,15 +89,4 @@ export async function pickAndParseBackupFile(): Promise<PickedBackup | null> {
   const raw = await picked.text()
   const payload = parseBackup(raw)
   return { payload, fileName: picked.name }
-}
-
-export interface RestoreOutcome {
-  result: RestoreResult
-}
-
-/** Restores a validated backup transactionally, then applies its non-secret settings. */
-export async function applyBackupRestore(db: DatabaseAdapter, payload: BackupPayload): Promise<RestoreOutcome> {
-  const result = await restoreBackup(db, payload)
-  await applyBackupSettings(payload.settings)
-  return { result }
 }

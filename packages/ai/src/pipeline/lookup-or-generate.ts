@@ -2,9 +2,11 @@ import type { Card, CefrLevel, GenerationUsage, LanguageCode, Lemma, PromptVersi
 import {
   findLemmaBySurfaceForm,
   getCardByLemmaAndNativeLanguage,
+  getLemmaById,
   getLemmaByForm,
   persistWordGeneration,
   regenerateWordPackage,
+  resolveLemmaCanonicalization,
   type DatabaseAdapter,
 } from '@lingora/database'
 import { logger } from '@lingora/observability'
@@ -63,20 +65,43 @@ async function persistOrUpgrade(
     }
   }
 
+  // If the existing lemma was created under an inflected surface form (e.g. an optimistic card for
+  // "vertraue") and the payload canonicalizes to the base form (e.g. "vertrauen"), fold it onto
+  // whichever lemma already legitimately owns that headword — see resolveLemmaCanonicalization's
+  // own doc comment for exactly when this can (and can't) happen safely. It never deletes a card
+  // to do this: the worst case is the merge is skipped and both lemmas are left as they were,
+  // never that a card — and the FSRS review history that could be sitting on it — vanishes.
+  if (effectiveExistingLemma && effectiveCardToUpgrade) {
+    const lemmaToReconcile = effectiveExistingLemma
+    const cardToReconcile = effectiveCardToUpgrade
+    const resolution = await db.transaction((tx) =>
+      resolveLemmaCanonicalization(tx, lemmaToReconcile, cardToReconcile.id, payload),
+    )
+    if (resolution.merged) {
+      const canonicalLemma = await getLemmaById(db, resolution.lemmaId)
+      if (canonicalLemma) {
+        effectiveExistingLemma = canonicalLemma
+        effectiveReuseLemmaId = canonicalLemma.id
+      }
+    }
+  }
+
   if (effectiveCardToUpgrade && effectiveExistingLemma) {
-    const { cardId, generationMetadataId } = await regenerateWordPackage(
+    const { cardId, generationMetadataId, lemmaId: upgradedLemmaId } = await regenerateWordPackage(
       db,
       effectiveExistingLemma.id,
       effectiveCardToUpgrade.id,
       payload,
       usage,
     )
-    // regenerateWordPackage may have corrected the lemma's form casing (e.g. a dictionary card's
-    // lowercase "vorteil" → the AI's grammatically correct "Vorteil") — reflect that here rather
-    // than returning the stale, pre-upgrade form from existingLemma.
+    // regenerateWordPackage may have corrected the lemma's form casing, canonicalized an inflection
+    // (e.g. "vorteil" → "Vorteil", or "vertraue" → "vertrauen"), or — if a conflicting lemma already
+    // held the canonical form — left it exactly as it was (see resolveLemmaCanonicalization's
+    // formTaken case). Re-read it rather than assuming payload.lemma.form always won.
+    const updatedLemma = await getLemmaById(db, upgradedLemmaId ?? effectiveExistingLemma.id)
     return {
       kind: 'generated',
-      lemma: { ...effectiveExistingLemma, form: payload.lemma.form },
+      lemma: updatedLemma ?? effectiveExistingLemma,
       cardId,
       generationMetadataId,
     }
